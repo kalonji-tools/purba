@@ -1,0 +1,42 @@
+[build-system]
+# 1.9.3 is the floor, NOT 1.9.0. maturin's PEP 639 support shipped in 1.9.0 and
+# was fixed twice after: 1.9.2 to emit `License-Expression` over `License`, and
+# 1.9.3 to include `project.license-files` in source distributions. A floor at
+# the announcing version ships sdists with no licence file (#34).
+requires = ["maturin>=1.9.3,<2"]
+build-backend = "maturin"
+
+[project]
+name = "purba"
+# maturin reads the version from Cargo.toml, where git-cliff computes it.
+dynamic = ["version"]
+requires-python = ">=3.11"
+description = "A Python test framework written in Rust"
+readme = "README.md"
+# PEP 639 form: an SPDX expression, not the deprecated `{ text = "MIT" }` table
+# that PEP 639 replaced. MIT rather than dual MIT/Apache-2.0 because purba's
+# only published artifact is a wheel — `publish = false` means the crate serves
+# no `cargo add` consumer, which is who the Rust dual convention is for (#34).
+license = "MIT"
+license-files = ["LICENSE"]
+
+# Classifiers are deliberately absent.
+#
+# No `License ::` entry: PEP 639 deprecated licence classifiers in favour of the
+# `license` expression above, and carrying both invites them to disagree.
+#
+# No `Operating System ::` entries either. Those are a projection of the tested
+# platform set, and there is no test matrix yet (#42). A platform claim with
+# nothing comparing it against reality is precisely the drift this project
+# refuses; the classifiers arrive when the matrix that justifies them does.
+#
+# No `Programming Language :: Python :: 3.x` entries, ever. They would be a
+# second version-shaped set that nothing compares against `requires-python`.
+
+[tool.maturin]
+module-name = "purba"
+# purba's own feature, not `pyo3/extension-module` directly. Naming the local
+# feature keeps the indirection in one place: plain cargo builds leave it off
+# so `cargo doc` and `cargo test --doc` can link libpython, and maturin turns
+# it on for the wheel.
+features = ["extension-module"]

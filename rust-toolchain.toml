@@ -1,0 +1,22 @@
+# The one place that names the Rust toolchain. devenv reads it through
+# `languages.rust.toolchainFile` (#39) and CI through a bare `rustup toolchain
+# install`, which is the no-argument form because rustup >= 1.28 no longer
+# auto-installs the toolchain a toolchain file names.
+#
+# This is the MSRV made executable rather than claimed. ruff's crates at
+# `=0.0.12` declare `rust-version = "1.96"`, and MSRV is the real upgrade clock
+# for them — 1.94 -> 1.95 -> 1.96 in ten weeks (#26). nixpkgs *stable* ships
+# rustc 1.95.0 and CANNOT build them, so the toolchain comes from rust-overlay,
+# never from nixpkgs.
+#
+# 1.98.1 is the current stable (2026-09-03). Bumping `channel` is the whole
+# upgrade, so this path belongs in every paths-filter that compiles Rust.
+#
+# `profile` is explicit because the default profile is machine state that
+# `rustup set profile` mutates. `rust-src` is here for RUST_SRC_PATH: without
+# it devenv falls back to nixpkgs' rustLibSrc and rust-analyzer would index a
+# standard library from a different release than the rustc beside it.
+[toolchain]
+channel = "1.98.1"
+profile = "minimal"
+components = ["clippy", "rustfmt", "rust-analyzer", "rust-src"]
