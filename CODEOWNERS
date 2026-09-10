@@ -1,0 +1,15 @@
+# Code owners for purba.
+#
+# A branch ruleset cannot condition on a file path -- branch rulesets match ref
+# names and repository properties only, and the "Restrict file paths" rule
+# belongs to push rulesets, where it prevents a push rather than requiring an
+# approval. So this file is the only native lever that scopes an approval to a
+# directory, and it is why #47 needed a pull request at all.
+#
+# The owner must hold write permission, and this file must be on the base
+# branch of a pull request to have any effect.
+#
+# /docs/decisions/ does not exist yet -- #37 creates it. The entry below is
+# valid and inert until then.
+
+/docs/decisions/ @snregales
