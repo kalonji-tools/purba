@@ -1,8 +1,8 @@
 [package]
 name = "purba"
-# git-cliff computes the version and it is never chosen by hand (ADR-0015,
-# carried forward on #24). `0.0.0` is the pre-release placeholder: there are no
-# tags yet, so there is nothing for git-cliff to compute from. purba stays 0.x.
+# git-cliff computes the version and it is never chosen by hand (#24). `0.0.0`
+# is the pre-release placeholder: there are no tags yet, so there is nothing for
+# git-cliff to compute from. purba stays 0.x.
 version = "0.0.0"
 edition = "2024"
 license = "MIT"
