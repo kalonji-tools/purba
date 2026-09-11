@@ -1,0 +1,212 @@
+# Human sign-off for agent-written code.
+#
+# Commits in this repository carry no `Signed-off-by:` trailer. `git commit -s`
+# writes that trailer at the moment the commit is made, and an agent makes the
+# commit, so the trailer would certify a review that has not happened yet. This
+# workflow holds the merge instead: the `signoff` environment names a human
+# reviewer, GitHub pauses the job until that person approves, and the approval
+# records who approved. The assertion is true when it is written.
+#
+# The trade, taken knowingly: an approval lives in GitHub and a trailer lives in
+# git, so this record does not survive a clone. See docs/decisions/.
+#
+# Four things will break this file if you change them without knowing why:
+#
+#   1. The `signoff` environment must already exist WITH its reviewer list.
+#      GitHub creates a missing environment silently, with no protection rules,
+#      and the gate would then pass without anyone approving anything.
+#   2. `Sign-off` is a required status check on `main`. A required check that
+#      never reports blocks the merge, which is the only reason this gate fails
+#      closed rather than open.
+#   3. `prevent_self_review` on the environment stays `false`. It blocks whoever
+#      TRIGGERED the run, not the agent. The agent is not on the reviewer list,
+#      so it can never approve regardless. Setting it `true` would only deadlock
+#      a pull request a human opens: they trigger the run, then they are refused
+#      the approval.
+#   4. The gate is unconditional. Making it fire only for agent work needs a
+#      second job and an `if:`, and the required context then becomes a SKIPPED
+#      job. Whether branch protection counts a skipped required check as passing
+#      is unmeasured here, and an unmeasured claim about a gate is worth nothing.
+#
+# Known limit, not fixed: a pull request from a FORK receives a read-only
+# GITHUB_TOKEN whatever the `permissions:` block says. Such a pull request waits
+# for approval, a human grants it, and the job then fails on the first write.
+# The reviewer has spent a click for nothing. Checking for it before the gate
+# needs a second job, and the required context would then be a SKIPPED job,
+# which is the unmeasured question in note 4 above. purba has no outside
+# contributors today. It fails closed, which is the safe direction.
+name: Sign-off
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+
+# Only the latest head matters. Without this, every push leaves its approval
+# request pending for up to 30 days, and a reviewer is shown several prompts
+# with no way to tell which one is current. Two were already stranded on this
+# branch before it was added.
+concurrency:
+  group: signoff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  # Reading who approved the run needs `actions: read`. Without it the job
+  # cannot name the approver and fails rather than recording an anonymous
+  # sign-off.
+  actions: read
+
+jobs:
+  signoff:
+    name: Sign-off
+    # A draft never prompts, so the reviewer is asked once the work is ready
+    # rather than while it is being written. `synchronize` is in the trigger
+    # list on purpose: a push after an approval prompts again, because the
+    # approval covers what was read and not what replaced it.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    environment: signoff
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      RUN_ID: ${{ github.run_id }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      AGENT: snregales-agent
+    steps:
+      - name: Record who signed off
+        run: |
+          set -euo pipefail
+
+          # Every step below runs only after a human approved, so the approvals
+          # list is never empty in practice. It is checked anyway: an
+          # unattributable sign-off is worse than a failed job, because it looks
+          # like a record and names nobody.
+          approver=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID/approvals" \
+            --jq 'map(select(.state == "approved")) | last | .user.login')
+          if [ -z "$approver" ] || [ "$approver" = "null" ]; then
+            echo "::error::the run reports no approver, so there is no sign-off to record"
+            exit 1
+          fi
+
+          # A job can be re-run by hand, which would post a second record for a
+          # head that already has one. The record is this project's audit
+          # artifact, so one head gets one record.
+          marker="<!-- purba:signoff:$HEAD_SHA -->"
+          existing=$(gh api "repos/$GH_REPO/issues/$PR/comments" --paginate --jq '.[].body')
+          case "$existing" in
+            *"$marker"*)
+              echo "$HEAD_SHA is already recorded, skipping"
+              exit 0
+              ;;
+          esac
+
+          # The table below is what the signer is answerable for. A commit is
+          # agent work when the agent authored it or it carries `Assisted-by:`.
+          # A commit a person wrote alone is neither, and must not be rendered
+          # as though something were missing from it.
+          #
+          # A subject containing a pipe would split the row and silently drop
+          # the rest of it, so it is escaped. The record is read as evidence,
+          # and evidence that renders wrongly is worse than none.
+          commits=$(gh api "repos/$GH_REPO/pulls/$PR/commits" --paginate \
+            | jq -r --arg agent "$AGENT" '
+            def assisted:
+              .commit.message | split("\n")
+              | map(select(startswith("Assisted-by: "))) | last
+              | if . == null then null else .[("Assisted-by: " | length):] end;
+            def cell: gsub("\\|"; "\\|");
+            .[]
+            | assisted as $tool
+            | ((.author.login // "") == $agent or $tool != null) as $agentwork
+            | "| `\(.sha[0:7])` | \(.commit.message | split("\n")[0] | cell) | \(.author.login // .commit.author.name) | \(if $agentwork then $tool // "yes" else "no" end) |"
+          ')
+
+          record="## Sign-off recorded
+
+          **@$approver has accepted responsibility for the changes at \`$HEAD_SHA\`.**
+
+          An agent wrote this code. A person is answerable for it. This comment is that record.
+
+          ### What was signed off
+
+          | commit | subject | author | written with AI |
+          |---|---|---|---|
+          $commits
+
+          ### What this means
+
+          - **It covers this head and nothing else.** Any further push to this pull request replaces the code that was read, and a new approval is required before it can merge.
+          - **The commits carry no \`Signed-off-by:\` line.** This approval is the record, and it is stored with the pull request rather than inside the commit messages.
+          - **The agent could not have given it.** Approval is restricted to the reviewers named on the \`signoff\` environment, and the agent that wrote the code is not one of them.
+
+          | | |
+          |---|---|
+          | signed off by | @$approver |
+          | head | \`$HEAD_SHA\` |
+          | evidence | $RUN_URL |
+          $marker"
+
+          echo "$record" >> "$GITHUB_STEP_SUMMARY"
+          gh api "repos/$GH_REPO/issues/$PR/comments" -f body="$record" --jq .html_url
+          echo "recorded sign-off by $approver for $HEAD_SHA"
+
+  decision-records:
+    name: Decision-record thread
+    # Separate from the gate, and deliberately not gated: this thread must be
+    # readable while the reviewer decides, not after they have approved.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Post the thread
+        run: |
+          set -euo pipefail
+
+          decisions=$(gh api "repos/$GH_REPO/pulls/$PR/files" --paginate --jq '.[].filename' | LC_ALL=C sort | grep '^docs/decisions/' || true)
+          if [ -z "$decisions" ]; then
+            echo "the diff does not touch docs/decisions, so no thread is owed"
+            exit 0
+          fi
+
+          # Anchoring is narrower than the documentation suggests, and all of
+          # this was measured against a live pull request rather than read:
+          # an inline comment is accepted only on a line inside a diff hunk;
+          # `subject_type` is REJECTED inside a review payload; and GraphQL's
+          # addPullRequestReviewThread with subjectType FILE returns a null
+          # thread and creates nothing. A file-level thread exists only through
+          # the standalone endpoint used below.
+          marker='<!-- purba:thread:decisions -->'
+          # `ready_for_review` fires again every time a draft is re-readied, so
+          # without this check one question would become several required
+          # resolutions.
+          existing=$(gh api "repos/$GH_REPO/pulls/$PR/comments" --paginate --jq '.[].body')
+          case "$existing" in
+            *"$marker"*)
+              echo "$marker is already present, skipping"
+              exit 0
+              ;;
+          esac
+
+          gh api "repos/$GH_REPO/pulls/$PR/comments" \
+            -f commit_id="$HEAD_SHA" -f path="$(head -1 <<<"$decisions")" -f subject_type=file \
+            -f body="**This pull request changes a decision record.**
+
+          $(sed 's|^|- \`|; s|$|\`|' <<<"$decisions")
+
+          A decision record states what this project decided and why, and it is read by people who were not in the conversation. Two things about it can never be checked by a tool:
+
+          > Two things are never gateable: whether a record states one decision, and whether it is still true.
+          > The code owner judges both, and is the only reader who can.
+
+          A third has already gone wrong once. **The Decision Outcome is written by a person, or the change does not merge.** An agent writing it satisfies the letter and voids the rule.
+
+          Resolve this thread when you have judged all three.
+          $marker"
+          echo "posted the decision-record thread"
