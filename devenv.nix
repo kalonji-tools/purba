@@ -3,23 +3,40 @@
 # The development environment. `direnv` activates it through .envrc, and
 # worktrunk's user-level post-switch hook enters it on every `wt switch`.
 #
-# ADMISSION RULE: a tool lands here in the same commit as the file that calls
-# it, and its entry names that file. oxitest's list carried twelve packages, of
-# which six had no caller in the tree by the end — `hyperfine` for a benchmark
-# workflow #11 refused outright, `mdbook` and `mdbook-mermaid` for an internals
-# book #28 replaced with MkDocs, and `cargo-insta`, `cargo-mutants` and `fzf`
-# for testing and query recipes nothing on the map has admitted. A package with
-# no caller is not inert: it is a claim that the project does that thing.
+# ADMISSION RULE: a tool lands here in the same commit as the file it ACTS ON,
+# and its entry names that file.
 #
-# What that rule defers, and to where:
-#   `just`       -> Write the justfile (#40)
-#   `prek`       -> Write the prek config (#41)
-#   `uv`         -> Write the prek config (#41), if it is needed at all
-#   `git-cliff`  -> Write the release workflow and git-cliff config (#43)
-#   `actionlint` -> Write the quality workflow (#36)
+# ACTS ON, not calls — the two admissions are different, and conflating them is
+# how a package list fills up. A tool enters this FILE when the thing it reads
+# is in the tree. A check enters a GATE separately, by #21's four questions:
+# valuable, no prek builtin, trigger lifetime, and decidable.
+#
+# `actionlint` is the worked example of the difference. `signoff.yml` exists,
+# so its subject is here — but run against it today actionlint exits 1 on one
+# SC2016 shellcheck finding about `'.[].filename'`, a jq filter that is
+# single-quoted on purpose. A tool worth having; not yet a gate anyone should
+# believe.
+#
+# oxitest's list carried twelve packages and six had no consumer in the tree by
+# the end: `hyperfine` for a benchmark workflow #11 refused outright, `mdbook`
+# and `mdbook-mermaid` for an internals book #28 replaced with MkDocs, and
+# `cargo-insta` and `fzf` for snapshots and query recipes that were never
+# written. A package with no consumer is not inert — it is a claim that the
+# project does that thing.
+#
+# What the rule defers, and to where. The first four have no subject in the
+# tree at all; the last three have one that arrived in an earlier commit, so
+# their moment passed and the ticket that owns the subject owns the tool:
+#   `just`          -> Write the justfile (#40)
+#   `prek`          -> Write the prek config (#41)
+#   `uv`            -> Write the prek config (#41), if it is needed at all
+#   `git-cliff`     -> Write the release workflow and git-cliff config (#43)
+#   `actionlint`    -> Write the quality workflow (#36), which owns `signoff.yml`
+#   `bacon`         -> whichever ticket first watches `src/`, created by #35
+#   `cargo-mutants` -> unowned; no ticket on the map admits mutation testing
 #
 # uv is deferred rather than dropped, and the reason is a version, not a
-# preference. Its only prospective caller is prek's hook environment, and
+# preference. Its only prospective consumer is prek's hook environment, and
 # nixpkgs already supplies all three tools those hooks need — measured here at
 # ruff 0.16.3, ty 0.0.73, codespell 2.4.3 — so uv is not required to write
 # them. What nixpkgs cannot do is pin ruff independently of nixpkgs: the CLI
@@ -77,6 +94,27 @@
   packages = with pkgs; [
     # The build backend pyproject.toml already names (`maturin>=1.9.3,<2`).
     maturin
+
+    # Nix tooling. Its subject is this file and devenv.yaml, both of which
+    # arrive in the same commit, which is what admits it. The set matches
+    # SNROS, the one repo here that is Nix rather than merely built with it.
+    #
+    # All three were run against this tree before being added and all three
+    # pass: `nixfmt --check`, `deadnix --fail` and `statix check` each exit 0.
+    # They are admitted on a green baseline, so the first failure any of them
+    # reports will be a real regression rather than inherited debt.
+    #
+    # None of them GATES anything yet — there is no prek hook and no CI step.
+    # That is #41's and #36's to admit under #21's four questions, and SNROS
+    # already shows the shape: `nixfmt --check`, `deadnix --fail`, and
+    # `statix check` with `pass_filenames = false`.
+    nixfmt
+    deadnix
+    statix
+
+    # The Nix language server. It acts on the same files; it gates nothing and
+    # never will, which is why no ticket owns it.
+    nil
   ];
 
   # PYO3_PYTHON is deliberately absent. It named a second interpreter, and
