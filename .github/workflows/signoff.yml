@@ -9,7 +9,7 @@
 # The trade, taken knowingly: an approval lives in GitHub and a trailer lives in
 # git, so this record does not survive a clone. See docs/decisions/.
 #
-# Four things will break this file if you change them without knowing why:
+# Three things break this file if you change them without knowing why:
 #
 #   1. The `signoff` environment must already exist WITH its reviewer list.
 #      GitHub creates a missing environment silently, with no protection rules,
@@ -22,18 +22,16 @@
 #      so it can never approve regardless. Setting it `true` would only deadlock
 #      a pull request a human opens: they trigger the run, then they are refused
 #      the approval.
-#   4. The gate is unconditional. Making it fire only for agent work needs a
-#      second job and an `if:`, and the required context then becomes a SKIPPED
-#      job. Whether branch protection counts a skipped required check as passing
-#      is unmeasured here, and an unmeasured claim about a gate is worth nothing.
+#
+# A fourth is on the `signoff` job itself, where the change would be made.
 #
 # Known limit, not fixed: a pull request from a FORK receives a read-only
 # GITHUB_TOKEN whatever the `permissions:` block says. Such a pull request waits
-# for approval, a human grants it, and the job then fails on the first write.
-# The reviewer has spent a click for nothing. Checking for it before the gate
-# needs a second job, and the required context would then be a SKIPPED job,
-# which is the unmeasured question in note 4 above. purba has no outside
-# contributors today. It fails closed, which is the safe direction.
+# for approval, a human grants it, and the job then fails on the first write, so
+# the reviewer has spent a click for nothing. Detecting it before the gate needs
+# a second job, and the required context would then be a job GitHub can skip,
+# which the `signoff` job explains is unsafe. purba has no outside contributors
+# today, and this fails closed.
 name: Sign-off
 
 on:
@@ -58,11 +56,22 @@ permissions:
 jobs:
   signoff:
     name: Sign-off
-    # A draft never prompts, so the reviewer is asked once the work is ready
-    # rather than while it is being written. `synchronize` is in the trigger
-    # list on purpose: a push after an approval prompts again, because the
-    # approval covers what was read and not what replaced it.
-    if: github.event.pull_request.draft == false
+    # This job carries NO draft guard, and that is load-bearing.
+    #
+    # A job skipped by an `if:` still writes a check run, with conclusion
+    # `skipped`, under the same context name on the same head. `Sign-off` is a
+    # REQUIRED check, and a skipped run for it was measured reporting as
+    # "skipping" on a ready pull request that nobody had approved. A guard here
+    # weakens the one gate this workflow exists to provide.
+    #
+    # The cost is that a draft prompts too. The `concurrency` group above keeps
+    # that to a single live prompt: each push cancels the request before it, so
+    # a draft pushed ten times leaves one. A cancelled run does not report
+    # success, so the gate still fails closed while the work is in progress.
+    #
+    # `synchronize` is in the trigger list on purpose. A push after an approval
+    # prompts again, because the approval covers what was read and not what
+    # replaced it.
     runs-on: ubuntu-latest
     environment: signoff
     env:
