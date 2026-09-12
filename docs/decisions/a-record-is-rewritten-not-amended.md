@@ -56,6 +56,10 @@ Records cite each other by proposition, never by number.
 A proposition survives a rename and is falsifiable at a glance.
 A number cannot be checked against the thing it names, and one prototype record was cited inverted twice.
 
+When one record excepts another, the general record names the exception and links it, and the exception links back.
+A general rule that hides its exception is a trap, because the reader who applies the rule never opens the record that would correct them.
+The link is prose inside the section it bears on, and never a status field.
+
 Issue numbers never appear in record prose.
 The record states what is true, the issue states what happened, and the prototype leaked 417 issue references the wrong way across that line.
 
