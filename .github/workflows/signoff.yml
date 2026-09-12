@@ -1,11 +1,10 @@
 # Human sign-off for agent-written code.
 #
-# Commits in this repository carry no `Signed-off-by:` trailer. `git commit -s`
-# writes that trailer at the moment the commit is made, and an agent makes the
-# commit, so the trailer would certify a review that has not happened yet. This
-# workflow holds the merge instead: the `signoff` environment names a human
-# reviewer, GitHub pauses the job until that person approves, and the approval
-# records who approved. The assertion is true when it is written.
+# An agent writes the commits here, so the commits carry no `Signed-off-by:`
+# trailer: `git commit -s` writes that trailer when the commit is made, and it
+# would certify a review nobody has done yet. This workflow holds the merge
+# instead. The `signoff` environment names a human reviewer, GitHub pauses the
+# job until that person approves, and the approval records who approved.
 #
 # The trade, taken knowingly: an approval lives in GitHub and a trailer lives in
 # git, so this record does not survive a clone. See docs/decisions/.
@@ -41,10 +40,10 @@ on:
   pull_request:
     types: [opened, ready_for_review, synchronize]
 
-# Only the latest head matters. Without this, every push leaves its approval
-# request pending for up to 30 days, and a reviewer is shown several prompts
-# with no way to tell which one is current. Two were already stranded on this
-# branch before it was added.
+# Only the newest head is worth approving. Without this, every push leaves its
+# own approval request pending for up to 30 days and the reviewer is shown
+# several, with nothing to say which is current. Two were stranded on one branch
+# before this was added.
 concurrency:
   group: signoff-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -52,9 +51,8 @@ concurrency:
 permissions:
   contents: read
   pull-requests: write
-  # Reading who approved the run needs `actions: read`. Without it the job
-  # cannot name the approver and fails rather than recording an anonymous
-  # sign-off.
+  # Naming the approver reads the run's approvals, which needs `actions: read`.
+  # Without it the job fails rather than recording a sign-off with no name.
   actions: read
 
 jobs:
@@ -91,10 +89,20 @@ jobs:
             exit 1
           fi
 
-          # A job can be re-run by hand, which would post a second record for a
-          # head that already has one. The record is this project's audit
-          # artifact, so one head gets one record.
-          marker="<!-- purba:signoff:$HEAD_SHA -->"
+          # purba merges by rebase, so the commit a reviewer approves is not the
+          # commit that lands: the merge replays it under a new SHA. The tree is
+          # the identity that survives, so the record names it.
+          #
+          # It is read from the head commit and NOT from the last element of the
+          # commits list, because `gh api --paginate` returns one array per page
+          # and the last element of a page is not the last commit.
+          tree=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA" --jq '.commit.tree.sha')
+
+          # One head gets one record. A person can re-run this job by hand, and
+          # without the check that would post a second record for the same head.
+          # The marker carries the tree as a machine field so that anything
+          # reading it never has to parse the rendered table.
+          marker="<!-- purba:signoff:$HEAD_SHA:$tree -->"
           existing=$(gh api "repos/$GH_REPO/issues/$PR/comments" --paginate --jq '.[].body')
           case "$existing" in
             *"$marker"*)
@@ -126,7 +134,7 @@ jobs:
 
           record="## Sign-off recorded
 
-          **@$approver has accepted responsibility for the changes at \`$HEAD_SHA\`.**
+          **@$approver has accepted responsibility for the changes below.**
 
           An agent wrote this code. A person is answerable for it. This comment is that record.
 
@@ -136,17 +144,20 @@ jobs:
           |---|---|---|---|
           $commits
 
-          ### What this means
+          ### What this covers
 
-          - **It covers this head and nothing else.** Any further push to this pull request replaces the code that was read, and a new approval is required before it can merge.
-          - **The commits carry no \`Signed-off-by:\` line.** This approval is the record, and it is stored with the pull request rather than inside the commit messages.
-          - **The agent could not have given it.** Approval is restricted to the reviewers named on the \`signoff\` environment, and the agent that wrote the code is not one of them.
+          - **These commits, and nothing after them.** If anyone pushes again, this record stops applying, and the change cannot merge until someone approves the new work.
+          - **This comment is the record.** Nothing equivalent is written inside the commits, so this pull request is where the answerability is kept.
+          - **Only a named reviewer can give it.** The agent that wrote the code cannot approve its own work.
 
           | | |
           |---|---|
           | signed off by | @$approver |
-          | head | \`$HEAD_SHA\` |
+          | commit | \`$HEAD_SHA\` |
+          | content fingerprint | \`$tree\` |
           | evidence | $RUN_URL |
+
+          The fingerprint identifies exactly what was approved. It does not change when the commit is replayed at merge, so it stays true of the code on \`main\`.
           $marker"
 
           echo "$record" >> "$GITHUB_STEP_SUMMARY"
