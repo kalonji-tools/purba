@@ -35,6 +35,10 @@ A commit message carries what must outlive the review that produced it, and noth
 
 Everything a review consumes and discards belongs in the pull request or the issue.
 
+Permanence decides among the statements the committer can make truthfully.
+A statement the committer cannot make belongs wherever the person who can make it acts.
+Liability is the one such statement today, and [liability is recorded at approval, not in the commit](liability-is-recorded-at-approval-not-in-the-commit.md) holds it.
+
 **Subject.**
 
 | rule | |
@@ -58,7 +62,9 @@ The reader who has forgotten the details arrives through blame, and a trailer is
 - Does not restate the diff.
 - Target near 150 words. Not enforced.
 
-**Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool. `Signed-off-by:` names the human.
+**Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool.
+
+purba writes no `Signed-off-by:` trailer, for the reason given in [liability is recorded at approval, not in the commit](liability-is-recorded-at-approval-not-in-the-commit.md).
 
 The `Assisted-by:` form names the agent and the model.
 The kernel shipped that form, ran it for seven months, and replaced it with a bare `LLM`.
@@ -81,12 +87,11 @@ It was applied zero times across 2,129 prototype commits while `Assisted-by:` re
 | subject at most 72 characters | yes | no |
 | imperative mood, no full stop | yes, by a word-list test | no |
 | `Assisted-by:` present on agent work | yes | no |
-| `Signed-off-by:` present and naming a human | yes | no |
 | the referenced issue exists | yes | **no** |
 | the body carries only what outlives review | **no** | no |
 
 Every decidable row is unchecked.
-The sign-off gate ticket owns the two trailer rows, and the remaining rows are unowned.
+No ticket owns any of them.
 
 The last row is the important one.
 It is the rule this record exists to state, and it is the one no check can ever enforce.
