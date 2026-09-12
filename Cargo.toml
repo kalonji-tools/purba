@@ -15,8 +15,14 @@ repository = "https://github.com/kalonji-tools/purba"
 publish = false
 
 # `rust-version` is deliberately absent. It is a claim about consumers, and
-# `publish = false` plus a cdylib means purba has none. An unchecked claim
-# drifts; rust-toolchain.toml states the same fact executably instead.
+# `publish = false` plus a cdylib means purba has none.
+#
+# rust-toolchain.toml does NOT state the same fact, and reading it that way is
+# a category error: that file is an exact pin of the toolchain purba builds
+# with, and `rust-version` is a floor. The floor that exists here is the
+# dependency graph's, and cargo enforces it — the ruff crates at `=0.0.12`
+# declare 1.96, the highest of the 65 crates in the graph that declare one. So
+# nothing is lost by leaving this absent, and the pin is never the floor.
 
 [lib]
 name = "purba"

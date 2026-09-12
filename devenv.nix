@@ -41,6 +41,11 @@ in
     # so rust-analyzer would index a standard library from a different release
     # than the rustc beside it. rust-toolchain.toml carries `rust-src` for
     # exactly this reason, so point it back at the pinned toolchain.
+    #
+    # This line TRUSTS rust-toolchain.toml to keep `rust-src` in `components`.
+    # Drop it there and RUST_SRC_PATH is still set, to a directory that does
+    # not exist — measured, with no error and no warning. Nothing checks that
+    # the two files agree.
     toolchain.rust-src = config.languages.rust.toolchainPackage;
   };
 
