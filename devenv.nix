@@ -14,18 +14,19 @@
 # What that rule defers, and to where:
 #   `just`       -> Write the justfile (#40)
 #   `prek`       -> Write the prek config (#41)
+#   `uv`         -> Write the prek config (#41), if it is needed at all
 #   `git-cliff`  -> Write the release workflow and git-cliff config (#43)
 #   `actionlint` -> Write the quality workflow (#36)
+#
+# uv is deferred rather than dropped, and the reason is a version, not a
+# preference. Its only prospective caller is prek's hook environment, and
+# nixpkgs already supplies all three tools those hooks need — measured here at
+# ruff 0.16.3, ty 0.0.73, codespell 2.4.3 — so uv is not required to write
+# them. What nixpkgs cannot do is pin ruff independently of nixpkgs: the CLI
+# there is 0.16.3 while the parser crate this project builds on is `=0.0.12`,
+# which is ruff 0.16.6. If #41 decides the linter must match the parser, a uv
+# dependency group is how that is expressed, and uv arrives with it.
 
-let
-  # Inherited from oxitest's substrate, not decided here. With zero Python
-  # source in the tree there is nothing for a floor to protect, so this is the
-  # interpreter PyO3 links against and nothing more. Whether the development
-  # interpreter should instead sit on the abi3 floor (`requires-python =
-  # ">=3.11"`) belongs to the first ticket that writes Python.
-  python = pkgs.python312;
-  pythonEnv = python.withPackages (ps: [ ps.pip ]);
-in
 {
   languages.rust = {
     enable = true;
@@ -49,15 +50,28 @@ in
     toolchain.rust-src = config.languages.rust.toolchainPackage;
   };
 
+  # Python is here for the Rust build, not for Python code — there is none.
+  # `extension-module` is a non-default feature (#28), so a plain `cargo build`
+  # links libpython, and without an interpreter pyo3-ffi's build script fails:
+  # `error: no Python 3.x interpreter found`. Measured, not assumed.
+  #
+  # No `withPackages`, so no pip. That is a real capability dropped, not a
+  # no-op: `python3 -m pip` reports no module, and `maturin develop` needs pip
+  # or uv to install into an environment. `maturin build` does not, and there
+  # is nothing to install yet. The installer arrives with the first ticket that
+  # has something to install.
+  #
+  # It changes nothing for the Rust build. pyo3-build-config reads `lib_dir`
+  # from the underlying CPython derivation, and all three wrappers seen while
+  # writing this file resolved to the same one.
+  #
+  # 3.12 is inherited from oxitest's substrate, not decided. Whether the
+  # development interpreter should instead sit on the abi3 floor
+  # (`requires-python = ">=3.11"`) belongs to the first ticket that writes
+  # Python.
   languages.python = {
     enable = true;
-    package = pythonEnv;
-
-    # uv is the package manager, not a synchronised environment: `sync.enable`
-    # installs the declared dependency groups, and pyproject.toml declares
-    # none yet. It arrives with the first group, which is #41's — prek's hooks
-    # find ruff, ty and codespell on PATH from this venv.
-    uv.enable = true;
+    package = pkgs.python312;
   };
 
   packages = with pkgs; [
@@ -65,17 +79,12 @@ in
     maturin
   ];
 
-  env = {
-    RUST_BACKTRACE = "1";
-
-    # Tell PyO3 which Python to link against.
-    PYO3_PYTHON = "${pythonEnv}/bin/python3";
-  };
-
-  enterShell = ''
-    # Put the uv tool bin and the devenv venv bin on PATH. Nothing in the tree
-    # reads them yet; they are here because $UV_PROJECT_ENVIRONMENT is only
-    # defined inside this shell, so the export cannot live anywhere else.
-    export PATH="$HOME/.local/bin:$UV_PROJECT_ENVIRONMENT/bin:$PATH"
-  '';
+  # PYO3_PYTHON is deliberately absent. It named a second interpreter, and
+  # measurement showed it bought nothing: with the variable set and unset,
+  # pyo3-build-config resolved the same `lib_dir`, `lib_name`, `version` and
+  # `shared`. Only `executable` differed, between two wrappers of one CPython.
+  # Setting it is how the two could ever disagree, so PATH is the only source
+  # and they cannot — which is #28's rule that a design where drift cannot
+  # happen beats a check that detects it.
+  env.RUST_BACKTRACE = "1";
 }
