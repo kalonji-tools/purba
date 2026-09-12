@@ -5,7 +5,7 @@
 # `rustup` at all — `cargo` is a store path. rustup is how CI will read it, via
 # a bare `rustup toolchain install`; the no-argument form, because rustup >=
 # 1.28 no longer auto-installs the toolchain a toolchain file names. That half
-# is not exercised yet: no workflow compiles Rust (#36, #42).
+# is wired by #36 and #42.
 #
 # This is an exact PIN, not an MSRV, and the distinction is load-bearing. A pin
 # says build with this; an MSRV says anything at or above this. purba declares
