@@ -64,11 +64,14 @@ purba designs for every actor on this list.
 An actor with no incumbent today still shapes what purba builds, in the same way a product line is designed with its customers and its factories in mind.
 
 The mode column names the mode an actor is characteristically in.
-It is not the only mode an actor enters, and the next record treats the mode as an axis of its own.
+A mode is not a second axis.
+An actor is a role stated as a noun and a mode is the same role stated as a verb, so `reviewer` and `reviewing` name one thing twice.
 
 The roster is fine-grained only to the point where each actor is distinct and can be assembled with the others.
-A feature passes through several actors in several modes, and the record that follows lays them along a line: the line is the feature's life and each brick on it is the mode a reader was in at that point.
+A change passes through several actors, and the line it walks is that change's life.
 An actor earns a place when it is a brick that line cannot be built without.
+The line's nodes are the stages of purba's pipeline, and no record enumerates them, because the pipeline is unsettled and a record keyed to it would be rewritten on every revision.
+[A location inherits its readers](a-location-inherits-its-readers.md) binds an actor to a location instead, which is the binding that holds whatever the pipeline turns out to be.
 
 Three actors sit in both branches, and one of them sits in both permanently.
 A plugin author becomes a contributor the moment it sends a hook upstream.
@@ -87,7 +90,7 @@ Each carries information to an actor further along, so a program belongs in the 
 
 Three costs, and the first is structural.
 
-- **The stem is scoped to a part of the project, and the roster names no parts.** Whether a reader is a stem depends on which part of purba it is looking at, so the question cannot be answered from this record alone. The records that follow in this series name the parts, and this cost stands until they do.
+- **The stem is scoped to a part of the project, and the roster names no parts.** Whether a reader is a stem depends on which part of purba it is looking at, so the question cannot be answered from this record alone. [A location inherits its readers](a-location-inherits-its-readers.md) names the parts, so a reader needs both records to answer it.
 - **The intersections are recorded and not resolved.** Three actors sit in both branches, and the tester sits in both permanently rather than on an event. Anything that later routes on an actor has to decide which branch wins, and this record does not decide it.
 - **Distinctness is a judgement.** An actor earns a place when it is distinct and the assembly cannot be built without it, and nothing decides distinctness except a person. Eleven actors stand here, and the rule refuses a twelfth only as well as that judgement holds.
 
@@ -95,10 +98,10 @@ Three costs, and the first is structural.
 
 **Nothing enforces the roster today.**
 
-The next record names the actor each location serves.
-A check can then decide one thing: whether the actor a location names appears on this list.
-That check is worth wiring, because it catches an artifact addressed to a reader the project never agreed to serve.
+[A location inherits its readers](a-location-inherits-its-readers.md) names the actor each location serves, and it carries the only check either record proposes.
+That check flags a tracked file that reaches no actor on this list.
+It reads the roster, so the roster becomes enforceable the day the check is wired, and it is not wired yet.
 
-⚠️ It cannot decide the thing that matters most.
+⚠️ A check cannot decide the thing that matters most.
 Every register rule that gates successfully is a token, a required phrase, a section order, or a count.
 Whether a location truly serves the actor it names is none of those, so that half stays a judgement and the record says so rather than inventing a check for it.
