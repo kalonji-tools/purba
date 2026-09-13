@@ -1,0 +1,1605 @@
+<title>Readers Prototype</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --panel:#fff; --ink:#1b1a18; --dim:#6c6862; --line:#e3dfd8;
+    --accent:#7a4f2b; --ok:#2f6b4f; --warn:#9a5b12; --bad:#a33a2a;
+    --okbg:#e9f2ec; --warnbg:#fbf0df; --badbg:#f8e8e4; --code:#f3f0ea;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#17161a; --panel:#1f1e23; --ink:#eceaf0; --dim:#a29daa; --line:#33313a;
+      --accent:#d9a679; --ok:#7fc5a1; --warn:#e0aa5f; --bad:#e88a76;
+      --okbg:#1d2a24; --warnbg:#2c2419; --badbg:#2e1e1b; --code:#26252b;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17161a; --panel:#1f1e23; --ink:#eceaf0; --dim:#a29daa; --line:#33313a;
+    --accent:#d9a679; --ok:#7fc5a1; --warn:#e0aa5f; --bad:#e88a76;
+    --okbg:#1d2a24; --warnbg:#2c2419; --badbg:#2e1e1b; --code:#26252b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  code,pre,textarea,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,"Cascadia Mono",monospace}
+  header{padding:20px 24px 13px;border-bottom:1px solid var(--line)}
+  h1{margin:0 0 4px;font-size:19px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:13.5px;max-width:84ch}
+  .throwaway{display:inline-block;margin-bottom:9px;padding:2px 9px;border-radius:20px;
+    background:var(--warnbg);color:var(--warn);font-size:11px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase}
+  main{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:18px;padding:16px 24px 40px}
+  @media(max-width:1060px){main{grid-template-columns:minmax(0,1fr)}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 15px;min-width:0}
+  h2{margin:0 0 3px;font-size:12.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim)}
+  .note{color:var(--dim);font-size:12.5px;margin:0 0 10px}
+  textarea{width:100%;min-height:215px;background:var(--code);color:var(--ink);
+    border:1px solid var(--line);border-radius:7px;padding:10px 11px;font-size:12.5px;resize:vertical}
+  input[type=text]{background:var(--code);color:var(--ink);border:1px solid var(--line);
+    border-radius:7px;padding:5px 9px;font-size:12.5px;width:190px;font-family:ui-monospace,monospace}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+  .chip{font-size:11.5px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);
+    background:var(--code);color:var(--dim);cursor:pointer;user-select:none}
+  .chip.grp{border-style:dashed;color:var(--accent)}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  button{font:inherit;font-size:12.5px;padding:5px 10px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+  .tablewrap{max-height:560px;overflow:auto;border-radius:8px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{position:sticky;top:0;background:var(--panel);text-align:left;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--dim);font-weight:600;
+    padding:7px 8px;border-bottom:1px solid var(--line);z-index:1}
+  td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  .path{font-family:ui-monospace,monospace;font-size:11.5px;word-break:break-all}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
+  .a{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:4px;margin:1px 3px 1px 0;
+    background:var(--okbg);color:var(--ok);font-weight:600}
+  .a.un{background:var(--code);color:var(--dim);text-decoration:line-through}
+  .a.mix{background:var(--warnbg);color:var(--warn)}
+  .unbound td{background:var(--badbg)}
+  .unbound .path{color:var(--bad);font-weight:600}
+  .scoreboard{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:11px;padding:9px 12px;
+    border-radius:8px;background:var(--code)}
+  .sc b{display:block;font-size:19px;line-height:1.15}
+  .sc span{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .err{background:var(--badbg);color:var(--bad);border-radius:7px;padding:8px 11px;
+    font-size:12.5px;margin-bottom:10px}
+  .tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+  .wt{background:var(--code);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:11px}
+  .wt h3{margin:0 0 4px;font-size:13.5px}
+  .wt p{margin:0 0 6px;color:var(--dim);font-size:12.5px}
+  .wt .expect{font-size:12.5px;padding:7px 10px;border-radius:6px;background:var(--panel);
+    border-left:3px solid var(--accent)}
+  details{margin-top:10px;font-size:12.5px;color:var(--dim)}
+  summary{cursor:pointer;color:var(--accent)}
+  pre.small{font-size:11px;background:var(--code);padding:9px 11px;border-radius:7px;
+    overflow:auto;max-height:240px;margin:7px 0 0}
+</style>
+
+<header>
+  <span class="throwaway">Prototype &middot; throwaway</span>
+  <h1>Assigning actors with gitattributes syntax, at real scale</h1>
+  <div class="sub">
+    Does the established gitattributes language feel right for binding a reader to a location, written to a
+    purba-owned filename so git never reads it? Now driven over <b>oxitest: 1,109 tracked files, 288 directories,
+    8 levels deep</b>. Switch to purba to see the same bindings against 19 files.
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Repository</h2>
+    <div class="row">
+      <button id="rOxi" class="on">oxitest &middot; 1,109</button>
+      <button id="rPur">purba &middot; 19</button>
+    </div>
+
+    <h2>Roster</h2>
+    <p class="note">Twelve actors, flat. <code>contributor</code> and <code>user</code> are <b>macros</b>, not actors. Click to append.</p>
+    <div class="chips" id="chips"></div>
+
+    <h2>Bindings</h2>
+    <p class="note">gitattributes syntax. <code>pattern actor</code>, <code>-actor</code> stops inheritance, <code>#</code> comments.</p>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div id="errs" style="margin-top:10px"></div>
+
+    <h2 style="margin-top:14px">Walkthroughs</h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="wt" id="wt"></div>
+  </section>
+
+  <section class="panel">
+    <div class="scoreboard">
+      <div class="sc"><b id="nBound">0</b><span>bound</span></div>
+      <div class="sc"><b id="nUnbound" style="color:var(--bad)">0</b><span>unbound</span></div>
+      <div class="sc"><b id="nTotal">0</b><span>files</span></div>
+      <div class="sc"><b id="nDirs">0</b><span>directories</span></div>
+      <div class="sc"><b id="nCover">0%</b><span>covered</span></div>
+    </div>
+    <div class="row">
+      <button id="vDir" class="on">by directory</button>
+      <button id="vUn">unbound only</button>
+      <button id="vAll">every file</button>
+      <input type="text" id="filter" placeholder="filter path&hellip;">
+    </div>
+    <div class="tablewrap"><table><thead id="thead"></thead><tbody id="out"></tbody></table></div>
+    <details>
+      <summary>oxitest's real <code>.gitattributes</code> &mdash; the file these bindings would share</summary>
+      <pre class="small" id="realga"></pre>
+    </details>
+  </section>
+</main>
+
+<script>
+const OXITEST_FILES = `
+.claude/settings.json
+.claude/skills/verify-finding/SKILL.md
+.config/wt.toml
+.env.example
+.envrc
+.gitattributes
+.github/ISSUE_TEMPLATE/bug_report.yml
+.github/ISSUE_TEMPLATE/feature_request.yml
+.github/PULL_REQUEST_TEMPLATE.md
+.github/actions/platform-test/action.yml
+.github/actions/setup-python/action.yml
+.github/dependabot.yml
+.github/workflows/benchmarks.yml
+.github/workflows/docs.yml
+.github/workflows/publish.yml
+.github/workflows/quality.yml
+.github/workflows/release-owed.yml
+.github/workflows/release.yml
+.github/workflows/test.yml
+.gitignore
+CHANGELOG.md
+CLAUDE.md
+CONTEXT.md
+CONTRIBUTING.md
+Cargo.lock
+Cargo.toml
+LICENSE
+README.md
+SECURITY.md
+bacon.toml
+benchmarks/__init__.py
+benchmarks/compare.py
+benchmarks/generate.py
+benchmarks/run.sh
+benchmarks/test_compare.py
+build.rs
+cliff.toml
+clippy.toml
+codecov.yml
+devenv.lock
+devenv.nix
+devenv.yaml
+docs/adr/0001-remove-graphify.md
+docs/adr/0002-unified-fixture-backend.md
+docs/adr/0003-inspect-two-mode-navigation.md
+docs/adr/0004-worker-lazy-imports.md
+docs/adr/0005-immutable-by-default-interfaces.md
+docs/adr/0006-async-organizational-strategy.md
+docs/adr/0007-none-by-exception.md
+docs/adr/0008-config-fail-closed-narrow-scope.md
+docs/adr/0009-fixture-system-redesign.md
+docs/adr/0010-doctest-staleness-is-static.md
+docs/adr/0011-no-unhandled-panic-routes.md
+docs/adr/0012-block-scoped-forms-belong-on-the-object.md
+docs/adr/0013-platform-support-is-what-ci-tests.md
+docs/adr/0014-target-validation.md
+docs/adr/0015-releases-are-cut-when-earned.md
+docs/adr/0016-the-effective-deadline-is-the-shortest.md
+docs/adr/0017-a-test-function-returns-none.md
+docs/adr/0018-bridge-enforcement-splits-by-what-a-check-reads.md
+docs/adr/0019-a-test-belongs-to-the-band-of-what-it-starts.md
+docs/agents/dispatch-protocol.md
+docs/agents/domain.md
+docs/agents/issue-tracker.md
+docs/agents/required-skills.txt
+docs/agents/skill-contracts.md
+docs/agents/triage-labels.md
+docs/index.html
+docs/internals/architecture-map.html
+docs/internals/book.toml
+docs/internals/mermaid-init.js
+docs/internals/mermaid.min.js
+docs/internals/nav-paths.js
+docs/internals/nav.css
+docs/internals/nav.js
+docs/internals/src/SUMMARY.md
+docs/internals/src/architecture.md
+docs/internals/src/bridge.md
+docs/internals/src/config.md
+docs/internals/src/decisions.md
+docs/internals/src/extending.md
+docs/internals/src/inspect.md
+docs/internals/src/introduction.md
+docs/internals/src/pipeline.md
+docs/internals/src/testing.md
+docs/internals/src/worker-protocol.md
+docs/user/.pages
+docs/user/assets/nav-paths.js
+docs/user/assets/nav.css
+docs/user/assets/nav.js
+docs/user/explanation/.pages
+docs/user/explanation/assertion-diagnostics.md
+docs/user/explanation/benchmarks.md
+docs/user/explanation/lazy-collection.md
+docs/user/explanation/parallelism.md
+docs/user/explanation/performance.md
+docs/user/explanation/provisional-apis.md
+docs/user/explanation/strict-mode.md
+docs/user/explanation/test-tree-imports.md
+docs/user/explanation/why-ai.md
+docs/user/explanation/why-rust-python.md
+docs/user/how-to/.pages
+docs/user/how-to/configure-testpaths.md
+docs/user/how-to/debug-tests.md
+docs/user/how-to/filter-tests.md
+docs/user/how-to/migrate-from-old-oxitest.md
+docs/user/how-to/migrate-from-pytest.md
+docs/user/how-to/run-affected-tests.md
+docs/user/how-to/run-in-parallel.md
+docs/user/how-to/troubleshooting.md
+docs/user/how-to/use-async-tests.md
+docs/user/how-to/use-builtin-fixtures.md
+docs/user/how-to/use-class-based-tests.md
+docs/user/how-to/use-coverage.md
+docs/user/how-to/use-doctests.md
+docs/user/how-to/use-fixtures.md
+docs/user/how-to/use-inspect.md
+docs/user/how-to/use-markers.md
+docs/user/how-to/use-parametrize.md
+docs/user/how-to/use-raises-warns.md
+docs/user/how-to/use-retries.md
+docs/user/how-to/use-test-cache.md
+docs/user/how-to/write-plugins.md
+docs/user/index.md
+docs/user/reference/.pages
+docs/user/reference/cli.md
+docs/user/reference/configuration.md
+docs/user/reference/errors.md
+docs/user/reference/exceptions.md
+docs/user/reference/exit-codes.md
+docs/user/reference/json-output.md
+docs/user/reference/junit-output.md
+docs/user/reference/python-api/.pages
+docs/user/reference/python-api/arrange.md
+docs/user/reference/python-api/async-backend.md
+docs/user/reference/python-api/builtins.md
+docs/user/reference/python-api/coverage-provider.md
+docs/user/reference/python-api/fixture-declaration.md
+docs/user/reference/python-api/fixture-types.md
+docs/user/reference/python-api/marks.md
+docs/user/reference/python-api/plugin-config.md
+docs/user/reference/python-api/utilities.md
+docs/user/reference/stability.md
+docs/user/tutorials/.pages
+docs/user/tutorials/getting-started.md
+flake.lock
+flake.nix
+justfile
+mkdocs.yml
+nix/package.nix
+prek.toml
+pyproject.toml
+python/oxitest/__init__.py
+python/oxitest/__main__.py
+python/oxitest/_bridge/__init__.py
+python/oxitest/_bridge/_approx.py
+python/oxitest/_bridge/_arrange_api.py
+python/oxitest/_bridge/_assert_error.py
+python/oxitest/_bridge/_async_backend.py
+python/oxitest/_bridge/_async_fixture_handle.py
+python/oxitest/_bridge/_async_orchestrator.py
+python/oxitest/_bridge/_async_session_guard.py
+python/oxitest/_bridge/_boundary.py
+python/oxitest/_bridge/_builtin_context.py
+python/oxitest/_bridge/_builtins/__init__.py
+python/oxitest/_bridge/_builtins/_base.py
+python/oxitest/_bridge/_builtins/_capture.py
+python/oxitest/_bridge/_builtins/_logcapture.py
+python/oxitest/_bridge/_builtins/_patch.py
+python/oxitest/_bridge/_builtins/_tempdir.py
+python/oxitest/_bridge/_builtins/_warncapture.py
+python/oxitest/_bridge/_coverage.py
+python/oxitest/_bridge/_cwd_guard.py
+python/oxitest/_bridge/_debugger.py
+python/oxitest/_bridge/_diagnostic_collector.py
+python/oxitest/_bridge/_diagnostics.py
+python/oxitest/_bridge/_doctest_runner.py
+python/oxitest/_bridge/_errors.py
+python/oxitest/_bridge/_fixture_context.py
+python/oxitest/_bridge/_fixture_decorator.py
+python/oxitest/_bridge/_fixture_instantiator.py
+python/oxitest/_bridge/_fixture_registry.py
+python/oxitest/_bridge/_fixture_session.py
+python/oxitest/_bridge/_fixture_type.py
+python/oxitest/_bridge/_fixture_validator.py
+python/oxitest/_bridge/_fixtures.py
+python/oxitest/_bridge/_fn_metadata.py
+python/oxitest/_bridge/_importorskip.py
+python/oxitest/_bridge/_lifetime.py
+python/oxitest/_bridge/_loader.py
+python/oxitest/_bridge/_mark_api.py
+python/oxitest/_bridge/_mark_registry.py
+python/oxitest/_bridge/_metadata.py
+python/oxitest/_bridge/_middleware.py
+python/oxitest/_bridge/_module_identity.py
+python/oxitest/_bridge/_module_source_registrar.py
+python/oxitest/_bridge/_namespace_validation.py
+python/oxitest/_bridge/_paths.py
+python/oxitest/_bridge/_plugin_config.py
+python/oxitest/_bridge/_plugin_entry.py
+python/oxitest/_bridge/_raises.py
+python/oxitest/_bridge/_read_fixtures.py
+python/oxitest/_bridge/_runners.py
+python/oxitest/_bridge/_session_factory.py
+python/oxitest/_bridge/_streams.py
+python/oxitest/_bridge/_syspath.py
+python/oxitest/_bridge/_test_identity.py
+python/oxitest/_bridge/_test_kind.py
+python/oxitest/_bridge/_test_meta.py
+python/oxitest/_bridge/_timeout.py
+python/oxitest/_bridge/_violation_checkers.py
+python/oxitest/_bridge/_visibility.py
+python/oxitest/_bridge/_warns.py
+python/oxitest/_bridge/executor.py
+python/oxitest/_bridge/fixture_lister.py
+python/oxitest/_bridge/importer.py
+python/oxitest/_bridge/parametrize.py
+python/oxitest/_bridge/plugin_loader.py
+python/oxitest/_bridge/proxy.py
+python/oxitest/_bridge/proxy_ns.py
+python/oxitest/_bridge/query_bridge.py
+python/oxitest/_bridge/result.py
+python/oxitest/_bridge/worker.py
+python/oxitest/_exit_code.py
+python/oxitest/_oxitest.pyi
+python/oxitest/plugin.py
+python/oxitest/py.typed
+python/tests/__fixtures__.py
+python/tests/data/alias_decorated_non_fixture/alias_decorated_non_fixture/__fixtures__.py
+python/tests/data/alias_decorated_non_fixture/alias_decorated_non_fixture/test_plain.py
+python/tests/data/alias_decorated_non_fixture/pyproject.toml
+python/tests/data/alias_fixtures_home/alias_fixtures_home/__fixtures__.py
+python/tests/data/alias_fixtures_home/alias_fixtures_home/test_uses.py
+python/tests/data/alias_fixtures_home/pyproject.toml
+python/tests/data/alias_init_home/alias_init_home/__init__.py
+python/tests/data/alias_init_home/alias_init_home/test_uses.py
+python/tests/data/alias_init_home/pyproject.toml
+python/tests/data/alias_inline_over_cap/alias_inline_over_cap/test_two_bad.py
+python/tests/data/alias_inline_over_cap/pyproject.toml
+python/tests/data/alias_package_colocates/alias_package_colocates/pkg/__fixtures__.py
+python/tests/data/alias_package_colocates/alias_package_colocates/pkg/test_one.py
+python/tests/data/alias_package_colocates/alias_package_colocates/pkg/test_two.py
+python/tests/data/alias_package_colocates/pyproject.toml
+python/tests/data/alias_process_outside_root/alias_process_outside_root/pkg/__fixtures__.py
+python/tests/data/alias_process_outside_root/alias_process_outside_root/pkg/test_x.py
+python/tests/data/alias_process_outside_root/alias_process_outside_root/test_root.py
+python/tests/data/alias_process_outside_root/pyproject.toml
+python/tests/data/alias_two_homes_one_anchor/alias_two_homes_one_anchor/pkg/__fixtures__.py
+python/tests/data/alias_two_homes_one_anchor/alias_two_homes_one_anchor/pkg/__init__.py
+python/tests/data/alias_two_homes_one_anchor/alias_two_homes_one_anchor/pkg/test_x.py
+python/tests/data/alias_two_homes_one_anchor/alias_two_homes_one_anchor/test_root.py
+python/tests/data/alias_two_homes_one_anchor/pyproject.toml
+python/tests/data/arranged_task_identity/arranged_task_identity/__fixtures__.py
+python/tests/data/arranged_task_identity/arranged_task_identity/__init__.py
+python/tests/data/arranged_task_identity/arranged_task_identity/test_failure.py
+python/tests/data/arranged_task_identity/arranged_task_identity/test_order.py
+python/tests/data/arranged_task_identity/arranged_task_identity/test_plain_coroutine.py
+python/tests/data/arranged_task_identity/pyproject.toml
+python/tests/data/async_guard_matrix/illegal/agi/__fixtures__.py
+python/tests/data/async_guard_matrix/illegal/agi/__init__.py
+python/tests/data/async_guard_matrix/illegal/agi/_kinds.py
+python/tests/data/async_guard_matrix/illegal/agi/_registrar.py
+python/tests/data/async_guard_matrix/illegal/agi/test_illegal.py
+python/tests/data/async_guard_matrix/illegal/pyproject.toml
+python/tests/data/async_guard_matrix/legal/agm/__fixtures__.py
+python/tests/data/async_guard_matrix/legal/agm/__init__.py
+python/tests/data/async_guard_matrix/legal/agm/_kinds.py
+python/tests/data/async_guard_matrix/legal/agm/_refs.py
+python/tests/data/async_guard_matrix/legal/agm/test_matrix.py
+python/tests/data/async_guard_matrix/legal/pyproject.toml
+python/tests/data/async_lifetimes/async_lifetimes/__fixtures__.py
+python/tests/data/async_lifetimes/async_lifetimes/__init__.py
+python/tests/data/async_lifetimes/async_lifetimes/test_alpha.py
+python/tests/data/async_lifetimes/async_lifetimes/test_beta.py
+python/tests/data/async_lifetimes/pyproject.toml
+python/tests/data/async_return_gen/pkg/__init__.py
+python/tests/data/async_return_gen/pkg/test_ret.py
+python/tests/data/async_return_gen/pyproject.toml
+python/tests/data/async_sync_reject/async_sync_reject/__fixtures__.py
+python/tests/data/async_sync_reject/async_sync_reject/__init__.py
+python/tests/data/async_sync_reject/async_sync_reject/test_sync_reach.py
+python/tests/data/async_sync_reject/pyproject.toml
+python/tests/data/b1_static_reach/b1_static_reach/__init__.py
+python/tests/data/b1_static_reach/b1_static_reach/admin/__init__.py
+python/tests/data/b1_static_reach/b1_static_reach/admin/test_unreachable.py
+python/tests/data/b1_static_reach/b1_static_reach/api/__fixtures__.py
+python/tests/data/b1_static_reach/b1_static_reach/api/__init__.py
+python/tests/data/b1_static_reach/b1_static_reach/api/test_api.py
+python/tests/data/b1_static_reach/pyproject.toml
+python/tests/data/b1_type_index_guard/b1_type_index_guard/__init__.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/_kinds.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/audit/__init__.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/audit/test_audit.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/vault/__fixtures__.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/vault/__init__.py
+python/tests/data/b1_type_index_guard/b1_type_index_guard/vault/test_vault.py
+python/tests/data/b1_type_index_guard/pyproject.toml
+python/tests/data/cwd_poison/test_poison.py
+python/tests/data/cwd_poison_quiet/test_quiet.py
+python/tests/data/cwd_poison_wide/__fixtures__.py
+python/tests/data/cwd_poison_wide/test_wide.py
+python/tests/data/fixture_freeze_boundary/fixture_freeze_boundary/__fixtures__.py
+python/tests/data/fixture_freeze_boundary/fixture_freeze_boundary/test_freeze_boundary.py
+python/tests/data/fixture_freeze_boundary/pyproject.toml
+python/tests/data/fixture_freeze_hint/fixture_freeze_hint/__fixtures__.py
+python/tests/data/fixture_freeze_hint/fixture_freeze_hint/test_emits_hint.py
+python/tests/data/fixture_freeze_hint/pyproject.toml
+python/tests/data/gen_test_async/pkg/__init__.py
+python/tests/data/gen_test_async/pkg/test_gen.py
+python/tests/data/gen_test_async/pyproject.toml
+python/tests/data/gen_test_class/pkg/__init__.py
+python/tests/data/gen_test_class/pkg/test_gen.py
+python/tests/data/gen_test_class/pyproject.toml
+python/tests/data/gen_test_skipped/pkg/__init__.py
+python/tests/data/gen_test_skipped/pkg/test_gen.py
+python/tests/data/gen_test_skipped/pyproject.toml
+python/tests/data/gen_test_sync/pkg/__init__.py
+python/tests/data/gen_test_sync/pkg/test_gen.py
+python/tests/data/gen_test_sync/pyproject.toml
+python/tests/data/gen_test_wrapped/pkg/__init__.py
+python/tests/data/gen_test_wrapped/pkg/test_gen.py
+python/tests/data/gen_test_wrapped/pyproject.toml
+python/tests/data/method_fixture/pkg/__init__.py
+python/tests/data/method_fixture/pkg/test_cls.py
+python/tests/data/method_fixture/pyproject.toml
+python/tests/data/module_identity/ns_layout/ns1680/helper.py
+python/tests/data/module_identity/ns_layout/ns1680/probe.py
+python/tests/data/module_identity/ns_layout/ns1680/test_identity.py
+python/tests/data/module_identity/ns_layout/ns1680/test_relative.py
+python/tests/data/module_identity/ns_layout/pyproject.toml
+python/tests/data/module_identity/pkg_layout/pkg1680/__init__.py
+python/tests/data/module_identity/pkg_layout/pkg1680/helper.py
+python/tests/data/module_identity/pkg_layout/pkg1680/probe.py
+python/tests/data/module_identity/pkg_layout/pkg1680/test_identity.py
+python/tests/data/module_identity/pkg_layout/pkg1680/test_relative.py
+python/tests/data/module_identity/pkg_layout/pyproject.toml
+python/tests/data/overlap_return_strict/pkg/__init__.py
+python/tests/data/overlap_return_strict/pkg/test_overlap.py
+python/tests/data/overlap_return_strict/pyproject.toml
+python/tests/data/overlap_yield/pkg/__init__.py
+python/tests/data/overlap_yield/pkg/test_overlap.py
+python/tests/data/overlap_yield/pyproject.toml
+python/tests/data/package_boundary_nested/package_boundary_nested/api/__fixtures__.py
+python/tests/data/package_boundary_nested/package_boundary_nested/api/test_outer.py
+python/tests/data/package_boundary_nested/package_boundary_nested/api/v1/__fixtures__.py
+python/tests/data/package_boundary_nested/package_boundary_nested/api/v1/test_inner.py
+python/tests/data/package_boundary_nested/package_boundary_nested/zzz/__fixtures__.py
+python/tests/data/package_boundary_nested/package_boundary_nested/zzz/test_z.py
+python/tests/data/package_boundary_nested/pyproject.toml
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/api/__fixtures__.py
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/api/test_outer.py
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/api/v1/__fixtures__.py
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/api/v1/test_inner.py
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/zzz/__fixtures__.py
+python/tests/data/package_boundary_nested_async/package_boundary_nested_async/zzz/test_z.py
+python/tests/data/package_boundary_nested_async/pyproject.toml
+python/tests/data/package_boundary_order/package_boundary_order/pkg_a/__fixtures__.py
+python/tests/data/package_boundary_order/package_boundary_order/pkg_a/test_a.py
+python/tests/data/package_boundary_order/package_boundary_order/pkg_b/__fixtures__.py
+python/tests/data/package_boundary_order/package_boundary_order/pkg_b/test_b.py
+python/tests/data/package_boundary_order/pyproject.toml
+python/tests/data/package_boundary_order_async/package_boundary_order_async/pkg_a/__fixtures__.py
+python/tests/data/package_boundary_order_async/package_boundary_order_async/pkg_a/test_a.py
+python/tests/data/package_boundary_order_async/package_boundary_order_async/pkg_b/__fixtures__.py
+python/tests/data/package_boundary_order_async/package_boundary_order_async/pkg_b/test_b.py
+python/tests/data/package_boundary_order_async/pyproject.toml
+python/tests/data/package_subtree_arranged/package_subtree_arranged/__fixtures__.py
+python/tests/data/package_subtree_arranged/package_subtree_arranged/test_arranged.py
+python/tests/data/package_subtree_arranged/package_subtree_arranged/test_plain.py
+python/tests/data/package_subtree_arranged/pyproject.toml
+python/tests/data/package_subtree_async/package_subtree_async/__fixtures__.py
+python/tests/data/package_subtree_async/package_subtree_async/test_marked.py
+python/tests/data/package_subtree_async/pyproject.toml
+python/tests/data/package_subtree_nested/package_subtree_nested/__fixtures__.py
+python/tests/data/package_subtree_nested/package_subtree_nested/inner/__fixtures__.py
+python/tests/data/package_subtree_nested/package_subtree_nested/inner/test_deep.py
+python/tests/data/package_subtree_nested/package_subtree_nested/test_top.py
+python/tests/data/package_subtree_nested/pyproject.toml
+python/tests/data/process_tier_async/process_tier_async/__fixtures__.py
+python/tests/data/process_tier_async/process_tier_async/test_alpha.py
+python/tests/data/process_tier_async/process_tier_async/test_beta.py
+python/tests/data/process_tier_async/process_tier_async/test_delta.py
+python/tests/data/process_tier_async/process_tier_async/test_gamma.py
+python/tests/data/process_tier_async/pyproject.toml
+python/tests/data/process_tier_coordinator/process_tier_coordinator/__fixtures__.py
+python/tests/data/process_tier_coordinator/process_tier_coordinator/test_alpha.py
+python/tests/data/process_tier_coordinator/process_tier_coordinator/test_beta.py
+python/tests/data/process_tier_coordinator/process_tier_coordinator/test_marked.py
+python/tests/data/process_tier_coordinator/pyproject.toml
+python/tests/data/process_tier_negatives/process_tier_negatives/__fixtures__.py
+python/tests/data/process_tier_negatives/process_tier_negatives/test_alpha.py
+python/tests/data/process_tier_negatives/process_tier_negatives/test_beta.py
+python/tests/data/process_tier_negatives/process_tier_negatives/test_delta.py
+python/tests/data/process_tier_negatives/process_tier_negatives/test_gamma.py
+python/tests/data/process_tier_negatives/pyproject.toml
+python/tests/data/provided_type/pt/__fixtures__.py
+python/tests/data/provided_type/pt/__init__.py
+python/tests/data/provided_type/pt/test_route.py
+python/tests/data/provided_type/pyproject.toml
+python/tests/data/provided_type_mismatch/ptm/__fixtures__.py
+python/tests/data/provided_type_mismatch/ptm/__init__.py
+python/tests/data/provided_type_mismatch/ptm/test_route.py
+python/tests/data/provided_type_mismatch/pyproject.toml
+python/tests/data/proxy_str/proxy_str/__fixtures__.py
+python/tests/data/proxy_str/proxy_str/__init__.py
+python/tests/data/proxy_str/proxy_str/test_render.py
+python/tests/data/proxy_str/pyproject.toml
+python/tests/data/return_value_lax/pkg/__init__.py
+python/tests/data/return_value_lax/pkg/test_ret.py
+python/tests/data/return_value_lax/pyproject.toml
+python/tests/data/return_value_strict/pkg/__init__.py
+python/tests/data/return_value_strict/pkg/test_ret.py
+python/tests/data/return_value_strict/pyproject.toml
+python/tests/data/rootdir_disjoint_declared/__fixtures__.py
+python/tests/data/rootdir_disjoint_declared/docs/test_b.py
+python/tests/data/rootdir_disjoint_declared/pyproject.toml
+python/tests/data/rootdir_disjoint_declared/tests/test_a.py
+python/tests/data/rootdir_dot_declared/__fixtures__.py
+python/tests/data/rootdir_dot_declared/pyproject.toml
+python/tests/data/rootdir_dot_declared/test_x.py
+python/tests/data/rootdir_import/pyproject.toml
+python/tests/data/rootdir_import/rootdir_import/__fixtures__.py
+python/tests/data/rootdir_import/rootdir_import/__init__.py
+python/tests/data/rootdir_import/rootdir_import/helpers.py
+python/tests/data/rootdir_import/rootdir_import/test_alpha.py
+python/tests/data/rootdir_import/rootdir_import/test_beta.py
+python/tests/data/rootdir_import_nested/pyproject.toml
+python/tests/data/rootdir_import_nested/rootdir_import_nested/__init__.py
+python/tests/data/rootdir_import_nested/rootdir_import_nested/api/__init__.py
+python/tests/data/rootdir_import_nested/rootdir_import_nested/api/test_deep.py
+python/tests/data/rootdir_import_nested/rootdir_import_nested/helpers.py
+python/tests/data/rootdir_testless_declared_sibling/pyproject.toml
+python/tests/data/rootdir_testless_declared_sibling/srconly/module.py
+python/tests/data/rootdir_testless_declared_sibling/suite/__fixtures__.py
+python/tests/data/rootdir_testless_declared_sibling/suite/test_root.py
+python/tests/data/rootdir_undeclared/pyproject.toml
+python/tests/data/rootdir_undeclared/tests/__fixtures__.py
+python/tests/data/rootdir_undeclared/tests/nested/test_nested.py
+python/tests/data/rootdir_undeclared/tests/test_root.py
+python/tests/data/rootdir_undeclared_below_root/pyproject.toml
+python/tests/data/rootdir_undeclared_below_root/tests/nested/__fixtures__.py
+python/tests/data/rootdir_undeclared_below_root/tests/nested/test_nested.py
+python/tests/data/rootdir_undeclared_below_root/tests/test_root.py
+python/tests/data/slice1_same_package/pyproject.toml
+python/tests/data/slice1_same_package/slice1_same_package/__fixtures__.py
+python/tests/data/slice1_same_package/slice1_same_package/__init__.py
+python/tests/data/slice1_same_package/slice1_same_package/test_conn.py
+python/tests/data/slice1_warm_cache/pyproject.toml
+python/tests/data/slice1_warm_cache/slice1_warm_cache/__fixtures__.py
+python/tests/data/slice1_warm_cache/slice1_warm_cache/__init__.py
+python/tests/data/slice1_warm_cache/slice1_warm_cache/test_widget.py
+python/tests/data/slice2_module_lifetime/pyproject.toml
+python/tests/data/slice2_module_lifetime/slice2_module_lifetime/__fixtures__.py
+python/tests/data/slice2_module_lifetime/slice2_module_lifetime/__init__.py
+python/tests/data/slice2_module_lifetime/slice2_module_lifetime/test_alpha.py
+python/tests/data/slice2_module_lifetime/slice2_module_lifetime/test_beta.py
+python/tests/data/slice3_inprocess_inside_package/pyproject.toml
+python/tests/data/slice3_inprocess_inside_package/slice3_inprocess_inside_package/__init__.py
+python/tests/data/slice3_inprocess_inside_package/slice3_inprocess_inside_package/test_marked.py
+python/tests/data/slice3_package_lifetime/pyproject.toml
+python/tests/data/slice3_package_lifetime/slice3_package_lifetime/__init__.py
+python/tests/data/slice3_package_lifetime/slice3_package_lifetime/sub/test_gamma.py
+python/tests/data/slice3_package_lifetime/slice3_package_lifetime/test_alpha.py
+python/tests/data/slice3_package_lifetime/slice3_package_lifetime/test_beta.py
+python/tests/data/slice3_package_lifetime/uv.lock
+python/tests/data/slice4_session_below_root/pyproject.toml
+python/tests/data/slice4_session_below_root/slice4_session_below_root/nested/__fixtures__.py
+python/tests/data/slice4_session_below_root/slice4_session_below_root/nested/test_nested.py
+python/tests/data/slice4_session_below_root/slice4_session_below_root/test_root.py
+python/tests/data/slice4_session_lifetime/pyproject.toml
+python/tests/data/slice4_session_lifetime/slice4_session_lifetime/__fixtures__.py
+python/tests/data/slice4_session_lifetime/slice4_session_lifetime/test_alpha.py
+python/tests/data/slice4_session_lifetime/slice4_session_lifetime/test_beta.py
+python/tests/data/slice4_session_lifetime/slice4_session_lifetime/test_delta.py
+python/tests/data/slice4_session_lifetime/slice4_session_lifetime/test_gamma.py
+python/tests/data/slice5_inline_cross/pyproject.toml
+python/tests/data/slice5_inline_cross/slice5_inline_cross/test_inline.py
+python/tests/data/slice5_inline_cross/slice5_inline_cross/test_sibling.py
+python/tests/data/slice5_inline_cross_file_injection/pyproject.toml
+python/tests/data/slice5_inline_cross_file_injection/slice5_inline_cross_file_injection/test_owner.py
+python/tests/data/slice5_inline_cross_file_injection/slice5_inline_cross_file_injection/test_thief.py
+python/tests/data/slice5_inline_fixtures/pyproject.toml
+python/tests/data/slice5_inline_fixtures/slice5_inline_fixtures/__fixtures__.py
+python/tests/data/slice5_inline_fixtures/slice5_inline_fixtures/test_inline.py
+python/tests/data/slice5_inline_fixtures/slice5_inline_fixtures/test_sibling.py
+python/tests/data/slice5_inline_package/pyproject.toml
+python/tests/data/slice5_inline_package/slice5_inline_package/nested/test_bad.py
+python/tests/data/slice5_inline_package/slice5_inline_package/test_root.py
+python/tests/data/slice5_inline_session_at_root/pyproject.toml
+python/tests/data/slice5_inline_session_at_root/slice5_inline_session_at_root/test_bad.py
+python/tests/data/slice5_mark_beside_fixture/pyproject.toml
+python/tests/data/slice5_mark_beside_fixture/slice5_mark_beside_fixture/test_mark_and_fixture.py
+python/tests/data/slice6_boundary/pyproject.toml
+python/tests/data/slice6_boundary/slice6_boundary/__fixtures__.py
+python/tests/data/slice6_boundary/slice6_boundary/__init__.py
+python/tests/data/slice6_boundary/slice6_boundary/admin/__init__.py
+python/tests/data/slice6_boundary/slice6_boundary/admin/v1/__fixtures__.py
+python/tests/data/slice6_boundary/slice6_boundary/admin/v1/__init__.py
+python/tests/data/slice6_boundary/slice6_boundary/admin/v1/test_admin_v1.py
+python/tests/data/slice6_boundary/slice6_boundary/api/__fixtures__.py
+python/tests/data/slice6_boundary/slice6_boundary/api/__init__.py
+python/tests/data/slice6_boundary/slice6_boundary/api/test_api.py
+python/tests/data/slice6_boundary/slice6_boundary/api/v1/__fixtures__.py
+python/tests/data/slice6_boundary/slice6_boundary/api/v1/__init__.py
+python/tests/data/slice6_boundary/slice6_boundary/api/v1/test_v1.py
+python/tests/data/slice6_cross_boundary/pyproject.toml
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/__init__.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/admin/__init__.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/admin/test_admin.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/api/__fixtures__.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/api/__init__.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/api/test_api.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/apiv2/__init__.py
+python/tests/data/slice6_cross_boundary/slice6_cross_boundary/apiv2/test_apiv2.py
+python/tests/data/slice6_dependency_anchor/pyproject.toml
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/__init__.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/__fixtures__.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/__init__.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/test_api.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/v1/__fixtures__.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/v1/__init__.py
+python/tests/data/slice6_dependency_anchor/slice6_dependency_anchor/api/v1/test_v1.py
+python/tests/data/slice6_injection_boundary/pyproject.toml
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/__init__.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/_kinds.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/admin/__fixtures__.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/admin/__init__.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/admin/test_admin.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/api/__fixtures__.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/api/__init__.py
+python/tests/data/slice6_injection_boundary/slice6_injection_boundary/api/test_api.py
+python/tests/data/slice6_unknown_namespace/pyproject.toml
+python/tests/data/slice6_unknown_namespace/slice6_unknown_namespace/__init__.py
+python/tests/data/slice6_unknown_namespace/slice6_unknown_namespace/test_unknown.py
+python/tests/data/slice7_shortcut/pyproject.toml
+python/tests/data/slice7_shortcut/slice7_shortcut/__init__.py
+python/tests/data/slice7_shortcut/slice7_shortcut/_kinds.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/__fixtures__.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/__init__.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/test_api.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/v1/__fixtures__.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/v1/__init__.py
+python/tests/data/slice7_shortcut/slice7_shortcut/api/v1/test_v1.py
+python/tests/data/slice7_shortcut_async_sync/pyproject.toml
+python/tests/data/slice7_shortcut_async_sync/slice7_shortcut_async_sync/__init__.py
+python/tests/data/slice7_shortcut_async_sync/slice7_shortcut_async_sync/_kinds.py
+python/tests/data/slice7_shortcut_async_sync/slice7_shortcut_async_sync/pkg/__fixtures__.py
+python/tests/data/slice7_shortcut_async_sync/slice7_shortcut_async_sync/pkg/__init__.py
+python/tests/data/slice7_shortcut_async_sync/slice7_shortcut_async_sync/pkg/test_sync.py
+python/tests/data/slice7_shortcut_cross/pyproject.toml
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/__init__.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/_kinds.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/admin/__init__.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/admin/test_admin.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/api/__fixtures__.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/api/__init__.py
+python/tests/data/slice7_shortcut_cross/slice7_shortcut_cross/api/test_api.py
+python/tests/data/slice7_shortcut_foreign_inline/pyproject.toml
+python/tests/data/slice7_shortcut_foreign_inline/slice7_shortcut_foreign_inline/__init__.py
+python/tests/data/slice7_shortcut_foreign_inline/slice7_shortcut_foreign_inline/pkg/__init__.py
+python/tests/data/slice7_shortcut_foreign_inline/slice7_shortcut_foreign_inline/pkg/test_declares.py
+python/tests/data/slice7_shortcut_foreign_inline/slice7_shortcut_foreign_inline/pkg/test_reaches.py
+python/tests/data/slice9_autouse_optout/pyproject.toml
+python/tests/data/slice9_autouse_optout/slice9_autouse_optout/__fixtures__.py
+python/tests/data/slice9_autouse_optout/slice9_autouse_optout/nested/__fixtures__.py
+python/tests/data/slice9_autouse_optout/slice9_autouse_optout/nested/test_inner.py
+python/tests/data/slice9_autouse_optout/slice9_autouse_optout/test_outer.py
+python/tests/data/slice9_autouse_process/pyproject.toml
+python/tests/data/slice9_autouse_process/slice9_autouse_process/__fixtures__.py
+python/tests/data/slice9_autouse_process/slice9_autouse_process/test_alpha.py
+python/tests/data/slice9_autouse_process/slice9_autouse_process/test_beta.py
+python/tests/data/slice9_autouse_process/slice9_autouse_process/test_delta.py
+python/tests/data/slice9_autouse_process/slice9_autouse_process/test_gamma.py
+python/tests/data/slice9_autouse_tiers/pyproject.toml
+python/tests/data/slice9_autouse_tiers/slice9_autouse_tiers/__fixtures__.py
+python/tests/data/slice9_autouse_tiers/slice9_autouse_tiers/test_alpha.py
+python/tests/data/slice9_autouse_tiers/slice9_autouse_tiers/test_beta.py
+python/tests/data/slice9_autouse_tiers/slice9_autouse_tiers/test_gamma.py
+python/tests/data/target_relative_base/mypkg/__init__.py
+python/tests/data/target_relative_base/pyproject.toml
+python/tests/data/target_relative_base/sub/nested/test_nested.py
+python/tests/data/target_relative_base/sub/test_below_root.py
+python/tests/data/target_relative_base/sub/test_self_contained.py
+python/tests/data/teardown_callback_raises/tcr/__fixtures__.py
+python/tests/data/teardown_callback_raises/tcr/test_callback.py
+python/tests/data/teardown_registration_wide/pyproject.toml
+python/tests/data/teardown_registration_wide/trw/__fixtures__.py
+python/tests/data/teardown_registration_wide/trw/test_a.py
+python/tests/data/teardown_undo_strand/tus/test_strand.py
+python/tests/data/test_identity_async/tia/__fixtures__.py
+python/tests/data/test_identity_async/tia/__init__.py
+python/tests/data/test_identity_async/tia/test_async.py
+python/tests/data/test_identity_refused/tif/__fixtures__.py
+python/tests/data/test_identity_refused/tif/__init__.py
+python/tests/data/test_identity_refused/tif/test_consumer.py
+python/tests/data/test_identity_routes/pyproject.toml
+python/tests/data/test_identity_routes/tir/__fixtures__.py
+python/tests/data/test_identity_routes/tir/__init__.py
+python/tests/data/test_identity_routes/tir/test_routes.py
+python/tests/data/testcontext_current/pyproject.toml
+python/tests/data/testcontext_current/testcontext_current/__fixtures__.py
+python/tests/data/testcontext_current/testcontext_current/_util.py
+python/tests/data/testcontext_current/testcontext_current/test_alpha.py
+python/tests/data/testcontext_in_fixture/reads_identity/pyproject.toml
+python/tests/data/testcontext_in_fixture/reads_identity/tcx/__fixtures__.py
+python/tests/data/testcontext_in_fixture/reads_identity/tcx/__init__.py
+python/tests/data/testcontext_in_fixture/reads_identity/tcx/test_reads.py
+python/tests/data/testcontext_in_fixture/supported/pyproject.toml
+python/tests/data/testcontext_in_fixture/supported/tcs/__fixtures__.py
+python/tests/data/testcontext_in_fixture/supported/tcs/__init__.py
+python/tests/data/testcontext_in_fixture/supported/tcs/test_supported.py
+python/tests/data/testcontext_leak/pyproject.toml
+python/tests/data/testcontext_leak/tcl/__fixtures__.py
+python/tests/data/testcontext_leak/tcl/test_a.py
+python/tests/data/union_annotation/pyproject.toml
+python/tests/data/union_annotation/ua/__fixtures__.py
+python/tests/data/union_annotation/ua/__init__.py
+python/tests/data/union_annotation/ua/test_spellings.py
+python/tests/data/usage_error_mixed/pyproject.toml
+python/tests/data/usage_error_mixed/usage_error_mixed/__init__.py
+python/tests/data/usage_error_mixed/usage_error_mixed/admin/__init__.py
+python/tests/data/usage_error_mixed/usage_error_mixed/admin/test_admin.py
+python/tests/data/usage_error_mixed/usage_error_mixed/api/__fixtures__.py
+python/tests/data/usage_error_mixed/usage_error_mixed/api/__init__.py
+python/tests/data/usage_error_mixed/usage_error_mixed/api/test_api.py
+python/tests/data/usage_error_two_sites/pyproject.toml
+python/tests/data/usage_error_two_sites/usage_error_two_sites/__init__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/admin/__init__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/admin/test_admin.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/api/__fixtures__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/api/__init__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/api/test_api.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/lifetimes/__fixtures__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/lifetimes/__init__.py
+python/tests/data/usage_error_two_sites/usage_error_two_sites/lifetimes/test_lifetimes.py
+python/tests/data/worker_diag_teardown/pyproject.toml
+python/tests/data/worker_diag_teardown/worker_diag_teardown/__fixtures__.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/__init__.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod1.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod2.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod3.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod4.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod5.py
+python/tests/data/worker_diag_teardown/worker_diag_teardown/test_mod6.py
+python/tests/data/worker_sequential/pyproject.toml
+python/tests/data/worker_sequential/ws/_record.py
+python/tests/data/worker_sequential/ws/test_a.py
+python/tests/data/worker_sequential/ws/test_b.py
+python/tests/data/worker_sequential/ws/test_c.py
+python/tests/docs/conftest.py
+python/tests/docs/how-to/__fixtures__.py
+python/tests/docs/how-to/fixture_anchors/api/__fixtures__.py
+python/tests/docs/how-to/fixture_anchors/api/test_api.py
+python/tests/docs/how-to/fixture_anchors/api/v1/__fixtures__.py
+python/tests/docs/how-to/fixture_anchors/api/v1/test_v1.py
+python/tests/docs/how-to/test_async_tests.py
+python/tests/docs/how-to/test_builtin_fixtures.py
+python/tests/docs/how-to/test_class_based.py
+python/tests/docs/how-to/test_doctests_example.py
+python/tests/docs/how-to/test_markers.py
+python/tests/docs/how-to/test_parametrize.py
+python/tests/docs/how-to/test_raises_warns.py
+python/tests/docs/how-to/test_troubleshooting.py
+python/tests/docs/how-to/test_write_plugins.py
+python/tests/docs/how-to/use_fixtures/__fixtures__.py
+python/tests/docs/how-to/use_fixtures/db/__fixtures__.py
+python/tests/docs/how-to/use_fixtures/db/test_fixtures.py
+python/tests/docs/output/_helpers.py
+python/tests/docs/output/snapshots/cli_exit_one.txt
+python/tests/docs/output/snapshots/cli_exit_zero.txt
+python/tests/docs/output/snapshots/errors_bare_assert.txt
+python/tests/docs/output/snapshots/errors_fixture_not_found.txt
+python/tests/docs/output/snapshots/errors_missing_mark_reason.txt
+python/tests/docs/output/snapshots/getting_started_failing.txt
+python/tests/docs/output/snapshots/getting_started_passing.txt
+python/tests/docs/output/snapshots/getting_started_single.txt
+python/tests/docs/output/test_cli_output.py
+python/tests/docs/output/test_errors_output.py
+python/tests/docs/output/test_getting_started_output.py
+python/tests/docs/reference/__fixtures__.py
+python/tests/docs/reference/test_errors.py
+python/tests/docs/reference/test_exceptions.py
+python/tests/docs/reference/test_marks.py
+python/tests/docs/reference/test_utilities.py
+python/tests/docs/tutorials/first_fixture/__fixtures__.py
+python/tests/docs/tutorials/first_fixture/test_first_fixture.py
+python/tests/docs/tutorials/test_getting_started.py
+python/tests/fixtures/oxitest_sample_infra/__init__.py
+python/tests/fixtures/oxitest_sample_infra/_config.py
+python/tests/fixtures/oxitest_sample_infra/_plugin.py
+python/tests/fixtures/oxitest_sample_metrics/__init__.py
+python/tests/fixtures/oxitest_sample_metrics/_config.py
+python/tests/fixtures/oxitest_sample_metrics/_plugin.py
+python/tests/helpers/__init__.py
+python/tests/helpers/event_logs.py
+python/tests/helpers/factories.py
+python/tests/helpers/modules.py
+python/tests/helpers/runners.py
+python/tests/integration/__fixtures__.py
+python/tests/integration/helpers.py
+python/tests/integration/test_affected.py
+python/tests/integration/test_ancestor_declaration_homes.py
+python/tests/integration/test_arrange.py
+python/tests/integration/test_basic.py
+python/tests/integration/test_cache.py
+python/tests/integration/test_collection_profile.py
+python/tests/integration/test_color.py
+python/tests/integration/test_completions.py
+python/tests/integration/test_coverage.py
+python/tests/integration/test_debug.py
+python/tests/integration/test_deprecated_fixtures_subcmd.py
+python/tests/integration/test_diagnostics_survive_collection_error.py
+python/tests/integration/test_doctest.py
+python/tests/integration/test_doctest_coverage_alias.py
+python/tests/integration/test_doctest_coverage_config.py
+python/tests/integration/test_doctest_coverage_diagnostics.py
+python/tests/integration/test_doctest_coverage_parse_error.py
+python/tests/integration/test_doctest_coverage_required_hard_fail.py
+python/tests/integration/test_doctest_declared_tree.py
+python/tests/integration/test_errors.py
+python/tests/integration/test_field_diffs.py
+python/tests/integration/test_fixture_cache.py
+python/tests/integration/test_fixture_diagnostics.py
+python/tests/integration/test_fixture_ref.py
+python/tests/integration/test_fixture_scopes.py
+python/tests/integration/test_fixture_validation.py
+python/tests/integration/test_flags.py
+python/tests/integration/test_gitignore.py
+python/tests/integration/test_graph_stability.py
+python/tests/integration/test_helper_retirement.py
+python/tests/integration/test_inspect.py
+python/tests/integration/test_lazy_collection.py
+python/tests/integration/test_list_count.py
+python/tests/integration/test_marker_sync.py
+python/tests/integration/test_maxfail_parallel.py
+python/tests/integration/test_module_marks.py
+python/tests/integration/test_namespace_reachability.py
+python/tests/integration/test_node_ids.py
+python/tests/integration/test_parallel.py
+python/tests/integration/test_parallel_context.py
+python/tests/integration/test_parallel_stress.py
+python/tests/integration/test_plugin_fixtures.py
+python/tests/integration/test_plugin_lifecycle.py
+python/tests/integration/test_plugins.py
+python/tests/integration/test_query.py
+python/tests/integration/test_query_color.py
+python/tests/integration/test_retry.py
+python/tests/integration/test_scheduling_info.py
+python/tests/integration/test_show_flags.py
+python/tests/integration/test_strict.py
+python/tests/integration/test_tb.py
+python/tests/integration/test_timeout_ownership.py
+python/tests/integration/test_tree.py
+python/tests/integration/test_unicode.py
+python/tests/integration/test_version.py
+python/tests/integration/test_wildcard_node_ids.py
+python/tests/integration/test_worker_protocol_descriptor.py
+python/tests/integration/test_worker_resilience.py
+python/tests/integration/test_worker_stdout_classification.py
+python/tests/sitecustomize.py
+python/tests/test_alias_enforcement.py
+python/tests/test_approx.py
+python/tests/test_arrange_api.py
+python/tests/test_arrange_async.py
+python/tests/test_arrange_collection.py
+python/tests/test_arrange_execution.py
+python/tests/test_arrange_scheduling.py
+python/tests/test_assert_error.py
+python/tests/test_assert_result.py
+python/tests/test_async_backend.py
+python/tests/test_async_fixtures.py
+python/tests/test_async_guard_fail_closed.py
+python/tests/test_async_session_guard.py
+python/tests/test_async_task_identity.py
+python/tests/test_autouse_entries.py
+python/tests/test_b1_collection_gate.py
+python/tests/test_backend_resolution.py
+python/tests/test_boundary.py
+python/tests/test_bridge_contract.py
+python/tests/test_bridge_fixture_registration_entry.py
+python/tests/test_builtin_shape_rule.py
+python/tests/test_builtins.py
+python/tests/test_check_artifact.py
+python/tests/test_check_band_record.py
+python/tests/test_check_bridge_sync.py
+python/tests/test_check_closing_issues.py
+python/tests/test_check_disposition.py
+python/tests/test_check_justfile_quoting.py
+python/tests/test_check_platform_sets.py
+python/tests/test_check_subprocess_encoding.py
+python/tests/test_cli_output.py
+python/tests/test_coverage.py
+python/tests/test_cwd_guard.py
+python/tests/test_debug.py
+python/tests/test_declaration_refusals.py
+python/tests/test_dependency_teardown_boundary.py
+python/tests/test_diagnostic_collector.py
+python/tests/test_diagnostic_path_format.py
+python/tests/test_dispose_finding.py
+python/tests/test_doctest_module_identity.py
+python/tests/test_duration_clock.py
+python/tests/test_exception_handlers.py
+python/tests/test_executor_async.py
+python/tests/test_executor_internals.py
+python/tests/test_executor_sync.py
+python/tests/test_executor_timeout.py
+python/tests/test_fixture_cache_stats.py
+python/tests/test_fixture_decorator.py
+python/tests/test_fixture_def_module_source_props.py
+python/tests/test_fixture_freeze_boundary.py
+python/tests/test_fixture_instantiator.py
+python/tests/test_fixture_lister.py
+python/tests/test_fixture_outcome.py
+python/tests/test_fixture_registry.py
+python/tests/test_fixture_scope.py
+python/tests/test_fixture_session.py
+python/tests/test_fixture_session_lifecycle.py
+python/tests/test_fixture_type.py
+python/tests/test_fixture_validator.py
+python/tests/test_fixtures_redesign_async.py
+python/tests/test_fixtures_redesign_slice1.py
+python/tests/test_fixtures_redesign_slice10.py
+python/tests/test_fixtures_redesign_slice2.py
+python/tests/test_fixtures_redesign_slice3.py
+python/tests/test_fixtures_redesign_slice4.py
+python/tests/test_fixtures_redesign_slice5.py
+python/tests/test_fixtures_redesign_slice6.py
+python/tests/test_fixtures_redesign_slice7.py
+python/tests/test_fixtures_redesign_slice9.py
+python/tests/test_fixtures_repurposed.py
+python/tests/test_fn_metadata.py
+python/tests/test_function_tier_cache.py
+python/tests/test_importer.py
+python/tests/test_importorskip.py
+python/tests/test_internal_frame_filter.py
+python/tests/test_killed_worker_process_teardown_warning.py
+python/tests/test_lifetime_enum.py
+python/tests/test_loader.py
+python/tests/test_locale_codec_regression.py
+python/tests/test_markers.py
+python/tests/test_middleware.py
+python/tests/test_middleware_pipeline.py
+python/tests/test_module_cache.py
+python/tests/test_module_identity.py
+python/tests/test_module_identity_e2e.py
+python/tests/test_module_lifetime_phases.py
+python/tests/test_module_lifetime_scope.py
+python/tests/test_module_source_dispatch.py
+python/tests/test_module_source_registrar.py
+python/tests/test_module_source_variant.py
+python/tests/test_namespace_validation.py
+python/tests/test_package_boundary.py
+python/tests/test_package_lifetime.py
+python/tests/test_package_lifetime_scope.py
+python/tests/test_package_subtree_one_phase.py
+python/tests/test_parametrize_collection.py
+python/tests/test_parametrize_composition.py
+python/tests/test_parametrize_decorator.py
+python/tests/test_parametrize_dict.py
+python/tests/test_parametrize_dispatch.py
+python/tests/test_parametrize_execution.py
+python/tests/test_parametrize_partial.py
+python/tests/test_plugin_async_backend.py
+python/tests/test_plugin_config.py
+python/tests/test_plugin_config_e2e.py
+python/tests/test_plugin_integration.py
+python/tests/test_plugin_lazy.py
+python/tests/test_plugin_loader.py
+python/tests/test_plugin_result_factories.py
+python/tests/test_plugin_two_phase.py
+python/tests/test_post_review_findings.py
+python/tests/test_process_lifetime_builtin_deps.py
+python/tests/test_process_tier_async.py
+python/tests/test_process_tier_coordinator.py
+python/tests/test_process_tier_interrupt.py
+python/tests/test_process_tier_negatives.py
+python/tests/test_provided_type.py
+python/tests/test_proxy.py
+python/tests/test_proxy_ns.py
+python/tests/test_proxy_str_acceptance.py
+python/tests/test_public_api.py
+python/tests/test_public_fixture_export.py
+python/tests/test_raises.py
+python/tests/test_resolve_deps.py
+python/tests/test_resolve_strategy.py
+python/tests/test_result.py
+python/tests/test_returns_none.py
+python/tests/test_rollup_results_check.py
+python/tests/test_rootdir_import.py
+python/tests/test_session_middlewares.py
+python/tests/test_shortcut_miss_message.py
+python/tests/test_streams.py
+python/tests/test_syspath.py
+python/tests/test_target_relative_base.py
+python/tests/test_target_validation.py
+python/tests/test_teardown_callback_diagnostics.py
+python/tests/test_teardown_registration.py
+python/tests/test_test_identity.py
+python/tests/test_test_kind.py
+python/tests/test_testcontext_current.py
+python/tests/test_testcontext_identity.py
+python/tests/test_timeout_type.py
+python/tests/test_union_annotation.py
+python/tests/test_usage_error_exit_code.py
+python/tests/test_usage_error_exit_vote.py
+python/tests/test_visibility.py
+python/tests/test_warncapture.py
+python/tests/test_warns.py
+python/tests/test_worker.py
+python/tests/test_worker_diagnostics.py
+python/tests/test_worker_fixture_modules.py
+python/tests/test_worker_protocol.py
+python/tests/test_worker_sequential.py
+python/tests/test_worker_session_teardown.py
+python/tests/test_worker_stdout_non_protocol.py
+rust-toolchain.toml
+scripts/apply_mutant.py
+scripts/band_record.tsv
+scripts/check_artifact.py
+scripts/check_band_record.py
+scripts/check_bridge_sync.py
+scripts/check_closing_issues.py
+scripts/check_disposition.py
+scripts/check_justfile_quoting.py
+scripts/check_platform_sets.py
+scripts/check_subprocess_encoding.py
+scripts/dispose_finding.py
+scripts/post_review_findings.py
+scripts/wire_protocol.lock.json
+src/affected.rs
+src/assert_rewriter.rs
+src/bare_asserts.rs
+src/bridge.rs
+src/cache/mod.rs
+src/cache/module.rs
+src/cache/outcome.rs
+src/cache/serde.rs
+src/cache/test_helpers.rs
+src/cache/timing.rs
+src/collector.rs
+src/colors.rs
+src/config/cli/debug.rs
+src/config/cli/enums.rs
+src/config/cli/inspect.rs
+src/config/cli/mod.rs
+src/config/cli/plugin.rs
+src/config/cli/query.rs
+src/config/cli/run.rs
+src/config/cli/shared.rs
+src/config/merge.rs
+src/config/mod.rs
+src/config/pyproject.rs
+src/doctest/alias.rs
+src/doctest/coverage.rs
+src/doctest/mod.rs
+src/doctest/scanner.rs
+src/doctest/subjects.rs
+src/edit_distance.rs
+src/filter.rs
+src/import_graph.rs
+src/inspect/app.rs
+src/inspect/detail/declaration.rs
+src/inspect/detail/fixture.rs
+src/inspect/detail/mark.rs
+src/inspect/detail/mod.rs
+src/inspect/detail/plugin.rs
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_declaration.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_fixture.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_mark.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_no_selection.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_plugin.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_test.snap
+src/inspect/detail/snapshots/_oxitest__inspect__detail__snapshot_tests__detail_test_parametrized.snap
+src/inspect/detail/styles.rs
+src/inspect/detail/test.rs
+src/inspect/graph/builder.rs
+src/inspect/graph/mod.rs
+src/inspect/graph/nodes.rs
+src/inspect/input.rs
+src/inspect/mod.rs
+src/inspect/nav.rs
+src/inspect/overview.rs
+src/inspect/search.rs
+src/inspect/signals.rs
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__footer_normal_mode.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__footer_search_mode.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__help_overlay_visible.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__history_screen_empty.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__history_screen_with_entries.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__home_screen_with_graph.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__narrow_layout_adjusted_split.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__node_focus.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__overview_cursor_second.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__overview_declarations_section.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__search_query_displayed.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__single_pane_layout.snap
+src/inspect/snapshots/_oxitest__inspect__ui__snapshot_tests__wide_layout_two_panes.snap
+src/inspect/source.rs
+src/inspect/ui.rs
+src/lib.rs
+src/module_defs.rs
+src/parallel/drain.rs
+src/parallel/mod.rs
+src/parallel/pool.rs
+src/parallel_context.rs
+src/pipeline/arrange.rs
+src/pipeline/collection.rs
+src/pipeline/execution.rs
+src/pipeline/helpers.rs
+src/pipeline/mod.rs
+src/pipeline/transitions/collected.rs
+src/pipeline/transitions/empty.rs
+src/pipeline/transitions/executed.rs
+src/pipeline/transitions/files_collected.rs
+src/pipeline/transitions/mod.rs
+src/pipeline/transitions/prescanned.rs
+src/pipeline/transitions/ready.rs
+src/pipeline/transitions/session_ready.rs
+src/pipeline_contract_tests.rs
+src/pipeline_phase_tests.rs
+src/pipeline_tests.rs
+src/prescan.rs
+src/python_ast.rs
+src/query/ast.rs
+src/query/bridge.rs
+src/query/compile.rs
+src/query/detail.rs
+src/query/eval.rs
+src/query/extract.rs
+src/query/format.rs
+src/query/fzf.rs
+src/query/highlight.rs
+src/query/mod.rs
+src/query/resource.rs
+src/query/snapshots/_oxitest__query__detail__tests__snap_detail_fixture_entry.snap
+src/query/snapshots/_oxitest__query__detail__tests__snap_detail_fixture_entry_colored.snap
+src/query/snapshots/_oxitest__query__detail__tests__snap_detail_test_entry.snap
+src/query/snapshots/_oxitest__query__detail__tests__snap_detail_test_entry_colored.snap
+src/query/snapshots/_oxitest__query__format__tests__snap_columnar_tests.snap
+src/query/snapshots/_oxitest__query__format__tests__snap_jsonl_tests.snap
+src/query/snapshots/_oxitest__query__format__tests__snap_tab_tests.snap
+src/query/snapshots/_oxitest__query__highlight__tests__snap_highlight_no_color.snap
+src/query/snapshots/_oxitest__query__highlight__tests__snap_highlight_test_function.snap
+src/reporter/bridge.rs
+src/reporter/ci.rs
+src/reporter/composite.rs
+src/reporter/exit.rs
+src/reporter/format/diagnostic.rs
+src/reporter/format/diff.rs
+src/reporter/format/mod.rs
+src/reporter/format/snapshots/_oxitest__reporter__format__diagnostic__tests__snapshot_tests__error_with_frames.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diagnostic__tests__snapshot_tests__failed_assertion_with_diff.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diagnostic__tests__snapshot_tests__failed_with_left_right_op.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diagnostic__tests__snapshot_tests__tb_no_returns_empty.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__collection_diff_dict.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__collection_diff_list.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__collection_diff_nested.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__collection_diff_set.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__empty_values_returns_empty.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__field_diffs_two_fields.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__identical_values_returns_empty.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__multi_line_diff.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__diff__snapshot_tests__single_line_diff_eq.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__suggestions__snapshot_tests__async_mismatch_suggestion.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__suggestions__snapshot_tests__no_suggestion_for_normal_error.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_all_failed.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_all_passed.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_mixed_outcomes.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_no_tests_ran.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_with_warnings_and_flaky.snap
+src/reporter/format/snapshots/_oxitest__reporter__format__summary__tests__snapshot_tests__summary_xfail_and_xpass.snap
+src/reporter/format/suggestions.rs
+src/reporter/format/summary.rs
+src/reporter/json.rs
+src/reporter/junit.rs
+src/reporter/mod.rs
+src/reporter/options.rs
+src/reporter/outcome_fmt.rs
+src/reporter/parametrize_buffer.rs
+src/reporter/plugin.rs
+src/reporter/print.rs
+src/reporter/session.rs
+src/reporter/snapshots/_oxitest__reporter__json__snapshot_tests__json_all_passed.snap
+src/reporter/snapshots/_oxitest__reporter__json__snapshot_tests__json_mixed_outcomes.snap
+src/reporter/snapshots/_oxitest__reporter__junit__snapshot_tests__junit_all_passed.snap
+src/reporter/snapshots/_oxitest__reporter__junit__snapshot_tests__junit_mixed_outcomes.snap
+src/reporter/stats.rs
+src/reporter/test_helpers.rs
+src/reporter/tracing_writer.rs
+src/reporter/traits.rs
+src/reporter/tty.rs
+src/retry.rs
+src/scheduler.rs
+src/strict.rs
+src/target.rs
+src/test_doubles.rs
+src/test_returns.rs
+src/types/exit.rs
+src/types/item.rs
+src/types/mod.rs
+src/types/node_id.rs
+src/types/outcome.rs
+src/types/test_support.rs
+src/worker_result/convert.rs
+src/worker_result/mod.rs
+src/worker_result/tests.rs
+src/worker_result/wire.rs
+src/worker_session.rs
+uv.lock
+`.trim().split("\n");
+
+const PURBA_FILES = `.github/workflows/signoff.yml
+.gitignore
+CODEOWNERS
+Cargo.lock
+Cargo.toml
+LICENSE
+README.md
+docs/decisions/.template.md
+docs/decisions/a-commit-outlives-its-review.md
+docs/decisions/a-location-inherits-its-readers.md
+docs/decisions/a-record-is-rewritten-not-amended.md
+docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+docs/decisions/liability-is-recorded-at-approval-not-in-the-commit.md
+docs/decisions/purba-parses-python-with-ruff.md
+docs/decisions/significance-is-declared-not-detected.md
+docs/decisions/the-crate-carries-an-rlib.md
+pyproject.toml
+rust-toolchain.toml
+src/lib.rs`.trim().split("\n");
+
+const REAL_GA = `# Auto-detect text files and normalize line endings to LF
+* text=auto
+
+# Source code - explicit LF, language-aware diffs
+*.rs text eol=lf diff=rust
+*.py text eol=lf diff=python
+*.toml text eol=lf
+*.md text eol=lf
+
+# Lock files - track but collapse in PR diffs
+Cargo.lock text eol=lf linguist-generated
+uv.lock text eol=lf linguist-generated
+devenv.lock text eol=lf linguist-generated
+
+# Insta snapshots - collapse in PR diffs
+*.snap text eol=lf linguist-generated
+
+# Binary artifacts - never diff, never normalize
+*.so binary
+*.whl binary`;
+document.getElementById('realga').textContent = REAL_GA;
+
+// The roster is FLAT. contributor and user are not here: neither has a want of
+// its own, and record A gives them cells that only point downward. They come
+// back as MACROS defined in the binding file, which is gitattributes' own
+// feature for abbreviating a set of names.
+const ROSTER = ['stem','architect','coder','toolsmith','handler','reviewer','maintainer',
+                'technical-writer','tester','plugin-author','packager','integrator'];
+const KNOWN = new Set(ROSTER);
+
+// ---- gitattributes-ish matcher, memoised ---------------------------------
+const reCache = new Map();
+function compile(pat){
+  if(reCache.has(pat)) return reCache.get(pat);
+  const anchored = pat.includes('/');
+  let p = pat.replace(/^\//,''), re='', i=0;
+  while(i<p.length){
+    const c=p[i];
+    if(c==='*'){
+      if(p[i+1]==='*'){
+        if(p[i+2]==='/'){ re+='(?:.*/)?'; i+=3; }
+        else { re+='.*'; i+=2; }
+      } else { re+='[^/]*'; i++; }
+    } else if(c==='?'){ re+='[^/]'; i++; }
+    else if('.+^${}()|[]\\'.includes(c)){ re+='\\'+c; i++; }
+    else { re+=c; i++; }
+  }
+  const v={re:new RegExp('^'+re+'$'), anchored};
+  reCache.set(pat,v); return v;
+}
+function matches(pat, rel, base){
+  const {re,anchored}=compile(pat);
+  if(re.test(rel)) return true;
+  if(!anchored) return re.test(base);
+  return false;
+}
+
+function parse(text){
+  const lines=[], errs=[], macros={};
+  // Pass one: macro definitions. `[attr]name actor actor ...`
+  text.split('\n').forEach((raw,n)=>{
+    const line=raw.replace(/#.*$/,'').trim();
+    const m=line.match(/^\[attr\](\S+)\s+(.*)$/);
+    if(!m) return;
+    const [,name,body]=m;
+    if(KNOWN.has(name)){ errs.push(`line ${n+1}: macro "${name}" shadows an actor`); return; }
+    const members=[];
+    body.split(/\s+/).filter(Boolean).forEach(a=>{
+      if(!KNOWN.has(a)) errs.push(`line ${n+1}: macro "${name}" names "${a}", not on the roster`);
+      else members.push(a);
+    });
+    macros[name]=members;
+  });
+  // Pass two: bindings.
+  text.split('\n').forEach((raw,n)=>{
+    const line=raw.replace(/#.*$/,'').trim();
+    if(!line || line.startsWith('[attr]')) return;
+    const [pat,...attrs]=line.split(/\s+/);
+    if(!attrs.length){ errs.push(`line ${n+1}: "${pat}" names a pattern and no actor`); return; }
+    const ops=[];
+    for(const a of attrs){
+      const neg=a.startsWith('-'), name=neg?a.slice(1):a;
+      const expand = KNOWN.has(name) ? [name] : macros[name];
+      if(!expand){ errs.push(`line ${n+1}: "${name}" is neither an actor nor a macro`); continue; }
+      expand.forEach(x=>ops.push({actor:x,set:!neg}));
+    }
+    lines.push({pat,ops,n:n+1});
+  });
+  return {lines,errs,macros};
+}
+
+function resolve(path, lines){
+  const state={}; const base=path.split('/').pop();
+  for(const L of lines){
+    if(!matches(L.pat, path, base)) continue;
+    for(const op of L.ops) state[op.actor]=op.set;
+  }
+  return state;
+}
+
+// ---- binding sets ---------------------------------------------------------
+const OXI_DEFAULT = `# purba-owned filename. git never reads this, so it never
+# collides with the real .gitattributes shown on the right.
+#
+# contributor and user are MACROS, not actors. The roster stays flat.
+[attr]contributor  architect coder toolsmith handler reviewer maintainer technical-writer
+[attr]user         tester plugin-author packager integrator
+
+README.md          stem
+CONTRIBUTING.md    stem
+SECURITY.md        stem
+CLAUDE.md          handler
+CONTEXT.md         contributor
+
+.github/**         toolsmith
+.config/**         toolsmith
+scripts/**         toolsmith
+nix/**             toolsmith
+benchmarks/**      toolsmith
+justfile           toolsmith
+*.toml             toolsmith
+*.nix              toolsmith
+*.yml              toolsmith
+
+docs/**            technical-writer
+docs/adr/**        architect
+docs/internals/**  architect
+docs/agents/**     handler
+.claude/**         handler
+
+src/**             coder
+python/oxitest/**  coder plugin-author tester
+python/tests/**    tester coder`;
+
+const PUR_DEFAULT = `[attr]contributor  architect coder toolsmith handler reviewer maintainer technical-writer
+
+README.md            stem
+CLAUDE.md            contributor
+.github/**           toolsmith
+docs/**              technical-writer
+docs/decisions/**    architect
+src/**               coder plugin-author tester`;
+
+let repo='oxi', view='dir';
+const files = ()=> repo==='oxi' ? OXITEST_FILES : PURBA_FILES;
+
+function render(){
+  const text=document.getElementById('src').value;
+  const {lines,errs}=parse(text);
+  document.getElementById('errs').innerHTML = errs.length
+    ? `<div class="err"><b>${errs.length}</b> rejected &mdash; ${errs.join(' &middot; ')}</div>` : '';
+
+  const F=files(), filt=document.getElementById('filter').value.trim();
+  const per=[], dirs=new Map();
+  let bound=0;
+  for(const f of F){
+    const st=resolve(f,lines);
+    const on=Object.keys(st).filter(k=>st[k]).sort();
+    if(on.length) bound++;
+    per.push({f,on,off:Object.keys(st).filter(k=>!st[k]).sort()});
+    const d=f.includes('/')?f.slice(0,f.lastIndexOf('/')):'.';
+    if(!dirs.has(d)) dirs.set(d,{n:0,b:0,sets:new Set()});
+    const D=dirs.get(d); D.n++; if(on.length){D.b++;} D.sets.add(on.join(' '));
+  }
+
+  document.getElementById('nBound').textContent=bound;
+  document.getElementById('nUnbound').textContent=F.length-bound;
+  document.getElementById('nTotal').textContent=F.length;
+  document.getElementById('nDirs').textContent=dirs.size;
+  document.getElementById('nCover').textContent=Math.round(bound/F.length*100)+'%';
+
+  const thead=document.getElementById('thead'); let rows='';
+  if(view==='dir'){
+    thead.innerHTML='<tr><th>directory</th><th class="num">files</th><th class="num">unbound</th><th>actors</th></tr>';
+    [...dirs.entries()].filter(([d])=>!filt||d.includes(filt)).sort((a,b)=>a[0].localeCompare(b[0]))
+      .forEach(([d,D])=>{
+        const un=D.n-D.b, sets=[...D.sets];
+        const cell = sets.length>1
+          ? `<span class="a mix">mixed &middot; ${sets.length}</span>`
+          : (sets[0] ? sets[0].split(' ').map(a=>`<span class="a">${a}</span>`).join('')
+                     : '<span style="color:var(--bad);font-size:11px">&mdash;</span>');
+        rows+=`<tr class="${D.b?'':'unbound'}"><td class="path">${d}</td>`
+            + `<td class="num">${D.n}</td><td class="num" style="${un?'color:var(--bad);font-weight:700':''}">${un||''}</td>`
+            + `<td>${cell}</td></tr>`;
+      });
+  } else {
+    thead.innerHTML='<tr><th>path</th><th>actors</th></tr>';
+    per.filter(p=>(view!=='un'||!p.on.length) && (!filt||p.f.includes(filt)))
+      .forEach(p=>{
+        rows+=`<tr class="${p.on.length?'':'unbound'}"><td class="path">${p.f}</td><td>`
+            + p.on.map(a=>`<span class="a">${a}</span>`).join('')
+            + p.off.map(a=>`<span class="a un">${a}</span>`).join('')
+            + (p.on.length||p.off.length?'':'<span style="color:var(--bad);font-size:11px">&mdash;</span>')
+            + `</td></tr>`;
+      });
+  }
+  document.getElementById('out').innerHTML=rows || '<tr><td colspan="4" style="color:var(--dim);padding:14px">nothing matches</td></tr>';
+}
+
+// ---- walkthroughs ---------------------------------------------------------
+const WALKS=[
+  {t:'A plausible map', r:'oxi', s:OXI_DEFAULT,
+   d:'Record A’s roster mapped onto oxitest by hand, the way a person actually would.',
+   e:'Watch the covered figure. The interesting rows are the directories that come back mixed, because a mixed directory means a glob and a path binding disagree inside it.'},
+  {t:'688 files, one line', r:'oxi', s:`python/tests/**   tester coder`,
+   d:'oxitest’s test tree is 688 of its 1,109 files and runs 8 levels deep. One pattern has to reach all of it.',
+   e:'62% covered from a single line. Depth costs nothing: ** spans segments, so a file at depth 8 resolves the same as one at depth 3.'},
+  {t:'Accumulation at depth', r:'oxi', s:`docs/**            technical-writer
+docs/adr/**        architect
+docs/internals/**  architect`,
+   d:'The case CODEOWNERS cannot express, now three levels deep in a real tree.',
+   e:'docs/adr and docs/internals carry technical-writer AND architect. docs/user carries technical-writer alone. Nothing was dismissed.'},
+  {t:'Globs earn their keep', r:'oxi', s:`*.toml   toolsmith
+*.snap   tester
+*.rs     coder
+*.py     tester`,
+   d:'Four lines, no directory knowledge at all. This is the reason to borrow an established language rather than invent a prefix format.',
+   e:'956 of 1,109 files bound by extension alone. 95 .toml files scattered across the tree all reach the toolsmith without naming a single directory.'},
+  {t:'Stop inheritance', r:'oxi', s:`python/**         tester coder
+python/oxitest/** -tester
+python/oxitest/** plugin-author`,
+   d:'A per-actor stop, finer than OWNERS’ set noparent, which is all-or-nothing.',
+   e:'python/tests keeps tester and coder. python/oxitest loses tester (struck through) and gains plugin-author, while keeping coder.'},
+  {t:'Generated files', r:'oxi', s:`src/**      coder
+python/**   tester coder
+*.snap      tester
+Cargo.lock  toolsmith
+uv.lock     toolsmith`,
+   d:'oxitest marks 59 files linguist-generated: 54 snapshots and 5 lock files. Does a generated file have a reader at all?',
+   e:'You can bind them, but ask whether it is true. A snapshot is read by whoever is diagnosing a failure; a lock file may genuinely be read by nobody, which is a case the flag cannot distinguish from an oversight.'},
+  {t:'Typo trap', r:'oxi', s:`docs/**       technical-writer
+docs/adr/**   architekt
+src/**        coder`,
+   d:'#82 measured that no format validates an actor name. git accepts architekt, exit 0.',
+   e:'Rejected here, so docs/adr falls back to technical-writer alone. Without validation it would read as bound and be bound to nobody.'},
+  {t:'Root-binding trap', r:'oxi', s:`**   reviewer`,
+   d:'Bind anything at the root and every file inherits it.',
+   e:'100% covered, 0 unbound, across 1,109 files. The gate is vacuously green. This is why record B says the project root binds nothing.'},
+  {t:'The twelfth actor', r:'oxi', s:`# The agent-steering surface, against the two roles that
+# might already own it. Switch 'handler' to 'toolsmith'
+# and to 'technical-writer' and see which reads as true.
+
+CLAUDE.md          handler
+.claude/**         handler
+docs/agents/**     handler
+
+.github/**         toolsmith
+justfile           toolsmith
+scripts/**         toolsmith
+
+docs/**            technical-writer`,
+   d:'oxitest carries 9 agent-steering files and 993 lines, and record A’s roster has nobody to read them. CLAUDE.md alone is 572 lines.',
+   e:'Neither candidate owner fits. The toolsmith keeps what STOPS you, gates and hooks. The technical writer writes for a reader OUTSIDE the work. An instruction file addressed to the worker is a third thing, and #21 already ruled the two bodies may never overlap.'},
+  {t:'Rust or Python?', r:'oxi', s:`# Filter the table below to .py and read the OWNERS column.
+# The same language lands on three different readers.
+
+src/**             coder
+python/oxitest/**  coder
+python/tests/**    tester
+scripts/**         toolsmith
+benchmarks/**      toolsmith
+
+# 15 of oxitest's 681 Python files live OUTSIDE python/,
+# in scripts/ and benchmarks/. Their reader is the
+# toolsmith, not a coder. A 'python-coder' actor would
+# claim them and be wrong.`,
+   d:'oxitest holds 126 Rust files and 681 Python files. The split is NOT clean: build.rs sits outside src/, and 15 Python files sit outside python/, in scripts/ and benchmarks/.',
+   e:'The same language reaches a coder, a tester and a toolsmith depending on where it sits. So language does not predict the reader, the LOCATION does. A rust-coder / python-coder split would store in the roster what the path already says, and would get those 15 files wrong.'},
+  {t:'Macros, not groups', r:'oxi', s:`# contributor and user have no want of their own. Record A
+# gives them cells that only point downward, "the six below"
+# and "the four below". That is taxonomy, not a reader.
+#
+# So they are not on the roster. They are macros, which is
+# gitattributes' own feature for naming a set of names.
+
+[attr]contributor  architect coder toolsmith handler reviewer maintainer technical-writer
+[attr]user         tester plugin-author packager integrator
+
+CONTEXT.md         contributor
+docs/user/**       user
+src/**             coder
+
+# Try [attr]coder ... and the macro is rejected for
+# shadowing an actor. Try a macro naming "architekt" and
+# the member is rejected, not the whole line.`,
+   d:'The prototype’s earlier version made contributor and user bindable, which quietly made the roster thirteen when record A says eleven.',
+   e:'One token still expands to seven actors, so nothing is lost ergonomically. But the roster stays flat and honest, and an abbreviation lives where abbreviations belong: in the binding file, not in the list of readers.'},
+  {t:'purba, same rules', r:'pur', s:PUR_DEFAULT,
+   d:'The identical model against a 19-file scaffold, for contrast.',
+   e:'7 unbound, all root-level config and licence files. A small tree makes every gap visible; a large one hides them in aggregate, which is the argument for the by-directory view.'}
+];
+
+const tabs=document.getElementById('tabs'), wt=document.getElementById('wt');
+WALKS.forEach((w,i)=>{
+  const b=document.createElement('button');
+  b.textContent=w.t;
+  b.onclick=()=>{
+    [...tabs.children].forEach(c=>c.classList.remove('on'));
+    b.classList.add('on');
+    setRepo(w.r,true);
+    document.getElementById('src').value=w.s;
+    wt.innerHTML=`<h3>${w.t}</h3><p>${w.d}</p><div class="expect"><b>Expect:</b> ${w.e}</div>`;
+    render();
+  };
+  tabs.appendChild(b);
+  if(i===0) setTimeout(()=>b.click(),0);
+});
+
+function setRepo(r,keep){
+  repo=r;
+  document.getElementById('rOxi').classList.toggle('on',r==='oxi');
+  document.getElementById('rPur').classList.toggle('on',r==='pur');
+  if(!keep) document.getElementById('src').value = r==='oxi'?OXI_DEFAULT:PUR_DEFAULT;
+}
+document.getElementById('rOxi').onclick=()=>{setRepo('oxi');render();};
+document.getElementById('rPur').onclick=()=>{setRepo('pur');render();};
+
+const chips=document.getElementById('chips');
+ROSTER.forEach(a=>{
+  const c=document.createElement('span');
+  c.className='chip';
+  c.textContent=a;
+  c.onclick=()=>{const t=document.getElementById('src');
+    t.value+=(t.value.endsWith('\n')||!t.value?'':'\n')+`** ${a}`; render();};
+  chips.appendChild(c);
+});
+
+for(const [id,v] of [['vDir','dir'],['vUn','un'],['vAll','all']]){
+  document.getElementById(id).onclick=()=>{
+    view=v;
+    ['vDir','vUn','vAll'].forEach(x=>document.getElementById(x).classList.toggle('on',x===id));
+    render();
+  };
+}
+document.getElementById('src').addEventListener('input',render);
+document.getElementById('filter').addEventListener('input',render);
+render();
+</script>

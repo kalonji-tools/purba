@@ -1,0 +1,392 @@
+<title>Readers Prototype</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --panel:#fff; --ink:#1b1a18; --dim:#6c6862; --line:#e3dfd8;
+    --accent:#7a4f2b; --ok:#2f6b4f; --warn:#9a5b12; --bad:#a33a2a;
+    --okbg:#e9f2ec; --warnbg:#fbf0df; --badbg:#f8e8e4; --code:#f3f0ea;
+  }
+  :root:not([data-theme="light"]){}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#17161a; --panel:#1f1e23; --ink:#eceaf0; --dim:#a29daa; --line:#33313a;
+      --accent:#d9a679; --ok:#7fc5a1; --warn:#e0aa5f; --bad:#e88a76;
+      --okbg:#1d2a24; --warnbg:#2c2419; --badbg:#2e1e1b; --code:#26252b;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17161a; --panel:#1f1e23; --ink:#eceaf0; --dim:#a29daa; --line:#33313a;
+    --accent:#d9a679; --ok:#7fc5a1; --warn:#e0aa5f; --bad:#e88a76;
+    --okbg:#1d2a24; --warnbg:#2c2419; --badbg:#2e1e1b; --code:#26252b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;}
+  code,pre,textarea,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,"Cascadia Mono",monospace}
+  header{padding:22px 24px 14px;border-bottom:1px solid var(--line)}
+  h1{margin:0 0 4px;font-size:19px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:13.5px;max-width:80ch}
+  .throwaway{display:inline-block;margin-bottom:10px;padding:2px 9px;border-radius:20px;
+    background:var(--warnbg);color:var(--warn);font-size:11px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase}
+  main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;padding:18px 24px 40px}
+  @media(max-width:980px){main{grid-template-columns:minmax(0,1fr)}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 16px}
+  h2{margin:0 0 3px;font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim)}
+  .note{color:var(--dim);font-size:12.5px;margin:0 0 11px}
+  textarea{width:100%;min-height:190px;background:var(--code);color:var(--ink);
+    border:1px solid var(--line);border-radius:7px;padding:10px 11px;font-size:13px;resize:vertical}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+  .chip{font-size:11.5px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);
+    background:var(--code);color:var(--dim);cursor:pointer;user-select:none}
+  .chip.grp{border-style:dashed;color:var(--accent)}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:11px}
+  button{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--dim);font-weight:600;padding:0 8px 6px;border-bottom:1px solid var(--line)}
+  td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .path{font-family:ui-monospace,monospace;font-size:12px}
+  .a{display:inline-block;font-size:11px;padding:1px 7px;border-radius:4px;margin:1px 3px 1px 0;
+    background:var(--okbg);color:var(--ok);font-weight:600}
+  .a.un{background:var(--code);color:var(--dim);text-decoration:line-through}
+  .unbound td{background:var(--badbg)}
+  .unbound .path{color:var(--bad);font-weight:600}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+  .tag.b{color:var(--ok)} .tag.u{color:var(--bad)}
+  .scoreboard{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;padding:9px 12px;
+    border-radius:8px;background:var(--code)}
+  .sc b{display:block;font-size:20px;line-height:1.15}
+  .sc span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .err{background:var(--badbg);color:var(--bad);border-radius:7px;padding:8px 11px;
+    font-size:12.5px;margin-bottom:10px}
+  .err b{font-family:ui-monospace,monospace}
+  .tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+  .wt{background:var(--code);border-radius:8px;padding:11px 13px;font-size:13.5px}
+  .wt h3{margin:0 0 5px;font-size:14px}
+  .wt p{margin:0 0 7px;color:var(--dim);font-size:12.5px}
+  .wt .expect{font-size:12.5px;padding:7px 10px;border-radius:6px;background:var(--panel);
+    border-left:3px solid var(--accent)}
+  .full{grid-column:1/-1}
+  details{margin-top:11px;font-size:12.5px;color:var(--dim)}
+  summary{cursor:pointer;color:var(--accent)}
+  .trace{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--dim);
+    white-space:pre-wrap;margin-top:7px}
+</style>
+
+<header>
+  <span class="throwaway">Prototype &middot; throwaway</span>
+  <h1>Assigning actors with gitattributes syntax</h1>
+  <div class="sub">
+    The question: does the established gitattributes language feel right for binding a reader to a location,
+    written to a purba-owned filename so git never reads it? Everything below runs on purba's
+    <b>19 real tracked files</b>. Nothing persists; reload to reset.
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Roster</h2>
+    <p class="note">Eleven assignable actors. <span style="color:var(--accent)">Dashed</span> are groups that expand. Click to insert.</p>
+    <div class="chips" id="chips"></div>
+
+    <h2>Bindings</h2>
+    <p class="note">gitattributes syntax. <code>pattern actor</code>, <code>-actor</code> to stop inheritance, <code>#</code> comments.</p>
+    <div class="row">
+      <button id="pRoot" class="on">one root file</button>
+      <button id="pDir">per-directory</button>
+    </div>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div id="errs"></div>
+
+    <div class="tabs" id="tabs"></div>
+    <div class="wt" id="wt"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Resolution</h2>
+    <p class="note">Union of every binding from the repository root down to the file.</p>
+    <div class="scoreboard">
+      <div class="sc"><b id="nBound">0</b><span>bound</span></div>
+      <div class="sc"><b id="nUnbound" style="color:var(--bad)">0</b><span>unbound</span></div>
+      <div class="sc"><b id="nTotal">19</b><span>tracked</span></div>
+    </div>
+    <table><thead><tr><th>path</th><th>actors</th><th style="width:74px">state</th></tr></thead>
+      <tbody id="out"></tbody></table>
+    <details>
+      <summary>Show the lines that fired, per file</summary>
+      <div class="trace" id="trace"></div>
+    </details>
+  </section>
+</main>
+
+<script>
+const FILES = `.github/workflows/signoff.yml
+.gitignore
+CODEOWNERS
+Cargo.lock
+Cargo.toml
+LICENSE
+README.md
+docs/decisions/.template.md
+docs/decisions/a-commit-outlives-its-review.md
+docs/decisions/a-location-inherits-its-readers.md
+docs/decisions/a-record-is-rewritten-not-amended.md
+docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+docs/decisions/liability-is-recorded-at-approval-not-in-the-commit.md
+docs/decisions/purba-parses-python-with-ruff.md
+docs/decisions/significance-is-declared-not-detected.md
+docs/decisions/the-crate-carries-an-rlib.md
+pyproject.toml
+rust-toolchain.toml
+src/lib.rs`.split('\n');
+
+// Record A's roster. contributor and user are groups that expand to their children.
+const LEAVES = ['stem','architect','coder','toolsmith','reviewer','maintainer',
+                'technical-writer','tester','plugin-author','packager','integrator'];
+const GROUPS = {
+  contributor:['architect','coder','toolsmith','reviewer','maintainer','technical-writer'],
+  user:['tester','plugin-author','packager','integrator']
+};
+const KNOWN = new Set([...LEAVES, ...Object.keys(GROUPS)]);
+
+// ---- gitattributes-ish matcher -------------------------------------------
+// Honest about its limits: ** spans segments, * stays inside one, ? is one char.
+// A pattern with no slash matches the basename at any depth. A pattern with a
+// slash is anchored to the directory holding the binding file. Directory
+// patterns do NOT recurse -- `docs/` is pointless, you write `docs/**`.
+function toRe(pat){
+  const anchored = pat.includes('/');
+  let p = pat.replace(/^\//,'');
+  let re='', i=0;
+  while(i<p.length){
+    const c=p[i];
+    if(c==='*'){
+      if(p[i+1]==='*'){
+        if(p[i+2]==='/'){ re+='(?:.*/)?'; i+=3; }
+        else { re+='.*'; i+=2; }
+      } else { re+='[^/]*'; i++; }
+    }
+    else if(c==='?'){ re+='[^/]'; i++; }
+    else if('.+^${}()|[]\\'.includes(c)){ re+='\\'+c; i++; }
+    else { re+=c; i++; }
+  }
+  return {re:new RegExp('^'+re+'$'), anchored};
+}
+function matches(pat, rel){
+  const {re,anchored}=toRe(pat);
+  if(re.test(rel)) return true;
+  if(!anchored) return re.test(rel.split('/').pop());
+  return false;
+}
+
+function parse(text, file){
+  const lines=[], errs=[];
+  text.split('\n').forEach((raw,n)=>{
+    const line=raw.replace(/#.*$/,'').trim();
+    if(!line) return;
+    const [pat,...attrs]=line.split(/\s+/);
+    if(!attrs.length){ errs.push({n:n+1,file,msg:`"${pat}" names a pattern and no actor`}); return; }
+    const ops=[];
+    for(const a of attrs){
+      const neg=a.startsWith('-');
+      const name=neg?a.slice(1):a;
+      if(!KNOWN.has(name)){ errs.push({n:n+1,file,msg:`"${name}" is not on the roster`}); continue; }
+      const expanded = GROUPS[name] || [name];
+      expanded.forEach(x=>ops.push({actor:x, set:!neg}));
+    }
+    lines.push({pat,ops,n:n+1,file});
+  });
+  return {lines,errs};
+}
+
+// Files are applied outermost-first; later lines override earlier ones, per actor.
+function resolve(path, sources){
+  const state={}, fired=[];
+  for(const s of sources){
+    const dir = s.dir;                       // '' for root
+    if(dir && !path.startsWith(dir+'/')) continue;
+    const rel = dir ? path.slice(dir.length+1) : path;
+    for(const L of s.parsed.lines){
+      if(!matches(L.pat, rel)) continue;
+      fired.push(`${s.name}:${L.n}  ${L.pat}  ->  ${L.ops.map(o=>(o.set?'':'-')+o.actor).join(' ')||'(none)'}`);
+      for(const op of L.ops) state[op.actor]=op.set;   // per-actor override
+    }
+  }
+  return {state,fired};
+}
+
+// ---- placements -----------------------------------------------------------
+const ROOT_DEFAULT = `# purba-owned file. git never reads this name.
+# Record B's table, transcribed.
+
+README.md            stem
+CLAUDE.md            contributor
+.github/**           toolsmith
+justfile             toolsmith
+devenv.nix           toolsmith
+docs/**              technical-writer
+docs/decisions/**    architect
+src/**               coder plugin-author tester
+tests/**             tester coder`;
+
+const DIR_DEFAULT = `### .readers  (repository root)
+README.md    stem
+CLAUDE.md    contributor
+
+### .github/.readers
+**           toolsmith
+
+### docs/.readers
+**           technical-writer
+
+### docs/decisions/.readers
+**           architect
+
+### src/.readers
+**           coder plugin-author tester`;
+
+let placement='root';
+
+function sources(){
+  const text=document.getElementById('src').value;
+  if(placement==='root') return [{name:'.readers', dir:'', parsed:parse(text,'.readers')}];
+  // per-directory: split on ### <path> headers, sort outermost-first by depth
+  const out=[]; let cur=null;
+  text.split('\n').forEach(l=>{
+    const m=l.match(/^###\s+(\S+)/);
+    if(m){
+      let p=m[1];
+      const dir = p==='.readers' ? '' : p.replace(/\/?\.readers$/,'');
+      cur={name:p, dir, body:[]}; out.push(cur);
+    } else if(cur) cur.body.push(l);
+  });
+  out.sort((a,b)=>(a.dir?a.dir.split('/').length:0)-(b.dir?b.dir.split('/').length:0));
+  return out.map(s=>({...s, parsed:parse(s.body.join('\n'), s.name)}));
+}
+
+function render(){
+  const srcs=sources();
+  const errs=srcs.flatMap(s=>s.parsed.errs);
+  document.getElementById('errs').innerHTML = errs.length
+    ? `<div class="err"><b>${errs.length}</b> line${errs.length>1?'s':''} rejected &mdash; `
+      + errs.map(e=>`${e.file}:${e.n} ${e.msg}`).join(' &middot; ') + `</div>` : '';
+
+  let bound=0, rows='', trace='';
+  for(const f of FILES){
+    const {state,fired}=resolve(f,srcs);
+    const on=Object.entries(state).filter(([,v])=>v).map(([k])=>k);
+    const off=Object.entries(state).filter(([,v])=>!v).map(([k])=>k);
+    if(on.length) bound++;
+    rows += `<tr class="${on.length?'':'unbound'}">`
+      + `<td class="path">${f}</td><td>`
+      + on.map(a=>`<span class="a">${a}</span>`).join('')
+      + off.map(a=>`<span class="a un">${a}</span>`).join('')
+      + (on.length||off.length?'':'<span style="color:var(--dim);font-size:12px">&mdash;</span>')
+      + `</td><td><span class="tag ${on.length?'b':'u'}">${on.length?'bound':'UNBOUND'}</span></td></tr>`;
+    trace += f + '\n' + (fired.length?fired.map(x=>'    '+x).join('\n'):'    (no line matched)') + '\n\n';
+  }
+  document.getElementById('out').innerHTML=rows;
+  document.getElementById('trace').textContent=trace;
+  document.getElementById('nBound').textContent=bound;
+  document.getElementById('nUnbound').textContent=FILES.length-bound;
+  document.getElementById('nTotal').textContent=FILES.length;
+}
+
+// ---- walkthroughs ---------------------------------------------------------
+const WALKS=[
+  {t:'Record B today', d:'Record B’s table exactly as written, before any edit.',
+   e:'7 of 19 unbound. All root-level config and licence files. justfile and devenv.nix are bound but do not exist yet.',
+   s:ROOT_DEFAULT},
+  {t:'Accumulation', d:'The case CODEOWNERS cannot express: a child adds without dismissing its parent.',
+   e:'docs/decisions/*.md carry technical-writer AND architect. docs/ files carry technical-writer only.',
+   s:`docs/**            technical-writer
+docs/decisions/**  architect`},
+  {t:'Transparent directory', d:'An intermediate directory that binds nothing must not block inheritance.',
+   e:'.github/workflows/signoff.yml reaches toolsmith even though .github/workflows/ binds nothing.',
+   s:`.github/**   toolsmith`},
+  {t:'Globs', d:'The reason to borrow the language rather than invent one: patterns by extension, not just by directory.',
+   e:'*.toml catches Cargo.toml, pyproject.toml and rust-toolchain.toml wherever they sit. *.md catches every record plus README.',
+   s:`*.toml    toolsmith
+*.md      technical-writer
+*.lock    toolsmith
+LICENSE   packager`},
+  {t:'Stop inheritance', d:'gitattributes gives a per-actor stop, which is finer than OWNERS’ set noparent.',
+   e:'docs/decisions/*.md keep architect but LOSE technical-writer, shown struck through.',
+   s:`docs/**            technical-writer
+docs/decisions/**  architect
+docs/decisions/**  -technical-writer`},
+  {t:'Group expansion', d:'Record B binds CLAUDE.md to “every contributor”. contributor is a group, not a leaf.',
+   e:'One token expands to six actors. Bind src/** to user and it expands to four.',
+   s:`CLAUDE.md   contributor
+src/**      user`},
+  {t:'Typo trap', d:'#82 measured this: no format validates a name, so a typo invents a twelfth actor and silences the flag.',
+   e:'architekt is REJECTED here and the line does not apply. Without validation, docs/decisions would look bound and be bound to nobody.',
+   s:`docs/**            technical-writer
+docs/decisions/**  architekt`},
+  {t:'Root-binding trap', d:'Bind anything at the root and every file inherits it, so the flag can never fire.',
+   e:'0 unbound. The check is vacuously green. This is why record B says the root binds nothing.',
+   s:`**   reviewer`},
+  {t:'Everything bound', d:'One plausible way to close all seven gaps, to see whether the answers feel right.',
+   e:'0 unbound. Ask whether LICENSE-to-packager and Cargo.lock-to-toolsmith are true, or just convenient.',
+   s:`README.md            stem
+CLAUDE.md            contributor
+.github/**           toolsmith
+docs/**              technical-writer
+docs/decisions/**    architect
+src/**               coder plugin-author tester
+*.toml               toolsmith
+Cargo.lock           toolsmith
+.gitignore           toolsmith
+CODEOWNERS           architect
+LICENSE              packager`}
+];
+
+const tabs=document.getElementById('tabs'), wt=document.getElementById('wt');
+WALKS.forEach((w,i)=>{
+  const b=document.createElement('button');
+  b.textContent=w.t;
+  b.onclick=()=>{
+    [...tabs.children].forEach(c=>c.classList.remove('on'));
+    b.classList.add('on');
+    placement='root';
+    document.getElementById('pRoot').classList.add('on');
+    document.getElementById('pDir').classList.remove('on');
+    document.getElementById('src').value=w.s;
+    wt.innerHTML=`<h3>${w.t}</h3><p>${w.d}</p><div class="expect"><b>Expect:</b> ${w.e}</div>`;
+    render();
+  };
+  tabs.appendChild(b);
+  if(i===0) setTimeout(()=>b.click(),0);
+});
+
+const chips=document.getElementById('chips');
+[...Object.keys(GROUPS), ...LEAVES].forEach(a=>{
+  const c=document.createElement('span');
+  c.className='chip'+(GROUPS[a]?' grp':'');
+  c.textContent=a;
+  c.onclick=()=>{
+    const t=document.getElementById('src');
+    t.value += (t.value.endsWith('\n')||!t.value?'':'\n') + `** ${a}`;
+    render();
+  };
+  chips.appendChild(c);
+});
+
+document.getElementById('pRoot').onclick=e=>{
+  placement='root'; e.target.classList.add('on');
+  document.getElementById('pDir').classList.remove('on');
+  document.getElementById('src').value=ROOT_DEFAULT; render();
+};
+document.getElementById('pDir').onclick=e=>{
+  placement='dir'; e.target.classList.add('on');
+  document.getElementById('pRoot').classList.remove('on');
+  document.getElementById('src').value=DIR_DEFAULT; render();
+};
+document.getElementById('src').addEventListener('input',render);
+render();
+</script>
