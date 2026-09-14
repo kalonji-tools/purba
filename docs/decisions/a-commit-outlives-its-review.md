@@ -55,11 +55,14 @@ The issue number stays in the subject rather than moving to a trailer.
 `git blame` exposes the subject and no part of the body.
 The reader who has forgotten the details arrives through blame, and a trailer is invisible there.
 
+The number is an instruction to the writer as well as an anchor for the reader.
+Depth belongs on the issue, so the body stops at the conclusion and the number carries the reader the rest of the way.
+
 **Body.**
 
 - Addressed to the reader who has long since forgotten the details, never to the reviewer.
 - States the problem in the present tense, why this approach, and what would show it wrong.
-- Does not restate the diff.
+- Does not restate the diff, and is not a summary of the pull request. The pull request holds the discussion and the commit holds its conclusion.
 - Target near 150 words. Not enforced.
 
 **Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool.
