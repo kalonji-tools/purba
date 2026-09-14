@@ -97,9 +97,9 @@ The pull request's constraint is the one this record holds, because that registe
 a pull request must carry a section addressed to the human reviewer that names what they must decide.
 The section names belong to the ticket that writes the template.
 
-A pull request holds the discussion of how the subject was implemented, between the implementer, the co-author and the reviewer.
+A pull request holds the discussion of how the subject was implemented, between the author, the co-author and the approver.
 That discussion is consumed by the review and does not travel, which is why [a commit message outlives its review](a-commit-outlives-its-review.md) keeps it out of the commit.
-The roster carries the reviewer and neither of the other two, so the template either uses roster names or the roster gains a row.
+These are titles for the parties to one pull request, and the roster in [an actor is what it does, not what it is](an-actor-is-what-it-does-not-what-it-is.md) names readers rather than parties.
 
 **Downside:**
 
