@@ -61,7 +61,7 @@ It says what information belongs at a location.
 Voice belongs to the language, and only where that language runs a tool that enforces it.
 Elsewhere voice is convention.
 An unpublished comment carries such a register: best practice rather than an enforced rule.
-What belongs in one at all is deferred to [What belongs in an unpublished comment, and what does not?](https://github.com/kalonji-tools/purba/issues/88).
+What belongs in one at all is held by [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md).
 
 **Named, not held.**
 
@@ -78,10 +78,13 @@ Python's `__doc__` and the type stub render the Rust doc comment.
 A location does not open without a reader and a register.
 Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 
-**Nothing here is gated.**
+**Nothing here is gated, with one exception.**
 
 The pull request is the one location purba could gate, because it has a merge event and `main` already requires a status check.
 A register is worth stating and is not worth refusing a merge over.
+
+The exception is [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md), which gates link liveness inside an unpublished comment.
+Everything else about that location is convention.
 
 The pull request's constraint is the one this record holds, because that register does not exist yet:
 a pull request must carry a section addressed to the human reviewer that names what they must decide.
@@ -102,9 +105,9 @@ The section names belong to the ticket that writes the template.
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's own convention | by that language's tooling, where it exists | not by purba |
-| unpublished comments | convention, and a record of its own is owed | no | never |
+| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness only | that one property, and nothing else |
 
-No row is gated.
+One row is gated, and only for link liveness.
 Two could be, and Considered Options says why.
 
 Six locations are closed and hold no register.
