@@ -406,3 +406,89 @@ Found while measuring Q2 and repeated here because it belongs to this question:
 `.git/hooks`, which every worktree of the repository uses. The frozen prototype
 handles this with an ordered task that sets `core.hooksPath`. Any ticket that
 installs hooks inherits the problem, under either manager.
+
+---
+
+# Q5: the two dimensions where devenv wins. Can they be closed?
+
+devenv's wins were the C toolchain and an entry hook that runs everywhere.
+Both were probed. Both have solutions, and one of them improves the artifact.
+
+## Gap 1: the C toolchain
+
+Four candidates, three of them already measured elsewhere in this file.
+
+| candidate | verdict |
+|---|---|
+| devenv as the system layer only | **works.** Wheel in 2.9 s. This is arm 3 |
+| the host's own toolchain | **works** on all three runners, which already ship one. On NixOS it means adding a compiler to the system configuration |
+| nix without devenv, `nix shell nixpkgs#gcc` | **works.** Also arm 3, and it is what produced that number |
+| ⚠️ **zig, from mise** | **works, and produces a better wheel** |
+
+### zig, measured strictly
+
+`zig` is a first-class mise backend, `core:zig`, installed in 6.5 s. maturin
+carries a `--zig` flag for manylinux compliance.
+
+| PATH | result |
+|---|---|
+| mise shims, a two-line `cc` shim calling `zig cc`, `maturin build --zig` | ✅ **wheel** |
+| mise shims only, no `cc` anywhere, `maturin build --zig` | ❌ `error: linker cc not found` |
+
+⚠️ **`--zig` redirects the target build and not the host one.** Build scripts
+compile for the host and still call `cc` by name, so zig must also be reachable
+under that name. That is a two-line shim the repository would have to ship, and
+it is a real cost.
+
+### ⚠️ The wheel zig produced is more portable than either other arm
+
+| arm | wheel tag |
+|---|---|
+| devenv | `manylinux_2_34_x86_64` |
+| mise plus a nix compiler | `manylinux_2_34_x86_64` |
+| **mise plus zig** | **`manylinux_2_17_x86_64.manylinux2014_x86_64`** |
+
+glibc 2.17 against glibc 2.34. The zig wheel installs on far more Linux systems,
+and nobody asked for that. It is the second time in this prototype that the
+choice of environment silently decided which machines an artifact runs on, after
+the macOS tag difference recorded above.
+
+## Gap 2: an entry hook that runs everywhere
+
+mise's `enter` hook fires only when an activated shell changes directory into
+the project. The question is what the hook was **for**.
+
+In the frozen prototype it rebuilt a stale extension, and a stale extension
+there was a known hazard that hid failing Rust checks. ⚠️ **That is a missing
+build-dependency expressed as a shell hook.** A stale artifact is a job for the
+task graph, not for directory entry.
+
+Measured, in the exact context where the enter hook never fires, with no
+activation, no directory change and no interactive shell:
+
+```
+[build-guard] $ echo GUARD-RAN
+[check]       $ echo CHECK-RAN
+Finished in 8.6ms
+```
+
+⚠️ **A task dependency runs where the entry hook does not, including CI and an
+agent's `bash -c`.** The entry hook never ran in CI under either manager, so
+moving the work into the task graph is strictly wider coverage rather than a
+workaround.
+
+| candidate | verdict |
+|---|---|
+| **a task dependency** | **works, non-interactively, 8.6 ms** |
+| do nothing | the scaffold has no `enterShell` today |
+| mise `watch_files` hook | ⚠️ **not tested.** Likely needs activation, like `enter` |
+| direnv with `use mise` | ⚠️ **not tested** |
+
+## What survives
+
+Gap 1 is closable four ways and one of them improves the artifact. Gap 2 is
+closable by moving the work to where it belonged.
+
+⚠️ **Neither closure is free.** The zig route ships a `cc` shim, and the task
+route requires that every side effect have a task that depends on it, which is
+a discipline rather than a mechanism.
