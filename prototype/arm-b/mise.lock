@@ -124,18 +124,6 @@ version = "3.12.14"
 backend = "core:python"
 specifiers = ["3.12"]
 
-[tools.python.options]
-compile = "true"
-
-[tools.python."platforms.linux-x64"]
-checksum = "sha256:72748da13197c1fb161e3afeef20a6a385ff24f2165e6e2758e47008e7faba4c"
-url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.12.14+20260901-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
-
-[[tools.python]]
-version = "3.12.14"
-backend = "core:python"
-specifiers = ["3.12"]
-
 [tools.python."platforms.linux-arm64"]
 checksum = "sha256:577b4bec0793ad1ff0cbff9adbd0df078eddde38a4c41bf5d83ad381a85ee39d"
 url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.12.14+20260901-aarch64-unknown-linux-gnu-install_only_stripped.tar.gz"
@@ -155,6 +143,13 @@ url = "https://github.com/astral-sh/python-build-standalone/releases/download/20
 [tools.python."platforms.windows-x64"]
 checksum = "sha256:7c45c9622400d578709a9b2cddbe8124cc21d382409d9f13406d706d28e31b14"
 url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.12.14+20260901-x86_64-pc-windows-msvc-install_only_stripped.tar.gz"
+
+[tools.python.options]
+compile = "true"
+
+[tools.python."platforms.linux-x64"]
+checksum = "sha256:72748da13197c1fb161e3afeef20a6a385ff24f2165e6e2758e47008e7faba4c"
+url = "https://github.com/astral-sh/python-build-standalone/releases/download/20260901/cpython-3.12.14+20260901-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
 
 [[tools.rust]]
 version = "nightly-2026-09-15"
