@@ -8,8 +8,6 @@
 #
 # The owner must hold write permission, and this file must be on the base
 # branch of a pull request to have any effect.
-#
-# /docs/decisions/ does not exist yet -- #37 creates it. The entry below is
-# valid and inert until then.
 
-/docs/decisions/ @snregales
+/docs/decisions/     @snregales
+/rust-toolchain.toml @snregales

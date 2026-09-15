@@ -1,51 +1,36 @@
+# Manifest format: https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [package]
 name = "purba"
-# git-cliff computes the version and it is never chosen by hand (#24). `0.0.0`
-# is the pre-release placeholder: there are no tags yet, so there is nothing for
-# git-cliff to compute from. purba stays 0.x.
+# git-cliff computes the version and it is never chosen by hand. `0.0.0` holds
+# the place until the first tag gives it something to compute from.
 version = "0.0.0"
 edition = "2024"
 license = "MIT"
 description = "A Python test framework written in Rust"
 repository = "https://github.com/kalonji-tools/purba"
-# A cdylib cannot be a library dependency, so nothing downstream can consume
-# this crate (#24). The Rust crate surface is explicitly outside purba's public
-# API, and docs.rs only builds published crates — which is why `cargo doc` is a
-# CI lint here rather than a published site (#28).
 publish = false
 
-# `rust-version` is deliberately absent. It is a claim about consumers, and
-# `publish = false` plus a cdylib means purba has none. An unchecked claim
-# drifts; rust-toolchain.toml states the same fact executably instead.
+# `rust-version` is absent: it is a claim about consumers, and `publish = false`
+# plus a cdylib leaves purba none.
 
 [lib]
 name = "purba"
-# NOT ["cdylib"] alone. With a bare cdylib, `cargo test` prints GREEN and
-# silently omits the `Doc-tests` section entirely, while `cargo doc` renders
-# examples beautifully — a published, rendered, WRONG example under a green CI.
-# Cargo's `Target::doctestable()` admits only Rlib | Lib | ProcMacro, and PyO3's
-# guide never mentions this. The extra `rlib` is inert to maturin: the abi3
-# wheel is byte-identical (#28).
+# docs/decisions/the-crate-carries-an-rlib.md
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-# abi3-py311 is the floor of the cp311–cp314 target range (#24 takes both wheel
-# shapes: per-version for tested platforms, plus this abi3 floor).
+# abi3-py311 is the floor of the cp311-cp314 target range.
 pyo3 = { version = "0.29.2", features = ["abi3-py311"] }
 
-# Pinned exactly. `=0.0.12` is ruff 0.16.6 — the 0.0.N <-> ruff X.Y.Z mapping is
-# NOT arithmetic (0.0.2 = ruff 0.15.19) and there is no 0.0.1. Astral's `0.0.x`
-# is deliberate: no stability guarantees, incremented every release. `^0.0.x` is
-# already an exact cargo pin, so `=` states the intent rather than changing it.
+# docs/decisions/purba-parses-python-with-ruff.md
 ruff_python_parser = "=0.0.12"
 ruff_python_ast    = "=0.0.12"
-# The Ranged trait. `Expr::range()` will not resolve without it.
+# The Ranged trait; `Expr::range()` does not resolve without it.
 ruff_text_size     = "=0.0.12"
 # LineIndex.
 ruff_source_file   = "=0.0.12"
 
 [features]
-# NOT a default feature. `extension-module` omits libpython, which breaks
-# `cargo test --doc` and `cargo doc` — the two lints #28 put in quality.yml.
-# maturin turns this on via [tool.maturin] features; plain cargo leaves it off.
+# docs/decisions/the-crate-carries-an-rlib.md
 extension-module = ["pyo3/extension-module"]
