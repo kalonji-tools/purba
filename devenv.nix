@@ -35,6 +35,10 @@
     deadnix
     statix
     nil
+
+    # .config/wt.toml
+    git
+    gh
   ];
 
   env.RUST_BACKTRACE = "1";
