@@ -638,3 +638,68 @@ Locally the same zig-built wheel, built against Python 3.12, loaded into
 The module is empty, so nothing calls a Rust function and returns a value.
 **Module initialisation running is the strongest claim available until the
 crate holds product code**, which is the scaffold's whole premise.
+
+---
+
+# Are there other C toolchains, and is any of them better than zig?
+
+## The candidates, and what rules each one out
+
+| candidate | verdict |
+|---|---|
+| **the host's own toolchain** | **viable on six of six.** Every runner ships one. It fails only on a machine that has none, which here means NixOS without a compiler in its system configuration |
+| **zig** | **four of six.** Every Unix target, with the lowest wheel floors measured. ⚠️ **It cannot link the msvc target at all** |
+| **cargo-zigbuild** | ⚠️ **not an alternative.** `maturin --zig` already drives it, shown by its own wrappers in the failing command line |
+| **clang, from mise** | available only through `conda:`, `asdf:` and `vfox:` backends. ⚠️ **Not hermetic:** clang needs the system's libc headers and CRT objects, which zig bundles, so it does not remove the host dependency. Not measured |
+| **llvm, gcc** | not in mise's registry at all |
+| **mold, sccache, ccache** | a linker and two caches. Not compilers |
+| **rust-lld** | a linker, not a compiler. ⚠️ The dependency graph contains `psm`, which compiles assembly, so a C compiler is genuinely required rather than merely a linker |
+
+## ⚠️ The `cc` shim was a regression, not a feature
+
+Arm A forces `cc` to zig so that nothing is needed from the host. Arm C keeps
+`--zig` for the target build and leaves build scripts to the host compiler.
+
+| platform | arm A, with the shim | arm C, without it |
+|---|---|---|
+| ubuntu x86_64 | `manylinux_2_17_x86_64` | `manylinux_2_17_x86_64` |
+| ubuntu aarch64 | ⚠️ **`manylinux_2_34_aarch64`**, zig declined | **`manylinux_2_17_aarch64`** |
+| macOS arm64 | `macosx_11_0_arm64` | `macosx_11_0_arm64` |
+| macOS x86_64 | `macosx_10_12_x86_64` | `macosx_10_12_x86_64` |
+| Windows x86_64 | wheel, on the host compiler | ⚠️ **fails, no fallback** |
+| Windows arm64 | wheel, on the host compiler | ⚠️ **fails, no fallback** |
+
+The shim is what broke aarch64 Linux, and the cause is named in the run's own
+fallback dump:
+
+```
+error: unsupported linker arg: --fix-cortex-a53-843419
+```
+
+rustc emits that Cortex-A53 erratum workaround by default on aarch64 and zig's
+linker does not implement it. It broke the **host** build scripts, which the
+shim routes through zig, and not the target build.
+
+⚠️ **So the shim cost a wheel floor rather than buying independence.** Removing
+it raises aarch64 Linux from glibc 2.34 to glibc 2.17.
+
+## Why Windows cannot use zig
+
+The msvc target hands the linker MSVC-style arguments, `/DEF:`, `/NOLOGO`,
+`/DEFAULTLIB:msvcrt` and the rest, and cargo-zigbuild's wrapper fails on them.
+This is not a configuration gap. rustc drives `link.exe` on that target.
+
+## What this means
+
+⚠️ **zig is not a replacement for a host compiler. It is a portability upgrade
+on Unix targets.** The honest configuration is:
+
+- `--zig` for the target build on Linux and macOS, four platforms, lowest floors
+- the host toolchain on Windows, where zig cannot go
+- the host compiler for build scripts everywhere, because forcing zig there
+  costs more than it buys
+
+⚠️ **There is no second self-contained C toolchain available through mise.** The
+real alternative to zig is not another compiler. It is not needing one, which
+works on every platform that already ships a compiler and fails on exactly one
+machine: a NixOS box with none installed.
