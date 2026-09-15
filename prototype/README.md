@@ -342,3 +342,67 @@ Anything that must happen before every command has no home in mise.
 ⚠️ **The scaffold has no `enterShell` today**, so Q3 prices a capability purba
 does not yet use. The frozen prototype used it to rebuild a stale extension, and
 a stale extension there was a known hazard that hid Rust check failures.
+
+---
+
+# Q4: worktrees and Worktrunk
+
+Every repository here is driven by Worktrunk, so a manager that is slow or
+heavy per worktree is slow and heavy every working day.
+
+## Cost of a fresh worktree
+
+A worktree was created with `wt switch --create`, both managers' files copied
+into it, and each asked for a working `rustc`.
+
+| | mise | devenv |
+|---|---|---|
+| cold, first call in a brand-new worktree | **0.105 s** | **4.48 s** |
+| what it installed | **0 tools. 6 already installed** | reused the nix store, built a profile |
+| what it wrote into the worktree | **nothing** | `.devenv/`, 916 KB for this scaffold |
+
+`wt switch --create` itself is 0.032 s. The cost is entirely in what the
+manager does afterwards.
+
+## Per-worktree footprint at maturity
+
+Measured on the frozen prototype's live tree.
+
+| directory | size | what it is |
+|---|---:|---|
+| `.devenv/state/venv` | 225 MB | the uv virtualenv. ⚠️ **Not devenv's fault: a venv is per directory under any manager** |
+| `.devenv/shell-*.sh` | ⚠️ **35 MB across 411 files** | cached shell scripts, accumulated |
+| `.devenv` total | 260 MB | per worktree |
+
+⚠️ **The 411 cached scripts are devenv-specific accumulation and nothing prunes
+them.** Excluding the venv, devenv's own per-worktree cost in that tree is
+essentially those files.
+
+mise installs into one shared store, so a second worktree adds nothing.
+
+## Both managers need a per-worktree trust step
+
+| manager | what is untrusted | measured |
+|---|---|---|
+| devenv | `.envrc` | already handled by `.config/wt.toml`'s `pre-start.direnv`, which runs `direnv allow` |
+| mise | `mise.toml` | ⚠️ **an untrusted config errors:** `Config files ... are not trusted` |
+
+⚠️ **Every new worktree is a new path, so mise needs `mise trust` in each one.**
+The remedy is symmetrical with the one already in the tree: a `pre-start` hook.
+
+## ⚠️ The Worktrunk config is not manager-neutral
+
+`.config/wt.toml` carries `post-switch = "direnv reload"` and a `pre-start`
+hook that runs `direnv allow`. Both exist **because devenv is reached through
+`.envrc`**. Under mise neither is needed in that form, and mise needs its own
+trust hook instead.
+
+⚠️ **That file was decided as copying wholesale.** Choosing mise rewrites it.
+
+## ⚠️ Installing git hooks from a worktree hits every worktree
+
+Found while measuring Q2 and repeated here because it belongs to this question:
+`prek install` run inside a worktree wrote `pre-commit` into the **shared**
+`.git/hooks`, which every worktree of the repository uses. The frozen prototype
+handles this with an ordered task that sets `core.hooksPath`. Any ticket that
+installs hooks inherits the problem, under either manager.
