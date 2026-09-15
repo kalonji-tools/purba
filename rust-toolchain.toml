@@ -1,33 +1,20 @@
-# The one place that names the Rust toolchain.
-#
-# Two readers, one file. devenv resolves it at nix evaluation time through
-# `languages.rust.toolchainFile` (#39), which is why the shell contains no
-# `rustup` at all — `cargo` is a store path. rustup is how CI will read it, via
-# a bare `rustup toolchain install`; the no-argument form, because rustup >=
-# 1.28 no longer auto-installs the toolchain a toolchain file names. That half
-# is wired by #36 and #42.
-#
-# This is an exact PIN, not an MSRV, and the distinction is load-bearing. A pin
-# says build with this; an MSRV says anything at or above this. purba declares
-# no `rust-version` and Cargo.toml records why. The floor that does exist
-# belongs to the dependencies, and cargo — not this file — enforces it: the
-# ruff crates at `=0.0.12` declare 1.96, the highest in the graph, and that
-# number moved 1.94 -> 1.95 -> 1.96 in ten weeks (#26). nixpkgs *stable* ships
-# rustc 1.95.0 and cannot build them, so the toolchain resolves through
-# rust-overlay and never through nixpkgs.
+# The one place that names the Rust toolchain, and an exact pin rather than a
+# floor. purba declares no `rust-version`: that is a claim about consumers, and
+# the floor that does exist belongs to the dependency graph, where cargo
+# enforces it.
+# https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
 #
 # Bumping `channel` is the whole upgrade, so this path belongs in every
 # paths-filter that compiles Rust.
 #
-# `profile` is explicit because the default profile is machine state that
-# `rustup set profile` mutates.
+# `profile` is explicit because the default is machine state that `rustup set
+# profile` mutates. Installing what this file names takes the no-argument
+# `rustup toolchain install`: https://rust-lang.github.io/rustup/overrides.html
 #
-# `rust-src` is here for RUST_SRC_PATH, and removing it fails SILENTLY. devenv
-# points that variable at this toolchain unconditionally, so dropping the
-# component leaves it set to a directory that does not exist — measured, with
-# no error and no warning, and rust-analyzer then stops resolving the standard
-# library. The two files hold two halves of one fact and nothing checks they
-# agree.
+# Removing `rust-src` fails silently. devenv aims RUST_SRC_PATH at this
+# toolchain whether or not the component is present, so dropping it leaves the
+# variable pointing at a directory that does not exist, with no error and no
+# warning, and rust-analyzer stops resolving the standard library.
 [toolchain]
 channel = "1.98.1"
 profile = "minimal"
