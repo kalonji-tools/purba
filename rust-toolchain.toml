@@ -17,6 +17,6 @@
 # it devenv falls back to nixpkgs' rustLibSrc and rust-analyzer would index a
 # standard library from a different release than the rustc beside it.
 [toolchain]
-channel = "1.98.1"
+channel = "nightly"
 profile = "minimal"
 components = ["clippy", "rustfmt", "rust-analyzer", "rust-src"]

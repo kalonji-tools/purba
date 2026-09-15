@@ -1,0 +1,14 @@
+# PROTOTYPE arm. Never merged.
+[tools]
+rust = { version = "nightly", components = "clippy,rustfmt,rust-analyzer,rust-src" }
+python = "3.12"
+uv = "latest"
+maturin = "latest"
+just = "latest"
+prek = "latest"
+
+[settings]
+lockfile = true
+
+[env]
+RUST_BACKTRACE = "1"

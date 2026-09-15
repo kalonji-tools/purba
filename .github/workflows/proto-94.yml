@@ -66,3 +66,101 @@ jobs:
 
           printf '\n' >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_STEP_SUMMARY"
+
+  # Arm 2 and arm 3 are indistinguishable on a GitHub runner, because the
+  # baseline job proves every runner already carries a C compiler. This job
+  # therefore answers one question only: does mise serve all three operating
+  # systems? The question of whether devenv is needed for the system layer is
+  # answered on the developer's machine, not here.
+  arm-mise:
+    name: arm-mise ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v4
+        with:
+          install_args: --locked
+        env:
+          MISE_PYTHON_COMPILE: "0"
+
+      - name: Manifest
+        shell: bash
+        run: |
+          {
+            printf '## arm-mise %s\n\n' "${{ matrix.os }}"
+            printf '| probe | value |\n|---|---|\n'
+            printf '| rustc | %s |\n' "$(mise exec rust -- rustc --version 2>&1 | tr -d '\r')"
+            printf '| cargo | %s |\n' "$(mise exec rust -- cargo --version 2>&1 | tr -d '\r')"
+            printf '| clippy | %s |\n' "$(mise exec rust -- cargo-clippy --version 2>&1 | tr -d '\r')"
+            printf '| rustfmt | %s |\n' "$(mise exec rust -- rustfmt --version 2>&1 | tr -d '\r')"
+            printf '| python | %s |\n' "$(python --version 2>&1 | tr -d '\r')"
+            printf '| maturin | %s |\n' "$(maturin --version 2>&1 | tr -d '\r')"
+            printf '| just | %s |\n' "$(just --version 2>&1 | tr -d '\r')"
+            printf '| prek | %s |\n' "$(prek --version 2>&1 | tr -d '\r')"
+            printf '| uv | %s |\n' "$(uv --version 2>&1 | tr -d '\r')"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: The criterion, a wheel
+        shell: bash
+        run: |
+          start=$(date +%s)
+          if maturin build --out dist 2>&1 | tail -20; then
+            verdict="built"
+          else
+            verdict="FAILED"
+          fi
+          elapsed=$(( $(date +%s) - start ))
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | %s |\n' "${wheel:-none}"
+            printf '| verdict | **%s** in %ss |\n\n' "$verdict" "$elapsed"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"
+
+  # The devenv arm gets no Windows leg. WSL2 is not usable on a Windows runner,
+  # and a job that confirms a documented impossibility buys nothing.
+  arm-devenv:
+    name: arm-devenv ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "experimental-features = nix-command flakes"
+
+      - name: Install devenv
+        run: nix profile install nixpkgs#devenv
+
+      - name: Manifest and the criterion
+        shell: bash
+        run: |
+          start=$(date +%s)
+          devenv shell --quiet -- bash -c '
+            {
+              printf "## arm-devenv ${{ matrix.os }}\n\n"
+              printf "| probe | value |\n|---|---|\n"
+              printf "| rustc | %s |\n" "$(rustc --version)"
+              printf "| cargo | %s |\n" "$(cargo --version)"
+              printf "| rustfmt | %s |\n" "$(rustfmt --version)"
+              printf "| python | %s |\n" "$(python --version 2>&1)"
+              printf "| maturin | %s |\n" "$(maturin --version)"
+            } >> "$GITHUB_STEP_SUMMARY"
+            maturin build --out dist 2>&1 | tail -10
+          '
+          elapsed=$(( $(date +%s) - start ))
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | %s |\n' "${wheel:-none}"
+            printf '| verdict | **%s** in %ss, cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "$elapsed"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"
