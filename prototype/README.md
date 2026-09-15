@@ -151,3 +151,111 @@ same day.
 
 The tree is the bare cdylib scaffold with its 93 dependency crates and no
 product code. Nothing here tests free-threaded Python.
+
+---
+
+# Second question: can `rust-toolchain.toml` be dropped?
+
+Asked after the arms ran. Measured the same day, on the same branch.
+
+## Who reads the file
+
+| reader | how |
+|---|---|
+| devenv | `devenv.nix:9`, `toolchainFile = ./rust-toolchain.toml` |
+| rustup, anywhere | any `rustc` or `cargo` resolving through a rustup proxy, including the developer's own `~/.cargo/bin` |
+| `Cargo.toml:19`, `README.md:20` | prose. No functional dependency |
+| mise | not at all, unless `idiomatic_version_file_enable_tools` names rust |
+
+## Both managers build a wheel without it
+
+| arm | file present | file deleted |
+|---|---|---|
+| mise | wheel | **wheel.** `RUSTUP_TOOLCHAIN=nightly-2026-09-15`, unchanged |
+| devenv, inline `channel` plus a complete `components` list | wheel | **every binary from one nightly** |
+
+## ⚠️ The trap that cost this prototype a wrong finding
+
+A first attempt at the devenv arm wrote `components = [ "clippy" "rustfmt"
+"rust-analyzer" "rust-src" ]` and produced a shell that looked fine and was not.
+
+| binary | resolved to | version |
+|---|---|---|
+| `rustc`, `cargo` | ⚠️ `~/.cargo/bin`, the developer's own rustup | **1.95.0** |
+| `rustfmt`, `clippy-driver` | the nix store | `1.10.0-nightly`, 2026-09-11 |
+
+1.95.0 is the version this project's README says cannot build its pinned ruff
+crates, which declare `rust-version = "1.96"`.
+
+The cause is one word meaning two things:
+
+| file | `components` means |
+|---|---|
+| `rust-toolchain.toml` | **additive.** `profile = "minimal"` supplies `rustc`, `cargo` and `rust-std`, and `components` adds to it |
+| `devenv.nix`, inline | ⚠️ **the complete list.** Omit `rustc` and the toolchain has none |
+
+⚠️ **An incomplete list is silent.** PATH falls through to the developer's own
+rustup and the shell still works, with the wrong compiler in it.
+
+⚠️ **This prototype published that wrong finding before the human challenged
+it.** It is the strongest evidence here for the asymmetry below, because it is
+an instance of it.
+
+## The asymmetry the two managers have
+
+| manager | how it holds a toolchain | what a gap does |
+|---|---|---|
+| devenv | PATH ordering | ⚠️ **falls through to the developer's rustup default, silently** |
+| mise | sets `RUSTUP_TOOLCHAIN` | no fall-through exists. It overrides a rustup default and the file alike |
+
+## `rust-src` is not needed when the file is gone
+
+Measured with `rust-src` absent from the components list. `RUST_SRC_PATH` still
+resolves, to a `rust-src` matching the toolchain's own nightly.
+
+Three signals rule out a stale evaluation:
+
+| signal | evidence |
+|---|---|
+| devenv re-evaluated every run | the `rustc` store path changed each time |
+| `rust-analyzer` is its own derivation | `rust-analyzer-preview-1.100.0-nightly-2026-09-12` |
+| `rust-src` is not part of the toolchain | ⚠️ **it is not a reference of the toolchain derivation** |
+
+devenv assembles the shell from separate per-component derivations and supplies
+a matching `rust-src` on its own.
+
+### ⚠️ Two lines the substrate ticket records do not hold for an inline channel
+
+1. `toolchain.rust-src = config.languages.rust.toolchainPackage;` is not merely
+   redundant. With `channel` and `components` set, devenv evaluation fails with
+   `error: infinite recursion encountered`.
+2. Its stated reason does not reproduce. The ticket records that without it
+   devenv aims `RUST_SRC_PATH` at nixpkgs' `rustLibSrc`, from a different
+   release than the rustc beside it. Under an inline nightly channel the default
+   already resolves to the matching nightly.
+
+⚠️ **Measured against an inline channel only.** It says nothing about the
+`toolchainFile` arrangement the substrate pull request actually ships, where
+that line may still earn its place.
+
+## ⚠️ A finding that belongs to neither manager
+
+The source distribution ships the file. Verified by building one:
+
+```
+purba-0.0.0/rust-toolchain.toml
+```
+
+Anyone building from source is put on purba's toolchain, and under a floating
+nightly their build installs a nightly.
+
+⚠️ **The sdist also ships `devenv.nix`, `devenv.lock`, `mise.toml`, `mise.lock`,
+`prototype/README.md` and `.github/workflows/`.** No ticket owns this.
+
+## The three options this leaves
+
+| option | consequence |
+|---|---|
+| keep it | a bare runner needs no setup, and a developer's own rustup cannot shadow the project |
+| remove it | works under both managers. The sdist problem goes with it |
+| keep it, exclude it from the sdist | both protections survive and a source build is freed |
