@@ -1,8 +1,11 @@
 { config, pkgs, ... }:
 
+# Options and their defaults: https://devenv.sh/reference/options/
+#
 # A tool lands here in the same commit as the file it acts on, and its entry
-# names that file. Acting on is not calling: a tool enters this file when its
-# subject is in the tree, and a check enters a gate separately.
+# names that file. Acting on is not calling: a tool enters when its subject is
+# in the tree, and a check enters a gate separately. A tool with no single
+# subject names none.
 
 {
   languages.rust = {
@@ -10,17 +13,14 @@
 
     toolchainFile = ./rust-toolchain.toml;
 
-    # devenv aims RUST_SRC_PATH at this toolchain unconditionally, and
-    # `toolchainFile` never sets `toolchain.rust-src`, so without this line the
-    # variable falls back to nixpkgs' rustLibSrc and rust-analyzer indexes a
-    # standard library from a different release than the rustc beside it.
+    # rust-toolchain.toml carries rust-src, and this aims RUST_SRC_PATH at it
+    # rather than at nixpkgs' rustLibSrc.
     toolchain.rust-src = config.languages.rust.toolchainPackage;
   };
 
-  # Python is here for the Rust build, and the tree holds no Python code.
-  # `extension-module` is not a default feature, so a plain `cargo build` links
-  # libpython and pyo3-ffi's build script fails without an interpreter.
-  # https://pyo3.rs/v0.29.2/building-and-distribution.html
+  # Python is here for the Rust build, and the tree holds no Python code:
+  # extension-module is not a default feature, so a plain `cargo build` links
+  # libpython. https://pyo3.rs/v0.29.2/building-and-distribution.html
   languages.python = {
     enable = true;
     package = pkgs.python312;
@@ -36,7 +36,7 @@
     statix
     nil
 
-    # .config/wt.toml
+    # No single subject: both are used throughout the project.
     git
     gh
   ];
