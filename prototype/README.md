@@ -583,3 +583,58 @@ an empty store, where it installed 7 of 7 in 22.1 s.
 
 ⚠️ **`actionlint` rejected `macos-13` before it cost a run.** The Intel runner
 is now `macos-15-intel`.
+
+---
+
+# Crossing the PyO3 bridge, which building a wheel does not prove
+
+Every leg up to here proved a wheel **compiles and links**. None loaded one into
+a Python interpreter. The crate carries a real `#[pymodule]`, and the crate's own
+doc comment already says a verified Rust example covers the core and never the
+bridge. So the bridge was untested, and it is untested exactly where it matters
+most: in the arm that changes the linker.
+
+Run [34978397756](https://github.com/kalonji-tools/purba/actions/runs/34978397756).
+Each arm installs its own wheel into a fresh virtual environment and runs
+`prototype/bridge_check.py`.
+
+## ⚠️ The first attempt at this check was too weak, and would have passed
+
+It reported `purba.__file__`, which is `purba/__init__.py`, because maturin ships
+a package whose first line is `from .purba import *`. The extension did load, but
+the probe could not show it and **would have reported success for a package with
+no Rust in it at all.**
+
+The check now asserts on `purba.purba.__file__` and requires a `.so`, `.pyd` or
+`.dylib` suffix.
+
+## The result
+
+| arm | platform | extension loaded |
+|---|---|---|
+| A | ubuntu x86_64 | `purba.abi3.so` |
+| A | ubuntu aarch64 | `purba.abi3.so` |
+| A | macOS arm64 | `purba.abi3.so` |
+| A | macOS x86_64 | `purba.abi3.so` |
+| A | Windows x86_64 | `purba.pyd` |
+| A | Windows arm64 | `purba.pyd` |
+| B | ubuntu x86_64 | `purba.abi3.so` |
+| B | ubuntu aarch64 | `purba.abi3.so` |
+| B | macOS arm64 | `purba.abi3.so` |
+
+**Six of six for arm A, three of three for arm B, on Python 3.12.14.**
+
+Loading the extension runs PyO3's module initialisation, which is Rust, so this
+is the first evidence in this prototype that Rust code executed inside a Python
+process rather than merely compiling.
+
+## ⚠️ abi3 proved itself by accident
+
+Locally the same zig-built wheel, built against Python 3.12, loaded into
+**Python 3.14.4**. Nobody asked for that and it is what `abi3` is for.
+
+## What is still not tested
+
+The module is empty, so nothing calls a Rust function and returns a value.
+**Module initialisation running is the strongest claim available until the
+crate holds product code**, which is the scaffold's whole premise.
