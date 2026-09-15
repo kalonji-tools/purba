@@ -77,6 +77,31 @@ jobs:
           echo "COMPILER_USED=$used" >> "$GITHUB_ENV"
           echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
 
+      - name: Cross the bridge, which building does not prove
+        if: always()
+        shell: bash
+        run: |
+          # A wheel that compiles and links is not a wheel a Python interpreter
+          # can load. The crate's own doc comment says a verified Rust example
+          # covers the core and never the bridge, so the bridge needs this.
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          if [ -z "$wheel" ]; then
+            echo "BRIDGE=⚠️ **no wheel to import**" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          uv venv "$RUNNER_TEMP/v"
+          vpy="$RUNNER_TEMP/v/bin/python"
+          [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
+          if uv pip install --python "$vpy" "$wheel" && \
+             out="$("$vpy" -c 'import purba; print(purba.__file__)' 2>&1)"; then
+            echo "BRIDGE=**imported**, \`$(basename "$out")\`" >> "$GITHUB_ENV"
+            echo "imported: $out"
+          else
+            echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
+            echo "$out"
+            exit 1
+          fi
+
       - name: Manifest
         if: always()
         shell: bash
@@ -130,6 +155,31 @@ jobs:
           devenv shell --quiet -- bash -c 'maturin build --out dist 2>&1 | tail -8'
           echo "COMPILER_USED=devenv" >> "$GITHUB_ENV"
           echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Cross the bridge, which building does not prove
+        if: always()
+        shell: bash
+        run: |
+          # A wheel that compiles and links is not a wheel a Python interpreter
+          # can load. The crate's own doc comment says a verified Rust example
+          # covers the core and never the bridge, so the bridge needs this.
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          if [ -z "$wheel" ]; then
+            echo "BRIDGE=⚠️ **no wheel to import**" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          uv venv "$RUNNER_TEMP/v"
+          vpy="$RUNNER_TEMP/v/bin/python"
+          [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
+          if uv pip install --python "$vpy" "$wheel" && \
+             out="$("$vpy" -c 'import purba; print(purba.__file__)' 2>&1)"; then
+            echo "BRIDGE=**imported**, \`$(basename "$out")\`" >> "$GITHUB_ENV"
+            echo "imported: $out"
+          else
+            echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
+            echo "$out"
+            exit 1
+          fi
 
       - name: Manifest
         if: always()

@@ -23,3 +23,4 @@ else
 fi
 say "| C compiler | \`$(command -v cc 2>/dev/null || command -v clang 2>/dev/null || command -v gcc 2>/dev/null || echo 'none on PATH')\` |"
 say "| compiler actually used | ${COMPILER_USED:-unrecorded} |"
+say "| **bridge: Python imports it** | ${BRIDGE:-not attempted} |"
