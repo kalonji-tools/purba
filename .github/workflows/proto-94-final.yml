@@ -87,6 +87,7 @@ jobs:
             printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
             printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
           } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
           test -n "$wheel"
 
   arm-b:
@@ -141,4 +142,5 @@ jobs:
             printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
             printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
           } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
           test -n "$wheel"
