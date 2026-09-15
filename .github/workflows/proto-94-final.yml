@@ -93,8 +93,8 @@ jobs:
           vpy="$RUNNER_TEMP/v/bin/python"
           [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
           if uv pip install --python "$vpy" "$wheel" && \
-             out="$("$vpy" -c 'import purba; print(purba.__file__)' 2>&1)"; then
-            echo "BRIDGE=**imported**, \`$(basename "$out")\`" >> "$GITHUB_ENV"
+             out="$("$vpy" prototype/bridge_check.py 2>&1)"; then
+            echo "BRIDGE=**loaded** \`$(printf "%s" "$out" | sed -n "s/^extension: .*[\\/]//p")\`" >> "$GITHUB_ENV"
             echo "imported: $out"
           else
             echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
@@ -172,8 +172,8 @@ jobs:
           vpy="$RUNNER_TEMP/v/bin/python"
           [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
           if uv pip install --python "$vpy" "$wheel" && \
-             out="$("$vpy" -c 'import purba; print(purba.__file__)' 2>&1)"; then
-            echo "BRIDGE=**imported**, \`$(basename "$out")\`" >> "$GITHUB_ENV"
+             out="$("$vpy" prototype/bridge_check.py 2>&1)"; then
+            echo "BRIDGE=**loaded** \`$(printf "%s" "$out" | sed -n "s/^extension: .*[\\/]//p")\`" >> "$GITHUB_ENV"
             echo "imported: $out"
           else
             echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
