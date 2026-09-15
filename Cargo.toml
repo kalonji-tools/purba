@@ -16,14 +16,14 @@ publish = false
 
 [lib]
 name = "purba"
-# file://docs/decisions/the-crate-carries-an-rlib.md
+# docs/decisions/the-crate-carries-an-rlib.md
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 # abi3-py311 is the floor of the cp311-cp314 target range.
 pyo3 = { version = "0.29.2", features = ["abi3-py311"] }
 
-# file://docs/decisions/purba-parses-python-with-ruff.md
+# docs/decisions/purba-parses-python-with-ruff.md
 ruff_python_parser = "=0.0.12"
 ruff_python_ast    = "=0.0.12"
 # The Ranged trait; `Expr::range()` does not resolve without it.
@@ -32,5 +32,5 @@ ruff_text_size     = "=0.0.12"
 ruff_source_file   = "=0.0.12"
 
 [features]
-# file://docs/decisions/the-crate-carries-an-rlib.md
+# docs/decisions/the-crate-carries-an-rlib.md
 extension-module = ["pyo3/extension-module"]

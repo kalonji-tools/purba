@@ -1,38 +1,23 @@
-# Project-level overrides, composed with ~/.config/worktrunk/config.toml rather
-# than replacing it. Hook names are versioned, and a wrong one is ignored or
-# silently aliased rather than reported, so `wt hook show` is the only reliable
-# statement of what each command runs: https://worktrunk.dev/worktrunk/
-#
-# Bare keys must stay above the [pre-start] table, because a table consumes
-# every key that follows it: https://toml.io/en/v1.0.0#table
+# Project-level worktrunk overrides. Hook names, hook semantics and
+# `wt hook show`: https://worktrunk.dev/worktrunk/
+# Bare keys must stay above the first table: https://toml.io/en/v1.0.0#table
 
-# The user-level post-switch hook enters devenv for the switching command; this
-# refreshes direnv's cached export so an interactive shell in the new worktree
-# sees the same environment.
+# purba's environment is devenv, reached through .envrc. The user-level
+# post-switch hook enters it for the switching command; this refreshes direnv's
+# cached export so an interactive shell in the worktree sees the same one.
 post-switch = "direnv reload"
 
 [pre-start]
 
-# Approve this worktree's .envrc so entering it activates devenv without a
-# prompt. pre-start rather than post-switch: it fires once at creation and
-# blocks, so the environment is trusted before anything tries to use it.
-# Guarded, and `|| true`, because a non-zero exit from a blocking hook aborts
-# worktree creation on any machine that has no direnv.
-#
-# It does not replace a direnv `whitelist` prefix, which also covers
-# directories created outside wt and survives the .envrc edits that re-trigger
-# the approval prompt. This hook is the portable half: it travels with the repo.
+# Trust this worktree's .envrc at creation, so entering it activates devenv
+# without a prompt.
 direnv = "command -v direnv >/dev/null && direnv allow || true"
 
-# Warn when another branch or open pull request already touches this branch's
-# issue numbers. Advisory only: it always exits 0, because a false positive
-# from a blocking hook must never abort worktree creation.
-#
-# Every number in the branch name is extracted rather than the first, so a
-# branch naming two issues checks both. It covers implementation and merge
-# collisions, and cannot see one that happens before any worktree exists.
-#
-# Test without creating a worktree: `wt hook pre-start concurrency`.
+# purba's branch names carry their issue numbers, so the branch name alone is
+# enough to warn that another branch or open pull request already works the
+# same issue. Every number is extracted rather than the first, because a branch
+# may name two. Advisory: it always exits 0, and it sees nothing that happened
+# before a worktree existed.
 concurrency = """
 issues=$(printf '%s' '{{ branch }}' | grep -oE '[0-9]{2,}' | sort -u); \
 [ -z "$issues" ] && exit 0; \
