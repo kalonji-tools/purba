@@ -273,3 +273,77 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_STEP_SUMMARY"
           test -n "$wheel"
+
+  # Arm D is the configuration nobody had measured: mise and nothing else. No
+  # zig, no devenv, no shim. The C toolchain comes from the host, which every
+  # runner already carries and which a developer installs once.
+  #
+  # It exists because the only machine in this project without a host compiler
+  # is one NixOS box, and carrying a second compiler in the repository to serve
+  # one machine is a trade worth seeing priced.
+  arm-d:
+    name: D mise alone ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-15-intel
+          - windows-latest
+          - windows-11-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Place arm D's config
+        shell: bash
+        run: cp prototype/arm-d/mise.toml mise.toml && cp prototype/arm-d/mise.lock mise.lock
+
+      - uses: jdx/mise-action@v4
+        env:
+          MISE_PYTHON_COMPILE: "0"
+
+      - name: Build with nothing but the host compiler
+        shell: bash
+        run: |
+          start=$(date +%s)
+          maturin build --out dist 2>&1 | tail -4
+          echo "COMPILER_USED=the host's own" >> "$GITHUB_ENV"
+          echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Cross the bridge, which building does not prove
+        if: always()
+        shell: bash
+        run: |
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          if [ -z "$wheel" ]; then
+            echo "BRIDGE=⚠️ **no wheel to import**" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          uv venv "$RUNNER_TEMP/v"
+          vpy="$RUNNER_TEMP/v/bin/python"
+          [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
+          if uv pip install --python "$vpy" "$wheel" && \
+             out="$("$vpy" prototype/bridge_check.py 2>&1)"; then
+            echo "BRIDGE=**loaded**" >> "$GITHUB_ENV"
+            echo "$out"
+          else
+            echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: Manifest
+        if: always()
+        shell: bash
+        run: |
+          bash prototype/probe.sh "arm D, mise alone" "${{ matrix.os }}"
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
+            printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"

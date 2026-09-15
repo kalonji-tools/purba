@@ -1,0 +1,16 @@
+# ARM D: mise alone, and nothing else. No zig, no devenv, no shim.
+# The C toolchain comes from the host, which every runner already carries and
+# which a developer installs once.
+[tools]
+rust = { version = "nightly", components = "rustc,cargo,clippy,rustfmt,rust-analyzer,rust-src" }
+python = "3.12"
+maturin = "latest"
+uv = "latest"
+just = "latest"
+prek = "latest"
+
+[settings]
+lockfile = true
+
+[env]
+RUST_BACKTRACE = "1"
