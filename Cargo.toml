@@ -1,8 +1,9 @@
+# Manifest format: https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [package]
 name = "purba"
-# git-cliff computes the version and it is never chosen by hand. `0.0.0` is the
-# pre-release placeholder: there are no tags yet, so there is nothing to
-# compute from.
+# git-cliff computes the version and it is never chosen by hand. `0.0.0` holds
+# the place until the first tag gives it something to compute from.
 version = "0.0.0"
 edition = "2024"
 license = "MIT"
@@ -10,9 +11,8 @@ description = "A Python test framework written in Rust"
 repository = "https://github.com/kalonji-tools/purba"
 publish = false
 
-# `rust-version` is deliberately absent. It is a claim about consumers, and
-# `publish = false` plus a cdylib leaves purba none. It is also a floor, where
-# rust-toolchain.toml is an exact pin, so the two never state the same fact.
+# `rust-version` is absent: it is a claim about consumers, and `publish = false`
+# plus a cdylib leaves purba none.
 
 [lib]
 name = "purba"
