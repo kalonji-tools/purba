@@ -1,0 +1,16 @@
+# ARM A: mise alone. zig supplies the C toolchain, so nothing is expected from
+# the host except a shell.
+[tools]
+rust = { version = "nightly", components = "rustc,cargo,clippy,rustfmt,rust-analyzer,rust-src" }
+python = "3.12"
+zig = "latest"
+maturin = "latest"
+uv = "latest"
+just = "latest"
+prek = "latest"
+
+[settings]
+lockfile = true
+
+[env]
+RUST_BACKTRACE = "1"

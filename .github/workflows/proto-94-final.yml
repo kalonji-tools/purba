@@ -1,0 +1,145 @@
+# PROTOTYPE. This file must never reach `main`.
+#
+# Two arms, after the manager decision was made, to choose its shape:
+#
+#   A  mise alone. zig supplies the C toolchain.
+#   B  mise owns every tool version; devenv is the system layer only.
+#
+# Both are measured on multiple architectures, not only multiple operating
+# systems, because a wheel is built per platform and arm64 is where a source
+# build or a missing prebuilt binary first shows up.
+#
+# Read every row against the baseline: a GitHub runner already carries a C
+# compiler and a rustup, so neither arm here can prove that its own compiler
+# was necessary. It can only prove which compiler was used and what came out.
+name: proto-94-final
+
+on:
+  push:
+    branches: [proto/94-first-class-path]
+
+permissions:
+  contents: read
+
+jobs:
+  arm-a:
+    name: A mise+zig ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-15-intel
+          - windows-latest
+          - windows-11-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Place arm A's config
+        shell: bash
+        run: cp prototype/arm-a/mise.toml mise.toml
+
+      - uses: jdx/mise-action@v4
+        env:
+          MISE_PYTHON_COMPILE: "0"
+
+      - name: Build the wheel, preferring zig
+        id: build
+        shell: bash
+        run: |
+          start=$(date +%s)
+          mkdir -p "$RUNNER_TEMP/shim"
+
+          # Force zig where a Unix-style `cc` is what the build scripts call.
+          # On the msvc target rustc drives link.exe directly and never consults
+          # `cc`, so this shim is inert there and the fallback below reports it.
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            printf '#!/bin/sh\nexec "%s" cc "$@"\n' "$(mise which zig)" > "$RUNNER_TEMP/shim/cc"
+            chmod +x "$RUNNER_TEMP/shim/cc"
+            export PATH="$RUNNER_TEMP/shim:$PATH"
+          fi
+
+          used="unknown"
+          if maturin build --zig --out dist > build.log 2>&1; then
+            used="zig (--zig accepted)"
+          else
+            echo "--- zig attempt failed, falling back to the host toolchain ---"
+            tail -12 build.log || true
+            rm -rf "$RUNNER_TEMP/shim"
+            if maturin build --out dist > build2.log 2>&1; then
+              used="⚠️ host toolchain. zig refused this platform"
+            else
+              used="⚠️ **neither**"
+              tail -12 build2.log || true
+            fi
+          fi
+          echo "COMPILER_USED=$used" >> "$GITHUB_ENV"
+          echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Manifest
+        if: always()
+        shell: bash
+        run: |
+          bash prototype/probe.sh "arm A, mise plus zig" "${{ matrix.os }}"
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
+            printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"
+
+  arm-b:
+    name: B mise+devenv ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # No Windows leg. devenv reaches Windows only through WSL2, which a Windows
+    # runner does not usefully provide. Recorded, not measured.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Place arm B's config
+        shell: bash
+        run: cp prototype/arm-b/mise.toml mise.toml && cp prototype/arm-b/devenv.* .
+
+      - uses: jdx/mise-action@v4
+        env:
+          MISE_PYTHON_COMPILE: "0"
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "experimental-features = nix-command flakes"
+
+      - name: Install devenv
+        run: nix profile install nixpkgs#devenv
+
+      - name: Build the wheel inside the system layer
+        shell: bash
+        run: |
+          start=$(date +%s)
+          # mise shims must win over the runner's preinstalled rustup, so the
+          # toolchain in this arm is demonstrably mise's and not the image's.
+          devenv shell --quiet -- bash -c '
+            export PATH="/.local/share/mise/shims:"
+            echo "COMPILER_USED=devenv: 100 1 57 100command -v cc)" >> ""
+            maturin build --out dist 2>&1 | tail -6
+          '| tail -6
+          '
+          echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Manifest
+        if: always()
+        shell: bash
+        run: |
+          bash prototype/probe.sh "arm B, mise plus devenv" "${{ matrix.os }}"
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
+            printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"

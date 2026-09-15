@@ -1,0 +1,16 @@
+# ARM B: mise owns every tool version. devenv supplies only the system layer,
+# a C toolchain and a libpython, which is what mise cannot provide.
+# No zig here: the compiler comes from devenv.
+[tools]
+rust = { version = "nightly", components = "rustc,cargo,clippy,rustfmt,rust-analyzer,rust-src" }
+python = "3.12"
+maturin = "latest"
+uv = "latest"
+just = "latest"
+prek = "latest"
+
+[settings]
+lockfile = true
+
+[env]
+RUST_BACKTRACE = "1"
