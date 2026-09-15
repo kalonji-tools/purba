@@ -492,3 +492,94 @@ closable by moving the work to where it belonged.
 ⚠️ **Neither closure is free.** The zig route ships a `cc` shim, and the task
 route requires that every side effect have a task that depends on it, which is
 a discipline rather than a mechanism.
+
+---
+
+# The two shortlisted arms, across architecture and operating system
+
+Run [34972030646](https://github.com/kalonji-tools/purba/actions/runs/34972030646).
+Configs in `prototype/arm-a/` and `prototype/arm-b/`, each shipping the
+lockfile its own `mise.toml` produced.
+
+**Arm A** is mise alone, with zig asked to supply the C toolchain.
+**Arm B** keeps devenv as the system layer only: its `devenv.nix` deliberately
+omits `languages.rust`, so the toolchain is demonstrably mise's.
+
+## Coverage
+
+| platform | A, mise plus zig | B, mise plus devenv |
+|---|---|---|
+| ubuntu x86_64 | **wheel, 50 s** | **wheel, 64 s** |
+| ubuntu aarch64 | **wheel, 21 s** | **wheel, 53 s** |
+| macOS arm64 | **wheel, 67 s** | **wheel, 217 s** |
+| macOS x86_64 | **wheel, 195 s** | ⚠️ **cannot run** |
+| Windows x86_64 | **wheel, 85 s** | ⚠️ not possible, WSL2 only |
+| Windows arm64 | **wheel, 88 s** | ⚠️ not possible, WSL2 only |
+| **total** | **6 of 6** | **3 of 6** |
+
+### ⚠️ devenv's reach is narrower than "not Windows"
+
+Arm B did not fail on Intel macOS for a configuration reason. It failed on an
+upstream fact, quoted from the job:
+
+```
+error: Nixpkgs 26.11 has dropped support for x86_64-darwin.
+```
+
+Arm A built a wheel on that same runner.
+
+## The criteria, met identically where both ran
+
+| criterion | A | B |
+|---|---|---|
+| resolved toolchain | `rustc 1.100.0-nightly (574ff7d98 2026-09-14)` on **all six** | the same, on all three |
+| clippy, rustfmt, rust-analyzer, rust-src | **all present, every platform** | **all present, every platform** |
+| wheel | yes, on every platform that ran | yes, on every platform that ran |
+
+⚠️ **One nightly, six platforms, two architectures, three operating systems,
+from the single word `nightly`.**
+
+## ⚠️ zig worked on three platforms of six
+
+| platform | compiler actually used |
+|---|---|
+| ubuntu x86_64 | **zig** |
+| macOS arm64 | **zig** |
+| macOS x86_64 | **zig** |
+| ⚠️ ubuntu aarch64 | **host toolchain. zig refused** |
+| Windows x86_64 | host toolchain. Expected: rustc drives `link.exe` on the msvc target and never consults `cc` |
+| Windows arm64 | host toolchain, same reason |
+
+⚠️ **The arm64 Linux refusal is unexplained and was not predicted.** The job
+falls back to the host compiler and still produces a wheel, so the arm passes
+while its distinguishing feature is silently absent on that platform.
+
+## ⚠️ The environment decides which machines the artifact runs on
+
+| platform | A | B |
+|---|---|---|
+| linux x86_64 | **`manylinux_2_17`** | `manylinux_2_34` |
+| linux aarch64 | `manylinux_2_34` | `manylinux_2_34` |
+| macOS arm64 | **`macosx_11_0`** | `macosx_14_0` |
+| macOS x86_64 | **`macosx_10_12`** | not built |
+
+Where zig ran, the floor drops by years: glibc 2.17 against 2.34, macOS 11
+against 14, and macOS 10.12 on Intel. Where zig refused, the two arms agree.
+
+## What it took to get here, recorded because it is the expensive part
+
+Three full matrix runs failed before any of the above was measured, none of them
+for a reason either arm is responsible for.
+
+| failure | cause |
+|---|---|
+| all ten legs | mise-action detects a lockfile and runs `--locked`; the lockfile at the repository root belonged to neither arm |
+| one leg, on the platform the lock was generated on | the lock held **two** `python` entries, one carrying a stale `compile = "true"` option, and only one was matchable |
+| all four arm B legs | a patch applied to the workflow ate the dollar signs in its build step |
+
+⚠️ **A local `mise install --locked` that reports "already installed" validates
+nothing.** It never resolves the lockfile. The working lock was checked against
+an empty store, where it installed 7 of 7 in 22.1 s.
+
+⚠️ **`actionlint` rejected `macos-13` before it cost a run.** The Intel runner
+is now `macos-15-intel`.
