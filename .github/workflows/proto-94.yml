@@ -1,0 +1,68 @@
+# PROTOTYPE. This file must never reach `main`.
+#
+# It answers two questions that cannot be answered on the developer's NixOS
+# machine: whether a workflow fires on a push to a branch with no pull request
+# (purba has never done this: every run in its history is `pull_request`), and
+# what a bare runner already carries before any environment manager touches it.
+#
+# The second half is not throwaway. GitHub's runners ship a Rust toolchain and a
+# C compiler already, so an arm can appear to succeed on tools it never
+# installed. This job records that confound before any arm runs.
+name: proto-94
+
+on:
+  push:
+    branches: [proto/94-first-class-path]
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: baseline ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Inventory the bare runner
+        shell: bash
+        run: |
+          # Absence is data, so nothing here may fail the job.
+          probe() {
+            local name="$1"
+            local path
+            path="$(command -v "$name" 2>/dev/null || true)"
+            if [ -z "$path" ]; then
+              printf '| `%s` | absent | |\n' "$name" >> "$GITHUB_STEP_SUMMARY"
+            else
+              local version
+              version="$("$name" --version 2>&1 | head -1 | tr -d '\r' || true)"
+              printf '| `%s` | present | %s |\n' "$name" "$version" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          }
+
+          {
+            printf '## %s\n\n' "${{ matrix.os }}"
+            printf 'runner arch: `%s`\n\n' "$(uname -m 2>/dev/null || echo unknown)"
+            printf '| tool | state | version |\n|---|---|---|\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for tool in cc gcc clang ld rustc cargo rustup python python3 uv maturin just prek mise devenv nix; do
+            probe "$tool"
+          done
+
+          # `link.exe` is the Windows linker and does not answer to --version.
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            if command -v link >/dev/null 2>&1; then
+              printf '| `link` | present | MSVC linker on PATH |\n' >> "$GITHUB_STEP_SUMMARY"
+            else
+              printf '| `link` | absent | |\n' >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+
+          printf '\n' >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
