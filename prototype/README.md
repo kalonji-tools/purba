@@ -259,3 +259,86 @@ nightly their build installs a nightly.
 | keep it | a bare runner needs no setup, and a developer's own rustup cannot shadow the project |
 | remove it | works under both managers. The sdist problem goes with it |
 | keep it, exclude it from the sdist | both protections survive and a source build is freed |
+
+---
+
+# Q2 and Q3: git hooks, and what replaces `enterShell`
+
+Asked after mining the frozen prototype, whose environment the scaffold cannot
+exercise. `prek.toml` and `prototype/hookprobe.sh` on this branch reproduce the
+frozen prototype's shape: one `language = "system"` hook, so prek installs
+nothing and the hook must find its tools on whatever PATH the caller provides.
+
+## Q2. What a git hook can see
+
+A commit was made under four environments. The probe recorded what each hook saw.
+
+| | 1 bare | 2 mise shims, **not** activated | 3 mise activate | 4 devenv shell |
+|---|---|---|---|---|
+| `prek` | ⚠️ absent | shim | mise install | ⚠️ **absent** |
+| `cargo` | ⚠️ absent | shim | ⚠️ `~/.cargo/bin` | nix store |
+| `rustc` | ⚠️ absent | shim | ⚠️ `~/.cargo/bin` | nix store |
+| `just` | ⚠️ absent | shim | mise install | ⚠️ **absent** |
+| `rustc --version` | ⚠️ not found | **2026-09-14 nightly** | **2026-09-14 nightly** | 2026-09-11 nightly |
+| `RUSTUP_TOOLCHAIN` | unset | unset | `nightly-2026-09-15` | unset |
+
+**The hook itself always ran.** prek writes the absolute path of its own binary
+into `.git/hooks/pre-commit` and falls back to `prek` on PATH, so the gate fires
+even where nothing else is present. In the bare column a real `cargo fmt` hook
+fails loudly, which is the right failure.
+
+### ⚠️ Column 3 is the interesting one
+
+Under `mise activate`, `cargo` and `rustc` resolve to the developer's **own**
+`~/.cargo/bin`, and the version is still the project's nightly. `RUSTUP_TOOLCHAIN`
+is doing the work, and it does not care about PATH order.
+
+⚠️ **This is the same mechanism that made the earlier devenv failure silent, seen
+from the other side.** devenv holds a toolchain by winning PATH, so losing PATH
+loses the toolchain. mise sets an environment variable that steers whatever
+rustup proxy is found first.
+
+### ⚠️ Column 4 found a gap in the substrate
+
+`prek` and `just` are **absent** from the devenv shell, because the substrate
+pull request's `devenv.nix` does not list them. The two tickets that need them
+are not written yet.
+
+## Q3. When each manager's entry hook fires
+
+`mise.toml` gained `[hooks] enter`, and `devenv.nix` gained an `enterShell`.
+Both wrote to a log.
+
+| invocation | mise `enter` | devenv `enterShell` |
+|---|---|---|
+| non-interactive command, `mise exec` or `devenv shell -- cmd` | ⚠️ **never** | **fires** |
+| shims on PATH, no activation | ⚠️ **never** | not applicable |
+| activated shell started **inside** the project | ⚠️ **never** | not applicable |
+| activated shell, then `cd` into the project | **fires once** | not applicable |
+
+⚠️ **A shell that starts inside the project does not fire mise's enter hook.**
+That covers a CI checkout, an agent running `bash -c` in the repo, and an editor
+opening a terminal in the project directory. The config was trusted, so trust is
+not the cause.
+
+### ⚠️ devenv's `enterShell` fires twice per invocation
+
+Measured: one `devenv shell -- true` produced **2** firings, a second produced
+**4**. Not investigated further. It matters because the frozen prototype's
+`enterShell` calls `just build` and `just health`, so a side effect written
+there runs twice for every non-interactive command.
+
+## What this means for the decision
+
+**Q2 favours mise, against expectation.** mise's own documentation warns that
+under shims *"most hooks won't trigger"*, which was read here as a risk to git
+hooks. It is not: that sentence is about mise's own hooks. Shims made the git
+hook work with **no activation at all**, which is the hardest case.
+
+**Q3 favours devenv, and the gap is real.** An `enterShell` runs everywhere,
+including non-interactively. mise's `enter` hook runs in one situation only.
+Anything that must happen before every command has no home in mise.
+
+⚠️ **The scaffold has no `enterShell` today**, so Q3 prices a capability purba
+does not yet use. The frozen prototype used it to rebuild a stale extension, and
+a stale extension there was a known hazard that hid Rust check failures.

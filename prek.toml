@@ -1,0 +1,13 @@
+# PROTOTYPE. Mirrors the frozen prototype's shape: every real hook is
+# `language = "system"`, so prek installs nothing and the hook must find its
+# tools on whatever PATH the invoking environment provides.
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "toolprobe"
+name = "toolprobe"
+language = "system"
+entry = "bash prototype/hookprobe.sh"
+files = ".*"
+pass_filenames = false
