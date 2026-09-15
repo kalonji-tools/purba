@@ -703,3 +703,59 @@ on Unix targets.** The honest configuration is:
 real alternative to zig is not another compiler. It is not needing one, which
 works on every platform that already ships a compiler and fails on exactly one
 machine: a NixOS box with none installed.
+
+---
+
+# Arm D: mise alone, which nobody had measured
+
+Every arm before this carried something besides mise: zig, or devenv, or a
+shim. Arm D is mise and the host's own compiler, nothing else.
+
+**Six of six.** Every platform built a wheel and loaded the extension.
+
+## ⚠️ zig buys less than this prototype has been claiming
+
+| platform | D, no zig | C, zig for the target | difference |
+|---|---|---|---|
+| ubuntu x86_64 | `manylinux_2_34` | `manylinux_2_17` | **zig wins** |
+| ubuntu aarch64 | `manylinux_2_34` | `manylinux_2_17` | **zig wins** |
+| macOS arm64 | `macosx_11_0` | `macosx_11_0` | ⚠️ **identical** |
+| macOS x86_64 | `macosx_10_12` | `macosx_10_12` | ⚠️ **identical** |
+| Windows x86_64 | `win_amd64` | zig cannot | host only |
+| Windows arm64 | `win_arm64` | zig cannot | host only |
+
+⚠️ **zig's entire remaining benefit is the Linux glibc floor.** On macOS the host
+toolchain already produces the same tags, so the macOS numbers earlier in this
+file were never a zig gain. They were compared against devenv's nixpkgs
+interpreter, which is what produced `macosx_14_0`.
+
+## Arm D is also the fastest
+
+| arm | cold range across its platforms |
+|---|---|
+| **D, mise alone** | **18 s to 69 s** |
+| A, zig plus a shim | 21 s to 195 s |
+| B, mise plus devenv | 53 s to 217 s |
+
+## ⚠️ Arm A is strictly worse than arm D
+
+Arm A is the configuration this prototype recommended and the decision record
+was drafted around.
+
+| | A | D |
+|---|---|---|
+| platforms | 6 of 6 | 6 of 6 |
+| wheel floor gained | ⚠️ **none.** The shim cancelled the only one it had, on aarch64 | baseline |
+| extra machinery | a `cc` shim, a build flag, a per-platform fallback | **none** |
+| a downside nothing reports | ⚠️ yes, the silent fallback | no |
+
+## What arm D asks of a developer
+
+A C compiler on the host. Every runner already carries one, and so does every
+ordinary developer machine. The exception in this project is one NixOS box.
+
+Measured there: `pkgs.gcc` alone supplies both `cc` and `ld`, and the wheel
+builds in 1.46 s with mise and nothing else.
+
+⚠️ **So the project's cost for zig is a compiler, a shim, a flag, a fallback and
+a downside nothing reports. The alternative cost is one package on one machine.**
