@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-purba writes commit bodies far longer than anyone else's.
+purba writes the longest commit bodies of any corpus measured here.
 
 | corpus | mean body words, among commits that have a body | have a body |
 |---|---|---|
@@ -13,7 +13,19 @@ purba writes commit bodies far longer than anyone else's.
 | uv | 85 | 89% |
 | git | 125 | 100% |
 | ruff | 127 | 86% |
-| **purba** | **452** | 100% |
+| **purba** | **139** | 100% |
+
+Length is no longer the defect.
+A commit that adds a decision record repeats the record it adds.
+
+| commits on `main` | n | mean body words |
+|---|---:|---:|
+| add or change a decision record | 8 | 101 |
+| do not | 5 | 200 |
+
+Four of the five most recent record commits open with the Context of the record in the same commit.
+Two of those five then list the changes.
+The commit is a second copy of a document that sits in the same tree.
 
 There is no standard to appeal to.
 No ISO, IEEE or RFC governs commit messages, Conventional Commits specifies only the machine contract, and git and the kernel specify the human one.
@@ -28,6 +40,11 @@ Record corpora run at roughly one record per thousand commits, so they were neve
 - **Cap the body length in CI.** Rejected. No commit-message tool caps body length, three ship body *minimums* instead, and a four-hundred-line body passes checkpatch with zero warnings. A number in CI is also the shape of check that cost the prototype thousands of lines of scripts for two recorded fires.
 - **Divide by artifact: the record holds rationale, the issue holds deliberation, the commit holds the rest.** Rejected by the measurement above. No project documents such a division, and the substitution it assumes happens nowhere.
 - **Divide by permanence.** Chosen. It is the only seam with precedent: four projects separate the commit message from review material on whether the text must outlive the review.
+
+Permanence decides what is eligible. A second question decides what is written.
+
+- **A named element list, with an exception for a record commit.** Rejected. Every new kind of commit needs another clause, and the list already collides with itself: a body cannot both state the problem and not restate the diff when the diff is the record.
+- **Subtraction: the body carries what no other location already carries.** Chosen. It states the value of a commit rather than its length, and the two rules the list already carries become instances of it.
 
 ## Decision Outcome
 
@@ -60,10 +77,26 @@ Depth belongs on the issue, so the body stops at the conclusion and the number c
 
 **Body.**
 
+**A body is owed when the change makes a claim.**
+A change that makes none carries a subject and nothing else.
+
+Where a body is written, it carries what no other location already carries.
+
 - Addressed to the reader who has long since forgotten the details, never to the reviewer.
-- States the problem in the present tense, why this approach, and what would show it wrong.
-- Does not restate the diff, and is not a summary of the pull request. The pull request holds the discussion and the commit holds its conclusion.
-- Target near 150 words. Not enforced.
+- The pull request, the issue and the decision record are locations, and [a register belongs to one location](a-register-belongs-to-one-location.md) names the register of each. What a location already holds is not written in the body again, and neither is what the diff already shows.
+- It states what would show the change wrong. No other location holds that sentence.
+- It names what a change relates to, and never its position in a planned series. A series can shrink. A body cannot be corrected.
+
+**A rewrite carries more than a new record.**
+
+[A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) replaces a record in place, so the tree never says what that record used to say.
+
+| the commit adds | the record holds | the body carries |
+|---|---|---|
+| a new record | the problem, the options, the cost | what would show the decision wrong |
+| a rewrite | the new state only | what was wrong before, why, and what would show the decision wrong |
+
+The commit body is the amendment history that record removes.
 
 **Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool.
 
@@ -76,9 +109,10 @@ purba keeps the replaced form deliberately, because this project's premise is th
 A session URL trailer is not used.
 It was applied zero times across 2,129 prototype commits while `Assisted-by:` reached 84.7% under the same instruction, and it is a link no reader but its owner can follow.
 
-**Downside:** three costs, and the first is structural.
+**Downside:** four costs, and the first is structural.
 
 - **The central rule is unenforceable by design.** Whether a sentence must outlive its review is a judgement, not a string test, so nothing can gate it.
+- **Subtraction fails silently.** A writer who judges wrongly writes nothing, the information is simply absent, and no reader learns that it was owed.
 - **Naming the agent and model diverges from the only upstream convention** for AI attribution, and the gap widens if that convention settles.
 - **The issue number is verified by nothing.** A wrong number still renders as a working link, and it spends about six characters of a seventy-two character budget.
 
@@ -92,6 +126,8 @@ It was applied zero times across 2,129 prototype commits while `Assisted-by:` re
 | `Assisted-by:` present on agent work | yes | no |
 | the referenced issue exists | yes | **no** |
 | the body carries only what outlives review | **no** | no |
+| the body carries only what no other location carries | **no** | no |
+| the body carries no count of a planned series | weak: a pattern test suggests it and cannot confirm it | no |
 
 Every decidable row is unchecked.
 No ticket owns any of them.
