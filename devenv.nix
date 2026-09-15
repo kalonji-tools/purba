@@ -1,11 +1,6 @@
 { config, pkgs, ... }:
 
 # Options and their defaults: https://devenv.sh/reference/options/
-#
-# A tool lands here in the same commit as the file it acts on, and its entry
-# names that file. Acting on is not calling: a tool enters when its subject is
-# in the tree, and a check enters a gate separately. A tool with no single
-# subject names none.
 
 {
   languages.rust = {
@@ -36,7 +31,7 @@
     statix
     nil
 
-    # No single subject: both are used throughout the project.
+    # used throughout
     git
     gh
   ];
