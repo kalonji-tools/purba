@@ -1,4 +1,4 @@
-# mise names every tool version, including the compiler
+# mise names every tool version
 
 ## Context and Problem Statement
 
@@ -34,7 +34,7 @@ This was reproduced while measuring: a shell served a stable rustc beside a nigh
 
 - **mise for tool versions, devenv for the system layer.** Rejected, though it works. It keeps the exact reach problem above, because the system layer is the half that cannot leave nix. It adds a second lockfile and a rule about which one owns what. It buys a compiler on the three platforms that already have one, and supplies none on the three it cannot reach.
 
-- **mise alone, with zig as the compiler.** Chosen. It builds and imports on all six platforms. The compiler stops being a layer and becomes an entry in the same lockfile as every other tool, which is what removes the second manager rather than merely shrinking it.
+- **mise alone.** Chosen. It builds and imports on all six platforms, and every tool it names is pinned in one committed lockfile. The compiler stops being a separate layer: zig is an entry in that lockfile like any other tool, and it supplies the C toolchain on the four Unix targets. Windows keeps the host toolchain, because rustc drives the MSVC linker there and zig cannot reach it. That is a smaller claim than removing the host dependency everywhere, and it is the one the measurements support.
 
 ## Decision Outcome
 
@@ -47,25 +47,26 @@ This was reproduced while measuring: a shell served a stable rustc beside a nigh
 
   What this section has to state, with the measurements already in hand:
 
-  1. The decision in one sentence. mise names every tool version, the compiler
-     included, and purba carries no second environment manager.
+  1. The decision in one sentence. mise names every tool version purba uses,
+     in one committed lockfile, and purba carries no second environment
+     manager.
   2. `mise.lock` is the pin, and it is committed.
-  3. zig supplies the C toolchain through a `cc` shim the repository ships,
-     because `--zig` redirects the target build and not the host one.
-  4. Where zig declines a platform the build falls back to the host toolchain,
-     and that fallback is silent today.
+  3. zig supplies the C toolchain for the target build on Linux and macOS.
+     Windows keeps the host toolchain, because rustc drives the MSVC linker
+     there and zig cannot reach it.
+  4. Build scripts use the host compiler on every platform. Forcing them
+     through zig was measured and costs more than it buys.
 
   Measured downsides for the **Downside:** line, which is required:
 
-  - zig ran on three platforms of six. It declined arm64 Linux for reasons not
-    established, and it declines both Windows targets because rustc drives the
-    MSVC linker directly and never consults `cc`. The build still succeeds on
-    the host compiler, so the arm passes while its distinguishing feature is
-    absent. Nothing reports that today.
-  - The wheel floor therefore differs by platform. Where zig runs it drops by
-    years; where zig declines it is whatever the host provides.
-  - The repository ships a `cc` shim, which is a file that exists to paper over
-    a gap in another tool.
+  - A host C compiler is still required, on every platform, for build scripts.
+    This removes a second manager. It does not remove the need for a compiler,
+    and on a machine that has none the environment does not stand up.
+  - zig covers four targets of six. Windows uses the host toolchain, so the
+    wheel floor there is whatever the runner provides, and the two Windows
+    wheels are not portable in the way the Unix ones are.
+  - Nothing reports which compiler was actually used. A platform that silently
+    stops using zig keeps building, and only the wheel tag changes.
   - `core:rust` records a version and no artifact checksum, because it
     delegates to rustup. The date is pinned. The download is not verified.
   - The lockfile has to be generated with an explicit platform list. It is not
