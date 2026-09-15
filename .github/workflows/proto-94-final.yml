@@ -194,3 +194,82 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           cat "$GITHUB_STEP_SUMMARY"
           test -n "$wheel"
+
+  # Arm C isolates the one variable that broke arm A on aarch64 Linux. Arm A
+  # forces `cc` to zig so nothing is needed from the host. That is what rejected
+  # rustc's `--fix-cortex-a53-843419`, which it emits by default on aarch64 and
+  # zig's linker does not implement. Arm C keeps `--zig` for the target build and
+  # leaves the host's own compiler to build scripts.
+  #
+  # It trades self-containment for reach, and this job measures the trade rather
+  # than assuming it.
+  arm-c:
+    name: C zig target-only ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-15-intel
+          - windows-latest
+          - windows-11-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Place arm A's config, which arm C shares
+        shell: bash
+        run: cp prototype/arm-a/mise.toml mise.toml && cp prototype/arm-a/mise.lock mise.lock
+
+      - uses: jdx/mise-action@v4
+        env:
+          MISE_PYTHON_COMPILE: "0"
+
+      - name: Build with zig for the target and the host compiler for build scripts
+        shell: bash
+        run: |
+          start=$(date +%s)
+          if maturin build --zig --out dist > build.log 2>&1; then
+            echo "COMPILER_USED=zig for the target, host for build scripts" >> "$GITHUB_ENV"
+          else
+            echo "COMPILER_USED=NEITHER" >> "$GITHUB_ENV"
+            tail -20 build.log || true
+          fi
+          echo "ELAPSED=$(( $(date +%s) - start ))" >> "$GITHUB_ENV"
+
+      - name: Cross the bridge, which building does not prove
+        if: always()
+        shell: bash
+        run: |
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          if [ -z "$wheel" ]; then
+            echo "BRIDGE=⚠️ **no wheel to import**" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          uv venv "$RUNNER_TEMP/v"
+          vpy="$RUNNER_TEMP/v/bin/python"
+          [ "$RUNNER_OS" = "Windows" ] && vpy="$RUNNER_TEMP/v/Scripts/python.exe"
+          if uv pip install --python "$vpy" "$wheel" && \
+             out="$("$vpy" prototype/bridge_check.py 2>&1)"; then
+            echo "BRIDGE=**loaded**" >> "$GITHUB_ENV"
+            echo "$out"
+          else
+            echo "BRIDGE=⚠️ **FAILED to import**" >> "$GITHUB_ENV"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: Manifest
+        if: always()
+        shell: bash
+        run: |
+          bash prototype/probe.sh "arm C, zig target-only" "${{ matrix.os }}"
+          wheel="$(ls dist/*.whl 2>/dev/null | head -1)"
+          {
+            printf '| wheel | `%s` |\n' "$(basename "${wheel:-none}")"
+            printf '| verdict | **%s** in %ss cold |\n\n' "$([ -n "$wheel" ] && echo built || echo FAILED)" "${ELAPSED:-?}"
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
+          test -n "$wheel"
