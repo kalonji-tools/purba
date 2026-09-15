@@ -1,15 +1,5 @@
-# The one place that names the Rust toolchain, and an exact pin rather than a
-# floor. purba declares no `rust-version`: that is a claim about consumers, and
-# the floor that does exist belongs to the dependency graph, where cargo
-# enforces it.
-# https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-#
-# Bumping `channel` is the whole upgrade, so this path belongs in every
-# paths-filter that compiles Rust.
-#
-# `profile` is explicit because the default is machine state that `rustup set
-# profile` mutates. Installing what this file names takes the no-argument
-# `rustup toolchain install`: https://rust-lang.github.io/rustup/overrides.html
+# The one place that names the Rust toolchain.
+# Format: https://rust-lang.github.io/rustup/overrides.html
 #
 # Removing `rust-src` fails silently. devenv aims RUST_SRC_PATH at this
 # toolchain whether or not the component is present, so dropping it leaves the
