@@ -15,11 +15,30 @@ which is frozen and kept as reference material. Nothing is ported: tooling is
 copied wholesale, product code never is, and product *design* only where it is
 still demonstrably the best answer.
 
-## Building
+## Prerequisites
 
-The toolchain is named in `rust-toolchain.toml` and is **not** available from
-nixpkgs stable — rustc there is 1.95.0, and purba's pinned parser crates
-require 1.96. Use the development shell.
+purba needs a **C toolchain on the host** and does not supply one. Rust links
+through it, and several dependencies compile C or assembly while they build.
+
+| platform | what to install |
+|---|---|
+| Linux | your distribution's build tools, such as `build-essential` |
+| macOS | the Xcode command line tools, `xcode-select --install` |
+| Windows | the Visual Studio Build Tools, with the C++ workload |
+| NixOS | `pkgs.gcc`, which supplies both `cc` and `ld` |
+
+Nothing announces a missing compiler in advance. The build fails at the first
+dependency that needs one, and it fails loudly.
+
+Everything else comes from [mise](https://mise.jdx.dev), which installs the
+Rust toolchain, Python, maturin and the rest from `mise.toml` and pins what
+they resolved to in `mise.lock`.
+
+```console
+$ mise install
+```
+
+## Building
 
 ```console
 $ maturin build

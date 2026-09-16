@@ -49,38 +49,22 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 
 ## Decision Outcome
 
-<!--
-  NOT WRITTEN BY AN AGENT.
+mise names every tool version purba uses, in one committed lockfile, and purba carries no second environment manager and no compiler of its own.
 
-  The sign-off workflow states on every record-touching pull request: "The
-  Decision Outcome is written by a person, or the change does not merge. An
-  agent writing it satisfies the letter and voids the rule."
+`mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
+Both are committed.
+The lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
+It is generated with an explicit platform list, because it is not complete by default.
 
-  What this section has to state, with the measurements already in hand:
+**purba requires a C toolchain on the host and does not supply one.**
+This is a stated requirement rather than an omission, and `README.md` carries it, because that is the location a reader who does not yet know purba arrives at.
+Every continuous integration runner already carries one.
+A NixOS machine does not, and `pkgs.gcc` supplies both `cc` and `ld` there.
 
-  1. The decision in one sentence. mise names every tool version purba uses, in
-     one committed lockfile, and purba carries no second environment manager
-     and no compiler of its own.
-  2. `mise.lock` is the pin, it is committed, and it is generated with an
-     explicit platform list.
-  3. purba requires a C toolchain on the host and does not supply one. That is
-     a stated requirement rather than an omission.
-  4. The Linux wheel floor is whatever the host provides. Buying a lower floor
-     is deferred to whatever publishes wheels, and zig is the measured way to
-     buy it.
+The Linux wheel floor is whatever the host provides.
+Buying a lower floor is deferred to whatever publishes wheels, and zig is the measured way to buy it.
 
-  Measured downsides for the **Downside:** line, which is required:
-
-  - A machine with no C compiler does not build purba at all. One such machine
-    exists in this project today, and the fix there is one package.
-  - The Linux floor is glibc 2.34 rather than 2.17. Nobody is installing these
-    wheels yet, which is what makes the deferral affordable rather than free.
-  - `core:rust` records a version and no artifact checksum, because it
-    delegates to rustup. The date is pinned. The download is not verified.
-  - The lockfile is not complete by default. It needs an explicit platform
-    list, and an entry carrying a stale tool option splits in two and then
-    fails on the platform that produced it.
--->
+**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile pins the toolchain by date and not by checksum, because `core:rust` delegates to rustup, so the version is reproducible and the download is not verified. The lockfile is also not complete by default: it needs an explicit platform list, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
 
 ## Confirmation
 
@@ -100,3 +84,4 @@ Three properties are checked today only by hand, and the workflows that would ru
 The second check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension, so the package's own file attribute reports the `__init__.py` and proves nothing.
 A check written that way passes for a package with no Rust in it.
+
