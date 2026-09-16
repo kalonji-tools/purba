@@ -17,8 +17,16 @@ still demonstrably the best answer.
 
 ## Prerequisites
 
-purba needs a **C toolchain on the host** and does not supply one. Rust links
-through it, and several dependencies compile C or assembly while they build.
+Two things come from outside this repository. Everything else comes from the
+first of them.
+
+**[mise](https://mise.jdx.dev)** installs the Rust toolchain, Python, maturin
+and the rest from `mise.toml`, and pins what they resolved to in `mise.lock`.
+Installing mise itself is
+[documented upstream](https://mise.jdx.dev/installing-mise.html).
+
+**A C toolchain**, which purba needs and does not supply. Rust links through
+it, and several dependencies compile C or assembly while they build.
 
 | platform | what to install |
 |---|---|
@@ -30,17 +38,10 @@ through it, and several dependencies compile C or assembly while they build.
 Nothing announces a missing compiler in advance. The build fails at the first
 dependency that needs one, and it fails loudly.
 
-Everything else comes from [mise](https://mise.jdx.dev), which installs the
-Rust toolchain, Python, maturin and the rest from `mise.toml` and pins what
-they resolved to in `mise.lock`.
-
-```console
-$ mise install
-```
-
 ## Building
 
 ```console
+$ mise install
 $ maturin build
 ```
 
