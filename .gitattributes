@@ -1,0 +1,13 @@
+# Normalise line endings, so a contributor on Windows does not rewrite a file
+# by opening it.
+* text=auto
+
+# Generated, not authored. Tracked so that a build is reproducible, and
+# collapsed in a pull request so a reviewer reads the change rather than the
+# resolution.
+#
+# `mise.lock` is listed before it exists. The pattern is inert until the file
+# arrives, and listing it here means the change that adds it does not have to
+# remember.
+Cargo.lock  linguist-generated
+mise.lock   linguist-generated
