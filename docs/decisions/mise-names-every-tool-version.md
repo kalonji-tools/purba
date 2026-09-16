@@ -53,8 +53,9 @@ mise names every tool version purba uses, in one committed lockfile, and purba c
 
 `mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
 Both are committed.
-The lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
-It is generated with an explicit platform list, because it is not complete by default.
+A lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
+That mark is on `Cargo.lock` today, and `mise.lock` takes it when the substrate lands.
+`mise.lock` is generated with an explicit platform list, because it is not complete by default.
 
 **purba requires a C toolchain on the host and does not supply one.**
 This is a stated requirement rather than an omission, and `README.md` carries it, because that is the location a reader who does not yet know purba arrives at.
