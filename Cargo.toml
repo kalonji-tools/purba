@@ -15,8 +15,7 @@ repository = "https://github.com/kalonji-tools/purba"
 publish = false
 
 # `rust-version` is deliberately absent. It is a claim about consumers, and
-# `publish = false` plus a cdylib means purba has none. An unchecked claim
-# drifts; rust-toolchain.toml states the same fact executably instead.
+# `publish = false` plus a cdylib means purba has none.
 
 [lib]
 name = "purba"
