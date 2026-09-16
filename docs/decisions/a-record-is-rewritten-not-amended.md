@@ -39,6 +39,10 @@ The prototype's context document pointed at records instead of restating them, a
 
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
+This is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).
+Every other artifact this project writes freezes once its direction is agreed.
+A record does not, because a record that reads as history is a record nobody can trust on one reading.
+
 Four sections are required, in order:
 
 1. Context and Problem Statement
