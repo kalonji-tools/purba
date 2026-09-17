@@ -100,6 +100,10 @@ jobs:
           base=$(git merge-base FETCH_HEAD HEAD)
           before=$(git rev-parse HEAD)
 
+          # Stop before rewriting anything. CONTRIBUTING.md says why this job
+          # cannot repair a missing trailer.
+          .github/scripts/check-origin.sh "$base" HEAD
+
           # A fresh checkout has no git identity, and `git commit` refuses to
           # run without one. These two lines only satisfy that. The name does
           # not survive: the merge replaces the committer.
