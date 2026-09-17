@@ -27,9 +27,12 @@ The guard matters. `git commit -s` adds nothing only when the sign-off is the
 last trailer. purba adds its own trailer after yours, so a second run without
 the guard leaves you with two sign-off lines.
 
-Either way the name and address come from your configured `user.name` and
-`user.email`, so check them before you start. A sign-off names a person who
-can be reached.
+Either way the name and address come from your committer identity.
+`user.name` and `user.email` set that identity unless you override them, so
+check it before you start. A sign-off names a person who can be reached.
+
+purba replaces the committer field on the way to `main`. Your sign-off is not
+touched, so the address you sign with is the one that lasts.
 
 No workflow writes this trailer for you, with one exception. GitHub adds it to
 a commit you make in its web interface, because this repository asks it to. It
