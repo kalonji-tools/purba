@@ -59,7 +59,7 @@ Each liability is written from the act that makes it true, and it is written whe
 
 | liability | written by | at | into |
 |---|---|---|---|
-| origin | the contributor | the moment the commit is made | `Signed-off-by:` |
+| origin | the contributor | before the contribution goes for review | `Signed-off-by:` |
 | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
 | acceptance | a workflow, from the approval | the moment the code owner approves | an `Accepted-by:` trailer on every commit |
 | stewardship | the code owner | whenever ownership changes | `CODEOWNERS` |
@@ -67,6 +67,11 @@ Each liability is written from the act that makes it true, and it is written whe
 **The contributor writes the origin trailer, and no workflow writes one.**
 A machine cannot hold a right to submit anything, so a machine never makes this statement.
 `git commit -s` takes the name and address from the configured identity, which makes checking that identity the contributor's first task rather than their last.
+
+**One exception, and it is a repository setting rather than a file.**
+`web_commit_signoff_required` is on, so GitHub writes the trailer into a commit made in its web interface and names the account that made it.
+The person is told before they commit, so the act is still theirs and the machine only transcribes it.
+purba is the only repository in this organisation with the setting on, and a reader who audits files alone cannot see it.
 
 **A workflow writes the acceptance trailer, and no person writes one.**
 It is derived from the review approval and never authored, so it cannot disagree with the approval it reports.
@@ -79,33 +84,36 @@ A commit without the trailer is a commit from before this decision, and a reader
 The agent is truthfully the author and the committer, because it writes the change and it makes the commit.
 A rebase merge overwrites the committer with whoever merged, and a design that depends on that would store one true fact by destroying another.
 
-**Three eras sit on `main`, and only the third is complete.**
+**Four eras sit on `main`, and only the fourth carries both statements.**
 
 | commits | carry |
 |---|---|
 | before `6d88f99` | a `Signed-off-by:` trailer naming the code owner, written by the agent |
-| from `6d88f99` until this decision | nothing, and their answerability lives on their pull requests |
-| after this decision | `Accepted-by:` from the approval |
+| from `6d88f99` until acceptance was recorded | nothing, and their answerability lives on their pull requests |
+| from acceptance until the origin check | `Accepted-by:` from the approval |
+| after the origin check | `Signed-off-by:` from the contributor, and `Accepted-by:` from the approval |
 
-`main` refuses a non-fast-forward push and admits no bypass actor, so the middle era cannot be repaired and is recorded instead.
+`main` refuses a non-fast-forward push and admits no bypass actor, so no era before the fourth can be repaired, and each is recorded instead.
 
-The third era claims the acceptance trailer and not the origin one.
-A contributor owes `Signed-off-by:` on every commit and nothing checks that they wrote it, so the table states what the repository does rather than what is asked of a contributor.
-[Check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105) owns that gap.
+The first era is the one to read carefully.
+Its three trailers were written by the agent and they name the code owner, so they certify a right the writer could not hold.
+That is the failure this decision exists to stop, and it is why the fourth era is not simply a return to the first.
 
-**Downside:** four.
+**Downside:** five.
 
 - **A contribution from a fork cannot carry the acceptance trailer.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. The mechanism therefore covers a contribution made inside this repository and not one made outside it, and the risk this record was built against sits outside it.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.
 - **The first account to approve is the one the trailer names.** The mechanism skips a commit that already carries the trailer, because without that it would rewrite the branch on every push and never settle. So an approval that is dismissed, and then given by a different person, leaves the first name in place. The pull request holds the second approval and the commit does not.
 - **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
+- **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object, so a signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature is the one record here that a person's agent could not forge, and this decision puts it out of reach for as long as the mechanism stands. [Can an act by a person be made impossible for their agent to forge?](https://github.com/kalonji-tools/purba/issues/106) owns what follows from that.
 
 ## Confirmation
 
 | check | strength |
 |---|---|
-| the head commits carry a `Signed-off-by:` trailer naming a real account | none today |
-| the trailer is parsed and not matched as text | none today |
+| the commits a pull request adds carry a `Signed-off-by:` trailer naming an address | strong, the `sign` job refuses the branch before it rewrites anything |
+| the trailer is parsed and not matched as text | strong, `.github/scripts/check-origin.sh` reads the trailer rather than the message |
+| the origin trailer was written by a person and not by their agent | **none** — nothing stops an agent running the command that adds it |
 | `Accepted-by:` names the account that approved the pull request | strong, it is derived from the approval and never authored |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
@@ -113,10 +121,16 @@ A contributor owes `Signed-off-by:` on every commit and nothing checks that they
 | a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
 | the contributor read what they signed | none, and no check can make it |
 
-The first two rows have no check.
-[Check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105) owns one, and both rows say none until it lands.
+The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
+An advisory check reports the same rule on every push, and it is deliberately not a required one.
+This job force-pushes its own rewrite, and GitHub starts no workflow from a push its own token made, so a required context reported anywhere else would disappear on that push with no event left to report it again.
+That was measured rather than reasoned.
 
-The sixth row was once strong and is now none.
+The row on who wrote the origin trailer is the ceiling of the whole mechanism.
+An agent can run `git commit -s` as easily as a person can, so the check reads a trailer and never the act behind it.
+It is graded `none` for the same reason the row below it is, and [can an act by a person be made impossible for their agent to forge?](https://github.com/kalonji-tools/purba/issues/106) is where that is decided.
+
+The row on telling a person from their agent was once strong and is now none.
 The environment approval was the only act here an agent could not perform, and removing it removes that separation.
 An agent that holds a person's credentials can approve as that person, and whoever granted that access is answerable for what the agent does with it.
 
@@ -127,15 +141,15 @@ A check cannot bind the commit to the review by the reviewed commit id.
 A rebase merge replays the commit under a new id, and the ids named by a review are absent from `main`.
 The tree survives the replay.
 
-The `sign` job in `.github/workflows/sign.yml` writes the trailer and reports the required status check `Sign-off`.
+The `sign` job in `.github/workflows/sign.yml` refuses a branch whose commits lack the origin trailer, then writes the acceptance trailer and reports the required status check `Sign-off`.
 Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`, which parses the trailer instead of matching it as text.
 
-The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103).
+The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103), and on [check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105).
 
 **The mechanism that writes `Accepted-by:` cannot run on a pull request from a fork.**
 The token is read only there, the push is refused, and allowing a maintainer to modify the branch does not change it.
 An outside contribution therefore cannot carry this trailer.
 [How does purba accept a contribution from a fork?](https://github.com/kalonji-tools/purba/issues/102) decides the path such a contribution takes.
 
-The last row is the point of the whole mechanism, and no check can ever make it.
+The row on whether the contributor read what they signed is the point of the whole mechanism, and no check can ever make it.
 A detector good enough to suggest is not good enough to gate.
