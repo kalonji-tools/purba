@@ -51,4 +51,5 @@ purba is licensed under the [MIT License](LICENSE).
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in purba shall be licensed as above, without any additional terms
-or conditions.
+or conditions. [CONTRIBUTING.md](CONTRIBUTING.md) states what you certify when
+you submit one, and how to write it.

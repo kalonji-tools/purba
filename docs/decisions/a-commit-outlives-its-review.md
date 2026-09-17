@@ -54,7 +54,9 @@ Everything a review consumes and discards belongs in the pull request or the iss
 
 Permanence decides among the statements the committer can make truthfully.
 A statement the committer cannot make belongs wherever the person who can make it acts.
-Liability is the one such statement today, and [liability is recorded at approval, not in the commit](liability-is-recorded-at-approval-not-in-the-commit.md) holds it.
+[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) divides liability along that line.
+The origin statement is the part a contributor can make, so it belongs in the commit.
+The review statement is the part no committer can make, so it stays where the reviewer acts.
 
 **Subject.**
 
@@ -100,7 +102,7 @@ The commit body is the amendment history that record removes.
 
 **Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool.
 
-purba writes no `Signed-off-by:` trailer, for the reason given in [liability is recorded at approval, not in the commit](liability-is-recorded-at-approval-not-in-the-commit.md).
+A contributor writes a `Signed-off-by:` trailer and no workflow writes one, for the reason given in [liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md).
 
 The `Assisted-by:` form names the agent and the model.
 The kernel shipped that form, ran it for seven months, and replaced it with a bare `LLM`.
