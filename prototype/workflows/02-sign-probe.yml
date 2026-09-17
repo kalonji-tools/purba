@@ -1,0 +1,57 @@
+name: Sign probe
+
+# Arm D. Three questions, none of them measured before:
+#
+#   D1  can GITHUB_TOKEN push to the head branch of a SAME-REPO pull request?
+#   D2  does that push start another workflow run, or does it stop the loop?
+#   D3  can GITHUB_TOKEN push to the head branch of a FORK pull request?
+#
+# A refused push is the measurement, not an error, so nothing here fails hard.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Append a trailer and push
+        run: |
+          set +e
+          git config user.name "sign-probe"
+          git config user.email "sign-probe@users.noreply.github.com"
+
+          before=$(git rev-parse HEAD)
+          git commit --amend --no-edit \
+            --trailer "Accepted-by: a-person <31469087+snregales@users.noreply.github.com>"
+          after=$(git rev-parse HEAD)
+
+          git push --force origin "HEAD:${{ github.event.pull_request.head.ref }}" 2>&1 | tail -5
+          code=${PIPESTATUS[0]}
+
+          if [ "$code" -eq 0 ]; then verdict="PUSH SUCCEEDED"; else verdict="PUSH REFUSED"; fi
+
+          {
+            echo "## Arm D"
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| head repo | \`${{ github.event.pull_request.head.repo.full_name }}\` |"
+            echo "| is a fork | \`${{ github.event.pull_request.head.repo.fork }}\` |"
+            echo "| author association | \`${{ github.event.pull_request.author_association }}\` |"
+            echo "| sha before amend | \`$before\` |"
+            echo "| sha after amend | \`$after\` |"
+            echo "| **result** | **$verdict** (exit \`$code\`) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "RESULT: $verdict (exit $code)"
+          echo "SHA $before -> $after"

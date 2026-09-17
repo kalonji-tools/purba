@@ -1,0 +1,71 @@
+name: Sign on approval
+
+# Arm E. Does a push that changes the message but NOT the tree dismiss the
+# review approval it was derived from?
+#
+# If it does, reducing the two human clicks to one costs a third click.
+# If it does not, one approval is enough and the environment gate can go.
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  sign:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      R: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Append the acceptance trailer, push, then look at the review
+        run: |
+          set +e
+          git config user.name "sign-on-approval"
+          git config user.email "sign@users.noreply.github.com"
+
+          before_sha=$(git rev-parse HEAD)
+          before_tree=$(git rev-parse 'HEAD^{tree}')
+
+          git commit --amend --no-edit --trailer \
+            "Accepted-by: ${{ github.event.review.user.login }} <${{ github.event.review.user.id }}+${{ github.event.review.user.login }}@users.noreply.github.com>"
+
+          after_sha=$(git rev-parse HEAD)
+          after_tree=$(git rev-parse 'HEAD^{tree}')
+
+          git push --force origin "HEAD:${{ github.event.pull_request.head.ref }}" 2>&1 | tail -3
+          push=${PIPESTATUS[0]}
+
+          sleep 15
+          states=$(gh api "repos/$R/pulls/$PR/reviews" --paginate | jq -r '[.[]|.state]|join(",")')
+          mergeable=$(gh api "repos/$R/pulls/$PR" --jq '.mergeable_state')
+
+          {
+            echo "## Arm E"
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| sha before | \`$before_sha\` |"
+            echo "| sha after | \`$after_sha\` |"
+            echo "| **tree before** | \`$before_tree\` |"
+            echo "| **tree after** | \`$after_tree\` |"
+            echo "| tree unchanged | \`$([ "$before_tree" = "$after_tree" ] && echo yes || echo no)\` |"
+            echo "| push exit | \`$push\` |"
+            echo "| **review states after the push** | \`$states\` |"
+            echo "| mergeable_state | \`$mergeable\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "TREE $before_tree -> $after_tree"
+          echo "PUSH exit=$push"
+          echo "REVIEWSTATES $states"
+          echo "MERGEABLE $mergeable"

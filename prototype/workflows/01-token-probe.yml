@@ -1,0 +1,63 @@
+name: Token probe
+
+# Arm A. One question: can GITHUB_TOKEN write on a pull request from a fork?
+#
+# The job never fails on a refused write. A refusal is the measurement, not an
+# error, so the step captures the exit code and reports it.
+
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Record the context
+        run: |
+          {
+            echo "## Context"
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| base repo | \`$GH_REPO\` |"
+            echo "| head repo | \`${{ github.event.pull_request.head.repo.full_name }}\` |"
+            echo "| head is a fork | \`${{ github.event.pull_request.head.repo.fork }}\` |"
+            echo "| author association | \`${{ github.event.pull_request.author_association }}\` |"
+            echo "| actor | \`${{ github.actor }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Attempt one write
+        run: |
+          set +e
+          out=$(gh api "repos/$GH_REPO/issues/$PR/comments" \
+            -f body="probe wrote this" 2>&1)
+          code=$?
+          set -e
+
+          if [ "$code" -eq 0 ]; then
+            verdict="TOKEN IS WRITABLE"
+          else
+            verdict="TOKEN IS READ-ONLY"
+          fi
+
+          {
+            echo
+            echo "## Result"
+            echo
+            echo "**$verdict** (exit \`$code\`)"
+            echo
+            echo '```'
+            echo "$out" | head -20
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "$verdict (exit $code)"
+          echo "$out" | head -20
