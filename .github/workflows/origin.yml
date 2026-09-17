@@ -1,0 +1,39 @@
+# Early word on the origin trailer, before anyone reviews the branch.
+#
+#   the rule:      .github/scripts/check-origin.sh
+#   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   what you owe:  CONTRIBUTING.md
+#
+# Never add this job to the required status checks. No pull request would
+# ever merge again. The Confirmation section of the decision above says why.
+name: Origin
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  origin:
+    name: Origin
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Name the commits that carry no origin trailer
+        run: |
+          set -euo pipefail
+
+          # A pull request is checked out as its merge commit. Its first parent
+          # is the base and its second is the branch. So this range holds
+          # exactly the commits the pull request adds.
+          #
+          # It needs no token. That is what makes it work on a fork too.
+          .github/scripts/check-origin.sh HEAD^1 HEAD^2
+
+          echo "every commit this pull request adds carries the trailer"
