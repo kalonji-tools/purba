@@ -156,7 +156,7 @@ An agreement holds when it reaches whoever is about to act: the same instruction
 | carrier | reaches | state |
 |---|---|---|
 | `AGENTS.md` | the agent, before it acts | owed by [the ticket that writes it](https://github.com/kalonji-tools/purba/issues/46), which is blocked on this record |
-| the review thread `.github/workflows/signoff.yml` posts | the reviewer while they decide, blocking the merge until resolved | live |
+| the review thread `.github/workflows/sign.yml` posts | the reviewer while they decide, blocking the merge until resolved | live |
 | an issue or pull request template | the web interface and nothing else | 0 of 1,317 issues and 0 of 899 pull requests in the prototype |
 
 A template is rendered by the client that opens it and every issue here arrived through the API, the reason [a register belongs to one location](a-register-belongs-to-one-location.md) already gives.

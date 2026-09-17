@@ -1,0 +1,197 @@
+# Acceptance for agent-written code.
+#
+#   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   what you owe:  CONTRIBUTING.md
+#
+# The traps below are easy to trip and hard to debug. Each one says why.
+name: Sign-off
+
+on:
+  # Keep both triggers.
+  # Updating a branch writes new commits, and a new commit has no check runs
+  # on it. The approval stays, so no review event arrives. With only
+  # `pull_request_review`, nothing would report the check again and the pull
+  # request could never merge.
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+concurrency:
+  group: sign-${{ github.event.pull_request.number }}
+  # Never `true`. This job pushes first and reports the check second. Cancel
+  # it in between, and the branch keeps the rewrite but loses the check.
+  # Nothing runs again to add one.
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_REPO: ${{ github.repository }}
+  PR: ${{ github.event.pull_request.number }}
+
+jobs:
+  sign:
+    permissions:
+      contents: write
+      pull-requests: read
+      # This job rewrites the commits, and the new commits have no check runs
+      # on them. So the job reports the required check itself.
+      checks: write
+    # Never call this job `Sign-off`. A job writes a check run under its own
+    # name, so that name must not be the required one. The last step reports
+    # `Sign-off` on purpose instead.
+    name: sign
+    runs-on: ubuntu-latest
+    # Bounded, because `cancel-in-progress` is false and a hung run would hold
+    # the queue for six hours.
+    timeout-minutes: 10
+    env:
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+    steps:
+      # This step must stay first. A fork's branch does not exist in this
+      # repository. The checkout below fails on it. Any step placed after the
+      # checkout would never run.
+      - name: Refuse a pull request from a fork
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error::This job cannot sign a pull request from a fork, because it is only allowed to read here. purba takes your contribution another way: see CONTRIBUTING.md."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Write the acceptance trailer into every commit
+        run: |
+          set -euo pipefail
+
+          # Read the approval from the API, not from the event. A push event
+          # carries no approval, and a push is what this job has to survive.
+          reviews=$(gh api "repos/$GH_REPO/pulls/$PR/reviews" --paginate)
+          approver=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty' <<<"$reviews")
+          approver_id=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty' <<<"$reviews")
+
+          # With no approval, write no check at all. A missing check already
+          # blocks the merge, so this job stops here and succeeds.
+          if [ -z "$approver" ]; then
+            echo "no approval stands on this head, so there is nothing to accept"
+            exit 0
+          fi
+
+          # These two are written into commit messages that can never be
+          # edited, so check their shape before writing them. GitHub allows only
+          # letters, digits and hyphens in a login today.
+          case "$approver" in
+            *[!A-Za-z0-9-]*) echo "::error::the approver login has a character this job will not write into a commit: $approver"; exit 1 ;;
+          esac
+          case "$approver_id" in
+            "" | *[!0-9]*) echo "::error::the approver id is not a number: $approver_id"; exit 1 ;;
+          esac
+
+          # The numeric id survives a username change. A username-only address
+          # does not.
+          export TRAILER="Accepted-by: $approver <$approver_id+$approver@users.noreply.github.com>"
+
+          # The branch this pull request targets, not `main`. Measuring from
+          # `main` would make the job rewrite commits it does not own.
+          git fetch --quiet origin "$BASE_REF"
+          base=$(git merge-base FETCH_HEAD HEAD)
+          before=$(git rev-parse HEAD)
+
+          # A fresh checkout has no git identity, and `git commit` refuses to
+          # run without one. These two lines only satisfy that. The name does
+          # not survive: the merge replaces the committer.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # The `grep` is what stops this repeating forever. A commit that
+          # already has the trailer is left alone. The commits stop changing, and
+          # the push below stops happening.
+          #
+          # Keep the outer quotes single. `$TRAILER` then reaches the command
+          # through the environment, where it stays data. Double quotes would
+          # let the outer shell paste it in as code instead, and that was
+          # measured running a command hidden inside a login.
+          git rebase "$base" --exec \
+            'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"'
+
+          head_sha=$(git rev-parse HEAD)
+          if [ "$head_sha" != "$before" ]; then
+            git push --force origin "HEAD:$HEAD_REF"
+          fi
+
+          gh api --method POST "repos/$GH_REPO/check-runs" \
+            -f name="Sign-off" \
+            -f head_sha="$head_sha" \
+            -f status=completed \
+            -f conclusion=success \
+            -f "output[title]=Accepted by @$approver" \
+            -f "output[summary]=Every commit on this branch carries an \`Accepted-by:\` trailer naming the account that approved it." \
+            --jq '.html_url'
+
+          echo "recorded acceptance by $approver on $head_sha"
+
+  decision-records:
+    permissions:
+      # This job writes a comment on the pull request. The sign job only reads
+      # one, so the two need different permissions.
+      pull-requests: write
+    name: Decision-record thread
+    # Separate from the gate, and deliberately not gated: this thread must be
+    # readable while the reviewer decides, not after they have approved.
+    # `pull_request` only. A review event carries the same payload, and the
+    # marker check below would then be the only thing stopping a second
+    # thread, which is a guard too far downstream to rely on.
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Post the thread
+        run: |
+          set -euo pipefail
+
+          decisions=$(gh api "repos/$GH_REPO/pulls/$PR/files" --paginate --jq '.[].filename' | LC_ALL=C sort | grep '^docs/decisions/' || true)
+          if [ -z "$decisions" ]; then
+            echo "the diff does not touch docs/decisions, so no thread is owed"
+            exit 0
+          fi
+
+          # Anchoring is narrower than the documentation suggests, and all of
+          # this was measured against a live pull request rather than read:
+          # an inline comment is accepted only on a line inside a diff hunk;
+          # `subject_type` is REJECTED inside a review payload; and GraphQL's
+          # addPullRequestReviewThread with subjectType FILE returns a null
+          # thread and creates nothing. A file-level thread exists only through
+          # the standalone endpoint used below.
+          marker='<!-- purba:thread:decisions -->'
+          # `ready_for_review` fires again every time a draft is re-readied, so
+          # without this check one question would become several required
+          # resolutions.
+          existing=$(gh api "repos/$GH_REPO/pulls/$PR/comments" --paginate --jq '.[].body')
+          case "$existing" in
+            *"$marker"*)
+              echo "$marker is already present, skipping"
+              exit 0
+              ;;
+          esac
+
+          gh api "repos/$GH_REPO/pulls/$PR/comments" \
+            -f commit_id="$HEAD_SHA" -f path="$(head -1 <<<"$decisions")" -f subject_type=file \
+            -f body="**This pull request changes a decision record.**
+
+          $(sed 's|^|- \`|; s|$|\`|' <<<"$decisions")
+
+          A decision record states what this project decided and why, and it is read by people who were not in the conversation. Two things about it can never be checked by a tool:
+
+          > Two things are never gateable: whether a record states one decision, and whether it is still true.
+          > The code owner judges both, and is the only reader who can.
+
+          A third has already gone wrong once. **The Decision Outcome is written by a person, or the change does not merge.** An agent writing it satisfies the letter and voids the rule.
+
+          Resolve this thread when you have judged all three.
+          $marker"
+          echo "posted the decision-record thread"
