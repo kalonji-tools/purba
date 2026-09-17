@@ -1,37 +1,33 @@
 # Human sign-off for agent-written code.
 #
-# An agent writes the commits here, so the commits carry no `Signed-off-by:`
-# trailer: `git commit -s` writes that trailer when the commit is made, and it
-# would certify a review nobody has done yet. This workflow holds the merge
-# instead. The `signoff` environment names a human reviewer, GitHub pauses the
-# job until that person approves, and the approval records who approved.
+# This file is out of step with the decision it implements, knowingly. It still
+# gates on a deployment environment, and nothing here writes a trailer.
 #
-# The trade, taken knowingly: an approval lives in GitHub and a trailer lives in
-# git, so this record does not survive a clone. See docs/decisions/.
+#   the decision: docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   the rewrite:  https://github.com/kalonji-tools/purba/issues/103
 #
-# Three things break this file if you change them without knowing why:
+# Two things break this file if you change them without knowing why:
 #
 #   1. The `signoff` environment must already exist WITH its reviewer list.
 #      GitHub creates a missing environment silently, with no protection rules,
 #      and the gate would then pass without anyone approving anything.
-#   2. `Sign-off` is a required status check on `main`. A required check that
-#      never reports blocks the merge, which is the only reason this gate fails
-#      closed rather than open.
-#   3. `prevent_self_review` on the environment stays `false`. It blocks whoever
-#      TRIGGERED the run, not the agent. The agent is not on the reviewer list,
-#      so it can never approve regardless. Setting it `true` would only deadlock
-#      a pull request a human opens: they trigger the run, then they are refused
-#      the approval.
+#   2. A required check that never reports blocks the merge. That is the only
+#      reason this gate fails closed rather than open.
 #
-# A fourth is on the `signoff` job itself, where the change would be made.
+# A third is on the `signoff` job itself, where the change would be made.
 #
 # Known limit, not fixed: a pull request from a FORK receives a read-only
 # GITHUB_TOKEN whatever the `permissions:` block says. Such a pull request waits
 # for approval, a human grants it, and the job then fails on the first write, so
-# the reviewer has spent a click for nothing. Detecting it before the gate needs
-# a second job, and the required context would then be a job GitHub can skip,
-# which the `signoff` job explains is unsafe. purba has no outside contributors
-# today, and this fails closed.
+# the reviewer has spent a click for nothing.
+#
+# A FIRST-TIME contributor never reaches that point. The run reports
+# `action_required`, never starts, and writes no check run at all. Both were
+# measured, and the gate still fails closed either way.
+#
+# Detecting it before the gate needs a second job, and the required context
+# would then be a job GitHub can skip, which the `signoff` job explains is
+# unsafe.
 name: Sign-off
 
 on:
@@ -98,13 +94,9 @@ jobs:
             exit 1
           fi
 
-          # purba merges by rebase, so the commit a reviewer approves is not the
-          # commit that lands: the merge replays it under a new SHA. The tree is
-          # the identity that survives, so the record names it.
-          #
-          # It is read from the head commit and NOT from the last element of the
-          # commits list, because `gh api --paginate` returns one array per page
-          # and the last element of a page is not the last commit.
+          # The tree is read from the head commit and NOT from the last element
+          # of the commits list, because `gh api --paginate` returns one array
+          # per page and the last element of a page is not the last commit.
           tree=$(gh api "repos/$GH_REPO/commits/$HEAD_SHA" --jq '.commit.tree.sha')
 
           # One head gets one record. A person can re-run this job by hand, and
