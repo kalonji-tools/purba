@@ -40,7 +40,11 @@ it, and does so in two places.
 
 | record | where |
 |---|---|
-| the person who accepted the change into `main` | the committer field of the commit |
+| the person who accepted the change into `main` | an `Accepted-by:` trailer on every commit |
 | the approval that released it | the pull request |
 
 Both are purba's to write. Neither is yours to supply.
+
+A workflow writes the trailer from the approval, so it cannot disagree with
+the approval it reports. It rewrites your commits to add it, which is why the
+branch you pushed and the branch that merges have different SHAs.
