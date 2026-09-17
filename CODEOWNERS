@@ -4,12 +4,14 @@
 # names and repository properties only, and the "Restrict file paths" rule
 # belongs to push rulesets, where it prevents a push rather than requiring an
 # approval. So this file is the only native lever that scopes an approval to a
-# directory, and it is why #47 needed a pull request at all.
+# directory, and it is why setting branch protection needed a pull request at
+# all.
 #
 # The owner must hold write permission, and this file must be on the base
 # branch of a pull request to have any effect.
-#
-# /docs/decisions/ does not exist yet -- #37 creates it. The entry below is
-# valid and inert until then.
 
 /docs/decisions/ @snregales
+
+# The gate lives here, and a pull request runs its own copy of it.
+#   docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+/.github/ @snregales

@@ -93,11 +93,12 @@ The third era claims the acceptance trailer and not the origin one.
 A contributor owes `Signed-off-by:` on every commit and nothing checks that they wrote it, so the table states what the repository does rather than what is asked of a contributor.
 [Check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105) owns that gap.
 
-**Downside:** three.
+**Downside:** four.
 
 - **A contribution from a fork cannot carry the acceptance trailer.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. The mechanism therefore covers a contribution made inside this repository and not one made outside it, and the risk this record was built against sits outside it.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.
 - **The first account to approve is the one the trailer names.** The mechanism skips a commit that already carries the trailer, because without that it would rewrite the branch on every push and never settle. So an approval that is dismissed, and then given by a different person, leaves the first name in place. The pull request holds the second approval and the commit does not.
+- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
 
 ## Confirmation
 
@@ -109,6 +110,7 @@ A contributor owes `Signed-off-by:` on every commit and nothing checks that they
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and this is deliberate** |
+| a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
 | the contributor read what they signed | none, and no check can make it |
 
 The first two rows have no check.
