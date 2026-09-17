@@ -1,0 +1,133 @@
+name: Sign
+
+# Arm F, H, I. Three questions in one job, because they share every step.
+#
+#   F  Does a check run this job posts, under a REQUIRED context name, on a SHA
+#      this job created, satisfy the ruleset and let the merge happen?
+#   H  The amend rewrites the committer. Does
+#      `require_extra_approval_for_unattributed_changes` then demand a second
+#      approval? Flipped by the `SIGN_IDENTITY` repository variable.
+#   I  On a multi-commit pull request only the head is amended. How many landed
+#      commits carry the trailer after the rebase replay?
+#
+# Every step records into the job summary, because the measurement is the point
+# and a failure that reports nothing measures nothing.
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: read
+  checks: write
+  actions: read
+
+jobs:
+  # NOT named `Sign-off`. This job's own check run lands under this name, and
+  # the context under test must be posted deliberately rather than inherited
+  # from the job that posts it.
+  sign-job:
+    name: sign-job
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      R: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      APPROVER: ${{ github.event.review.user.login }}
+      APPROVER_ID: ${{ github.event.review.user.id }}
+      IDENTITY: ${{ vars.SIGN_IDENTITY }}
+      CONTEXT: Sign-off
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Measure, amend, push, post the check run
+        run: |
+          set -uo pipefail
+
+          snapshot () {
+            local label="$1" sha="$2"
+            local runs states mergeable
+            runs=$(gh api "repos/$R/commits/$sha/check-runs" \
+              --jq '[.check_runs[] | "\(.name)=\(.conclusion // .status)"] | join(" ")' 2>&1)
+            states=$(gh api "repos/$R/pulls/$PR/reviews" --paginate \
+              --jq '[.[] | .state] | join(",")' 2>&1)
+            mergeable=$(gh api "repos/$R/pulls/$PR" --jq '.mergeable_state' 2>&1)
+            printf '| %s | `%s` | `%s` | `%s` | `%s` |\n' \
+              "$label" "${sha:0:7}" "${runs:-none}" "$states" "$mergeable" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          case "$IDENTITY" in
+            unattributed)
+              NAME="purba sign"
+              EMAIL="sign@purba.invalid"
+              ;;
+            *)
+              NAME="github-actions[bot]"
+              EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+              ;;
+          esac
+
+          before_sha=$(git rev-parse HEAD)
+          before_tree=$(git rev-parse 'HEAD^{tree}')
+
+          {
+            echo "## Arms F, H, I"
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| identity arm | \`${IDENTITY:-bot}\` |"
+            echo "| committer written | \`$NAME <$EMAIL>\` |"
+            echo "| approver | \`$APPROVER\` |"
+            echo "| commits on the branch | \`$(git rev-list --count origin/main..HEAD)\` |"
+            echo
+            echo "| stage | head | check runs on head | reviews | mergeable_state |"
+            echo "|---|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          snapshot "before the amend" "$before_sha"
+
+          git config user.name "$NAME"
+          git config user.email "$EMAIL"
+          git commit --amend --no-edit --trailer \
+            "Accepted-by: $APPROVER <$APPROVER_ID+$APPROVER@users.noreply.github.com>"
+
+          after_sha=$(git rev-parse HEAD)
+          after_tree=$(git rev-parse 'HEAD^{tree}')
+
+          git push --force origin "HEAD:${{ github.event.pull_request.head.ref }}" 2>&1 | tail -2
+          push=${PIPESTATUS[0]}
+          sleep 20
+          snapshot "after the push" "$after_sha"
+
+          posted=$(gh api -X POST "repos/$R/check-runs" \
+            -f name="$CONTEXT" -f head_sha="$after_sha" -f status=completed \
+            -f conclusion=success \
+            -f output[title]="Accepted by @$APPROVER" \
+            -f output[summary]="The acceptance trailer was written from the approval." \
+            --jq '.id' 2>&1)
+          post_exit=$?
+          sleep 20
+          snapshot "after the check run" "$after_sha"
+
+          {
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| tree before | \`$before_tree\` |"
+            echo "| tree after | \`$after_tree\` |"
+            echo "| tree unchanged | \`$([ "$before_tree" = "$after_tree" ] && echo yes || echo no)\` |"
+            echo "| push exit | \`$push\` |"
+            echo "| check run POST exit | \`$post_exit\` |"
+            echo "| check run id | \`$posted\` |"
+            echo
+            echo '### Trailers on every commit of the branch'
+            echo
+            echo '```'
+            git log --format='%h %s%n    author=%an committer=%cn%n    Accepted-by=[%(trailers:key=Accepted-by,valueonly,separator=%x2C)]' origin/main..HEAD
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

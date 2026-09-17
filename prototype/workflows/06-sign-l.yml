@@ -1,0 +1,89 @@
+name: Sign
+
+# Arm L. Every commit of the branch carries the trailer, not the head alone.
+#
+# Arm I measured the head-only design: two of three commits reached `main` with
+# no acceptance record, which is what a commit of the second era looks like.
+# This replays the branch and writes the trailer into each commit that lacks one.
+
+on:
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: read
+  checks: write
+
+jobs:
+  sign:
+    name: sign
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      R: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      REF: ${{ github.event.pull_request.head.ref }}
+      CONTEXT: Sign-off
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Write the acceptance trailer into every commit, then report
+        run: |
+          set -euo pipefail
+
+          approver=$(gh api "repos/$R/pulls/$PR/reviews" --paginate \
+            | jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty')
+          approver_id=$(gh api "repos/$R/pulls/$PR/reviews" --paginate \
+            | jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty')
+
+          echo "## Arm L -- event \`${{ github.event_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$approver" ]; then
+            echo "no approval stands, so the context is withheld" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git fetch -q origin main
+          base=$(git merge-base FETCH_HEAD HEAD)
+          before=$(git rev-parse HEAD)
+          n=$(git rev-list --count "$base..HEAD")
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          export TRAILER="Accepted-by: $approver <$approver_id+$approver@users.noreply.github.com>"
+          git rebase "$base" --exec \
+            'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"'
+
+          head_sha=$(git rev-parse HEAD)
+          if [ "$head_sha" != "$before" ]; then
+            git push --force origin "HEAD:$REF"
+          fi
+
+          gh api -X POST "repos/$R/check-runs" \
+            -f name="$CONTEXT" -f head_sha="$head_sha" -f status=completed \
+            -f conclusion=success \
+            -f output[title]="Accepted by @$approver" \
+            -f output[summary]="The acceptance trailer was written from the approval." \
+            --jq '.id' > /dev/null
+
+          {
+            echo
+            echo "| field | value |"
+            echo "|---|---|"
+            echo "| approver | \`$approver\` |"
+            echo "| commits replayed | \`$n\` |"
+            echo "| head before | \`${before:0:7}\` |"
+            echo "| head after | \`${head_sha:0:7}\` |"
+            echo "| tree before | \`$(git rev-parse "$before^{tree}")\` |"
+            echo "| tree after | \`$(git rev-parse "$head_sha^{tree}")\` |"
+            echo
+            echo '```'
+            git log --format='%h %s -- Accepted-by=[%(trailers:key=Accepted-by,valueonly)]' "$base..HEAD"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
