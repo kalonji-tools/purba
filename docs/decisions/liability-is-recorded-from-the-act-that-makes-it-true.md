@@ -101,7 +101,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 **Downside:** five.
 
-- **A contribution from a fork cannot carry the acceptance trailer.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. The mechanism therefore covers a contribution made inside this repository and not one made outside it, and the risk this record was built against sits outside it.
+- **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A maintainer therefore applies an outside contribution to a branch here before it merges, so the mechanism covers it and the cost is an act rather than a gap.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.
 - **The first account to approve is the one the trailer names.** The mechanism skips a commit that already carries the trailer, because without that it would rewrite the branch on every push and never settle. So an approval that is dismissed, and then given by a different person, leaves the first name in place. The pull request holds the second approval and the commit does not.
 - **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
@@ -148,8 +148,7 @@ The measurements behind the rows above were made in a throwaway repository, and 
 
 **The mechanism that writes `Accepted-by:` cannot run on a pull request from a fork.**
 The token is read only there, the push is refused, and allowing a maintainer to modify the branch does not change it.
-An outside contribution therefore cannot carry this trailer.
-[How does purba accept a contribution from a fork?](https://github.com/kalonji-tools/purba/issues/102) decides the path such a contribution takes.
+[An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) carries such a contribution to a branch here first, where this mechanism writes the trailer as it does on any other branch.
 
 The row on whether the contributor read what they signed is the point of the whole mechanism, and no check can ever make it.
 A detector good enough to suggest is not good enough to gate.
