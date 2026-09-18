@@ -109,7 +109,10 @@ That resolution is the `cited paths exist` row graded weak in [a decision record
 | `403` and `429` are accepted | a withdrawn page passes |
 
 The gate is not wired.
-No tracked file holds an address inside an unpublished comment today, so it is written for the comments this record admits.
+Three tracked files already hold an address inside an unpublished comment, and the extensions above reach none of them.
+`.gitattributes` holds two, `CODEOWNERS` holds one, and so does each script under `.github/scripts/`.
+An extension list cannot name a tracked file that has no extension, and `CODEOWNERS` is one.
+[Wire the link gate, and reach the files an extension list cannot name](https://github.com/kalonji-tools/purba/issues/112) owns what the inputs become.
 
 Nothing decides whether a comment that survives the subtraction was worth writing.
 That fails as friction.
