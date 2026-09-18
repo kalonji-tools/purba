@@ -75,3 +75,24 @@ Both are purba's to write. Neither is yours to supply.
 A workflow writes the trailer from the approval, so it cannot disagree with
 the approval it reports. It rewrites your commits to add it, which is why the
 branch you pushed and the branch that merges have different SHAs.
+
+## How your work reaches `main`
+
+If you can push to this repository, you push a branch here and your pull
+request merges. Everything above applies to it unchanged.
+
+If you work from a fork, your pull request is a proposal. It does not merge.
+
+A workflow here holds a read-only token on a pull request from a fork, so it
+cannot write purba's side of the record onto a branch that lives on your
+account. purba carries your work in instead.
+
+A maintainer copies your commits to a branch in this repository and opens a
+pull request for it. That branch is what gets reviewed and what merges.
+
+Your commits are not changed on the way. The author field stays yours and so
+does your `Signed-off-by:` trailer. `Accepted-by:` is written on purba's
+branch and never on yours.
+
+A maintainer closes your pull request once the work has merged, and names the
+branch that carried it.
