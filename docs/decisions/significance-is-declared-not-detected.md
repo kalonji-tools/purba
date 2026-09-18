@@ -25,63 +25,59 @@ Every candidate measured on the prototype fails.
 - **Detecting that a change touches a record.** Rejected as a detector. Of 89 commits touching the prototype's record directory, 61 touched no code at all.
 - **Declaring it.** Chosen. The property becomes true by definition, so CI routes on it without judging anything.
 
-The size numbers are worth keeping, because they kill the instrument outright:
-
 | pull request size | lines | mean lifetime |
 |---|---|---|
 | median | 159 | 1.5 h |
 | p90 | 1,109 | |
 | p99 | 7,437 | 4.0 h above 1,000 lines |
 
-The large ones were not read more carefully and the small ones were not read at all.
 No threshold catches what mattered, because nothing ever required that a person had read anything.
 
 ## Decision Outcome
 
 A change is architecturally significant if and only if it adds or changes a decision record.
 
-CI routes on `docs/decisions/` being touched.
-A pull request that touches it needs the code owner's approval, which is roughly one change in ten.
-Every other pull request is unrouted.
+`CODEOWNERS` assigns `/docs/decisions/` to the human, and the ruleset requires that owner's review on a pull request touching it.
+The same ruleset requires one approving review on every pull request, under no path condition.
+
+The reviewer reads for one thing: whether the decision, the spec and the implementation are the same thing.
+That is the question no check can ask, and routing exists to put it in front of a person rather than to choose which person.
+
+A pull request that touches a record carries all three links in one diff, and the code owner reads it.
+A pull request that touches no record is further down a chain whose decision already merged, and the reviewer reads the change against the record that governs it.
+Where no record governs it, the reviewer asks whether one is owed.
+That question is a suggestion and never a gate, and nothing enforces it.
 
 The explain-back artifact is the record itself.
-The human writes the Decision Outcome, or the change does not merge.
+The human owns the Decision Outcome.
+An agent may draft it where the human has shown, in review, that the points are read and understood.
+Work an agent wrote is welcome and is held to the harder standard.
 You cannot state what is true, and what it costs, about a change you have not understood.
 The remedy on failure is teaching, not a waiver.
 
 Where the human wrote the code the mechanism inverts instead of doubling.
 An agent explains the change back to the human, and a mismatch is the signal.
-The project has one comprehension mechanism, pointed in two directions.
 
-A companion rule closes the gap the detector could not:
+**Downside:**
 
-- **Gate.** A pull request touching a decision record must also touch code.
-- **Suggestion.** A pull request touching code may be asked whether it needs a record.
-
-**Downside:** two failure modes, both named, neither mechanical.
-
-- **False negative.** A change can be significant and touch no record, and nothing catches it. Making the signal decidable means giving up detection, and this is the price.
-- **False positive.** The companion gate refuses a pull request that only stands records. It cannot be satisfied while the tree holds no product code, which is the scaffold's whole destination. The pull request that stood these first records met the gate only because it also deleted a stale numbered citation from the manifest, and that does not repeat on demand.
-
-This is also the one gate the human can fail on their own project, so it is the one they can quietly delete.
-It costs a single Decision Outcome, and that is what makes it survivable.
+- **A change can be significant and touch no record, and nothing catches it.** Making the signal decidable means giving up detection, and this is the price.
+- **The question above is all that reaches that gap.** A companion gate stood beside it and required a pull request touching a record to touch code as well. Measured on 2026-09-18 it would have refused 7 of the 18 pull requests merged by then, which is this project's own working shape while the tree holds no product code, so it is deleted rather than wired. What it was written to close stays open.
 
 ## Confirmation
 
-`CODEOWNERS` assigns `/docs/decisions/` to the human, and the branch ruleset requires code-owner review.
+The routing is live and enforcing:
 
-This is live and enforcing:
-
-| evidence | |
+| evidence | result |
 |---|---|
 | GitHub's CODEOWNERS validator | 0 errors |
 | the first pull request to touch the directory | blocked |
 | the review request GitHub generated | reported as coming from `CODEOWNERS` |
+| every pull request merged to `main` | carried an approving review |
 
-The companion gate is enforced by nothing.
-It is a stated rule with no check, and a decided rule with no gate is not in force.
+Read the routing back from the ruleset, not from here: `required_approving_review_count`, `require_code_owner_review` and the absence of a path condition are what decide it.
 
-One limit no configuration removes.
 The block on approving your own pull request keys on identity, and one human is in the organisation.
 A required approval records who accepted a change and pins it to a commit.
 It does not produce a second reader.
+
+[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) reads the same ruleset from the other side, and states what the approval this rule requires can and cannot prove.
