@@ -42,7 +42,11 @@ The version mapping belongs here, because the patch number is a release counter 
 
 There is no `0.0.1`, and the mapping is not arithmetic.
 
-**Downside:** MSRV moves about every six weeks, three times in ten weeks, and the pinned version cannot be built by the Rust compiler in nixpkgs stable. The toolchain pin and the parser's MSRV must move together, and the parser moves first. The dependency count is higher, at 61 transitive against 45 and four direct crates to name against one. The genuine unknown is not the API: these crates first reached the registry eleven weeks before this decision, published so another project could consume them, and no policy statement commits their publisher to continuing. Confidence over the measured window is high and extrapolating is not. This is the one thing that could make this decision wrong.
+**Downside:**
+
+- **The publisher commits to nothing.** These crates first reached the registry eleven weeks before this decision, published so another project could consume them, and no policy statement commits their publisher to continuing. Confidence over the measured window is high and extrapolating is not.
+- **MSRV moves about every six weeks**, three times in ten weeks, and each move is a pin somebody has to raise.
+- **The dependency count is higher**, at 61 transitive against 45, and four direct crates to name against one.
 
 Being wrong here is survivable, and being wrong the other way is not:
 
@@ -50,6 +54,8 @@ Being wrong here is survivable, and being wrong the other way is not:
 |---|---|---|---|---|
 | ruff | an API break | yes, a compile error | yes, the pin is exact | yes, 6 symbols in 10 weeks |
 | the rejected crate | a file does not parse | no | no, already true | no, nobody maintains it |
+
+[mise names every tool version](mise-names-every-tool-version.md) names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) names the channel, so a raised MSRV is read against those rather than against a pin in this repository.
 
 ## Confirmation
 
