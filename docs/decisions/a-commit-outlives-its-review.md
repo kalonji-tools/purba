@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-purba writes the longest commit bodies of any corpus measured here.
+Commit body length varies several-fold across comparable projects.
 
 | corpus | mean body words, among commits that have a body | have a body |
 |---|---|---|
@@ -13,18 +13,17 @@ purba writes the longest commit bodies of any corpus measured here.
 | uv | 85 | 89% |
 | git | 125 | 100% |
 | ruff | 127 | 86% |
-| **purba** | **139** | 100% |
 
 Length is no longer the defect.
 A commit that adds a decision record repeats the record it adds.
 
-| commits on `main` | n | mean body words |
+| commits on `main` when this was decided | n | mean body words |
 |---|---:|---:|
 | add or change a decision record | 8 | 101 |
 | do not | 5 | 200 |
 
-Four of the five most recent record commits open with the Context of the record in the same commit.
-Two of those five then list the changes.
+Four of the five record commits then on `main` opened with the Context of the record in the same commit.
+Two of those five went on to list the changes.
 The commit is a second copy of a document that sits in the same tree.
 
 There is no standard to appeal to.

@@ -103,7 +103,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 
 **Downside:**
 
-- Every register depends on an author who reads it. The evidence is 72 of 74 issues by one author, and it says nothing about a second author or an outside contributor.
+- Every register depends on an author who reads it. Nearly every issue here was written by one, so the evidence says nothing about a second author or an outside contributor.
 - A register can drift from the record that names it, because naming is a pointer and nothing compares the two.
 - Six locations hold no register, so this record is revisited every time one opens.
 
@@ -134,3 +134,6 @@ Six locations are closed and hold no register.
 
 Nothing here checks whether a register is the right one for its location.
 That fails as friction, and a reader reports it.
+
+Two registers named above are not in the tree.
+[Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) writes one and [Write the issue register](https://github.com/kalonji-tools/purba/issues/121) writes the other.
