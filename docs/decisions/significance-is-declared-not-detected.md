@@ -61,7 +61,7 @@ An agent explains the change back to the human, and a mismatch is the signal.
 **Downside:**
 
 - **A change can be significant and touch no record, and nothing catches it.** Making the signal decidable means giving up detection, and this is the price.
-- **The question above is all that reaches that gap.** A companion gate stood beside it and required a pull request touching a record to touch code as well. Measured on 2026-09-18 it would have refused 7 of the 18 pull requests merged by then, which is this project's own working shape while the tree holds no product code, so it is deleted rather than wired. What it was written to close stays open.
+- **The question above is all that reaches that gap.** A companion gate stood beside it and required a pull request touching a record to also touch code. It is deleted because a record merges before the thing it decides is built, so a pull request carrying a record alone is the ordinary shape here and not an exception. The gate never said what counts as code either. What it was written to close stays open.
 
 ## Confirmation
 
