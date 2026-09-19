@@ -26,6 +26,9 @@ The prototype shows what an unanswered location question costs.
 
 A location inherits its readers.
 
+**The words this record uses are defined once.**
+[A term belongs to the glossary](a-term-belongs-to-the-glossary.md) holds them.
+
 **Down the path tree.**
 A directory names the actors it adds, and a file's readers are the union of every binding from the project root down to it.
 A directory that binds nothing is transparent: `src/config/pyproject.toml` reads `src/`'s actors when `config/` binds none.
@@ -37,6 +40,7 @@ The bindings live in `.readers`, in gitattributes syntax:
 [attr]user         tester plugin-author packager integrator
 
 README.md          stem
+CONTEXT.md         stem
 CLAUDE.md          handler contributor
 .claude/**         handler
 docs/agents/**     handler
