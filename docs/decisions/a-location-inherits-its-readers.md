@@ -90,7 +90,7 @@ Both halves were exercised against real trees before this record was written.
 
 | measured | result |
 |---|---|
-| this repository, against the bindings above | 7 of 19 tracked files reach no actor |
+| this repository as it then stood, against the bindings above | 7 of 19 tracked files reached no actor |
 | the prototype repository, 1,109 files, 288 directories, 8 levels deep | one pattern reaches 688 files, four reach 956 |
 
 ⚠️ The seven are root-level configuration and licence files.
