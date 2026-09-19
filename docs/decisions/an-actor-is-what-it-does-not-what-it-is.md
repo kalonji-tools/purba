@@ -36,17 +36,17 @@ The roster is flat.
 
 | actor | mindset |
 |---|---|
-| **stem** | I do not know this part of purba, and I need footing before I can do anything |
-| **architect** | I must choose a direction, and I will be answerable for what it costs |
-| **coder** | the decision is made, and I must build it correctly |
-| **toolsmith** | a mistake must be stopped before a person has to catch it |
-| **handler** | an agent will act on what I write, and on nothing else |
-| **reviewer** | I am about to become answerable for work I did not write |
-| **technical writer** | someone outside this work must understand it without asking |
-| **tester** | I need purba to tell me the truth about my own code |
-| **plugin author** | I build against purba, and I need its shape to hold still |
-| **packager** | I must get purba into an environment I do not control, and prove I am allowed to ship it |
-| **integrator** | purba must tell a machine what happened, the same way every time |
+| [**stem**](../../CONTEXT.md#stem) | I do not know this part of purba, and I need footing before I can do anything |
+| [**architect**](../../CONTEXT.md#architect) | I must choose a direction, and I will be answerable for what it costs |
+| [**coder**](../../CONTEXT.md#coder) | the decision is made, and I must build it correctly |
+| [**toolsmith**](../../CONTEXT.md#toolsmith) | a mistake must be stopped before a person has to catch it |
+| [**handler**](../../CONTEXT.md#handler) | an agent will act on what I write, and on nothing else |
+| [**reviewer**](../../CONTEXT.md#reviewer) | I am about to become answerable for work I did not write |
+| [**technical writer**](../../CONTEXT.md#technical-writer) | someone outside this work must understand it without asking |
+| [**tester**](../../CONTEXT.md#tester) | I need purba to tell me the truth about my own code |
+| [**plugin author**](../../CONTEXT.md#plugin-author) | I build against purba, and I need its shape to hold still |
+| [**packager**](../../CONTEXT.md#packager) | I must get purba into an environment I do not control, and prove I am allowed to ship it |
+| [**integrator**](../../CONTEXT.md#integrator) | purba must tell a machine what happened, the same way every time |
 
 `contributor` and `user` are not actors.
 Each was a heading over the rows beneath it, and a heading is taxonomy rather than a reader.
