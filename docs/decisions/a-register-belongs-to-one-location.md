@@ -2,13 +2,14 @@
 
 ## Context and Problem Statement
 
-purba writes into twelve locations.
-Two of them state how to write there.
+purba writes into thirteen locations.
+Three of them state how to write there.
 
 | location | states how to write there |
 |---|---|
 | commit message | yes, in [a commit message outlives its review](a-commit-outlives-its-review.md) |
 | `docs/decisions/` | yes, in `docs/decisions/.template.md` |
+| `CONTEXT.md` | yes, in [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) |
 | the other ten | no |
 
 [A location inherits its readers](a-location-inherits-its-readers.md) says who reads each location.
@@ -75,6 +76,10 @@ It is curated rather than accumulated, so an artifact that earns none carries no
 The register is a file in the tree, or a convention named from outside.
 The location's own author writes it.
 
+**A register never defines a word.**
+It states how information is distributed within one location.
+What a term means belongs to the glossary, and [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) holds it.
+
 **A derived location inherits its source's register.**
 
 The CHANGELOG renders commit subjects, so a bad changelog line is a commit subject defect.
@@ -113,6 +118,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 |---|---|---|---|
 | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no |
 | `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | no |
+| `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no |
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | no |
