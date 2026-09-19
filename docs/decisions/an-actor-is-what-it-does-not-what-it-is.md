@@ -34,19 +34,19 @@ An actor is a role that reads, stated as the mindset it reads from.
 
 The roster is flat.
 
-| actor | mindset |
-|---|---|
-| **stem** | I do not know this part of purba, and I need footing before I can do anything |
-| **architect** | I must choose a direction, and I will be answerable for what it costs |
-| **coder** | the decision is made, and I must build it correctly |
-| **toolsmith** | a mistake must be stopped before a person has to catch it |
-| **handler** | an agent will act on what I write, and on nothing else |
-| **reviewer** | I am about to become answerable for work I did not write |
-| **technical writer** | someone outside this work must understand it without asking |
-| **tester** | I need purba to tell me the truth about my own code |
-| **plugin author** | I build against purba, and I need its shape to hold still |
-| **packager** | I must get purba into an environment I do not control, and prove I am allowed to ship it |
-| **integrator** | purba must tell a machine what happened, the same way every time |
+| actor |
+|---|
+| [**stem**](../../CONTEXT.md#stem) |
+| [**architect**](../../CONTEXT.md#architect) |
+| [**coder**](../../CONTEXT.md#coder) |
+| [**toolsmith**](../../CONTEXT.md#toolsmith) |
+| [**handler**](../../CONTEXT.md#handler) |
+| [**reviewer**](../../CONTEXT.md#reviewer) |
+| [**technical writer**](../../CONTEXT.md#technical-writer) |
+| [**tester**](../../CONTEXT.md#tester) |
+| [**plugin author**](../../CONTEXT.md#plugin-author) |
+| [**packager**](../../CONTEXT.md#packager) |
+| [**integrator**](../../CONTEXT.md#integrator) |
 
 `contributor` and `user` are not actors.
 Each was a heading over the rows beneath it, and a heading is taxonomy rather than a reader.
