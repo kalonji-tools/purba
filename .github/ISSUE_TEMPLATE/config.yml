@@ -1,0 +1,12 @@
+# This file is not the register. The templates beside it are.
+#
+#   the decision:  docs/decisions/a-register-belongs-to-one-location.md
+#
+# `blank_issues_enabled` is absent on purpose.
+contact_links:
+  - name: What purba is, and what it is not yet
+    url: https://github.com/kalonji-tools/purba#status
+    about: A Python test framework written in Rust.
+  - name: How to contribute
+    url: https://github.com/kalonji-tools/purba/blob/main/CONTRIBUTING.md
+    about: What your sign-off certifies, and how your work reaches main.
