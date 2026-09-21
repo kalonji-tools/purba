@@ -109,10 +109,11 @@ That resolution is the `cited paths exist` row graded weak in [a decision record
 | `403` and `429` are accepted | a withdrawn page passes |
 
 The gate is not wired.
-Three tracked files already hold an address inside an unpublished comment, and the extensions above reach none of them.
-`.gitattributes` holds two, `CODEOWNERS` holds one, and so does each script under `.github/scripts/`.
 An extension list cannot name a tracked file that has no extension, and `CODEOWNERS` is one.
-[Wire the link gate, and reach the files an extension list cannot name](https://github.com/kalonji-tools/purba/issues/112) owns what the inputs become.
+So the input set above cannot reach every tracked file that holds an address.
+Naming further extensions does not repair it, because the gap is the absence of an extension.
+[Which tools does mise.toml name, and how does it record a tool that is refused?](https://github.com/kalonji-tools/purba/issues/113) owns whether a tool file names this checker.
+Its roster records the checker as living in this record alone.
 
 Nothing decides whether a comment that survives the subtraction was worth writing.
 That fails as friction.
