@@ -41,7 +41,7 @@ The bindings live in `.readers`, in gitattributes syntax:
 
 README.md          stem
 CONTEXT.md         stem
-CLAUDE.md          handler contributor
+AGENTS.md          handler contributor
 .claude/**         handler
 docs/agents/**     handler
 .github/**         toolsmith
@@ -57,6 +57,7 @@ A reviewer reaches every location by what its role is, and a role that spans eve
 **Along the derivation chain.**
 A location built from another inherits that source's readers and is never authored twice.
 A commit message and a pull request derive from the paths they touch.
+`CLAUDE.md` derives from `AGENTS.md`, so it is bound nowhere and inherits.
 
 **A tracked file that reaches no actor fails the build.**
 The failure asks three questions rather than reporting a broken rule: should this file exist, what does it serve, and for whom.
