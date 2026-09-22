@@ -6,3 +6,4 @@
 # Generated, not authored. Tracked so a build is reproducible, collapsed so a
 # reviewer reads the change rather than the resolution.
 Cargo.lock  linguist-generated
+mise.lock   linguist-generated
