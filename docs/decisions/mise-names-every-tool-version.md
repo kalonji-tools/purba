@@ -54,8 +54,8 @@ mise names every tool version purba uses, in one committed lockfile, and purba c
 `mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
 Both are committed.
 A lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
-That mark is on `Cargo.lock` today, and `mise.lock` takes it when the substrate lands.
-`mise.lock` is generated with an explicit platform list, because it is not complete by default.
+`Cargo.lock` and `mise.lock` both carry that mark.
+mise chooses the platform list itself rather than being given one.
 
 **purba requires a C toolchain on the host and does not supply one.**
 This is a stated requirement rather than an omission, and `README.md` carries it, because that is the location a reader who does not yet know purba arrives at.
@@ -65,7 +65,7 @@ A NixOS machine does not, and `pkgs.gcc` supplies both `cc` and `ld` there.
 The Linux wheel floor is whatever the host provides.
 Buying a lower floor is deferred to whatever publishes wheels, and zig is the measured way to buy it.
 
-**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile pins the toolchain by date and not by checksum, because `core:rust` delegates to rustup, so the version is reproducible and the download is not verified. The lockfile is also not complete by default: it needs an explicit platform list, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
+**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile pins the toolchain by date and not by checksum, because `core:rust` delegates to rustup, so the version is reproducible and the download is not verified. The lockfile is also not complete by default: `mise lock` skips what it cannot fetch and reports success anyway, which an unauthenticated GitHub rate limit is enough to cause, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
 
 ## Confirmation
 
