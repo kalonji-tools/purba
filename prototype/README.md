@@ -356,3 +356,20 @@ rpath to mise's libpython; run `cargo test` with `extension-module` on and
 accept that it covers less; or declare `test-rust` a Linux and Windows recipe
 until [#42](https://github.com/kalonji-tools/purba/issues/42) settles the
 matrix.
+
+## The macOS abort has three fixes, and all three work
+
+Measured on `macos-26-arm64` in run
+[35737586961](https://github.com/kalonji-tools/purba/actions/runs/35737586961).
+Each candidate ran on its own with `continue-on-error`, so a failing one could
+not hide the others.
+
+| candidate | result | what it changes |
+|---|---|---|
+| **1 — `DYLD_FALLBACK_LIBRARY_PATH` from `sysconfig`** | ✅ `test result: ok` | nothing that is compiled. One environment variable, read from `sysconfig.get_config_var("LIBDIR")` → `~/.local/share/mise/installs/python/3.11.16/lib` |
+| 2 — `cargo test --features extension-module` | ✅ | ⚠️ what is tested. `Cargo.toml` turns this feature off on purpose, because it omits libpython and breaks `cargo doc` and `cargo test --doc` |
+| 3 — `RUSTFLAGS="-C link-arg=-Wl,-rpath,$LIBDIR"` | ✅ | ⚠️ the link. It bakes one machine's path into the binary, and changing `RUSTFLAGS` forces a full rebuild |
+
+**Candidate 1 is the one to take.** It is the only one that leaves both what is
+compiled and how it is linked alone. `DYLD_*` is read on macOS only, so the
+task sets it on every platform and needs no branch.
