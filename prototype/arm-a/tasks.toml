@@ -31,11 +31,14 @@ description = "Run the Rust tests"
 # A plain `cargo test` leaves `extension-module` off, so PyO3 links libpython
 # and the test binary must find it again at run time. macOS does not search the
 # interpreter's own library directory, and the binary aborts as it loads.
-# `DYLD_*` is read on macOS and on no other platform, so this needs no branch.
 # https://pyo3.rs/latest/building-and-distribution.html#dynamically-embedding-the-python-interpreter
+#
+# The assignment is rendered on macOS alone. Windows runs a task through `cmd`,
+# which reads neither this syntax nor the variable.
+# https://mise.jdx.dev/tasks/task-configuration.html
 run = '''
-LIBDIR=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
-DYLD_FALLBACK_LIBRARY_PATH="$LIBDIR" cargo test
+{% if os() == "macos" or os() == "darwin" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+{% endif %}cargo test
 '''
 
 ["test:doc"]
