@@ -85,4 +85,3 @@ Three properties are checked today only by hand, and the workflows that would ru
 The second check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension, so the package's own file attribute reports the `__init__.py` and proves nothing.
 A check written that way passes for a package with no Rust in it.
-

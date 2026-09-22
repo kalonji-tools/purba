@@ -1,0 +1,67 @@
+#:schema https://www.schemastore.org/prek.json
+
+default_install_hook_types = ["pre-commit", "commit-msg"]
+
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "check-toml"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "check-yaml"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "no-commit-to-branch"
+args = ["-b", "main"]
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "require-pattern"
+alias = "subject-form"
+name = "subject form"
+stages = ["commit-msg"]
+args = ["-m", "\\A(?:(?:fixup|squash|amend)! |(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$)"]
+
+[[repos.hooks]]
+id = "deny-pattern"
+alias = "subject-length"
+name = "subject at most 72 characters"
+stages = ["commit-msg"]
+args = ["-m", "\\A[^\\n]{73,}"]
+
+[[repos.hooks]]
+id = "deny-pattern"
+alias = "subject-full-stop"
+name = "no full stop before the reference"
+stages = ["commit-msg"]
+args = ["-m", "\\A[^\\n]*[.!?]\\s*\\(#\\d+\\)\\s*$"]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "typos"
+name = "typos"
+language = "system"
+entry = "mise x -- typos"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "cargo-fmt"
+name = "cargo fmt --check"
+language = "system"
+entry = "mise run fmt:check"
+stages = ["pre-commit"]
+pass_filenames = false
+files = "\\.rs$"
