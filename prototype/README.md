@@ -385,3 +385,34 @@ five gates and `build` start together and the wheel is built.
 `depends` is real, and cargo serialises most of it anyway. **Concurrency is not
 a reason to choose mise**, and the parent file's §6 should be read with this
 next to it.
+
+## ⚠️ mise runs a task through `cmd` on Windows
+
+Found while implementing, not while prototyping, and it is the one thing the
+three arms never exercised: every task the arms ran was a bare command that
+`cmd` and `sh` both accept.
+
+The first roster set an environment variable the POSIX way. Windows answered:
+
+```
+[test:rust] $ LIBDIR=$(python -c 'import sysconfig; …')
+'LIBDIR' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+**A task body is not portable shell.** mise renders it with Tera first, so the
+fix is a template guard rather than a second task:
+
+```
+{% if os() == "macos" or os() == "darwin" %}export DYLD_FALLBACK_LIBRARY_PATH=…
+{% endif %}cargo test
+```
+
+Run [35740029407](https://github.com/kalonji-tools/purba/actions/runs/35740029407)
+is green on `ubuntu-latest`, `macos-latest` **and** `windows-latest`, from the
+file that ships.
+
+⚠️ **The earlier CI rows are not wrong, but they are weaker than they looked.**
+Both runners were green on Windows because nothing either of them ran needed a
+shell. The moment a task needs one, mise's Windows default is `cmd` and a
+justfile recipe's default is `sh`.
