@@ -42,8 +42,23 @@ dependency that needs one, and it fails loudly.
 
 ```console
 $ mise install
-$ maturin build
+$ mise run build
 ```
+
+## Working on purba
+
+`mise tasks ls` lists every command purba has, and `mise run <name>` runs one.
+That list is the roster, so this file does not repeat it.
+
+`mise run check` is what to run before you ask anyone to review a branch. It
+refuses unformatted code, a lint, a broken link in the Rust documentation and a
+failing test.
+
+`mise run preflight` is the same from a clean tree. Worktrunk runs it before it
+merges a branch, so you rarely run it by hand.
+
+A task resolves the pinned toolchain itself, so it runs whether or not you have
+activated mise in your shell. That is what lets a git hook call one.
 
 ## License
 
