@@ -1,0 +1,88 @@
+# Every gate that refuses a commit on this machine.
+# https://prek.j178.dev
+#:schema https://www.schemastore.org/prek.json
+
+# Without this, `prek install` writes the pre-commit shim alone and every
+# commit-msg hook below silently never fires.
+default_install_hook_types = ["pre-commit", "commit-msg", "pre-merge-commit"]
+
+# A hook that declares no stage runs at every stage, so each one names its own.
+#
+# check-merge-conflict does nothing outside a merge without its flag.
+#
+# no-commit-to-branch names a second stage because a merge runs no pre-commit
+# hook. No hook of any kind runs on a cherry-pick.
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "trailing-whitespace", stages = ["pre-commit"] },
+  { id = "end-of-file-fixer", stages = ["pre-commit"] },
+  { id = "check-toml", stages = ["pre-commit"] },
+  { id = "check-yaml", stages = ["pre-commit"] },
+  { id = "check-merge-conflict", args = ["--assume-in-merge"], stages = ["pre-commit"] },
+  { id = "check-added-large-files", stages = ["pre-commit"] },
+  { id = "detect-private-key", stages = ["pre-commit"] },
+  { id = "check-vcs-permalinks", stages = ["pre-commit"] },
+  { id = "check-case-conflict", stages = ["pre-commit"] },
+  { id = "check-illegal-windows-names", stages = ["pre-commit"] },
+  { id = "check-executables-have-shebangs", stages = ["pre-commit"] },
+  { id = "check-shebang-scripts-are-executable", stages = ["pre-commit"] },
+  { id = "no-commit-to-branch", args = ["-b", "main"], stages = ["pre-commit", "pre-merge-commit"] },
+]
+
+# The three hooks below carry the decidable subject rules from
+# `docs/decisions/a-commit-outlives-its-review.md`.
+#
+# `fixup!`, `squash!` and `amend!` are accepted because autosquash consumes
+# them before they reach the changelog. git's own `Revert "..."` and
+# `Merge ...` subjects are refused: `revert` is a conventional type, and this
+# branch history is rebase-only.
+#
+# A second `builtin` block, because one repo takes `hooks = [...]` or
+# `[[repos.hooks]]` and never both.
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "require-pattern"
+alias = "subject-form"
+name = "subject form"
+stages = ["commit-msg"]
+args = ["-m", "\\A(?:(?:fixup|squash|amend)! |(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$)"]
+
+[[repos.hooks]]
+id = "deny-pattern"
+alias = "subject-length"
+name = "subject at most 72 characters"
+stages = ["commit-msg"]
+args = ["-m", "\\A[^\\n]{73,}"]
+
+[[repos.hooks]]
+id = "deny-pattern"
+alias = "subject-full-stop"
+name = "no full stop before the reference"
+stages = ["commit-msg"]
+args = ["-m", "\\A[^\\n]*[.!?]\\s*\\(#\\d+\\)\\s*$"]
+
+# Both entries reach their tool through mise, and neither may be called
+# directly. On PATH alone a hook finds no tool, and prek exits 2 without
+# running it.
+# https://github.com/jdx/mise/discussions/6830
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "typos"
+name = "typos"
+language = "system"
+entry = "mise x -- typos"
+stages = ["pre-commit"]
+
+[[repos.hooks]]
+id = "cargo-fmt"
+name = "cargo fmt --check"
+language = "system"
+entry = "mise run fmt:check"
+stages = ["pre-commit"]
+pass_filenames = false
+files = "\\.rs$"

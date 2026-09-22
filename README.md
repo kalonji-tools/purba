@@ -60,6 +60,10 @@ merges a branch, so you rarely run it by hand.
 A task resolves the pinned toolchain itself, so it runs whether or not you have
 activated mise in your shell. That is what lets a git hook call one.
 
+`prek install` sets up those hooks, once per clone rather than once per
+worktree. They refuse a commit whose subject or whose files break a rule, and
+`prek run --all-files` checks the whole tree without committing anything.
+
 ## License
 
 purba is licensed under the [MIT License](LICENSE).
