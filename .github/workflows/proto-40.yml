@@ -63,9 +63,11 @@ jobs:
             c-both)       cp prototype/arm-c/justfile justfile
                           cp prototype/arm-c/tasks.toml tasks.toml ;;
           esac
-          # Both runners are named in mise.toml on this branch, so one action
-          # installs whatever the arm needs. That is the claim under test.
-          printf '\n[task_config]\nincludes = ["tasks.toml"]\n' >> mise.toml
+          # Only the arms that carry tasks point mise at the task file.
+          case "${{ matrix.arm }}" in
+            a-mise-tasks|c-both)
+              printf '\n[task_config]\nincludes = ["tasks.toml"]\n' >> mise.toml ;;
+          esac
 
       - name: Bootstrap — one action, both runners
         id: bootstrap

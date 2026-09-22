@@ -36,6 +36,3 @@ compile = false
 # `mise install`. Export GITHUB_TOKEN for that run or mise skips what it cannot
 # fetch and still reports success.
 locked = true
-
-[task_config]
-includes = ["tasks.toml"]
