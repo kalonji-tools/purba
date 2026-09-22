@@ -51,16 +51,8 @@ depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
 
 [preflight]
 description = "Every gate, from a clean tree"
-# `depends` runs before this task and `depends_post` runs after it, so the tree
-# is clean before anything gates it. Each list runs its own members together.
-# https://mise.jdx.dev/tasks/task-configuration.html
 depends = ["clean"]
 depends_post = ["check", "build"]
-
-# The two tasks below are advisory and neither can gate. Whether a commit
-# message must outlive its review is a judgement, so nothing can test it. These
-# put the inputs to that judgement in front of a person while the history can
-# still be changed.
 
 [commits]
 description = "Show how this branch groups, before its history is permanent"
@@ -72,16 +64,14 @@ git log --reverse --format='%h %s' --name-only "$base"..HEAD
 
 ["regroup:verify"]
 description = "Prove a regroup rewrote commits and not content"
-# Compare the paths the change touched and never the whole tree. A whole-tree
-# comparison reports a difference for a correct regroup, because an autosquash
-# picks up commits that landed while the branch was open, and a check that
-# fails when it should not is a check a person learns to ignore.
+# Compare the union of the paths either side touched, and never the whole tree.
+# A whole-tree comparison reports a difference for a correct regroup, because an
+# autosquash picks up commits that landed while the branch was open. Taking the
+# paths from HEAD alone hides the opposite failure: a regroup that drops a file
+# is then never compared, and this task reports that nothing changed.
 usage = 'arg "<backup>" help="a ref taken before the regroup"'
 run = '''
 base=$(git merge-base origin/main HEAD)
-# The union of what either side touched. Taking the paths from HEAD alone hides
-# the worst outcome there is: a regroup that drops a file entirely is then never
-# compared, and this task reports that nothing changed.
 paths=$( { git diff --name-only "$base" HEAD
            git diff --name-only "$base" "$usage_backup"; } | sort -u )
 if [ -z "$paths" ]; then
