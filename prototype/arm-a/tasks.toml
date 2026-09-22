@@ -24,6 +24,10 @@ run = "cargo clippy --all-targets -- -D warnings"
 
 [doc]
 description = "Refuse a broken link in the Rust documentation"
+# rustdoc reports a broken link as a warning and exits 0, so without this the
+# task builds the documentation and refuses nothing.
+# https://doc.rust-lang.org/rustdoc/lints.html
+env = { RUSTDOCFLAGS = "-D warnings" }
 run = "cargo doc --no-deps"
 
 ["test:rust"]
@@ -53,31 +57,3 @@ depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
 description = "Every gate, from a clean tree"
 depends = ["clean"]
 depends_post = ["check", "build"]
-
-[commits]
-description = "Show how this branch groups, before its history is permanent"
-run = '''
-base=$(git merge-base origin/main HEAD)
-printf '%s commit(s) against origin/main\n\n' "$(git rev-list --count "$base"..HEAD)"
-git log --reverse --format='%h %s' --name-only "$base"..HEAD
-'''
-
-["regroup:verify"]
-description = "Prove a regroup rewrote commits and not content"
-# Compare the union of the paths either side touched, and never the whole tree.
-# A whole-tree comparison reports a difference for a correct regroup, because an
-# autosquash picks up commits that landed while the branch was open. Taking the
-# paths from HEAD alone hides the opposite failure: a regroup that drops a file
-# is then never compared, and this task reports that nothing changed.
-usage = 'arg "<backup>" help="a ref taken before the regroup"'
-run = '''
-base=$(git merge-base origin/main HEAD)
-paths=$( { git diff --name-only "$base" HEAD
-           git diff --name-only "$base" "$usage_backup"; } | sort -u )
-if [ -z "$paths" ]; then
-  echo "this branch changes no path"
-  exit 0
-fi
-git diff --quiet "$usage_backup" HEAD -- $paths
-echo "identical across: $(echo "$paths" | tr '\n' ' ')"
-'''
