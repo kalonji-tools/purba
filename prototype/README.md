@@ -1,0 +1,242 @@
+# Prototype: which task runner purba carries
+
+This branch is never merged. It exists so the numbers can be re-run.
+
+It serves [#40](https://github.com/kalonji-tools/purba/issues/40). The decision
+is the human's and is written on that ticket, not here.
+
+## Why this ticket is open at all
+
+#40 says "Write the justfile", and inherits that from
+[#11](https://github.com/kalonji-tools/purba/issues/11), which sorted oxitest's
+tooling into what copies and what is rebuilt.
+
+⚠️ **#11 was decided on 2026-09-08, when the substrate was devenv.** It lists
+`devenv.nix` and `devenv.yaml` among the files that copy wholesale. devenv ships
+no task runner, so a separate one was not a choice anybody made — it was the
+only option on the table.
+
+[#94](https://github.com/kalonji-tools/purba/issues/94) removed devenv and
+[#39](https://github.com/kalonji-tools/purba/issues/39) made mise the substrate
+on 2026-09-22. **mise ships a task runner.** So #40's own admission test —
+[#21](https://github.com/kalonji-tools/purba/issues/21)'s four questions, whose
+second is *"does a builtin already exist?"* — now has a different answer to the
+one available when #11 ran.
+
+`just` and `justfile` appear nowhere in the tree: zero hits across `docs/`,
+`README.md`, `CONTEXT.md`, `CONTRIBUTING.md` and `Cargo.toml`. No decision
+record names either. This is an open question, not a settled one being reopened.
+
+## Why this is measured rather than modelled
+
+Both runners can express purba's recipes. Nothing separates them on a feature
+list, and a feature list is what the author already believes written down twice.
+
+What separates them is **where the toolchain comes from when the runner is
+invoked**, and that differs per surface. The four surfaces below are the four
+places a purba recipe is actually run, and each is measured on the real tree.
+
+## The arms
+
+| arm | what a developer types | where recipes live |
+|---|---|---|
+| **A — mise tasks alone** | `mise run check` | `tasks.toml`, included by `mise.toml` |
+| **B — just alone** | `just check` | `justfile` |
+| **C — both** | `just check` | `justfile` delegating to `mise run` |
+
+Arm C is the arrangement people actually reach for, so it is measured rather
+than dismissed: `just` stays the surface a developer types, and every recipe
+shells to the mise task so the tool resolution is not lost.
+
+In all three arms mise supplies the toolchain. `just` is named in `mise.toml`
+in arms B and C, so no arm installs a tool by hand.
+
+## The four surfaces
+
+| surface | what is measured |
+|---|---|
+| **local** | can the runner resolve the pinned toolchain, and what must the developer have done first |
+| **remote — CI** | how many actions bootstrap it, and does a failing gate fail the job |
+| **git hooks** | does the runner resolve the toolchain inside a `prek` hook, where the environment is not the developer's shell |
+| **editors** | can an editor discover and run the recipes, and read the pinned toolchain |
+
+## The criterion
+
+**`check` — every gate in one command — run on the bare scaffold.**
+
+It is the command #40's Done-when names, it exercises every recipe worth having
+on a tree with no product code, and it is the thing CI will eventually require.
+
+## What this prototype predicts, written before the CI half ran
+
+A prototype that cannot say no is decoration. These are the falsifiable claims.
+The local and hook halves were measured first and are recorded below; claims
+1–4 were written before `proto-40.yml` ran even once.
+
+1. **CI is where the arms are closest to equal.** `jdx/mise-action` activates
+   the environment for every later step, so `just` finds the toolchain there
+   without any prefix. The gap measured locally and in hooks does not appear.
+2. **Arm B fails on Windows**, because a justfile recipe runs under `sh` and a
+   Windows runner does not carry one on `PATH` by default.
+3. **No arm needs a second action.** `just` is named in `mise.toml`, so
+   `mise-action` installs it and `extractions/setup-just` is never needed.
+4. **A failing gate exits non-zero in all three arms.** If any arm reports zero
+   on deliberately broken formatting, that arm cannot hold a required check.
+5. ⚠️ **Arm C is the only arm that can disagree with itself**, because its
+   recipes name `mise` by `PATH` lookup rather than by the lockfile. Already
+   reproduced locally — see the local results.
+
+## The confound this file exists to record
+
+**A GitHub runner already ships cargo, rustc and a C compiler.** An arm can
+appear to resolve a toolchain it never installed. `proto-40.yml`'s `inventory`
+job records what a bare runner carries before any arm runs, so every later
+result is read against what was already there.
+
+A second confound is local. ⚠️ **The developer's machine runs mise 2026.8.6,
+below purba's own `min_version` of 2026.9.7**, so `mise` on `PATH` refuses to
+read `mise.toml` at all. Every local measurement here was taken with a
+2026.9.12 binary invoked by absolute path. Where an arm failed because it
+reached the system mise instead, that is recorded as an arm property only when
+the arm is what chose the lookup.
+
+## What is deliberately not varied
+
+The tree is the bare cdylib scaffold with no product code. The recipe set is
+the minimum #40 names — `build`, `fmt`, `check`, `test-rust`, `test-doc`,
+`clean` — plus the two doc lints [#28](https://github.com/kalonji-tools/purba/issues/28)
+settled. Nothing here decides which recipes purba keeps; that is #40's spec.
+
+Nothing here tests the commit-grouping recipes #40's comment describes. They
+run `git`, which every arm resolves identically, so they cannot separate the
+arms.
+
+---
+
+# Results — local and hooks, measured 2026-09-22
+
+## 1. Local: what the runner resolves, and what the developer must have done
+
+The scaffold's own `check` commands all pass on the bare tree, so any
+difference below is the runner's and not the tree's.
+
+| developer state | arm A `mise run probe` | arm B `just probe` |
+|---|---|---|
+| nothing activated | ✅ `cargo 1.100.0-nightly (495c385d0)` | ❌ `just` is not even on `PATH` |
+| `just` on `PATH`, mise not activated | ✅ | ❌ **exit 127**, `cargo: command not found` |
+| `eval "$(mise activate bash)"` | ✅ | ✅ |
+
+⚠️ **`just` is callable only once mise is activated, and its recipes resolve
+the toolchain only once mise is activated.** `mise run` needs neither.
+
+purba's `README.md` documents `mise install` and `maturin build`. **It never
+tells a contributor to activate mise.** Arm B makes that instruction load-bearing.
+
+## 2. The gates themselves, on the bare scaffold
+
+Every command a `check` would run, measured through `mise exec`:
+
+| command | exit | note |
+|---|---|---|
+| `cargo fmt --check` | 0 | |
+| `cargo clippy --all-targets -- -D warnings` | 0 | ⚠️ see below |
+| `cargo doc --no-deps` | 0 | |
+| `cargo test --doc` | 0 | `0 tests` — honest, exactly as #36 predicts |
+| `cargo test` | 0 | `0 tests` |
+
+⚠️ **`check` passes with a warning `-D warnings` does not deny.** Nightly cargo
+reports `unused dependency: ruff_python_parser` as a *manifest* warning, and
+`-D warnings` is a rustc flag that does not reach it. The scaffold declares
+four `ruff_*` dependencies that no code uses yet. **This is arm-independent and
+belongs in #40's spec**, because "`just check` runs and passes" is satisfied by
+a command that prints a warning on every run.
+
+## 3. Git hooks — the surface that separates the arms
+
+Measured with `prek` 0.5.3, both arms given **an identical environment** in
+which `git`, `mise` and `just` are on `PATH` and **`cargo` is absent** — which
+is what a commit launched from an editor gets.
+
+| arm | hook entry | result |
+|---|---|---|
+| **A** | `mise run fmt:check` | ✅ **Passed** |
+| **B** | `just fmt-check` | ❌ **exit 127**, `cargo: command not found` |
+
+⚠️ **This is not a quirk of this machine.** mise's own issue tracker carries it
+as [discussion #6830](https://github.com/jdx/mise/discussions/6830), *"Mise
+tools not available in VSCode's git task"*, whose cause is that the editor
+"doesn't load the full shell environment where mise activation occurs". The
+workaround given upstream is to prefix hook commands with `mise x --`.
+
+**Arm A is that prefix, structurally.** Arm B has to add it back by hand, in
+every hook, or require that every contributor's editor launches from a profile
+that activated mise.
+
+## 4. Editors
+
+Both runners are discoverable and both emit machine-readable output, so an
+editor can list and run either.
+
+| | arm A | arm B |
+|---|---|---|
+| machine-readable recipe list | `mise tasks ls --json` | `just --dump --dump-format json` |
+| arguments shown in the plain listing | ❌ needs `mise tasks info` | ✅ `test-rust filter=""` |
+| VS Code extension | [`hverlin.mise-vscode`](https://github.com/hverlin/mise-vscode/) — tasks, tools, `launch.json`, and it configures other extensions to use mise's tools | [`nefrob.vscode-just-syntax`](https://marketplace.visualstudio.com/items?itemName=nefrob.vscode-just-syntax) syntax, [`just-lsp`](https://github.com/terror/just-lsp) for completion, diagnostics and run-recipe code actions |
+| language server | none; the extension supplies completion | `just-lsp` |
+| JetBrains / Neovim / Emacs / Xcode | documented upstream at [mise IDE integration](https://mise.jdx.dev/ide-integration.html) | a Just plugin exists per editor |
+
+⚠️ **This row is where arm B is genuinely ahead: `just-lsp` is a real language
+server and mise has no equivalent.** `just --list` also shows parameters where
+`mise tasks ls` does not.
+
+⚠️ **But the editor's other job is finding the toolchain**, and that is the
+same problem as §3. mise's own documentation is explicit that a shim in a login
+profile does not configure "the extension host or every language server", and
+that selecting an SDK path "does not load `[env]`". `hverlin.mise-vscode`
+exists precisely to close that, and it closes it for arm A and arm B alike —
+**but only arm A's recipes still work when it is absent.**
+
+## 5. What `just` costs in the lockfile
+
+| | before | after |
+|---|---|---|
+| `mise.lock` lines | 98 | **138** |
+| tool blocks | 3 | **4** |
+
+`just` 1.58.0 from `aqua:casey/just`, 8 platform entries, **each with a
+sha256** — better provenance than `rust`, which delegates to rustup and records
+no checksum at all.
+
+## 6. Wall clock, warm
+
+| arm | `check` |
+|---|---|
+| A | **0.2 s** — `depends` runs the five gates concurrently |
+| B | 3 s — `just` runs dependencies in sequence |
+| C | 3 s |
+
+Not a reason to choose. Recorded because the difference is structural rather
+than incidental: mise parallelises `depends` and `just` does not.
+
+## 7. Arm C disagreed with itself, as predicted
+
+Arm C's recipes call `mise run …`, which is a `PATH` lookup. On this machine
+that resolved to the system mise 2026.8.6:
+
+```
+$ just check
+mise ERROR mise version 2026.9.7 is required, but you are using 2026.8.6
+error: recipe `check` failed on line 22 with exit code 1
+```
+
+With the correct mise first on `PATH` the same command exits 0 in 3 s.
+
+⚠️ **Arm C reintroduces the exact failure the mise decision record was written
+against** — *"The prototype purba succeeds had two answers and did not know
+it."* Arm C has two runners and resolves one of them by `PATH`.
+
+---
+
+# Results — CI
+
+Not yet run. `proto-40.yml` fires on every push to this branch.

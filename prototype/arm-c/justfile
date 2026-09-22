@@ -1,0 +1,24 @@
+# ARM C — both. just is the surface a developer types; every recipe delegates
+# to the mise task, so CI and the hook call `mise run` and get tool resolution.
+
+_default:
+    @just --list
+
+build:
+    mise run build
+fmt:
+    mise run fmt
+fmt-check:
+    mise run fmt:check
+clippy:
+    mise run clippy
+doc:
+    mise run doc
+test-rust filter="":
+    mise run test:rust {{filter}}
+test-doc:
+    mise run test:doc
+check:
+    mise run check
+clean:
+    mise run clean

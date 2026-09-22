@@ -1,0 +1,39 @@
+# ARM A — mise [tasks] alone. No second runner.
+# Lives in its own file so `mise.toml` keeps naming tools and nothing else.
+
+[build]
+description = "Build the wheel"
+run = "maturin build"
+
+[fmt]
+description = "Rewrite formatting"
+run = "cargo fmt"
+
+["fmt:check"]
+description = "Refuse unformatted code"
+run = "cargo fmt --check"
+
+[clippy]
+description = "Refuse a lint"
+run = "cargo clippy --all-targets -- -D warnings"
+
+[doc]
+description = "Refuse a broken intra-doc link (#28)"
+run = "cargo doc --no-deps"
+
+["test:rust"]
+description = "Rust tests"
+usage = 'arg "<filter>" default="" help="test name filter"'
+run = 'cargo test $usage_filter'
+
+["test:doc"]
+description = "Verify the examples in rustdoc (#28)"
+run = "cargo test --doc"
+
+[check]
+description = "Every gate, in one command"
+depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
+
+[clean]
+description = "Remove build output"
+run = "cargo clean"

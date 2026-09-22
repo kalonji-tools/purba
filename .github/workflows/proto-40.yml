@@ -1,0 +1,118 @@
+# PROTOTYPE. This file must never reach `main`.
+#
+# It serves #40 and answers what cannot be answered on the developer's machine:
+# how each task runner behaves on a GitHub runner, on three operating systems,
+# and whether a failing gate actually fails the job.
+#
+# The confound this job records first: a GitHub runner already ships cargo,
+# rustc and a C compiler. An arm can appear to resolve a toolchain it never
+# installed, so `inventory` reports what was there before any arm runs.
+name: proto-40
+
+on:
+  push:
+    branches: [proto/40-task-runner]
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    name: inventory ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - name: What the bare runner already carries
+        shell: bash
+        run: |
+          # Absence is data, so nothing here may fail the job.
+          {
+            printf '## inventory %s\n\n| tool | state | version |\n|---|---|---|\n' "${{ matrix.os }}"
+            for t in cargo rustc rustfmt clippy-driver maturin python python3 mise just prek cc gcc; do
+              p="$(command -v "$t" 2>/dev/null || true)"
+              if [ -z "$p" ]; then
+                printf '| `%s` | absent | |\n' "$t"
+              else
+                printf '| `%s` | present | %s |\n' "$t" "$("$t" --version 2>&1 | head -1 | tr -d '\r' || true)"
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  arm:
+    name: ${{ matrix.arm }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        arm: [a-mise-tasks, b-just, c-both]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Put the arm's config in the tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.arm }}" in
+            a-mise-tasks) cp prototype/arm-a/tasks.toml tasks.toml ;;
+            b-just)       cp prototype/arm-b/justfile justfile ;;
+            c-both)       cp prototype/arm-c/justfile justfile
+                          cp prototype/arm-c/tasks.toml tasks.toml ;;
+          esac
+          # Both runners are named in mise.toml on this branch, so one action
+          # installs whatever the arm needs. That is the claim under test.
+          printf '\n[task_config]\nincludes = ["tasks.toml"]\n' >> mise.toml
+
+      - name: Bootstrap — one action, both runners
+        id: bootstrap
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.12
+
+      - name: Does the arm resolve the pinned toolchain?
+        shell: bash
+        run: |
+          {
+            printf '## %s on %s\n\n' "${{ matrix.arm }}" "${{ matrix.os }}"
+            printf '| probe | result |\n|---|---|\n'
+            printf '| `rustc` seen by the job | %s |\n' "$(rustc --version 2>&1 | tr -d '\r')"
+            printf '| `cargo` path | %s |\n' "$(command -v cargo || echo absent)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run the arm's own `check`
+        id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          start=$(date +%s)
+          case "${{ matrix.arm }}" in
+            a-mise-tasks) mise run check ;;
+            b-just)       just check ;;
+            c-both)       just check ;;
+          esac
+          printf '| `check` wall clock | %ss |\n' "$(( $(date +%s) - start ))" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Does a failing gate fail the job?
+        shell: bash
+        run: |
+          # A gate that runs and does not stop the job is a suggestion (#36/#47).
+          # Break the formatting, run the arm's gate, and require a non-zero exit.
+          printf 'fn   bad( ) ->   () {}\n' >> src/lib.rs
+          set +e
+          case "${{ matrix.arm }}" in
+            a-mise-tasks) mise run fmt:check ;;
+            b-just)       just fmt-check ;;
+            c-both)       just fmt-check ;;
+          esac
+          code=$?
+          set -e
+          git checkout src/lib.rs
+          printf '| failing gate exit code | `%s` |\n' "$code" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$code" -eq 0 ]; then
+            echo "FAIL: the gate passed on deliberately broken formatting"
+            exit 1
+          fi

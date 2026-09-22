@@ -1,0 +1,9 @@
+[[repos]]
+repo = "local"
+[[repos.hooks]]
+id = "gate"
+name = "ARM B: just fmt-check"
+entry = "just fmt-check"
+language = "system"
+pass_filenames = false
+files = '\.rs$'
