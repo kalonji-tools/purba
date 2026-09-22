@@ -18,6 +18,12 @@ python = "3.11"
 # hand the developer a backend the build refuses.
 maturin = "1"
 
+prek = "0.5"
+
+# codespell is not an alternative here: it does not honour `.gitignore`, so it
+# reads `target/`.
+typos = "1"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.
