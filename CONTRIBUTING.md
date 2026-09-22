@@ -96,3 +96,39 @@ branch and never on yours.
 
 A maintainer closes your pull request once the work has merged, and names the
 branch that carried it.
+
+### What refuses your branch
+
+These rules apply to the branch that merges, whichever path carried it.
+
+One approving review releases it. A code owner's review is required as well
+where `CODEOWNERS` names the path, and it names `/docs/decisions/` and
+`/.github/`.
+
+Every review conversation must be resolved. A push that changes the tree
+dismisses an approval already given, so an approval follows the code rather
+than the branch.
+
+One check is required, and it is `Sign-off`. Your branch must also be current
+with `main`, so a branch that has fallen behind is rebased and reviewed
+against what is there now.
+
+A commit GitHub cannot attribute to an account costs a further approval.
+
+The merge is a rebase. Squash and merge commits are both off, so your commits
+land one at a time and each message survives as you wrote it.
+
+`main` keeps a linear history. It refuses a force push, and it cannot be
+deleted.
+
+If this is your first contribution here, GitHub holds your workflow run until
+a maintainer approves it, and no check reports before that.
+
+These rules live in the repository's settings and not in a file here, so read
+them back rather than trusting this section:
+
+```
+gh api repos/kalonji-tools/purba/rules/branches/main
+```
+
+That call needs no token, because this repository is public.
