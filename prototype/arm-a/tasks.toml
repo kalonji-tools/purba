@@ -37,7 +37,7 @@ description = "Run the Rust tests"
 # which reads neither this syntax nor the variable.
 # https://mise.jdx.dev/tasks/task-configuration.html
 run = '''
-{% if os() == "macos" or os() == "darwin" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+{% if os() == "macos" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 {% endif %}cargo test
 '''
 
@@ -67,23 +67,23 @@ description = "Show how this branch groups, before its history is permanent"
 run = '''
 base=$(git merge-base origin/main HEAD)
 printf '%s commit(s) against origin/main\n\n' "$(git rev-list --count "$base"..HEAD)"
-git log --reverse --format='%h %s' "$base"..HEAD | while read -r sha subject; do
-  printf '%s %s\n' "$sha" "$subject"
-  git show --pretty= --name-only "$sha" | sed 's/^/    /'
-  printf '\n'
-done
+git log --reverse --format='%h %s' --name-only "$base"..HEAD
 '''
 
 ["regroup:verify"]
 description = "Prove a regroup rewrote commits and not content"
-# Compare only the paths this branch touched. A whole-tree comparison reports a
-# difference for a correct regroup, because an autosquash picks up commits that
-# landed while the branch was open. A check that fails when it should not is a
-# check a person learns to ignore.
+# Compare the paths the change touched and never the whole tree. A whole-tree
+# comparison reports a difference for a correct regroup, because an autosquash
+# picks up commits that landed while the branch was open, and a check that
+# fails when it should not is a check a person learns to ignore.
 usage = 'arg "<backup>" help="a ref taken before the regroup"'
 run = '''
 base=$(git merge-base origin/main HEAD)
-paths=$(git diff --name-only "$base" HEAD)
+# The union of what either side touched. Taking the paths from HEAD alone hides
+# the worst outcome there is: a regroup that drops a file entirely is then never
+# compared, and this task reports that nothing changed.
+paths=$( { git diff --name-only "$base" HEAD
+           git diff --name-only "$base" "$usage_backup"; } | sort -u )
 if [ -z "$paths" ]; then
   echo "this branch changes no path"
   exit 0
