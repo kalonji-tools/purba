@@ -1,0 +1,52 @@
+# --- constants / variables ---
+crate := "purba"
+profile := env("PROFILE", "dev")
+target := `uname -m`
+wheel := crate + "-" + profile
+
+export PURBA_ENV := "from-just"
+
+# --- a recipe in another language (shebang) ---
+[doc("Python recipe")]
+py:
+    #!/usr/bin/env python
+    import sys, os
+    print("python", sys.version.split()[0], "PURBA_ENV=", os.environ.get("PURBA_ENV"))
+
+# --- variables interpolated ---
+vars:
+    @echo "crate={{crate}} profile={{profile}} target={{target}} wheel={{wheel}}"
+
+# --- conditional expression ---
+cond:
+    @echo "{{ if profile == "dev" { "debug build" } else { "release build" } }}"
+
+# --- platform-specific recipe ---
+[linux]
+plat:
+    @echo "linux recipe"
+[macos]
+plat:
+    @echo "macos recipe"
+
+# --- dependency WITH arguments ---
+inner arg:
+    @echo "inner got {{arg}}"
+outer: (inner "from-outer")
+    @echo "outer done"
+
+# --- variadic parameters ---
+many +args:
+    @echo "many: {{args}}"
+
+# --- private recipe ---
+[private]
+hidden:
+    @echo "hidden"
+
+# --- grouping ---
+[group("gates")]
+fmt:
+    @echo fmt
+
+mod sub

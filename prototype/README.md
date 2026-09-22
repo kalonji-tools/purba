@@ -237,6 +237,69 @@ it."* Arm C has two runners and resolves one of them by `PATH`.
 
 ---
 
+# Results — the feature battery, measured 2026-09-22
+
+Run from `prototype/features/`. Both files express the same capabilities, so
+every row below is a command that was executed rather than a documented claim.
+
+| capability | `just` | mise tasks |
+|---|---|---|
+| a recipe in another language | ✅ shebang recipe | ✅ shebang in `run`, **and real files in `mise-tasks/`** |
+| constants and variables | ✅ `crate := "purba"`, `+`, backticks | ✅ `[vars]` with `{{vars.crate}}` |
+| exported environment | ✅ `export X := …` | ✅ `[env]` |
+| a `.env` file | ✅ `set dotenv-load` | ✅ `[env] _.file` |
+| conditional expression | ✅ `if … { } else { }` | ✅ Tera `{% if %}` |
+| platform branch | ✅ `[linux]` / `[macos]` attributes | ✅ `{{os()}}`, `{{arch()}}` in the body |
+| positional parameters | ✅ | ✅ `usage` spec |
+| variadic parameters | ✅ `+args` | ✅ `var=#true` |
+| **flags and options** | ❌ **positional only** — `--verbose` arrives as a positional string | ✅ **`--verbose`, `--jobs <n>`, with a generated `--help`** |
+| dependency with arguments | ✅ `outer: (inner "x")` | ✅ `depends = ["inner x"]` |
+| private recipe | ✅ `[private]` | ✅ `hide = true` |
+| groups in the listing | ✅ `[group("gates")]` | ⚠️ none; `:` namespacing only |
+| modules | ✅ `mod sub` | ⚠️ `includes`, and monorepo `--all` |
+| **incremental skip** | ❌ | ✅ `sources` / `outputs` |
+| **per-task tool version** | ❌ | ✅ `tools = { python = "3.11" }` ⚠️ does not auto-install a missing one |
+| dependencies run | sequentially | concurrently |
+| formatter | ✅ `just --fmt` | ✅ `mise fmt` |
+| language server | ✅ `just-lsp` | ❌ |
+| **resolves purba's toolchain unaided** | ❌ | ✅ |
+
+⚠️ **On features this is close to a draw.** `just` has a nicer expression
+language, real groups, real modules and a language server. mise has typed
+command-line surfaces with generated help, build avoidance, per-task tool
+pinning, and concurrent dependencies.
+
+⚠️ **The one row that is not a preference is the last.** `just py` — a Python
+shebang recipe — exits 127 here, and `mise run py` prints `python 3.11.16`.
+The feature test reproduces §3's hook result by another route.
+
+## When each one is the right answer
+
+**Reach for `just` when the toolchain is not mise's.** If versions come from
+nix, devenv, asdf, rustup or the system, then mise tasks would mean adopting
+mise for tasks alone, which is the larger commitment. `just` is one static
+binary that assumes nothing, and its recipes run for somebody who has never
+heard of mise. Reach for it too when the task file is edited daily and its
+ergonomics are the point — `just-lsp`, groups and modules are real gains that
+mise has no answer to.
+
+**Reach for mise tasks when mise already owns the toolchain.** Tasks then
+inherit tool resolution for free, and the project keeps one file family, one
+lockfile and one trust model. It is the right answer specifically when tasks
+must run where the environment is not a developer's shell — git hooks, editor
+commit buttons, a CI step that skipped activation — and when a task wants a
+typed command line, build avoidance, or its own tool version.
+
+**Reach for both only when `just` is already entrenched** and mise is being
+introduced underneath it. Arm C is what that costs: every delegation is a
+`PATH` lookup for `mise`, and §7 above is that seam failing. It buys nothing
+that one runner does not already give.
+
+**purba is the second case.** #39 made mise the substrate two days before #40
+was picked up, and #41 is about to put these commands behind git hooks.
+
+---
+
 # Results — CI, measured 2026-09-22
 
 Run [35735420631](https://github.com/kalonji-tools/purba/actions/runs/35735420631).

@@ -1,0 +1,51 @@
+[vars]
+crate = "purba"
+profile = "dev"
+
+[env]
+PURBA_ENV = "from-mise"
+
+[tasks.py]
+description = "Python recipe"
+run = """
+#!/usr/bin/env python
+import sys, os
+print("python", sys.version.split()[0], "PURBA_ENV=", os.environ.get("PURBA_ENV"))
+"""
+
+[tasks.vars]
+run = 'echo "crate={{vars.crate}} profile={{vars.profile}} target={{arch()}} wheel={{vars.crate}}-{{vars.profile}}"'
+
+[tasks.cond]
+run = '''echo "{% if vars.profile == "dev" %}debug build{% else %}release build{% endif %}"'''
+
+[tasks.plat]
+run = 'echo "{{os()}} recipe"'
+
+[tasks.inner]
+usage = 'arg "<arg>"'
+run = 'echo "inner got $usage_arg"'
+
+[tasks.outer]
+depends = ["inner from-outer"]
+run = 'echo "outer done"'
+
+[tasks.many]
+usage = 'arg "<args>" var=#true'
+run = 'echo "many: $usage_args"'
+
+[tasks.hidden]
+hide = true
+run = 'echo hidden'
+
+[tasks.rich]
+usage = '''
+flag "--verbose" help="chatty"
+flag "--jobs <n>" help="how many"
+arg "<name>" help="required"
+'''
+run = 'echo "name=$usage_name verbose=$usage_verbose jobs=$usage_jobs"'
+
+[tasks.pinned]
+tools = { python = "3.11" }
+run = 'python -V'

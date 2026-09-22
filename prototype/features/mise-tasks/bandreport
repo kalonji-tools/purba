@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+#MISE description="A real .py-shaped file, linted and type-checked like any other"
+import sys
+print("file task in python", sys.version.split()[0])
