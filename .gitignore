@@ -9,6 +9,4 @@ __pycache__/
 *.egg-info/
 
 # Environment
-/.devenv/
-/.direnv/
 /.venv/
