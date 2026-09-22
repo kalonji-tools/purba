@@ -4,7 +4,7 @@
 # https://mise.jdx.dev/configuration
 
 # The floor is the version that regenerates `mise.lock` unchanged.
-min_version = "2026.9.7"
+min_version = "2026.8.6"
 
 [tools]
 # https://mise.jdx.dev/lang/rust
