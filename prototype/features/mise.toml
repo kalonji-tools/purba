@@ -4,6 +4,7 @@ profile = "dev"
 
 [env]
 PURBA_ENV = "from-mise"
+_.file = ".env"
 
 [tasks.py]
 description = "Python recipe"
@@ -49,3 +50,6 @@ run = 'echo "name=$usage_name verbose=$usage_verbose jobs=$usage_jobs"'
 [tasks.pinned]
 tools = { python = "3.11" }
 run = 'python -V'
+
+[tasks.dotenv]
+run = 'echo "mise sees $FROM_DOTENV"'

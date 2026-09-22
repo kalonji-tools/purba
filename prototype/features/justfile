@@ -50,3 +50,8 @@ fmt:
     @echo fmt
 
 mod sub
+
+set dotenv-load
+
+dotenv:
+    @echo "just sees $FROM_DOTENV"
