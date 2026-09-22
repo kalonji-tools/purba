@@ -1,0 +1,36 @@
+# purba needs a C compiler on the host and mise does not supply one. The build
+# fails at the first dependency that compiles C.
+#
+# https://mise.jdx.dev/configuration
+
+# The floor is the version that regenerates `mise.lock` unchanged.
+min_version = "2026.9.7"
+
+[tools]
+# https://mise.jdx.dev/lang/rust
+rust = { version = "nightly", components = "clippy,rustfmt,rust-analyzer,rust-src" }
+
+# The floor `pyproject.toml` and `Cargo.toml` already name.
+# https://mise.jdx.dev/lang/python
+python = "3.11"
+
+# The newest maturin `pyproject.toml` accepts. `latest` would cross its `<2` and
+# hand the developer a backend the build refuses.
+maturin = "1"
+
+[settings]
+# This must be what creates `mise.lock`: a file made with `touch` reads as an
+# older format and loses its version header and every `specifiers` row.
+# https://mise.jdx.dev/dev-tools/mise-lock
+lockfile = true
+
+[settings.python]
+# Otherwise a machine with no precompiled build compiles CPython, and the
+# compiled entry splits the lockfile by the platform that produced it.
+compile = false
+
+[tool_config]
+# `mise lock` adds or changes a tool, because this refuses to bootstrap from
+# `mise install`. Export GITHUB_TOKEN for that run or mise skips what it cannot
+# fetch and still reports success.
+locked = true
