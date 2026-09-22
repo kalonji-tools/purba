@@ -1,3 +1,7 @@
+# Every command purba runs. `mise.toml` names which versions of a tool purba
+# accepts; this file names which commands purba runs with them.
+# https://mise.jdx.dev/tasks/
+
 [build]
 description = "Build the wheel"
 run = "maturin build"
@@ -24,6 +28,11 @@ run = "cargo doc --no-deps"
 
 ["test:rust"]
 description = "Run the Rust tests"
+# A plain `cargo test` leaves `extension-module` off, so PyO3 links libpython
+# and the test binary must find it again at run time. macOS does not search the
+# interpreter's own library directory, and the binary aborts as it loads.
+# `DYLD_*` is read on macOS and on no other platform, so this needs no branch.
+# https://pyo3.rs/latest/building-and-distribution.html#dynamically-embedding-the-python-interpreter
 run = '''
 LIBDIR=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 DYLD_FALLBACK_LIBRARY_PATH="$LIBDIR" cargo test
@@ -39,5 +48,43 @@ depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
 
 [preflight]
 description = "Every gate, from a clean tree"
+# `depends` runs before this task and `depends_post` runs after it, so the tree
+# is clean before anything gates it. Each list runs its own members together.
+# https://mise.jdx.dev/tasks/task-configuration.html
 depends = ["clean"]
 depends_post = ["check", "build"]
+
+# The two tasks below are advisory and neither can gate. Whether a commit
+# message must outlive its review is a judgement, so nothing can test it. These
+# put the inputs to that judgement in front of a person while the history can
+# still be changed.
+
+[commits]
+description = "Show how this branch groups, before its history is permanent"
+run = '''
+base=$(git merge-base origin/main HEAD)
+printf '%s commit(s) against origin/main\n\n' "$(git rev-list --count "$base"..HEAD)"
+git log --reverse --format='%h %s' "$base"..HEAD | while read -r sha subject; do
+  printf '%s %s\n' "$sha" "$subject"
+  git show --pretty= --name-only "$sha" | sed 's/^/    /'
+  printf '\n'
+done
+'''
+
+["regroup:verify"]
+description = "Prove a regroup rewrote commits and not content"
+# Compare only the paths this branch touched. A whole-tree comparison reports a
+# difference for a correct regroup, because an autosquash picks up commits that
+# landed while the branch was open. A check that fails when it should not is a
+# check a person learns to ignore.
+usage = 'arg "<backup>" help="a ref taken before the regroup"'
+run = '''
+base=$(git merge-base origin/main HEAD)
+paths=$(git diff --name-only "$base" HEAD)
+if [ -z "$paths" ]; then
+  echo "this branch changes no path"
+  exit 0
+fi
+git diff --quiet "$usage_backup" HEAD -- $paths
+echo "identical across: $(echo "$paths" | tr '\n' ' ')"
+'''
