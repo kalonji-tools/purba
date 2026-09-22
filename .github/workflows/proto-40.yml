@@ -118,3 +118,42 @@ jobs:
             echo "FAIL: the gate passed on deliberately broken formatting"
             exit 1
           fi
+
+  macos-rpath:
+    name: macos — three candidate fixes for cargo test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.12
+
+      - name: Candidate 1 — DYLD_FALLBACK_LIBRARY_PATH from sysconfig
+        id: c1
+        continue-on-error: true
+        run: |
+          set -x
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          echo "LIBDIR=$LIBDIR"; ls -la "$LIBDIR"/libpython3.11* || true
+          DYLD_FALLBACK_LIBRARY_PATH="$LIBDIR" cargo test
+
+      - name: Candidate 2 — build with the extension-module feature on
+        id: c2
+        continue-on-error: true
+        run: cargo test --features extension-module
+
+      - name: Candidate 3 — rustflags rpath at link time
+        id: c3
+        continue-on-error: true
+        run: |
+          LIBDIR="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')"
+          RUSTFLAGS="-C link-arg=-Wl,-rpath,$LIBDIR" cargo test
+
+      - name: Report
+        run: |
+          {
+            printf '## macOS candidates\n\n| candidate | outcome |\n|---|---|\n'
+            printf '| 1 DYLD_FALLBACK_LIBRARY_PATH | %s |\n' "${{ steps.c1.outcome }}"
+            printf '| 2 --features extension-module | %s |\n' "${{ steps.c2.outcome }}"
+            printf '| 3 RUSTFLAGS rpath | %s |\n' "${{ steps.c3.outcome }}"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
