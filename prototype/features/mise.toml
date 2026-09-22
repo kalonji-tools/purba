@@ -53,3 +53,25 @@ run = 'python -V'
 
 [tasks.dotenv]
 run = 'echo "mise sees $FROM_DOTENV"'
+
+[tasks.s1]
+run = "echo one; sleep 1; echo one-done"
+[tasks.s2]
+run = "echo two"
+[tasks.seq]
+run = ["echo A", "sleep 1", "echo B"]
+[tasks.selfref]
+run = "command -v mise && mise --version"
+
+[tasks.g1]
+run = "echo GATE-1"
+[tasks.g2]
+run = "echo GATE-2"
+[tasks.allgates]
+depends = ["g1", "g2"]
+[tasks.cleanup]
+run = "echo CLEANED"
+[tasks.pf]
+description = "clean, then every gate"
+depends = ["cleanup"]
+depends_post = ["allgates"]

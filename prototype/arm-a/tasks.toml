@@ -1,12 +1,13 @@
-# ARM A — mise [tasks] alone. No second runner.
-# Lives in its own file so `mise.toml` keeps naming tools and nothing else.
-
 [build]
 description = "Build the wheel"
 run = "maturin build"
 
+[clean]
+description = "Remove the build output"
+run = "cargo clean"
+
 [fmt]
-description = "Rewrite formatting"
+description = "Rewrite the formatting"
 run = "cargo fmt"
 
 ["fmt:check"]
@@ -18,22 +19,25 @@ description = "Refuse a lint"
 run = "cargo clippy --all-targets -- -D warnings"
 
 [doc]
-description = "Refuse a broken intra-doc link (#28)"
+description = "Refuse a broken link in the Rust documentation"
 run = "cargo doc --no-deps"
 
 ["test:rust"]
-description = "Rust tests"
-usage = 'arg "<filter>" default="" help="test name filter"'
-run = 'cargo test $usage_filter'
+description = "Run the Rust tests"
+run = '''
+LIBDIR=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+DYLD_FALLBACK_LIBRARY_PATH="$LIBDIR" cargo test
+'''
 
 ["test:doc"]
-description = "Verify the examples in rustdoc (#28)"
+description = "Run the examples in the Rust documentation"
 run = "cargo test --doc"
 
 [check]
 description = "Every gate, in one command"
 depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
 
-[clean]
-description = "Remove build output"
-run = "cargo clean"
+[preflight]
+description = "Every gate, from a clean tree"
+depends = ["clean"]
+depends_post = ["check", "build"]

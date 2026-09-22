@@ -373,3 +373,15 @@ not hide the others.
 **Candidate 1 is the one to take.** It is the only one that leaves both what is
 compiled and how it is linked alone. `DYLD_*` is read on macOS only, so the
 task sets it on every platform and needs no branch.
+
+## `preflight` runs, and cargo's own lock undoes half the concurrency
+
+`prototype/arm-a/tasks.toml` is the file the spec proposes, and it is the file
+that ran. `mise run preflight` exits 0: `clean` removes 1,600 files, then the
+five gates and `build` start together and the wheel is built.
+
+⚠️ **Six concurrent cargo commands contend on one lock.** The run prints
+`Blocking waiting for file lock on package cache` three times. mise's parallel
+`depends` is real, and cargo serialises most of it anyway. **Concurrency is not
+a reason to choose mise**, and the parent file's §6 should be read with this
+next to it.
