@@ -237,6 +237,59 @@ it."* Arm C has two runners and resolves one of them by `PATH`.
 
 ---
 
-# Results — CI
+# Results — CI, measured 2026-09-22
 
-Not yet run. `proto-40.yml` fires on every push to this branch.
+Run [35735420631](https://github.com/kalonji-tools/purba/actions/runs/35735420631).
+Bootstrap is `jdx/mise-action@v4.3.0` pinned to mise 2026.9.12, one action for
+every arm.
+
+| arm | ubuntu-latest | macos-latest | windows-latest |
+|---|---|---|---|
+| **A — mise tasks** | ✅ 48 s | ❌ 81 s | ✅ 137 s |
+| **B — just** | ✅ 54 s | ❌ 71 s | ✅ 132 s |
+| **C — both** | ✅ 86 s | ❌ 40 s | ✅ 116 s |
+
+## The predictions, scored
+
+| # | claim | verdict |
+|---|---|---|
+| 1 | CI is where the arms are closest to equal | ✅ **confirmed** — identical conclusions on all three operating systems |
+| 2 | arm B fails on Windows | ❌ **FALSIFIED** — `just` is green on Windows. A `shell: bash` step gives the runner's Git Bash, and `just` finds the `sh` it wants |
+| 3 | no arm needs a second action | ✅ **confirmed** — `just` is named in `mise.toml`, so `mise-action` installed it. `extractions/setup-just` was never needed |
+| 4 | a failing gate exits non-zero in every arm | ✅ **confirmed** — on both green operating systems, in all three arms. The step fails the job if the gate returns zero, and no job failed that way |
+| 5 | arm C can disagree with itself | ✅ **confirmed locally**, see §7 above. CI cannot reproduce it, because `mise-action` puts exactly one mise on `PATH` |
+
+⚠️ **Prediction 2 was wrong and the arm it accused is fine.** Nothing about
+Windows separates these runners.
+
+## ⚠️ What CI found that has nothing to do with the choice
+
+**`cargo test` fails on macOS, in all three arms, identically.**
+
+```
+dyld[3265]: Library not loaded: @rpath/libpython3.11.dylib
+  Referenced from: target/debug/build/purba/…/out/purba-…
+  Reason: tried: … '/usr/lib/libpython3.11.dylib' (no such file, not in dyld cache)
+error: test failed, to rerun pass `--lib`
+  process didn't exit successfully: … (signal: 6, SIGABRT)
+```
+
+`extension-module` is off for a plain `cargo test`, which is deliberate —
+`Cargo.toml` says so, because the feature "omits libpython, which breaks
+`cargo test --doc` and `cargo doc`". With the feature off the test binary
+links libpython instead, and on macOS the dylib mise installed is not on the
+binary's rpath. Linux and Windows both resolve it.
+
+Note what still passed: **`cargo test --doc` is green on macOS.** It is only
+the `--lib` test binary that aborts at load.
+
+⚠️ **This means #40's Done-when — "`check` runs and passes" — is not currently
+reachable on macOS, whichever runner is chosen.** It belongs in #40's spec and
+it reaches [#42](https://github.com/kalonji-tools/purba/issues/42) as well,
+because the test workflow will run the same binary on the same matrix.
+
+The three candidate answers, none of them decided here: give the test binary an
+rpath to mise's libpython; run `cargo test` with `extension-module` on and
+accept that it covers less; or declare `test-rust` a Linux and Windows recipe
+until [#42](https://github.com/kalonji-tools/purba/issues/42) settles the
+matrix.
