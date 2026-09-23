@@ -1,7 +1,12 @@
-# Acceptance for agent-written code.
+# Every job that reads or writes a commit message.
 #
+#   the rule:      .github/scripts/check-origin.sh
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
+#
+# `origin` reads the trailer and `sign` writes one, so they share this file and
+# they share the script. The workflow keeps the name `Sign-off` because another
+# workflow may name it, and a rename would report to nobody.
 #
 # The traps below are easy to trip and hard to debug. Each one says why.
 name: Sign-off
@@ -30,6 +35,36 @@ env:
   PR: ${{ github.event.pull_request.number }}
 
 jobs:
+  origin:
+    permissions:
+      contents: read
+    name: Origin
+    # `pull_request` only. This is the early word to a contributor, and it has
+    # no business running again when a gate finishes.
+    #
+    # Never add this job to the required status checks. No pull request would
+    # ever merge again. The Confirmation section of the decision above says why.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Name the commits that carry no origin trailer
+        run: |
+          set -euo pipefail
+
+          # A pull request is checked out as its merge commit. Its first parent
+          # is the base and its second is the branch. So this range holds
+          # exactly the commits the pull request adds.
+          #
+          # It needs no token. That is what makes it work on a fork too.
+          .github/scripts/check-origin.sh HEAD^1 HEAD^2
+
+          echo "every commit this pull request adds carries the trailer"
+
   sign:
     permissions:
       contents: write
