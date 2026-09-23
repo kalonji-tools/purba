@@ -1,0 +1,43 @@
+# Every gate that refuses a merge on lint and format.
+#
+#   the commands:   tasks.toml, under `quality`
+#   the tools:      mise.toml
+#   the doc lints:  docs/decisions/the-crate-carries-an-rlib.md
+#
+# Never add a `paths:` filter here. A check that never reports and a check that
+# refuses are the same thing to the ruleset, so a filtered run blocks forever.
+name: Quality
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    # The required status context is this name, and the ruleset holds a copy
+    # of it. Rename this and the gate reports nothing under the old name.
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v4
+
+      - name: Refuse a lint or a formatting difference
+        run: mise run quality
+
+      - name: Refuse what a commit already refuses
+        run: mise x -- prek run --all-files
+
+      # Nothing else in this job would see a tool installation rewrite a
+      # lockfile, and `mise.toml` says it reports success either way.
+      - name: Refuse a gate that rewrote the tree
+        run: git diff --exit-code
