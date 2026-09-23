@@ -4,15 +4,14 @@
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
 #
-# `origin` reads the trailer and `sign` writes one, so they share this file and
-# they share the script. The workflow keeps the name `Sign-off` because another
-# workflow may name it, and a rename would report to nobody.
+# Another workflow may name this one, so the workflow name is load-bearing
+# and a rename reports to nobody.
 #
 # The traps below are easy to trip and hard to debug. Each one says why.
 name: Sign-off
 
 on:
-  # Keep both triggers.
+  # Keep all three triggers.
   # Updating a branch writes new commits, and a new commit has no check runs
   # on it. The approval stays, so no review event arrives. With only
   # `pull_request_review`, nothing would report the check again and the pull
@@ -21,9 +20,13 @@ on:
     types: [submitted]
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
+  workflow_run:
+    # The ruleset holds a third copy of this list and is not in the tree.
+    workflows: [Quality]
+    types: [completed]
 
 concurrency:
-  group: sign-${{ github.event.pull_request.number }}
+  group: sign-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
   # Never `true`. This job pushes first and reports the check second. Cancel
   # it in between, and the branch keeps the rewrite but loses the check.
   # Nothing runs again to add one.
@@ -32,15 +35,17 @@ concurrency:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
-  PR: ${{ github.event.pull_request.number }}
+  PR: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
+  GATES: Quality
+  # A subset of GATES. `carry-verdicts.sh` says why the two are not one list.
+  CARRYABLE: Quality
 
 jobs:
   origin:
     permissions:
       contents: read
     name: Origin
-    # `pull_request` only. This is the early word to a contributor, and it has
-    # no business running again when a gate finishes.
+    # `pull_request` only. It has no business running again when a gate finishes.
     #
     # Never add this job to the required status checks. No pull request would
     # ever merge again. The Confirmation section of the decision above says why.
@@ -81,21 +86,20 @@ jobs:
     # the queue for six hours.
     timeout-minutes: 10
     env:
-      HEAD_REF: ${{ github.event.pull_request.head.ref }}
-      BASE_REF: ${{ github.event.pull_request.base.ref }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
     steps:
       # This step must stay first. A fork's branch does not exist in this
       # repository. The checkout below fails on it. Any step placed after the
       # checkout would never run.
       - name: Refuse a pull request from a fork
-        if: github.event.pull_request.head.repo.full_name != github.repository
+        if: (github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name) != github.repository
         run: |
           echo "::error::This job cannot sign a pull request from a fork, because it is only allowed to read here. purba takes your contribution another way: see CONTRIBUTING.md."
           exit 1
 
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ env.HEAD_REF }}
           fetch-depth: 0
 
       - name: Write the acceptance trailer into every commit
@@ -116,6 +120,11 @@ jobs:
             exit 0
           fi
 
+          if ! .github/scripts/require-green.sh "$(git rev-parse HEAD)" $GATES; then
+            echo "a gate has no verdict on this head, so there is nothing to accept yet"
+            exit 0
+          fi
+
           # These two are written into commit messages that can never be
           # edited, so check their shape before writing them. GitHub allows only
           # letters, digits and hyphens in a login today.
@@ -131,8 +140,9 @@ jobs:
           export TRAILER="Accepted-by: $approver <$approver_id+$approver@users.noreply.github.com>"
 
           # The branch this pull request targets, not `main`. Measuring from
-          # `main` would make the job rewrite commits it does not own.
-          git fetch --quiet origin "$BASE_REF"
+          # `main` would make the job rewrite commits it does not own. Read it
+          # from the API: a gate finishing carries no base branch.
+          git fetch --quiet origin "$(gh api "repos/$GH_REPO/pulls/$PR" --jq .base.ref)"
           base=$(git merge-base FETCH_HEAD HEAD)
           before=$(git rev-parse HEAD)
 
@@ -184,4 +194,4 @@ jobs:
         env:
           BEFORE: ${{ steps.accept.outputs.before }}
           AFTER: ${{ steps.accept.outputs.after }}
-        run: .github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" Quality
+        run: .github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE
