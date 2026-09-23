@@ -49,9 +49,13 @@ run = '''
 description = "Run the examples in the Rust documentation"
 run = "cargo test --doc"
 
+[quality]
+description = "Every lint and format gate, in one command"
+depends = ["fmt:check", "clippy", "doc", "test:doc"]
+
 [check]
 description = "Every gate, in one command"
-depends = ["fmt:check", "clippy", "doc", "test:rust", "test:doc"]
+depends = ["quality", "test:rust"]
 
 [preflight]
 description = "Every gate, from a clean tree"
