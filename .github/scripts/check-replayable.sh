@@ -9,7 +9,8 @@
 # <base> is a branch point or a base branch, and this reads the same commits
 # either way.
 #
-# Exits 1 when a commit refuses to replay, and 2 when this script cannot run.
+# Exits 1 when a commit refuses to replay, or when the replay completes and
+# changes the content of the branch. Exits 2 when this script cannot run.
 set -euo pipefail
 
 # shellcheck source=.github/scripts/report.sh
@@ -25,6 +26,15 @@ if ! base=$(git merge-base "$1" "$2" 2>&1); then
   exit 2
 fi
 
+# `$2` may be a name, and `HEAD` is the name the signing job passes. Inside the
+# worktree below, that name is the replayed commit. Reading the tree through it
+# would compare the replay with itself, and the diff would name nothing.
+# Resolve it here, where it still means the commit the caller asked about.
+if ! head=$(git rev-parse "$2^{commit}" 2>&1); then
+  report "the replay check could not read the head $2." "$head"
+  exit 2
+fi
+
 scratch=$(mktemp -d)
 worktree="$scratch/replay"
 cleanup() {
@@ -33,8 +43,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! out=$(git worktree add --detach --quiet "$worktree" "$2" 2>&1); then
-  report "the replay check could not read the head $2." "$out"
+if ! out=$(git worktree add --detach --quiet "$worktree" "$head" 2>&1); then
+  report "the replay check could not make a worktree to replay $2 in." "$out"
   exit 2
 fi
 
@@ -48,7 +58,16 @@ export GIT_COMMITTER_NAME=purba GIT_COMMITTER_EMAIL=purba@invalid
 export TRAILER="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
 if replay=$(git -C "$worktree" rebase "$base" --exec \
   'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"' 2>&1); then
-  exit 0
+  # A replay that completes can still lose content. The replay flattens a merge
+  # commit, and whatever the merge itself added is gone from the result, and the
+  # rebase exits zero. A trailer is written into a commit message and a message
+  # is not in a tree, so the two trees are equal wherever nothing else moved.
+  if [ "$(git -C "$worktree" rev-parse 'HEAD^{tree}')" = "$(git rev-parse "$head^{tree}")" ]; then
+    exit 0
+  fi
+
+  report "the replay of this branch changes its content, so the branch cannot be signed. A merge commit that added a change of its own is the usual cause: the replay flattens the merge, and what it added is lost. Rebase your branch onto its base instead." "$(git -C "$worktree" diff --name-status "$head" HEAD)"
+  exit 1
 fi
 
 # git names the commit it stopped on, and says which way it stopped. A commit
