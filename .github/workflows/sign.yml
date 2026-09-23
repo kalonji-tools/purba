@@ -64,6 +64,7 @@ jobs:
           fetch-depth: 0
 
       - name: Write the acceptance trailer into every commit
+        id: accept
         run: |
           set -euo pipefail
 
@@ -136,6 +137,19 @@ jobs:
             --jq '.html_url'
 
           echo "recorded acceptance by $approver on $head_sha"
+
+          {
+            echo "before=$before"
+            echo "after=$head_sha"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Carry the verdicts the content still answers for
+        if: steps.accept.outputs.after != ''
+        continue-on-error: true
+        env:
+          BEFORE: ${{ steps.accept.outputs.before }}
+          AFTER: ${{ steps.accept.outputs.after }}
+        run: .github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" Quality
 
   decision-records:
     permissions:
