@@ -33,10 +33,8 @@ hooks = [
 # The three hooks below carry the decidable subject rules from
 # `docs/decisions/a-commit-outlives-its-review.md`.
 #
-# `fixup!`, `squash!` and `amend!` are accepted because autosquash consumes
-# them before they reach the changelog. git's own `Revert "..."` and
-# `Merge ...` subjects are refused: `revert` is a conventional type, and this
-# branch history is rebase-only.
+# git's own `Revert "..."` and `Merge ...` subjects are refused: `revert` is
+# a conventional type, and this branch history is rebase-only.
 #
 # A second `builtin` block, because one repo takes `hooks = [...]` or
 # `[[repos.hooks]]` and never both.
@@ -48,14 +46,14 @@ id = "require-pattern"
 alias = "subject-form"
 name = "subject form"
 stages = ["commit-msg"]
-args = ["-m", "\\A(?:(?:fixup|squash|amend)! |(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$)"]
+args = ["-m", "\\A(?:(?:fixup|squash|amend)! )*(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$"]
 
 [[repos.hooks]]
-id = "deny-pattern"
+id = "require-pattern"
 alias = "subject-length"
 name = "subject at most 72 characters"
 stages = ["commit-msg"]
-args = ["-m", "\\A[^\\n]{73,}"]
+args = ["-m", "\\A(?:(?:fixup|squash|amend)! )*[^\\n]{0,72}$"]
 
 [[repos.hooks]]
 id = "deny-pattern"
