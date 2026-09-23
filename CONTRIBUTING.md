@@ -115,6 +115,11 @@ records that purba accepted the branch. Your branch must also be current with
 `main`, so a branch that has fallen behind is rebased and reviewed against
 what is there now.
 
+`Sign-off` arrives after the other checks rather than with them. purba signs
+once an approval stands and every other required check is green. On a branch
+whose `Quality` is still running, your approval lands and nothing appears to
+happen until the gate finishes.
+
 `Quality` usually needs nothing from you after the approval. purba rewrites
 your commits at that point and pushes them, and GitHub creates the checks on
 that new commit without running them. A workflow here carries each verdict

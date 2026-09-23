@@ -133,6 +133,11 @@ Where the tree at the head it writes equals the tree at the head it replaced, it
 Where the two differ it carries nothing, and a person restarts the run instead.
 A run nobody restarts leaves a pull request blocked until somebody notices.
 
+The two cases above, the trees matching and the trees differing, were the whole rule. A third case occurred twice: the verdict is not in yet.
+This job rewrote the branch before `Quality` had concluded, so it read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
+This job now waits for every required context it does not post itself before it rewrites anything, so the third case cannot arise.
+`.github/scripts/require-green.sh` holds that rule, and a gate concluding is one of the events that starts this job.
+
 `.github/scripts/carry-verdicts.sh` holds the rule, and it is given the contexts it may carry rather than deciding which ones qualify.
 A gate that reads a commit message can never be carried, because the rewrite edits the thing that gate reads.
 That is a property of such a gate and not a state to revisit.
@@ -154,6 +159,9 @@ The reviews endpoint returns 30 per page, and one pull request here reported zer
 A check cannot bind the commit to the review by the reviewed commit id.
 A rebase merge replays the commit under a new id, and the ids named by a review are absent from `main`.
 The tree survives the replay.
+
+A push that changes the tree dismisses the approval, and that was measured rather than reasoned.
+So `dismiss_stale_reviews_on_push` reads the tree and not the commit, and the rule this job applies to a verdict is the rule GitHub applies to an approval.
 
 The `sign` job in `.github/workflows/sign.yml` refuses a branch whose commits lack the origin trailer, then writes the acceptance trailer and reports the required status check `Sign-off`.
 Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`, which parses the trailer instead of matching it as text.
