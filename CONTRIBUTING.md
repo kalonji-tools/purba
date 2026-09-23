@@ -123,16 +123,21 @@ whose `Quality` is still running, your approval lands and nothing appears to
 happen until the gate finishes.
 
 purba replays your branch onto its base to write its `Accepted-by:` trailer,
-so every commit on the branch must survive that replay. A commit that replays
-empty does not, and nor does one that no longer applies where the replay puts
-it. A `Replay` check reports this once your pull request is open, and the
-refusal names the commit.
+so every commit on the branch must survive that replay. Three kinds do not:
+
+- a commit that replays empty
+- a commit that no longer applies where the replay puts it
+- a merge commit that made a change of its own, because the replay flattens
+  the merge and the changes made in it are lost
+
+A `Replay` check reports this once your pull request is open, and the refusal
+names what it found.
 
 `Quality` usually needs nothing from you after the approval. purba rewrites
 your commits at that point and pushes them, and GitHub creates the checks on
 that new commit without running them. A workflow here carries each verdict
-across, because the rewrite edits commit messages and leaves your content
-untouched.
+across, because the rewrite edits commit messages, and purba refuses any
+branch whose replay would change your content.
 
 The runs GitHub holds on that commit carry no jobs, and a run with no jobs
 reports no check, so nothing waits on them. The pull request offers to approve
