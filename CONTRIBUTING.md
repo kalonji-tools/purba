@@ -122,6 +122,12 @@ once an approval stands and every other required check is green. On a branch
 whose `Quality` is still running, your approval lands and nothing appears to
 happen until the gate finishes.
 
+purba replays your branch onto its base to write its `Accepted-by:` trailer,
+so every commit on the branch must survive that replay. A commit that replays
+empty does not, and nor does one that no longer applies where the replay puts
+it. A `Replay` check reports this once your pull request is open, and the
+refusal names the commit.
+
 `Quality` usually needs nothing from you after the approval. purba rewrites
 your commits at that point and pushes them, and GitHub creates the checks on
 that new commit without running them. A workflow here carries each verdict
