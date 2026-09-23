@@ -53,10 +53,12 @@ for context in "$@"; do
   # Absent reads the same as refused here, on purpose. A missing verdict
   # leaves the context missing, which blocks the merge until somebody
   # restarts the run.
-  if [ -z "$conclusion" ]; then
-    echo "$context has no verdict on $before, so there is nothing to carry"
-    continue
-  fi
+  case "$conclusion" in
+    # Never widen this list.
+    success | failure) ;;
+    "") echo "$context has no verdict on $before, so there is nothing to carry"; continue ;;
+    *) echo "$context concluded $conclusion on $before, which is not a verdict, so there is nothing to carry"; continue ;;
+  esac
 
   # The conclusion goes across as it stands. A refusal stays a refusal.
   gh api --method POST "repos/$GH_REPO/check-runs" \
