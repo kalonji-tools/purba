@@ -130,6 +130,9 @@ That was measured rather than reasoned.
 A trailer is written into a commit message, and a commit message is not in the tree, so the rewrite leaves the content of the branch untouched.
 This job carries each verdict forward on that basis.
 Where the tree at the head it writes equals the tree at the head it replaced, it reports the same conclusion again on the new head.
+A conclusion is reported again only where it answers for the tree.
+GitHub draws a check run's conclusion from a fixed set, and `success` and `failure` are the two members of it that answer.
+The rest report what happened to the run, so this job names the conclusion it refused and leaves the context absent.
 Where the two differ it carries nothing, and a person restarts the run instead.
 A run nobody restarts leaves a pull request blocked until somebody notices.
 
