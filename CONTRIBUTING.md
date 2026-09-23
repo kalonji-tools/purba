@@ -128,9 +128,13 @@ that new commit without running them. A workflow here carries each verdict
 across, because the rewrite edits commit messages and leaves your content
 untouched.
 
-Where your content did change, it carries nothing and the check reads as
-expected until somebody restarts the run from the Actions tab. That is then
-the last thing standing between an approved branch and a merge.
+The runs GitHub holds on that commit carry no jobs, and a run with no jobs
+reports no check, so nothing waits on them. The pull request offers to approve
+them anyway, and marks that offer with a warning.
+
+Approve those runs where your content did change. Nothing is carried then,
+`Quality` reads as expected, and approving them is what produces the verdict.
+That is the last thing standing between an approved branch and a merge.
 
 A commit GitHub cannot attribute to an account costs a further approval.
 
