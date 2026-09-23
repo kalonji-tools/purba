@@ -1,6 +1,7 @@
 # Every job that reads or writes a commit message.
 #
-#   the rule:      .github/scripts/check-origin.sh
+#   the rules:     .github/scripts/check-origin.sh
+#                  .github/scripts/check-replayable.sh
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
 #
@@ -69,6 +70,32 @@ jobs:
           .github/scripts/check-origin.sh HEAD^1 HEAD^2
 
           echo "every commit this pull request adds carries the trailer"
+  replay:
+    permissions:
+      contents: read
+    name: Replay
+    # `pull_request` only, for the reason `Origin` gives above.
+    #
+    # Never add this job to the required status checks, and not for `Origin`'s
+    # reason. The `sign` job runs the same script before it rewrites, so
+    # requiring this one would refuse nothing new, and this answer is only a
+    # prediction: the base can move between this run and the signing.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Name the commit that cannot be replayed
+        run: |
+          set -euo pipefail
+
+          .github/scripts/check-replayable.sh HEAD^1 HEAD^2
+
+          echo "every commit this pull request adds survives the replay"
+
 
   sign:
     permissions:
@@ -149,6 +176,8 @@ jobs:
           # Stop before rewriting anything. CONTRIBUTING.md says why this job
           # cannot repair a missing trailer.
           .github/scripts/check-origin.sh "$base" HEAD
+
+          .github/scripts/check-replayable.sh "$base" HEAD
 
           # A fresh checkout has no git identity, and `git commit` refuses to
           # run without one. These two lines only satisfy that. The name does
