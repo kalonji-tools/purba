@@ -1,0 +1,75 @@
+# The thread on a pull request that changes a decision record.
+#
+#   the rule:      docs/decisions/a-record-is-rewritten-not-amended.md
+#   what you owe:  CONTRIBUTING.md
+#
+# Never gate this. The thread has to be readable while the reviewer decides,
+# not after they approve.
+name: Records
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  pull-requests: write
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_REPO: ${{ github.repository }}
+  PR: ${{ github.event.pull_request.number }}
+
+jobs:
+  decision-records:
+    name: Decision-record thread
+    # `pull_request` only. A review event carries the same payload, and the
+    # marker check below would then be the only thing stopping a second
+    # thread, which is a guard too far downstream to rely on.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Post the thread
+        run: |
+          set -euo pipefail
+
+          decisions=$(gh api "repos/$GH_REPO/pulls/$PR/files" --paginate --jq '.[].filename' | LC_ALL=C sort | grep '^docs/decisions/' || true)
+          if [ -z "$decisions" ]; then
+            echo "the diff does not touch docs/decisions, so no thread is owed"
+            exit 0
+          fi
+
+          # Anchoring is narrower than the documentation suggests, and all of
+          # this was measured against a live pull request rather than read:
+          # an inline comment is accepted only on a line inside a diff hunk;
+          # `subject_type` is REJECTED inside a review payload; and GraphQL's
+          # addPullRequestReviewThread with subjectType FILE returns a null
+          # thread and creates nothing. A file-level thread exists only through
+          # the standalone endpoint used below.
+          marker='<!-- purba:thread:decisions -->'
+          # `ready_for_review` fires again every time a draft is re-readied, so
+          # without this check one question would become several required
+          # resolutions.
+          existing=$(gh api "repos/$GH_REPO/pulls/$PR/comments" --paginate --jq '.[].body')
+          case "$existing" in
+            *"$marker"*)
+              echo "$marker is already present, skipping"
+              exit 0
+              ;;
+          esac
+
+          gh api "repos/$GH_REPO/pulls/$PR/comments" \
+            -f commit_id="$HEAD_SHA" -f path="$(head -1 <<<"$decisions")" -f subject_type=file \
+            -f body="**This pull request changes a decision record.**
+
+          $(sed 's|^|- \`|; s|$|\`|' <<<"$decisions")
+
+          A decision record states what this project decided and why, and it is read by people who were not in the conversation. [A record is rewritten, not amended](https://github.com/kalonji-tools/purba/blob/main/docs/decisions/a-record-is-rewritten-not-amended.md) names two things about it that no tool can check, and you are the only reader who can judge them.
+
+          A third has already gone wrong once. **The Decision Outcome is written by a person, or the change does not merge.** An agent writing it satisfies the letter and voids the rule.
+
+          Resolve this thread when you have judged all three.
+          $marker"
+          echo "posted the decision-record thread"
