@@ -116,6 +116,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the origin trailer was written by a person and not by their agent | **none** — nothing stops an agent running the command that adds it |
 | `Accepted-by:` names the account that approved the pull request | strong, it is derived from the approval and never authored |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
+| the rewrite leaves the content of the branch untouched | strong, `.github/scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and this is deliberate** |
 | a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
@@ -128,7 +129,9 @@ This job pushes its own rewrite.
 GitHub creates the pull request runs on the head it writes and concludes them `action_required` with no jobs, so a context reported by an ordinary job is absent there and no event arrives to report it again.
 That was measured rather than reasoned.
 
-A trailer is written into a commit message, and a commit message is not in the tree, so the rewrite leaves the content of the branch untouched.
+A trailer is written into a commit message, and a commit message is not in the tree.
+That alone does not keep the content: the replay flattens a merge commit, and the changes made in that merge are lost.
+So the job refuses a branch whose replay changes the content, and the rewrite leaves the content of the branch untouched because nothing it admits can change it.
 This job carries each verdict forward on that basis.
 Where the tree at the head it writes equals the tree at the head it replaced, it reports the same conclusion again on the new head.
 A conclusion is reported again only where it answers for the tree.
