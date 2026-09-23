@@ -109,9 +109,21 @@ Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather
 than the branch.
 
-One check is required, and it is `Sign-off`. Your branch must also be current
-with `main`, so a branch that has fallen behind is rebased and reviewed
-against what is there now.
+Two checks are required. `Quality` refuses a lint, a formatting difference, a
+broken link in the Rust documentation and a failing example. `Sign-off`
+records that purba accepted the branch. Your branch must also be current with
+`main`, so a branch that has fallen behind is rebased and reviewed against
+what is there now.
+
+`Quality` usually needs nothing from you after the approval. purba rewrites
+your commits at that point and pushes them, and GitHub creates the checks on
+that new commit without running them. A workflow here carries each verdict
+across, because the rewrite edits commit messages and leaves your content
+untouched.
+
+Where your content did change, it carries nothing and the check reads as
+expected until somebody restarts the run from the Actions tab. That is then
+the last thing standing between an approved branch and a merge.
 
 A commit GitHub cannot attribute to an account costs a further approval.
 

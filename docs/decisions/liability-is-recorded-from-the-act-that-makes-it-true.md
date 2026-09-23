@@ -123,8 +123,22 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
 An advisory check reports the same rule on every push, and it is deliberately not a required one.
-This job force-pushes its own rewrite, and GitHub starts no workflow from a push its own token made, so a required context reported anywhere else would disappear on that push with no event left to report it again.
+This job pushes its own rewrite.
+GitHub creates the pull request runs on the head it writes and concludes them `action_required` with no jobs, so a context reported by an ordinary job is absent there and no event arrives to report it again.
 That was measured rather than reasoned.
+
+A trailer is written into a commit message, and a commit message is not in the tree, so the rewrite leaves the content of the branch untouched.
+This job carries each verdict forward on that basis.
+Where the tree at the head it writes equals the tree at the head it replaced, it reports the same conclusion again on the new head.
+Where the two differ it carries nothing, and a person restarts the run instead.
+A run nobody restarts leaves a pull request blocked until somebody notices.
+
+`.github/scripts/carry-verdicts.sh` holds the rule, and it is given the contexts it may carry rather than deciding which ones qualify.
+A gate that reads a commit message can never be carried, because the rewrite edits the thing that gate reads.
+That is a property of such a gate and not a state to revisit.
+It is the second reason `Origin` stays advisory, beside the one that already stood: the `sign` job refuses on the origin rule before it rewrites anything, so requiring the check as well would buy nothing.
+
+A required context is therefore possible beside this one, and the quality workflow holds one.
 
 The row on who wrote the origin trailer is the ceiling of the whole mechanism.
 An agent can run `git commit -s` as easily as a person can, so the check reads a trailer and never the act behind it.
