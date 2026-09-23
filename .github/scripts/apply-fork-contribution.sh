@@ -42,7 +42,7 @@ if [ -z "$url" ]; then
     --title "$(gh pr view "$pr" --json title --jq .title)" --body \
 "Carries the work proposed in #$pr, unchanged.
 
-A workflow holds a read-only token on a pull request from a fork, so this branch is what merges.")
+purba does not sign a branch that lives on a fork, so this branch is what merges.")
 
   gh pr comment "$pr" --body \
 "Your work is on \`accepted/pr-$pr\` in this repository, and $url is what merges.

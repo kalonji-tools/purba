@@ -101,10 +101,10 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 **Downside:** five.
 
-- **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A maintainer therefore applies an outside contribution to a branch here before it merges, so the mechanism covers it and the cost is an act rather than a gap.
+- **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own, so there the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges, so the mechanism covers it and the cost is an act rather than a gap.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.
 - **The first account to approve is the one the trailer names.** The mechanism skips a commit that already carries the trailer, because without that it would rewrite the branch on every push and never settle. So an approval that is dismissed, and then given by a different person, leaves the first name in place. The pull request holds the second approval and the commit does not.
-- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
+- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`, so a pull request changes the scripts the job calls and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
 - **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object, so a signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature is the one record here that a person's agent could not forge, and this decision puts it out of reach for as long as the mechanism stands. [Can an act by a person be made impossible for their agent to forge?](https://github.com/kalonji-tools/purba/issues/106) owns what follows from that.
 
 ## Confirmation
@@ -119,6 +119,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and this is deliberate** |
 | a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
+| a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because the refusal is the first step and no such pull request exists here |
 | the contributor read what they signed | none, and no check can make it |
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
@@ -172,7 +173,10 @@ Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`,
 The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103), and on [check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105).
 
 **The mechanism that writes `Accepted-by:` cannot run on a pull request from a fork.**
-The token is read only there, the push is refused, and allowing a maintainer to modify the branch does not change it.
+On the pull request event the token is read only, the push is refused, and allowing a maintainer to modify the branch does not change it.
+On the gate-completed event none of that holds, because the run starts from `main` and takes the permissions the workflow declares.
+What refuses the fork there is the first step of the `sign` job, which reads the repository the head belongs to and stops before the checkout.
+That step has never run, because no pull request from a fork exists in this repository.
 [An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) carries such a contribution to a branch here first, where this mechanism writes the trailer as it does on any other branch.
 
 The row on whether the contributor read what they signed is the point of the whole mechanism, and no check can ever make it.
