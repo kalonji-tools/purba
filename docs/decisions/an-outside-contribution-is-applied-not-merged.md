@@ -5,8 +5,9 @@
 purba is public and `allow_forking` is `true`, so a pull request from a fork is the path an outside contributor takes.
 
 [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) records acceptance as a trailer that a workflow writes from the approval.
-That workflow holds a read-only token on a pull request from a fork.
-It cannot write the trailer there, so the `sign` job refuses the branch and never posts the required status check.
+That workflow holds a read-only token on a pull request from a fork, so it cannot write the trailer there.
+A gate finishing starts the same workflow from `main`, where the token is this repository's own, so there the `sign` job refuses the fork in its first step rather than relying on the token.
+Either way the branch is refused and the required status check is never posted.
 
 The pull request therefore cannot merge, and nothing says what happens instead.
 `sign.yml` tells the contributor that purba takes their contribution another way.
@@ -56,7 +57,7 @@ The maintainer closes the contribution after the merge, and the script prints th
 - Each outside contribution costs the maintainer two acts. One command applies the work, and one closes the contribution after the merge.
 - Nothing runs the script. A maintainer who does not use it carries in work that no gate has read.
 - Until the gate rewrites the commits, the fork pull request and `accepted/pr-<n>` are one commit. A check run belongs to a SHA, so the mirror's green `sign` appears on the fork pull request. The gate is honest and the display is not.
-- **Applying a contribution raises what its code is allowed to do.** A pull request from a fork runs a workflow with a read-only token, and a branch here runs one with this repository's own token, from the head of the pull request and before anyone approves it. A contribution that changes `.github/` therefore gains that token the moment it is applied. The script warns and does not refuse, because refusing would close this path to every contribution that improves the gate. `main` is unreachable from there, because its ruleset admits no bypass actor.
+- **Applying a contribution raises what its code is allowed to do.** A pull request from a fork runs a workflow with a read-only token, and the job that holds this repository's own token refuses such a pull request in its first step. A branch here runs a workflow with this repository's own token, from the head of the pull request and before anyone approves it. A contribution that changes `.github/` therefore gains that token the moment it is applied. The script warns and does not refuse, because refusing would close this path to every contribution that improves the gate. `main` is unreachable from there, because its ruleset admits no bypass actor.
 
 ## Confirmation
 

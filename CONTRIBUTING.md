@@ -85,7 +85,9 @@ If you work from a fork, your pull request is a proposal. It does not merge.
 
 A workflow here holds a read-only token on a pull request from a fork, so it
 cannot write purba's side of the record onto a branch that lives on your
-account. purba carries your work in instead.
+account. It also refuses such a pull request outright, before it reads
+anything, so the refusal does not depend on what that token allows. purba
+carries your work in instead.
 
 A maintainer copies your commits to a branch in this repository and opens a
 pull request for it. That branch is what gets reviewed and what merges.
