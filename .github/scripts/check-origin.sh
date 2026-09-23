@@ -11,17 +11,8 @@
 # It also writes the failure, so a change to the wording reaches one place.
 set -euo pipefail
 
-# GitHub reads only the first line of an error into the annotation. A newline
-# has to become `%0A` to survive, and a literal `%` has to become `%25` before
-# that, or the decoder eats it.
-report() {
-  if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
-    printf '%s\n%s\n' "$1" "$2" >&2
-    return
-  fi
-  detail=${2//%/%25}
-  printf '::error::%s%%0A%s\n' "$1" "${detail//$'\n'/%0A}"
-}
+# shellcheck source=.github/scripts/report.sh
+. "$(dirname "$0")/report.sh"
 
 if [ $# -ne 2 ]; then
   echo "usage: check-origin.sh <base> <head>" >&2
