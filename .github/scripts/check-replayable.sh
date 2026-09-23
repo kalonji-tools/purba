@@ -9,7 +9,8 @@
 # <base> is a branch point or a base branch, and this reads the same commits
 # either way.
 #
-# Exits 1 when a commit refuses to replay, and 2 when this script cannot run.
+# Exits 1 when a commit refuses to replay, or when the replay completes and
+# loses content. Exits 2 when this script cannot run.
 set -euo pipefail
 
 # shellcheck source=.github/scripts/report.sh
@@ -25,6 +26,9 @@ if ! base=$(git merge-base "$1" "$2" 2>&1); then
   exit 2
 fi
 
+# Inside the worktree below, the name `HEAD` is the replayed commit, not this one.
+head=$(git rev-parse "$2^{commit}")
+
 scratch=$(mktemp -d)
 worktree="$scratch/replay"
 cleanup() {
@@ -33,8 +37,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! out=$(git worktree add --detach --quiet "$worktree" "$2" 2>&1); then
-  report "the replay check could not read the head $2." "$out"
+if ! out=$(git worktree add --detach --quiet "$worktree" "$head" 2>&1); then
+  report "the replay check could not make a worktree to replay $2 in." "$out"
   exit 2
 fi
 
@@ -48,7 +52,22 @@ export GIT_COMMITTER_NAME=purba GIT_COMMITTER_EMAIL=purba@invalid
 export TRAILER="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
 if replay=$(git -C "$worktree" rebase "$base" --exec \
   'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"' 2>&1); then
-  exit 0
+  if [ "$(git -C "$worktree" rev-parse 'HEAD^{tree}')" = "$(git rev-parse "$head^{tree}")" ]; then
+    exit 0
+  fi
+
+  # The cause is read rather than assumed.
+  changed=$(git -C "$worktree" diff --name-status "$head" HEAD)
+  merges=$(git log --merges --format='%h %s' "$base..$head")
+
+  if [ -n "$merges" ]; then
+    report "the replay of your branch loses content, so the branch cannot be signed. The replay flattens a merge commit, and the changes made in that merge are lost. Rebase your branch onto its base instead." "$changed
+
+$merges"
+  else
+    report "the replay of your branch loses content, so the branch cannot be signed, and this check cannot say why. The branch carries no merge commit." "$changed"
+  fi
+  exit 1
 fi
 
 # git names the commit it stopped on, and says which way it stopped. A commit
