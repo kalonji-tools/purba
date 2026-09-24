@@ -175,9 +175,31 @@ jobs:
 
           # Stop before rewriting anything. CONTRIBUTING.md says why this job
           # cannot repair a missing trailer.
-          .github/scripts/check-origin.sh "$base" HEAD
+          export PURBA_REPORT="$RUNNER_TEMP/refusal"
 
-          .github/scripts/check-replayable.sh "$base" HEAD
+          refuse() {
+            case "$1" in
+              1) title="Refused before anything was rewritten" ;;
+              *) title="This check could not run" ;;
+            esac
+
+            summary=$(cat "$PURBA_REPORT" 2>/dev/null || echo "This job stopped without writing anything a reader can use. The run log holds what it did.")
+
+            gh api --method POST "repos/$GH_REPO/check-runs" \
+              -f name="Sign-off" \
+              -f head_sha="$before" \
+              -f status=completed \
+              -f conclusion=failure \
+              -f "output[title]=$title" \
+              -f "output[summary]=$summary" \
+              --jq '.html_url'
+
+            exit 1
+          }
+
+          .github/scripts/check-origin.sh "$base" HEAD || refuse $?
+
+          .github/scripts/check-replayable.sh "$base" HEAD || refuse $?
 
           # A fresh checkout has no git identity, and `git commit` refuses to
           # run without one. These two lines only satisfy that. The name does
