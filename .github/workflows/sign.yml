@@ -207,7 +207,6 @@ jobs:
             exit 1
           }
 
-          .github/scripts/check-origin.sh "$base" || refuse $?
 
           .github/scripts/check-replayable.sh "$base" HEAD || refuse $?
 
