@@ -33,6 +33,9 @@ request targets one, with `mise run sign-off origin/<branch>`. Measured from a
 base your pull request does not target, the range reaches back past that
 branch and offers you commits somebody else wrote.
 
+The replay lands your branch on that base, so it brings a branch that has
+fallen behind current as well.
+
 Running it again adds nothing. `git commit -s` on its own would: it adds a
 trailer whenever the sign-off is not the last one, and purba writes its own
 trailer after yours.
@@ -126,6 +129,11 @@ broken link in the Rust documentation and a failing example. `Sign-off`
 records that purba accepted the branch. Your branch must also be current with
 `main`, so a branch that has fallen behind is rebased and reviewed against
 what is there now.
+
+Bring it current by replaying your commits onto the base, not by merging the
+base into them. A merge commit carries no sign-off, and no trailer can be
+added to one, so purba refuses it. The sign-off command above replays. So does
+the **Update with rebase** entry GitHub offers on the pull request.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
 once an approval stands and every other required check is green. On a branch
