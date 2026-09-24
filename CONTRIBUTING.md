@@ -132,6 +132,10 @@ once an approval stands and every other required check is green. On a branch
 whose `Quality` is still running, your approval lands and nothing appears to
 happen until the gate finishes.
 
+Where purba refuses your branch instead, `Sign-off` turns red and names what
+it found. It is written before anything on your branch is rewritten, so the
+branch you are looking at is the branch the refusal is about.
+
 purba replays your branch onto its base to write its `Accepted-by:` trailer,
 so every commit on the branch must survive that replay. Three kinds do not:
 
