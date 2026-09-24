@@ -137,8 +137,10 @@ Where the tree at the head it writes equals the tree at the head it replaced, it
 A conclusion is reported again only where it answers for the tree.
 GitHub draws a check run's conclusion from a fixed set, and `success` and `failure` are the two members of it that answer.
 The rest report what happened to the run, so this job names the conclusion it refused and leaves the context absent.
-Where the two differ it carries nothing, and a person restarts the run instead.
 A run nobody restarts leaves a pull request blocked until somebody notices.
+Where the two trees differ it carries nothing.
+The `sign` job cannot reach that case, because it refuses a branch whose replay changes the content before it rewrites anything.
+This script is given two heads and cannot know what produced them, so it reads the trees rather than trusting its caller.
 
 The two cases above, the trees matching and the trees differing, were the whole rule. A third case occurred twice: the verdict is not in yet.
 This job rewrote the branch before `Quality` had concluded, so it read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
