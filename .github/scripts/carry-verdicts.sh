@@ -50,9 +50,7 @@ for context in "$@"; do
       [.check_runs[] | select(.name == $c) | select(.completed_at != null)]
       | sort_by(.completed_at) | last | .conclusion // empty')
 
-  # Absent reads the same as refused here, on purpose. A missing verdict
-  # leaves the context missing, which blocks the merge until somebody
-  # restarts the run.
+  # Absent reads the same as refused here, on purpose.
   case "$conclusion" in
     # Never widen this list.
     success | failure) ;;
