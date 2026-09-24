@@ -61,3 +61,11 @@ depends = ["quality", "test:rust"]
 description = "Every gate, from a clean tree"
 depends = ["clean"]
 depends_post = ["check", "build"]
+
+["sign-off"]
+description = "Sign every commit on your branch. A person runs this, never an agent"
+# Hidden because that listing is what an agent reads to find what it may run.
+hide = true
+# cmd cannot exec a shebang.
+shell = "bash -c"
+run = "scripts/sign-branch.sh"

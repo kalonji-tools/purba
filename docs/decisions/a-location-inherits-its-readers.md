@@ -45,6 +45,7 @@ AGENTS.md          handler contributor
 .claude/**         handler
 docs/agents/**     handler
 .github/**         toolsmith
+scripts/**         toolsmith
 docs/**            technical-writer
 docs/decisions/**  architect
 src/**             coder plugin-author tester

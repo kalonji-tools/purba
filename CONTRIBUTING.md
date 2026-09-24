@@ -16,16 +16,26 @@ one is ever published.
 to the whole branch yourself before you ask anyone to review it:
 
 ```
-git rebase "$(git merge-base origin/main HEAD)" --exec \
-  'git log -1 --format="%(trailers:key=Signed-off-by)" | grep -q . ||
-     git commit --amend --no-edit -s'
+mise run sign-off
 ```
 
-That is one act and it covers every commit on the branch.
+It lists every commit it will sign and who wrote each one, and signs them once
+you agree. Nothing is signed if you do not, or if no terminal is attached. A
+machine never writes this trailer, and whether a person is present is the one
+part of that rule a file here can test.
 
-The guard matters. `git commit -s` adds nothing only when the sign-off is the
-last trailer. purba adds its own trailer after yours, so a second run without
-the guard leaves you with two sign-off lines.
+It replays your branch on a copy before it asks, so a branch purba cannot
+replay is refused and left where it is. The three shapes it refuses are named
+under *What refuses your branch* below.
+
+The list is measured from `origin/main`. Name another base when your pull
+request targets one, with `mise run sign-off origin/<branch>`. Measured from a
+base your pull request does not target, the range reaches back past that
+branch and offers you commits somebody else wrote.
+
+Running it again adds nothing. `git commit -s` on its own would: it adds a
+trailer whenever the sign-off is not the last one, and purba writes its own
+trailer after yours.
 
 Either way the name and address come from your committer identity.
 `user.name` and `user.email` set that identity unless you override them, so
