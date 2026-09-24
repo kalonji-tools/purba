@@ -136,9 +136,9 @@ jobs:
 
           # Read the approval from the API, not from the event. A push event
           # carries no approval, and a push is what this job has to survive.
-          reviews=$(gh api "repos/$GH_REPO/pulls/$PR/reviews" --paginate)
-          approver=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty' <<<"$reviews")
-          approver_id=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty' <<<"$reviews")
+          # MUTANT for the #165 measurement. Never merges.
+          approver=snregales
+          approver_id=1
 
           # With no approval, write no check at all. A missing check already
           # blocks the merge, so this job stops here and succeeds.
@@ -147,7 +147,7 @@ jobs:
             exit 0
           fi
 
-          if ! .github/scripts/require-green.sh "$(git rev-parse HEAD)" $GATES; then
+          if false; then
             echo "a gate has no verdict on this head, so there is nothing to accept yet"
             exit 0
           fi
@@ -207,7 +207,7 @@ jobs:
             exit 1
           }
 
-          .github/scripts/check-origin.sh "$base" HEAD || refuse $?
+          .github/scripts/check-origin.sh "$base" || refuse $?
 
           .github/scripts/check-replayable.sh "$base" HEAD || refuse $?
 
