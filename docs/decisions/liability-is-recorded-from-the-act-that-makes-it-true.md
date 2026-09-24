@@ -71,6 +71,7 @@ A machine cannot hold a right to submit anything, so a machine never makes this 
 **One exception, and it is a repository setting rather than a file.**
 `web_commit_signoff_required` is on, so GitHub writes the trailer into a commit made in its web interface and names the account that made it.
 The person is told before they commit, so the act is still theirs and the machine only transcribes it.
+GitHub documents that as reaching every commit made there. The merge commit that brings a branch current is made there and carries no trailer.
 purba is the only repository in this organisation with the setting on, and a reader who audits files alone cannot see it.
 
 **A workflow writes the acceptance trailer, and no person writes one.**
@@ -176,6 +177,8 @@ The `sign` job in `.github/workflows/sign.yml` refuses a branch whose commits la
 Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`, which parses the trailer instead of matching it as text.
 
 The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103), and on [check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105).
+
+The exception above was measured on this repository, because the setting is a property of it, and it is recorded on [Two claims about bringing a branch current are false](https://github.com/kalonji-tools/purba/issues/166).
 
 **The mechanism that writes `Accepted-by:` cannot run on a pull request from a fork.**
 On the pull request event the token is read only, the push is refused, and allowing a maintainer to modify the branch does not change it.
