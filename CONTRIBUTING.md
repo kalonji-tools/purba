@@ -133,8 +133,8 @@ so every commit on the branch must survive that replay. Three kinds do not:
 A `Replay` check reports this once your pull request is open, and the refusal
 names what it found.
 
-`Quality` usually needs nothing from you after the approval. purba rewrites
-your commits at that point and pushes them, and GitHub creates the checks on
+`Quality` needs nothing from you after the approval. purba rewrites your
+commits at that point and pushes them, and GitHub creates the checks on
 that new commit without running them. A workflow here carries each verdict
 across, because the rewrite edits commit messages, and purba refuses any
 branch whose replay would change your content.
@@ -142,10 +142,6 @@ branch whose replay would change your content.
 The runs GitHub holds on that commit carry no jobs, and a run with no jobs
 reports no check, so nothing waits on them. The pull request offers to approve
 them anyway, and marks that offer with a warning.
-
-Approve those runs where your content did change. Nothing is carried then,
-`Quality` reads as expected, and approving them is what produces the verdict.
-That is the last thing standing between an approved branch and a merge.
 
 A commit GitHub cannot attribute to an account costs a further approval.
 
