@@ -1,0 +1,67 @@
+# The two checks that read the commits a pull request adds.
+#
+#   the rules:     .github/scripts/check-origin.sh
+#                  .github/scripts/check-replayable.sh
+#   the gate:      .github/workflows/sign.yml
+#   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   what you owe:  CONTRIBUTING.md
+#
+# Never add a trigger here. These jobs can read their range only on a pull
+# request, and on any other event they would replace their own verdict with a
+# skip.
+#
+# Never add these to the required status checks. The Confirmation section of
+# the decision above says why. `Replay` has a second reason: it is a
+# prediction, because the base can move between this run and the signing, and
+# the script reads the base.
+name: Commits
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commits-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  origin:
+    name: Origin
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Name the commits that carry no origin trailer
+        run: |
+          set -euo pipefail
+
+          # A pull request is checked out as its merge commit. Its first parent
+          # is the base and its second is the branch. So this range holds
+          # exactly the commits the pull request adds.
+          #
+          # It needs no token. That is what makes it work on a fork too.
+          .github/scripts/check-origin.sh HEAD^1 HEAD^2
+
+          echo "every commit this pull request adds carries the trailer"
+  replay:
+    name: Replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Name the commit that cannot be replayed
+        run: |
+          set -euo pipefail
+
+          .github/scripts/check-replayable.sh HEAD^1 HEAD^2
+
+          echo "every commit this pull request adds survives the replay"
