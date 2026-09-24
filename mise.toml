@@ -12,7 +12,7 @@ rust = { version = "nightly", components = "clippy,rustfmt,rust-analyzer,rust-sr
 
 # The floor `pyproject.toml` and `Cargo.toml` already name.
 # https://mise.jdx.dev/lang/python
-python = "3.11"
+python = "3.12"
 
 # The newest maturin `pyproject.toml` accepts. `latest` would cross its `<2` and
 # hand the developer a backend the build refuses.

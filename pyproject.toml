@@ -10,7 +10,7 @@ build-backend = "maturin"
 name = "purba"
 # maturin reads the version from Cargo.toml, where git-cliff computes it.
 dynamic = ["version"]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 description = "A Python test framework written in Rust"
 readme = "README.md"
 # PEP 639 form: an SPDX expression, not the deprecated `{ text = "MIT" }` table
