@@ -1,7 +1,8 @@
-# Every job that reads or writes a commit message.
+# The job that accepts a branch.
 #
 #   the rules:     .github/scripts/check-origin.sh
 #                  .github/scripts/check-replayable.sh
+#   the advisory:  .github/workflows/commits.yml
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
 #
@@ -42,61 +43,6 @@ env:
   CARRYABLE: Quality
 
 jobs:
-  origin:
-    permissions:
-      contents: read
-    name: Origin
-    # `pull_request` only. It has no business running again when a gate finishes.
-    #
-    # Never add this job to the required status checks. No pull request would
-    # ever merge again. The Confirmation section of the decision above says why.
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Name the commits that carry no origin trailer
-        run: |
-          set -euo pipefail
-
-          # A pull request is checked out as its merge commit. Its first parent
-          # is the base and its second is the branch. So this range holds
-          # exactly the commits the pull request adds.
-          #
-          # It needs no token. That is what makes it work on a fork too.
-          .github/scripts/check-origin.sh HEAD^1 HEAD^2
-
-          echo "every commit this pull request adds carries the trailer"
-  replay:
-    permissions:
-      contents: read
-    name: Replay
-    # `pull_request` only, for the reason `Origin` gives above.
-    #
-    # Never add this job to the required status checks, and not for `Origin`'s
-    # reason. The `sign` job runs the same script before it rewrites, so
-    # requiring this one would refuse nothing new, and this answer is only a
-    # prediction: the base can move between this run and the signing.
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Name the commit that cannot be replayed
-        run: |
-          set -euo pipefail
-
-          .github/scripts/check-replayable.sh HEAD^1 HEAD^2
-
-          echo "every commit this pull request adds survives the replay"
-
-
   sign:
     permissions:
       contents: write
@@ -175,9 +121,31 @@ jobs:
 
           # Stop before rewriting anything. CONTRIBUTING.md says why this job
           # cannot repair a missing trailer.
-          .github/scripts/check-origin.sh "$base" HEAD
+          export PURBA_REPORT="$RUNNER_TEMP/refusal"
 
-          .github/scripts/check-replayable.sh "$base" HEAD
+          refuse() {
+            case "$1" in
+              1) title="Refused before anything was rewritten" ;;
+              *) title="This check could not run" ;;
+            esac
+
+            summary=$(cat "$PURBA_REPORT" 2>/dev/null || echo "This job stopped without writing anything a reader can use. The run log holds what it did.")
+
+            gh api --method POST "repos/$GH_REPO/check-runs" \
+              -f name="Sign-off" \
+              -f head_sha="$before" \
+              -f status=completed \
+              -f conclusion=failure \
+              -f "output[title]=$title" \
+              -f "output[summary]=$summary" \
+              --jq '.html_url'
+
+            exit 1
+          }
+
+          .github/scripts/check-origin.sh "$base" HEAD || refuse $?
+
+          .github/scripts/check-replayable.sh "$base" HEAD || refuse $?
 
           # A fresh checkout has no git identity, and `git commit` refuses to
           # run without one. These two lines only satisfy that. The name does
