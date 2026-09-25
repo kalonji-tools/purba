@@ -30,16 +30,16 @@ typos = "1"
 # https://mise.jdx.dev/dev-tools/mise-lock
 lockfile = true
 
+# `mise lock` adds or changes a tool, because this refuses to bootstrap from
+# `mise install`. Export GITHUB_TOKEN for that run or mise skips what it cannot
+# fetch and still reports success.
+# https://mise.jdx.dev/configuration/settings.html
+locked = true
+
 [settings.python]
 # Otherwise a machine with no precompiled build compiles CPython, and the
 # compiled entry splits the lockfile by the platform that produced it.
 compile = false
-
-[tool_config]
-# `mise lock` adds or changes a tool, because this refuses to bootstrap from
-# `mise install`. Export GITHUB_TOKEN for that run or mise skips what it cannot
-# fetch and still reports success.
-locked = true
 
 [task_config]
 includes = ["tasks.toml"]
