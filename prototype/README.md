@@ -358,7 +358,63 @@ reproducible and the download is not verified."* The version is **not** reproduc
 That record chose mise over devenv because the two disagreed on `nightly` by four
 days. This measurement shows mise disagrees with **itself** across six minutes.
 
-**What appears to hold it stable is inferred, not measured:** a `Quality` run at
-08:32 on another branch installed `nightly-2026-09-22`, two minutes after this branch
-got `09-25`, and its log shows no install line. The mise-action cache is the likely
-reason the drift is rarely visible. That part is a hypothesis.
+### ⚠️ The first explanation of this was wrong, and the logs name the real one
+
+This file first said the mise-action cache was the likely reason the drift is rarely
+visible. **That is backwards. The cache is what causes the drift.**
+
+Both runs ran `mise install --locked`. They differ in one line before it.
+
+**Run 36112711839, no cache restored:**
+
+```
+Detected a mise lock file, running `mise install --locked`
+mise rust@nightly-2026-09-22 info: syncing channel updates for nightly-2026-09-22-...
+mise rust@nightly-2026-09-22   installed - rustc 1.100.0-nightly (1303417c4 2026-09-21)
+```
+
+It goes straight to the locked date. There is no resolution step.
+
+**Run 36113297961, cache restored:**
+
+```
+mise cache restored from key: mise-v1-linux-x64-ubuntu24-abf677e131...
+Detected a mise lock file, running `mise install --locked`
+  rust@nightly  resolving  3.0s
+  rust@nightly  resolving  6.0s
+mise rust@nightly-2026-09-25 info: syncing channel updates for nightly-2026-09-25-...
+```
+
+⚠️ **`rust@nightly resolving`.** With the cache restored, mise resolves the floating
+name against the live channel instead of reading the locked date.
+
+| run | cache | what mise did | toolchain |
+|---|---|---|---|
+| 36112711839 | none | read the lock | `nightly-2026-09-22`, rustc `1303417c4` |
+| 36113297961 | restored | **resolved `rust@nightly`** | `nightly-2026-09-25` |
+
+**Why the cache changes the code path is not explained here.** The observation is
+recorded and the mechanism is not, because one explanation has already been wrong.
+The other four tools read `already installed` in both runs, so rust is the only entry
+that takes this path, and its lock entry is also the only one with no checksum and no
+platform rows.
+
+### What this falsifies
+
+Two records, not one.
+
+| record | the sentence |
+|---|---|
+| `mise-names-every-tool-version.md` | *"the version is reproducible and the download is not verified"* |
+| `purba-meets-the-next-trait-solver-before-it-stabilizes.md` | *"A person reads and bumps the floating name, and a machine installs the date"* |
+
+The machine installs the date on a cold runner. On a warm one it installs today.
+
+⚠️ **The second record rejected the obvious repair in advance.** It says naming a date
+in both files *"would state one fact twice and let the two copies disagree"*. So
+pinning the date in `mise.toml` is not available without changing that decision.
+
+⚠️ **This reaches the gates that already run.** `quality.yml` runs `cargo fmt --check`
+and `clippy` and then `git diff --exit-code`, on whichever nightly the cache yields.
+A formatting change between two nightlies refuses a pull request for a reason that is
+in nobody's diff.
