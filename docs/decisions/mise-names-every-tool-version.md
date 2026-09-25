@@ -80,15 +80,18 @@ A runner whose cache is restored prints `rust@nightly resolving` and installs wh
 Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2026-09-22` and then `nightly-2026-09-25`.
 `core:rust` delegates to rustup, and `rust` is the only entry in the lockfile that carries no checksum and no platform rows.
 Why a restored cache changes that is not stated here, because the first explanation of it was wrong.
+[How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) owns the repair.
 
-Three properties are checked today only by hand, and the workflows that would run them are not written yet.
+One of the three properties below is now checked by `.github/workflows/build.yml`.
 
 | property | check |
 |---|---|
-| the toolchain is the same everywhere | `rustc --version` agrees on every platform in the matrix |
-| the extension loads, rather than merely linking | import the compiled submodule and assert its file ends in `.so`, `.pyd` or `.dylib` |
+| the toolchain is the same everywhere | nothing, and ⚠️ **it is not true**, for the reason above. [How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) asks what to do about it |
+| the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
 
 The second check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension, so the package's own file attribute reports the `__init__.py` and proves nothing.
 A check written that way passes for a package with no Rust in it.
+⚠️ **maturin writes that wrapper into every wheel it builds**, so this is the shape today and not a future one.
+The check reads `purba.purba`, and it refuses if the wrapper is ever absent.

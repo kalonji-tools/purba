@@ -74,7 +74,7 @@ With a cache restored, `mise install --locked` resolves the floating name again 
 So cache state decides which compiler purba builds with, and neither file does.
 
 Naming a date in both files would state one fact twice and let the two copies disagree, so this record still refuses that.
-The repair is therefore not a second date, and this record names none.
+The repair is therefore not a second date, and [How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) owns it.
 
 ⚠️ **Neither file exists yet.**
 [Write the mise substrate](https://github.com/kalonji-tools/purba/issues/39) writes them, and that ticket is blocked by this one.
