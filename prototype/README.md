@@ -249,3 +249,116 @@ job-level `if` that reads `matrix`: the allowed contexts are `github`, `inputs`,
 - ⚠️ **`gh api .../jobs/<id>/logs` returns nothing and exits 0** without
   `--allow-escape-sequences`. It prints a notice to stderr. A pipeline that reads
   stdout sees an empty log and no error.
+
+---
+
+# The re-run — 36113297961
+
+| # | probe | verdict |
+|---|---|---|
+| D | the floor `abi3` wheel installs and imports above the floor | ✅ **6 of 6 arms pass** |
+| E | a free-threaded build drops `abi3` | ✅ **answered, and the two sources disagree** |
+
+## D — six of six
+
+With the assertion reading `purba.purba` rather than `purba`, every arm passes:
+3.13 and 3.14, on `ubuntu-latest`, `macos-14` and `windows-latest`.
+
+The claim `requires-python = ">=3.12"` with no upper bound now has evidence.
+
+## E — the prediction is confirmed, and only one source can reach it
+
+`actions/setup-python` with `3.14t` supplies a genuinely free-threaded interpreter:
+
+```
+executable     : /opt/hostedtoolcache/Python/3.14.7/x64-freethreaded/bin/python
+Py_GIL_DISABLED: 1
+abiflags       : 't'
+EXT_SUFFIX     : .cpython-314t-x86_64-linux-gnu.so
+```
+
+and maturin states what it does with it, unprompted:
+
+```
+🔗 Found pyo3 bindings with abi3-py3.12 support
+⚠️ Warning: abi3 does not yet support CPython 3.14t at
+   /opt/hostedtoolcache/Python/3.14.7/x64-freethreaded/bin/python
+   so the build artifacts will be version-specific.
+📦 Built wheel for CPython 3.14t to
+   target/wheels/purba-0.0.0-cp314-cp314t-manylinux_2_34_x86_64.whl
+```
+
+**The wheel is `cp314-cp314t`.** The prediction read out of `pyo3-build-config`
+source is confirmed by execution: pyo3 drops `abi3-py312` on a free-threaded
+interpreter and writes a version-specific wheel. No `Cargo.toml` change is needed.
+
+⚠️ **The mise arm refuses.** `mise x python@3.14` resolved `/usr/bin/python`, the
+runner's own 3.12.3, so the probe refused before building:
+
+```
+::error::mise did not supply a free-threaded interpreter, so this arm cannot build.
+AssertionError: this interpreter has the GIL, so the arm measured the wrong thing
+```
+
+The same command resolves mise's interpreter on a machine whose store already holds
+it. **The warm store is why this looks like it works locally.**
+
+**So the free-threaded arm takes its interpreter from `actions/setup-python`.** It is
+the only source measured to work, and no lockfile records it either way.
+
+---
+
+# Two findings about the substrate, not about this gate
+
+Both were found while reading these results. Neither belongs to this gate.
+
+## 1 — `[tool_config] locked = true` is dead configuration
+
+`mise.toml` carries:
+
+```toml
+[tool_config]
+locked = true
+```
+
+and a comment describing what it enforces. **mise does not read it.** Two arms, one
+difference, on mise 2026.8.6:
+
+| `mise.toml` says | `mise settings --all` reports |
+|---|---|
+| `[settings]`<br>`locked = true` | `locked true`, sourced from that file |
+| `[tool_config]`<br>`locked = true` | `locked false` |
+
+purba's own worktree reports `locked false`. The section is silently ignored, and
+`mise settings get tool_config.locked` answers `Unknown setting`.
+
+⚠️ **The enforcement does exist in CI, and it comes from somewhere else.**
+`jdx/mise-action@v4` runs `mise install --locked` — the flag, not the file. So CI is
+locked and a contributor's machine is not, and no location says so.
+
+## 2 — `mise.lock` does not pin the Rust toolchain
+
+`mise.toml` asks for `rust = "nightly"`. `mise.lock` records
+`version = "nightly-2026-09-22"`.
+
+Two runs of this workflow, on this branch, with `mise.lock` **byte-identical**
+between the two commits:
+
+| run | started | `mise install --locked` installed |
+|---|---|---|
+| 36112711839 | 08:24 | `rust@nightly-2026-09-22` |
+| 36113297961 | 08:30 | **`rust@nightly-2026-09-25`** |
+
+Six minutes apart, same tree, different compiler.
+
+⚠️ **The record states the opposite.** `mise-names-every-tool-version.md` says the
+lockfile pins the toolchain by date and not by checksum, *"so the version is
+reproducible and the download is not verified."* The version is **not** reproducible.
+
+That record chose mise over devenv because the two disagreed on `nightly` by four
+days. This measurement shows mise disagrees with **itself** across six minutes.
+
+**What appears to hold it stable is inferred, not measured:** a `Quality` run at
+08:32 on another branch installed `nightly-2026-09-22`, two minutes after this branch
+got `09-25`, and its log shows no install line. The mise-action cache is the likely
+reason the drift is rarely visible. That part is a hypothesis.
