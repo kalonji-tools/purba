@@ -49,6 +49,11 @@ run = '''
 description = "Run the examples in the Rust documentation"
 run = "cargo test --doc"
 
+[records]
+description = "Refuse a decision record that breaks a rule a command can decide"
+shell = "bash -c"
+run = "scripts/check-records.sh"
+
 [quality]
 description = "Every lint and format gate, in one command"
 depends = ["fmt:check", "clippy", "doc", "test:doc"]
