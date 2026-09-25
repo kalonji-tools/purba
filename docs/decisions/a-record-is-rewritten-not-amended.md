@@ -77,24 +77,26 @@ A programme is a milestone, not a record.
 
 ## Confirmation
 
-A linter over `docs/decisions/`, checking only what is decidable:
+`mise run records`, over `docs/decisions/`, checking only what is decidable:
 
 | check | strength |
 |---|---|
-| the four sections are present | strong |
+| the four sections are present, in order | strong |
 | record prose carries no bare issue number | strong |
 | source carries no numbered-record citation | strong |
-| every ticket a record names as owing work is open | weak until a record separates a ticket it waits on from one it cites as evidence |
-| cited paths exist | weak: run by hand over this corpus on 2026-09-18 it returned 16 absent paths of which 3 were real, the rest being future tense, past tense, or not paths |
+| a Confirmation that says a gate is unwired names the ticket that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
 
-The linter does not exist, so none of these is in force.
-[Write the decision-record linter](https://github.com/kalonji-tools/purba/issues/45) wires them, and its own blocker is [Write the prek config](https://github.com/kalonji-tools/purba/issues/41).
-Until then the checks run by hand before a pull request opens.
+The command refuses nothing at a commit and nothing at a merge.
+Whether a sentence admits an unwired gate is a judgement, so the check that finds one may suggest and may not gate.
+It is run by hand before a pull request opens.
+[Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) repairs the records it refuses, and the command joins the quality gate once they land.
 
-A merged record links a ticket that closed while the gate it owned stayed unwired, and nothing read the two together.
-The state of a ticket is decidable where the claim a record makes about it is not, so the row reads the state and leaves the claim to the reader.
+Whether a ticket a record names as owing work is still open is read by the same reader, and no check decides it.
 A record cites two kinds of ticket: one it waits on, which must be open, and one recording where a measurement was made, which is closed by the time it is cited.
 One record here cites both, so a state check alone refuses it wrongly.
+
+A merged record links a ticket that closed while the gate it owned stayed unwired, and nothing read the two together.
+The fourth check reads the link and never the claim, because the link is the part a command can decide.
 
 Two things are never gateable: whether a record states one decision, and whether it is still true.
 The code owner judges both, and is the only reader who can.
