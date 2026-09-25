@@ -1,0 +1,118 @@
+# Every gate that refuses a merge on the build and on the load.
+#
+#   the command:    tasks.toml, under `build`
+#   the tools:      mise.toml
+#   the floor:      docs/decisions/purba-supports-a-python-with-two-years-left.md
+#
+# This gate proves the claims purba makes about its own distribution.
+#
+# Never add a `paths:` filter here. A check that never reports and a check that
+# refuses are the same thing to the ruleset, so a filtered run blocks forever.
+#
+# ⚠️ Never add `continue-on-error` to a job here. A tolerated arm reports
+# `failure` as its own conclusion while the matrix still reports `success` to
+# the rollup, so the gate passes with a failed arm inside it. Nothing in the
+# rollup can recover that.
+name: Build
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # `tasks.toml` carries a macOS workaround for this task and a note that
+  # Windows runs a task through cmd. Both are exercised only here.
+  rust:
+    name: rust ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v4
+      - name: Run the Rust tests
+        run: mise run test:rust
+
+  # Every interpreter purba supports builds the wheel and then loads it, so one
+  # matrix covers both halves of the claim.
+  #
+  # ⚠️ Every interpreter comes from `actions/setup-python`, the floor included.
+  # mise cannot supply a free-threaded build at all.
+  wheel:
+    name: wheel ${{ matrix.os }} py${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        # `3.14t` needs no job of its own: the command below is the same for it
+        # as for every other arm.
+        python: ['3.12', '3.13', '3.14', '3.14t']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # mise supplies the Rust toolchain and maturin, and runs first so that the
+      # interpreter below wins the PATH.
+      - uses: jdx/mise-action@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      # `$(command -v python)` resolves in this shell, before mise starts, so it
+      # names the interpreter above. Without it a mise task would build against
+      # mise's own python and the matrix would change nothing.
+      - name: Build against ${{ matrix.python }}
+        # `run:` defaults to PowerShell on Windows, where the expansion below is
+        # empty and maturin is handed `--interpreter ""`.
+        shell: bash
+        run: mise run build --interpreter "$(command -v python)"
+
+      # The record requires a check a package with no Rust in it would fail, so
+      # reaching the submodule is not enough on its own: its file has to be the
+      # compiled extension.
+      - name: Load it on ${{ matrix.python }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --no-index --find-links target/wheels purba
+          python - <<'PY'
+          import importlib, pathlib, sys
+          path = pathlib.Path(importlib.import_module("purba.purba").__file__)
+          print(f"extension: {path}")
+          if path.suffix not in {".so", ".pyd", ".dylib"}:
+              sys.exit(f"the submodule is not the extension: {path}")
+          PY
+
+  Build:
+    name: Build
+    needs: [rust, wheel]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse unless every job succeeded
+        shell: bash
+        env:
+          RESULTS: |
+            rust=${{ needs.rust.result }}
+            wheel=${{ needs.wheel.result }}
+        run: |
+          set -euo pipefail
+          echo "$RESULTS"
+          if grep -v '=success$' <<<"$RESULTS" | grep .; then
+            echo "::error::the jobs printed above did not succeed, so this gate refuses"
+            exit 1
+          fi
+          echo "every job this gate reads reported success"
