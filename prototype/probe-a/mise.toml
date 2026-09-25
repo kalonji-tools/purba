@@ -1,0 +1,5 @@
+# Probe A. Can mise supply a free-threaded interpreter at all?
+# Deliberately no lockfile and no `locked`: this probe asks about the backend,
+# not about purba's lock discipline. Probe B asks that.
+[tools]
+python = "3.14"

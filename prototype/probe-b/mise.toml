@@ -1,0 +1,11 @@
+[tools]
+python = [
+  "3.12",
+  { version = "3.14", precompiled_flavor = "freethreaded-install_only_stripped" },
+]
+
+[settings]
+lockfile = true
+
+[settings.python]
+compile = false

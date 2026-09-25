@@ -1,0 +1,276 @@
+# Prototype for the build gate. Probes C, D, E and F. This branch is never merged.
+#
+# The probes A and B ran locally. prototype/README.md holds their results.
+#
+# This workflow is deliberately not called `Quality`, `Sign-off`, `Commits` or
+# `Records`. `sign.yml` triggers on a `workflow_run` of `Quality`, and a name
+# collision here would wake the job that accepts a branch.
+#
+# Every job says what a failure proves. A green run that proves nothing is the
+# failure mode a prototype exists to avoid.
+name: Prototype 42
+
+on:
+  push:
+    branches: [proto/42-build-gate]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------- PROBE C
+  # `tasks.toml` carries a macOS workaround for `test:rust` and a note that
+  # Windows runs a task through cmd. Nobody has ever run it off Linux.
+  # A failure here means the Rust job needs a narrower platform set than the
+  # wheel, and one Rust job across three operating systems is the wrong shape.
+  c-rust:
+    name: C rust ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v4
+      - name: Run the Rust tests
+        run: mise run test:rust
+
+  # ---------------------------------------------------------------- PROBE D1
+  # The floor builds the abi3 wheel. One build per operating system, because an
+  # abi3 wheel is platform-specific and version-independent.
+  #
+  # `actions/upload-artifact` is GitHub's name. CONTEXT.md reserves "artifact"
+  # for what purba writes for a reader, and excludes a file a job uploads. So
+  # every name and message here says "the wheel".
+  d1-build-floor:
+    name: D build the wheel on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v4
+      - name: Report the interpreter the floor builds against
+        run: mise x -- python -c "import sys, sysconfig; print(sys.version); print('GIL disabled:', sysconfig.get_config_var('Py_GIL_DISABLED'))"
+      - name: Build the wheel
+        run: mise run build
+      - name: Name the wheel this job produced
+        shell: bash
+        run: ls -l target/wheels/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}
+          path: target/wheels/*.whl
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------- PROBE D2
+  # `pyproject.toml` sets `requires-python = ">=3.12"` with no upper bound. The
+  # record justifies the missing bound: an abi3 wheel loads on a version that
+  # did not exist when it was built. Nothing has ever tested that.
+  #
+  # A failure here means `requires-python` accepts a version the wheel does not
+  # serve, and that is a false claim in the tree today.
+  d2-install-above-floor:
+    name: D install on ${{ matrix.os }} py${{ matrix.python }}
+    needs: d1-build-floor
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python: ['3.13', '3.14']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}
+          path: dist
+      - name: Install the wheel the floor built
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -l dist/
+          python -m pip install --no-index --find-links dist purba
+      - name: Import the extension and read its file suffix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c "
+          import pathlib, purba, sys, sysconfig
+          path = pathlib.Path(purba.__file__)
+          print('interpreter :', sys.version.split()[0])
+          print('module file :', path)
+          print('EXT_SUFFIX  :', sysconfig.get_config_var('EXT_SUFFIX'))
+          assert path.suffix in {'.so', '.pyd', '.dylib'}, f'the module is not the extension: {path}'
+          print('the extension loads, and does not only link')
+          "
+
+  # ---------------------------------------------------------------- PROBE E
+  # The free-threaded arm was decided by reading `pyo3-build-config` source. It
+  # has never been run. Probe A showed mise can supply the interpreter, but that no
+  # lockfile can record it.
+  # So this probe measures BOTH sources, because the grilling assumed only one.
+  #
+  # A failure of the mise arm means the free-threaded arm cannot come from the
+  # locked substrate. A failure of both means the decided arm is not buildable.
+  e-freethreaded:
+    name: E free-threaded via ${{ matrix.source }}
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [mise-flavor, setup-python]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # The flavor is not a version, and `locked = true` may refuse a version
+      # the lockfile does not name. A refusal here is a result, not an error.
+      - uses: jdx/mise-action@v4
+        if: matrix.source == 'mise-flavor'
+        env:
+          MISE_PYTHON_VERSION: '3.14'
+          MISE_PYTHON_COMPILE: '0'
+          MISE_PYTHON_PRECOMPILED_FLAVOR: freethreaded-install_only_stripped
+        continue-on-error: true
+
+      - uses: actions/setup-python@v5
+        if: matrix.source == 'setup-python'
+        with:
+          python-version: '3.14t'
+      # maturin and the Rust toolchain still come from mise on this arm.
+      - uses: jdx/mise-action@v4
+        if: matrix.source == 'setup-python'
+
+      - name: Report what interpreter this arm actually has
+        shell: bash
+        continue-on-error: true
+        run: |
+          python -c "
+          import sys, sysconfig
+          print('version        :', sys.version.split()[0])
+          print('Py_GIL_DISABLED:', sysconfig.get_config_var('Py_GIL_DISABLED'))
+          print('abiflags       :', repr(sysconfig.get_config_var('abiflags')))
+          print('EXT_SUFFIX     :', sysconfig.get_config_var('EXT_SUFFIX'))
+          "
+
+      - name: Build against it, and read the wheel tag
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mise x -- maturin build --interpreter "$(command -v python)"
+          ls -l target/wheels/
+          echo "--- the tag decides whether pyo3 dropped abi3 ---"
+          for wheel in target/wheels/*.whl; do echo "$wheel"; done
+
+  # ---------------------------------------------------------------- PROBE F
+  # Decision 9 says the rollup reads `needs.*.result`, because a skipped arm
+  # otherwise reads as success. That was reasoned, never measured.
+  #
+  # ⚠️ actionlint refuses the first shape this probe was written in. A job-level
+  # `if` cannot read `matrix`: the allowed contexts are github, inputs, needs and
+  # vars. So a matrix arm cannot be skipped that way, and the hazard the rollup was
+  # designed against cannot arise from an `if` at all.
+  #
+  # The hazard that CAN arise is `continue-on-error`. F1 measures it. F2 measures
+  # the skipped case using a whole job, which is the only way to reach it.
+
+  # F1 — arm 2 fails. It carries continue-on-error, so the arm is tolerated.
+  # The question is what the MATRIX reports to a rollup.
+  f1-matrix:
+    name: F1 arm ${{ matrix.n }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { n: 1, tolerate: false, fails: false }
+          - { n: 2, tolerate: true, fails: true }
+          - { n: 3, tolerate: false, fails: false }
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: ${{ matrix.tolerate }}
+    steps:
+      - name: Fail on purpose, on arm 2 only
+        shell: bash
+        run: |
+          if [ "${{ matrix.fails }}" = "true" ]; then
+            echo "arm ${{ matrix.n }} fails, and the job tolerates it"
+            exit 1
+          fi
+          echo "arm ${{ matrix.n }} did its work"
+
+  f1-rollup:
+    name: F1 rollup that reads the result
+    needs: f1-matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Print the whole needs context, so nothing is inferred
+        run: |
+          echo 'needs.f1-matrix.result = ${{ needs.f1-matrix.result }}'
+          cat <<'JSON'
+          ${{ toJSON(needs) }}
+          JSON
+      - name: Say what this proves
+        shell: bash
+        run: |
+          result='${{ needs.f1-matrix.result }}'
+          if [ "$result" = "success" ]; then
+            echo "::warning::A tolerated arm failed and the matrix still reports success. A rollup that reads needs.*.result does NOT catch it."
+          else
+            echo "the matrix reported $result, so the result does carry the tolerated failure"
+          fi
+
+  # F2 — a whole job is skipped. The naive rollup lists it in `needs` and does
+  # nothing else. The strict rollup reads the result.
+  f2-skipped:
+    name: F2 the job that is skipped
+    # Always false here: this workflow triggers on push and
+    # workflow_dispatch only. actionlint refuses a constant `false`.
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "this never runs"
+
+  f2-rollup-naive:
+    name: F2 rollup that trusts needs alone
+    needs: f2-skipped
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "This job ran, so a naive rollup reported success over a skipped job."
+
+  f2-rollup-strict:
+    name: F2 rollup that reads the result
+    needs: f2-skipped
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Print the whole needs context
+        run: |
+          echo 'needs.f2-skipped.result = ${{ needs.f2-skipped.result }}'
+          cat <<'JSON'
+          ${{ toJSON(needs) }}
+          JSON
+      - name: Refuse unless the job succeeded
+        shell: bash
+        run: |
+          result='${{ needs.f2-skipped.result }}'
+          if [ "$result" != "success" ]; then
+            echo "::error::the job reported $result, so this rollup refuses"
+            exit 1
+          fi
+          echo "the job reported success"
