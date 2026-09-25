@@ -47,7 +47,7 @@ Each of the three cites the closed issue that produced the record, so the pointe
 
 An unpublished comment is written only when the information belongs in no other location.
 
-**The order of claim.**
+**The order in which a location takes information.**
 The pull request, then the commit and the issue its subject names, then the decision record, then the published comment.
 What remains may be an unpublished comment.
 Each of those four states in its own register what it takes.
