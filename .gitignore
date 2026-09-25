@@ -10,3 +10,5 @@ __pycache__/
 
 # Environment
 /.venv/
+/mise.local.toml
+/.mise.local.toml
