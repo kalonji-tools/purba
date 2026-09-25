@@ -78,14 +78,12 @@ Depth belongs on the issue, so the body stops at the conclusion and the number c
 
 **Body.**
 
-**A body is owed when the change makes a claim.**
-A change that makes none carries a subject and nothing else.
-
-Where a body is written, it carries what no other location already carries.
+**A body is owed when a true sentence about this change must outlive the review, and no other location already carries it.**
+The subject is such a location.
+Where no sentence survives, the subject stands alone.
 
 - Addressed to the reader who has long since forgotten the details, never to the reviewer.
-- The pull request, the issue and the decision record are locations, and [a register belongs to one location](a-register-belongs-to-one-location.md) names the register of each. What a location already holds is not written in the body again, and neither is what the diff already shows.
-- It states what would show the change wrong. No other location holds that sentence.
+- What any other location already holds is not written in the body again, and neither is what the diff already shows. [A register belongs to one location](a-register-belongs-to-one-location.md) names the locations and the register of each.
 - It names what a change relates to, and never its position in a planned series. A series can shrink. A body cannot be corrected.
 
 **A rewrite carries more than a new record.**
@@ -94,10 +92,10 @@ Where a body is written, it carries what no other location already carries.
 
 | the commit adds | the record holds | the body carries |
 |---|---|---|
-| a new record | the problem, the options, the cost | what would show the decision wrong |
-| a rewrite | the new state only | what was wrong before, why, and what would show the decision wrong |
+| a new record | the problem, the options, the cost | nothing, so the subject stands alone |
+| a rewrite | the new state only | what was wrong before and why, unless the diff already shows it |
 
-The commit body is the amendment history that record removes.
+The commit body is the amendment history that record removes, and a diff that still shows the prior text removes nothing.
 
 **Trailers.** `Assisted-by:` names the agent and model, plus any specialised analysis tool.
 
@@ -129,14 +127,20 @@ It was applied zero times across 2,129 prototype commits while `Assisted-by:` re
 | imperative mood | no, because English verbs are an open class | no |
 | `Assisted-by:` present on agent work | no, because the message never says whether a machine helped | no |
 | the referenced issue exists | yes | **no** |
+| a body is owed only where a sentence survives subtraction | no | no |
 | the body carries only what outlives review | **no** | no |
 | the body carries only what no other location carries | **no** | no |
+| a rewrite does not restate what its diff shows | no | no |
 | the body carries no count of a planned series | weak: a pattern test suggests it and cannot confirm it | no |
 
 Five rows are checked, by hooks `prek.toml` carries.
 
 One decidable row is unchecked and no ticket owns it.
 Nothing resolves the issue a subject names, so a wrong number still renders as a working link.
+
+The planned-series row is weak in both directions.
+A pattern test fires on the legitimate prose "the fourth Confirmation row", which counts a row and not a commit.
+Three bodies on `main` name a position in a series of five that closed at three, and a body cannot be corrected.
 
 The rule this record exists to state is that the body carries only what outlives review.
 It is the one no check can ever enforce.
