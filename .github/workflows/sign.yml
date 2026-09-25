@@ -23,8 +23,8 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
   workflow_run:
-    # The ruleset holds a third copy of this list and is not in the tree.
-    workflows: [Quality]
+    # The ruleset holds a further copy of this list and is not in the tree.
+    workflows: [Quality, Build]
     types: [completed]
 
 concurrency:
@@ -38,9 +38,9 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
   PR: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
-  GATES: Quality
+  GATES: Quality Build
   # A subset of GATES. `carry-verdicts.sh` says why the two are not one list.
-  CARRYABLE: Quality
+  CARRYABLE: Quality Build
 
 jobs:
   sign:
