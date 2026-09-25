@@ -119,20 +119,25 @@ It was applied zero times across 2,129 prototype commits while `Assisted-by:` re
 
 ## Confirmation
 
-| rule | decidable | checked today |
+| rule | decidable | checked |
 |---|---|---|
-| conventional type and scope | yes | no |
-| subject at most 72 characters | yes | no |
-| imperative mood, no full stop | yes, by a word-list test | no |
-| `Assisted-by:` present on agent work | yes | no |
+| conventional type and scope | yes | yes, `subject-form` |
+| lower case after the colon | yes | yes, `subject-form` |
+| the issue number in parentheses at the end | yes | yes, `subject-form` |
+| subject at most 72 characters | yes | yes, `subject-length` |
+| no full stop before the reference | yes | yes, `subject-full-stop` |
+| imperative mood | no, because English verbs are an open class | no |
+| `Assisted-by:` present on agent work | no, because the message never says whether a machine helped | no |
 | the referenced issue exists | yes | **no** |
 | the body carries only what outlives review | **no** | no |
 | the body carries only what no other location carries | **no** | no |
 | the body carries no count of a planned series | weak: a pattern test suggests it and cannot confirm it | no |
 
-Every decidable row is unchecked.
-No ticket owns any of them.
+Five rows are checked, by hooks `prek.toml` carries.
 
-The last row is the important one.
-It is the rule this record exists to state, and it is the one no check can ever enforce.
+One decidable row is unchecked and no ticket owns it.
+Nothing resolves the issue a subject names, so a wrong number still renders as a working link.
+
+The rule this record exists to state is that the body carries only what outlives review.
+It is the one no check can ever enforce.
 A detector good enough to suggest is not good enough to gate.
