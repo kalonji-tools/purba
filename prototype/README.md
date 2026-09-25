@@ -122,3 +122,130 @@ for the same `3.12.14`. The lock is not stable across regeneration.
 |---|---|
 | 7 — mise supplies an arm that builds | **holds for a GIL arm. Fails for the free-threaded arm**, whose interpreter no lock can record |
 | the free-threaded arm is named `3.14t` | **false.** It is `3.14` plus a flavor |
+
+---
+
+# The CI probes — run 36112711839
+
+| # | probe | verdict |
+|---|---|---|
+| C | `mise run test:rust` on three operating systems | ✅ **pass on all three** |
+| D | the floor `abi3` wheel installs and imports above the floor | ✅ **the claim holds.** ⚠️ The first assertion was wrong |
+| E | a free-threaded build drops `abi3` | ❌ **the probe measured nothing.** Rewritten and re-run |
+| F | a rollup refuses an arm that did not succeed | ✅ answered, and the hazard is **not** the one that was designed for |
+
+## C — the Rust tests pass off Linux
+
+| runner | result |
+|---|---|
+| `ubuntu-latest` | success |
+| `macos-14` | success |
+| `windows-latest` | success |
+
+`tasks.toml` carries a macOS `DYLD_FALLBACK_LIBRARY_PATH` workaround and a note that
+Windows runs a task through cmd. Both hold. One Rust job across three operating
+systems is the right shape, and the grilling's guess was correct for a reason it
+did not have.
+
+## D — the abi3 claim holds, and the first assertion was wrong
+
+**Every one of the six arms installed the wheel.** `Successfully installed purba-0.0.0`
+on 3.13 and 3.14, on Linux, macOS and Windows, from a wheel tagged
+`cp312-abi3-manylinux_2_34_x86_64` built on the floor.
+
+So `requires-python = ">=3.12"` without an upper bound is a true claim, and this is
+the first evidence for it.
+
+⚠️ **All six arms then failed, on the assertion rather than on the claim.**
+
+```
+AssertionError: the module is not the extension:
+  .../site-packages/purba/__init__.py
+```
+
+**maturin writes a package wrapper into the wheel.** The wheel holds:
+
+| path | bytes |
+|---|---|
+| `purba/__init__.py` | 103 |
+| `purba/purba.abi3.so` | 7871608 |
+
+and the wrapper is `from .purba import *`.
+
+The record on the mise substrate names this trap and says a check written on the
+package *"passes for a package that holds no Rust"*. Here it did the opposite: it
+failed for a package that does hold Rust. Both readings are wrong the same way.
+
+⚠️ **The grilling said this trap was "honest now and rots later", because no `.py`
+file exists in the source tree. That was false.** maturin generates the wrapper at
+build time, so the trap is live from the first wheel. Reading the source tree is
+not reading the distribution.
+
+## E — the probe measured nothing, and reported success
+
+Both arms built against a **GIL 3.12**:
+
+| arm | interpreter it actually got | should have been |
+|---|---|---|
+| `mise-flavor` | 3.12.3, `Py_GIL_DISABLED: None` — the runner's own python | free-threaded 3.14 |
+| `setup-python` | 3.12.14, `Py_GIL_DISABLED: None` — mise's python | free-threaded 3.14 |
+
+Two faults, and `continue-on-error` on every step hid both:
+
+1. `jdx/mise-action` ran **after** `actions/setup-python` and won the PATH.
+2. The reporting step called bare `python` instead of going through mise.
+
+⚠️ **A probe that cannot refuse measures nothing.** The rewrite asserts the
+interpreter is free-threaded before it builds, and carries `continue-on-error` only
+where a refusal is a legitimate result.
+
+## F — the hazard is `continue-on-error`, not a skipped arm
+
+**F1. A tolerated failure is invisible to a rollup.**
+
+| job | conclusion |
+|---|---|
+| `F1 arm 1` | success |
+| `F1 arm 2` | **failure**, with `continue-on-error: true` |
+| `F1 arm 3` | success |
+
+and the rollup read:
+
+```
+needs.f1-matrix.result = success
+```
+
+⚠️ **So reading `needs.*.result` does NOT catch an arm that failed under
+`continue-on-error`.** The grilling decided the rollup reads the result, and that is
+necessary and not sufficient. **The gated matrix must carry no `continue-on-error`
+at all**, and nothing in a rollup can compensate for one.
+
+**F2. A skipped job deadlocks a naive rollup instead of refusing.**
+
+| job | conclusion |
+|---|---|
+| `F2 the job that is skipped` | skipped |
+| `F2 rollup that trusts needs alone` | **skipped** |
+| `F2 rollup that reads the result` | **failure** |
+
+A rollup that only lists `needs` is itself skipped, so it **never reports**. The
+`quality.yml` comment already states what that costs: a check that never reports and
+a check that refuses are the same thing to the ruleset. The difference is that a
+refusal names a reason and a silence does not.
+
+⚠️ **`if: always()` is what converts the deadlock into a refusal.** It is not
+optional decoration on the rollup; without it the gate blocks forever and says
+nothing.
+
+**The hazard the grilling designed against cannot arise.** actionlint refuses a
+job-level `if` that reads `matrix`: the allowed contexts are `github`, `inputs`,
+`needs` and `vars`. So a matrix arm cannot be skipped by a condition.
+
+## Two measurement traps found while reading the results
+
+- ⚠️ **`gh run view --log` refuses while a run is in progress**, even for jobs that
+  have finished: *"logs will be available when it is complete"*. The per-job REST
+  endpoint serves them immediately.
+- ⚠️ **`gh api .../jobs/<id>/logs` returns nothing and exits 0** without
+  `--allow-escape-sequences`. It prints a notice to stderr. A pipeline that reads
+  stdout sees an empty log and no error.
