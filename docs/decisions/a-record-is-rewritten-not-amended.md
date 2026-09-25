@@ -71,9 +71,9 @@ A programme is a milestone, not a record.
 
 **Downside:**
 
-- **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, and a linter that cannot see content.
+- **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, and a command that cannot see content.
 - **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift by auditing a large Consequences section.
-- **A record must be rewritten whenever a ticket it waits on closes.** The fourth Confirmation row buys this, and a ticket can close for reasons that have nothing to do with the record that named it.
+- **A record must be rewritten whenever a ticket it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it, and a ticket can close for reasons that have nothing to do with the record that named it.
 
 ## Confirmation
 
