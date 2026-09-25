@@ -67,8 +67,14 @@ purba builds on Rust nightly to meet the next generation trait solver before it 
 
 The channel is named once, in `mise.toml`, as a floating `nightly`.
 `mise.lock` records the dated nightly that name resolves to.
-A person reads and bumps the floating name, and a machine installs the date.
-Naming a date in both files would state one fact twice and let the two copies disagree.
+A person reads and bumps the floating name.
+
+⚠️ **A machine installs that date only when it has no mise cache.**
+With a cache restored, `mise install --locked` resolves the floating name again and installs whatever the channel names that day.
+So cache state decides which compiler purba builds with, and neither file does.
+
+Naming a date in both files would state one fact twice and let the two copies disagree, so this record still refuses that.
+The repair is therefore not a second date, and this record names none.
 
 ⚠️ **Neither file exists yet.**
 [Write the mise substrate](https://github.com/kalonji-tools/purba/issues/39) writes them, and that ticket is blocked by this one.
@@ -96,7 +102,7 @@ The control build outlives this record, because it detects drift from being on n
 No single feature can extend the channel on its own, because every nightly only use names a fallback and can therefore be given up.
 The warrant is always exactly one record, and never one record per feature.
 
-**Downside:** the stable check is non blocking, and this project's own position is that a check which runs without blocking is a suggestion. It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch, and a blocking check would have bought that day by forbidding the solver's only two gains in advance. The channel also moves under purba without anyone choosing a moment: a nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above, and a bump can break the tree for reasons that are nobody's fault and still cost a day. `mise.lock` pins the toolchain by date and not by checksum, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
+**Downside:** the stable check is non blocking, and this project's own position is that a check which runs without blocking is a suggestion. It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch, and a blocking check would have bought that day by forbidding the solver's only two gains in advance. The channel also moves under purba without anyone choosing a moment: a nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above, and a bump can break the tree for reasons that are nobody's fault and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
 
 ## Confirmation
 

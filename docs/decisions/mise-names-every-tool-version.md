@@ -65,14 +65,21 @@ A NixOS machine does not, and `pkgs.gcc` supplies both `cc` and `ld` there.
 The Linux wheel floor is whatever the host provides.
 Buying a lower floor is deferred to whatever publishes wheels, and zig is the measured way to buy it.
 
-**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile pins the toolchain by date and not by checksum, because `core:rust` delegates to rustup, so the version is reproducible and the download is not verified. The lockfile is also not complete by default: `mise lock` skips what it cannot fetch and reports success anyway, which an unauthenticated GitHub rate limit is enough to cause, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
+**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile records a date for the toolchain and does not pin it, because `core:rust` delegates to rustup, and the Confirmation below states what that costs. The lockfile is also not complete by default: `mise lock` skips what it cannot fetch and reports success anyway, which an unauthenticated GitHub rate limit is enough to cause, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
 
 ## Confirmation
 
 `mise install --locked`, run against an empty store.
 
-It reproduces the pinned toolchain and every other tool from the committed lockfile.
+It reproduces every tool from the committed lockfile except the Rust toolchain.
 Run against a store that already holds them it reports "already installed" and resolves nothing, so a local pass there proves nothing at all.
+
+⚠️ **The lockfile does not pin the toolchain.**
+A runner with no mise cache reads the locked date and installs it.
+A runner whose cache is restored prints `rust@nightly resolving` and installs whatever the floating channel names that day.
+Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2026-09-22` and then `nightly-2026-09-25`.
+`core:rust` delegates to rustup, and `rust` is the only entry in the lockfile that carries no checksum and no platform rows.
+Why a restored cache changes that is not stated here, because the first explanation of it was wrong.
 
 Three properties are checked today only by hand, and the workflows that would run them are not written yet.
 
