@@ -1,6 +1,7 @@
 # The workflow that proposes a compiler. It signs nothing.
 #
 #   the work:      .github/scripts/bump-nightly.sh
+#   the failure:   .github/scripts/report-bump-failure.sh
 #   the pin:       mise.toml, under `[tools]`
 #   the decision:  docs/decisions/mise-names-every-tool-version.md
 #
@@ -19,6 +20,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # The failure step below opens or comments on an issue.
+  issues: write
 
 concurrency:
   group: bump
@@ -50,3 +53,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: .github/scripts/bump-nightly.sh "$BRANCH" "$ISSUE"
+
+      # ⚠️ Keep this step in the workflow, not in the script.
+      - name: Say so where somebody reads it
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: .github/scripts/report-bump-failure.sh "$RUN_URL" "$ISSUE"
