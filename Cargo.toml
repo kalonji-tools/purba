@@ -30,17 +30,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 pyo3 = { version = "0.29.2", features = ["abi3-py312"] }
 
-# Pinned exactly. `=0.0.12` is ruff 0.16.6 — the 0.0.N <-> ruff X.Y.Z mapping is
-# NOT arithmetic (0.0.2 = ruff 0.15.19) and there is no 0.0.1. Astral's `0.0.x`
-# is deliberate: no stability guarantees, incremented every release. `^0.0.x` is
-# already an exact cargo pin, so `=` states the intent rather than changing it.
-ruff_python_parser = "=0.0.12"
-ruff_python_ast    = "=0.0.12"
-# The Ranged trait. `Expr::range()` will not resolve without it.
-ruff_text_size     = "=0.0.12"
-# LineIndex.
-ruff_source_file   = "=0.0.12"
-
 [features]
 # NOT a default feature. `extension-module` omits libpython, which breaks
 # `cargo test --doc` and `cargo doc` — the two lints #28 put in quality.yml.
