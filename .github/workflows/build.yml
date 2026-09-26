@@ -13,6 +13,10 @@
 # `failure` as its own conclusion while the matrix still reports `success` to
 # the rollup, so the gate passes with a failed arm inside it. Nothing in the
 # rollup can recover that.
+
+# ⚠️ This branch is an instrument, not a change. It proves acceptance rows 6
+# and 7 of issue 42 by execution, and it is never merged. Every edit on it is
+# made to fail on purpose.
 name: Build
 
 on:
