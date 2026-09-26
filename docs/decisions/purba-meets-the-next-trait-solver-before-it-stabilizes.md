@@ -65,19 +65,17 @@ purba builds on Rust nightly to meet the next generation trait solver before it 
 
 **Which nightly.**
 
-The channel is named once, in `mise.toml`, as a floating `nightly`.
-`mise.lock` records the dated nightly that name resolves to.
-A person reads and bumps the floating name.
+The nightly is named once, in `mise.toml`, as a date.
+`mise.lock` records the same string, because mise derives an exact request's lock row from the request.
+A person moves the date.
 
-⚠️ **A machine installs that date only when it has no mise cache.**
-With a cache restored, `mise install --locked` resolves the floating name again and installs whatever the channel names that day.
-So cache state decides which compiler purba builds with, and neither file does.
+⚠️ **A floating name drifts, and no lockfile stops it.**
+[mise names every tool version](mise-names-every-tool-version.md) holds the mechanism and what it costs.
+A date is an exact version, so it resolves only to itself, and this is the form mise documents.
 
-Naming a date in both files would state one fact twice and let the two copies disagree, so this record still refuses that.
-The repair is therefore not a second date, and [How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) owns it.
-
-⚠️ **Neither file exists yet.**
-[Write the mise substrate](https://github.com/kalonji-tools/purba/issues/39) writes them, and that ticket is blocked by this one.
+**This record used to refuse a second date**, predicting the two copies would disagree.
+For an exact request the lock row is derived from the request, so they cannot.
+`[env] RUSTUP_TOOLCHAIN` is refused instead: it overrides what the backend installs and says nothing when the two differ.
 
 **`rust-toolchain.toml` is deleted here.**
 This follows from [mise names every tool version](mise-names-every-tool-version.md) rather than deciding anything new, and the deletion is what stops the tree contradicting that record.
