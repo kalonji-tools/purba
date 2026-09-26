@@ -65,28 +65,33 @@ A NixOS machine does not, and `pkgs.gcc` supplies both `cc` and `ld` there.
 The Linux wheel floor is whatever the host provides.
 Buying a lower floor is deferred to whatever publishes wheels, and zig is the measured way to buy it.
 
-**Downside:** a machine with no C compiler does not build purba at all, and nothing in the repository reports that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The lockfile records a date for the toolchain and does not pin it, because `core:rust` delegates to rustup, and the Confirmation below states what that costs. The lockfile is also not complete by default: `mise lock` skips what it cannot fetch and reports success anyway, which an unauthenticated GitHub rate limit is enough to cause, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
+**Downside:** a machine with no C compiler does not build purba at all, and nothing detects that before the first build script fails. The Linux floor is glibc 2.34 rather than 2.17, which costs nothing today because nobody installs these wheels and will cost something the day somebody does. The toolchain's entry records a version and verifies none, because `core:rust` downloads no artifacts and so carries no checksum. It is also the one tool named by a date, so somebody must move that date or purba freezes on one compiler, and [Bump the pinned nightly on a schedule, and regenerate the lockfile with it](https://github.com/kalonji-tools/purba/issues/190) owns the moving. Nothing moves mise's own pinned version: mise cannot pin itself, and no bot reads a workflow input. The lockfile is also not complete by default: `mise lock` skips what it cannot fetch and reports success anyway, which an unauthenticated GitHub rate limit is enough to cause, and an entry carrying a stale tool option splits in two and then fails on the platform that produced it.
 
 ## Confirmation
 
 `mise install --locked`, run against an empty store.
 
-It reproduces every tool from the committed lockfile except the Rust toolchain.
+It reproduces every tool from the committed lockfile, the Rust toolchain included.
 Run against a store that already holds them it reports "already installed" and resolves nothing, so a local pass there proves nothing at all.
 
-⚠️ **The lockfile does not pin the toolchain.**
-A runner with no mise cache reads the locked date and installs it.
-A runner whose cache is restored prints `rust@nightly resolving` and installs whatever the floating channel names that day.
+⚠️ **A floating version name cannot be held by this lockfile.**
+`core:rust` finishes an install by symlinking its install path to `CARGO_HOME/bin`, and mise reads an absolute symlink outside its own directories as one a person made.
+Such a version outranks the lockfile, so after the first rust install the lockfile is not consulted and a floating name resolves against the channel again.
 Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2026-09-22` and then `nightly-2026-09-25`.
-`core:rust` delegates to rustup, and `rust` is the only entry in the lockfile that carries no checksum and no platform rows.
-Why a restored cache changes that is not stated here, because the first explanation of it was wrong.
-[How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) owns the repair.
 
-One of the three properties below is now checked by `.github/workflows/build.yml`.
+⚠️ **`locked = true` does not refuse that.**
+Its not-in-lockfile error is withheld under the same condition, so an unlocked resolution is a silent difference rather than a failure.
+**The setting covers a tool only while that tool's backend installs into a real directory.**
+purba's other four tools satisfy that by accident, and no lockfile entry reveals it.
+
+The toolchain is therefore named by a date, which resolves only to itself.
+[purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) holds that choice.
+
+One of the three properties below is checked by `.github/workflows/build.yml`.
 
 | property | check |
 |---|---|
-| the toolchain is the same everywhere | nothing, and ⚠️ **it is not true**, for the reason above. [How should purba pin the Rust toolchain, when the lockfile does not?](https://github.com/kalonji-tools/purba/issues/187) asks what to do about it |
+| the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
 | the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
 
