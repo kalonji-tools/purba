@@ -1,0 +1,52 @@
+# The workflow that proposes a compiler. It signs nothing.
+#
+#   the work:      .github/scripts/bump-nightly.sh
+#   the pin:       mise.toml, under `[tools]`
+#   the decision:  docs/decisions/mise-names-every-tool-version.md
+#
+# ⚠️ Keep the shell in the scripts. The only shell here calls them.
+name: Bump
+
+on:
+  schedule:
+    # Weekly. A nightly seven days old is always past `minimum_release_age`.
+    # https://mise.jdx.dev/configuration/settings.html
+    - cron: '0 6 * * 1'
+  # ⚠️ This trigger exists only while this file is on the default branch.
+  # https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bump
+  # Never `true`. Cancelled between the push and the pull request, the branch
+  # exists with nothing pointing at it.
+  cancel-in-progress: false
+
+env:
+  MISE_VERSION: 2026.9.14
+  BRANCH: bump/rust-nightly
+  # The issue the bump commit cites, and the only place this number lives.
+  ISSUE: 190
+
+jobs:
+  bump:
+    name: bump
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # `persist-credentials` stays on. The script pushes with it.
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v4
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - name: Propose a nightly, or say why it proposes none
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: .github/scripts/bump-nightly.sh "$BRANCH" "$ISSUE"
