@@ -26,7 +26,16 @@ The evidence is in its issues and its README, not in repository metadata.
 
 ## Decision Outcome
 
-purba pins four ruff crates exactly, at `=0.0.12`, behind a thin parsing seam.
+purba parses with four ruff crates, pinned exactly at `=0.0.12`, behind a thin parsing seam.
+
+| crate | what the seam needs from it |
+|---|---|
+| `ruff_python_parser` | the parse entry point |
+| `ruff_python_ast` | the AST the seam returns |
+| `ruff_text_size` | the `Ranged` trait. `Expr::range()` does not resolve without it |
+| `ruff_source_file` | `LineIndex`, so that a byte offset becomes a line and a column |
+
+The manifest names them at the call site that first uses one, rather than ahead of it: a dependency nothing calls is reported, and that report has nowhere to be suppressed one dependency at a time.
 
 One module owns parsing and returns an AST, and everything else takes the AST.
 Holding that seam keeps even a late reversal a one-decision change.
@@ -59,11 +68,12 @@ Being wrong here is survivable, and being wrong the other way is not:
 
 ## Confirmation
 
-The pins are exact.
+The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
-`cargo tree` shows the resolved versions, and the mapping above is checked against them by hand when a pin moves.
+`=` therefore states that intent rather than changing it.
+When a pin moves, the mapping above is checked against `cargo tree` by hand.
 
 This Confirmation is weak, and it is stated weakly on purpose.
-The parser seam does not exist yet, so nothing in the tree exercises the choice.
-The pins resolve and compile, and that is all.
+The parser seam does not exist yet, so nothing in the tree exercises the choice, and the manifest names no ruff crate at all.
+What this record fixes is the choice and the version; the declaration belongs to the commit that first calls one.
 It becomes a real fitness function when the prescan lands and its parse failures can be counted against a corpus.
