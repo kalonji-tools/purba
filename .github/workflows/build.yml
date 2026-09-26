@@ -45,6 +45,8 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           version: ${{ env.MISE_VERSION }}
+      - name: Name the compiler this job builds with
+        run: mise exec -- rustc --version
       - name: Run the Rust tests
         run: mise run test:rust
 
