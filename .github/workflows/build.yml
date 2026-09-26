@@ -35,6 +35,10 @@ jobs:
   # Windows runs a task through cmd. Both are exercised only here.
   rust:
     name: rust ${{ matrix.os }}
+    # ⚠️ Row 7 of issue 42. A skipped job must make the rollup refuse, not
+    # report nothing. A job-level `if` cannot read `matrix`, so all three arms
+    # skip together.
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -98,12 +102,6 @@ jobs:
           if path.suffix not in {".so", ".pyd", ".dylib"}:
               sys.exit(f"the submodule is not the extension: {path}")
           PY
-
-      # ⚠️ Row 6 of issue 42. This step fails one arm on purpose, so that a merge
-      # attempt meets a red `Build`. A step reads `matrix`; a job does not.
-      - name: Fail this arm on purpose
-        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
-        run: exit 1
 
   Build:
     name: Build
