@@ -14,6 +14,6 @@ use pyo3::prelude::*;
 
 /// The extension module Python imports as `purba`.
 #[pymodule]
-fn purba(_module: &Bound<'_, PyModule>) -> PyResult<()> {
+const fn purba(_module: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
