@@ -12,11 +12,27 @@ run = "cargo clean"
 
 [fmt]
 description = "Rewrite the formatting"
+depends = ["fmt:shell"]
 run = "cargo fmt"
+
+["fmt:shell"]
+description = "Rewrite the shell formatting"
+shell = "bash -c"
+run = "shfmt --write $(git ls-files '*.sh')"
 
 ["fmt:check"]
 description = "Refuse unformatted code"
-run = "cargo fmt --check"
+shell = "bash -c"
+run = ["cargo fmt --check", "shfmt --diff $(git ls-files '*.sh')"]
+
+["lint:shell"]
+description = "Refuse a shell defect"
+shell = "bash -c"
+run = "shellcheck -x $(git ls-files '*.sh')"
+
+["lint:style"]
+description = "Refuse a line that breaks the style every editor reads"
+run = "ec"
 
 [clippy]
 description = "Refuse a lint"
@@ -36,10 +52,11 @@ description = "Run the Rust tests"
 # The assignment is rendered on macOS alone. Windows runs a task through `cmd`,
 # which reads neither this syntax nor the variable.
 # https://mise.jdx.dev/tasks/task-configuration.html
-run = '''
-{% if os() == "macos" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+run = """
+{% if os() == "macos" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c \
+'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 {% endif %}cargo test
-'''
+"""
 
 ["test:doc"]
 description = "Run the examples in the Rust documentation"
@@ -52,7 +69,7 @@ run = "scripts/check-records.sh"
 
 [quality]
 description = "Every lint and format gate, in one command"
-depends = ["fmt:check", "clippy", "doc", "test:doc"]
+depends = ["fmt:check", "lint:shell", "lint:style", "clippy", "doc", "test:doc"]
 
 [check]
 description = "Every gate, in one command"

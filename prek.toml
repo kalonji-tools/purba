@@ -99,3 +99,34 @@ entry = "mise run fmt:check"
 stages = ["pre-commit"]
 pass_filenames = false
 files = "\\.rs$"
+
+# `-x` follows the `# shellcheck source=` directives three scripts carry. A hook
+# passes one file at a time, where a whole-tree run does not, so without it every
+# `.` draws SC1091.
+#
+#   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
+[[repos.hooks]]
+id = "shellcheck"
+name = "shellcheck -x"
+language = "system"
+entry = "mise run lint:shell"
+stages = ["pre-commit"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "shfmt"
+name = "shfmt --write"
+language = "system"
+entry = "mise run fmt:shell"
+stages = ["pre-commit"]
+pass_filenames = false
+
+# Invoked as `ec`: the roster name is `editorconfig-checker`, but the package
+# ships the binary under the short name.
+[[repos.hooks]]
+id = "editorconfig-checker"
+name = "editorconfig-checker"
+language = "system"
+entry = "mise run lint:style"
+stages = ["pre-commit"]
+pass_filenames = false

@@ -1,0 +1,18 @@
+# https://editorconfig.org/
+root = true
+
+# `[*.rs]` is absent on purpose: rustfmt does not read this file, so its own
+# default is the only location Rust's width has.
+[*]
+indent_style = space
+max_line_length = 100
+
+[*.{sh,yml,yaml,toml}]
+indent_size = 2
+
+[*.sh]
+switch_case_indent = true
+
+# A table row is one line by Markdown's syntax, and a lock file is generated.
+[*.{md,lock}]
+max_line_length = off

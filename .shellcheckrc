@@ -1,0 +1,4 @@
+# `shellcheck`'s severity is already at its lowest by default, so the optional
+# checks are the only thing left to turn on.
+# https://github.com/koalaman/shellcheck/wiki/Optional
+enable=all
