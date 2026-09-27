@@ -28,7 +28,8 @@ on:
     types: [completed]
 
 concurrency:
-  group: sign-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
+  group: sign-${{ github.event.pull_request.number ||
+    github.event.workflow_run.pull_requests[0].number }}
   # Never `true`. This job pushes first and reports the check second. Cancel
   # it in between, and the branch keeps the rewrite but loses the check.
   # Nothing runs again to add one.
@@ -60,14 +61,20 @@ jobs:
     timeout-minutes: 10
     env:
       HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
+      # `check-replayable.sh` runs this same string.
+      ACCEPT_EXEC: >-
+        git log -1 --format="%(trailers:key=Accepted-by)" | grep -q .
+        || git commit --amend --no-edit --trailer "$TRAILER"
     steps:
       # This step must stay first. A fork's branch does not exist in this
       # repository. The checkout below fails on it. Any step placed after the
       # checkout would never run.
       - name: Refuse a pull request from a fork
-        if: (github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name) != github.repository
+        if: (github.event.pull_request.head.repo.full_name ||
+          github.event.workflow_run.head_repository.full_name) != github.repository
         run: |
-          echo "::error::This job cannot sign a pull request from a fork, because it is only allowed to read here. purba takes your contribution another way: see CONTRIBUTING.md."
+          echo "::error::This job cannot sign a pull request from a fork, because it is only \
+          allowed to read here. purba takes your contribution another way: see CONTRIBUTING.md."
           exit 1
 
       - uses: actions/checkout@v4
@@ -83,8 +90,10 @@ jobs:
           # Read the approval from the API, not from the event. A push event
           # carries no approval, and a push is what this job has to survive.
           reviews=$(gh api "repos/$GH_REPO/pulls/$PR/reviews" --paginate)
-          approver=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty' <<<"$reviews")
-          approver_id=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty' <<<"$reviews")
+          approver=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty' \
+          <<<"$reviews")
+          approver_id=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty' \
+          <<<"$reviews")
 
           # With no approval, write no check at all. A missing check already
           # blocks the merge, so this job stops here and succeeds.
@@ -102,7 +111,8 @@ jobs:
           # edited, so check their shape before writing them. GitHub allows only
           # letters, digits and hyphens in a login today.
           case "$approver" in
-            *[!A-Za-z0-9-]*) echo "::error::the approver login has a character this job will not write into a commit: $approver"; exit 1 ;;
+            *[!A-Za-z0-9-]*) echo "::error::the approver login has a character this job will not \
+          write into a commit: $approver"; exit 1 ;;
           esac
           case "$approver_id" in
             "" | *[!0-9]*) echo "::error::the approver id is not a number: $approver_id"; exit 1 ;;
@@ -129,7 +139,8 @@ jobs:
               *) title="This check could not run" ;;
             esac
 
-            summary=$(cat "$PURBA_REPORT" 2>/dev/null || echo "This job stopped without writing anything a reader can use. The run log holds what it did.")
+            summary=$(cat "$PURBA_REPORT" 2>/dev/null || echo "This job stopped without writing \
+          anything a reader can use. The run log holds what it did.")
 
             gh api --method POST "repos/$GH_REPO/check-runs" \
               -f name="Sign-off" \
@@ -157,12 +168,11 @@ jobs:
           # already has the trailer is left alone. The commits stop changing, and
           # the push below stops happening.
           #
-          # Keep the outer quotes single. `$TRAILER` then reaches the command
-          # through the environment, where it stays data. Double quotes would
-          # let the outer shell paste it in as code instead, and that was
-          # measured running a command hidden inside a login.
-          git rebase "$base" --exec \
-            'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"'
+          # `$TRAILER` reaches the command through the environment, where it
+          # stays data. Expanding it here instead would let the outer shell
+          # paste it in as code, and that was measured running a command hidden
+          # inside a login. Expanding `$ACCEPT_EXEC` does not re-read it.
+          git rebase "$base" --exec "$ACCEPT_EXEC"
 
           head_sha=$(git rev-parse HEAD)
           if [ "$head_sha" != "$before" ]; then
@@ -175,7 +185,8 @@ jobs:
             -f status=completed \
             -f conclusion=success \
             -f "output[title]=Accepted by @$approver" \
-            -f "output[summary]=Every commit on this branch carries an \`Accepted-by:\` trailer naming the account that approved it." \
+            -f "output[summary]=Every commit on this branch carries an \`Accepted-by:\` trailer \
+          naming the account that approved it." \
             --jq '.html_url'
 
           echo "recorded acceptance by $approver on $head_sha"

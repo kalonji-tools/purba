@@ -27,8 +27,17 @@ hooks = [
   { id = "check-illegal-windows-names", stages = ["pre-commit"] },
   { id = "check-executables-have-shebangs", stages = ["pre-commit"] },
   { id = "check-shebang-scripts-are-executable", stages = ["pre-commit"] },
-  { id = "no-commit-to-branch", args = ["-b", "main"], stages = ["pre-commit", "pre-merge-commit"] },
 ]
+
+# A block table, because the inline form cannot hold the newline this row needs
+# to fit a hundred columns.
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "no-commit-to-branch"
+args = ["-b", "main"]
+stages = ["pre-commit", "pre-merge-commit"]
 
 # The three hooks below carry the decidable subject rules from
 # `docs/decisions/a-commit-outlives-its-review.md`.
@@ -46,7 +55,13 @@ id = "require-pattern"
 alias = "subject-form"
 name = "subject form"
 stages = ["commit-msg"]
-args = ["-m", "\\A(?:(?:fixup|squash|amend)! )*(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$"]
+args = [
+  "-m",
+  """\
+\\A(?:(?:fixup|squash|amend)! )*\
+(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\
+(\\([a-z0-9._-]+\\))?!?: [a-z][^\\n]*\\(#\\d+\\)$""",
+]
 
 [[repos.hooks]]
 id = "require-pattern"

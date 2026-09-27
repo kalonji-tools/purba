@@ -9,27 +9,35 @@
 # Exits 0 when every context is green, 1 when one is not, 2 when it cannot run.
 set -euo pipefail
 
-if [ $# -lt 2 ]; then
+if [[ $# -lt 2 ]]; then
   echo "usage: require-green.sh <head> <context>..." >&2
   exit 2
 fi
 
+: "${GH_REPO:?set by the workflow env}"
+
 head=$1
 shift
 
-runs=$(gh api "repos/$GH_REPO/commits/$head/check-runs?per_page=100")
+runs=$(gh api "repos/${GH_REPO}/commits/${head}/check-runs?per_page=100")
 
 for context in "$@"; do
   # Not ordered by the API, so read the one that finished last.
-  conclusion=$(jq -r --arg c "$context" '
+  conclusion=$(jq -r --arg c "${context}" '
     [.check_runs[] | select(.name == $c) | select(.completed_at != null)]
-    | sort_by(.completed_at) | last | .conclusion // empty' <<<"$runs")
+    | sort_by(.completed_at) | last | .conclusion // empty' <<<"${runs}")
 
-  case "$conclusion" in
-    success) echo "$context is green on $head" ;;
-    "") echo "$context has no verdict on $head yet"; exit 1 ;;
-    *) echo "$context concluded $conclusion on $head"; exit 1 ;;
+  case "${conclusion}" in
+    success) echo "${context} is green on ${head}" ;;
+    "")
+      echo "${context} has no verdict on ${head} yet"
+      exit 1
+      ;;
+    *)
+      echo "${context} concluded ${conclusion} on ${head}"
+      exit 1
+      ;;
   esac
 done
 
-echo "every gate named here is green on $head"
+echo "every gate named here is green on ${head}"

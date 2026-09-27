@@ -14,13 +14,13 @@ set -euo pipefail
 # shellcheck source=.github/scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-if [ $# -ne 2 ]; then
+if [[ $# -ne 2 ]]; then
   echo "usage: check-origin.sh <base> <head>" >&2
   exit 2
 fi
 
 if ! commits=$(git rev-list "$1".."$2" 2>&1); then
-  report "the origin check could not read the range $1..$2." "$commits"
+  report "the origin check could not read the range $1..$2." "${commits}"
   exit 2
 fi
 
@@ -28,25 +28,26 @@ fi
 #
 # The address must sit inside angle brackets, because CONTRIBUTING.md asks a
 # sign-off to reach someone.
-missing=$(printf '%s\n' "$commits" | while read -r sha; do
-  [ -n "$sha" ] || continue
-  if ! git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "$sha" |
+missing=$(printf '%s\n' "${commits}" | while read -r sha; do
+  [[ -n "${sha}" ]] || continue
+  if ! git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "${sha}" |
     grep -q '<.*@.*>'; then
-    git log -1 --format='%h %s' "$sha"
+    git log -1 --format='%h %s' "${sha}"
   fi
 done)
 
-if [ -n "$missing" ]; then
-  summary="these commits carry no Signed-off-by trailer, so this branch cannot be accepted. CONTRIBUTING.md has the command that adds it."
+if [[ -n "${missing}" ]]; then
+  summary="these commits carry no Signed-off-by trailer, so this branch cannot be accepted. \
+CONTRIBUTING.md has the command that adds it."
 
   # `--no-walk` is load-bearing, and it was measured. Without it this walks the
   # ancestors of each unsigned commit, so a signed merge commit below one of
   # them makes the sentence fire against a list that holds no merge.
-  if printf '%s\n' "$missing" | cut -d' ' -f1 |
+  if printf '%s\n' "${missing}" | cut -d' ' -f1 |
     git rev-list --no-walk --merges --stdin | grep -q .; then
-    summary="$summary A merge commit below is not one you can sign."
+    summary="${summary} A merge commit below is not one you can sign."
   fi
 
-  report "$summary" "$missing"
+  report "${summary}" "${missing}"
   exit 1
 fi

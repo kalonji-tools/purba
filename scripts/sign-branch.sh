@@ -11,30 +11,32 @@ set -euo pipefail
 
 # Both tests are load-bearing. Without this one, a piped answer satisfies the
 # question below.
-if [ ! -t 0 ]; then
+if [[ ! -t 0 ]]; then
   echo "sign-branch.sh ran with no terminal attached, so nothing was signed." >&2
   exit 1
 fi
 
 base=${1:-origin/main}
 
-if ! start=$(git merge-base "$base" HEAD 2>&1); then
-  echo "sign-branch.sh cannot find where your branch leaves $base." >&2
-  echo "$start" >&2
+if ! start=$(git merge-base "${base}" HEAD 2>&1); then
+  echo "sign-branch.sh cannot find where your branch leaves ${base}." >&2
+  echo "${start}" >&2
   exit 2
 fi
 
-"$(git rev-parse --show-toplevel)/.github/scripts/check-replayable.sh" "$base" HEAD
+"$(git rev-parse --show-toplevel)/.github/scripts/check-replayable.sh" "${base}" HEAD
 
-echo "Measured from $base:"
-git --no-pager log --reverse --format='  %h  %an  %s' "$start..HEAD"
+echo "Measured from ${base}:"
+git --no-pager log --reverse --format='  %h  %an  %s' "${start}..HEAD"
 
 read -r -p "Sign these commits? [y/N] " reply || reply=""
-if [ "$reply" != "y" ]; then
+if [[ "${reply}" != "y" ]]; then
   echo "nothing was signed." >&2
   exit 1
 fi
 
-# Keep this on one line. git refuses an exec command that contains a newline.
-git rebase "$start" --exec \
-  'git log -1 --format="%(trailers:key=Signed-off-by)" | grep -q . || git commit --amend --no-edit -s'
+# The value must hold no newline. git refuses an exec command that contains one,
+# and a single-quoted string cannot be wrapped without keeping the backslash.
+# editorconfig-checker-disable-next-line
+sign_exec='git log -1 --format="%(trailers:key=Signed-off-by)" | grep -q . || git commit --amend --no-edit -s'
+git rebase "${start}" --exec "${sign_exec}"
