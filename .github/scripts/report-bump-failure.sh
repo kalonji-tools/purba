@@ -14,10 +14,12 @@
 # ⚠️ Nothing else reports a scheduled run that fails.
 set -euo pipefail
 
-if [ $# -ne 2 ]; then
+if [[ $# -ne 2 ]]; then
   echo "usage: report-bump-failure.sh <run-url> <issue>" >&2
   exit 2
 fi
+
+: "${GH_REPO:?set by the workflow env}"
 
 run=$1
 issue=$2
@@ -26,36 +28,39 @@ issue=$2
 title="The nightly bump failed"
 
 # ⚠️ Never use `--search` here.
-existing=$(gh issue list --repo "$GH_REPO" --state open --limit 200 \
-  --json number,title --jq "[.[] | select(.title == \"$title\")] | first | .number // empty")
+existing=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 \
+  --json number,title --jq "[.[] | select(.title == \"${title}\")] | first | .number // empty")
 
-if [ -n "$existing" ]; then
-  gh issue comment "$existing" --repo "$GH_REPO" --body "It failed again: $run"
-  echo "commented on #$existing rather than opening a second issue"
+if [[ -n "${existing}" ]]; then
+  gh issue comment "${existing}" --repo "${GH_REPO}" --body "It failed again: ${run}"
+  echo "commented on #${existing} rather than opening a second issue"
   exit 0
 fi
 
-body=$(cat <<BODY
+body=$(
+  cat <<BODY
 A scheduled run of \`.github/workflows/bump.yml\` failed before it proposed anything.
 
 | | |
 |---|---|
-| the run | $run |
+| the run | ${run} |
 | what it does | proposes a newer nightly for a person to sign |
 | what its failing means | ⚠️ **the pinned toolchain stops moving, and nothing else says so** |
 
-**This is not a red pull request.** A scheduled run has no pull request, so no gate refuses it and nothing else reports it. That is why this issue exists.
+**This is not a red pull request.** A scheduled run has no pull request, so no gate refuses it and \
+nothing else reports it. That is why this issue exists.
 
 Two other things look identical from outside and are not this:
 
 - the week had no newer nightly, which exits 0 and opens nothing
 - a proposal is already open, which stands down on purpose
 
-Later failures are added to this issue as comments rather than opening another. Close it once the bump runs clean.
+Later failures are added to this issue as comments rather than opening another. Close it once the \
+bump runs clean.
 
-[#$issue](https://github.com/$GH_REPO/issues/$issue) owns the workflow.
+[#${issue}](https://github.com/${GH_REPO}/issues/${issue}) owns the workflow.
 BODY
 )
 
-number=$(gh issue create --repo "$GH_REPO" --title "$title" --label bug --body "$body")
-echo "opened $number"
+number=$(gh issue create --repo "${GH_REPO}" --title "${title}" --label bug --body "${body}")
+echo "opened ${number}"
