@@ -25,6 +25,19 @@ prek = "0.5"
 # reads `target/`.
 typos = "1"
 
+#   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
+#
+# A major-version pin on purpose: a bump that adds an optional check is meant to
+# turn the tree red rather than pass silently.
+# https://www.shellcheck.net
+shellcheck = "0"
+
+# https://github.com/mvdan/sh
+shfmt = "3"
+
+# https://github.com/editorconfig-checker/editorconfig-checker
+editorconfig-checker = "3"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.
