@@ -16,13 +16,13 @@ set -euo pipefail
 # shellcheck source=.github/scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-if [ $# -ne 2 ]; then
+if [[ $# -ne 2 ]]; then
   echo "usage: check-replayable.sh <base> <head>" >&2
   exit 2
 fi
 
 if ! base=$(git merge-base "$1" "$2" 2>&1); then
-  report "the replay check could not find where $2 leaves $1." "$base"
+  report "the replay check could not find where $2 leaves $1." "${base}"
   exit 2
 fi
 
@@ -30,15 +30,17 @@ fi
 head=$(git rev-parse "$2^{commit}")
 
 scratch=$(mktemp -d)
-worktree="$scratch/replay"
+worktree="${scratch}/replay"
+# `trap cleanup EXIT` below is the caller, which shellcheck cannot see.
+# shellcheck disable=SC2329
 cleanup() {
-  git worktree remove --force "$worktree" 2>/dev/null || true
-  rm -rf "$scratch"
+  git worktree remove --force "${worktree}" 2>/dev/null || true
+  rm -rf "${scratch}"
 }
 trap cleanup EXIT
 
-if ! out=$(git worktree add --detach --quiet "$worktree" "$head" 2>&1); then
-  report "the replay check could not make a worktree to replay $2 in." "$out"
+if ! out=$(git worktree add --detach --quiet "${worktree}" "${head}" 2>&1); then
+  report "the replay check could not make a worktree to replay $2 in." "${out}"
   exit 2
 fi
 
@@ -48,24 +50,33 @@ fi
 # `--amend --no-edit` keeps the one each commit already carries.
 export GIT_COMMITTER_NAME=purba GIT_COMMITTER_EMAIL=purba@invalid
 
-# Keep this command identical to the one `sign.yml` runs, `--exec` included.
+# The same string as `sign.yml`'s `ACCEPT_EXEC`. Single-quoted, so it cannot be
+# wrapped: the backslash would stay in the value.
 export TRAILER="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
-if replay=$(git -C "$worktree" rebase "$base" --exec \
-  'git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"' 2>&1); then
-  if [ "$(git -C "$worktree" rev-parse 'HEAD^{tree}')" = "$(git rev-parse "$head^{tree}")" ]; then
+# `$TRAILER` must reach the replay as data, which is what the single quotes do.
+# shellcheck disable=SC2016
+# editorconfig-checker-disable-next-line
+accept_exec='git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"'
+if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1); then
+  replayed_tree=$(git -C "${worktree}" rev-parse 'HEAD^{tree}') || exit 2
+  head_tree=$(git rev-parse "${head}^{tree}") || exit 2
+  if [[ "${replayed_tree}" = "${head_tree}" ]]; then
     exit 0
   fi
 
   # The cause is read rather than assumed.
-  changed=$(git -C "$worktree" diff --name-status "$head" HEAD)
-  merges=$(git log --merges --format='%h %s' "$base..$head")
+  changed=$(git -C "${worktree}" diff --name-status "${head}" HEAD)
+  merges=$(git log --merges --format='%h %s' "${base}..${head}")
 
-  if [ -n "$merges" ]; then
-    report "the replay of your branch loses content, so the branch cannot be signed. The replay flattens a merge commit, and the changes made in that merge are lost. Rebase your branch onto its base instead." "$changed
+  if [[ -n "${merges}" ]]; then
+    report "the replay of your branch loses content, so the branch cannot be signed. The replay \
+flattens a merge commit, and the changes made in that merge are lost. Rebase your branch onto its \
+base instead." "${changed}
 
-$merges"
+${merges}"
   else
-    report "the replay of your branch loses content, so the branch cannot be signed, and this check cannot say why. The branch carries no merge commit." "$changed"
+    report "the replay of your branch loses content, so the branch cannot be signed, and this \
+check cannot say why. The branch carries no merge commit." "${changed}"
   fi
   exit 1
 fi
@@ -75,21 +86,33 @@ fi
 # A commit that replayed empty leaves no `stopped-sha`, because its `pick`
 # succeeded and the `exec` after it refused. Every other failure lands there
 # too, so the second one is confirmed against the tree rather than assumed.
-state="$(git -C "$worktree" rev-parse --absolute-git-dir)/rebase-merge"
+state="$(git -C "${worktree}" rev-parse --absolute-git-dir)/rebase-merge"
 
 detail="the replay left no record of the commit it stopped on."
-if stopped=$(grep '^pick ' "$state/done" 2>/dev/null | tail -1 | cut -d' ' -f2) &&
-  [ -n "$stopped" ]; then
-  detail=$(git log -1 --format='%h %s' "$stopped")
+if stopped=$(grep '^pick ' "${state}/done" 2>/dev/null | tail -1 | cut -d' ' -f2) &&
+  [[ -n "${stopped}" ]]; then
+  detail=$(git log -1 --format='%h %s' "${stopped}")
 fi
 
-if [ -f "$state/stopped-sha" ]; then
-  report "this commit does not apply where purba replays your branch, so the branch cannot be signed. A merge commit whose conflict you resolved by hand is the usual cause. Rebase your branch onto its base instead." "$detail"
-elif [ "$(git -C "$worktree" rev-parse 'HEAD^{tree}')" = "$(git -C "$worktree" rev-parse 'HEAD^1^{tree}')" ]; then
-  report "this commit replays empty, and purba cannot write its trailer into an empty commit, so the branch cannot be signed. Remove the commit. The replay empties a commit whose change is already on the base as well." "$detail"
-else
-  report "the replay of this branch stopped here, and this check cannot say why. git wrote what follows." "$detail
+# `HEAD^1` has no parent to resolve on a root commit, so its absence is read as a
+# value rather than as a failure. The tree of the replayed commit is a failure:
+# the replay reached it.
+stopped_tree=$(git -C "${worktree}" rev-parse 'HEAD^{tree}') || exit 2
+parent_tree=$(git -C "${worktree}" rev-parse 'HEAD^1^{tree}' 2>/dev/null || true)
+replay_tail=$(printf '%s\n' "${replay}" | tail -8)
 
-$(printf '%s\n' "$replay" | tail -8)"
+if [[ -f "${state}/stopped-sha" ]]; then
+  report "this commit does not apply where purba replays your branch, so the branch cannot be \
+signed. A merge commit whose conflict you resolved by hand is the usual cause. Rebase your branch \
+onto its base instead." "${detail}"
+elif [[ -n "${parent_tree}" && "${stopped_tree}" = "${parent_tree}" ]]; then
+  report "this commit replays empty, and purba cannot write its trailer into an empty commit, so \
+the branch cannot be signed. Remove the commit. The replay empties a commit whose change is \
+already on the base as well." "${detail}"
+else
+  report "the replay of this branch stopped here, and this check cannot say why. git wrote what \
+follows." "${detail}
+
+${replay_tail}"
 fi
 exit 1
