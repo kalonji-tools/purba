@@ -87,3 +87,9 @@ hide = true
 # cmd cannot exec a shebang.
 shell = "bash -c"
 run = "scripts/sign-branch.sh"
+
+["apply-fork"]
+description = "Carry a contribution from a fork into this repository"
+hide = true
+shell = "bash -c"
+run = "scripts/apply-fork-contribution.sh"

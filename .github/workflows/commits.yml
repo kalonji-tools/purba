@@ -1,7 +1,7 @@
 # The two checks that read the commits a pull request adds.
 #
-#   the rules:     .github/scripts/check-origin.sh
-#                  .github/scripts/check-replayable.sh
+#   the rules:     scripts/check-origin.sh
+#                  scripts/check-replayable.sh
 #   the gate:      .github/workflows/sign.yml
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
@@ -46,7 +46,7 @@ jobs:
           # exactly the commits the pull request adds.
           #
           # It needs no token. That is what makes it work on a fork too.
-          .github/scripts/check-origin.sh HEAD^1 HEAD^2
+          scripts/check-origin.sh HEAD^1 HEAD^2
 
           echo "every commit this pull request adds carries the trailer"
   replay:
@@ -62,6 +62,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          .github/scripts/check-replayable.sh HEAD^1 HEAD^2
+          scripts/check-replayable.sh HEAD^1 HEAD^2
 
           echo "every commit this pull request adds survives the replay"

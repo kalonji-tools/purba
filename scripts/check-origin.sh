@@ -11,7 +11,7 @@
 # It also writes the failure, so a change to the wording reaches one place.
 set -euo pipefail
 
-# shellcheck source=.github/scripts/report.sh
+# shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
 if [[ $# -ne 2 ]]; then

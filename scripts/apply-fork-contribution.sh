@@ -29,7 +29,7 @@ git fetch --quiet origin main
 git fetch --quiet origin "refs/pull/${pr}/head"
 base=$(git merge-base origin/main FETCH_HEAD)
 
-"${root}/.github/scripts/check-origin.sh" "${base}" FETCH_HEAD
+"$(dirname "$0")/check-origin.sh" "${base}" FETCH_HEAD
 
 if git diff --name-only "${base}" FETCH_HEAD | grep -q '^\.github/'; then
   echo "warning: this contribution changes .github/, so its workflows run with this repository's \
