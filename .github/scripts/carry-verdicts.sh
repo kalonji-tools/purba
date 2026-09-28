@@ -22,6 +22,9 @@ fi
 
 : "${GH_REPO:?set by the workflow env}"
 
+# shellcheck source=.github/scripts/check-run.sh
+. "$(dirname "$0")/check-run.sh"
+
 before=$1
 after=$2
 shift 2
@@ -45,12 +48,8 @@ if [[ "${before_tree}" != "${after_tree}" ]]; then
 fi
 
 for context in "$@"; do
-  # The API does not promise this array is in any order, so read the one that
-  # finished last rather than the one that happens to be last.
-  conclusion=$(gh api "repos/${GH_REPO}/commits/${before}/check-runs?per_page=100" |
-    jq -r --arg c "${context}" '
-      [.check_runs[] | select(.name == $c) | select(.completed_at != null)]
-      | sort_by(.completed_at) | last | .conclusion // empty')
+  runs=$(gh api "repos/${GH_REPO}/commits/${before}/check-runs?per_page=100")
+  conclusion=$(last_conclusion "${context}" <<<"${runs}")
 
   # Absent reads the same as refused here, on purpose.
   case "${conclusion}" in
@@ -68,15 +67,10 @@ nothing to carry"
   esac
 
   # The conclusion goes across as it stands. A refusal stays a refusal.
-  gh api --method POST "repos/${GH_REPO}/check-runs" \
-    -f name="${context}" \
-    -f head_sha="${after}" \
-    -f status=completed \
-    -f conclusion="${conclusion}" \
-    -f "output[title]=${context}, carried" \
-    -f "output[summary]=The tree at this commit is \`${after_tree}\`, which is the tree this check \
-answered for at \`${before}\`." \
-    --jq '.html_url'
+  carried_summary="The tree at this commit is \`${after_tree}\`, which is the tree this \
+check answered for at \`${before}\`."
+  post_check_run "${context}" "${after}" "${conclusion}" "${context}, carried" \
+    "${carried_summary}"
 
   echo "carried ${context}=${conclusion}"
 done

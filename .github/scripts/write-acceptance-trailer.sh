@@ -19,6 +19,9 @@ set -euo pipefail
 : "${RUNNER_TEMP:?set by the runner}"
 : "${GITHUB_OUTPUT:?set by the runner}"
 
+# shellcheck source=.github/scripts/check-run.sh
+. "$(dirname "$0")/check-run.sh"
+
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
 reviews=$(gh api "repos/${GH_REPO}/pulls/${PR}/reviews" --paginate)
@@ -87,14 +90,7 @@ refuse() {
   summary=$(cat "${PURBA_REPORT}" 2>/dev/null || echo "This job stopped without writing \
 anything a reader can use. The run log holds what it did.")
 
-  gh api --method POST "repos/${GH_REPO}/check-runs" \
-    -f name="Sign-off" \
-    -f head_sha="${before}" \
-    -f status=completed \
-    -f conclusion=failure \
-    -f "output[title]=${title}" \
-    -f "output[summary]=${summary}" \
-    --jq '.html_url'
+  post_check_run "Sign-off" "${before}" failure "${title}" "${summary}"
 
   exit 1
 }
@@ -124,15 +120,10 @@ if [[ "${head_sha}" != "${before}" ]]; then
   git push --force origin "HEAD:${HEAD_REF}"
 fi
 
-gh api --method POST "repos/${GH_REPO}/check-runs" \
-  -f name="Sign-off" \
-  -f head_sha="${head_sha}" \
-  -f status=completed \
-  -f conclusion=success \
-  -f "output[title]=Accepted by @${approver}" \
-  -f "output[summary]=Every commit on this branch carries an \`Accepted-by:\` trailer \
-naming the account that approved it." \
-  --jq '.html_url'
+accepted_summary="Every commit on this branch carries an \`Accepted-by:\` trailer \
+naming the account that approved it."
+post_check_run "Sign-off" "${head_sha}" success "Accepted by @${approver}" \
+  "${accepted_summary}"
 
 echo "recorded acceptance by ${approver} on ${head_sha}"
 
