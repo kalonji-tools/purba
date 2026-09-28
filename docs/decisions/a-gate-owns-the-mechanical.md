@@ -62,7 +62,8 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
 An exclusion is also somewhere a later contributor can widen quietly, and the reason above it is the only thing that makes widening visible.
 
 An exclusion is also not always as narrow as its line.
-Inside a YAML block scalar none can be: an indented one is posted as part of whatever the block writes, and one at the first column ends the block, so a whole step is excluded and the standard is unenforced across it.
+Inside a YAML block scalar none can be: an indented one is posted as part of whatever the block writes, and one at the first column ends the block.
+The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
 
 ⚠️ **What is generated is named in two files that cannot see each other.**
 `.gitattributes` marks it for review and the style file excludes it from the standard, so a generated file added to one and not the other gains a check it will fail.
