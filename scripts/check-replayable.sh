@@ -13,7 +13,7 @@
 # loses content. Exits 2 when this script cannot run.
 set -euo pipefail
 
-# shellcheck source=.github/scripts/report.sh
+# shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
 if [[ $# -ne 2 ]]; then

@@ -33,7 +33,7 @@ An outside contribution is applied to a branch in this repository, and the pull 
 |---|---|
 | the pull request from the fork | a proposal, and it never merges |
 | what merges | `accepted/pr-<n>` in this repository |
-| who applies it | a maintainer, with `.github/scripts/apply-fork-contribution.sh` |
+| who applies it | a maintainer, with `scripts/apply-fork-contribution.sh` |
 | who opens `accepted/pr-<n>` | the account that opens pull requests here, and never a code owner |
 | the author field | the contributor's, unchanged |
 | `Signed-off-by:` | the contributor's, unchanged |

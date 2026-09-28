@@ -14,4 +14,8 @@
 
 # The gate lives here, and a pull request runs its own copy of it.
 #   docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#
+# Half of it moved to `scripts/`, where a person runs it too. Without this line
+# the code that decides every merge would be the only code here nobody owns.
 /.github/ @snregales
+/scripts/ @snregales

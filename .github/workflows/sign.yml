@@ -1,7 +1,7 @@
 # The job that accepts a branch.
 #
-#   the rules:     .github/scripts/check-origin.sh
-#                  .github/scripts/check-replayable.sh
+#   the rules:     scripts/check-origin.sh
+#                  scripts/check-replayable.sh
 #   the advisory:  .github/workflows/commits.yml
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
@@ -154,9 +154,9 @@ jobs:
             exit 1
           }
 
-          .github/scripts/check-origin.sh "$base" HEAD || refuse $?
+          scripts/check-origin.sh "$base" HEAD || refuse $?
 
-          .github/scripts/check-replayable.sh "$base" HEAD || refuse $?
+          scripts/check-replayable.sh "$base" HEAD || refuse $?
 
           # A fresh checkout has no git identity, and `git commit` refuses to
           # run without one. These two lines only satisfy that. The name does
