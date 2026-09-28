@@ -2,9 +2,8 @@
 # The acceptance a code owner's approval owes every commit on the branch.
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
-#
-# Not runnable outside a workflow, which is why it stays in `.github/scripts/`.
 #
 # Exits 1 when it refuses, and 0 when there is nothing to accept yet.
 set -euo pipefail

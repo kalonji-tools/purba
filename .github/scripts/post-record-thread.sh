@@ -2,8 +2,7 @@
 # The review thread a pull request owes when it changes a decision record.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
-#
-# Not runnable outside a workflow, which is why it stays in `.github/scripts/`.
+#                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
 # Exits 0 when no thread is owed and when one is already present.
 set -euo pipefail
