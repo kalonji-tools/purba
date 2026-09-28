@@ -16,16 +16,16 @@ fi
 
 : "${GH_REPO:?set by the workflow env}"
 
+# shellcheck source=.github/scripts/check-run.sh
+. "$(dirname "$0")/check-run.sh"
+
 head=$1
 shift
 
 runs=$(gh api "repos/${GH_REPO}/commits/${head}/check-runs?per_page=100")
 
 for context in "$@"; do
-  # Not ordered by the API, so read the one that finished last.
-  conclusion=$(jq -r --arg c "${context}" '
-    [.check_runs[] | select(.name == $c) | select(.completed_at != null)]
-    | sort_by(.completed_at) | last | .conclusion // empty' <<<"${runs}")
+  conclusion=$(last_conclusion "${context}" <<<"${runs}")
 
   case "${conclusion}" in
     success) echo "${context} is green on ${head}" ;;
