@@ -172,7 +172,7 @@ url = "https://github.com/astral-sh/python-build-standalone/releases/download/20
 provenance = "github-attestations"
 
 [[tools.rust]]
-version = "nightly-2026-09-22"
+version = "nightly-2026-09-29"
 backend = "core:rust"
 
 [tools.rust.options]
