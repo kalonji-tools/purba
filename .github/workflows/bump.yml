@@ -3,7 +3,8 @@
 #   the work:      .github/scripts/bump-nightly.sh
 #   the failure:   .github/scripts/report-bump-failure.sh
 #   the pin:       mise.toml, under `[tools]`
-#   the decision:  docs/decisions/mise-names-every-tool-version.md
+#   the decisions: docs/decisions/mise-names-every-tool-version.md
+#                  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
 #
 # ⚠️ Keep the shell in the scripts. The only shell here calls them.
 name: Bump
@@ -19,9 +20,9 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
   # The failure step below opens or comments on an issue.
   issues: write
+  # `pull-requests:` is absent: the App token opens the pull request.
 
 concurrency:
   group: bump
@@ -48,13 +49,23 @@ jobs:
         with:
           version: ${{ env.MISE_VERSION }}
 
+      # ⚠️ `GITHUB_TOKEN` cannot open a pull request here. The record named
+      # above holds why, and what this token may and may not do.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          app-id: ${{ secrets.BUMP_APP_ID }}
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
       - name: Propose a nightly, or say why it proposes none
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
         run: .github/scripts/bump-nightly.sh "$BRANCH" "$ISSUE"
 
-      # ⚠️ Keep this step in the workflow, not in the script.
+      # ⚠️ Keep this step in the workflow, not in the script, and keep it on
+      # `GITHUB_TOKEN`. The App is narrowed to pull requests, so the token
+      # above cannot open an issue and this step would stop reporting.
       - name: Say so where somebody reads it
         if: failure()
         env:
