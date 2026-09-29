@@ -86,6 +86,10 @@ jobs:
           app-id: ${{ secrets.BUMP_APP_ID }}
           private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
 
+      # ⚠️ Measured 2026-09-29 on pull request 209: one actor reads two ways.
+      # REST `.user.login` says `purba-bump[bot]` and `.user.type` says `Bot`.
+      # GraphQL, which `gh pr view` reads, says `app/purba-bump` instead.
+      # So the type is what this asserts on, and both shapes are printed.
       - name: B - open the pull request with it, and read the author back
         id: open
         env:
@@ -96,15 +100,16 @@ jobs:
             --body "Opened by the prototype for #206, and closed by the same job.")
           number=${url##*/}
           echo "number=${number}" >>"${GITHUB_OUTPUT}"
-          author=$(gh pr view "${number}" --json author --jq .author.login)
-          printf 'opened %s, authored by %s\n' "${url}" "${author}"
-          case "${author}" in
-            *'[bot]') ;;
-            *)
-              echo "::error::author is ${author}, and a machine identity was expected"
-              exit 1
-              ;;
-          esac
+          rest=$(gh api "repos/${GH_REPO}/pulls/${number}" \
+            --jq '.user.login + " type=" + .user.type')
+          graph=$(gh pr view "${number}" --json author \
+            --jq '.author.login + " is_bot=" + (.author.is_bot | tostring)')
+          printf 'opened %s\n  REST:    %s\n  GraphQL: %s\n' "${url}" "${rest}" "${graph}"
+          type=$(gh api "repos/${GH_REPO}/pulls/${number}" --jq .user.type)
+          if [[ "${type}" != "Bot" ]]; then
+            echo "::error::the author is a ${type}, and a machine identity was expected"
+            exit 1
+          fi
 
       - name: C - the checks on it must not be waiting for a person
         env:
