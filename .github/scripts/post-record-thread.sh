@@ -1,37 +1,32 @@
 #!/usr/bin/env bash
-# The review thread a pull request owes when it changes a decision record.
+# The comment a pull request gets when it changes a decision record.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
+#                  docs/decisions/a-gate-owns-the-mechanical.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
-# Exits 0 when no thread is owed and when one is already present.
+# Exits 0 when no comment is owed and when one is already present.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
 # line that first reads one.
 : "${GH_REPO:?set by the workflow env}"
 : "${PR:?set by the workflow env}"
-: "${HEAD_SHA:?set by the workflow env}"
 
 decisions=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename' |
   LC_ALL=C sort | grep '^docs/decisions/' || true)
 if [[ -z "${decisions}" ]]; then
-  echo "the diff does not touch docs/decisions, so no thread is owed"
+  echo "the diff does not touch docs/decisions, so no comment is owed"
   exit 0
 fi
 
-# Anchoring is narrower than the documentation suggests, and all of
-# this was measured against a live pull request rather than read:
-# an inline comment is accepted only on a line inside a diff hunk;
-# `subject_type` is REJECTED inside a review payload; and GraphQL's
-# addPullRequestReviewThread with subjectType FILE returns a null
-# thread and creates nothing. A file-level thread exists only through
-# the standalone endpoint used below.
+# An issue comment, never a review thread. The ruleset requires every review
+# thread to be resolved, so a thread here would block the merge on a click.
+# What this asks for is a judgement, and a click cannot show one was made.
 marker='<!-- purba:thread:decisions -->'
-# `ready_for_review` fires again every time a draft is re-readied, so
-# without this check one question would become several required
-# resolutions.
-existing=$(gh api "repos/${GH_REPO}/pulls/${PR}/comments" --paginate --jq '.[].body')
+# `ready_for_review` fires again every time a draft is re-readied, so without
+# this check one comment would become several.
+existing=$(gh api "repos/${GH_REPO}/issues/${PR}/comments" --paginate --jq '.[].body')
 case "${existing}" in
   *"${marker}"*)
     echo "${marker} is already present, skipping"
@@ -40,7 +35,6 @@ case "${existing}" in
   *) ;;
 esac
 
-first_record=$(head -1 <<<"${decisions}")
 # The sed program is single-quoted so the shell hands its `$` and its backticks
 # to sed, which is what turns each path into a Markdown list item.
 # shellcheck disable=SC2016
@@ -52,19 +46,20 @@ record_list=$(sed 's|^|- \`|; s|$|\`|' <<<"${decisions}")
 # editorconfig-checker-disable-next-line
 record_link="[A record is rewritten, not amended](https://github.com/kalonji-tools/purba/blob/main/docs/decisions/a-record-is-rewritten-not-amended.md)"
 
-gh api "repos/${GH_REPO}/pulls/${PR}/comments" \
-  -f commit_id="${HEAD_SHA}" -f path="${first_record}" -f subject_type=file \
+gh api "repos/${GH_REPO}/issues/${PR}/comments" \
   -f body="**This pull request changes a decision record.**
 
 ${record_list}
 
-A decision record states what this project decided and why, and it is read by people \
-who were not in the conversation. ${record_link} names two things about it that no tool \
-can check, and you are the only reader who can judge them.
+A decision record states what this project decided and why. It is read by \
+people who were not in the conversation.
 
-A third has already gone wrong once. **The Decision Outcome is written by a person, or \
-the change does not merge.** An agent writing it satisfies the letter and voids the rule.
+Two things about it can never be checked by a tool. You are the only reader \
+who can judge them:
 
-Resolve this thread when you have judged all three.
+- does this record state **one** decision?
+- is it **still true**?
+
+Nothing blocks on this. ${record_link} is where both come from.
 ${marker}"
-echo "posted the decision-record thread"
+echo "posted the decision-record comment"
