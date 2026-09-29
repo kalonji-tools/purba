@@ -111,27 +111,40 @@ jobs:
             exit 1
           fi
 
+      # ⚠️ This step passed for the wrong reason on 2026-09-29. It broke out of
+      # the poll on the first run to register, which was CodeQL's dynamic run,
+      # and never saw Quality or Build. It now waits for both by name.
+      #
+      # `Origin` and `Replay` go red on the scratch pull request and neither is
+      # about the token: the scratch commit carries no sign-off and it is empty.
       - name: C - the checks on it must not be waiting for a person
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ steps.scratch.outputs.sha }}
         run: |
-          runs='[]'
-          for _ in 1 2 3 4 5 6; do
-            runs=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" \
-              --jq '[.workflow_runs[] | {name, status, conclusion}]')
-            [[ "${runs}" != '[]' ]] && break
+          names='[]'
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            names=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" \
+              --jq '[.workflow_runs[] | select(.event == "pull_request") | .name]')
+            if printf '%s' "${names}" | grep -q '"Quality"' \
+              && printf '%s' "${names}" | grep -q '"Build"'; then
+              break
+            fi
             sleep 15
           done
-          printf 'the runs GitHub created on the scratch head:\n%s\n' "${runs}"
-          if [[ "${runs}" = '[]' ]]; then
-            echo "::error::no workflow run appeared, so the pull request started nothing"
-            exit 1
-          fi
-          filter='[.workflow_runs[]
-            | select(.status == "waiting" or .conclusion == "action_required")]
-            | length'
-          waiting=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" --jq "${filter}")
+          runs=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" \
+            --jq '[.workflow_runs[] | {name, event, status, conclusion}]')
+          printf 'every run GitHub created on the scratch head:\n%s\n' "${runs}"
+          for gate in Quality Build; do
+            if ! printf '%s' "${names}" | grep -q "\"${gate}\""; then
+              echo "::error::${gate} never started, so this step measures nothing"
+              exit 1
+            fi
+          done
+          waiting=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" \
+            --jq '[.workflow_runs[]
+              | select(.status == "waiting" or .conclusion == "action_required")]
+              | length')
           printf 'runs waiting for a person: %s\n' "${waiting}"
           if [[ "${waiting}" != "0" ]]; then
             echo "::error::a run is waiting for approval, so an App token does not buy the click"
