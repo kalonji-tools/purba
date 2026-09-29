@@ -75,7 +75,7 @@ GitHub documents that as reaching every commit made there. The merge commit that
 purba is the only repository in this organisation with the setting on, and a reader who audits files alone cannot see it.
 
 **A workflow writes the acceptance trailer, and no person writes one.**
-It is derived from the review approval and never authored, so it cannot disagree with the approval it reports.
+It is derived from the review approval, and a trailer the branch already carried is replaced rather than kept, so what reaches `main` cannot disagree with the approval it reports.
 It is written after the approval, because acceptance is not true before then.
 A push that leaves the tree unchanged does not dismiss a review, so one approval is enough and recording it does not cost a second.
 It is written into every commit the pull request adds, and never into the head alone.
@@ -100,13 +100,11 @@ The first era is the one to read carefully.
 Its three trailers were written by the agent and they name the code owner, so they certify a right the writer could not hold.
 That is the failure this decision exists to stop, and it is why the fourth era is not simply a return to the first.
 
-**Downside:** five.
+**Downside:** four.
 
 - **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own, so there the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges, so the mechanism covers it and the cost is an act rather than a gap.
-- **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.
-- **The first account to approve is the one the trailer names.** The mechanism skips a commit that already carries the trailer, because without that it would rewrite the branch on every push and never settle. So an approval that is dismissed, and then given by a different person, leaves the first name in place. The pull request holds the second approval and the commit does not.
-- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`, so a pull request changes the scripts the job calls and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
-- **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object, so a signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature is the one record here that a person's agent could not forge, and this decision puts it out of reach for as long as the mechanism stands. [Can an act by a person be made impossible for their agent to forge?](https://github.com/kalonji-tools/purba/issues/106) owns what follows from that.
+- **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` rather than implying otherwise.- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event, so the code that reports the check is code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`, so a pull request changes the scripts the job calls and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it, so the loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` for this reason, which makes the code owner read a change to the gate.
+- **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object, so a signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not have separated a person from their agent in any case, because it proves custody of a key and a key kept where the agent runs is a key the agent uses. What follows from that is decided below.
 
 ## Confirmation
 
@@ -115,11 +113,11 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the commits a pull request adds carry a `Signed-off-by:` trailer naming an address | strong, the `sign` job refuses the branch before it rewrites anything |
 | the trailer is parsed and not matched as text | strong, `scripts/check-origin.sh` reads the trailer rather than the message |
 | the origin trailer was written by a person and not by their agent | **none** — nothing stops an agent running the command that adds it |
-| `Accepted-by:` names the account that approved the pull request | strong, it is derived from the approval and never authored |
+| `Accepted-by:` names the account that approved the pull request | strong, and measured: the job replaces a trailer that names anyone else, so a branch cannot carry one in |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
-| a person is distinguishable from their agent | **none, and this is deliberate** |
+| a person is distinguishable from their agent | **none, and no mechanism reachable here can make it** — the agent runs where the credentials live |
 | a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
 | a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because the refusal is the first step and no such pull request exists here |
 | the contributor read what they signed | none, and no check can make it |
@@ -157,11 +155,30 @@ A required context is therefore possible beside this one, and the quality workfl
 
 The row on who wrote the origin trailer is the ceiling of the whole mechanism.
 An agent can run `git commit -s` as easily as a person can, so the check reads a trailer and never the act behind it.
-It is graded `none` for the same reason the row below it is, and [can an act by a person be made impossible for their agent to forge?](https://github.com/kalonji-tools/purba/issues/106) is where that is decided.
 
 The row on telling a person from their agent was once strong and is now none.
 The environment approval was the only act here an agent could not perform, and removing it removes that separation.
 An agent that holds a person's credentials can approve as that person, and whoever granted that access is answerable for what the agent does with it.
+
+**No act recorded here can be made impossible for that person's agent to forge.**
+Three routes lead out of it, and each one is closed.
+A key kept where the agent runs is a key the agent uses, so a signature proves custody rather than personhood.
+No credential is out of the agent's reach either, because the agent runs on the machine that holds them, and the block GitHub documents on approving one's own pull request keys on the author rather than on the approver.
+A hardware key that demands a touch for each signature is genuinely out of reach, and git cannot ask for one: the allowed-signers format `ssh-keygen(1)` documents admits `cert-authority`, `namespaces`, `valid-after` and `valid-before`, and none of them concerns the presence of a person.
+Each route was measured rather than reasoned, and [an act by a person cannot be made unforgeable here, because the agent holds the human's credentials](https://github.com/kalonji-tools/purba/issues/204) records every measurement beside the source it rests on.
+
+**So the question is not whether a trailer can be forged, but whether the procedure preserves the intent it records.**
+git's own answers to frequently asked questions refuse a `commit.signoff` setting for that reason, holding that an automated sign-off would let someone argue later that the trailer was added out of habit rather than to certify anything.
+`scripts/sign-branch.sh` is the answer this project already holds.
+It refuses a caller with no terminal, prints every commit and who wrote it, and waits to be answered.
+It cannot tell who typed the answer, and it claims no more than that.
+
+**purba therefore records delegation rather than preventing it.**
+An agent acts for a person here, that person remains answerable for what it does, and this record says so rather than implying a separation no check makes.
+
+One consequence is a property of this repository and of no other.
+Its own git config names the agent as the committer, so `git commit -s` run here writes the agent's sign-off, while `CONTRIBUTING.md` addresses a contributor whose committer identity is already their own.
+That is how this repository is worked rather than a defect in the document, and nothing here repairs it.
 
 Any check that reads reviews must request every page.
 The reviews endpoint returns 30 per page, and one pull request here reported zero approvals unpaginated while carrying one.
