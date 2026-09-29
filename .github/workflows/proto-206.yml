@@ -1,0 +1,185 @@
+# Prototype for the bump identity. This branch is never merged.
+#
+# It answers one question the repair rests on and cannot otherwise measure:
+# may an App installation token open a pull request here, and do the checks on
+# that pull request start without a person approving the run?
+#
+# ⚠️ This workflow is deliberately not called `Quality`, `Build`, `Sign-off`,
+# `Commits` or `Records`. `sign.yml` triggers on a `workflow_run` of two of
+# those names, and a collision here would wake the job that accepts a branch.
+#
+# Every job says what a failure proves. A green run that proves nothing is the
+# failure mode a prototype exists to avoid.
+#
+# The shell is inline rather than in `.github/scripts/`. A prototype never
+# merges, so it never becomes shell the tree has to keep.
+name: Prototype 206
+
+on:
+  push:
+    branches: [proto/206-app-token]
+  workflow_dispatch:
+
+# `contents: write` pushes the scratch head. `pull-requests: write` is here for
+# the control: the refusal has to come from the token, and not from a
+# permission this job never asked for.
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  SCRATCH: proto/206-scratch
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  # -------------------------------------------------------------- A, B and C
+  # A: the token mints. B: it opens a pull request the App authored.
+  # C: the checks on that pull request are not waiting for a person.
+  #
+  # A failure in the control proves the refusal is not about the token, and the
+  # whole design rests on it being about the token.
+  # A failure in B or C proves an App token buys nothing here, and the repair
+  # goes back to its first question.
+  measure:
+    name: measure
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push a scratch head off main
+        id: scratch
+        run: |
+          git checkout -B "${SCRATCH}" origin/main
+          git -c "user.name=github-actions[bot]" \
+            -c "user.email=41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet --allow-empty \
+            -m "chore: scratch head for the app token prototype (#206)"
+          git push --force origin "HEAD:refs/heads/${SCRATCH}"
+          echo "sha=$(git rev-parse HEAD)" >>"${GITHUB_OUTPUT}"
+
+      - name: CONTROL - the same call with Actions' own token must be refused
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if out=$(gh pr create --base main --head "${SCRATCH}" \
+            --title "proto 206 control" --body "control" 2>&1); then
+            echo "::error::the control OPENED a pull request, so the refusal is not the token"
+            gh pr close "${out##*/}" || true
+            exit 1
+          fi
+          printf 'the control was refused, and this is what said so:\n%s\n' "${out}"
+          case "${out}" in
+            *"not permitted to create or approve pull requests"*) ;;
+            *)
+              echo "::error::refused for another reason, so this control attributes nothing"
+              exit 1
+              ;;
+          esac
+
+      - name: A - mint an installation token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.BUMP_APP_ID }}
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
+      - name: B - open the pull request with it, and read the author back
+        id: open
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          url=$(gh pr create --base main --head "${SCRATCH}" \
+            --title "proto 206: does an app token open this?" \
+            --body "Opened by the prototype for #206, and closed by the same job.")
+          number=${url##*/}
+          echo "number=${number}" >>"${GITHUB_OUTPUT}"
+          author=$(gh pr view "${number}" --json author --jq .author.login)
+          printf 'opened %s, authored by %s\n' "${url}" "${author}"
+          case "${author}" in
+            *'[bot]') ;;
+            *)
+              echo "::error::author is ${author}, and a machine identity was expected"
+              exit 1
+              ;;
+          esac
+
+      - name: C - the checks on it must not be waiting for a person
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ steps.scratch.outputs.sha }}
+        run: |
+          runs='[]'
+          for _ in 1 2 3 4 5 6; do
+            runs=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" \
+              --jq '[.workflow_runs[] | {name, status, conclusion}]')
+            [[ "${runs}" != '[]' ]] && break
+            sleep 15
+          done
+          printf 'the runs GitHub created on the scratch head:\n%s\n' "${runs}"
+          if [[ "${runs}" = '[]' ]]; then
+            echo "::error::no workflow run appeared, so the pull request started nothing"
+            exit 1
+          fi
+          filter='[.workflow_runs[]
+            | select(.status == "waiting" or .conclusion == "action_required")]
+            | length'
+          waiting=$(gh api "repos/${GH_REPO}/actions/runs?head_sha=${SHA}" --jq "${filter}")
+          printf 'runs waiting for a person: %s\n' "${waiting}"
+          if [[ "${waiting}" != "0" ]]; then
+            echo "::error::a run is waiting for approval, so an App token does not buy the click"
+            exit 1
+          fi
+
+      - name: Close what this opened
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUMBER: ${{ steps.open.outputs.number }}
+        run: |
+          if [[ -n "${NUMBER}" ]]; then
+            gh pr close "${NUMBER}" --comment "the prototype is done with this" || true
+          fi
+          git push origin --delete "${SCRATCH}" || true
+
+  # ------------------------------------------------------------------------ D
+  # D is the mutant. Q7 decided that a token which cannot be minted fails the
+  # run rather than standing down quietly, and nothing in the repair exercises
+  # that choice. A green job here means the mint step really does refuse.
+  # A red job here means the repair would freeze the pin in silence.
+  refuse:
+    name: refuse
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # ⚠️ The clean control. A missing secret also fails the mint, and a mutant
+      # that cannot tell that apart from a wrong app id proves nothing.
+      - name: The secrets have to exist, or D proves nothing
+        env:
+          APP_ID: ${{ secrets.BUMP_APP_ID }}
+          PRIVATE_KEY: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+        run: |
+          if [[ -z "${APP_ID}" || -z "${PRIVATE_KEY}" ]]; then
+            echo "::error::a secret is missing, so a failing mint below proves nothing"
+            exit 1
+          fi
+
+      - name: D - mint with an app id that is not the App
+        id: bad-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: "1"
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
+      - name: The step above had to fail
+        env:
+          OUTCOME: ${{ steps.bad-token.outcome }}
+        run: |
+          printf 'the mint step reported: %s\n' "${OUTCOME}"
+          if [[ "${OUTCOME}" != "failure" ]]; then
+            echo "::error::a wrong app id minted a token, so the failure path is untested"
+            exit 1
+          fi
