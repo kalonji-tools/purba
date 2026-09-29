@@ -61,10 +61,6 @@ jobs:
     timeout-minutes: 10
     env:
       HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
-      # `check-replayable.sh` runs this same string.
-      ACCEPT_EXEC: >-
-        git log -1 --format="%(trailers:key=Accepted-by)" | grep -q .
-        || git commit --amend --no-edit --trailer "$TRAILER"
     steps:
       # This step must stay first. A fork's branch does not exist in this
       # repository. The checkout below fails on it. Any step placed after the
