@@ -72,8 +72,8 @@ An actor is a role stated as a noun and a mode is the same role stated as a verb
 
 **An actor says nothing about who occupies it.**
 One person occupies the architect, the reviewer and the toolsmith today, and an agent occupies the coder alongside that person.
-A program is not an actor: `git-cliff` reads a commit subject and wants nothing, so it belongs in the route.
-An agent is not a program in that sense and not an actor either, because it occupies an actor and reads what that actor reads.
+Something that reads purba and wants nothing from it is not an actor: `git-cliff` reads a commit subject and wants nothing, so no location is written for it.
+An agent wants what the actor it occupies wants, so it adds no row.
 
 ⚠️ Three actors sit in both branches of the work, and one sits in both permanently.
 A plugin author becomes a contributor when it sends a hook upstream, a packager when it sends a build fix, and a tester is both at once because purba tests itself with itself.
