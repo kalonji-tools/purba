@@ -48,15 +48,8 @@ A pull request that touches no record is further down a chain whose decision alr
 Where no record governs it, the reviewer asks whether one is owed.
 That question is a suggestion and never a gate, and nothing enforces it.
 
-The explain-back artifact is the record itself.
 The human owns the Decision Outcome.
-An agent may draft it where the human has shown, in review, that the points are read and understood.
-Work an agent wrote is welcome and is held to the harder standard.
-You cannot state what is true, and what it costs, about a change you have not understood.
-The remedy on failure is teaching, not a waiver.
-
-Where the human wrote the code the mechanism inverts instead of doubling.
-An agent explains the change back to the human, and a mismatch is the signal.
+Work an agent wrote is welcome, and nothing about it changes what the reviewer reads for.
 
 **Downside:**
 
