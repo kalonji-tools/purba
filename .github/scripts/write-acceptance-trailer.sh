@@ -14,7 +14,6 @@ set -euo pipefail
 : "${PR:?set by the workflow env}"
 : "${GATES:?set by the workflow env}"
 : "${HEAD_REF:?set by the workflow env}"
-: "${ACCEPT_EXEC:?set by the workflow env}"
 : "${RUNNER_TEMP:?set by the runner}"
 : "${GITHUB_OUTPUT:?set by the runner}"
 
@@ -104,15 +103,18 @@ scripts/check-replayable.sh "${base}" HEAD || refuse $?
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-# The `grep` is what stops this repeating forever. A commit that
-# already has the trailer is left alone. The commits stop changing, and
-# the push below stops happening.
+# The acceptance command is one file, copied out before the replay starts.
+# `scripts/accept-one-commit.sh` says why the copy is load-bearing, and why
+# leaving a commit alone when it already names the approver is what stops this
+# repeating forever: the commits stop changing, so the push below stops.
 #
 # `$TRAILER` reaches the command through the environment, where it
-# stays data. Expanding it here instead would let the outer shell
-# paste it in as code, and that was measured running a command hidden
-# inside a login. Expanding `$ACCEPT_EXEC` does not re-read it.
-git rebase "${base}" --exec "${ACCEPT_EXEC}"
+# stays data. Expanding it into a command string instead would let the
+# shell paste it in as code, and that was measured running a command
+# hidden inside a login.
+accept_exec="${RUNNER_TEMP}/accept-one-commit.sh"
+cp scripts/accept-one-commit.sh "${accept_exec}"
+git rebase "${base}" --exec "${accept_exec}"
 
 head_sha=$(git rev-parse HEAD)
 if [[ "${head_sha}" != "${before}" ]]; then

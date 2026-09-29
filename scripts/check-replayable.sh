@@ -47,16 +47,21 @@ fi
 # `git commit` refuses to run without a committer, and a fresh checkout has
 # none. This reaches the replay through the environment, so nothing is written
 # to the config of the repository this runs in. The author is not set, because
-# `--amend --no-edit` keeps the one each commit already carries.
+# `--amend` keeps the one each commit already carries.
 export GIT_COMMITTER_NAME=purba GIT_COMMITTER_EMAIL=purba@invalid
 
-# The same string as `sign.yml`'s `ACCEPT_EXEC`. Single-quoted, so it cannot be
-# wrapped: the backslash would stay in the value.
 export TRAILER="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
-# `$TRAILER` must reach the replay as data, which is what the single quotes do.
-# shellcheck disable=SC2016
-# editorconfig-checker-disable-next-line
-accept_exec='git log -1 --format="%(trailers:key=Accepted-by)" | grep -q . || git commit --amend --no-edit --trailer "$TRAILER"'
+
+# The acceptance command is one file, and both of its callers copy it out before
+# they replay. `accept-one-commit.sh` says why the copy is load-bearing: `--exec`
+# runs against the tree of the commit it has just replayed, and a path inside the
+# worktree is not there for a commit older than the file.
+#
+# The placeholder above matches nothing a commit carries, so every commit is
+# rewritten in the replay. That costs this check nothing: it compares trees, and
+# a trailer lives in the message.
+accept_exec="${scratch}/accept-one-commit.sh"
+cp "$(dirname "$0")/accept-one-commit.sh" "${accept_exec}"
 if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1); then
   replayed_tree=$(git -C "${worktree}" rev-parse 'HEAD^{tree}') || exit 2
   head_tree=$(git rev-parse "${head}^{tree}") || exit 2
