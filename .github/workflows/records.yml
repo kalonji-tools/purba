@@ -1,10 +1,12 @@
-# The thread on a pull request that changes a decision record.
+# The comment on a pull request that changes a decision record.
 #
 #   the rule:      docs/decisions/a-record-is-rewritten-not-amended.md
+#   why it posts:  docs/decisions/a-gate-owns-the-mechanical.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Never gate this. The thread has to be readable while the reviewer decides,
-# not after they approve.
+# Never gate this, and the endpoint is what keeps that true. It posts an issue
+# comment, because the ruleset requires every review thread to be resolved. A
+# resolved thread shows that someone clicked, never that they judged.
 name: Records
 
 on:
@@ -21,15 +23,13 @@ env:
 
 jobs:
   decision-records:
-    name: Decision-record thread
+    name: Decision-record comment
     # `pull_request` only. A review event carries the same payload, and the
     # marker check below would then be the only thing stopping a second
-    # thread, which is a guard too far downstream to rely on.
+    # comment, which is a guard too far downstream to rely on.
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       # The script reads no git state and writes through the API, so it needs
       # neither history nor a credential left behind on disk. It needs the
@@ -38,5 +38,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Post the thread
+      - name: Post the comment
         run: .github/scripts/post-record-thread.sh
