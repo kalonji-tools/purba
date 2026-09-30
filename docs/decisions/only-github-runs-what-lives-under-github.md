@@ -21,30 +21,50 @@ The stakes are not tidiness.
 ## Decision Outcome
 
 **Only GitHub runs what lives under `.github`.**
-A script there is named by a workflow and by nothing else.
+A script is refused when every caller of it lives in the other half of the tree.
 
+`.github/**` is GitHub's half.
+Everything else is a person's, and `tasks.toml` and `prek.toml` are in it because a person reaches a task through them.
 A script a person runs, or that this project's own tooling runs, lives in `scripts/`.
-A sourced helper lives where its callers do, because it has no caller of its own to key on.
+
+A sourced helper needs no rule of its own.
+The script that sources it is a caller, so the same clause puts the helper where its callers are.
+
+A script that no caller in the tree names is refused under `.github` and accepted in `scripts/`.
+The runners under `.github` are enumerable, so nothing there reaches a script that no workflow and no sibling names.
+A person is a caller this repository cannot see, which is why the fork command belonged in `scripts/` while nothing here ran it at all.
 
 **`CODEOWNERS` covers both directories.**
 Placement decides which directory a script sits in and never who approves it, and the gate's own code is the last thing that should lose a reviewer to a move.
 
 **Downside:** a script moves when its callers change, and a caller is added by an edit somewhere else.
-The rule is therefore not stable against a change it cannot see, and the only thing that makes such a move visible is the check below.
+The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible — on a branch brought current, and not before.
 A sourced helper is the weakest part: it follows its callers, so two callers on opposite sides would leave it with no correct home.
+The command stays silent there rather than choosing one, because the rule names no home to choose.
+A caller is also read as a literal path and never as a call, so a line that merely writes one counts as a caller.
 
 ## Confirmation
 
-The rule was applied by reading every caller in the tree.
+**`mise run lint:placement` reads the rule, and `quality` depends on it.**
+`scripts/check-placement.sh` keys on the callers a code line names, so a comment naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
 
-| script | named by | lives in |
-|---|---|---|
-| `check-origin.sh` | two workflows **and** the fork command | `scripts/` |
-| `check-replayable.sh` | two workflows **and** the sign-off command | `scripts/` |
-| `report.sh` | sourced by both of those | `scripts/` |
-| `apply-fork-contribution.sh` | nothing in this repository | `scripts/` |
-| `bump-nightly.sh`, `report-bump-failure.sh` | one workflow | `.github/scripts/` |
-| `carry-verdicts.sh`, `require-green.sh`, `check-run.sh`, `write-acceptance-trailer.sh`, `post-record-thread.sh` | one workflow, or sourced by one | `.github/scripts/` |
+⚠️ **The table this section carried is deleted rather than corrected.**
+It was a second reading of what the command now derives on every run, and one of its rows had gone wrong: `require-green.sh` was filed under *"one workflow, or sourced by one"* while no workflow names it and nothing sources it, because a sibling under `.github/scripts/` executes it.
+That row is the case the clause above exists to admit, and it is also what a hand-written copy of a machine-readable fact becomes.
 
-⚠️ **No command reads this rule yet, and until one does it is a review comment.**
-[Refuse a script that sits in the wrong directory](https://github.com/kalonji-tools/purba/issues/203) wires it, and both directions are decidable: a script under `.github/scripts/` that no workflow names, and a script under `scripts/` that only a workflow names.
+The command was exercised green and red.
+
+| control | reading |
+|---|---|
+| the tree untouched | fifteen scripts pass, and the exit is 0 |
+| the record command moved under `.github/scripts/` | refused, naming `tasks.toml` as its only caller |
+| the record-thread script moved into `scripts/` | refused, naming `records.yml` |
+| a new script under `.github/scripts/` that nothing names | refused |
+| a new command in `scripts/` that nothing names | passes, because a person is its caller |
+| the bump workflow keeps its header comment and loses the line that runs the script | refused, and the comment survives the edit |
+| a duplicate basename across the two halves | the new file is refused and the placed one passes, so a collision cannot produce a silent pass |
+| run outside a git repository | exits 2 rather than 1, because it cannot decide rather than refuse |
+| run with `GITHUB_ACTIONS=true` | the refusal is an `::error::` annotation |
+
+⚠️ **Nothing runs the command itself.**
+The controls above were taken by hand, and [Test every gate script against the shape it refuses](https://github.com/kalonji-tools/purba/issues/201) owns the harness that would re-run them.
