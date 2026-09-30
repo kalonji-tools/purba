@@ -4,6 +4,11 @@ about: A task to do, because a claim in the tree is false
 labels: "wayfinder:task"
 ---
 
+<!-- How to write it, whichever section you are in.
+
+     what you owe:  CONTRIBUTING.md
+     the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md -->
+
 ## Task
 
 <!-- What must become true, and the file that carries the false claim.

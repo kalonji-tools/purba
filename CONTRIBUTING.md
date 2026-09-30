@@ -89,6 +89,24 @@ A workflow writes the trailer from the approval, so it cannot disagree with
 the approval it reports. It rewrites your commits to add it, which is why the
 branch you pushed and the branch that merges have different SHAs.
 
+## How much to write
+
+What you submit holds the minimum that conveys its point.
+
+A table, a list or a diagram is admissible wherever it carries the point. A
+long page whose every element carries the point passes. A short one carrying a
+sentence nobody needs does not. The test is what the material is for and never
+how much of it there is.
+
+What your session leaves behind does not enter what you submit. The approaches
+you discarded, the edits you made on the way and the order you worked in stay
+where they happened, unless your reader needs them to understand the result.
+
+Both are judgements. Nothing here decides them and a reviewer reads for them.
+
+The full statement, and the categories a review has already named, are in
+[an artifact holds the minimum that conveys its point](docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md).
+
 ## How your work reaches `main`
 
 If you can push to this repository, you push a branch here and your pull

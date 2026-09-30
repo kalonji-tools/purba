@@ -4,6 +4,11 @@ about: A question to settle, resolved by conversation
 labels: "wayfinder:grilling"
 ---
 
+<!-- How to write it, whichever section you are in.
+
+     what you owe:  CONTRIBUTING.md
+     the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md -->
+
 ## Question
 
 <!-- One interrogative sentence, in bold. Then the state it stands on, dated,
