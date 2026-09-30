@@ -71,9 +71,15 @@ Being wrong here is survivable, and being wrong the other way is not:
 The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
 `=` therefore states that intent rather than changing it.
-When a pin moves, the mapping above is checked against `cargo tree` by hand.
 
 This Confirmation is weak, and it is stated weakly on purpose.
-The parser seam does not exist yet, so nothing in the tree exercises the choice, and the manifest names no ruff crate at all.
-What this record fixes is the choice and the version; the declaration belongs to the commit that first calls one.
-It becomes a real fitness function when the prescan lands and its parse failures can be counted against a corpus.
+`Cargo.toml` names no ruff crate.
+Nothing in the tree exercises the choice.
+No pin exists to move.
+This record fixes the choice and the version.
+
+The version mapping above is evidence, frozen at this decision.
+Whoever first raises a pin reads it against `cargo tree`.
+No ticket owns that reading, because a check has nothing to run against until a pin exists.
+The commit that first names a ruff crate carries the declaration and that check together.
+A prescan turns this into a fitness function, by counting parse failures against a corpus.
