@@ -50,8 +50,13 @@ Discarded alternatives, intermediate edits and the order the work happened in st
 |---|---|
 | the `**Downside:**` label stands alone | an opening phrase |
 | the label states no count | an opening phrase |
+| the costs are a list | a count |
 | bolded lead-ins equal the list items under the label | a count |
-| a diagram may not raise the word count | a count |
+
+A record carrying no label has no list of costs either, so the third rule is what a missing Downside breaks.
+
+A diagram may not raise the record's word count.
+That rule is decidable and a reviewer decides it, because the length of a record without its diagram is not a number the tree holds.
 
 **Evidence density is reported and refuses nothing.**
 It counts the lines of running text carrying no number, no code span and no link, and `.template.md` drives that number up by moving numbers into tables.
@@ -68,9 +73,13 @@ A threshold would refuse the records that obey.
 
 | what proves it | where |
 |---|---|
-| `mise run records` refuses a `**Downside:**` label carrying a preamble or a count | not wired yet |
-| the same command refuses a label whose bolded lead-ins do not equal its list items | not wired yet |
-| evidence density is reported, and refuses nothing | not wired yet |
-| the sufficiency test | no check, and there will not be one |
+| `mise run records` refuses a `**Downside:**` label carrying a preamble or a count | `scripts/check-records.sh` |
+| the same command refuses a Downside that states no list of costs | `scripts/check-records.sh` |
+| the same command refuses a label whose bolded lead-ins do not equal its list items | `scripts/check-records.sh` |
+| the same command reports evidence density and refuses nothing on it | `scripts/check-records.sh` |
+| the diagram rule, and the sufficiency test under it | a reviewer, and there will be no check |
 
-[Write the prose standard into the templates and gate what a command can decide](https://github.com/kalonji-tools/purba/issues/216) wires the first three. [Does CONTEXT.md close, so a word not on it may not be used?](https://github.com/kalonji-tools/purba/issues/218) asks whether the vocabulary closes.
+Each refusal names the file and the line it found.
+The command reports every rule before it exits, so a writer fixing one refusal finds the next in the same run.
+
+[Does CONTEXT.md close, so a word not on it may not be used?](https://github.com/kalonji-tools/purba/issues/218) asks whether the vocabulary closes.
