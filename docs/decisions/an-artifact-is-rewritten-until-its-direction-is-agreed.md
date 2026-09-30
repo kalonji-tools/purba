@@ -118,7 +118,7 @@ That makes the hidden comment redundant by construction rather than by assumptio
 Post the design again and say why the one that replaced it failed, in the same comment.
 Every pointer then stays true and the history says the project went round the loop.
 
-**Downside:** four costs, and the first lands on the day this merges.
+**Downside:**
 
 - **Nothing in the tracker is frozen yet.** 79 of 80 issues carry no type, so every one of them becomes a draft. That is arguably correct, since none was ever agreed this way, and it means the rule protects nothing until types are set.
 - **The freeze can be lifted.** Removing a type un-freezes an issue. The removal is public and recorded, so it cannot be done quietly, but nothing refuses it.

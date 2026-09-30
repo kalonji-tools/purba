@@ -78,7 +78,7 @@ An agent wants what the actor it occupies wants, so it adds no row.
 ⚠️ Three actors sit in both branches of the work, and one sits in both permanently.
 A plugin author becomes a contributor when it sends a hook upstream, a packager when it sends a build fix, and a tester is both at once because purba tests itself with itself.
 
-**Downside:** three costs, and the first is structural.
+**Downside:**
 
 - **The merge test compares sentences a person wrote.** A mindset phrased narrowly survives a merge it should lose, and one phrased broadly swallows a role it should not. Rewording a single row can change the roster, and rewording one did.
 - **The overlaps are recorded and not resolved.** Anything that later routes on an actor must decide which branch wins, and this record does not decide it.

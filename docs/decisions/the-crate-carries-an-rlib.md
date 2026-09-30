@@ -39,7 +39,10 @@ A fence on a bridge item fails to link, so it becomes prose or it moves to the c
 Nothing is written down, because the compiler decides.
 That matters, because the measured ecosystem failure is a policy nobody enforced.
 
-**Downside:** bounded by physics. A verified Rust example can cover the Rust core and never the bridge, because `extension-module` omits libpython and any example touching the Python C API needs that feature off. The seam is the part a reader most wants an example of, and it is the part that cannot carry one. The manifest line is also expensive only if forgotten: it costs nothing to keep and it is silent to lose, which is the asymmetry that produced the problem it solves.
+**Downside:**
+
+- **Coverage is bounded by physics and stops at the bridge.** A verified Rust example can cover the Rust core and never the bridge, because `extension-module` omits libpython and any example touching the Python C API needs that feature off. The seam is the part a reader most wants an example of, and it is the part that cannot carry one.
+- **The manifest line is expensive only if forgotten.** It costs nothing to keep and it is silent to lose, which is the asymmetry that produced the problem it solves.
 
 ## Confirmation
 

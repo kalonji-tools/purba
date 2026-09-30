@@ -37,11 +37,15 @@ A person is a caller this repository cannot see, which is why the fork command b
 **`CODEOWNERS` covers both directories.**
 Placement decides which directory a script sits in and never who approves it, and the gate's own code is the last thing that should lose a reviewer to a move.
 
-**Downside:** a script moves when its callers change, and a caller is added by an edit somewhere else.
-The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible — on a branch brought current, and not before.
-A sourced helper is the weakest part: it follows its callers, so two callers on opposite sides would leave it with no correct home.
-The command stays silent there rather than choosing one, because the rule names no home to choose.
-A caller is also read as a literal path and never as a call, so a line that merely writes one counts as a caller.
+**Downside:**
+
+- **A script moves when its callers change, and a caller is added by an edit somewhere else.**
+  The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible — on a branch brought current, and not before.
+- **A sourced helper is the weakest part.**
+  It follows its callers, so two callers on opposite sides would leave it with no correct home.
+  The command stays silent there rather than choosing one, because the rule names no home to choose.
+- **A caller is read as a literal path and never as a call.**
+  A line that merely writes one counts as a caller.
 
 ## Confirmation
 
