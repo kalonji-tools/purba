@@ -63,6 +63,12 @@ Decision Outcome, Confirmation. Consequences is optional and sits between the ou
 confirmation." \
   "${found[@]}"
 
+mapfile -t found < <(grep -HnF '<!--' "${records[@]}" || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A record reads as current state, so it carries no comment addressed to a reviewer. The \
+template carries the drafting instructions, and a leading dot keeps it out of this glob." \
+  "${found[@]}"
+
 mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record states what is true and an issue states what happened, so record prose carries no \
