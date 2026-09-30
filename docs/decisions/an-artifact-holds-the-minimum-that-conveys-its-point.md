@@ -27,8 +27,6 @@ So the defect is what an artifact admits, not how its sentences read.
 
 ## Decision Outcome
 
-<!-- OWED TO THE HUMAN. signoff.yml says a person writes this section. Adopt, edit or rewrite. -->
-
 An artifact holds the minimum that conveys its point.
 
 **The test is a judgement.**
