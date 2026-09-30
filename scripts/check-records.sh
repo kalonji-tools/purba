@@ -75,6 +75,73 @@ mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
 issue number. Title the link with the question its ticket asks." \
   "${found[@]}"
 
+# The four Downside rules `docs/decisions/.template.md` states: the label stands
+# on its own line, it never counts the costs, the costs are a list, and bold
+# marks every lead-in.
+#
+# One pass reads each record and fills four lists, so a writer fixing one
+# refusal sees the rest in the same run.
+#
+# A record carrying no label has no list of costs either, so the list rule is
+# what an absent Downside breaks. Without that arm the other three pass a record
+# that simply deletes the label.
+preamble=()
+counted=()
+listless=()
+unsignalled=()
+for f in "${records[@]}"; do
+  # Anchored: a record naming the label inside a table would otherwise locate
+  # the label at that row, and a preamble on the real label would go unseen.
+  at=$(awk '/^\*\*Downside:\*\*/{print NR; exit}' "${f}")
+  if [[ -z "${at}" ]]; then
+    listless+=("${f}: no Downside label")
+    continue
+  fi
+
+  rest=$(sed -n "${at}s/^\*\*Downside:\*\*//p" "${f}")
+  if [[ -n "${rest// /}" ]]; then
+    preamble+=("${f}:${at}")
+    # A count opens the preamble. Written as a word or a digit, because both
+    # forms are in the corpus this rule was measured against.
+    if grep -qiE '^ *(one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b' <<<"${rest}"; then
+      counted+=("${f}:${at}")
+    fi
+  fi
+
+  # To the next section heading. The Downside is the last thing in the outcome.
+  costs=$(awk -v start="${at}" 'NR > start && /^## /{exit} NR > start' "${f}")
+  items=$(grep -cE '^[[:space:]]*- ' <<<"${costs}" || true)
+  # Occurrences rather than lines: two lead-ins on one line is the shape that
+  # renders three costs where four are written.
+  leadins=$({ grep -oE -- '- [^A-Za-z0-9`]*\*\*' <<<"${costs}" || true; } | wc -l)
+
+  if [[ "${items}" -eq 0 ]]; then
+    listless+=("${f}:${at}")
+  elif [[ "${leadins}" -ne "${items}" ]]; then
+    unsignalled+=("${f}:${at}: ${leadins} lead-ins over ${items} costs")
+  fi
+done
+
+[[ ${#preamble[@]} -eq 0 ]] || refuse \
+  "A Downside label stands on its own line. Its costs are the list beneath it, so a preamble is \
+a sentence the reader carries while reading them." \
+  "${preamble[@]}"
+
+[[ ${#counted[@]} -eq 0 ]] || refuse \
+  "A Downside label never counts its costs. A count is one more thing to keep true, and one \
+record counted four costs where three rendered." \
+  "${counted[@]}"
+
+[[ ${#listless[@]} -eq 0 ]] || refuse \
+  "A Downside states its costs as a list. A record with no label has no list either, so a \
+missing Downside is refused here." \
+  "${listless[@]}"
+
+[[ ${#unsignalled[@]} -eq 0 ]] || refuse \
+  "Bold marks every Downside lead-in, one for each cost. Fewer lead-ins than costs leaves a cost \
+unmarked, and more means a cost opens mid-line and does not render." \
+  "${unsignalled[@]}"
+
 git rev-parse --git-dir >/dev/null 2>&1 || {
   printf 'a numbered-record citation can only be read inside a git repository.\n' >&2
   exit 2
@@ -95,5 +162,27 @@ done
   "A Confirmation that says a gate is unwired names the ticket that will wire it, so the promise \
 has an owner." \
   "${found[@]}"
+
+# Evidence density, reported and never refused. `docs/decisions/.template.md`
+# moves numbers out of sentences, so a record that obeys it scores bare by
+# construction and a threshold would refuse the records that comply.
+#
+# A prose line starts at column zero and is not a heading, a table row, a list
+# item, a fenced block or a comment. It is bare when it carries no digit, no
+# code span and no link. An indented line is a list continuation here, because
+# no record indents prose.
+printf '\nevidence density: prose lines carrying no number, no code span and no link\n\n'
+awk '
+  /^```/ { fence = ! fence; next }
+  fence || /^$/ || /^[[:space:]]/ || /^#/ || /^\|/ || /^[-*] / || /^[0-9]+\. / || /^<!--/ { next }
+  { prose[FILENAME]++; lines++ }
+  ! /[0-9`]/ && ! /\]\(/ { bare[FILENAME]++; barelines++ }
+  END {
+    for (f in prose) {
+      printf "%5.1f%%  %3d of %3d  %s\n", 100 * bare[f] / prose[f], bare[f], prose[f], f
+    }
+    printf "all records  %.1f%%  %d of %d\n", 100 * barelines / lines, barelines, lines
+  }
+' "${records[@]}" | sort -rn
 
 exit "${broken}"
