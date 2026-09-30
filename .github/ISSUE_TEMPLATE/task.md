@@ -4,6 +4,11 @@ about: A task to do, rather than a question to settle
 labels: "wayfinder:task"
 ---
 
+<!-- How to write it, whichever section you are in.
+
+     what you owe:  CONTRIBUTING.md
+     the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md -->
+
 ## Task
 
 <!-- The imperative, in bold, and the file paths it writes.

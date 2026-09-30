@@ -4,6 +4,11 @@ about: A question to settle by investigation rather than conversation
 labels: "wayfinder:research"
 ---
 
+<!-- How to write it, whichever section you are in.
+
+     what you owe:  CONTRIBUTING.md
+     the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md -->
+
 ## Question
 
 <!-- One interrogative sentence, in bold, and what it feeds.
