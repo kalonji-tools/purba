@@ -117,26 +117,41 @@ It was applied zero times across 2,129 prototype commits while `Assisted-by:` re
 
 ## Confirmation
 
-| rule | decidable | checked |
+| rule | decidable | what holds it |
 |---|---|---|
-| conventional type and scope | yes | yes, `subject-form` |
-| lower case after the colon | yes | yes, `subject-form` |
-| the issue number in parentheses at the end | yes | yes, `subject-form` |
-| subject at most 72 characters | yes | yes, `subject-length` |
-| no full stop before the reference | yes | yes, `subject-full-stop` |
-| imperative mood | no, because English verbs are an open class | no |
-| `Assisted-by:` present on agent work | no, because the message never says whether a machine helped | no |
-| the referenced issue exists | yes | **no** |
-| a body is owed only where a sentence survives subtraction | no | no |
-| the body carries only what outlives review | **no** | no |
-| the body carries only what no other location carries | **no** | no |
-| a rewrite does not restate what its diff shows | no | no |
-| the body carries no count of a planned series | weak: a pattern test suggests it and cannot confirm it | no |
+| conventional type and scope | yes | `subject-form` |
+| lower case after the colon | yes | `subject-form` |
+| the issue number in parentheses at the end | yes | `subject-form` |
+| subject at most 72 characters | yes | `subject-length` |
+| no full stop before the reference | yes | `subject-full-stop` |
+| imperative mood | no, because English verbs are an open class | the code owner reads it |
+| `Assisted-by:` present on agent work | no, because the message never says whether a machine helped | the code owner reads it |
+| the reference names the issue the change answers | no, because every number in range resolves | the code owner reads it |
+| a body is owed only where a sentence survives subtraction | no, because subtraction weighs what a reader already holds | the code owner reads it |
+| the body carries only what outlives review | no, because permanence is a judgement | the code owner reads it |
+| the body carries only what no other location carries | no, because it asks what every other location holds | the code owner reads it |
+| a rewrite does not restate what its diff shows | no, because a diff is read and not parsed | the code owner reads it |
+| the body carries no count of a planned series | weak: a pattern test suggests it and cannot confirm it | the code owner reads it |
 
-Five rows are checked, by hooks `prek.toml` carries.
+`prek.toml` carries the hooks that hold five of these rows.
+The code owner reads the rest.
 
-One decidable row is unchecked and no ticket owns it.
-Nothing resolves the issue a subject names, so a wrong number still renders as a working link.
+A subject ends with an issue number in parentheses.
+The standard is that the number names the issue the change answers.
+A command can resolve a number and report whether that issue exists.
+Existence is not the standard.
+purba's issue numbers are contiguous, so a typo inside their range names a real issue.
+A command that reads existence accepts such a typo.
+
+| single-digit typos of the numbers on `main` at `37607d4` | |
+|---|---:|
+| substitutions possible | 1329 |
+| of those, naming a real issue | 1026 |
+
+[A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) rules on what follows.
+A detector good enough to suggest is not good enough to gate.
+A standard a gate cannot decide does not become one.
+Nothing here owes a ticket, because purba decided against this check rather than deferring it.
 
 The planned-series row is weak in both directions.
 A pattern test fires on the legitimate prose "the fourth Confirmation row", which counts a row and not a commit.
@@ -144,4 +159,3 @@ Three bodies on `main` name a position in a series of five that closed at three,
 
 The rule this record exists to state is that the body carries only what outlives review.
 It is the one no check can ever enforce.
-A detector good enough to suggest is not good enough to gate.
