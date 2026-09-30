@@ -100,7 +100,10 @@ The control build outlives this record, because it detects drift from being on n
 No single feature can extend the channel on its own, because every nightly only use names a fallback and can therefore be given up.
 The warrant is always exactly one record, and never one record per feature.
 
-**Downside:** the stable check is non blocking, and this project's own position is that a check which runs without blocking is a suggestion. It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch, and a blocking check would have bought that day by forbidding the solver's only two gains in advance. The channel also moves under purba without anyone choosing a moment: a nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above, and a bump can break the tree for reasons that are nobody's fault and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
+**Downside:**
+
+- **The stable check is non blocking, and this project's own position is that a check which runs without blocking is a suggestion.** It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch, and a blocking check would have bought that day by forbidding the solver's only two gains in advance.
+- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above, and a bump can break the tree for reasons that are nobody's fault and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
 
 ## Confirmation
 

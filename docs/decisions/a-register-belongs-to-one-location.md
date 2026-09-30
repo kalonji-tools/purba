@@ -108,9 +108,9 @@ These are titles for the parties to one pull request, and the roster in [an acto
 
 **Downside:**
 
-- Every register depends on an author who reads it. Nearly every issue here was written by one, so the evidence says nothing about a second author or an outside contributor.
-- A register can drift from the record that names it, because naming is a pointer and nothing compares the two.
-- Six locations hold no register, so this record is revisited every time one opens.
+- **Every register depends on an author who reads it.** Nearly every issue here was written by one, so the evidence says nothing about a second author or an outside contributor.
+- **A register can drift from the record that names it.** Naming is a pointer and nothing compares the two.
+- **Six locations hold no register.** This record is revisited every time one opens.
 
 ## Confirmation
 

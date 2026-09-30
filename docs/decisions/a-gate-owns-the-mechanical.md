@@ -63,19 +63,18 @@ Absence is ambiguous, so this record names what runs unconfigured: `cargo fmt` a
 Every lint level lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
 A flag on a command line reaches only that command, so `tasks.toml` carries no lint flag.
 
-**Downside:** the strictest setting of a tool purba has not adopted is not derivable from this record, so every adoption costs its own measurement.
-An exclusion is also somewhere a later contributor can widen quietly, and the reason above it is the only thing that makes widening visible.
+**Downside:**
 
-An exclusion is also not always as narrow as its line.
-Inside a YAML block scalar none can be: an indented one is posted as part of whatever the block writes, and one at the first column ends the block.
-The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
-
-⚠️ **What is generated is named in two files that cannot see each other.**
-`.gitattributes` marks it for review and the style file excludes it from the standard, so a generated file added to one and not the other gains a check it will fail.
-
-**Where no gate stands over a judgement, nothing records that one was made.**
-The approving review is the only trace, and it does not say what was read.
-[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) took that trade knowingly, and a resolved thread never survived a clone either.
+- **The strictest setting of a tool purba has not adopted is not derivable from this record.** Every adoption costs its own measurement.
+- **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
+- **An exclusion is not always as narrow as its line.**
+  Inside a YAML block scalar none can be: an indented one is posted as part of whatever the block writes, and one at the first column ends the block.
+  The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
+- ⚠️ **What is generated is named in two files that cannot see each other.**
+  `.gitattributes` marks it for review and the style file excludes it from the standard, so a generated file added to one and not the other gains a check it will fail.
+- **Where no gate stands over a judgement, nothing records that one was made.**
+  The approving review is the only trace, and it does not say what was read.
+  [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) took that trade knowingly, and a resolved thread never survived a clone either.
 
 ## Confirmation
 

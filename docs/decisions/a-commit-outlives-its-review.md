@@ -108,7 +108,7 @@ purba keeps the replaced form deliberately, because this project's premise is th
 A session URL trailer is not used.
 It was applied zero times across 2,129 prototype commits while `Assisted-by:` reached 84.7% under the same instruction, and it is a link no reader but its owner can follow.
 
-**Downside:** four costs, and the first is structural.
+**Downside:**
 
 - **The central rule is unenforceable by design.** Whether a sentence must outlive its review is a judgement, not a string test, so nothing can gate it.
 - **Subtraction fails silently.** A writer who judges wrongly writes nothing, the information is simply absent, and no reader learns that it was owed.

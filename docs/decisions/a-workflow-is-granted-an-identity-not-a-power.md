@@ -52,7 +52,7 @@ A workflow that named these two could open a pull request and do nothing else, w
 `.github/scripts/report-bump-failure.sh` opens or comments on an issue, which this identity may not do, so that step keeps `GITHUB_TOKEN`.
 A change that points it at the App token would stop the only thing that reports a scheduled run.
 
-**Downside:** three, and the first is paid on the day the App is lost.
+**Downside:**
 
 - **An App can be uninstalled, and its key can be replaced.** Either fails the mint, which fails the run, which reports. That is the loud behaviour and it was chosen over standing down, because a bump that stands down quietly freezes the compiler and says nothing.
 - ⚠️ **A repository setting is invisible to a reader of this tree.** The switch this record refuses is read back through the API and appears in no file here, so a later maintainer can turn it on and nothing in the tree will contradict them.

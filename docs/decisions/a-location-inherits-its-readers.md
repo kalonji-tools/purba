@@ -78,7 +78,7 @@ Git reads attributes from four named places and `.readers` is not one of them, s
 | `-actor` | inheritance stops for one actor rather than for all of them |
 | `[attr]name a b c` | where `contributor` and `user` live |
 
-**Downside:** three costs, and the first is paid every month.
+**Downside:**
 
 - **The parser costs 12 packages and a breaking release roughly monthly**, six in the last nine months, against a project that pins `ruff_*` exactly. They belong to the gate rather than to the product crate, so the wheel is untouched and the cost is a recurring upgrade. The record pays it rather than hand-write a subset.
 - ⚠️ **The check cannot tell a file that correctly has no reader from one nobody has thought about.** A lock file may be read by nobody, and both states look identical.
