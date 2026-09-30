@@ -46,14 +46,22 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 ## Confirmation
 
-`cargo test --doc`.
+`cargo test --doc`, which the required `Quality` check runs.
 
 It does more than run examples.
 On a bare cdylib it exits 101 with "no library targets found", so the crate-type line is guarded by the same command that verifies the examples.
 
-It runs locally today and is not yet wired into CI.
-The quality workflow carries it, together with `cargo doc -D warnings` as a lint that is never published.
-That workflow does not exist yet.
+| what reaches it | where |
+|---|---|
+| `mise run quality`, through its `doc` and `test:doc` dependencies | `tasks.toml` |
+| the `Quality` job, whose name the ruleset holds as a required context | `.github/workflows/quality.yml` |
+
+`Cargo.toml` denies the rustdoc lint under `[lints.rustdoc]`.
+No flag on a command line sets it.
+[A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) states why.
+A manifest reaches a task, a bare `cargo doc` and an editor alike.
+A flag reaches only the command carrying it.
+purba publishes no documentation site, so the lint guards the source.
 
 It reports zero tests until an example exists, and zero is honest.
 A comparable project's documentation job is green in CI while collecting zero tests, because its fence syntax is never collected, and the difference is invisible in both the rendered page and the CI log.
