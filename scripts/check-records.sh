@@ -75,6 +75,82 @@ mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
 issue number. Title the link with the question its ticket asks." \
   "${found[@]}"
 
+# The two prose rules `docs/decisions/.template.md` states.
+#
+#   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+#
+# `**` opens bold only where it flanks, which is a left-flanking delimiter run.
+# https://spec.commonmark.org/0.31.2/#left-flanking-delimiter-run
+# Without that test an unbackticked `.github/**` and `/scripts/**` on one line
+# pair into a bold run, and masking code spans does not reach it.
+prose=$(awk '
+  # A code span becomes \001. Splitting on the backtick puts every span in an
+  # even field, which is what a regex cannot do: it pairs a closing backtick
+  # with a later opening one.
+  function mask(line,   part, n, i, out) {
+    n = split(line, part, "`")
+    out = part[1]
+    for (i = 2; i <= n; i++) out = out (i % 2 == 0 ? "\001" : part[i])
+    return out
+  }
+
+  # A sentence starts at the head of a unit, or after `.`, `!` or `?`, which a
+  # closing `**` may follow. A non-alphanumeric run may precede the bold, which
+  # is the allowance the Downside lead-in count already grants a list marker.
+  function opens(unit, at,   head) {
+    head = substr(unit, 1, at - 1)
+    sub(/^.*[.!?]\**[[:space:]]+/, "", head)
+    return (head ~ /^[^A-Za-z0-9\001]*$/)
+  }
+
+  # Indented, because a fence nested under a list item still opens a block, and
+  # an anchor at column zero reads its contents as prose.
+  /^[[:space:]]*```/ { fence = ! fence; next }
+  # A heading is not a sentence. The evidence-density pass below skips one too.
+  fence || /^#/ { next }
+  {
+    masked = mask($0)
+    # A unit is a line, or a table cell once the row is split on the pipes that
+    # are not inside a code span.
+    units = 1
+    cell[1] = masked
+    if ($0 ~ /^\|/) units = split(masked, cell, /\|/)
+
+    for (u = 1; u <= units; u++) {
+      unit = cell[u]
+      sub(/^[[:space:]]+/, "", unit)
+      if (unit == "") continue
+
+      # The literal character, never a \x escape: that escape is not POSIX and
+      # an awk that ignores it matches nothing and reports a clean tree.
+      if (index(unit, "—") && ! seen["e" FILENAME ":" FNR]++) \
+        printf "emdash\t%s:%d\n", FILENAME, FNR
+
+      rest = unit
+      base = 0
+      while (match(rest, /\*\*[^[:space:]][^*]*[^[:space:]]\*\*|\*\*[^[:space:]*]\*\*/)) {
+        at = base + RSTART
+        if (! opens(unit, at) && ! seen["b" FILENAME ":" FNR]++) \
+          printf "bold\t%s:%d\n", FILENAME, FNR
+        base = at + RLENGTH - 1
+        rest = substr(rest, RSTART + RLENGTH)
+      }
+    }
+  }
+' "${records[@]}")
+
+mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A record carries no em-dash. Use a full stop, a colon, a comma or a list. A code span and a \
+fenced block are exempt, because quoting one is quoting an artifact." \
+  "${found[@]}"
+
+mapfile -t found < <(grep '^bold' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "Bold opens a sentence and never sits inside one. A lead-in is what bold is for, and whether a \
+bolded phrase is one is read by a reviewer rather than decided here." \
+  "${found[@]}"
+
 # The four Downside rules `docs/decisions/.template.md` states: the label stands
 # on its own line, it never counts the costs, the costs are a list, and bold
 # marks every lead-in.
@@ -173,7 +249,7 @@ has an owner." \
 # no record indents prose.
 printf '\nevidence density: prose lines carrying no number, no code span and no link\n\n'
 awk '
-  /^```/ { fence = ! fence; next }
+  /^[[:space:]]*```/ { fence = ! fence; next }
   fence || /^$/ || /^[[:space:]]/ || /^#/ || /^\|/ || /^[-*] / || /^[0-9]+\. / || /^<!--/ { next }
   { prose[FILENAME]++; lines++ }
   ! /[0-9`]/ && ! /\]\(/ { bare[FILENAME]++; barelines++ }
