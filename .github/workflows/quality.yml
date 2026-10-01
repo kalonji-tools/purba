@@ -1,4 +1,4 @@
-# Every gate that refuses a merge on lint and format.
+# Every gate that refuses a merge on lint, format and record form.
 #
 #   the commands:   tasks.toml, under `quality`
 #   the tools:      mise.toml
@@ -36,7 +36,7 @@ jobs:
         with:
           version: ${{ env.MISE_VERSION }}
 
-      - name: Refuse a lint or a formatting difference
+      - name: Refuse a lint, a formatting difference or a broken record
         run: mise run quality
 
       - name: Refuse what a commit already refuses
