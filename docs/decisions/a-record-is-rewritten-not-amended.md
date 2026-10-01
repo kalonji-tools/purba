@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-A decision record has to be trustworthy on one reading, without replaying the project's history.
+A decision record has to be trustworthy on one reading, and a reader does not replay the project's history.
 The prototype's records were not.
 
 | prototype corpus | |
@@ -24,12 +24,12 @@ Amendments 6 to 20 sat underneath the Consequences heading, and nobody noticed.
 Granularity is the primary cause. Mutability is the amplifier.
 
 No-duplication discipline does not rescue this.
-The prototype's context document pointed at records instead of restating them, and pointing at an unreadable record does not make it readable.
+The prototype's context document pointed at records and did not restate them, and a pointer to an unreadable record does not make it readable.
 
 ## Considered Options
 
 - **Append-only, with a status field and amendments.** Rejected. The prototype had exactly this. Its supersede path was chosen zero times in nineteen records, and its status field became nine nested prose paragraphs.
-- **A single-sentence record.** Rejected. It is structurally capped, because a sentence cannot absorb twenty amendments. It lost on tooling: the most-starred record tool has made no release since 2018.
+- **A single-sentence record.** Rejected. It is structurally capped, because a sentence cannot absorb twenty amendments. It lost on tooling: the most-starred record tool released nothing since 2018.
 - **A public Markdown convention, cut to its minimum, plus a fitness function.** Chosen. It has no runtime, so nothing can go dead, and its Confirmation section already is the staleness mechanism.
 
 ## Decision Outcome
@@ -65,15 +65,15 @@ Issue numbers never appear in record prose.
 The record states what is true, the issue states what happened, and the prototype leaked 417 issue references the wrong way across that line.
 
 A link titled by the question its ticket asks is the exception, and it is a citation of the question rather than of the number.
-A title is falsifiable where it stands and a bare number is not, so a reader who never opens the link still knows what was claimed.
+A title is falsifiable where it stands and a bare number is not. A reader who never opens the link still knows what was claimed.
 
 A programme is a milestone, not a record.
 
 **Downside:**
 
 - **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, and a command that cannot see content.
-- **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift by auditing a large Consequences section.
-- **A record must be rewritten whenever a ticket it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it, and a ticket can close for reasons that have nothing to do with the record that named it.
+- **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift in an audit of a large Consequences section.
+- **A record must be rewritten whenever a ticket it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it. A ticket can close for reasons that have nothing to do with the record that named it.
 
 ## Confirmation
 
@@ -92,7 +92,9 @@ It is run by hand before a pull request opens.
 [Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) repairs the records it refuses, and the command joins the quality gate once they land.
 
 Whether a ticket a record names as owing work is still open is read by the same reader, and no check decides it.
-A record cites two kinds of ticket: one it waits on, which must be open, and one recording where a measurement was made, which is closed by the time it is cited.
+A record cites two kinds of ticket.
+The first is one it waits on, and it must be open.
+The second records where a measurement was made, and it is closed by the time it is cited.
 One record here cites both, so a state check alone refuses it wrongly.
 
 A merged record links a ticket that closed while the gate it owned stayed unwired, and nothing read the two together.

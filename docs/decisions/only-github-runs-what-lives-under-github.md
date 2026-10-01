@@ -4,7 +4,8 @@
 
 Eight scripts accumulated under `.github/scripts/`, and four of them were reached from somewhere that is not a workflow.
 A person's sign-off command ran the replay check.
-The command that carries an outside contribution in ran the origin check, and that command was itself run by nothing in this repository at all: no workflow, no task, no hook.
+The command that carries an outside contribution in ran the origin check.
+Nothing in this repository ran that command at all: no workflow, no task, no hook.
 
 So the boundary was crossed in both directions, and nothing in the tree said which side a script belonged on.
 [A location inherits its readers](a-location-inherits-its-readers.md) binds `.github/**` and `scripts/**` to the same actor, so it answers who reads a script and not where one goes.
@@ -15,7 +16,7 @@ The stakes are not tidiness.
 ## Considered Options
 
 - **One directory for every script.** Rejected. A workflow's own shell has no reader outside the workflow, and `.github/` is where the thing that runs it already lives.
-- **Keyed on what a script does.** Rejected as undecidable. Whether a task belongs to continuous integration is a judgement, and this project has refused undecidable conditions repeatedly.
+- **Keyed on what a script does.** Rejected as undecidable. Whether a task belongs to continuous integration is a judgement, and this project refused undecidable conditions repeatedly.
 - **Keyed on what calls it.** Chosen. A caller is a fact a command can read.
 
 ## Decision Outcome
@@ -35,25 +36,29 @@ The runners under `.github` are enumerable, so nothing there reaches a script th
 A person is a caller this repository cannot see, which is why the fork command belonged in `scripts/` while nothing here ran it at all.
 
 **`CODEOWNERS` covers both directories.**
-Placement decides which directory a script sits in and never who approves it, and the gate's own code is the last thing that should lose a reviewer to a move.
+Placement decides which directory a script sits in, and never who approves it.
+The gate's own code is the last thing that should lose a reviewer to a move.
 
 **Downside:**
 
 - **A script moves when its callers change, and a caller is added by an edit somewhere else.**
-  The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible: on a branch brought current, and not before.
+  The rule is therefore not stable against a change it cannot see. The command below is what makes such a move visible, on a branch brought current and not before.
 - **A sourced helper is the weakest part.**
   It follows its callers, so two callers on opposite sides would leave it with no correct home.
-  The command stays silent there rather than choosing one, because the rule names no home to choose.
+  The command stays silent there and does not choose one, because the rule names no home to choose.
 - **A caller is read as a literal path and never as a call.**
   A line that merely writes one counts as a caller.
 
 ## Confirmation
 
 **`mise run lint:placement` reads the rule, and `quality` depends on it.**
-`scripts/check-placement.sh` keys on the callers a code line names, so a comment naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
+`scripts/check-placement.sh` keys on the callers a code line names.
+A comment naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
 
 ⚠️ **The table this section carried is deleted rather than corrected.**
-It was a second reading of what the command now derives on every run, and one of its rows had gone wrong: `require-green.sh` was filed under *"one workflow, or sourced by one"* while no workflow names it and nothing sources it, because a sibling under `.github/scripts/` executes it.
+It was a second reading of what the command now derives on every run, and one of its rows went wrong.
+`require-green.sh` was filed under *"one workflow, or sourced by one"*.
+No workflow names it and nothing sources it, because a sibling under `.github/scripts/` executes it.
 That row is the case the clause above exists to admit, and it is also what a hand-written copy of a machine-readable fact becomes.
 
 The command was exercised green and red.

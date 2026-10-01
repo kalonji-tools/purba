@@ -6,7 +6,8 @@ purba's own scripts are shell, and nothing in the tree said what language they h
 The question governs every script added from now on.
 
 Nothing tests any of that shell.
-Every defect in it was found by continuous integration or by a throwaway pull request, and one of them refused the pull request that introduced it.
+Every defect in it was found by continuous integration or by a throwaway pull request.
+One of them refused the pull request that introduced it.
 A language is worth no more here than the runner that can test it.
 
 Two arguments pull toward a typed language, and they select different files.
@@ -25,7 +26,7 @@ In another language each of those git invocations becomes a subprocess call carr
 ## Considered Options
 
 - **Rust.** Rejected. A script written in Rust must be compiled before it can gate, so it cannot gate the build that compiles it.
-- **Python, now.** Rejected. It costs a linter and a test runner this project has not adopted, and it buys nothing shell does not already have.
+- **Python, now.** Rejected. It costs a linter and a test runner this project does not use, and it buys nothing shell does not already have.
 - **Bash.** Chosen. Three tools already gate it, and it fits the plumbing above.
 
 The trigger for a later change was weighed separately.
@@ -35,7 +36,7 @@ The trigger for a later change was weighed separately.
 
 So was the runner.
 
-- **`shellspec`.** Rejected. `shfmt` strips every level of nesting from a spec body, because `Describe` and `It` are plain commands to a shell parser.
+- **`shellspec`.** Rejected. `shfmt` strips every nested level from a spec body, because `Describe` and `It` are plain commands to a shell parser.
 - **`bats`.** Chosen. It survives the formatter, and `shellcheck` reads its test blocks as brace groups.
 
 ## Decision Outcome
@@ -53,7 +54,8 @@ The trigger above turns on which runner executes a script's tests, so the exclus
 
 **`bats` is the runner, and a test of a script ends in `.bats`.**
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) puts a writer ahead of a checker, and `shfmt` is a writer.
-A `shellspec` file ends in `.sh`, which is the glob every shell task already reads, so the formatter reaches every spec the moment it is written.
+A `shellspec` file ends in `.sh`, which is the glob every shell task already reads.
+The formatter therefore reaches every spec the moment it is written.
 
 **The Python inside `build.yml` is the standing exception.**
 A `run:` block there asserts the built extension is a real shared object, and no linter reads it.
@@ -63,7 +65,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 - **Nothing checks this.** The rule is decidable by file extension and no command reads it, so no gate refuses a script for the language it is written in.
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
-- **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate without failing anything.
+- **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
 
 ## Confirmation
 

@@ -31,7 +31,7 @@ No ISO, IEEE or RFC governs commit messages, Conventional Commits specifies only
 Both of those assume the commit is the only durable artifact, because both are mailing-list projects with no issue tracker and no decision records.
 
 The obvious fix was to let decision records absorb the rationale, and measurement killed it.
-Across 47 repositories and 506,825 non-merge commits, projects that keep decision records write bodies of 42.2 words against 38.3 for those that do not: null, and pointing the wrong way.
+Across 47 repositories and 506,825 non-merge commits, projects that keep decision records write bodies of 42.2 words against 38.3 for those that do not. The result is null, and it points the wrong way.
 Record corpora run at roughly one record per thousand commits, so they were never a reservoir large enough to absorb anything.
 
 ## Considered Options
@@ -42,7 +42,7 @@ Record corpora run at roughly one record per thousand commits, so they were neve
 
 Permanence decides what is eligible. A second question decides what is written.
 
-- **A named element list, with an exception for a record commit.** Rejected. Every new kind of commit needs another clause, and the list already collides with itself: a body cannot both state the problem and not restate the diff when the diff is the record.
+- **A named element list, with an exception for a record commit.** Rejected. Every new kind of commit needs another clause, and the list already collides with itself. A body cannot both state the problem and not restate the diff, when the diff is the record.
 - **Subtraction: the body carries what no other location already carries.** Chosen. It states the value of a commit rather than its length, and the two rules the list already carries become instances of it.
 
 ## Decision Outcome
@@ -69,9 +69,9 @@ The review statement is the part no committer can make, so it stays where the re
 The subject is the changelog entry.
 git-cliff renders it directly, so it is read by users who never open the repository.
 
-The issue number stays in the subject rather than moving to a trailer.
+The issue number stays in the subject and does not move to a trailer.
 `git blame` exposes the subject and no part of the body.
-The reader who has forgotten the details arrives through blame, and a trailer is invisible there.
+The reader who no longer remembers the details arrives through blame, and a trailer is invisible there.
 
 The number is an instruction to the writer as well as an anchor for the reader.
 Depth belongs on the issue, so the body stops at the conclusion and the number carries the reader the rest of the way.
@@ -103,10 +103,10 @@ A contributor writes a `Signed-off-by:` trailer and no workflow writes one, for 
 
 The `Assisted-by:` form names the agent and the model.
 The kernel shipped that form, ran it for seven months, and replaced it with a bare `LLM`.
-purba keeps the replaced form deliberately, because this project's premise is that provenance must be checkable, and a bare `LLM` is not a fact anyone can check against anything.
+purba keeps the replaced form deliberately, because this project's premise is that provenance must be checkable. A bare `LLM` is not a fact anyone can check against anything.
 
 A session URL trailer is not used.
-It was applied zero times across 2,129 prototype commits while `Assisted-by:` reached 84.7% under the same instruction, and it is a link no reader but its owner can follow.
+It was applied zero times across 2,129 prototype commits, while `Assisted-by:` reached 84.7% under the same instruction. It is also a link no reader but its owner can follow.
 
 **Downside:**
 
@@ -151,7 +151,7 @@ A command that reads existence accepts such a typo.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) rules on what follows.
 A detector good enough to suggest is not good enough to gate.
 A standard a gate cannot decide does not become one.
-Nothing here owes a ticket, because purba decided against this check rather than deferring it.
+Nothing here owes a ticket, because purba decided against this check and did not defer it.
 
 The planned-series row is weak in both directions.
 A pattern test fires on the legitimate prose "the fourth Confirmation row", which counts a row and not a commit.

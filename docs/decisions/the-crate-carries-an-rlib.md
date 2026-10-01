@@ -41,7 +41,7 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 **Downside:**
 
-- **Coverage is bounded by physics and stops at the bridge.** A verified Rust example can cover the Rust core and never the bridge, because `extension-module` omits libpython and any example touching the Python C API needs that feature off. The seam is the part a reader most wants an example of, and it is the part that cannot carry one.
+- **Coverage is bounded by physics and stops at the bridge.** A verified Rust example can cover the Rust core and never the bridge. `extension-module` omits libpython, and any example that touches the Python C API needs that feature off. The seam is the part a reader most wants an example of, and it is the part that cannot carry one.
 - **The manifest line is expensive only if forgotten.** It costs nothing to keep and it is silent to lose, which is the asymmetry that produced the problem it solves.
 
 ## Confirmation
@@ -49,7 +49,7 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 `cargo test --doc`, which the required `Quality` check runs.
 
 It does more than run examples.
-On a bare cdylib it exits 101 with "no library targets found", so the crate-type line is guarded by the same command that verifies the examples.
+On a bare cdylib it exits 101 with "no library targets found". The same command that verifies the examples therefore guards the crate-type line.
 
 | what reaches it | where |
 |---|---|
@@ -64,5 +64,6 @@ A flag reaches only the command carrying it.
 purba publishes no documentation site, so the lint guards the source.
 
 It reports zero tests until an example exists, and zero is honest.
-A comparable project's documentation job is green in CI while collecting zero tests, because its fence syntax is never collected, and the difference is invisible in both the rendered page and the CI log.
+A comparable project's documentation job is green in CI and collects zero tests.
+Its fence syntax is never collected, and the difference is invisible in the rendered page and in the CI log.
 A zero here means zero exist.
