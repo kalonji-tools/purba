@@ -44,7 +44,7 @@ Discarded alternatives, intermediate edits and the order the work happened in st
 | what a session leaves behind |
 | a count of the costs on the `**Downside:**` label |
 
-**Four rules are decidable, and a command owns them.**
+**Six rules are decidable, and a command owns them.**
 
 | rule | shape |
 |---|---|
@@ -52,8 +52,19 @@ Discarded alternatives, intermediate edits and the order the work happened in st
 | the label states no count | an opening phrase |
 | the costs are a list | a count |
 | bolded lead-ins equal the list items under the label | a count |
+| no em-dash outside a code span or a fence | a character |
+| bold opens a sentence | a position in a sentence |
 
 A record carrying no label has no list of costs either, so the third rule is what a missing Downside breaks.
+
+**A prose rule is decided on the sentence, not the line.**
+The two rules above are written about sentences and a detector reads lines.
+A line-kind test refuses a second lead-in that opens a sentence in the middle of its line, and the corpus writes two of those.
+Reading sentence position drops the line classifier and refuses neither.
+
+**Bold is for a lead-in, and a reviewer decides whether a bolded phrase is one.**
+The command refuses bold inside a sentence, which is the half it can decide.
+The purpose of bold stays where the diagram rule sits, and the Downside names what that costs.
 
 A diagram may not raise the record's word count.
 That rule is decidable and a reviewer decides it, because the length of a record without its diagram is not a number the tree holds.
@@ -68,6 +79,9 @@ A threshold would refuse the records that obey.
 - **Naming a category costs a rewrite.** A record is replaced rather than appended to, so every category a review finds is paid for again.
 - **A count can refuse an artifact whose every element carries the point.** Evidence density is reported for that reason, and a word budget carries the same flaw.
 - **A reported number binds nobody.** It can be read and ignored indefinitely.
+- **The file stating the prose rules is not checked against them.** `.template.md` sits outside the glob, and its rules live inside a comment the same command refuses elsewhere.
+- **Bold used for emphasis at the head of a sentence passes.** A bolded table row is not a lead-in, and no rule here refuses it.
+- **The prose gate has no test.** It is read rather than run, as every script in `scripts/` is.
 
 ## Confirmation
 
@@ -77,7 +91,10 @@ A threshold would refuse the records that obey.
 | the same command refuses a Downside that states no list of costs | `scripts/check-records.sh` |
 | the same command refuses a label whose bolded lead-ins do not equal its list items | `scripts/check-records.sh` |
 | the same command reports evidence density and refuses nothing on it | `scripts/check-records.sh` |
+| the same command refuses an em-dash, and exempts one inside a code span or a fence | `scripts/check-records.sh` |
+| the same command refuses bold that does not open a sentence | `scripts/check-records.sh` |
 | the diagram rule, and the sufficiency test under it | a reviewer, and there will be no check |
+| whether a bolded phrase is a lead-in | a reviewer, and there will be no check |
 
 Each refusal names the file and the line it found.
 The command reports every rule before it exits, so a writer fixing one refusal finds the next in the same run.
