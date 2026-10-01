@@ -97,7 +97,8 @@ A pull request is refused for a dead link in a file it changed.
 A scheduled run over the whole tree reports rot and refuses nothing.
 
 The checker opens markdown and HTML only, so a comment in a source file is never read unless the extensions are named.
-It extracts a bare address, a titled link and an autolink alike, and it resolves a relative link between records to a path it then checks.
+It extracts a bare address, a titled link and an autolink alike.
+It resolves a relative link between records to a path it then checks.
 That resolution is the `cited paths exist` row graded weak in [a decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md).
 
 **Blind spots.**

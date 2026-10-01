@@ -13,7 +13,7 @@ Three of them state how to write there.
 | the other ten | no |
 
 [A location inherits its readers](a-location-inherits-its-readers.md) says who reads each location.
-It does not say what belongs there, and a reader who arrives at a location nobody has described writes whatever the last author wrote.
+It does not say what belongs there, and a reader who arrives at an undescribed location writes whatever the last author wrote.
 
 The prototype shows the cost of a rule that nothing carries.
 It shipped two issue forms with required fields and one pull request template.
@@ -43,16 +43,16 @@ The pull request has no shape to preserve.
 
 ## Considered Options
 
-- **One register, written as the same dimensions for every location.** Rejected. A commit subject, a record and an issue distribute information for different reasons, and forcing one vocabulary over them makes a table that reads well and decides nothing.
-- **A register per location, written inside this record.** Rejected. [A record is rewritten, not amended](a-record-is-rewritten-not-amended.md) governs records and points at its template rather than restating it, and a rule kept three clicks from the person writing is a rule they do not read.
+- **One register, written as the same dimensions for every location.** Rejected. A commit subject, a record and an issue distribute information for different reasons. One vocabulary forced over them makes a table that reads well and decides nothing.
+- **A register per location, written inside this record.** Rejected. [A record is rewritten, not amended](a-record-is-rewritten-not-amended.md) governs records. It points at its template and does not restate it. A rule kept three clicks from the person who writes is a rule they do not read.
 - **A template, relied on as the mechanism.** Rejected by the measurements above. A template reaches the web interface and reaches nothing else.
-- **A required status check over the pull request body.** Rejected. It is the one location purba could gate this way, and the gate would buy a shape that costs nothing to state and refuse work over a heading. The project would rather lose the guarantee than spend a reviewer's merge on prose.
-- **A workflow on every issue, checking its headings.** Rejected. An issue has no merge event, so the check can only label after the fact, and it would fire on every ticket of one author who already follows the rule.
+- **A required status check over the pull request body.** Rejected. It is the one location purba could gate this way. The gate would buy a shape that costs nothing to state, and refuse work over a heading. The project would rather lose the guarantee than spend a reviewer's merge on prose.
+- **A workflow on every issue, checking its headings.** Rejected. An issue has no merge event, so the check can only label after the fact. It would fire on every ticket of one author who already follows the rule.
 - **A register per location, named here and written where that location's author reads it.** Chosen.
 
 ## Decision Outcome
 
-A register belongs to one location, and this record names it rather than holding it.
+A register belongs to one location, and this record names it and does not hold it.
 
 **Two layers.**
 
@@ -68,7 +68,8 @@ What belongs in one at all is held by [An unpublished comment carries what no ot
 
 The language's convention governs how it reads, and purba governs which artifact earns one.
 A published comment covers every artifact purba exposes.
-It also covers a private artifact that carries heavy traffic, because the reader arriving at one is in the same position as a reader arriving at a public one.
+It also covers a private artifact that carries heavy traffic.
+The reader who arrives at one is in the same position as a reader who arrives at a public one.
 It is curated rather than accumulated, so an artifact that earns none carries none.
 
 **Named, not held.**

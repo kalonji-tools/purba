@@ -18,7 +18,7 @@ So the defect is what an artifact admits, not how its sentences read.
 
 ## Considered Options
 
-- **A reading level.** Rejected. Six formulas disagree by seven grades on one record, and appending backticked identifiers moves the score twelve grades without changing a word.
+- **A reading level.** Rejected. Six formulas disagree by seven grades on one record, and appending backticked identifiers moves the score twelve grades while the words stay the same.
 - **A wordiness linter.** Rejected. It finds nothing here, because the defect is admission rather than wording.
 - **ASD-STE100, adopted whole.** Rejected. Fifty rules for aircraft maintenance to gain three ideas, and the standard sits where a reader must ask for it. [purba borrows from Simplified Technical English rather than adopting it](purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md) names the rules purba took instead.
 - **One voice standard across every location.** Rejected. No established project states one. Git requires an imperative subject and says nothing about its own code comments.
@@ -70,7 +70,8 @@ A diagram may not raise the record's word count.
 That rule is decidable and a reviewer decides it, because the length of a record without its diagram is not a number the tree holds.
 
 **Evidence density is reported and refuses nothing.**
-It counts the lines of running text carrying no number, no code span and no link, and `.template.md` drives that number up by moving numbers into tables.
+It counts the prose lines that carry no number, no code span and no link.
+`.template.md` drives that number up, because it moves numbers into tables.
 A threshold would refuse the records that obey.
 
 **Downside:**

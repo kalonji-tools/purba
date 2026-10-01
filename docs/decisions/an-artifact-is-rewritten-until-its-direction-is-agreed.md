@@ -5,11 +5,11 @@
 purba re-scopes its own tickets, and nothing marks the part that stopped being true.
 A re-scope arrives as a comment, the body it contradicts stays unmarked, and the reader reconciles the two wrongly.
 
-On [Post the mandatory review threads that must be resolved before a merge](https://github.com/kalonji-tools/purba/issues/53), an agent read the body first and built design questions on a premise the re-scope had already killed.
-That comment was present, correct, and had been read.
+On [Post the mandatory review threads that must be resolved before a merge](https://github.com/kalonji-tools/purba/issues/53), an agent read the body first and built design questions on a premise the re-scope already killed.
+That comment was present, correct, and read.
 It lost to the body, because the body reads as current and carries no mark saying it is not.
 
-The tracker had already answered half the question without deciding it, and the two halves disagree.
+The tracker already answered half the question and decided none of it, and the two halves disagree.
 
 | part of an issue | what was done | n |
 |---|---|---|
@@ -26,14 +26,15 @@ Three premises the question rested on are false, and each was measured against t
 | a merged pull request description must never be edited, or the record of intent is lost | pull request bodies carry the same snapshots |
 
 That history reaches GraphQL and the web interface and nothing else.
-`gh issue view` returns the current body with no sign that another version exists, and that is what the misled reader was reading.
+`gh issue view` returns the current body with no sign that another version exists, and that is what the misled reader read.
 
 No version has an address.
 The interface serves history from a popover, three candidate paths answer 404, and the edit node carries an identifier and no URL.
 **A mark can point at what replaced a body and never at the body it replaced.**
 
-A second behaviour was already running, unwritten.
-No comment here has ever been edited outside the session that wrote it: the latest of 17 edits across 202 comments lands 86 minutes after posting, and both design spec edits are typo fixes.
+A second behaviour already ran, unwritten.
+Nobody here ever edited a comment outside the session that wrote it.
+The latest of 17 edits across 202 comments lands 86 minutes after the comment appears, and both design spec edits are typo fixes.
 
 ## Considered Options
 
@@ -42,15 +43,15 @@ No comment here has ever been edited outside the session that wrote it: the late
 - **A `superseded` label.** Rejected. It marks the issue and never the span, and the measured defect is span level.
 - **Rewrite, and preserve the old body in a comment.** Rejected. The platform already keeps every version, so the copy is a second thing to maintain and to disagree with the first.
 - **Rewrite, and link the prior version from the mark.** Rejected by measurement. No stored version is addressable, so the link cannot be written.
-- **Rewrite, and carry one line pointing at what replaced it.** Chosen. The body then reads as current state, and pointing forward tells the reader why it changed where a backward link would only say that it changed.
+- **Rewrite, and carry one line pointing at what replaced it.** Chosen. The body then reads as current state. A forward pointer tells the reader why it changed, where a backward link would only say that it changed.
 
-A second question decides when rewriting stops being allowed.
+A second question decides when a rewrite stops being allowed.
 
-- **Append only, never edit.** Rejected. It refuses a typo fix made four minutes after posting, and two of the eight design specs are exactly that.
-- **Freeze once somebody has read it.** Rejected, because nothing reports reading. `viewerViewedState` is the caller's own private checkbox and returns `UNVIEWED` for files the caller wrote.
+- **Append only, never edit.** Rejected. It refuses a typo fix made four minutes after the comment appears, and two of the eight design specs are exactly that.
+- **Freeze once somebody read it.** Rejected, because nothing reports a read. `viewerViewedState` is the caller's own private checkbox and returns `UNVIEWED` for files the caller wrote.
 - **Freeze on a planning field.** Rejected. Four are defined here, and a value is invisible to anyone not signed in: one issue carries `Priority: Medium`, which reads as nothing to the public. A rule an outside contributor cannot evaluate is not a rule.
-- **Freeze on something that happens to the artifact, such as a reply or a close.** Rejected. It makes the freeze point a judgement about what somebody did, so the record has to define acting, and the best available definition was relying rather than noticing, which is not a test anyone can run.
-- **Freeze when the parties declare the direction agreed, by setting the issue type.** Chosen. It is a declaration rather than a detection, which is the move [architectural significance is declared, not detected](significance-is-declared-not-detected.md) already made here for the same reason: the property becomes true by definition and nothing has to judge it.
+- **Freeze on something that happens to the artifact, such as a reply or a close.** Rejected. It makes the freeze point a judgement about what somebody did, so the record has to define acting. The best available definition was reliance rather than notice, and that is not a test anyone can run.
+- **Freeze when the parties declare the direction agreed, by setting the issue type.** Chosen. It is a declaration rather than a detection, which is the move [architectural significance is declared, not detected](significance-is-declared-not-detected.md) already made here for the same reason. The property becomes true by definition, and nothing has to judge it.
 
 ## Decision Outcome
 
@@ -62,7 +63,7 @@ Resolving a design spec ends by setting the type, which records that the parties
 
 Priority, effort and the date fields freeze nothing, and neither does assigning the issue.
 They record how the work is scheduled, never that its direction is agreed.
-This organisation defines four such fields beside the type, so the distinction is worth stating rather than inferring.
+This organisation defines four such fields beside the type, so the distinction is worth a statement rather than an inference.
 
 | artifact | frozen by |
 |---|---|
@@ -73,7 +74,7 @@ This organisation defines four such fields beside the type, so the distinction i
 While the type is `null` the issue is a draft, and its body and its spec are rewritten freely with no mark owed.
 The declaration is public, it is a string comparison, and lifting it is recorded as `issue_type_removed`.
 
-**Marking is not rewriting.**
+**Marking is not a rewrite.**
 A frozen artifact gains a pointer and never loses or changes content.
 A mark is a signal and never a licence: what permits a rewrite is that the artifact is not frozen yet.
 
@@ -84,7 +85,9 @@ A mark is a signal and never a licence: what permits a rewrite is that the artif
 | survives with a tighter boundary | rename the title and rewrite the body, carrying one line naming the change |
 | was answered, abandoned or replaced | close the original as `not_planned` carrying its answer, and open a new issue linking back |
 
-The reason is duplicate work rather than tidiness: a re-purposed ticket hides the answer to the question it used to ask, so the next contributor asks it again and nobody can tell them it was already ruled out.
+The reason is duplicate work rather than tidiness.
+A re-purposed ticket hides the answer to the question it used to ask, so the next contributor asks it again.
+Nobody can tell them it was already ruled out.
 `state_reason` is public in the plain issue payload, so delivered and ruled out stay distinguishable.
 
 **Two exceptions survive the freeze, both narrow.**
@@ -108,10 +111,12 @@ A record that reads as history is a record nobody can trust on one reading.
 4. Minimize a wholly superseded comment as `outdated`. One superseded in part keeps its live text visible and carries the pointer alone.
 
 The order never collapses, because step 3 needs a URL that step 1 creates.
-It is steps rather than a sentence because the sentence failed on its first live use, when its own author guessed a URL before the comment existed.
+It is steps rather than a sentence, because the sentence failed on its first live use.
+Its own author guessed a URL before the comment existed.
 
 Step 1 is what makes step 4 safe.
-A rewritten body carries its dead reasoning in a Considered and rejected section, and step 1 is the same obligation for a comment, which cannot be rewritten.
+A rewritten body carries its dead reasoning in a Considered and rejected section.
+Step 1 is the same obligation for a comment, which cannot be rewritten.
 That makes the hidden comment redundant by construction rather than by assumption.
 
 **A reinstatement is a new artifact, never an un-marking.**
@@ -122,7 +127,7 @@ Every pointer then stays true and the history says the project went round the lo
 
 - **Nothing in the tracker is frozen yet.** 79 of 80 issues carry no type, so every one of them becomes a draft. That is arguably correct, since none was ever agreed this way, and it means the rule protects nothing until types are set.
 - **The freeze can be lifted.** Removing a type un-freezes an issue. The removal is public and recorded, so it cannot be done quietly, but nothing refuses it.
-- **Two tickets cost more than one rename**, against a standing preference here for re-scoping over filing. Re-scoping is cheaper to write and more expensive to read, and this project has one writer and expects many readers.
+- **Two tickets cost more than one rename**, against a standing preference here for a re-scope over a new ticket. Re-scoping is cheaper to write and more expensive to read, and this project has one writer and expects many readers.
 - **Nothing enforces any of it.** Every check below reports and none gates, because an issue has no merge event.
 
 ## Confirmation
@@ -137,7 +142,7 @@ Three properties are decidable, and all are checked by hand.
 
 The last cross checks itself, and either half failing without the other names the step that was skipped.
 
-Neither the first nor the second gates: an issue has no merge event, so a check could only label after the fact, and [a register belongs to one location](a-register-belongs-to-one-location.md) rejected a labelling workflow for that reason.
+Neither the first nor the second gates. An issue has no merge event, so a check could only label after the fact, and [a register belongs to one location](a-register-belongs-to-one-location.md) rejected a labelling workflow for that reason.
 
 Three traps, all measured:
 
@@ -151,7 +156,8 @@ Five issues carry a body edit with no rename and no mark, and a body edit withou
 One property is never decidable: whether a span is still true is a judgement.
 
 **This is an agreement rather than a gate, carried where the actor already reads.**
-An agreement holds when it reaches whoever is about to act: the same instruction block in the prototype ran at 83.9% on one carrier and at nothing on another.
+An agreement holds when it reaches whoever is about to act.
+The same instruction block in the prototype ran at 83.9% on one carrier and at nothing on another.
 
 | carrier | reaches | state |
 |---|---|---|

@@ -3,11 +3,11 @@
 ## Context and Problem Statement
 
 purba welcomes a contribution written by an agent.
-An agent cannot be assumed to have read a convention, and a reviewer who states one by hand states it again next time.
+Nobody can assume an agent read a convention, and a reviewer who states one by hand states it again next time.
 
 So a convention no tool enforces is not a convention.
 It is a review comment, rewritten forever, by the reader whose attention is scarcest.
-That reader's work is judging whether a change solves its problem, and everything mechanical competes with it.
+That reader's work is a judgement of whether a change solves its problem, and everything mechanical competes with it.
 
 [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32) answered the product half: purba is strict for the suites it runs, and strict is not a dial.
 It also drew the line this record needs: a defensible house rule for purba's own tests is a strong claim to make about someone else's.
@@ -18,7 +18,7 @@ This record answers the house half, which nothing answered: how purba configures
 Three, weighed against the published configuration of eighteen projects and against purba's own tree.
 
 - **The tool's default severity.** Sixteen of the eighteen run their linter at its default, and four enable more. Rejected because it is not the strictest available, not because it is unusual.
-- **A severity chosen where the tree is already clean.** Rejected. One of the eighteen documents the practice, and its reason is a backlog too large to repair now; purba's was four findings against nineteen lines of Rust. ⚠️ **The practice also fails on its own terms.** A floor at `warning` keeps `SC1090`, which is merely noisy, and drops `SC2102`, which is the class that put an unquoted glob into a workflow.
+- **A severity chosen where the tree is already clean.** Rejected. One of the eighteen documents the practice, and its reason is a backlog too large to repair now. purba's was four findings against nineteen lines of Rust. ⚠️ **The practice also fails on its own terms.** A floor at `warning` keeps `SC1090`, which is merely noisy, and drops `SC2102`, which is the class that put an unquoted glob into a workflow.
 - **The strictest setting the tool offers, with every exclusion named.** Chosen.
 
 A normaliser's style was weighed separately.
@@ -32,7 +32,7 @@ A normaliser's style was weighed separately.
 The rule takes two clauses, because a formatter has no severity to set.
 
 A tool that detects runs at the strictest setting it offers, with every optional check enabled.
-A check is dropped only by naming it together with the reason it is dropped, at the location a reader meets the code.
+A check is dropped only where it is named together with the reason it is dropped, at the location a reader meets the code.
 
 A tool that normalises has one location for its style, and tolerates no deviation from it.
 **The style is chosen for the human who reads the code**, because a machine reads any style the syntax admits.
@@ -55,7 +55,7 @@ It reports the tree's current state as though that were the standard, and the tw
 
 **A configuration file is owed only where purba deviates from a tool's default.**
 [mise names every tool version](mise-names-every-tool-version.md) pins each one, so an accepted default already has a single location: the pinned tool.
-Writing a default into a file makes a second copy, which drifts without saying so.
+Writing a default into a file makes a second copy, and that copy drifts silently.
 Absence is ambiguous, so this record names what runs unconfigured: `cargo fmt` and `typos` deviate in nothing.
 `shfmt` does deviate, so the style is written down, and `.editorconfig` is where it lives because `shfmt` and every editor both read it.
 ⚠️ **A style flag would take that away:** `shfmt` ignores `.editorconfig` the moment one is passed, so the hook passes none.
@@ -65,13 +65,13 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
 
 **Downside:**
 
-- **The strictest setting of a tool purba has not adopted is not derivable from this record.** Every adoption costs its own measurement.
+- **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**
-  Inside a YAML block scalar none can be: an indented one is posted as part of whatever the block writes, and one at the first column ends the block.
+  Inside a YAML block scalar none can be. An indented one is posted as part of whatever the block writes, and one at the first column ends the block.
   The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
 - ⚠️ **What is generated is named in two files that cannot see each other.**
-  `.gitattributes` marks it for review and the style file excludes it from the standard, so a generated file added to one and not the other gains a check it will fail.
+  `.gitattributes` marks it for review, and the style file excludes it from the standard. A generated file added to one and not the other gains a check it will fail.
 - **Where no gate stands over a judgement, nothing records that one was made.**
   The approving review is the only trace, and it does not say what was read.
   [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) took that trade knowingly, and a resolved thread never survived a clone either.
@@ -95,7 +95,8 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 | `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
 
 ⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why only the normaliser writes.
-`[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer, so a guard on an issue number would have stopped refusing one.
+`[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer.
+A guard on an issue number would then stop refusing one.
 
 The refusal of a gate over a judgement was measured on the only one this project built, in [Is the Decision Outcome rule a project goal, and if not, what is it doing in the merge path?](https://github.com/kalonji-tools/purba/issues/96).
 

@@ -6,7 +6,7 @@ purba builds on Rust nightly.
 That was decided in conversation and never written down, so the tree carries the cost of a channel without the reason for it.
 
 A reason is owed because "nightly because newer" cannot be shown wrong.
-This map has refused that shape four times already, and a channel is the most expensive place to accept it.
+This map refused that shape four times already, and a channel is the most expensive place to accept it.
 
 Nothing in the tree needs nightly.
 The crate compiles on stable today, and the dependency floor of 1.96 is cleared by any current release.
@@ -19,7 +19,7 @@ The crate compiles on stable today, and the dependency floor of 1.96 is cleared 
 So the purchase is not a feature the code needs.
 It is early contact with the compiler change that will arrive on stable anyway.
 
-The next generation trait solver has been on by default on nightly since 2026-08-22.
+nightly turned the next generation trait solver on by default on 2026-08-22.
 There is no flag to write: the only value a project can set is the opt-out.
 Stabilizing it is the sitting 2026 project goal, and it carries 115 open bug reports.
 
@@ -33,7 +33,8 @@ Stabilizing it is the sitting 2026 project goal, and it carries 115 open bug rep
 Only the second row can strand purba on nightly, and only through code purba writes itself.
 
 A second question arrives with the channel, because the channel has to be named in a file.
-[mise names every tool version](mise-names-every-tool-version.md) already decided which file that is, and the tree contradicted it: `rust-toolchain.toml` named a stable release under a comment describing an environment that had been removed.
+[mise names every tool version](mise-names-every-tool-version.md) already decided which file that is, and the tree contradicted it.
+`rust-toolchain.toml` named a stable release under a comment describing a removed environment.
 Leaving both files in place is not a neutral duplication.
 Three of rustup's five precedence ranks decide why.
 
@@ -50,14 +51,14 @@ Nothing reports the difference.
 
 **What the channel buys.**
 
-- **Newer `rustfmt` and `clippy`, or `-Z` flags in continuous integration.** Real, and not reasons. Both follow from any nightly, so neither could show this decision wrong, and a flag is spent out of a channel already bought. They are gains purba collects, and they could not have bought the channel on their own.
+- **Newer `rustfmt` and `clippy`, or `-Z` flags in continuous integration.** Real, and not reasons. Both follow from any nightly, so neither could show this decision wrong, and a flag is spent out of a channel already bought. They are gains purba collects, and neither could buy the channel on its own.
 - **The next generation trait solver.** Chosen. It is a specific compiler change, on a published stabilization path, and the claim it supports can be tested on every pull request.
 
 **How the return to stable stays open.**
 
-- **Nothing checks it.** Rejected. The agreed escape hatch is a move back to stable as a last resort, and with no check nothing reports whether that hatch is still open. The drift is silent, it accumulates, and it surfaces as a pile of inference repairs on the day the hatch is needed.
-- **A blocking stable build.** Rejected. It forbids the two patterns in the second row of the table above, outright and in advance, and those are the only gains the new solver offers a project that writes Rust.
-- **A non blocking stable build.** Chosen. The tree holds no nightly only syntax, so a stable `cargo check` is an exact detector rather than an approximation, and it records the day the hatch closes without ever stopping the work.
+- **Nothing checks it.** Rejected. The agreed escape hatch is a move back to stable as a last resort. With no check nothing reports whether that hatch is still open. The drift is silent, it accumulates, and it surfaces as a pile of inference repairs on the day the hatch is needed.
+- **A blocking stable build.** Rejected. It forbids the two patterns in the second row of the table above, outright and in advance. Those are the only gains the new solver offers a project that writes Rust.
+- **A non blocking stable build.** Chosen. The tree holds no nightly only syntax, so a stable `cargo check` is an exact detector rather than an approximation. It records the day the hatch closes and never stops the work.
 
 ## Decision Outcome
 
@@ -78,7 +79,7 @@ For an exact request the lock row is derived from the request, so they cannot.
 `[env] RUSTUP_TOOLCHAIN` is refused instead: it overrides what the backend installs and says nothing when the two differ.
 
 **`rust-toolchain.toml` is deleted here.**
-This follows from [mise names every tool version](mise-names-every-tool-version.md) rather than deciding anything new, and the deletion is what stops the tree contradicting that record.
+This follows from [mise names every tool version](mise-names-every-tool-version.md) and decides nothing new, and the deletion is what stops the tree contradicting that record.
 Between this change and the substrate, purba names no toolchain anywhere, which costs nothing because nothing in the tree compiles Rust yet.
 
 **A nightly only feature with no stable fallback is refused inside the product crate.**
@@ -102,16 +103,18 @@ The warrant is always exactly one record, and never one record per feature.
 
 **Downside:**
 
-- **The stable check is non blocking, and this project's own position is that a check which runs without blocking is a suggestion.** It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch, and a blocking check would have bought that day by forbidding the solver's only two gains in advance.
-- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above, and a bump can break the tree for reasons that are nobody's fault and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
+- **The stable check does not block, and this project's own position is that a check which runs without a block is a suggestion.** It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch. A blocking check would buy that day, and forbid the solver's only two gains in advance.
+- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above. A bump can break the tree for reasons that are nobody's fault, and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
 
 ## Confirmation
 
 `cargo +<stable> check`, run on every pull request, reporting and never blocking.
 
-It fails on the day purba first writes code the old solver rejects, which is the day the return to stable stops being one decision wide.
+It fails on the day purba first writes code the old solver rejects.
+That is the day the return to stable stops being one decision wide.
 
-The `+` form is rank 1 in the table above and the toolchain mise exports is rank 2, so this runs inside the ordinary environment and needs no second one.
+The `+` form is rank 1 in the table above, and the toolchain mise exports is rank 2.
+So this runs inside the ordinary environment and needs no second one.
 
 ⚠️ **Nothing runs it today.**
 [Write the quality workflow](https://github.com/kalonji-tools/purba/issues/36) wires it, and that ticket is blocked by this one.

@@ -15,11 +15,11 @@ The prototype shows what an unanswered location question costs.
 ## Considered Options
 
 - **Bind each location to one reader.** Rejected. `docs/decisions/` serves the architect and the technical writer at once, and the roster already says so.
-- **Let a child override its parent, as GitHub's `CODEOWNERS` does.** Rejected. The last matching pattern wins there, so a child naming the architect would dismiss the technical writer. Override is correct for approval and wrong for reading.
+- **Let a child override its parent, as GitHub's `CODEOWNERS` does.** Rejected. The last matching pattern wins there, so a child naming the architect would dismiss the technical writer. Override is correct for an approval and wrong for a reader.
 - **Author a reader list for every location.** Rejected. A commit and a changelog hold no content of their own, so a second authored list can disagree with the thing it describes. [Decide purba's documentation harness and example verification](https://github.com/kalonji-tools/purba/issues/28) settled the form: a check that detects drift is worse than a design where drift cannot happen.
 - **Route by the stage of work rather than by the location.** Rejected. The pipeline is unsettled, and a record keyed to its stages would be rewritten on every revision.
 - **Invent a binding syntax.** Rejected after a prototype. The smallest thing that works is directory prefixes, and prefixes cannot express `*.toml`, which in the prototype reached 956 of 1,109 files in four patterns.
-- **Implement part of gitattributes syntax by hand.** Rejected. A file that looks like gitattributes while supporting less than gitattributes lies about itself, and the subset is invisible until someone writes a pattern it silently ignores.
+- **Implement part of gitattributes syntax by hand.** Rejected. A file that looks like gitattributes and supports less than gitattributes lies about itself. The subset is invisible until someone writes a pattern it silently ignores.
 - **Accumulate readers down the tree, written in gitattributes syntax and parsed by gitattributes' own parser.** Chosen.
 
 ## Decision Outcome
@@ -61,8 +61,9 @@ A commit message and a pull request derive from the paths they touch.
 `CLAUDE.md` derives from `AGENTS.md`, so it is bound nowhere and inherits.
 
 **A tracked file that reaches no actor fails the build.**
-The failure asks three questions rather than reporting a broken rule: should this file exist, what does it serve, and for whom.
-Adding a file forces the question of who it is for, and the answer is the binding, so the tree stays organised as a side effect of being readable.
+The failure asks three questions and does not report a broken rule: should this file exist, what does it serve, and for whom.
+Adding a file forces the question of who it is for, and the answer is the binding.
+The tree stays organised as a side effect of being readable.
 
 This is scoped to tracked files.
 It never applies to a milestone, an issue or a pull request, each of which carries its own record and its own template.
@@ -81,7 +82,7 @@ Git reads attributes from four named places and `.readers` is not one of them, s
 **Downside:**
 
 - **The parser costs 12 packages and a breaking release roughly monthly**, six in the last nine months, against a project that pins `ruff_*` exactly. They belong to the gate rather than to the product crate, so the wheel is untouched and the cost is a recurring upgrade. The record pays it rather than hand-write a subset.
-- ⚠️ **The check cannot tell a file that correctly has no reader from one nobody has thought about.** A lock file may be read by nobody, and both states look identical.
+- ⚠️ **The check cannot tell a file that correctly has no reader from one nobody considered.** A lock file may be read by nobody, and both states look identical.
 - **A binding placed high and loosely silences every file beneath it**, and nothing detects a binding that is technically true and useless.
 
 ## Confirmation
@@ -103,4 +104,4 @@ Both halves were exercised against real trees before this record was written.
 **The first output of this decision is an edit to those bindings, not a build.**
 
 ⚠️ No check decides whether a location truly serves the actor it names.
-That fails as friction, and friction is observed when a reader hits it: a stem that cannot reach a first success without asking, an architect that writes a record contradicting one it never found, a reviewer that cannot tell what the author discarded.
+That fails as friction, and friction is observed when a reader hits it.

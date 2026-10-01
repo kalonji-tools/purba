@@ -38,11 +38,11 @@ The vocabulary had neither.
 - **A glossary that points at the records.** Rejected. It sends the reader back into the corpus, and an index is not a source of truth.
 - **Define a term where it is first used.** Rejected. A record is rewritten in place, so first use moves whenever the corpus is reordered.
 - **Move every definition out, including a roster.** Rejected. A roster is the outcome of a decision and not a definition, so moving it wholesale empties the record that earned it.
-- **One glossary holding every definition, with a record keeping its decision and naming the glossary.** Chosen. It matches what this project already does twice: a record names a register rather than holding it, and points at a template rather than restating it.
+- **One glossary holding every definition, with a record keeping its decision and naming the glossary.** Chosen. It matches what this project already does twice. A record names a register and does not hold one. The same record points at a template and does not restate it.
 
 ## Decision Outcome
 
-A term is defined once, in `CONTEXT.md`, and a record names it rather than holding it.
+A term is defined once, in `CONTEXT.md`, and a record names it and does not hold it.
 
 **The split.**
 
@@ -64,6 +64,7 @@ The set at a glance is the point of the table, and that set is a decision belong
 **The form is a heading, and that is a deliberate departure.**
 The convention this glossary follows writes a term in bold.
 GitHub assigns an identifier to a heading and not to bold text, so a bold term cannot be linked and an index cannot reach it.
+
 A term is written as a third-level heading, followed by one or two sentences saying what it is.
 Where the corpus uses a second word for the same thing, an `_Avoid_` line names it.
 An entry links to another entry in the same file, and never out of it.

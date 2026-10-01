@@ -23,7 +23,7 @@ The pipeline worked as an agent-to-agent protocol and produced nothing for the p
 ## Considered Options
 
 - **Sort actors by what they are: a person, a program, or an agent.** Rejected. No location is written differently on account of a reader being made of silicon, and one person occupies several actors in a single day.
-- **Give each person and each program its own actor.** Rejected. This ties an actor to an incumbent, so the roster changes whenever a person changes role, and an unnamed future reader cannot appear on it at all.
+- **Give each person and each program its own actor.** Rejected. This ties an actor to an incumbent, so the roster changes whenever a person changes role. An unnamed future reader cannot appear on it at all.
 - **Sort actors by the language they work in.** Rejected on measurement. In the prototype, 15 of 681 Python files sit outside the Python tree and their reader is the toolsmith. The same language reaches three readers, so the location carries the distinction and the roster does not need to.
 - **List what each actor wants.** Rejected. A list of wants is never complete, and a reader checks whether it is on the list rather than whether it is in the position.
 - **Name an actor by its role, and state the mindset that role is in.** Chosen. A mindset covers what a list of wants leaves out, and it is what a reader recognises itself by.
@@ -59,24 +59,28 @@ Two merge when one is contained, and the survivor is the larger.
 
 Running it removed the maintainer.
 A reader returning cold does not know this part of purba, which is the stem's mindset, and it becomes whichever actor the work then needs.
-⚠️ A want list kept that role alive by naming a need no other row named. Stating the mindset instead made it visible as the stem.
+⚠️ A want list kept that role alive, because it named a need no other row named. Stating the mindset instead made it visible as the stem.
 
 **A reader does not leave the stem once.**
-It returns whenever it meets a part of purba it does not know, so a coder sent into the pipeline is a stem again, and so is a coder sent into a language it does not write.
+It returns whenever it meets a part of purba it does not know.
+A coder sent into the pipeline is a stem again, and so is a coder sent into a language it does not write.
 
-⚠️ The stem is the only actor purba can lose by doing nothing.
+⚠️ The stem is the only actor purba can lose when it does nothing.
 A stem that finds no way in leaves, and nothing records that it was ever there.
 
 **A mode is not a second axis.**
-An actor is a role stated as a noun and a mode is the same role stated as a verb, so `reviewer` and `reviewing` name one thing twice.
+An actor is a role stated as a noun, and a mode is the same role stated as a verb.
+So `reviewer` and `reviewing` name one thing twice.
 
 **An actor says nothing about who occupies it.**
 One person occupies the architect, the reviewer and the toolsmith today, and an agent occupies the coder alongside that person.
-Something that reads purba and wants nothing from it is not an actor: `git-cliff` reads a commit subject and wants nothing, so no location is written for it.
+Something that reads purba and wants nothing from it is not an actor.
+`git-cliff` reads a commit subject and wants nothing, so no location is written for it.
 An agent wants what the actor it occupies wants, so it adds no row.
 
 ⚠️ Three actors sit in both branches of the work, and one sits in both permanently.
-A plugin author becomes a contributor when it sends a hook upstream, a packager when it sends a build fix, and a tester is both at once because purba tests itself with itself.
+A plugin author becomes a contributor when it sends a hook upstream, and a packager when it sends a build fix.
+A tester is both at once, because purba tests itself with itself.
 
 **Downside:**
 

@@ -22,9 +22,9 @@ It is which identity opens it.
 
 ## Considered Options
 
-- **Permit Actions to create and approve pull requests.** Rejected, and measured before it was. The switch buys the approve power, and it does not even finish the job: a pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state, so every weekly bump would wait for a person to press a button before `Quality` and `Build` ran.
-- **Open no pull request, and leave a person a link to open one.** Rejected on the ruleset. The person who opens it becomes its author, `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one maintainer, so every bump would merge through an override and the gate would never bind the one change nobody wrote.
-- **Open it with an account's token.** Rejected. An account token is named by what it is rather than by what it does: it carries whatever that account may do, wherever that account may do it. It also expires on a date nobody records, and a bump that stops because a token lapsed is the same silence this workflow exists to break.
+- **Permit Actions to create and approve pull requests.** Rejected, and measured before it was. The switch buys the approve power, and it does not even finish the job. A pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state. Every weekly bump would then wait for a person to press a button before `Quality` and `Build` ran.
+- **Open no pull request, and leave a person a link to open one.** Rejected on the ruleset. The person who opens it becomes its author. `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one maintainer, so every bump would merge through an override. The gate would never bind the one change nobody wrote.
+- **Open it with an account's token.** Rejected. An account token is named by what it is rather than by what it does. It carries whatever that account may do, wherever that account may do it. It also expires on a date nobody records. A bump that stops because a token lapsed is the same silence this workflow exists to break.
 - **Mint an installation token for the act, and grant Actions nothing further.** Chosen. The token is bounded by an installation rather than by a person, it lives one hour, it is minted per run, and nobody rotates it.
 
 ## Decision Outcome
@@ -54,8 +54,8 @@ A change that points it at the App token would stop the only thing that reports 
 
 **Downside:**
 
-- **An App can be uninstalled, and its key can be replaced.** Either fails the mint, which fails the run, which reports. That is the loud behaviour and it was chosen over standing down, because a bump that stands down quietly freezes the compiler and says nothing.
-- ⚠️ **A repository setting is invisible to a reader of this tree.** The switch this record refuses is read back through the API and appears in no file here, so a later maintainer can turn it on and nothing in the tree will contradict them.
+- **An App can be uninstalled, and its key can be replaced.** Either fails the mint, which fails the run, which reports. That is the loud behaviour, and purba chose it rather than a quiet stand down. A bump that stands down quietly freezes the compiler and says nothing.
+- ⚠️ **A repository setting is invisible to a reader of this tree.** The switch this record refuses is read back through the API and appears in no file here. A later maintainer can turn it on, and nothing in the tree will contradict them.
 - **This adds a third thing the workflow trusts at run time**, beside the checkout and the tool installer. It is published by GitHub's own organization and pinned the way purba pins the other two.
 
 ## Confirmation
