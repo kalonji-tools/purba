@@ -73,8 +73,17 @@ shell = "bash -c"
 run = "scripts/check-records.sh"
 
 [quality]
-description = "Every lint and format gate, in one command"
-depends = ["fmt:check", "lint:shell", "lint:style", "lint:placement", "clippy", "doc", "test:doc"]
+description = "Every lint, format and record gate, in one command"
+depends = [
+  "fmt:check",
+  "lint:shell",
+  "lint:style",
+  "lint:placement",
+  "records",
+  "clippy",
+  "doc",
+  "test:doc",
+]
 
 [check]
 description = "Every gate, in one command"
