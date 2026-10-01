@@ -10,7 +10,7 @@ It is a review comment, rewritten forever, by the reader whose attention is scar
 That reader's work is judging whether a change solves its problem, and everything mechanical competes with it.
 
 [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32) answered the product half: purba is strict for the suites it runs, and strict is not a dial.
-It also drew the line this record needs — a defensible house rule for purba's own tests is a strong claim to make about someone else's.
+It also drew the line this record needs: a defensible house rule for purba's own tests is a strong claim to make about someone else's.
 This record answers the house half, which nothing answered: how purba configures the tools that read purba.
 
 ## Considered Options
@@ -31,10 +31,10 @@ A normaliser's style was weighed separately.
 **A gate owns every standard a reviewer would otherwise state by hand.**
 The rule takes two clauses, because a formatter has no severity to set.
 
-A tool that **detects** runs at the strictest setting it offers, with every optional check enabled.
+A tool that detects runs at the strictest setting it offers, with every optional check enabled.
 A check is dropped only by naming it together with the reason it is dropped, at the location a reader meets the code.
 
-A tool that **normalises** has one location for its style, and tolerates no deviation from it.
+A tool that normalises has one location for its style, and tolerates no deviation from it.
 **The style is chosen for the human who reads the code**, because a machine reads any style the syntax admits.
 Consistency across languages is part of that legibility: a reader should not change indentation systems at a file boundary.
 
@@ -92,7 +92,7 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 |---|---|---|
 | `shellcheck` at `enable=all` | the repaired tree reports nothing | a bare `$var` reinstated anywhere draws `SC2250` while `.shellcheckrc` is present, and nothing without it. Each suppression removed restores its own finding |
 | `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every script |
-| `editorconfig-checker` | the tree reports nothing | every exclusion removed restores **three** refusals, one per excluded line, and a style demanding tabs draws **seventy-two** |
+| `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
 
 ⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why only the normaliser writes.
 `[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer, so a guard on an issue number would have stopped refusing one.
