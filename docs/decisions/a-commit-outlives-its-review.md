@@ -30,7 +30,7 @@ There is no standard to appeal to.
 No ISO, IEEE or RFC governs commit messages, Conventional Commits specifies only the machine contract, and git and the kernel specify the human one.
 Both of those assume the commit is the only durable artifact, because both are mailing-list projects with no issue tracker and no decision records.
 
-The obvious fix was to let decision records absorb the rationale, and **measurement killed it**.
+The obvious fix was to let decision records absorb the rationale, and measurement killed it.
 Across 47 repositories and 506,825 non-merge commits, projects that keep decision records write bodies of 42.2 words against 38.3 for those that do not: null, and pointing the wrong way.
 Record corpora run at roughly one record per thousand commits, so they were never a reservoir large enough to absorb anything.
 

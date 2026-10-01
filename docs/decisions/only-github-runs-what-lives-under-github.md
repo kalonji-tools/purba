@@ -40,7 +40,7 @@ Placement decides which directory a script sits in and never who approves it, an
 **Downside:**
 
 - **A script moves when its callers change, and a caller is added by an edit somewhere else.**
-  The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible — on a branch brought current, and not before.
+  The rule is therefore not stable against a change it cannot see, and the command below is what makes such a move visible: on a branch brought current, and not before.
 - **A sourced helper is the weakest part.**
   It follows its callers, so two callers on opposite sides would leave it with no correct home.
   The command stays silent there rather than choosing one, because the rule names no home to choose.

@@ -113,12 +113,12 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 |---|---|
 | the commits a pull request adds carry a `Signed-off-by:` trailer naming an address | strong, the `sign` job refuses the branch before it rewrites anything |
 | the trailer is parsed and not matched as text | strong, `scripts/check-origin.sh` reads the trailer rather than the message |
-| the origin trailer was written by a person and not by their agent | **none** — nothing stops an agent running the command that adds it |
+| the origin trailer was written by a person and not by their agent | **none**, and nothing stops an agent running the command that adds it |
 | `Accepted-by:` names the account that approved the pull request | strong, and measured: the job replaces a trailer that names anyone else, so a branch cannot carry one in |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
-| a person is distinguishable from their agent | **none, and no mechanism reachable here can make it** — the agent runs where the credentials live |
+| a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
 | a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and a code owner review is required |
 | a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because the refusal is the first step and no such pull request exists here |
 | the contributor read what they signed | none, and no check can make it |
