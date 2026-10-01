@@ -519,7 +519,12 @@ awk '
     for (f in prose) {
       printf "%5.1f%%  %3d of %3d  %s\n", 100 * bare[f] / prose[f], bare[f], prose[f], f
     }
-    printf "all records  %.1f%%  %d of %d\n", 100 * barelines / lines, barelines, lines
+    # Same reason as the report above: a corpus with no prose line is
+    # refused already, and dividing by its zero would abort this one.
+    if (lines == 0)
+      printf "all records  no prose line to read\n"
+    else
+      printf "all records  %.1f%%  %d of %d\n", 100 * barelines / lines, barelines, lines
   }
 ' "${records[@]}" | sort -rn
 
