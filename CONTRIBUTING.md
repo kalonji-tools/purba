@@ -13,7 +13,7 @@ one is ever published.
 **If you write your own commits**, add it as you go with `git commit -s`.
 
 **If an agent writes them for you**, it cannot add this trailer, so you add it
-to the whole branch yourself before you ask anyone to review it:
+to the whole branch yourself once your reviewer is satisfied, and before the merge:
 
 ```
 mise run sign-off
@@ -54,7 +54,7 @@ tells you so before you commit, so the act is still yours.
 Everywhere else it certifies something only you know, and it is written at the
 moment it becomes true.
 
-A branch that reaches review without it is refused, and the refusal names the
+A branch that reaches the merge without it is refused, and the refusal names the
 commits that lack it.
 
 ## If a machine helped
