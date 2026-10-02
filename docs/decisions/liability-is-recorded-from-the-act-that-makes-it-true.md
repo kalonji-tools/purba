@@ -60,7 +60,7 @@ It is written where that act can still be read once the pull request is gone.
 
 | liability | written by | at | into |
 |---|---|---|---|
-| origin | the contributor | before the contribution goes for review | `Signed-off-by:` |
+| origin | the contributor | as the commit is made, or once the reviewer is satisfied | `Signed-off-by:` |
 | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
 | acceptance | a workflow, from the approval | the moment the code owner approves | an `Accepted-by:` trailer on every commit |
 | stewardship | the code owner | whenever ownership changes | `CODEOWNERS` |
