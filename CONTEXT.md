@@ -30,6 +30,14 @@ The [actor](#actor) that implements a settled decision in code.
 
 The [location](#location) that carries what must outlive the review that produced it. Its subject is the changelog entry.
 
+### Debrief
+
+A comment on a merged [pull request](#pull-request) that says where the change differs from its [implementation plan](#implementation-plan). It is owed only where the two differ.
+
+### Design spec
+
+A comment on an [issue](#issue) that states what a change must do and what was rejected. An issue is specified once its type is set, which declares that the person who decides agrees to the spec.
+
 ### Gate
 
 A check that refuses a merge. A rule nothing refuses is a convention rather than a gate.
@@ -37,6 +45,10 @@ A check that refuses a merge. A rule nothing refuses is a convention rather than
 ### Handler
 
 The [actor](#actor) that writes the instructions an agent acts on.
+
+### Implementation plan
+
+What the author of a [pull request](#pull-request) writes before the implementation, to say how the [design spec](#design-spec) is built. The [reviewer](#reviewer) reads it.
 
 ### Integrator
 
@@ -76,6 +88,10 @@ The [actor](#actor) that builds purba's distributions and ships them into enviro
 
 The [actor](#actor) that builds a plugin against purba's public interfaces.
 
+### Post pass
+
+A read of a branch, after the implementation, for what can be removed or improved. It leaves its findings as a comment on the [pull request](#pull-request).
+
 ### Published comment
 
 A comment that purba renders to a [reader](#reader) outside the tree, through a documentation site, a type stub or a language's own help.
@@ -95,6 +111,10 @@ A Markdown file under `docs/decisions/`, titled with a proposition, that reads a
 ### Register
 
 How information is distributed within one [location](#location). A register belongs to one location and is never compared across two.
+
+### Repair
+
+A change that restores what a [record](#record), a [design spec](#design-spec) or a [gate](#gate) already requires. It carries no decision.
 
 ### Reviewer
 
@@ -119,6 +139,10 @@ The [actor](#actor) that runs purba against its own code.
 ### Toolsmith
 
 The [actor](#actor) that builds and configures purba's tooling.
+
+### Triage
+
+What an [issue](#issue) gets when it is filed: one label that says how it is resolved, and the issues that block it.
 
 ### Unpublished comment
 
