@@ -110,7 +110,7 @@ if [[ -f "${state}/stopped-sha" ]]; then
   report "this commit does not apply where purba replays your branch, so the branch cannot be \
 signed. A merge commit whose conflict you resolved by hand is the usual cause. Rebase your branch \
 onto its base instead." "${detail}"
-elif [[ -n "${parent_tree}" && "${stopped_tree}" = "${parent_tree}" ]]; then
+elif [[ -n "${stopped}" && -n "${parent_tree}" && "${stopped_tree}" = "${parent_tree}" ]]; then
   report "this commit replays empty, and purba cannot write its trailer into an empty commit, so \
 the branch cannot be signed. Remove the commit. The replay empties a commit whose change is \
 already on the base as well." "${detail}"

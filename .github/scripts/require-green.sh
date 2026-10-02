@@ -14,15 +14,13 @@ if [[ $# -lt 2 ]]; then
   exit 2
 fi
 
-: "${GH_REPO:?set by the workflow env}"
-
 # shellcheck source=.github/scripts/check-run.sh
 . "$(dirname "$0")/check-run.sh"
 
 head=$1
 shift
 
-runs=$(gh api "repos/${GH_REPO}/commits/${head}/check-runs?per_page=100")
+runs=$(check_runs_of "${head}")
 
 for context in "$@"; do
   conclusion=$(last_conclusion "${context}" <<<"${runs}")

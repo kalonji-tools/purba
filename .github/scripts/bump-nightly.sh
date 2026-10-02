@@ -19,7 +19,10 @@ if [[ $# -ne 2 ]]; then
   exit 2
 fi
 
-: "${GH_REPO:?set by the workflow env}"
+if [[ -z "${GH_REPO:-}" ]]; then
+  echo "GH_REPO is set by the workflow env, and it is empty here." >&2
+  exit 2
+fi
 
 branch=$1
 issue=$2
@@ -51,8 +54,11 @@ fi
 
 # ⚠️ Never replace this with a force-push. A pull request that broke keeps
 # the head that refused it, and the logs hanging off that head.
-open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
-  '.[].number')
+if ! open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
+  '.[].number'); then
+  echo "the open pull requests on ${branch} could not be read." >&2
+  exit 2
+fi
 if [[ -n "${open}" ]]; then
   echo "pull request #${open} is already proposing a nightly on ${branch}, so this run stands down"
   echo "nothing bumps until a person signs that one or closes it"
@@ -70,7 +76,10 @@ if [[ -z "${was}" ]]; then
   exit 2
 fi
 
-mise upgrade --bump rust
+if ! mise upgrade --bump rust; then
+  echo "::error::mise could not upgrade the pinned nightly" >&2
+  exit 2
+fi
 
 # ⚠️ Read the tree, never the exit code.
 if git diff --quiet -- "${toml}" "${lock}"; then
@@ -78,8 +87,8 @@ if git diff --quiet -- "${toml}" "${lock}"; then
   exit 0
 fi
 
-# ⚠️ Refuse anything this did not ask for. These two files are the ones a
-# reviewer of this script has seen.
+# ⚠️ Refuse a tracked file this changed and did not ask for. The commit below
+# names the two files it takes, so nothing else reaches the proposal.
 if ! git diff --quiet -- . ":!${toml}" ":!${lock}"; then
   echo "::error::the bump changed files beyond ${toml} and ${lock}, so it is not proposed"
   git --no-pager diff --stat >&2
@@ -92,19 +101,32 @@ if [[ -z "${now}" ]]; then
   exit 2
 fi
 
+if [[ "${now}" = "${was}" ]]; then
+  echo "the pin is still ${was}, so there is nothing to propose"
+  git checkout --quiet -- "${toml}" "${lock}"
+  exit 0
+fi
+
 echo "proposing ${now}, which replaces ${was}"
 
 subject="chore: move the nightly to ${now#nightly-} (#${issue})"
 
 # ⚠️ No `-s`. CONTRIBUTING.md: a machine never writes that trailer.
-git -c "user.name=${author}" -c "user.email=${email}" \
-  commit --quiet -m "${subject}" -- "${toml}" "${lock}"
+if ! git -c "user.name=${author}" -c "user.email=${email}" \
+  commit --quiet -m "${subject}" -- "${toml}" "${lock}"; then
+  echo "::error::the bump could not be committed" >&2
+  exit 2
+fi
 
-# The branch outlives a closed pull request, so this replaces it.
-git push --force origin "HEAD:refs/heads/${branch}"
-
-# Leave the caller the tree it checked out.
+# The branch outlives a closed pull request, so this replaces it. The caller
+# keeps the tree it checked out, whether or not the push lands.
+pushed=0
+git push --force origin "HEAD:refs/heads/${branch}" || pushed=$?
 git reset --quiet --hard "${before}"
+if [[ ${pushed} -ne 0 ]]; then
+  echo "::error::the proposal could not be pushed to ${branch}" >&2
+  exit 2
+fi
 
 body=$(
   cat <<BODY
@@ -135,6 +157,9 @@ Opened by \`.github/workflows/bump.yml\`, which \
 BODY
 )
 
-gh pr create --repo "${GH_REPO}" --base main --head "${branch}" \
+if ! gh pr create --repo "${GH_REPO}" --base main --head "${branch}" \
   --title "${subject}" \
-  --body "${body}"
+  --body "${body}"; then
+  echo "::error::${branch} is pushed, and its pull request could not be opened" >&2
+  exit 2
+fi

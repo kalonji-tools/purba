@@ -20,8 +20,6 @@ if [[ $# -lt 3 ]]; then
   exit 2
 fi
 
-: "${GH_REPO:?set by the workflow env}"
-
 # shellcheck source=.github/scripts/check-run.sh
 . "$(dirname "$0")/check-run.sh"
 
@@ -36,8 +34,11 @@ if [[ "${before}" = "${after}" ]]; then
   exit 0
 fi
 
-before_tree=$(git rev-parse "${before}^{tree}")
-after_tree=$(git rev-parse "${after}^{tree}")
+if ! before_tree=$(git rev-parse --verify --quiet "${before}^{tree}") ||
+  ! after_tree=$(git rev-parse --verify --quiet "${after}^{tree}"); then
+  echo "the tree of ${before} or of ${after} could not be read." >&2
+  exit 2
+fi
 
 echo "before ${before} tree ${before_tree}"
 echo "after  ${after} tree ${after_tree}"
@@ -48,7 +49,7 @@ if [[ "${before_tree}" != "${after_tree}" ]]; then
 fi
 
 for context in "$@"; do
-  runs=$(gh api "repos/${GH_REPO}/commits/${before}/check-runs?per_page=100")
+  runs=$(check_runs_of "${before}")
   conclusion=$(last_conclusion "${context}" <<<"${runs}")
 
   # Absent reads the same as refused here, on purpose.

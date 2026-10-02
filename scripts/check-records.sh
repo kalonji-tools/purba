@@ -489,8 +489,8 @@ tally=$(grep -m1 '^tally' <<<"${prose}") || tally=''
 read -r _ sentences passives arts formals wordcount formallist <<<"${tally}"
 
 # A record carrying no prose at all is already refused above, for having no
-# Downside list. Dividing by its zero sentences would abort this report and
-# exit 2, which says the command could not decide where it decided already.
+# Downside list. Dividing by its zero sentences writes an error into this
+# report, between a refusal and the numbers that follow it.
 pct=0
 [[ "${sentences:-0}" -eq 0 ]] || pct=$((100 * passives / sentences))
 
