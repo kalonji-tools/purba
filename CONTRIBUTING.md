@@ -150,6 +150,10 @@ not build or does not load, on every platform and Python purba supports.
 current with `main`, so a branch that has fallen behind is rebased and
 reviewed against what is there now.
 
+A fourth check, `Scripts`, refuses a failing test of purba's own scripts, and
+runs those tests only where your branch changes one. purba does not sign a
+branch while `Scripts` is red, so it stops a merge through `Sign-off`.
+
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
 added to one, so purba refuses it. The sign-off command above replays. So does

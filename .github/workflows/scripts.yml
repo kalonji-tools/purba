@@ -1,0 +1,53 @@
+# The gate that refuses a merge on a failing test of purba's own scripts.
+#
+#   the command:   tasks.toml, under `test:scripts`
+#   the tools:     mise.toml
+#   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+#
+# Never add a `paths:` filter here. A check that never reports and a check that
+# refuses are the same thing to the ruleset, so a filtered run blocks forever.
+# The job reads what the pull request changes instead, and reports either way.
+#
+# ⚠️ `sign.yml` names this workflow, and names its job in two more lists. A
+# rename here that does not reach all three stops every branch from merging.
+name: Scripts
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scripts-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  MISE_VERSION: 2026.9.14
+
+jobs:
+  scripts:
+    # One word, because `sign.yml` splits its lists on spaces.
+    name: Scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # A pull request is checked out as its merge commit, whose first parent
+      # is the base.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Name whether this pull request changes a script
+        id: changed
+        run: .github/scripts/changed-scripts.sh HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@v4
+        if: steps.changed.outputs.scripts == 'true'
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - name: Refuse a script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:scripts
