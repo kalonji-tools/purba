@@ -5,7 +5,7 @@
 purba's own scripts are shell, and nothing in the tree said what language they had to be written in.
 The question governs every script added from now on.
 
-Nothing tests any of that shell.
+Nothing tested any of that shell when purba took this decision.
 Every defect in it was found by continuous integration or by a throwaway pull request.
 One of them refused the pull request that introduced it.
 A language is worth no more here than the runner that can test it.
@@ -15,7 +15,7 @@ The calls into GitHub's API sit in the thinnest scripts in the tree.
 The scripts holding real branch logic make none of those calls.
 Whichever argument is taken, the other set stays in shell.
 
-| calls the scripts make | n |
+| calls the scripts made when purba took this decision | n |
 |---|---:|
 | `git` | 73 |
 | `gh` | 19 |
@@ -66,14 +66,22 @@ A `run:` block there asserts the built extension is a real shared object, and no
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
+- **A pull request runs the tests only when it changes a script.** A new version of `bats`, `jq` or git can break a script. The next change to a script is what finds the break.
 
 ## Confirmation
 
-**No command reads this record, and the check for it is not written yet.**
-[Test every gate script against the shape it refuses](https://github.com/kalonji-tools/purba/issues/201) adopts the runner and writes the tests, and this decision unblocks it.
+**No command refuses a script for its language.**
+A reviewer reads the extension.
+The Downside above carries that cost.
+
+`mise.toml` names `bats`.
+`mise run test:scripts` runs every test under `scripts/test`.
+`mise run check` runs that task.
+`.github/workflows/scripts.yml` runs it when a pull request changes a file under `scripts/` or `.github/scripts/`.
+`.github/workflows/sign.yml` waits for the `Scripts` check, so purba does not sign a branch whose test fails.
 
 `shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run quality`.
-The first two read a glob naming `*.sh`, so neither reaches a test file until that glob is widened.
-`editorconfig-checker` reads every tracked file, so it refuses a test file that breaks the style today.
+The first two read a glob that names `*.sh` and `*.bats`, so both reach a test file.
+`editorconfig-checker` reads every tracked file.
 
 [Which tools does mise.toml name, and how does it record a tool that is refused?](https://github.com/kalonji-tools/purba/issues/113) owns how the roster records `shellspec`, which this record refuses and the roster does not name.

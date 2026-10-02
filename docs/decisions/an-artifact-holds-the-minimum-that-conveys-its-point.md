@@ -82,7 +82,6 @@ A threshold would refuse the records that obey.
 - **A reported number binds nobody.** It can be read and ignored indefinitely.
 - **The file stating the prose rules is not checked against them.** `.template.md` sits outside the glob, and its rules live inside a comment the same command refuses elsewhere.
 - **Bold used for emphasis at the head of a sentence passes.** A bolded table row is not a lead-in, and no rule here refuses it.
-- **The prose gate has no test.** It is read rather than run, as every script in `scripts/` is.
 
 ## Confirmation
 

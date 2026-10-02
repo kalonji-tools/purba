@@ -61,19 +61,20 @@ It was a second reading of what the command now derives on every run, and one of
 No workflow names it and nothing sources it, because a sibling under `.github/scripts/` executes it.
 That row is the case the clause above exists to admit, and it is also what a hand-written copy of a machine-readable fact becomes.
 
-The command was exercised green and red.
+`scripts/test/check-placement.bats` builds a tree for each control below and runs the command against it.
+`mise run test:scripts` runs that file.
+`quality` reads the tree itself on every run.
+
+A test under `scripts/test` runs a script from either half.
+The command does not read a test as a caller, so no test moves a script.
 
 | control | reading |
 |---|---|
-| the tree untouched | fifteen scripts pass, and the exit is 0 |
-| the record command moved under `.github/scripts/` | refused, naming `tasks.toml` as its only caller |
-| the record-thread script moved into `scripts/` | refused, naming `records.yml` |
-| a new script under `.github/scripts/` that nothing names | refused |
-| a new command in `scripts/` that nothing names | passes, because a person is its caller |
-| the bump workflow keeps its header comment and loses the line that runs the script | refused, and the comment survives the edit |
-| a duplicate basename across the two halves | the new file is refused and the placed one passes, so a collision cannot produce a silent pass |
+| a script under `.github/scripts/` that only a task names | refused, and the task is named as its only caller |
+| a script in `scripts/` that only a workflow names | refused, and the workflow is named |
+| a script under `.github/scripts/` that nothing names | refused |
+| a script in `scripts/` that nothing names | passes, because a person is its caller |
+| a workflow that keeps a comment naming a script and loses the line that runs it | refused |
+| a second script of one name, in the other half | the new file is refused and the placed one passes, so a collision cannot produce a silent pass |
 | run outside a git repository | exits 2 rather than 1, because it cannot decide rather than refuse |
 | run with `GITHUB_ACTIONS=true` | the refusal is an `::error::` annotation |
-
-⚠️ **Nothing runs the command itself.**
-The controls above were taken by hand, and [Test every gate script against the shape it refuses](https://github.com/kalonji-tools/purba/issues/201) owns the harness that would re-run them.
