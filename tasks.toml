@@ -67,6 +67,14 @@ run = """
 description = "Run the examples in the Rust documentation"
 run = "cargo test --doc"
 
+["test:scripts"]
+description = "Run purba's own scripts against the shapes they refuse"
+#   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+#
+# bats names the line that failed and never what the script wrote, so the flag
+# prints the script's output beside it.
+run = "bats --print-output-on-failure --recursive scripts/test"
+
 [records]
 description = "Refuse a decision record that breaks a rule a command can decide"
 shell = "bash -c"
@@ -87,7 +95,7 @@ depends = [
 
 [check]
 description = "Every gate, in one command"
-depends = ["quality", "test:rust"]
+depends = ["quality", "test:rust", "test:scripts"]
 
 [preflight]
 description = "Every gate, from a clean tree"
