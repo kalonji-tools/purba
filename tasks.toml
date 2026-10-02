@@ -18,17 +18,17 @@ run = "cargo fmt"
 ["fmt:shell"]
 description = "Rewrite the shell formatting"
 shell = "bash -c"
-run = "shfmt --write $(git ls-files '*.sh')"
+run = "shfmt --write $(git ls-files '*.sh' '*.bats')"
 
 ["fmt:check"]
 description = "Refuse unformatted code"
 shell = "bash -c"
-run = ["cargo fmt --check", "shfmt --diff $(git ls-files '*.sh')"]
+run = ["cargo fmt --check", "shfmt --diff $(git ls-files '*.sh' '*.bats')"]
 
 ["lint:shell"]
 description = "Refuse a shell defect"
 shell = "bash -c"
-run = "shellcheck -x $(git ls-files '*.sh')"
+run = "shellcheck -x $(git ls-files '*.sh' '*.bats')"
 
 ["lint:style"]
 description = "Refuse a line that breaks the style every editor reads"
