@@ -38,6 +38,13 @@ shfmt = "3"
 # https://github.com/editorconfig-checker/editorconfig-checker
 editorconfig-checker = "3"
 
+#   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+# https://bats-core.readthedocs.io
+bats = "1"
+
+# https://jqlang.org
+jq = "1"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.

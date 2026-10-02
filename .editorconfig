@@ -7,10 +7,10 @@ root = true
 indent_style = space
 max_line_length = 100
 
-[*.{sh,yml,yaml,toml}]
+[*.{sh,bats,yml,yaml,toml}]
 indent_size = 2
 
-[*.sh]
+[*.{sh,bats}]
 switch_case_indent = true
 
 # A table row is one line by Markdown's syntax, and a lock file is generated.

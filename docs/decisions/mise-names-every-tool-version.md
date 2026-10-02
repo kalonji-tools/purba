@@ -73,6 +73,7 @@ Buying a lower floor is deferred to whatever publishes wheels, and zig is the me
 - **A machine with no C compiler does not build purba at all.** Nothing detects that before the first build script fails.
 - **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing today because nobody installs these wheels, and will cost something the day somebody does.
 - **The toolchain's entry records a version and verifies none.** `core:rust` downloads no artifacts and so carries no checksum.
+- **The entry for `bats` verifies nothing either.** `mise lock` records a URL for it and no checksum.
 - **The toolchain is the one tool named by a date.** Somebody must move that date or purba freezes on one compiler, and [Bump the pinned nightly on a schedule, and regenerate the lockfile with it](https://github.com/kalonji-tools/purba/issues/190) owns the moving.
 - **Nothing moves mise's own pinned version.** mise cannot pin itself, and no bot reads a workflow input.
 - **The lockfile is not complete by default.** `mise lock` skips what it cannot fetch and reports success anyway, and an unauthenticated GitHub rate limit is enough to cause that. An entry carrying a stale tool option splits in two, and then fails on the platform that produced it.
@@ -82,6 +83,8 @@ Buying a lower floor is deferred to whatever publishes wheels, and zig is the me
 `mise install --locked`, run against an empty store.
 
 It reproduces every tool from the committed lockfile, the Rust toolchain included.
+The lockfile holds no Windows entry for `bats`.
+The install on Windows skips that tool and reports nothing.
 Run against a store that already holds them it reports "already installed" and resolves nothing, so a local pass there proves nothing at all.
 
 ⚠️ **A floating version name cannot be held by this lockfile.**
