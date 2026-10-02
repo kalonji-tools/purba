@@ -51,8 +51,8 @@ $ mise run build
 That list is the roster, so this file does not repeat it.
 
 `mise run check` is what to run before you ask anyone to review a branch. It
-refuses unformatted code, a lint, a broken link in the Rust documentation and a
-failing test.
+refuses unformatted code, a lint, a broken decision record, a broken link in
+the Rust documentation and a failing test.
 
 `mise run preflight` is the same from a clean tree. Worktrunk runs it before it
 merges a branch, so you rarely run it by hand.

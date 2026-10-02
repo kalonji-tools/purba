@@ -53,7 +53,7 @@ The gate's own code is the last thing that should lose a reviewer to a move.
 
 **`mise run lint:placement` reads the rule, and `quality` depends on it.**
 `scripts/check-placement.sh` keys on the callers a code line names.
-A comment naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
+A comment line naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
 
 ⚠️ **The table this section carried is deleted rather than corrected.**
 It was a second reading of what the command now derives on every run, and one of its rows went wrong.

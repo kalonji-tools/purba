@@ -5,7 +5,8 @@
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Exits 1 when it refuses, and 0 when there is nothing to accept yet.
+# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when it
+# cannot write a check run.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
