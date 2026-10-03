@@ -10,7 +10,7 @@ include_fragments = "full"
 include_verbatim = true
 require_https = true
 
-# Two optional checks stay off, at their defaults.
+# These optional checks stay off, at their defaults.
 #
 # Mail is not checked. Every address in this tree is a git identity, and none
 # has a mailbox to find.
