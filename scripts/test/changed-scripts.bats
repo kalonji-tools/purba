@@ -36,7 +36,6 @@ merged() {
   [[ "${stderr}" == "a script or lychee.toml changed, so the script tests run" ]]
 }
 
-# The link gate's test copies the settings in lychee.toml.
 @test "a change to lychee.toml is seen" {
   echo 'exclude = []' >lychee.toml
   merged
