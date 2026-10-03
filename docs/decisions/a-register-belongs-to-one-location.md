@@ -118,14 +118,12 @@ These are titles for the parties to one pull request, and the roster in [an acto
 |---|---|---|---|
 | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no, `commit-msg` hooks refuse at the commit |
 | `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | yes, `mise run records` |
-| `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no |
+| `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no, and its record says ungated |
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `clippy` for a Rust doc comment |
-| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness only | no, that gate is not wired |
-| `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | no |
-
-[Does purba wire the link gate its record describes, or refuse it?](https://github.com/kalonji-tools/purba/issues/255) owns the link-liveness gate.
+| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | yes, `mise run lint:links` |
+| `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
 
 Five locations are closed and hold no register.
 
