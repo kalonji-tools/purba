@@ -31,6 +31,15 @@ tracked=$(git -c core.quotePath=false ls-files) || {
   exit 2
 }
 
+# A file that .gitattributes marks generated holds what a tool wrote, so no
+# author chose an address in it. Every read below leaves it out.
+authored=':(exclude,attr:linguist-generated)'
+
+written=$(git -c core.quotePath=false ls-files -- . "${authored}") || {
+  printf 'the tracked files cannot be listed.\n' >&2
+  exit 2
+}
+
 base=${PURBA_BASE:-}
 if [[ -z "${base}" ]]; then
   base=$(git merge-base origin/main HEAD 2>/dev/null) || {
@@ -40,19 +49,18 @@ if [[ -z "${base}" ]]; then
 fi
 
 # The comparison is with the working tree, so an edit is read before it is
-# committed. A lock file is generated, so the addresses in it are the
-# resolver's and not an author's.
+# committed.
 changed=$(git -c core.quotePath=false diff --name-only --no-renames --diff-filter=d \
-  "${base}" -- ':!*.lock') || {
+  "${base}" -- . "${authored}") || {
   printf 'what this branch changes against %s cannot be read.\n' "${base}" >&2
   exit 2
 }
 
 inputs=""
 while IFS= read -r file; do
-  [[ -n "${file}" && "${file}" != *.lock && -f "${file}" ]] || continue
+  [[ -n "${file}" && -f "${file}" ]] || continue
   inputs+="${inputs:+$'\n'}${file}"
-done <<<"${tracked}"
+done <<<"${written}"
 
 broken=0
 
@@ -105,7 +113,7 @@ done <<<"${tracked}"
 # A comment line opens with `#` or `//`. Markdown is left out, because `#` opens
 # a heading there.
 comments=$(git -c core.quotePath=false grep -n -I -E '^[[:space:]]*(#|//)' -- \
-  ':!*.md' ':!*.lock') || {
+  ':!*.md' "${authored}") || {
   status=$?
   [[ ${status} -eq 1 ]] || {
     printf 'the comments cannot be read.\n' >&2
