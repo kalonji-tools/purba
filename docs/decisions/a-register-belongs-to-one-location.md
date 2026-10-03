@@ -98,9 +98,9 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 Considered Options says why no gate holds the pull request's register or the issue's.
 purba's other registers are convention.
 
-The pull request's constraint is the one this record holds, because that register does not exist yet:
-a pull request must carry a section addressed to the human reviewer that names what they must decide.
-The section names belong to the ticket that writes the template.
+The pull request's register is `.github/PULL_REQUEST_TEMPLATE.md`.
+It carries a section addressed to the reviewer that names what they must decide.
+It carries the implementation plan.
 
 A pull request holds the discussion of how the subject was implemented, between the author, the co-author and the approver.
 That discussion is consumed by the review and does not travel, which is why [a commit message outlives its review](a-commit-outlives-its-review.md) keeps it out of the commit.
@@ -139,6 +139,3 @@ Five locations are closed and hold no register.
 
 Nothing here checks whether a register is the right one for its location.
 That fails as friction, and a reader reports it.
-
-One register named above is not in the tree.
-[Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) writes it.

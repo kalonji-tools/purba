@@ -116,6 +116,5 @@ Each step leaves something a reader can look for.
 | one issue is answered | `gh pr view <n> --json closingIssuesReferences` |
 | the history was kept | the pull request shows no force push between two review rounds |
 
-[Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) decides where the implementation plan is written.
 [What should the label roster name: the act, or the actor?](https://github.com/kalonji-tools/purba/issues/129) decides the label names.
 [`AGENTS.md`](../../AGENTS.md) carries these steps to an agent before it acts.
