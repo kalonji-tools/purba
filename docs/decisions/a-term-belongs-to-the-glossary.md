@@ -74,7 +74,6 @@ A definition that sends the reader somewhere else is not a definition, so other 
 
 - **A definition can drift from the prose that uses it.** It takes an author who did not consult the glossary and a reviewer who did not catch it, and nothing mechanical prevents either.
 - **Telling a purba term from a general one is judgement.** No test separates them, and a term admitted wrongly makes the glossary the place where general programming is explained.
-- **This opens a location that cannot yet declare its readers.** The file that holds a reader binding is not in the tree, so this location names its reader in prose until it is.
 
 ## Confirmation
 
