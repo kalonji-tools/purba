@@ -6,6 +6,8 @@
 # lychee reads this file from the directory it runs in.
 # https://github.com/lycheeverse/lychee/blob/lychee-v0.24.2/lychee.example.toml
 
+# Every optional check is on except those named below, because a tool that
+# detects runs at the strictest setting it offers.
 include_fragments = "full"
 include_verbatim = true
 require_https = true
@@ -15,8 +17,7 @@ require_https = true
 # Mail is not checked. Every address in this tree is a git identity, and none
 # has a mailbox to find.
 #
-# Wikilinks are not read. purba writes none, and a TOML table such as
-# `[[repos]]` would be read as one.
+# Wikilinks are not read, because purba writes none.
 
 exclude = [
   # A script builds this address from a variable, so it is never visited as
