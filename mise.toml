@@ -47,6 +47,10 @@ bats = "1"
 # https://jqlang.org
 jq = "1"
 
+# mise's own registry has no entry for it.
+# https://embarkstudios.github.io/cargo-deny
+"aqua:EmbarkStudios/cargo-deny" = "0"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.

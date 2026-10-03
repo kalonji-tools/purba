@@ -143,8 +143,8 @@ dismisses an approval already given, so an approval follows the code rather
 than the branch.
 
 Three checks are required. `Quality` refuses a lint, a formatting difference,
-a broken decision record, a broken link in the Rust documentation and a
-failing example. `Build` refuses a failing Rust test, and a wheel that does
+a broken decision record, a broken link in the Rust documentation, a failing
+example and a dependency whose licence is not on the allowlist. `Build` refuses a failing Rust test, and a wheel that does
 not build or does not load, on every platform and Python purba supports.
 `Sign-off` records that purba accepted the branch. Your branch must also be
 current with `main`, so a branch that has fallen behind is rebased and

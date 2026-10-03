@@ -1,0 +1,21 @@
+# The licences purba's Rust dependencies may carry.
+# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+#
+# Each entry comes from the gate's own refusal, never from memory: an `AND` or a
+# `WITH` in a crate's licence is invisible until the graph resolves. A licence
+# that one crate needs is an exception for that crate.
+
+[licenses]
+# `MIT` and not `Apache-2.0`, though either satisfies every `OR` here, because
+# `MIT` is purba's own licence.
+allow = ["MIT"]
+
+# This refuses a licence that no crate names, and accepts one that only an `OR`
+# names. So a spare `Apache-2.0` passes unused.
+unused-allowed-license = "deny"
+unused-license-exception = "deny"
+
+exceptions = [
+  { crate = "unicode-ident", allow = ["Unicode-3.0"] },
+  { crate = "target-lexicon", allow = ["Apache-2.0 WITH LLVM-exception"] },
+]
