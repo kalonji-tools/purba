@@ -1,6 +1,6 @@
 [package]
 name = "purba"
-# git-cliff computes the version and it is never chosen by hand (#24). `0.0.0`
+# git-cliff computes the version and it is never chosen by hand. `0.0.0`
 # is the pre-release placeholder: there are no tags yet, so there is nothing for
 # git-cliff to compute from. purba stays 0.x.
 version = "0.0.0"
@@ -8,32 +8,22 @@ edition = "2024"
 license = "MIT"
 description = "A Python test framework written in Rust"
 repository = "https://github.com/kalonji-tools/purba"
-# A cdylib cannot be a library dependency, so nothing downstream can consume
-# this crate (#24). The Rust crate surface is explicitly outside purba's public
-# API, and docs.rs only builds published crates — which is why `cargo doc` is a
-# CI lint here rather than a published site (#28).
+# The Rust crate surface is outside purba's public API.
 publish = false
 
 # `rust-version` is deliberately absent. It is a claim about consumers, and
-# `publish = false` plus a cdylib means purba has none.
+# `publish = false` means purba has none.
 
 [lib]
 name = "purba"
-# NOT ["cdylib"] alone. With a bare cdylib, `cargo test` prints GREEN and
-# silently omits the `Doc-tests` section entirely, while `cargo doc` renders
-# examples beautifully — a published, rendered, WRONG example under a green CI.
-# Cargo's `Target::doctestable()` admits only Rlib | Lib | ProcMacro, and PyO3's
-# guide never mentions this. The extra `rlib` is inert to maturin: the abi3
-# wheel is byte-identical (#28).
+#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.29.2", features = ["abi3-py312"] }
 
 [features]
-# NOT a default feature. `extension-module` omits libpython, which breaks
-# `cargo test --doc` and `cargo doc` — the two lints #28 put in quality.yml.
-# maturin turns this on via [tool.maturin] features; plain cargo leaves it off.
+#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 extension-module = ["pyo3/extension-module"]
 
 [lints.rust]
