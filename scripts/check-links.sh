@@ -82,9 +82,12 @@ links() {
 links "A link to a file or a heading in this tree is refused when its target does not \
 exist. A renamed file leaves every link to it dead." "${inputs}" --offline
 
+# The offline leg reads every link to a file already, so this one reads only an
+# address on the network, and a dead file link is reported once.
 if [[ -n "${changed}" ]]; then
   links "A link in a file this branch changes is refused when it does not answer. A link \
-in any other file is read only for a target in this tree." "${changed}"
+in any other file is read only for a target in this tree." "${changed}" --scheme https \
+    --scheme http
 fi
 
 # Every tracked file, and every directory that holds one, is a path a comment
