@@ -61,7 +61,7 @@ It says what information belongs at a location.
 
 Voice belongs to the language, and only where that language runs a tool that enforces it.
 Elsewhere voice is convention.
-An unpublished comment carries such a register: best practice rather than an enforced rule.
+An unpublished comment carries such a register: best practice, and a gate holds only its links and the paths it cites.
 What belongs in one at all is held by [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md).
 
 **The published comment is split across both layers.**
@@ -96,6 +96,7 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 `mise run records` refuses a record that breaks a rule a command can decide.
 `Quality` runs it on every pull request.
 Considered Options says why no gate holds the pull request's register or the issue's.
+A gate also holds part of an unpublished comment's register, and [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) names which part.
 purba's other registers are convention.
 
 The pull request's register is `.github/PULL_REQUEST_TEMPLATE.md`.
@@ -122,7 +123,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `clippy` for a Rust doc comment |
-| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | yes, `mise run lint:links` |
+| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
 
 Five locations are closed and hold no register.

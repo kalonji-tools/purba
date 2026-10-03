@@ -69,13 +69,12 @@ The issue number belongs to the commit subject.
 It is not a threshold, and no check counts them.
 
 **This record is the exception to [a register belongs to one location](a-register-belongs-to-one-location.md).**
-That record states that nothing about an unpublished comment is gated.
+That record calls this register convention, and names what this section gates.
 Link liveness and the paths a comment cites are decidable, so those two are gated and the rest is convention.
 
 **Downside:**
 
 - **The rule that decides is unenforceable.** Whether information belongs in another location is a judgement, so nothing gates the sentence this record exists to state.
-- **A reader who reaches the general record first is told this location is never gated.**
 - **The recommended citation is the form most likely to fail the gate.** A digital object identifier resolves to a publisher, and a publisher blocks the checker. The gate refuses such a link until the change that adds it also adds an exception and its reason.
 - **A checked link is not a read link.** The gate proves a page answers, never that it still says what the comment claims.
 - **The online leg depends on a network.** It refuses a change for the state of somebody else's server, so it reads only the files a change touches.
@@ -88,11 +87,13 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 | leg | reads | refuses |
 |---|---|---|
 | offline | every tracked file except `*.lock` | a link to a file or a heading in the tree that does not exist |
-| online | the files a branch changes against its base | a link that does not answer |
+| online | the files a branch changes against its base | an address on the network that does not answer |
 | cited paths | each comment line outside Markdown | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
-`lychee.toml` holds each setting that differs from the checker's default, with its reason beside it.
-`scripts/test/check-links.bats` builds each shape the gate refuses.
+`lychee.toml` holds the settings both legs share, with the reason for each beside it.
+The script passes the flags that differ per leg.
+`scripts/test/check-links.bats` builds each shape the gate refuses offline.
+A fragment that quotes text, and an `http` link with an `https` form, are read on the network alone, and no test reaches either.
 
 The checker reads a file it is given by name, whatever its extension.
 Outside Markdown and HTML it finds a full address only, so a cited path needs a leg of its own.
