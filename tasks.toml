@@ -39,6 +39,11 @@ description = "Refuse a script that sits in the wrong directory"
 shell = "bash -c"
 run = "scripts/check-placement.sh"
 
+["lint:manifests"]
+description = "Refuse a package that two manifests declare, and any in pyproject.toml"
+shell = "bash -c"
+run = "scripts/check-manifests.sh"
+
 [clippy]
 description = "Refuse a lint"
 run = "cargo clippy --all-targets"
@@ -87,6 +92,7 @@ depends = [
   "lint:shell",
   "lint:style",
   "lint:placement",
+  "lint:manifests",
   "records",
   "clippy",
   "doc",

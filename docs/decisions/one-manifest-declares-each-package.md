@@ -103,7 +103,8 @@ Buying a lower floor is deferred to whatever publishes wheels, and zig is the me
 **Downside:**
 
 - **Nobody builds purba from source with pip or uv.** Each stops with an import error that does not name mise.
-- **Nothing refuses a second declaration yet.** Only a reviewer notices one.
+- **The gate compares names, not packages.** A package published under a different name in each registry passes `mise run lint:manifests`. A mise key that names a URL passes it as well.
+- **The first Python package owes the gate a reader.** Until then the gate refuses any package in `pyproject.toml`.
 - **A machine with no C compiler does not build purba at all.** Nothing detects that before the first build script fails.
 - **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing today because nobody installs these wheels, and will cost something the day somebody does.
 - **The toolchain's entry records a version and verifies none.** `core:rust` downloads no artifacts and so carries no checksum.
@@ -136,16 +137,14 @@ Every other tool in `mise.toml` satisfies that by accident, and no lockfile entr
 The toolchain is therefore named by a date, which resolves only to itself.
 [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) holds that choice.
 
-One of the four properties below is checked by `.github/workflows/build.yml`.
-
 | property | check |
 |---|---|
 | the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
 | the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
-| each package is declared in one manifest | not wired. [Refuse a package that two manifests declare](https://github.com/kalonji-tools/purba/issues/246) builds the gate |
+| each package is declared in one manifest | ✅ `mise run lint:manifests`, through `quality`. It compares `mise.toml` with `Cargo.toml` by name, in lower case with each run of `-`, `_` and `.` read as one `-`. It refuses any package in `pyproject.toml` |
 
-The second check is worth naming precisely.
+The `build.yml` check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension.
 The package's own file attribute reports the `__init__.py` and proves nothing.
 A check written that way passes for a package with no Rust in it.
