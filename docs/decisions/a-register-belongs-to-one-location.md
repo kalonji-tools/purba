@@ -111,7 +111,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 
 - **Every register depends on an author who reads it.** Nearly every issue here was written by one, so the evidence says nothing about a second author or an outside contributor.
 - **A register can drift from the record that names it.** Naming is a pointer and nothing compares the two.
-- **Six locations hold no register.** This record is revisited every time one opens.
+- **Five locations hold no register.** This record is revisited every time one opens.
 
 ## Confirmation
 
@@ -124,23 +124,23 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | no |
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness only | that one property, and nothing else |
+| `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | no |
 
 One row is gated, and only for link liveness.
 Two could be, and Considered Options says why.
 
-Six locations are closed and hold no register.
+Five locations are closed and hold no register.
 
 | closed location | opens when |
 |---|---|
 | CHANGELOG | the release workflow lands, and `cliff.toml` is its register |
 | public docs site | Pages opens, and Diátaxis is its register |
 | local internals library | something is written into it |
-| `AGENTS.md` | the file is written |
 | wiki | never, unless a reader and a register are named first |
 | discussions | never, unless a reader and a register are named first |
 
 Nothing here checks whether a register is the right one for its location.
 That fails as friction, and a reader reports it.
 
-Two registers named above are not in the tree.
-[Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) writes one and [Write the issue register](https://github.com/kalonji-tools/purba/issues/121) writes the other.
+One register named above is not in the tree.
+[Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) writes it.

@@ -116,4 +116,4 @@ Each step leaves something a reader can look for.
 
 [Write the pull request register](https://github.com/kalonji-tools/purba/issues/86) decides where the implementation plan is written.
 [What should the label roster name: the act, or the actor?](https://github.com/kalonji-tools/purba/issues/129) decides the label names.
-[Write AGENTS.md](https://github.com/kalonji-tools/purba/issues/46) carries these steps to an agent before it acts.
+[`AGENTS.md`](../../AGENTS.md) carries these steps to an agent before it acts.
