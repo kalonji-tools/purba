@@ -1,0 +1,179 @@
+diff --git a/.github/ISSUE_TEMPLATE/defect.md b/.github/ISSUE_TEMPLATE/defect.md
+index c6a37e9..f049662 100644
+--- a/.github/ISSUE_TEMPLATE/defect.md
++++ b/.github/ISSUE_TEMPLATE/defect.md
+@@ -1,8 +1,6 @@
+----
+-name: Defect
+-about: A task to do, because a claim in the tree is false
+-labels: "wayfinder:task"
+----
++______________________________________________________________________
++
++## name: Defect about: A task to do, because a claim in the tree is false labels: "wayfinder:task"
+ 
+ <!-- How to write it, whichever section you are in.
+ 
+@@ -22,6 +20,7 @@ labels: "wayfinder:task"
+        File: `README.md` -->
+ 
+ **Done when**
++
+ <!-- An observable event.
+ 
+      Example, continued.
+diff --git a/.github/ISSUE_TEMPLATE/question.md b/.github/ISSUE_TEMPLATE/question.md
+index b13418b..9a5d817 100644
+--- a/.github/ISSUE_TEMPLATE/question.md
++++ b/.github/ISSUE_TEMPLATE/question.md
+@@ -1,8 +1,6 @@
+----
+-name: Question
+-about: A question to settle, resolved by conversation
+-labels: "wayfinder:grilling"
+----
++______________________________________________________________________
++
++## name: Question about: A question to settle, resolved by conversation labels: "wayfinder:grilling"
+ 
+ <!-- How to write it, whichever section you are in.
+ 
+diff --git a/.github/ISSUE_TEMPLATE/research.md b/.github/ISSUE_TEMPLATE/research.md
+index a4c6011..0ede2ea 100644
+--- a/.github/ISSUE_TEMPLATE/research.md
++++ b/.github/ISSUE_TEMPLATE/research.md
+@@ -1,8 +1,6 @@
+----
+-name: Research
+-about: A question to settle by investigation rather than conversation
+-labels: "wayfinder:research"
+----
++______________________________________________________________________
++
++## name: Research about: A question to settle by investigation rather than conversation labels: "wayfinder:research"
+ 
+ <!-- How to write it, whichever section you are in.
+ 
+diff --git a/.github/ISSUE_TEMPLATE/task.md b/.github/ISSUE_TEMPLATE/task.md
+index 971c6a9..ef398a2 100644
+--- a/.github/ISSUE_TEMPLATE/task.md
++++ b/.github/ISSUE_TEMPLATE/task.md
+@@ -1,8 +1,6 @@
+----
+-name: Task
+-about: A task to do, rather than a question to settle
+-labels: "wayfinder:task"
+----
++______________________________________________________________________
++
++## name: Task about: A task to do, rather than a question to settle labels: "wayfinder:task"
+ 
+ <!-- How to write it, whichever section you are in.
+ 
+@@ -21,6 +19,7 @@ labels: "wayfinder:task"
+        **Write the licence gate.** File: `deny.toml` -->
+ 
+ **Done when**
++
+ <!-- An observable event, proven by execution rather than by reading a setting.
+      ⚠️ A check that runs and does not block is a suggestion, so name the
+      failure rather than the feature.
+diff --git a/AGENTS.md b/AGENTS.md
+index 5f59df5..7afbaa7 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -16,9 +16,9 @@ Each line links the file that states its rule, and the section of a record that
+ - Rewrite an issue with no type in place. ([an artifact is rewritten until its direction is agreed](docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md#decision-outcome))
+ - On an issue with a type, fix only a typo or a wrong filename. Replace anything else in this order. ([an artifact is rewritten until its direction is agreed](docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md#decision-outcome))
+   1. Post the replacement.
+-  2. Copy its URL.
+-  3. Mark the old text with that URL.
+-  4. Minimize the old comment when all of it is replaced.
++  1. Copy its URL.
++  1. Mark the old text with that URL.
++  1. Minimize the old comment when all of it is replaced.
+ - Narrow an issue, and never change the question it asks. Close a replaced question as `not_planned` with its answer, and open a new issue that links back to it. ([an artifact is rewritten until its direction is agreed](docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md#decision-outcome))
+ - File a defect when you find it, and give it one label and its blockers. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome), [triage](CONTEXT.md#triage))
+ - Land a rule somebody acts on in a tracked file before its issue closes. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+@@ -69,8 +69,8 @@ This section is the register of this file, and [a register belongs to one locati
+ A line belongs here when all three are true.
+ 
+ 1. An agent acts on it.
+-2. A tracked file on `main` states it, and the line links that file, down to the section of a record.
+-3. No command refuses a breach of it.
++1. A tracked file on `main` states it, and the line links that file, down to the section of a record.
++1. No command refuses a breach of it.
+ 
+ A line leaves when a gate takes its rule, or when its source changes.
+ Nothing describes the repository here, because an overview does not help an agent act. ([Is there prior art for splitting agent-facing from human-facing artifacts?](https://github.com/kalonji-tools/purba/issues/70))
+diff --git a/docs/decisions/.template.md b/docs/decisions/.template.md
+index 5dfc199..42521d2 100644
+--- a/docs/decisions/.template.md
++++ b/docs/decisions/.template.md
+@@ -64,27 +64,27 @@ Target: under three minutes to read. Length is not the metric.
+ 
+ ## Context and Problem Statement
+ 
+-<Why this had to be decided. Current state, not a story.>
++\<Why this had to be decided. Current state, not a story.>
+ <This is the only part that cannot be re-derived from the tree.>
+ 
+ ## Considered Options
+ 
+ - **<option>.** <Why it lost.>
+-- **<option>.** <Chosen. Why it won.>
++- **<option>.** \<Chosen. Why it won.>
+ 
+ ## Decision Outcome
+ 
+-<The decision, in one sentence.>
++\<The decision, in one sentence.>
+ 
+ <Then the detail. Use a list or a table wherever one fits.>
+ 
+ **Downside:**
+ 
+-- **<the cost>.** <What it costs, and to whom.>
++- **<the cost>.** \<What it costs, and to whom.>
+ 
+ ## Confirmation
+ 
+ <The check that proves this still holds. Name the command or the setting.>
+ <If it does not run yet, say so, and name what will wire it.>
+ 
+-<The issues this record relates to, if any, each titled by the question it asks.>
++\<The issues this record relates to, if any, each titled by the question it asks.>
+diff --git a/docs/decisions/a-record-is-rewritten-not-amended.md b/docs/decisions/a-record-is-rewritten-not-amended.md
+index 755f181..926e653 100644
+--- a/docs/decisions/a-record-is-rewritten-not-amended.md
++++ b/docs/decisions/a-record-is-rewritten-not-amended.md
+@@ -43,9 +43,9 @@ A record does not.
+ Four sections are required, in order:
+ 
+ 1. Context and Problem Statement
+-2. Considered Options
+-3. Decision Outcome
+-4. Confirmation
++1. Considered Options
++1. Decision Outcome
++1. Confirmation
+ 
+ Consequences is optional. The downside is required, inside Decision Outcome.
+ 
+diff --git a/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md b/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+index f179de3..83974e8 100644
+--- a/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
++++ b/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+@@ -106,9 +106,9 @@ A record that reads as history is a record nobody can trust on one reading.
+ **Superseding is a procedure, in this order.**
+ 
+ 1. Post the replacement. It stands alone even when only part changed, and it carries what the superseded text held and why that was wrong.
+-2. Copy its URL.
+-3. Mark the superseded artifact with that URL, naming the span that died when only a span died.
+-4. Minimize a wholly superseded comment as `outdated`. One superseded in part keeps its live text visible and carries the pointer alone.
++1. Copy its URL.
++1. Mark the superseded artifact with that URL, naming the span that died when only a span died.
++1. Minimize a wholly superseded comment as `outdated`. One superseded in part keeps its live text visible and carries the pointer alone.
+ 
+ The order never collapses, because step 3 needs a URL that step 1 creates.
+ It is steps rather than a sentence, because the sentence failed on its first live use.

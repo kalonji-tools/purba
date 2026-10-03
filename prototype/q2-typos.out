@@ -1,0 +1,42 @@
+| arm | scenario | commit exit | file afterwards | then |
+|---|---|---:|---|---|
+On branch proto/219-md-tooling
+Your branch is up to date with 'origin/proto/219-md-tooling'.
+
+nothing to commit, working tree clean
+| A | md | 1 (typos) | `The recieve step.` | second commit exit 1 (typos) |
+On branch proto/219-md-tooling
+Your branch is up to date with 'origin/proto/219-md-tooling'.
+
+nothing to commit, working tree clean
+| A | sh comment | 1 (check that scripts with shebangs are executable), (typos) | `# recieve the list` | |
+On branch proto/219-md-tooling
+Your branch is up to date with 'origin/proto/219-md-tooling'.
+
+nothing to commit, working tree clean
+| A | ident | 1 (check that scripts with shebangs are executable), (typos), (shellcheck -x) | `recieve_all` | runs: ok |
+On branch proto/219-md-tooling
+Your branch is up to date with 'origin/proto/219-md-tooling'.
+
+nothing to commit, working tree clean
+| A | partial | 1 (typos) | `The recieve step.  second line, unstaged edit ` | staged: `The recieve step.` |
+On branch proto/219-md-tooling
+Your branch is up to date with 'origin/proto/219-md-tooling'.
+
+nothing to commit, working tree clean
+| A | ambig | 1 (typos) | `The wich step.` | |
+| B | md | 1 (typos) | `The receive step.` | second commit exit 0 |
+| B | sh comment | 1 (check that scripts with shebangs are executable), (typos) | `# receive the list` | |
+| B | ident | 1 (check that scripts with shebangs are executable), (typos), (shellcheck -x) | `receive_all` | runs: main.sh: line 3: receive_all: command not found |
+| B | partial | 1 (typos) | `The recieve step.  second line, unstaged edit ` | staged: `The recieve step.` |
+| B | ambig | 1 (typos) | `The wich step.` | |
+| C | md | 1 (typos) | `The receive step.` | second commit exit 0 |
+| C | sh comment | 1 (check that scripts with shebangs are executable), (typos) | `# recieve the list` | |
+| C | ident | 1 (check that scripts with shebangs are executable), (shellcheck -x), (typos) | `recieve_all` | runs: ok |
+| C | partial | 1 (typos) | `The recieve step.  second line, unstaged edit ` | staged: `The recieve step.` |
+| C | ambig | 1 (typos) | `The wich step.` | |
+
+### Does a typos exclusion hold when prek names the file?
+
+- `typos -w  CHANGELOG.md` with `extend-exclude`: file now `A receive entry.`
+- `typos -w --force-exclude CHANGELOG.md` with `extend-exclude`: file now `A recieve entry.`

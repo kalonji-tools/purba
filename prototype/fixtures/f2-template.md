@@ -1,0 +1,90 @@
+<!--
+Copy this file to docs/decisions/<the-proposition-as-a-slug>.md.
+Delete this comment.
+
+The title is a proposition. A proposition is a sentence that is true or false.
+Never title a record with a topic. In the prototype corpus, topic titles
+averaged 3.8 amendment headings and proposition titles averaged 0.6.
+
+Write one sentence on one line. A record is rewritten in place, so the code
+owner reads its diff. A wrapped paragraph reflows on a one word edit and buries
+the change.
+
+Prose rules. The first six are borrowed, and
+purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
+says where from and which of them a command refuses:
+  One idea in one sentence.
+  No more than 25 words in a sentence. A list item is a sentence. A table
+    cell is not, and a link counts as one word.
+  No more than six sentences in a paragraph.
+  No -ing verb form. Use the word only as a technical noun, such as a
+    setting or a heading.
+  Simple tenses only. Not "has run", not "having run". A modal with the
+    bare verb is fine: "must be run".
+  Active voice. This one is reported and never refused, because the rule
+    admits the passive where the agent is unknown and no command decides
+    that.
+  No em-dashes. Use a full stop, a colon, a comma, or a list. A code span
+    or a fenced block may quote one: that is an artifact, not prose.
+  Bold opens a sentence. Never inside one. A lead-in is what bold is for,
+    and a reviewer decides whether a bolded phrase is one.
+  One lead-in for each cost.
+  Put numbers in a table, not in a sentence.
+  A number belongs here only where it justified the decision. Deciding
+    freezes it. A number describing what the tree holds today moves on every
+    merge and belongs in the tree, not here.
+
+The Downside is required. A decision without its cost is advocacy, not a
+record. Its label stands on its own line and its costs are a list. Never
+count them in a preamble: a count is one more thing to keep true.
+
+This record holds the minimum that conveys its point. A table, a list or a
+diagram is admissible wherever it carries the point, and a sentence that does
+not carry it fails however short it is. A diagram earns its place by replacing
+words, so a record that grows longer for one was not carrying its point.
+
+What the session that wrote this leaves behind does not enter it. Discarded
+alternatives, intermediate edits and the order the work happened in stay where
+they happened, unless a reader needs them to understand the result. Considered
+Options is where a reader does need them, and it holds what lost rather than
+how the work arrived there.
+
+That rule is a judgement and no command decides it. The categories a review has
+already named are in an-artifact-holds-the-minimum-that-conveys-its-point.md,
+and a review is what adds to them.
+
+Confirmation names the issues this record relates to, if it has any. An
+issue named there is the intent. When it closes, the record is rewritten to
+name what was built, and the link goes.
+
+Target: under three minutes to read. Length is not the metric.
+-->
+
+# <the proposition>
+
+## Context and Problem Statement
+
+<Why this had to be decided. Current state, not a story.>
+<This is the only part that cannot be re-derived from the tree.>
+
+## Considered Options
+
+- **<option>.** <Why it lost.>
+- **<option>.** <Chosen. Why it won.>
+
+## Decision Outcome
+
+<The decision, in one sentence.>
+
+<Then the detail. Use a list or a table wherever one fits.>
+
+**Downside:**
+
+- **<the cost>.** <What it costs, and to whom.>
+
+## Confirmation
+
+<The check that proves this still holds. Name the command or the setting.>
+<If it does not run yet, say so, and name what will wire it.>
+
+<The issues this record relates to, if any, each titled by the question it asks.>

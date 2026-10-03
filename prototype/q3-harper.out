@@ -1,0 +1,47 @@
+33 files, 32529 words
+
+| dialect | lints | per 1,000 words | files with a lint |
+|---|---:|---:|---:|
+| us | 658 | 20.2 | 31 |
+| gb | 617 | 19.0 | 31 |
+
+### Rules, dialect gb
+
+| kind / rule | lints | most matched (count) |
+|---|---:|---|
+| Capitalization/SentenceCapitalization | 235 | `the` 45, `purba` 43, `a` 37 |
+| Spelling/SpellCheck | 223 | `purba` 79, `mise` 24, `purba's` 23 |
+| Capitalization/UseTitleCase | 58 | `# purba` 2, `## Out of scope` 2, `# A change is specified before it is built` 1 |
+| Typo/SplitWords | 42 | `ruleset` 9, `gitattributes` 6, `answerability` 4 |
+| Style/OxfordComma | 14 | `cohesion` 2, `CI` 1, `Python` 1 |
+| Spelling/DisjointPrefixes | 10 | `non-zero` 2, `co-author` 1, `non trivial` 1 |
+| Agreement/MassNouns | 6 | `a binding` 3, `every binding` 1, `one carrying` 1 |
+| Formatting/NumericRangeEnDash | 4 | `-` 4 |
+| Word Choice/CompoundNouns | 4 | `file names` 1, `lock file` 1, `lower case` 1 |
+| Miscellaneous/AnA | 3 | `an` 2, `a` 1 |
+| Word Choice/MissingTo | 3 | `means` 1, `refuse` 1, `refuses` 1 |
+| Miscellaneous/Everyone | 2 | `Every one` 1, `every one` 1 |
+| Miscellaneous/MissingPreposition | 2 | `register ` 1, `subtraction ` 1 |
+| Punctuation/DiscourseMarkers | 2 | `therefore` 2 |
+| Agreement/PronounInflectionBe | 1 | `are` 1 |
+| Agreement/PronounVerbAgreement | 1 | `commits` 1 |
+| Capitalization/OrthographicConsistency | 1 | `aarch64` 1 |
+| Grammar/SingleBe | 1 | ` was` 1 |
+| Miscellaneous/There | 1 | `the re` 1 |
+| Style/ExpandConfiguration | 1 | `config` 1 |
+| Word Choice/PhrasalVerbAsCompoundNoun | 1 | `plugin` 1 |
+| Word Choice/PronounContraction | 1 | `were` 1 |
+| Word Choice/PronounKnew | 1 | `new` 1 |
+
+### Lints only the us dialect raises
+
+     20  judgement
+      3  organisation
+      3  behaviour
+      3  afterwards
+      2  specialised
+      2  licence
+      1  recognises
+      1  programme
+      1  organised
+      1  normalising

@@ -1,0 +1,793 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 4fe28a0..c82a92b 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -79,7 +79,7 @@ You certify the origin of your contribution. purba records that it accepted
+ it, and does so in two places.
+ 
+ | record | where |
+-|---|---|
++| --- | --- |
+ | the person who accepted the change into `main` | an `Accepted-by:` trailer on every commit |
+ | the approval that released it | the pull request |
+ 
+diff --git a/README.md b/README.md
+index 0a7abe3..21e9072 100644
+--- a/README.md
++++ b/README.md
+@@ -29,7 +29,7 @@ Installing mise itself is
+ it, and several dependencies compile C or assembly while they build.
+ 
+ | platform | what to install |
+-|---|---|
++| --- | --- |
+ | Linux | your distribution's build tools, such as `build-essential` |
+ | macOS | the Xcode command line tools, `xcode-select --install` |
+ | Windows | the Visual Studio Build Tools, with the C++ workload |
+@@ -41,8 +41,8 @@ dependency that needs one, and it fails loudly.
+ ## Building
+ 
+ ```console
+-$ mise install
+-$ mise run build
++mise install
++mise run build
+ ```
+ 
+ ## Working on purba
+diff --git a/docs/decisions/a-change-is-specified-before-it-is-built.md b/docs/decisions/a-change-is-specified-before-it-is-built.md
+index b80e75c..17d1cf3 100644
+--- a/docs/decisions/a-change-is-specified-before-it-is-built.md
++++ b/docs/decisions/a-change-is-specified-before-it-is-built.md
+@@ -30,7 +30,7 @@ flowchart LR
+ ```
+ 
+ | phase | leaves | for |
+-|---|---|---|
++| --- | --- | --- |
+ | Design | a [design spec](../../CONTEXT.md#design-spec) | the [coder](../../CONTEXT.md#coder) |
+ | Implement | a [pull request](../../CONTEXT.md#pull-request) | the [reviewer](../../CONTEXT.md#reviewer) |
+ | Review | an approval | purba, which derives the [acceptance](../../CONTEXT.md#acceptance) from it |
+@@ -109,7 +109,7 @@ No command decides any of this, and none is planned.
+ Each step leaves something a reader can look for.
+ 
+ | step | what shows it |
+-|---|---|
++| --- | --- |
+ | the issue is specified | `gh issue view <n> --json issueType` |
+ | the spec came first | a comment on the issue, earlier than the pull request |
+ | the pull request asks for review | it is not a draft |
+diff --git a/docs/decisions/a-commit-outlives-its-review.md b/docs/decisions/a-commit-outlives-its-review.md
+index 9cd7a3c..c4d6331 100644
+--- a/docs/decisions/a-commit-outlives-its-review.md
++++ b/docs/decisions/a-commit-outlives-its-review.md
+@@ -5,7 +5,7 @@
+ Commit body length varies several-fold across comparable projects.
+ 
+ | corpus | mean body words, among commits that have a body | have a body |
+-|---|---|---|
++| --- | --- | --- |
+ | cargo | 36 | 42% |
+ | hypothesis | 49 | 67% |
+ | pytest | 64 | 92% |
+@@ -18,7 +18,7 @@ Length is no longer the defect.
+ A commit that adds a decision record repeats the record it adds.
+ 
+ | commits on `main` when this was decided | n | mean body words |
+-|---|---:|---:|
++| --- | ---: | ---: |
+ | add or change a decision record | 8 | 101 |
+ | do not | 5 | 200 |
+ 
+@@ -60,7 +60,7 @@ The review statement is the part no committer can make, so it stays where the re
+ **Subject.**
+ 
+ | rule | |
+-|---|---|
++| --- | --- |
+ | form | conventional type, optional scope |
+ | mood | imperative, no trailing full stop, lower case after the colon |
+ | length | at most 72 characters |
+@@ -91,7 +91,7 @@ Where no sentence survives, the subject stands alone.
+ [A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) replaces a record in place, so the tree never says what that record used to say.
+ 
+ | the commit adds | the record holds | the body carries |
+-|---|---|---|
++| --- | --- | --- |
+ | a new record | the problem, the options, the cost | nothing, so the subject stands alone |
+ | a rewrite | the new state only | what was wrong before and why, unless the diff already shows it |
+ 
+@@ -118,7 +118,7 @@ It was applied zero times across 2,129 prototype commits, while `Assisted-by:` r
+ ## Confirmation
+ 
+ | rule | decidable | what holds it |
+-|---|---|---|
++| --- | --- | --- |
+ | conventional type and scope | yes | `subject-form` |
+ | lower case after the colon | yes | `subject-form` |
+ | the issue number in parentheses at the end | yes | `subject-form` |
+@@ -144,7 +144,7 @@ purba's issue numbers are contiguous, so a typo inside their range names a real
+ A command that reads existence accepts such a typo.
+ 
+ | single-digit typos of the numbers on `main` at `37607d4` | |
+-|---|---:|
++| --- | ---: |
+ | substitutions possible | 1329 |
+ | of those, naming a real issue | 1026 |
+ 
+diff --git a/docs/decisions/a-gate-owns-the-mechanical.md b/docs/decisions/a-gate-owns-the-mechanical.md
+index cde9aa5..b61cf6c 100644
+--- a/docs/decisions/a-gate-owns-the-mechanical.md
++++ b/docs/decisions/a-gate-owns-the-mechanical.md
+@@ -81,7 +81,7 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
+ Each gate is run green and red, because a check that passes on a clean tree and refuses nothing is a suggestion.
+ 
+ | gate | what it refuses |
+-|---|---|
++| --- | --- |
+ | `clippy` | `cargo clippy --all-targets`, with no flag on the command line: a `pub fn` returning a value draws `must_use_candidate`, and the exit is non-zero |
+ | `rustdoc` | a broken intra-doc link in the crate-level block draws `unresolved link`, and the exit is non-zero |
+ | `cargo` | re-declaring a crate nothing calls draws `unused dependency`, which `-D warnings` never reached |
+@@ -89,7 +89,7 @@ Each gate is run green and red, because a check that passes on a clean tree and
+ The normalising clause was exercised on purba's shell against the pinned tools, measured in [Should shellcheck and shfmt gate purba's shell, and at what severity and style?](https://github.com/kalonji-tools/purba/issues/186).
+ 
+ | gate | green | red |
+-|---|---|---|
++| --- | --- | --- |
+ | `shellcheck` at `enable=all` | the repaired tree reports nothing | a bare `$var` reinstated anywhere draws `SC2250` while `.shellcheckrc` is present, and nothing without it. Each suppression removed restores its own finding |
+ | `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every script |
+ | `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
+diff --git a/docs/decisions/a-location-inherits-its-readers.md b/docs/decisions/a-location-inherits-its-readers.md
+index 9a5b15a..9b8a8eb 100644
+--- a/docs/decisions/a-location-inherits-its-readers.md
++++ b/docs/decisions/a-location-inherits-its-readers.md
+@@ -8,7 +8,7 @@ No location says which of them it serves, so [What replaces the 11-stage pipelin
+ The prototype shows what an unanswered location question costs.
+ 
+ | prototype location | state | pages written | months open |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | wiki | enabled | 0 | 4 |
+ | discussions | enabled | 0 | 4 |
+ 
+@@ -73,7 +73,7 @@ Git reads attributes from four named places and `.readers` is not one of them, s
+ `gix-attributes` parses an arbitrary buffer under an arbitrary filename, so nothing is reimplemented and nothing is approximated.
+ 
+ | the syntax gives | what it does here |
+-|---|---|
++| --- | --- |
+ | override is per attribute | accumulation is the default, so a nearer line silent about an actor leaves the farther one standing |
+ | `**`, `*`, `?`, `[abc]`, escapes | a reader is assigned by what a file is, not only by where it sits |
+ | `-actor` | inheritance stops for one actor rather than for all of them |
+@@ -96,7 +96,7 @@ It rejects any actor name, in a binding or in a macro, that is not on the roster
+ Both halves were exercised against real trees before this record was written.
+ 
+ | measured | result |
+-|---|---|
++| --- | --- |
+ | this repository as it then stood, against the bindings above | 7 of 19 tracked files reached no actor |
+ | the prototype repository, 1,109 files, 288 directories, 8 levels deep | one pattern reaches 688 files, four reach 956 |
+ 
+diff --git a/docs/decisions/a-record-is-rewritten-not-amended.md b/docs/decisions/a-record-is-rewritten-not-amended.md
+index 755f181..542e0f4 100644
+--- a/docs/decisions/a-record-is-rewritten-not-amended.md
++++ b/docs/decisions/a-record-is-rewritten-not-amended.md
+@@ -6,7 +6,7 @@ A decision record has to be trustworthy on one reading, and a reader does not re
+ The prototype's records were not.
+ 
+ | prototype corpus | |
+-|---|---|
++| --- | --- |
+ | records | 19 |
+ | total lines | 3,373 |
+ | largest record | 1,226 lines, 36% of the corpus |
+@@ -17,7 +17,7 @@ The largest record broke its own container.
+ Amendments 6 to 20 sat underneath the Consequences heading, and nobody noticed.
+ 
+ | the title names | records | amendment headings | mean |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | a proposition | 10 | 6 | 0.6 |
+ | a topic | 9 | 34 | 3.8 |
+ 
+@@ -80,7 +80,7 @@ A programme is a milestone, not a record.
+ `mise run records`, over `docs/decisions/`, checking only what is decidable:
+ 
+ | check | strength |
+-|---|---|
++| --- | --- |
+ | the four sections are present, in order | strong |
+ | record prose carries no bare issue number | strong |
+ | source carries no numbered-record citation | strong |
+diff --git a/docs/decisions/a-register-belongs-to-one-location.md b/docs/decisions/a-register-belongs-to-one-location.md
+index 33d7eef..793f259 100644
+--- a/docs/decisions/a-register-belongs-to-one-location.md
++++ b/docs/decisions/a-register-belongs-to-one-location.md
+@@ -6,7 +6,7 @@ purba writes into thirteen locations.
+ Three of them state how to write there.
+ 
+ | location | states how to write there |
+-|---|---|
++| --- | --- |
+ | commit message | yes, in [a commit message outlives its review](a-commit-outlives-its-review.md) |
+ | `docs/decisions/` | yes, in `docs/decisions/.template.md` |
+ | `CONTEXT.md` | yes, in [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) |
+@@ -19,7 +19,7 @@ The prototype shows the cost of a rule that nothing carries.
+ It shipped two issue forms with required fields and one pull request template.
+ 
+ | prototype corpus | n | carry the template structure |
+-|---|---:|---:|
++| --- | ---: | ---: |
+ | issues | 1,317 | 0 |
+ | issues carrying the form's title prefix | 1,317 | 0 |
+ | pull requests carrying two of the template's three headings | 899 | 0 |
+@@ -32,7 +32,7 @@ GitHub's own documentation says the setting that hides the blank-issue link "enc
+ purba's two busiest locations already disagree with each other.
+ 
+ | | issues | pull requests |
+-|---|---:|---:|
++| --- | ---: | ---: |
+ | written so far | 74 | 11 |
+ | distinct second-level headings | | 33 |
+ | opening with `## Question` or `## Task` | 72 | |
+@@ -116,7 +116,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
+ ## Confirmation
+ 
+ | location | its register | decidable | gated |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no |
+ | `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | no |
+ | `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no |
+@@ -132,7 +132,7 @@ Two could be, and Considered Options says why.
+ Five locations are closed and hold no register.
+ 
+ | closed location | opens when |
+-|---|---|
++| --- | --- |
+ | CHANGELOG | the release workflow lands, and `cliff.toml` is its register |
+ | public docs site | Pages opens, and Diátaxis is its register |
+ | local internals library | something is written into it |
+diff --git a/docs/decisions/a-term-belongs-to-the-glossary.md b/docs/decisions/a-term-belongs-to-the-glossary.md
+index 973d55e..597e66d 100644
+--- a/docs/decisions/a-term-belongs-to-the-glossary.md
++++ b/docs/decisions/a-term-belongs-to-the-glossary.md
+@@ -5,7 +5,7 @@
+ purba's records are written in a vocabulary that no record defines.
+ 
+ | term | records that use it | defined by a record |
+-|---|---:|---|
++| --- | ---: | --- |
+ | `reader` | 12 | no |
+ | `gate` | 11 | no |
+ | `record` | 11 | yes |
+@@ -18,14 +18,14 @@ Measured against the fourteen records that stood before this one.
+ A session answering a single question about the issue register read four records end to end to learn six words.
+ 
+ | | lines |
+-|---|---:|
++| --- | ---: |
+ | read | 408 |
+ | the corpus | 1,491 |
+ 
+ The corpus also disagrees with itself.
+ 
+ | the collision | where |
+-|---|---|
++| --- | --- |
+ | `issue` and `ticket` name one thing | both appear in one sentence of [a register belongs to one location](a-register-belongs-to-one-location.md) |
+ | `maintainer` was removed from the actor roster and is still used as a role | [an actor is what it does, not what it is](an-actor-is-what-it-does-not-what-it-is.md) removes it, and two records use it ten times |
+ 
+@@ -47,7 +47,7 @@ A term is defined once, in `CONTEXT.md`, and a record names it and does not hold
+ **The split.**
+ 
+ | holds | |
+-|---|---|
++| --- | --- |
+ | `CONTEXT.md` | what a word is |
+ | a record | what purba decided, why, and what it costs |
+ 
+diff --git a/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md b/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+index 9d05e87..4a2455e 100644
+--- a/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
++++ b/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+@@ -35,7 +35,7 @@ Actions' own token is never widened to reach it.
+ The identity is a GitHub App. It holds no code, no server and no webhook.
+ 
+ | the App | |
+-|---|---|
++| --- | --- |
+ | named | `purba-bump`, and the author it writes reads `purba-bump[bot]` |
+ | webhook | none, because nothing calls it |
+ | installed on | this repository, and no other |
+@@ -65,7 +65,7 @@ The prototype that measured this lives on a branch that is never merged, so the
+ Taken 2026-09-29, one call, one branch, one minute apart, differing only in the token that held it.
+ 
+ | measured | result |
+-|---|---|
++| --- | --- |
+ | `gh pr create` under `GITHUB_TOKEN` | refused, and the refusal names the setting |
+ | `gh pr create` under the installation token | opened, and the author reads `purba-bump[bot]` with type `Bot` |
+ | workflow runs GitHub created on that pull request | six, of which `Quality` and `Build` are two, and zero waiting for a person |
+diff --git a/docs/decisions/an-actor-is-what-it-does-not-what-it-is.md b/docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+index 96e96fc..56cf878 100644
+--- a/docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
++++ b/docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+@@ -11,7 +11,7 @@ That rule cannot be applied, because purba has no list of readers to name.
+ The prototype failed at exactly this point, and the failure was measured rather than inferred.
+ 
+ | measure | prototype |
+-|---|---|
++| --- | --- |
+ | implementation plans that open by addressing agents by name | 291 of 499 |
+ | pull requests merged with zero review events | 770 of 859 |
+ | review events across the whole repository | 495 |
+@@ -35,7 +35,7 @@ An actor is a role that reads, stated as the mindset it reads from.
+ The roster is flat.
+ 
+ | actor | mindset |
+-|---|---|
++| --- | --- |
+ | [**stem**](../../CONTEXT.md#stem) | I do not know this part of purba, and I need footing before I can do anything |
+ | [**architect**](../../CONTEXT.md#architect) | I must choose a direction, and I will be answerable for what it costs |
+ | [**coder**](../../CONTEXT.md#coder) | the decision is made, and I must build it correctly |
+diff --git a/docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md b/docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+index 890444c..7c0a5e7 100644
+--- a/docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
++++ b/docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+@@ -7,7 +7,7 @@ purba's artifacts are read twice to be understood.
+ A written rule changes what is written. Records forbid em-dashes and carry almost none.
+ 
+ | location | its written rule | em-dashes per thousand words |
+-|---|---|---:|
++| --- | --- | ---: |
+ | decision records | `.template.md` | 0.13 |
+ | commit messages | [a commit outlives its review](a-commit-outlives-its-review.md) | 0.34 |
+ | issue bodies | none | 10.1 |
+@@ -40,14 +40,14 @@ Discarded alternatives, intermediate edits and the order the work happened in st
+ **A category is named by a review, and enters when this record is rewritten.**
+ 
+ | material that never carries the point |
+-|---|
++| --- |
+ | what a session leaves behind |
+ | a count of the costs on the `**Downside:**` label |
+ 
+ **The rules below are decidable, and a command owns them.**
+ 
+ | rule | shape |
+-|---|---|
++| --- | --- |
+ | the `**Downside:**` label stands alone | an opening phrase |
+ | the label states no count | an opening phrase |
+ | the costs are a list | a count |
+@@ -86,7 +86,7 @@ A threshold would refuse the records that obey.
+ ## Confirmation
+ 
+ | what proves it | where |
+-|---|---|
++| --- | --- |
+ | `mise run records` refuses a `**Downside:**` label carrying a preamble or a count | `scripts/check-records.sh` |
+ | the same command refuses a Downside that states no list of costs | `scripts/check-records.sh` |
+ | the same command refuses a label whose bolded lead-ins do not equal its list items | `scripts/check-records.sh` |
+diff --git a/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md b/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+index f179de3..4cd3910 100644
+--- a/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
++++ b/docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+@@ -12,7 +12,7 @@ It lost to the body, because the body reads as current and carries no mark sayin
+ The tracker already answered half the question and decided none of it, and the two halves disagree.
+ 
+ | part of an issue | what was done | n |
+-|---|---|---|
++| --- | --- | --- |
+ | title | rewritten, and the old one discarded from view | 11 |
+ | body | annotated in place, never rewritten | 6 |
+ | superseded comment | untouched | 6 |
+@@ -20,7 +20,7 @@ The tracker already answered half the question and decided none of it, and the t
+ Three premises the question rested on are false, and each was measured against the API.
+ 
+ | the premise | what the API does |
+-|---|---|
++| --- | --- |
+ | a rewrite destroys the superseded text | `userContentEdits` returns a full snapshot at every version, oldest node first |
+ | a title cannot carry a mark, so it is the worst preserved part | `RenamedTitleEvent` records the previous title of all 11 renames, making it the best preserved part |
+ | a merged pull request description must never be edited, or the record of intent is lost | pull request bodies carry the same snapshots |
+@@ -66,7 +66,7 @@ They record how the work is scheduled, never that its direction is agreed.
+ This organisation defines four such fields beside the type, so the distinction is worth a statement rather than an inference.
+ 
+ | artifact | frozen by |
+-|---|---|
++| --- | --- |
+ | issue body, title and design spec | the type being set |
+ | pull request body | the merge |
+ | a comment recording a dated event | posting it |
+@@ -81,7 +81,7 @@ A mark is a signal and never a licence: what permits a rewrite is that the artif
+ **A re-scope narrows, and anything else is two tickets.**
+ 
+ | the original question | what to do |
+-|---|---|
++| --- | --- |
+ | survives with a tighter boundary | rename the title and rewrite the body, carrying one line naming the change |
+ | was answered, abandoned or replaced | close the original as `not_planned` carrying its answer, and open a new issue linking back |
+ 
+@@ -135,7 +135,7 @@ Every pointer then stays true and the history says the project went round the lo
+ Three properties are decidable, and a reader checks all three.
+ 
+ | check | reads |
+-|---|---|
++| --- | --- |
+ | an issue with a type has a design spec that was resolved | `issueType` and the comment list |
+ | a renamed title on a typed issue implies the body carries a re-scope line | `RenamedTitleEvent` and the body |
+ | a comment carrying a supersession prefix is minimized as `outdated`, and one minimized as `outdated` carries a prefix naming its replacement | `minimizedReason` and the body |
+@@ -160,7 +160,7 @@ An agreement holds when it reaches whoever is about to act.
+ The same instruction block in the prototype ran at 83.9% on one carrier and at nothing on another.
+ 
+ | carrier | reaches | state |
+-|---|---|---|
++| --- | --- | --- |
+ | `AGENTS.md` | the agent, before it acts | live |
+ | the review thread `.github/workflows/sign.yml` posts | the reviewer while they decide, blocking the merge until resolved | live |
+ | an issue or pull request template | the web interface and nothing else | 0 of 1,317 issues and 0 of 899 pull requests in the prototype |
+diff --git a/docs/decisions/an-outside-contribution-is-applied-not-merged.md b/docs/decisions/an-outside-contribution-is-applied-not-merged.md
+index 5705c2f..f9737e4 100644
+--- a/docs/decisions/an-outside-contribution-is-applied-not-merged.md
++++ b/docs/decisions/an-outside-contribution-is-applied-not-merged.md
+@@ -31,7 +31,7 @@ Five prototypes measured what a workflow can and cannot do across the fork bound
+ An outside contribution is applied to a branch in this repository, and the pull request from the fork is a proposal.
+ 
+ | | |
+-|---|---|
++| --- | --- |
+ | the pull request from the fork | a proposal, and it never merges |
+ | what merges | `accepted/pr-<n>` in this repository |
+ | who applies it | a maintainer, with `scripts/apply-fork-contribution.sh` |
+diff --git a/docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md b/docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+index e7e1ee6..bee0689 100644
+--- a/docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
++++ b/docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+@@ -5,7 +5,7 @@
+ Five locations record why a change is the way it is, and they repeat each other.
+ 
+ | location | what states its register |
+-|---|---|
++| --- | --- |
+ | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) |
+ | decision record | [a decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) |
+ | pull request | [a register belongs to one location](a-register-belongs-to-one-location.md), until `.github/PULL_REQUEST_TEMPLATE.md` is written |
+@@ -17,7 +17,7 @@ The fifth is the only one with nothing saying what belongs there, so a writer wi
+ Volume is not the defect.
+ 
+ | corpus | non-blank | unpublished comment | share |
+-|---|---:|---:|---:|
++| --- | ---: | ---: | ---: |
+ | prototype Rust and Python production | 71,382 | 3,959 | 5.5% |
+ | this repository | 343 | 176 | 51.3% |
+ | this repository, `src/lib.rs` | 17 | 0 | 0% |
+@@ -28,7 +28,7 @@ Duplication is the defect.
+ `Cargo.toml` holds nine comment blocks over twenty-seven lines.
+ 
+ | block | lines | restates |
+-|---|---:|---|
++| --- | ---: | --- |
+ | `crate-type` | 6 | [the crate carries an rlib](the-crate-carries-an-rlib.md) |
+ | the `ruff` pins | 4 | [purba parses Python with ruff's parser](purba-parses-python-with-ruff.md) |
+ | `extension-module` | 3 | [the crate carries an rlib](the-crate-carries-an-rlib.md) |
+@@ -85,7 +85,7 @@ Link liveness is decidable, so that one property is gated and the rest is conven
+ **`lychee` over tracked files, blocking on the changed ones and reporting on the rest.**
+ 
+ | setting | value |
+-|---|---|
++| --- | --- |
+ | inputs | tracked files, from `git ls-files` |
+ | extensions | `md`, `toml`, `rs`, `yml`, `yaml`, `py`, `nix` |
+ | excluded | `*.lock` |
+@@ -104,7 +104,7 @@ That resolution is the `cited paths exist` row graded weak in [a decision record
+ **Blind spots.**
+ 
+ | blind spot | effect |
+-|---|---|
++| --- | --- |
+ | reserved example domains are excluded by default | a placeholder address is not a checked address |
+ | a redirect is followed and reported valid | an address that has moved permanently is never corrected |
+ | `403` and `429` are accepted | a withdrawn page passes |
+diff --git a/docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md b/docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+index 8aa4bdc..9455f1d 100644
+--- a/docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
++++ b/docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+@@ -8,7 +8,7 @@ A person is answerable for it.
+ `main` records that answerability inconsistently, and the inconsistency is an ambiguity rather than a simple absence.
+ 
+ | | |
+-|---|---|
++| --- | --- |
+ | commits carrying a `Signed-off-by:` trailer | 3 |
+ | the first commit without one | `6d88f99`, which created the sign-off workflow |
+ | commits from `6d88f99` until this decision | unsigned, and their answerability lives on their pull requests |
+@@ -26,7 +26,7 @@ An outside contributor is therefore a reader this decision serves now, and not o
+ Four of the five statements below are events, and the fifth is a standing role.
+ 
+ | liability | answers | attaches to | fixed or changing |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | origin | may this be submitted at all | a contribution | fixed at authorship |
+ | authorship | who or what wrote it | a commit | fixed |
+ | review | who read it and judged it sound | a change | fixed at review |
+@@ -59,7 +59,7 @@ Each liability is written from the act that makes it true.
+ It is written where that act can still be read once the pull request is gone.
+ 
+ | liability | written by | at | into |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | origin | the contributor | as the commit is made, or once the reviewer is satisfied | `Signed-off-by:` |
+ | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
+ | acceptance | a workflow, from the approval | the moment the code owner approves | an `Accepted-by:` trailer on every commit |
+@@ -92,7 +92,7 @@ A rebase merge overwrites the committer with whoever merged, and a design that d
+ **Four eras sit on `main`, and only the fourth carries both statements.**
+ 
+ | commits | carry |
+-|---|---|
++| --- | --- |
+ | before `6d88f99` | a `Signed-off-by:` trailer naming the code owner, written by the agent |
+ | from `6d88f99` until acceptance was recorded | nothing, and their answerability lives on their pull requests |
+ | from acceptance until the origin check | `Accepted-by:` from the approval |
+@@ -114,7 +114,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
+ ## Confirmation
+ 
+ | check | strength |
+-|---|---|
++| --- | --- |
+ | the commits a pull request adds carry a `Signed-off-by:` trailer naming an address | strong, the `sign` job refuses the branch before it rewrites anything |
+ | the trailer is parsed and not matched as text | strong, `scripts/check-origin.sh` reads the trailer rather than the message |
+ | the origin trailer was written by a person and not by their agent | **none**, and nothing stops an agent running the command that adds it |
+diff --git a/docs/decisions/one-manifest-declares-each-package.md b/docs/decisions/one-manifest-declares-each-package.md
+index e97fa1e..5cc0106 100644
+--- a/docs/decisions/one-manifest-declares-each-package.md
++++ b/docs/decisions/one-manifest-declares-each-package.md
+@@ -12,7 +12,7 @@ The file was the only thing holding the two readers in agreement, and a floating
+ Both candidate managers were asked for `nightly` on one machine inside one hour.
+ 
+ | reader | rustc | cargo |
+-|---|---|---|
++| --- | --- | --- |
+ | devenv, pinned by `devenv.lock` | `1.100.0-nightly (0fc141305 2026-09-11)` | `1.100.0-nightly (3c0b53475 2026-09-04)` |
+ | mise, pinned by `mise.lock` | `1.100.0-nightly (574ff7d98 2026-09-14)` | `1.100.0-nightly (7941be6fb 2026-09-11)` |
+ 
+@@ -40,7 +40,7 @@ mise installs a Python tool into an environment of its own.
+ Four arrangements were built and run against the same criterion, a wheel that a Python interpreter then loads, on two architectures and three operating systems.
+ 
+ | arrangement | platforms | cold range |
+-|---|---|---|
++| --- | --- | --- |
+ | devenv alone | 3 of 6 | 53 s to 217 s |
+ | mise for versions, devenv for the system layer | 3 of 6 | 53 s to 217 s |
+ | mise with zig supplying the compiler | 6 of 6 | 21 s to 195 s |
+@@ -69,7 +69,7 @@ Each answer below places the line where mise stops.
+ **One manifest declares each package.**
+ 
+ | package | manifest |
+-|---|---|
++| --- | --- |
+ | a crate purba links | `Cargo.toml` |
+ | a Python package that imports purba or shares its environment | `pyproject.toml`, under `[dependency-groups]` |
+ | every other package, which runs over the files | `mise.toml` |
+@@ -138,7 +138,7 @@ The toolchain is therefore named by a date, which resolves only to itself.
+ [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) holds that choice.
+ 
+ | property | check |
+-|---|---|
++| --- | --- |
+ | the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
+ | the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
+ | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
+diff --git a/docs/decisions/only-github-runs-what-lives-under-github.md b/docs/decisions/only-github-runs-what-lives-under-github.md
+index 5f3d776..5750a49 100644
+--- a/docs/decisions/only-github-runs-what-lives-under-github.md
++++ b/docs/decisions/only-github-runs-what-lives-under-github.md
+@@ -69,7 +69,7 @@ A test under `scripts/test` runs a script from either half.
+ The command does not read a test as a caller, so no test moves a script.
+ 
+ | control | reading |
+-|---|---|
++| --- | --- |
+ | a script under `.github/scripts/` that only a task names | refused, and the task is named as its only caller |
+ | a script in `scripts/` that only a workflow names | refused, and the workflow is named |
+ | a script under `.github/scripts/` that nothing names | refused |
+diff --git a/docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md b/docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
+index f40efd8..0be8690 100644
+--- a/docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
++++ b/docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
+@@ -8,7 +8,7 @@ It left how a sentence reads open.
+ The corpus was measured against the standard's rules before any rule was chosen.
+ 
+ | the records, measured | sentences |
+-|---|---:|
++| --- | ---: |
+ | read | 1,441 |
+ | over 25 words | 104 |
+ | with an `-ing` verb form | 63 |
+@@ -35,7 +35,7 @@ No public source carries the rule numbers, so purba cites none.
+ **A rule refuses only where a command decides it.**
+ 
+ | the borrowed rule | force |
+-|---|---|
++| --- | --- |
+ | no more than 25 words in descriptive text | refuses |
+ | no more than six sentences in a paragraph | refuses |
+ | the `-ing` form only as a technical noun | refuses |
+@@ -70,7 +70,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
+ ## Confirmation
+ 
+ | what proves it | where |
+-|---|---|
++| --- | --- |
+ | `mise run records` refuses a sentence over 25 words | `scripts/check-records.sh` |
+ | the same command refuses a paragraph over six sentences | `scripts/check-records.sh` |
+ | the same command refuses an `-ing` form after `be` or a preposition | `scripts/check-records.sh` |
+diff --git a/docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md b/docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+index d2b3f89..eb1ee36 100644
+--- a/docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
++++ b/docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+@@ -12,7 +12,7 @@ Nothing in the tree needs nightly.
+ The crate compiles on stable today, and the dependency floor of 1.96 is cleared by any current release.
+ 
+ | measured | value |
+-|---|---|
++| --- | --- |
+ | purba's own Rust, on 2026-09-16 | 19 lines |
+ | the pinned graph under the global solver on a stable compiler, on 2026-09-14 | 93 crates, exit 0 |
+ 
+@@ -26,7 +26,7 @@ Stabilizing it is the sitting 2026 project goal, and it carries 115 open bug rep
+ **The two solvers disagree, and the disagreement is asymmetric.**
+ 
+ | direction | breadth | fails on nightly | fails on stable |
+-|---|---|---|---|
++| --- | --- | --- | --- |
+ | the new solver is stricter, and rejects what the old accepted | the dominant case, reported upstream as a non trivial amount of breakage | yes | no |
+ | the new solver is more complete, and accepts what the old rejected | two named patterns: recursive `impl Trait` calls, and associated types in higher ranked types | no | yes |
+ 
+@@ -39,7 +39,7 @@ Leaving both files in place is not a neutral duplication.
+ Three of rustup's five precedence ranks decide why.
+ 
+ | rustup precedence | rank |
+-|---|---|
++| --- | --- |
+ | `cargo +toolchain` on the command line | 1 |
+ | `RUSTUP_TOOLCHAIN`, which mise sets | 2 |
+ | `rust-toolchain.toml` | 4 |
+@@ -90,7 +90,7 @@ This keeps the one thing the stable check watches free of anything stable cannot
+ More nightly features can be taken up before that day, and each of them has its own life.
+ 
+ | when | what ends |
+-|---|---|
++| --- | --- |
+ | the solver stabilizes | this record, because the reason it gives for the channel is discharged |
+ | every nightly feature in use is stable | the channel, and the stable control build with it |
+ | a feature stabilizes, or the channel goes | that feature's use, which takes the fallback its ticket named |
+diff --git a/docs/decisions/purba-parses-python-with-ruff.md b/docs/decisions/purba-parses-python-with-ruff.md
+index a6febb1..a481403 100644
+--- a/docs/decisions/purba-parses-python-with-ruff.md
++++ b/docs/decisions/purba-parses-python-with-ruff.md
+@@ -11,7 +11,7 @@ Neither half survives the sources.
+ This is also the cheapest moment to decide:
+ 
+ | decide | cost | reversible |
+-|---|---|---|
++| --- | --- | --- |
+ | now | one dependency line | yes, both directions |
+ | after a prescan exists | every statement and expression arm rewrites, 1 to 2 weeks | expensive, asymmetric |
+ | after a query language ships | AST facts have become a public contract | effectively one-way |
+@@ -29,7 +29,7 @@ The evidence is in its issues and its README, not in repository metadata.
+ purba parses with four ruff crates, pinned exactly at `=0.0.12`, behind a thin parsing seam.
+ 
+ | crate | what the seam needs from it |
+-|---|---|
++| --- | --- |
+ | `ruff_python_parser` | the parse entry point |
+ | `ruff_python_ast` | the AST the seam returns |
+ | `ruff_text_size` | the `Ranged` trait. `Expr::range()` does not resolve without it |
+@@ -46,7 +46,7 @@ MSRV is the upgrade clock, not the API.
+ The version mapping belongs here, because the patch number is a release counter and not a change signal:
+ 
+ | pin | ruff release |
+-|---|---|
++| --- | --- |
+ | `0.0.2` | 0.15.19 |
+ | `0.0.12` | 0.16.6 |
+ 
+@@ -61,7 +61,7 @@ There is no `0.0.1`, and the mapping is not arithmetic.
+ Being wrong here is survivable, and being wrong the other way is not:
+ 
+ | | the failure | loud | deferrable | bounded |
+-|---|---|---|---|---|
++| --- | --- | --- | --- | --- |
+ | ruff | an API break | yes, a compile error | yes, the pin is exact | yes, 6 symbols in 10 weeks |
+ | the rejected crate | a file does not parse | no | no, already true | no, nobody maintains it |
+ 
+diff --git a/docs/decisions/purba-supports-a-python-with-two-years-left.md b/docs/decisions/purba-supports-a-python-with-two-years-left.md
+index 77f8212..82b7ccc 100644
+--- a/docs/decisions/purba-supports-a-python-with-two-years-left.md
++++ b/docs/decisions/purba-supports-a-python-with-two-years-left.md
+@@ -11,7 +11,7 @@ A version that ends soon after that release costs support and returns nothing.
+ PEP 693 states the lifetime: security fixes run for five years after a version's `.0` final.
+ 
+ | version | `.0` final | ends |
+-|---|---|---|
++| --- | --- | --- |
+ | 3.11 | 2022-10-24 | 2027-10 |
+ | 3.12 | 2023-10-02 | 2028-10 |
+ | 3.13 | 2024-10-07 | 2029-10 |
+@@ -46,7 +46,7 @@ So the claim above the floor is true, and nothing tests every version that satis
+ **Three locations carry the floor and move together.**
+ 
+ | location | what it sets |
+-|---|---|
++| --- | --- |
+ | `pyproject.toml` | the version a resolver refuses below |
+ | `Cargo.toml` | the abi3 feature, which sets the wheel tag |
+ | `mise.toml` | the interpreter a contributor and CI build against |
+diff --git a/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md b/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+index 0e2217c..8961ac1 100644
+--- a/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
++++ b/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+@@ -16,7 +16,7 @@ The scripts holding real branch logic make none of those calls.
+ Whichever argument is taken, the other set stays in shell.
+ 
+ | calls the scripts made when purba took this decision | n |
+-|---|---:|
++| --- | ---: |
+ | `git` | 73 |
+ | `gh` | 19 |
+ | `jq` | 12 |
+diff --git a/docs/decisions/significance-is-declared-not-detected.md b/docs/decisions/significance-is-declared-not-detected.md
+index 44c9b7c..05451eb 100644
+--- a/docs/decisions/significance-is-declared-not-detected.md
++++ b/docs/decisions/significance-is-declared-not-detected.md
+@@ -6,7 +6,7 @@ Human attention is the scarce resource, so review has to be scoped to the change
+ The prototype shows both ways this fails.
+ 
+ | prototype, 859 merged pull requests | |
+-|---|---|
++| --- | --- |
+ | merged with zero review events | 770, or 89.6% |
+ | review events in total | 495 |
+ | of those, approvals | 14 |
+@@ -26,7 +26,7 @@ Every candidate measured on the prototype fails.
+ - **Declaring it.** Chosen. The property becomes true by definition, so CI routes on it and judges nothing.
+ 
+ | pull request size | lines | mean lifetime |
+-|---|---|---|
++| --- | --- | --- |
+ | median | 159 | 1.5 h |
+ | p90 | 1,109 | |
+ | p99 | 7,437 | 4.0 h above 1,000 lines |
+@@ -62,7 +62,7 @@ Work an agent wrote is welcome, and nothing about it changes what the reviewer r
+ The routing is live and enforcing:
+ 
+ | evidence | result |
+-|---|---|
++| --- | --- |
+ | GitHub's CODEOWNERS validator | 0 errors |
+ | the first pull request to touch the directory | blocked |
+ | the review request GitHub generated | reported as coming from `CODEOWNERS` |
+diff --git a/docs/decisions/the-crate-carries-an-rlib.md b/docs/decisions/the-crate-carries-an-rlib.md
+index a2f2e7c..ef9f714 100644
+--- a/docs/decisions/the-crate-carries-an-rlib.md
++++ b/docs/decisions/the-crate-carries-an-rlib.md
+@@ -8,7 +8,7 @@ The failure here is worse than that, because it reports success.
+ With `crate-type = ["cdylib"]` alone:
+ 
+ | command | result |
+-|---|---|
++| --- | --- |
+ | `cargo test` | exits 0, and omits the Doc-tests section entirely |
+ | `cargo doc` | renders the example |
+ 
+@@ -52,7 +52,7 @@ It does more than run examples.
+ On a bare cdylib it exits 101 with "no library targets found". The same command that verifies the examples therefore guards the crate-type line.
+ 
+ | what reaches it | where |
+-|---|---|
++| --- | --- |
+ | `mise run quality`, through its `doc` and `test:doc` dependencies | `tasks.toml` |
+ | the `Quality` job, whose name the ruleset holds as a required context | `.github/workflows/quality.yml` |
+ 

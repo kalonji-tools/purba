@@ -1,0 +1,69 @@
+| writer | texts | words | lints | spelling | outside capitalisation, style, formatting and spelling |
+|---|---:|---:|---:|---:|---:|
+| agent | 40 | 16216 | 595 | 122 | 20 |
+| human | 108 | 1714 | 185 | 58 | 10 |
+
+### Every lint outside those kinds, with its line
+
+- agent · MassNouns · `Each finding` → Replace with: “Each piece of finding”
+  > The branch changed five scripts and gained a gate after the first pass, so a second reader went over it with none of the author's context. Each finding was repr
+- agent · Overall · `over all` → Replace with: “overall”
+  > | the conclusions the signing job must refuse were tested for one of eight | the list widened by six, and the tests stayed green | a loop over all eight |
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > 🔴 **It also corrected an instruction of mine.** I had written that `Scripts` should join the ruleset before this merges. A signing run that a finished gate star
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > 🔴 **It also corrected an instruction of mine.** I had written that `Scripts` should join the ruleset before this merges. A signing run that a finished gate star
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > Four places said `Scripts` is a required check, and the ruleset does not name it. Each now rests on what the tree holds: `sign.yml` waits for `Scripts`, and the
+sed: can't read prototype/out/drafts/agent/8: No such file or directory
+- agent · LongSentences · `The paths: an empty repository name, a read the API refuses, an answer with no check runs, a commit git does not hold, a write the API refuses, a failed upgrade, a refused commit, a failed push, and a pull request that cannot be opened` → 5947065868.md
+  > 
+- agent · PronounKnew · `new` → Replace with: “knew”
+  > | 2 | every path on which a script cannot run exits 2, and says what could not be done. The read of the check runs moved into `check-run.sh`, so both of its cal
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > | no ruleset change, because the job rides inside `Build` | no ruleset change, because `sign.yml` waits for `Scripts` and `Sign-off` is required | the same outc
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > | no ruleset change, because the job rides inside `Build` | no ruleset change, because `sign.yml` waits for `Scripts` and `Sign-off` is required | the same outc
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > So the rewritten head carried no `Scripts` check, and the merge passed because the ruleset does not name one. A ruleset that named `Scripts` before this merge w
+- agent · SplitWords · `ruleset` → Replace with: “rule set”
+  > So the rewritten head carried no `Scripts` check, and the merge passed because the ruleset does not name one. A ruleset that named `Scripts` before this merge w
+- agent · CondenseAllThe · `all of the` → Replace with: “all the”
+  > | 2. Which steps every change owes | all of the above, under one rule: no spec, no implementation |
+- agent · MassNouns · `each linking` → Replace with: “each piece of linking”
+  > 1. `CONTEXT.md`: four entries, in alphabetical place, each one or two sentences, each linking only inside the file.
+- agent · MassNouns · `a failing` → Replace with: “failing”
+  > | what the script does when it cannot read the gates | it exits 2 and writes nothing | **writing a failing `Sign-off` as well.** That writes a verdict from an o
+- agent · CompoundNouns · `file name` → Replace with: “filename”
+  > | a test deleted the fixture's call log by an internal file name | it reads the last call instead |
+- agent · MassNouns · `each finding` → Replace with: “each piece of finding”
+  > An independent reader read the branch at `c4db60b`. It saw the code and the issue, and not this pull request's comments. It proved each finding by running it, a
+- agent · MassNouns · `Each finding` → Replace with: “Each piece of finding”
+  > An independent reader read the branch at `083508a` against the spec, the plan and `AGENTS.md`. Each finding was checked again before it was acted on.
+- agent · MassNouns · `Each finding` → Replace with: “Each piece of finding”
+  > An independent reader read the branch at `e73df7b` against the spec, the plan and `AGENTS.md`. Each finding was checked again before it was acted on.
+- agent · MassNouns · `A missing` → Replace with: “Missing”
+  > | A missing `taplo` reads as an unreadable manifest | not changed. `mise run` supplies it |
+- agent · PronounKnew · `new` → Replace with: “knew”
+  > | `purba-writes-its-scripts-in-bash-until-purba-can-test-them.md` lists `bats`, `jq` or git as tools whose new version can break a script | not changed. The lis
+- human · DiscourseMarkers · `Otherwise` → Insert “,”
+  > > ➡️ Say the word and I will do it here with a control on both arms. Otherwise it belongs on https://github.com/kalonji-tools/purba/issues/198, which already ow
+sed: can't read prototype/out/drafts/human/1: No such file or directory
+- human · LongSentences · `github/scripts/; one a human or the  project's own tooling uses belongs in scripts/ is stated on https://github.com/kalonji-tools/purba/issues/108 and in this pull request, and a-location-inherits-its-readers binds both directories to the same reader, toolsmith — so it does not distinguish them.` → 5872788025.md
+  > 
+- human · DiscourseMarkers · `thus` → Insert “,”
+  > I'm against preflight it seems kinda redundant. thus I would advocate to remove it but that is an issue for another day. as for 3.12 add that to the load job so
+- human · SplitWords · `importlib` → Replace with: “import lib”
+  > would it not be simpler? the only thing that is needed is importlib
+- human · CompoundNouns · `new line` → Replace with: “newline”
+  > stylistic question would readability be better with | or >- and write on a new line
+- human · CompoundNouns · `lock files` → Replace with: “lockfiles”
+  > this is not mise specific but all lock files. that means we can also merge with the above [*.{md, lock}]
+- human · AnA · `a` → Replace with: “an”
+  > should it then not be a inline table?
+- human · DiscourseMarkers · `otherwise` → Insert “,”
+  > script tests should only run if script directory is touched. otherwise whats the point?
+- human · DiscourseMarkers · `thus` → Insert “,”
+  > if this is really how it works then there is some fixing to be done. When it runs it correct. but I still want it to be load baring when failed. thus it is requ
+- human · MissingDeterminer · ` ` → Replace with: “ the ”
+  > this file issue is not about agents.

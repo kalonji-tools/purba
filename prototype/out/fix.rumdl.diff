@@ -1,0 +1,72 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 4fe28a0..e6adcdb 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -15,7 +15,7 @@ one is ever published.
+ **If an agent writes them for you**, it cannot add this trailer, so you add it
+ to the whole branch yourself once your reviewer is satisfied, and before the merge:
+ 
+-```
++```text
+ mise run sign-off
+ ```
+ 
+@@ -61,7 +61,7 @@ commits that lack it.
+ 
+ State it, in the same commit, with an `Assisted-by:` trailer.
+ 
+-```
++```text
+ Assisted-by: AGENT:MODEL [TOOL] [TOOL]
+ ```
+ 
+@@ -203,7 +203,7 @@ a maintainer approves it, and no check reports before that.
+ These rules live in the repository's settings and not in a file here, so read
+ them back rather than trusting this section:
+ 
+-```
++```text
+ gh api repos/kalonji-tools/purba/rules/branches/main
+ ```
+ 
+diff --git a/README.md b/README.md
+index 0a7abe3..c0cb86b 100644
+--- a/README.md
++++ b/README.md
+@@ -41,8 +41,8 @@ dependency that needs one, and it fails loudly.
+ ## Building
+ 
+ ```console
+-$ mise install
+-$ mise run build
++mise install
++mise run build
+ ```
+ 
+ ## Working on purba
+diff --git a/docs/decisions/a-location-inherits-its-readers.md b/docs/decisions/a-location-inherits-its-readers.md
+index 9a5b15a..1207aa9 100644
+--- a/docs/decisions/a-location-inherits-its-readers.md
++++ b/docs/decisions/a-location-inherits-its-readers.md
+@@ -35,7 +35,7 @@ A directory that binds nothing is transparent: `src/config/pyproject.toml` reads
+ 
+ The bindings live in `.readers`, in gitattributes syntax:
+ 
+-```
++```text
+ [attr]contributor  architect coder toolsmith handler reviewer technical-writer
+ [attr]user         tester plugin-author packager integrator
+ 
+diff --git a/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md b/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+index 9d05e87..61b9bea 100644
+--- a/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
++++ b/docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+@@ -5,7 +5,7 @@
+ `.github/workflows/bump.yml` proposes a newer compiler every week for a person to sign.
+ Its first scheduled run pushed the branch and then stopped.
+ 
+-```
++```text
+ pull request create failed: GraphQL: GitHub Actions is not permitted to
+ create or approve pull requests (createPullRequest)
+ ```

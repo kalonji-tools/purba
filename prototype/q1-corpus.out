@@ -1,0 +1,20 @@
+## Checkers on 33 files at df08873
+
+| checker | findings | files | rules (count) |
+|---|---:|---:|---|
+| markdownlint | 394 | 31 | MD060 372, MD033 8, MD041 5, MD040 5, MD036 2, MD014 2 |
+| rumdl | 14 | 10 | MD041 5, MD040 5, MD033 2, MD014 2 |
+| mado | 41 | 15 | MD029 11, MD033 8, MD041 6, MD036 6, MD040 5, MD002 4, MD014 1 |
+| pymarkdown | 37 | 10 | MD003 12, MD033 8, MD041 5, MD040 5, MD022 4, MD036 2, MD014 1 |
+
+## Fixers on the same files
+
+| fixer | files rewritten | lines +/- | rendered HTML changed |
+|---|---:|---:|---|
+| markdownlint | 25 | +78/-78 | 1: README.md  |
+| rumdl | 4 | +7/-7 | 4: CONTRIBUTING.md README.md docs/decisions/a-location-inherits-its-readers.md docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md  |
+| pymarkdown | 0 | +0/-0 | none |
+| mdformat | 8 | +30/-36 | 4: .github/ISSUE_TEMPLATE/defect.md .github/ISSUE_TEMPLATE/question.md .github/ISSUE_TEMPLATE/research.md .github/ISSUE_TEMPLATE/task.md  |
+| mdformat_gfm | 31 | +474/-480 | 4: .github/ISSUE_TEMPLATE/defect.md .github/ISSUE_TEMPLATE/question.md .github/ISSUE_TEMPLATE/research.md .github/ISSUE_TEMPLATE/task.md  |
+| prettier | 25 | +450/-450 | none |
+| dprint | 27 | +452/-450 | none |

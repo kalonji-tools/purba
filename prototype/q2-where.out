@@ -1,0 +1,7 @@
+| tree | findings | one correction | prose | comment | code (identifier or string) |
+|---|---:|---:|---:|---:|---:|
+| oxitest | 31 | 23 | 6 | 2 | 15 |
+| click | 9 | 3 | 1 | 1 | 1 |
+| loguru | 11 | 7 | 7 | 0 | 0 |
+
+vendored, left out: 1480 findings in oxitest/docs/internals/mermaid.min.js, 361 with one correction

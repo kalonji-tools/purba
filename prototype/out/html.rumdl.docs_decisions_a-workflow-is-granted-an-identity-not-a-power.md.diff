@@ -1,0 +1,4 @@
+5c5
+< <pre><code>pull request create failed: GraphQL: GitHub Actions is not permitted to
+---
+> <pre lang="text"><code>pull request create failed: GraphQL: GitHub Actions is not permitted to

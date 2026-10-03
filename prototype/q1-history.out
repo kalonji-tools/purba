@@ -1,0 +1,11 @@
+commits replayed: 107
+
+| file | line text | first seen | last seen | commits carried |
+|---|---|---|---|---:|
+| docs/decisions/.template.md | `- **<option>.** <Chosen. Why it won.>` | c42a0c1 | df08873 | 106 |
+| docs/decisions/.template.md | `- **<option>.** <Why it lost.>` | c42a0c1 | df08873 | 106 |
+| docs/decisions/.template.md | `<The check that proves this still holds. Name the command or the setti` | c42a0c1 | df08873 | 106 |
+| docs/decisions/.template.md | `- **<the cost>.** <What it costs, and to whom.>` | e97faf5 | df08873 | 77 |
+| docs/decisions/.template.md | `<Then the detail. Use a list or a table wherever one fits.>` | c42a0c1 | df08873 | 106 |
+| docs/decisions/.template.md | `# <the proposition>` | c42a0c1 | df08873 | 106 |
+| docs/decisions/.template.md | `<This is the only part that cannot be re-derived from the tree.>` | c42a0c1 | df08873 | 106 |

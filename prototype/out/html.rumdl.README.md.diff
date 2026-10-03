@@ -1,0 +1,6 @@
+54,55c54,55
+< <div class="highlight highlight-text-shell-session"><pre>$ <span class="pl-s1">mise install</span>
+< $ <span class="pl-s1">mise run build</span></pre></div>
+---
+> <div class="highlight highlight-text-shell-session"><pre><span class="pl-c1">mise install</span>
+> <span class="pl-c1">mise run build</span></pre></div>

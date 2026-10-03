@@ -1,0 +1,658 @@
+{"file":"defect.md","rule":"UseTitleCase","kind":"Capitalization","line":32,"matched_text":"## The claim that is false","suggestions":["Replace with: “## The Claim That Is False”"]}
+{"file":"defect.md","rule":"UseTitleCase","kind":"Capitalization","line":43,"matched_text":"## What it actually does","suggestions":["Replace with: “## What It Actually Does”"]}
+{"file":"defect.md","rule":"UseTitleCase","kind":"Capitalization","line":57,"matched_text":"## Where it came from","suggestions":["Replace with: “## Where It came From”"]}
+{"file":"question.md","rule":"UseTitleCase","kind":"Capitalization","line":40,"matched_text":"## Out of scope","suggestions":["Replace with: “## Out of Scope”"]}
+{"file":"task.md","rule":"UseTitleCase","kind":"Capitalization","line":33,"matched_text":"## Out of scope","suggestions":["Replace with: “## Out of Scope”"]}
+{"file":"AGENTS.md","rule":"SpellCheck","kind":"Spelling","line":52,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# Instructions for an agent","suggestions":["Replace with: “# Instructions for an Agent”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":7,"matched_text":"## Before you take an issue","suggestions":["Replace with: “## Before You Take an Issue”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":14,"matched_text":"## When you write on an issue","suggestions":["Replace with: “## When You Write on an Issue”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":26,"matched_text":"## When you open a pull request","suggestions":["Replace with: “## When You Open a Pull Request”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":33,"matched_text":"## During the review","suggestions":["Replace with: “## During the Review”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":39,"matched_text":"## In every commit","suggestions":["Replace with: “## In Every Commit”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":48,"matched_text":"## When you write a record","suggestions":["Replace with: “## When You Write a Record”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":55,"matched_text":"## In anything you write","suggestions":["Replace with: “## In Anything You Write”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":61,"matched_text":"## After the merge","suggestions":["Replace with: “## After the Merge”"]}
+{"file":"AGENTS.md","rule":"UseTitleCase","kind":"Capitalization","line":65,"matched_text":"## What belongs in this file","suggestions":["Replace with: “## What Belongs in This File”"]}
+{"file":"CLAUDE.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"md","suggestions":["Replace with: “ma”","Replace with: “mad”","Replace with: “me”"]}
+{"file":"CONTEXT.md","rule":"SentenceCapitalization","kind":"Capitalization","line":3,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":55,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":69,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":85,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":97,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":129,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":133,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":137,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":139,"matched_text":"Toolsmith","suggestions":["Replace with: “Tinsmith”","Replace with: “Toolkit”","Replace with: “Goldsmith”"]}
+{"file":"CONTEXT.md","rule":"SpellCheck","kind":"Spelling","line":141,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba","suggestions":["Replace with: “# Purba”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":29,"matched_text":"### Commit message","suggestions":["Replace with: “### Commit Message”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":37,"matched_text":"### Design spec","suggestions":["Replace with: “### Design Spec”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":49,"matched_text":"### Implementation plan","suggestions":["Replace with: “### Implementation Plan”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":79,"matched_text":"### Outside contribution","suggestions":["Replace with: “### Outside Contribution”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":87,"matched_text":"### Plugin author","suggestions":["Replace with: “### Plugin Author”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":91,"matched_text":"### Post pass","suggestions":["Replace with: “### Post Pass”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":95,"matched_text":"### Published comment","suggestions":["Replace with: “### Published Comment”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":99,"matched_text":"### Pull request","suggestions":["Replace with: “### Pull Request”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":131,"matched_text":"### Technical writer","suggestions":["Replace with: “### Technical Writer”"]}
+{"file":"CONTEXT.md","rule":"UseTitleCase","kind":"Capitalization","line":147,"matched_text":"### Unpublished comment","suggestions":["Replace with: “### Unpublished Comment”"]}
+{"file":"CONTRIBUTING.md","rule":"MassNouns","kind":"Agreement","line":97,"matched_text":"one carrying","suggestions":["Replace with: “one piece of carrying”"]}
+{"file":"CONTRIBUTING.md","rule":"MissingTo","kind":"Word Choice","line":28,"matched_text":"refuses","suggestions":["Insert “ to”"]}
+{"file":"CONTRIBUTING.md","rule":"PronounInflectionBe","kind":"Agreement","line":177,"matched_text":"are","suggestions":["Replace with: “is”"]}
+{"file":"CONTRIBUTING.md","rule":"PronounVerbAgreement","kind":"Agreement","line":34,"matched_text":"commits","suggestions":["Replace with: “commit”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":47,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":83,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":154,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":162,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":171,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":175,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":176,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"CONTRIBUTING.md","rule":"SentenceCapitalization","kind":"Capitalization","line":182,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":27,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":40,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":68,"matched_text":"specialised","suggestions":["Replace with: “specialized”","Replace with: “specialist”","Replace with: “specialize”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":69,"matched_text":"analyser","suggestions":["Replace with: “analyzer”","Replace with: “analysis”","Replace with: “analyst”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":86,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":90,"matched_text":"SHAs","suggestions":["Replace with: “SHA's”","Replace with: “SLAs”","Replace with: “Seas”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":105,"matched_text":"judgements","suggestions":["Replace with: “judgments”","Replace with: “judgment's”","Replace with: “judgment”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":118,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":127,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":148,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":149,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":153,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":159,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":167,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"SpellCheck","kind":"Spelling","line":185,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# Contributing to purba","suggestions":["Replace with: “# Contributing to Purba”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":3,"matched_text":"## What your sign-off certifies","suggestions":["Replace with: “## What Your Sign-off Certifies”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":60,"matched_text":"## If a machine helped","suggestions":["Replace with: “## If a Machine Helped”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":76,"matched_text":"## What purba records on its side","suggestions":["Replace with: “## What Purba Records on Its Side”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":92,"matched_text":"## How much to write","suggestions":["Replace with: “## How Much to Write”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":110,"matched_text":"## How your work reaches `main`","suggestions":["Replace with: “## How Your Work Reaches `main`”"]}
+{"file":"CONTRIBUTING.md","rule":"UseTitleCase","kind":"Capitalization","line":133,"matched_text":"### What refuses your branch","suggestions":["Replace with: “### What Refuses Your Branch”"]}
+{"file":"README.md","rule":"OxfordComma","kind":"Style","line":10,"matched_text":"CI","suggestions":["Insert “,”"]}
+{"file":"README.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"README.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"README.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"README.md","rule":"SentenceCapitalization","kind":"Capitalization","line":69,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"Papiamentu","suggestions":["Replace with: “Parliament”","Replace with: “Parliaments”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":25,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":28,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":50,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"unformatted","suggestions":["Replace with: “formatted”","Replace with: “reformatted”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":57,"matched_text":"Worktrunk","suggestions":["Replace with: “Workaround”","Replace with: “Worktree”","Replace with: “Worktrees”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":61,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":72,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"README.md","rule":"SpellCheck","kind":"Spelling","line":73,"matched_text":"md","suggestions":["Replace with: “ma”","Replace with: “mad”","Replace with: “me”"]}
+{"file":"README.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba","suggestions":["Replace with: “# Purba”"]}
+{"file":"README.md","rule":"UseTitleCase","kind":"Capitalization","line":48,"matched_text":"## Working on purba","suggestions":["Replace with: “## Working on Purba”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"OxfordComma","kind":"Style","line":58,"matched_text":"refusal","suggestions":["Insert “,”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SentenceCapitalization","kind":"Capitalization","line":115,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SentenceCapitalization","kind":"Capitalization","line":117,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"decides","suggestions":["Replace with: “Decides”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SpellCheck","kind":"Spelling","line":52,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SpellCheck","kind":"Spelling","line":98,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"SpellCheck","kind":"Spelling","line":100,"matched_text":"afterwards","suggestions":["Replace with: “afterwords”","Replace with: “afterward”","Replace with: “afterword's”"]}
+{"file":"a-change-is-specified-before-it-is-built.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A change is specified before it is built","suggestions":["Replace with: “# A Change Is Specified Before It Is Built”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"mean","suggestions":["Replace with: “Mean”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":20,"matched_text":"commits","suggestions":["Replace with: “Commits”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":22,"matched_text":"add","suggestions":["Replace with: “Add”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":96,"matched_text":"what","suggestions":["Replace with: “What”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":106,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":124,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":126,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":127,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":128,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":129,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":129,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":130,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":130,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":131,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":132,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":132,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":133,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":133,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":134,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":134,"matched_text":"weak","suggestions":["Replace with: “Weak”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":143,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SentenceCapitalization","kind":"Capitalization","line":146,"matched_text":"single","suggestions":["Replace with: “Single”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"pytest","suggestions":["Replace with: “patent”","Replace with: “potent”","Replace with: “palest”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"uv","suggestions":["Replace with: “uh”","Replace with: “um”","Replace with: “up”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":100,"matched_text":"specialised","suggestions":["Replace with: “specialized”","Replace with: “specialist”","Replace with: “specialize”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":113,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":131,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SpellCheck","kind":"Spelling","line":154,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"SplitWords","kind":"Typo","line":39,"matched_text":"checkpatch","suggestions":["Replace with: “check patch”"]}
+{"file":"a-commit-outlives-its-review.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A commit message outlives its review","suggestions":["Replace with: “# A Commit Message Outlives Its Review”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"DiscourseMarkers","kind":"Punctuation","line":105,"matched_text":"therefore","suggestions":["Insert “,”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"DisjointPrefixes","kind":"Spelling","line":85,"matched_text":"non-zero","suggestions":["Replace with: “nonzero”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"DisjointPrefixes","kind":"Spelling","line":86,"matched_text":"non-zero","suggestions":["Replace with: “nonzero”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"DisjointPrefixes","kind":"Spelling","line":87,"matched_text":"re-declaring","suggestions":["Replace with: “redeclaring”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"answered","suggestions":["Replace with: “Answered”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":21,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":86,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":93,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":94,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SentenceCapitalization","kind":"Capitalization","line":95,"matched_text":"every","suggestions":["Replace with: “Every”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SingleBe","kind":"Grammar","line":21,"matched_text":" was","suggestions":["Remove error"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":12,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":24,"matched_text":"normaliser's","suggestions":["Replace with: “normality's”","Replace with: “normalizes”","Replace with: “formalism's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":37,"matched_text":"normalises","suggestions":["Replace with: “normalizes”","Replace with: “normalize”","Replace with: “normalized”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":50,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"afterwards","suggestions":["Replace with: “afterwords”","Replace with: “afterward”","Replace with: “afterword's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":56,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":68,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":75,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":86,"matched_text":"intra","suggestions":["Replace with: “infra”","Replace with: “intro”","Replace with: “inert”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"normalising","suggestions":["Replace with: “normalizing”","Replace with: “formalizing”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"shfmt","suggestions":["Replace with: “shaft”","Replace with: “sham”","Replace with: “shame”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":97,"matched_text":"behaviour","suggestions":["Replace with: “behavior”","Replace with: “behaviors”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":97,"matched_text":"normaliser","suggestions":["Replace with: “normalize”","Replace with: “normalized”","Replace with: “normalizes”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SpellCheck","kind":"Spelling","line":101,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"SplitWords","kind":"Typo","line":89,"matched_text":"shellcheck","suggestions":["Replace with: “shell check”"]}
+{"file":"a-gate-owns-the-mechanical.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A gate owns the mechanical standard","suggestions":["Replace with: “# A Gate Owns the Mechanical Standard”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"CompoundNouns","kind":"Word Choice","line":85,"matched_text":"lock file","suggestions":["Replace with: “lockfile”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"MassNouns","kind":"Agreement","line":33,"matched_text":"every binding","suggestions":["Replace with: “every piece of binding”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"MassNouns","kind":"Agreement","line":55,"matched_text":"a binding","suggestions":["Replace with: “binding”","Replace with: “some binding”","Replace with: “a piece of binding”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"MassNouns","kind":"Agreement","line":77,"matched_text":"one standing","suggestions":["Replace with: “one piece of standing”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"MassNouns","kind":"Agreement","line":86,"matched_text":"a binding","suggestions":["Replace with: “binding”","Replace with: “some binding”","Replace with: “a piece of binding”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"OxfordComma","kind":"Style","line":69,"matched_text":"issue","suggestions":["Insert “,”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SentenceCapitalization","kind":"Capitalization","line":71,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SentenceCapitalization","kind":"Capitalization","line":77,"matched_text":"accumulation","suggestions":["Replace with: “Accumulation”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SentenceCapitalization","kind":"Capitalization","line":79,"matched_text":"inheritance","suggestions":["Replace with: “Inheritance”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SentenceCapitalization","kind":"Capitalization","line":100,"matched_text":"this","suggestions":["Replace with: “This”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":6,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":34,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":66,"matched_text":"organised","suggestions":["Replace with: “organized”","Replace with: “organism”","Replace with: “organist”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SpellCheck","kind":"Spelling","line":103,"matched_text":"licence","suggestions":["Replace with: “license”","Replace with: “licensee”","Replace with: “licensed”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":22,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":22,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":22,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":23,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":23,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"SplitWords","kind":"Typo","line":36,"matched_text":"gitattributes","suggestions":["Replace with: “git attributes”"]}
+{"file":"a-location-inherits-its-readers.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A location inherits its readers","suggestions":["Replace with: “# A Location Inherits Its Readers”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"OxfordComma","kind":"Style","line":92,"matched_text":"cohesion","suggestions":["Insert “,”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SentenceCapitalization","kind":"Capitalization","line":85,"matched_text":"record","suggestions":["Replace with: “Record”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SentenceCapitalization","kind":"Capitalization","line":86,"matched_text":"source","suggestions":["Replace with: “Source”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SentenceCapitalization","kind":"Capitalization","line":87,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SpellCheck","kind":"Spelling","line":70,"matched_text":"programme","suggestions":["Replace with: “programmed”","Replace with: “programmer”","Replace with: “programmes”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SpellCheck","kind":"Spelling","line":87,"matched_text":"unwired","suggestions":["Replace with: “umpired”","Replace with: “unaided”","Replace with: “uncured”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SpellCheck","kind":"Spelling","line":90,"matched_text":"unwired","suggestions":["Replace with: “umpired”","Replace with: “unaided”","Replace with: “uncured”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SpellCheck","kind":"Spelling","line":90,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SpellCheck","kind":"Spelling","line":100,"matched_text":"unwired","suggestions":["Replace with: “umpired”","Replace with: “unaided”","Replace with: “uncured”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"SplitWords","kind":"Typo","line":103,"matched_text":"gateable","suggestions":["Replace with: “gate able”"]}
+{"file":"a-record-is-rewritten-not-amended.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A decision record is rewritten, not amended","suggestions":["Replace with: “# A Decision Record Is Rewritten, Not Amended”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"DisjointPrefixes","kind":"Spelling","line":106,"matched_text":"co-author","suggestions":["Replace with: “coauthor”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"MissingPreposition","kind":"Miscellaneous","line":97,"matched_text":"register ","suggestions":[]}
+{"file":"a-register-belongs-to-one-location.md","rule":"MissingTo","kind":"Word Choice","line":49,"matched_text":"refuse","suggestions":["Insert “ to”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"OxfordComma","kind":"Style","line":122,"matched_text":"one","suggestions":["Insert “,”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"yes","suggestions":["Replace with: “Yes”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"yes","suggestions":["Replace with: “Yes”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"issues","suggestions":["Replace with: “Issues”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"pull","suggestions":["Replace with: “Pull”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":32,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":39,"matched_text":"carrying","suggestions":["Replace with: “Carrying”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"partly","suggestions":["Replace with: “Partly”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":122,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":122,"matched_text":"yes","suggestions":["Replace with: “Yes”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":125,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":139,"matched_text":"never","suggestions":["Replace with: “Never”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SentenceCapitalization","kind":"Capitalization","line":140,"matched_text":"never","suggestions":["Replace with: “Never”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"undescribed","suggestions":["Replace with: “described”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":49,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":69,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":70,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":96,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":106,"matched_text":"approver","suggestions":["Replace with: “approve”","Replace with: “approved”","Replace with: “approves”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"SpellCheck","kind":"Spelling","line":137,"matched_text":"Diátaxis","suggestions":["Replace with: “Dictates”","Replace with: “Dietaries”","Replace with: “Digitalis”"]}
+{"file":"a-register-belongs-to-one-location.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A register belongs to one location","suggestions":["Replace with: “# A Register Belongs to One Location”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"CompoundNouns","kind":"Word Choice","line":41,"matched_text":"record keeping","suggestions":["Replace with: “recordkeeping”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"MassNouns","kind":"Agreement","line":90,"matched_text":"a binding","suggestions":["Replace with: “binding”","Replace with: “some binding”","Replace with: “a piece of binding”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"OxfordComma","kind":"Style","line":62,"matched_text":"Python","suggestions":["Insert “,”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"OxfordComma","kind":"Style","line":91,"matched_text":"cohesion","suggestions":["Insert “,”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SentenceCapitalization","kind":"Capitalization","line":29,"matched_text":"both","suggestions":["Replace with: “Both”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"an","suggestions":["Replace with: “An”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":52,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":61,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":62,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":76,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":76,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"SpellCheck","kind":"Spelling","line":82,"matched_text":"ungated","suggestions":["Replace with: “undated”","Replace with: “unrated”","Replace with: “unabated”"]}
+{"file":"a-term-belongs-to-the-glossary.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A term belongs to the glossary","suggestions":["Replace with: “# A Term Belongs to the Glossary”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"OxfordComma","kind":"Style","line":35,"matched_text":"server","suggestions":["Insert “,”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":45,"matched_text":"one","suggestions":["Replace with: “One”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":69,"matched_text":"refused","suggestions":["Replace with: “Refused”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":70,"matched_text":"opened","suggestions":["Replace with: “Opened”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":71,"matched_text":"workflow","suggestions":["Replace with: “Workflow”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":71,"matched_text":"six","suggestions":["Replace with: “Six”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":72,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SentenceCapitalization","kind":"Capitalization","line":72,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SpellCheck","kind":"Spelling","line":57,"matched_text":"behaviour","suggestions":["Replace with: “behavior”","Replace with: “behaviors”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SpellCheck","kind":"Spelling","line":57,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"SplitWords","kind":"Typo","line":26,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"a-workflow-is-granted-an-identity-not-a-power.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# A workflow is granted an identity, not a power","suggestions":["Replace with: “# A Workflow Is Granted an Identity, Not a Power”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"PhrasalVerbAsCompoundNoun","kind":"Word Choice","line":47,"matched_text":"plugin","suggestions":["Replace with: “plug in”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"already","suggestions":["Replace with: “Already”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"implementation","suggestions":["Replace with: “Implementation”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"pull","suggestions":["Replace with: “Pull”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"review","suggestions":["Replace with: “Review”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":41,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":42,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":43,"matched_text":"an","suggestions":["Replace with: “An”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":45,"matched_text":"someone","suggestions":["Replace with: “Someone”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SentenceCapitalization","kind":"Capitalization","line":49,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":9,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":29,"matched_text":"recognises","suggestions":["Replace with: “recognizes”","Replace with: “recognize”","Replace with: “recognized”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":39,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":46,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":48,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":61,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":65,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":68,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":77,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":83,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SpellCheck","kind":"Spelling","line":89,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SplitWords","kind":"Typo","line":27,"matched_text":"toolsmith","suggestions":["Replace with: “tool smith”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SplitWords","kind":"Typo","line":42,"matched_text":"toolsmith","suggestions":["Replace with: “tool smith”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SplitWords","kind":"Typo","line":57,"matched_text":"another's","suggestions":["Replace with: “an other's”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"SplitWords","kind":"Typo","line":76,"matched_text":"toolsmith","suggestions":["Replace with: “tool smith”"]}
+{"file":"an-actor-is-what-it-does-not-what-it-is.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# An actor is what it does, not what it is","suggestions":["Replace with: “# An Actor Is What It Does, Not What It Is”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":42,"matched_text":"material","suggestions":["Replace with: “Material”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":45,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":54,"matched_text":"bolded","suggestions":["Replace with: “Bolded”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":55,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":91,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":92,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":93,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":94,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":95,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":96,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":96,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":97,"matched_text":"whether","suggestions":["Replace with: “Whether”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":97,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SentenceCapitalization","kind":"Capitalization","line":102,"matched_text":"asks","suggestions":["Replace with: “Asks”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"ASD","suggestions":["Replace with: “Ad”","Replace with: “Add”","Replace with: “Aid”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"STE100","suggestions":["Replace with: “Stem's”","Replace with: “Step's”","Replace with: “Stew's”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":32,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"ins","suggestions":["Replace with: “in's”","Replace with: “is”","Replace with: “its”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":79,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":92,"matched_text":"ins","suggestions":["Replace with: “in's”","Replace with: “is”","Replace with: “its”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SpellCheck","kind":"Spelling","line":102,"matched_text":"md","suggestions":["Replace with: “ma”","Replace with: “mad”","Replace with: “me”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"SplitWords","kind":"Typo","line":21,"matched_text":"backticked","suggestions":["Replace with: “back ticked”"]}
+{"file":"an-artifact-holds-the-minimum-that-conveys-its-point.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# An artifact holds the minimum that conveys its point","suggestions":["Replace with: “# An Artifact Holds the Minimum That Conveys Its Point”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"DisjointPrefixes","kind":"Spelling","line":89,"matched_text":"re-purposed","suggestions":["Replace with: “repurposed”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"DisjointPrefixes","kind":"Spelling","line":91,"matched_text":"out stay","suggestions":["Replace with: “outstay”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"DisjointPrefixes","kind":"Spelling","line":97,"matched_text":"re-purpose","suggestions":["Replace with: “repurpose”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"DisjointPrefixes","kind":"Spelling","line":129,"matched_text":"un-freezes","suggestions":["Replace with: “unfreezes”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"Everyone","kind":"Miscellaneous","line":128,"matched_text":"every one","suggestions":["Replace with: “everyone”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"OxfordComma","kind":"Style","line":64,"matched_text":"effort","suggestions":["Insert “,”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"OxfordComma","kind":"Style","line":70,"matched_text":"title","suggestions":["Insert “,”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"rewritten","suggestions":["Replace with: “Rewritten”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"pull","suggestions":["Replace with: “Pull”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":72,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":85,"matched_text":"rename","suggestions":["Replace with: “Rename”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":86,"matched_text":"close","suggestions":["Replace with: “Close”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":139,"matched_text":"an","suggestions":["Replace with: “An”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":140,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":141,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":166,"matched_text":"an","suggestions":["Replace with: “An”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SentenceCapitalization","kind":"Capitalization","line":166,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":35,"matched_text":"behaviour","suggestions":["Replace with: “behavior”","Replace with: “behaviors”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":66,"matched_text":"organisation","suggestions":["Replace with: “organization”","Replace with: “organizations”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":79,"matched_text":"licence","suggestions":["Replace with: “license”","Replace with: “licensee”","Replace with: “licensed”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":101,"matched_text":"afterwards","suggestions":["Replace with: “afterwords”","Replace with: “afterward”","Replace with: “afterword's”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":122,"matched_text":"un","suggestions":["Replace with: “uh”","Replace with: “um”","Replace with: “up”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":145,"matched_text":"labelling","suggestions":["Replace with: “labeling”","Replace with: “libeling”","Replace with: “belling”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SpellCheck","kind":"Spelling","line":156,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"SplitWords","kind":"Typo","line":141,"matched_text":"supersession","suggestions":["Replace with: “super session”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"There","kind":"Miscellaneous","line":8,"matched_text":"the re","suggestions":["Replace with: “there”"]}
+{"file":"an-artifact-is-rewritten-until-its-direction-is-agreed.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# An artifact is rewritten until its direction is agreed","suggestions":["Replace with: “# An Artifact Is Rewritten Until Its Direction Is Agreed”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"AnA","kind":"Miscellaneous","line":60,"matched_text":"a","suggestions":["Replace with: “an”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SentenceCapitalization","kind":"Capitalization","line":35,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SentenceCapitalization","kind":"Capitalization","line":38,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SentenceCapitalization","kind":"Capitalization","line":41,"matched_text":"written","suggestions":["Replace with: “Written”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SpellCheck","kind":"Spelling","line":26,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SplitWords","kind":"Typo","line":61,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"SplitWords","kind":"Typo","line":66,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"an-outside-contribution-is-applied-not-merged.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# An outside contribution is applied, not merged","suggestions":["Replace with: “# An Outside Contribution Is Applied, Not Merged”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"AnA","kind":"Miscellaneous","line":32,"matched_text":"an","suggestions":["Replace with: “a”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"AnA","kind":"Miscellaneous","line":34,"matched_text":"an","suggestions":["Replace with: “a”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"MissingPreposition","kind":"Miscellaneous","line":119,"matched_text":"subtraction ","suggestions":[]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"OxfordComma","kind":"Style","line":63,"matched_text":"framework","suggestions":["Insert “,”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":33,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":108,"matched_text":"reserved","suggestions":["Replace with: “Reserved”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":108,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":109,"matched_text":"an","suggestions":["Replace with: “An”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SentenceCapitalization","kind":"Capitalization","line":116,"matched_text":"owns","suggestions":["Replace with: “Owns”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":32,"matched_text":"rlib","suggestions":["Replace with: “rib”","Replace with: “lib”","Replace with: “raid”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":34,"matched_text":"rlib","suggestions":["Replace with: “rib”","Replace with: “lib”","Replace with: “raid”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":43,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":77,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":99,"matched_text":"markdown","suggestions":["Replace with: “Markdown”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":116,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SpellCheck","kind":"Spelling","line":116,"matched_text":"toml","suggestions":["Replace with: “toll”","Replace with: “tom”","Replace with: “tomb”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"SplitWords","kind":"Typo","line":100,"matched_text":"autolink","suggestions":["Replace with: “auto link”"]}
+{"file":"an-unpublished-comment-carries-what-no-other-location-carries.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# An unpublished comment carries what no other location carries","suggestions":["Replace with: “# An Unpublished Comment Carries What no Other Location Carries”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"ExpandConfiguration","kind":"Style","line":199,"matched_text":"config","suggestions":["Replace with: “configuration”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"OxfordComma","kind":"Style","line":218,"matched_text":"review","suggestions":["Insert “,”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"PronounContraction","kind":"Word Choice","line":154,"matched_text":"were","suggestions":["Replace with: “we're”","Replace with: “we are”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"unsigned","suggestions":["Replace with: “Unsigned”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":22,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":63,"matched_text":"as","suggestions":["Replace with: “As”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":64,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":65,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":76,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":96,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":97,"matched_text":"nothing","suggestions":["Replace with: “Nothing”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":98,"matched_text":"from","suggestions":["Replace with: “From”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":118,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":119,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":120,"matched_text":"none","suggestions":["Replace with: “None”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":122,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":123,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":125,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":125,"matched_text":"none","suggestions":["Replace with: “None”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":126,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":127,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":128,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":128,"matched_text":"none","suggestions":["Replace with: “None”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":194,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SentenceCapitalization","kind":"Capitalization","line":218,"matched_text":"and","suggestions":["Replace with: “And”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SpellCheck","kind":"Spelling","line":25,"matched_text":"Answerability","suggestions":["Replace with: “Inoperability”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SpellCheck","kind":"Spelling","line":76,"matched_text":"organisation","suggestions":["Replace with: “organization”","Replace with: “organizations”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SpellCheck","kind":"Spelling","line":180,"matched_text":"approver","suggestions":["Replace with: “approve”","Replace with: “approved”","Replace with: “approves”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SpellCheck","kind":"Spelling","line":185,"matched_text":"unforgeable","suggestions":["Replace with: “unforgettable”","Replace with: “unforgivable”","Replace with: “enforceable”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SpellCheck","kind":"Spelling","line":204,"matched_text":"unpaginated","suggestions":["Replace with: “unpainted”","Replace with: “paginated”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":8,"matched_text":"answerability","suggestions":["Replace with: “answer ability”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":14,"matched_text":"answerability","suggestions":["Replace with: “answer ability”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":48,"matched_text":"answerability","suggestions":["Replace with: “answer ability”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":51,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":53,"matched_text":"approver","suggestions":["Replace with: “app rover”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":97,"matched_text":"answerability","suggestions":["Replace with: “answer ability”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"SplitWords","kind":"Typo","line":178,"matched_text":"personhood","suggestions":["Replace with: “person hood”"]}
+{"file":"liability-is-recorded-from-the-act-that-makes-it-true.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# Liability is recorded from the act that makes it true","suggestions":["Replace with: “# Liability Is Recorded from the Act That Makes It True”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"CompoundNouns","kind":"Word Choice","line":78,"matched_text":"file names","suggestions":["Replace with: “filenames”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"CompoundNouns","kind":"Word Choice","line":145,"matched_text":"lower case","suggestions":["Replace with: “lowercase”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"Everyone","kind":"Miscellaneous","line":9,"matched_text":"Every one","suggestions":["Replace with: “Everyone”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"OrthographicConsistency","kind":"Capitalization","line":53,"matched_text":"aarch64","suggestions":["Replace with: “AArch64”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"devenv","suggestions":["Replace with: “Devenv”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":46,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":51,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":53,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":59,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":59,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":74,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":83,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":85,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":86,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":92,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":94,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":113,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":127,"matched_text":"mise","suggestions":["Replace with: “Mise”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":138,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":142,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":142,"matched_text":"true","suggestions":["Replace with: “True”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":144,"matched_text":"nothing","suggestions":["Replace with: “Nothing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SentenceCapitalization","kind":"Capitalization","line":145,"matched_text":"each","suggestions":["Replace with: “Each”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"rustc","suggestions":["Replace with: “rusts”","Replace with: “rust”","Replace with: “rustic”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"devenv","suggestions":["Replace with: “decent”","Replace with: “defend”","Replace with: “depend”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"abi3","suggestions":["Replace with: “ab”","Replace with: “abbe”","Replace with: “abbr”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":28,"matched_text":"devenv's","suggestions":["Replace with: “Keven's”","Replace with: “even's”","Replace with: “event's”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"rustc","suggestions":["Replace with: “rusts”","Replace with: “rust”","Replace with: “rustic”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"rustfmt","suggestions":["Replace with: “rust's”","Replace with: “runtime”","Replace with: “rust”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":34,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":35,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"devenv","suggestions":["Replace with: “decent”","Replace with: “defend”","Replace with: “depend”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"devenv","suggestions":["Replace with: “decent”","Replace with: “defend”","Replace with: “depend”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":46,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":46,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":46,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"s","suggestions":["Replace with: “so”","Replace with: “as”","Replace with: “is”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":49,"matched_text":"devenv","suggestions":["Replace with: “decent”","Replace with: “defend”","Replace with: “depend”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":49,"matched_text":"WSL2","suggestions":["Replace with: “Walk”","Replace with: “Wall”","Replace with: “Weld”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":49,"matched_text":"nixpkgs","suggestions":["Replace with: “nick's”","Replace with: “nip's”","Replace with: “nix's”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":49,"matched_text":"darwin","suggestions":["Replace with: “Darwin”","Replace with: “darling”","Replace with: “darn”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":51,"matched_text":"devenv","suggestions":["Replace with: “decent”","Replace with: “defend”","Replace with: “depend”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"A53","suggestions":["Replace with: “A”","Replace with: “Ab”","Replace with: “Ac”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"rustc","suggestions":["Replace with: “rusts”","Replace with: “rust”","Replace with: “rustic”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":53,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":55,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":55,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":57,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"pytest","suggestions":["Replace with: “patent”","Replace with: “potent”","Replace with: “palest”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":61,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":61,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":63,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":63,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":65,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":65,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":73,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":74,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":78,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":80,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":81,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":82,"matched_text":"uv","suggestions":["Replace with: “uh”","Replace with: “um”","Replace with: “up”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":86,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":88,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":96,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":101,"matched_text":"zig","suggestions":["Replace with: “zip”","Replace with: “Zig”","Replace with: “zing”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":105,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":105,"matched_text":"uv","suggestions":["Replace with: “uh”","Replace with: “um”","Replace with: “up”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":105,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":106,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":108,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":109,"matched_text":"glibc","suggestions":["Replace with: “glib”","Replace with: “glide”","Replace with: “glob”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":112,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":113,"matched_text":"mise's","suggestions":["Replace with: “mike's”","Replace with: “mile's”","Replace with: “mime's”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":142,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SpellCheck","kind":"Spelling","line":151,"matched_text":"maturin","suggestions":["Replace with: “maturing”","Replace with: “matrix”","Replace with: “matron”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SplitWords","kind":"Typo","line":9,"matched_text":"rustup","suggestions":["Replace with: “rust up”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"SplitWords","kind":"Typo","line":28,"matched_text":"rustup","suggestions":["Replace with: “rust up”"]}
+{"file":"one-manifest-declares-each-package.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# One manifest declares each package","suggestions":["Replace with: “# One Manifest Declares Each Package”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":73,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":73,"matched_text":"refused","suggestions":["Replace with: “Refused”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":74,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":75,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":76,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":76,"matched_text":"passes","suggestions":["Replace with: “Passes”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":77,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SentenceCapitalization","kind":"Capitalization","line":79,"matched_text":"exits","suggestions":["Replace with: “Exits”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"only-github-runs-what-lives-under-github.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# Only GitHub runs what lives under `.github`","suggestions":["Replace with: “# Only GitHub Runs What Lives Under `.github`”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"with","suggestions":["Replace with: “With”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":39,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":40,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":41,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":45,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":46,"matched_text":"no","suggestions":["Replace with: “No”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":75,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":76,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SentenceCapitalization","kind":"Capitalization","line":79,"matched_text":"a","suggestions":["Replace with: “A”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SpellCheck","kind":"Spelling","line":33,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SpellCheck","kind":"Spelling","line":50,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"SplitWords","kind":"Typo","line":25,"matched_text":"backticked","suggestions":["Replace with: “back ticked”"]}
+{"file":"purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba borrows from Simplified Technical English rather than adopting it","suggestions":["Replace with: “# Purba Borrows from Simplified Technical English Rather than Adopting It”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"DisjointPrefixes","kind":"Spelling","line":30,"matched_text":"non trivial","suggestions":["Replace with: “nontrivial”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"PronounKnew","kind":"Word Choice","line":107,"matched_text":"new","suggestions":["Replace with: “knew”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":22,"matched_text":"nightly","suggestions":["Replace with: “Nightly”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"two","suggestions":["Replace with: “Two”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":65,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":94,"matched_text":"this","suggestions":["Replace with: “This”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":95,"matched_text":"every","suggestions":["Replace with: “Every”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":95,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SentenceCapitalization","kind":"Capitalization","line":96,"matched_text":"that","suggestions":["Replace with: “That”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":33,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":33,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":39,"matched_text":"rustup's","suggestions":["Replace with: “run-up's”","Replace with: “rust's”","Replace with: “rustic's”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":70,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":75,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":83,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":107,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":113,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SpellCheck","kind":"Spelling","line":116,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"SplitWords","kind":"Typo","line":41,"matched_text":"rustup","suggestions":["Replace with: “rust up”"]}
+{"file":"purba-meets-the-next-trait-solver-before-it-stabilizes.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba meets the next trait solver before it stabilizes","suggestions":["Replace with: “# Purba Meets the next Trait Solver Before It Stabilizes”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"DiscourseMarkers","kind":"Punctuation","line":75,"matched_text":"therefore","suggestions":["Insert “,”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"DisjointPrefixes","kind":"Spelling","line":24,"matched_text":"re-checking","suggestions":["Replace with: “rechecking”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"OxfordComma","kind":"Style","line":22,"matched_text":"options","suggestions":["Insert “,”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"every","suggestions":["Replace with: “Every”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SentenceCapitalization","kind":"Capitalization","line":29,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"what","suggestions":["Replace with: “What”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"MSRV","suggestions":["Replace with: “MIRV”","Replace with: “Mar”","Replace with: “Mare”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SpellCheck","kind":"Spelling","line":58,"matched_text":"MSRV","suggestions":["Replace with: “MIRV”","Replace with: “Mar”","Replace with: “Mare”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SpellCheck","kind":"Spelling","line":63,"matched_text":"deferrable","suggestions":["Replace with: “deferral”","Replace with: “deferrals”","Replace with: “deformable”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SpellCheck","kind":"Spelling","line":68,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SpellCheck","kind":"Spelling","line":69,"matched_text":"MSRV","suggestions":["Replace with: “MIRV”","Replace with: “Mar”","Replace with: “Mare”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SplitWords","kind":"Typo","line":16,"matched_text":"prescan","suggestions":["Replace with: “pre scan”","Replace with: “pres can”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SplitWords","kind":"Typo","line":22,"matched_text":"prescan","suggestions":["Replace with: “pre scan”","Replace with: “pres can”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SplitWords","kind":"Typo","line":43,"matched_text":"prescan","suggestions":["Replace with: “pre scan”","Replace with: “pres can”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"SplitWords","kind":"Typo","line":87,"matched_text":"prescan","suggestions":["Replace with: “pre scan”","Replace with: “pres can”"]}
+{"file":"purba-parses-python-with-ruff.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba parses Python with ruff's parser","suggestions":["Replace with: “# Purba Parses Python with Ruff's Parser”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"NumericRangeEnDash","kind":"Formatting","line":15,"matched_text":"-","suggestions":["Replace with: “–”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"NumericRangeEnDash","kind":"Formatting","line":16,"matched_text":"-","suggestions":["Replace with: “–”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"NumericRangeEnDash","kind":"Formatting","line":17,"matched_text":"-","suggestions":["Replace with: “–”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"NumericRangeEnDash","kind":"Formatting","line":18,"matched_text":"-","suggestions":["Replace with: “–”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":29,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":50,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":52,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":58,"matched_text":"asks","suggestions":["Replace with: “Asks”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SentenceCapitalization","kind":"Capitalization","line":66,"matched_text":"decided","suggestions":["Replace with: “Decided”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":35,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":42,"matched_text":"abi3","suggestions":["Replace with: “ab”","Replace with: “abbe”","Replace with: “abbr”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":44,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":51,"matched_text":"abi3","suggestions":["Replace with: “ab”","Replace with: “abbe”","Replace with: “abbr”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":56,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"SpellCheck","kind":"Spelling","line":60,"matched_text":"abi3","suggestions":["Replace with: “ab”","Replace with: “abbe”","Replace with: “abbr”"]}
+{"file":"purba-supports-a-python-with-two-years-left.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba supports a Python that has two years left","suggestions":["Replace with: “# Purba Supports a Python That Has Two Years Left”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"purba's","suggestions":["Replace with: “Purba's”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"calls","suggestions":["Replace with: “Calls”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SentenceCapitalization","kind":"Capitalization","line":44,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SentenceCapitalization","kind":"Capitalization","line":48,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SentenceCapitalization","kind":"Capitalization","line":87,"matched_text":"owns","suggestions":["Replace with: “Owns”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":34,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":35,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":35,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":47,"matched_text":"purba's","suggestions":["Replace with: “para's”","Replace with: “parka's”","Replace with: “pub's”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":66,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":81,"matched_text":"purba","suggestions":["Replace with: “para”","Replace with: “pub”","Replace with: “puma”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":87,"matched_text":"mise","suggestions":["Replace with: “mice”","Replace with: “mike”","Replace with: “mile”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"SpellCheck","kind":"Spelling","line":87,"matched_text":"toml","suggestions":["Replace with: “toll”","Replace with: “tom”","Replace with: “tomb”"]}
+{"file":"purba-writes-its-scripts-in-bash-until-purba-can-test-them.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# purba writes its scripts in bash until purba can test them","suggestions":["Replace with: “# Purba Writes Its Scripts in Bash Until Purba Can Test Them”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"OxfordComma","kind":"Style","line":43,"matched_text":"spec","suggestions":["Insert “,”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SentenceCapitalization","kind":"Capitalization","line":67,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"judgement","suggestions":["Replace with: “judgment”","Replace with: “judgments”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"Reviewability","suggestions":["Replace with: “Reliability”","Replace with: “Believability”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"p90","suggestions":["Replace with: “pa”","Replace with: “pad”","Replace with: “pah”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":32,"matched_text":"p99","suggestions":["Replace with: “pa”","Replace with: “pad”","Replace with: “pah”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":66,"matched_text":"CODEOWNERS","suggestions":["Replace with: “Homeowners”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SpellCheck","kind":"Spelling","line":73,"matched_text":"organisation","suggestions":["Replace with: “organization”","Replace with: “organizations”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SplitWords","kind":"Typo","line":40,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SplitWords","kind":"Typo","line":41,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SplitWords","kind":"Typo","line":71,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"SplitWords","kind":"Typo","line":77,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"significance-is-declared-not-detected.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# Architectural significance is declared, not detected","suggestions":["Replace with: “# Architectural Significance Is Declared, Not Detected”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"MissingTo","kind":"Word Choice","line":69,"matched_text":"means","suggestions":["Insert “ to”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"exits","suggestions":["Replace with: “Exits”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SentenceCapitalization","kind":"Capitalization","line":57,"matched_text":"the","suggestions":["Replace with: “The”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SentenceCapitalization","kind":"Capitalization","line":64,"matched_text":"purba","suggestions":["Replace with: “Purba”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"cdylib","suggestions":["Replace with: “Idlib”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"PyO3's","suggestions":["Replace with: “PIO's”","Replace with: “PLO's”","Replace with: “POP3's”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":25,"matched_text":"cdylib","suggestions":["Replace with: “Idlib”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":27,"matched_text":"rlib","suggestions":["Replace with: “rib”","Replace with: “lib”","Replace with: “raid”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":27,"matched_text":"abi3","suggestions":["Replace with: “ab”","Replace with: “abbe”","Replace with: “abbr”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SpellCheck","kind":"Spelling","line":52,"matched_text":"cdylib","suggestions":["Replace with: “Idlib”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SplitWords","kind":"Typo","line":33,"matched_text":"libpython","suggestions":["Replace with: “lib python”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SplitWords","kind":"Typo","line":44,"matched_text":"libpython","suggestions":["Replace with: “lib python”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SplitWords","kind":"Typo","line":57,"matched_text":"ruleset","suggestions":["Replace with: “rule set”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"SplitWords","kind":"Typo","line":59,"matched_text":"rustdoc","suggestions":["Replace with: “rust doc”"]}
+{"file":"the-crate-carries-an-rlib.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"# The crate carries an rlib","suggestions":["Replace with: “# The Crate Carries an Rlib”"]}

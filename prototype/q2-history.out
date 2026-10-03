@@ -1,0 +1,5 @@
+| tree | commits | lines a person fixed | typos wrote the same | typos wrote something else | typos missed |
+|---|---:|---:|---:|---:|---:|
+| oxitest | 2 | 98 | 0 | 0 | 98 |
+| click | 71 | 159 | 26 | 2 | 131 |
+| loguru | 25 | 74 | 31 | 1 | 42 |

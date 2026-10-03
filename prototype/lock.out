@@ -1,0 +1,8 @@
+| candidate | adds to [tools] | platforms locked | with checksum | linux-x64 download | lint:manifests |
+|---|---|---:|---:|---:|---|
+| rumdl | `"aqua:rvben/rumdl" = "0.2.78"` | 7 | 7 | 6 MB | pass |
+| mado | `"github:akiomik/mado" = "0.3.2"` | 7 | 7 | 2 MB | pass |
+| dprint | `dprint = "0.58.0"` | 7 | 7 | 10 MB | pass |
+| markdownlint-cli2 | `node = "24"; "npm:markdownlint-cli2" = "0.23.3"` | 7 | 7 | - | pass |
+| pymarkdownlnt | `uv = "0.12"; "pipx:pymarkdownlnt" = "0.9.40"` | 7 | 7 | 21 MB | pass |
+| harper-ls | `harper-ls = "2.12.0"` | 7 | 7 | 13 MB | pass |

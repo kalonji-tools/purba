@@ -1,0 +1,14 @@
+| checker | control | F1 run-on item | F2 lost placeholders, lines hit of 8 | F3 trailing blank |
+|---|---:|---|---|---|
+| markdownlint | 4 | none | 7 (MD033) | MD012 +1 |
+| rumdl | 4 | none | 2 (MD033) | MD012 +1 |
+| mado | 4 | none | 7 (MD033) | none |
+| pymarkdown | 3 | none | 7 (MD033) | MD012 +1 |
+
+### The token rule `[^[:space:]]- \*\*` over history
+
+F1 before: 1 line(s) · F1 after: 0 line(s)
+
+| file:line | text |
+|---|---|
+| docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md:106 | `- **Nothing separates a person from an agent holding that pe` |

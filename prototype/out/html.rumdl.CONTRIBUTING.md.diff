@@ -1,0 +1,12 @@
+11c11
+< <pre><code>mise run sign-off
+---
+> <pre lang="text"><code>mise run sign-off
+43c43
+< <pre><code>Assisted-by: AGENT:MODEL [TOOL] [TOOL]
+---
+> <pre lang="text"><code>Assisted-by: AGENT:MODEL [TOOL] [TOOL]
+162c162
+< <pre><code>gh api repos/kalonji-tools/purba/rules/branches/main
+---
+> <pre lang="text"><code>gh api repos/kalonji-tools/purba/rules/branches/main

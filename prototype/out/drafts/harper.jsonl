@@ -1,0 +1,780 @@
+{"who":"agent","file":"5942647083.md","rule":"MassNouns","kind":"Agreement","line":56,"matched_text":"Each finding","s":"Replace with: “Each piece of finding”"}
+{"who":"agent","file":"5942647083.md","rule":"NumericRangeEnDash","kind":"Formatting","line":83,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5942647083.md","rule":"Overall","kind":"Miscellaneous","line":61,"matched_text":"over all","s":"Replace with: “overall”"}
+{"who":"agent","file":"5942647083.md","rule":"OxfordComma","kind":"Style","line":30,"matched_text":"issue","s":"Insert “,”"}
+{"who":"agent","file":"5942647083.md","rule":"OxfordComma","kind":"Style","line":62,"matched_text":"head","s":"Insert “,”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"run","s":"Replace with: “Run”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":19,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":21,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":21,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":22,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":22,"matched_text":"both","s":"Replace with: “Both”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":35,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":44,"matched_text":"purba","s":"Replace with: “Purba”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":48,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":48,"matched_text":"decided","s":"Replace with: “Decided”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":49,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":50,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":51,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":52,"matched_text":"five","s":"Replace with: “Five”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":52,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":61,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":62,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":62,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":63,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":63,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":63,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":64,"matched_text":"eight","s":"Replace with: “Eight”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":64,"matched_text":"seven","s":"Replace with: “Seven”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":65,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":66,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":66,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":80,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SentenceCapitalization","kind":"Capitalization","line":81,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647083.md","rule":"SpellCheck","kind":"Spelling","line":40,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5942647083.md","rule":"SpellCheck","kind":"Spelling","line":81,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5942647083.md","rule":"SpellCheck","kind":"Spelling","line":83,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5942647083.md","rule":"SplitWords","kind":"Typo","line":68,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5942647083.md","rule":"SplitWords","kind":"Typo","line":68,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5942647083.md","rule":"SplitWords","kind":"Typo","line":72,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post-implementation review","s":"Replace with: “## Post-Implementation Review”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### 1. The complexity pass found two things to cut","s":"Replace with: “### 1. The Complexity Pass Found Two Things to Cut”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":12,"matched_text":"### 2. An independent reader found seven defects this branch introduced","s":"Replace with: “### 2. An Independent Reader Found Seven Defects This Branch Introduced”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":26,"matched_text":"### 3. The branch did not adhere to seven rules in the records","s":"Replace with: “### 3. The Branch Did Not Adhere to Seven Rules in the Records”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":38,"matched_text":"### What the scripts themselves got wrong","s":"Replace with: “### What the Scripts Themselves Got Wrong”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":42,"matched_text":"### Where this branch left the plan above","s":"Replace with: “### Where This Branch Left the Plan Above”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":54,"matched_text":"### A second independent pass, after the fold and the new gate","s":"Replace with: “### A Second Independent Pass, After the Fold and the New Gate”"}
+{"who":"agent","file":"5942647083.md","rule":"UseTitleCase","kind":"Capitalization","line":70,"matched_text":"### A third check, against the records","s":"Replace with: “### A Third Check, Against the Records”"}
+{"who":"agent","file":"5942647298.md","rule":"NumericRangeEnDash","kind":"Formatting","line":21,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5942647298.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"untested","s":"Replace with: “Untested”"}
+{"who":"agent","file":"5942647298.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5942647298.md","rule":"SpellCheck","kind":"Spelling","line":21,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5942647298.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Where each part of this issue went","s":"Replace with: “## Where Each Part of This Issue Went”"}
+{"who":"agent","file":"5947065868.md","rule":"LongSentences","kind":"Readability","line":8,"matched_text":"The paths: an empty repository name, a read the API refuses, an answer with no check runs, a commit git does not hold, a write the API refuses, a failed upgrade, a refused commit, a failed push, and a pull request that cannot be opened","s":""}
+{"who":"agent","file":"5947065868.md","rule":"NumericRangeEnDash","kind":"Formatting","line":22,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5947065868.md","rule":"PronounKnew","kind":"Word Choice","line":8,"matched_text":"new","s":"Replace with: “knew”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"every","s":"Replace with: “Every”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"fourteen","s":"Replace with: “Fourteen”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5947065868.md","rule":"SpellCheck","kind":"Spelling","line":22,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5947065868.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Where each of the ten went","s":"Replace with: “## Where Each of the Ten Went”"}
+{"who":"agent","file":"5951768423.md","rule":"NumericRangeEnDash","kind":"Formatting","line":38,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"review","s":"Replace with: “Review”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"mise","s":"Replace with: “Mise”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":33,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":33,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5951768423.md","rule":"SpellCheck","kind":"Spelling","line":38,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5951768423.md","rule":"SplitWords","kind":"Typo","line":8,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5951768423.md","rule":"SplitWords","kind":"Typo","line":8,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5951768423.md","rule":"SplitWords","kind":"Typo","line":27,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5951768423.md","rule":"SplitWords","kind":"Typo","line":27,"matched_text":"ruleset","s":"Replace with: “rule set”"}
+{"who":"agent","file":"5951768423.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Where the merge differs from the plan","s":"Replace with: “## Where the Merge Differs from the Plan”"}
+{"who":"agent","file":"5951768423.md","rule":"UseTitleCase","kind":"Capitalization","line":16,"matched_text":"## What the merge itself showed","s":"Replace with: “## What the Merge Itself Showed”"}
+{"who":"agent","file":"5951768423.md","rule":"UseTitleCase","kind":"Capitalization","line":29,"matched_text":"## Still shown by no run","s":"Replace with: “## Still Shown by no Run”"}
+{"who":"agent","file":"5957779837.md","rule":"CondenseAllThe","kind":"Redundancy","line":25,"matched_text":"all of the","s":"Replace with: “all the”"}
+{"who":"agent","file":"5957779837.md","rule":"DisjointPrefixes","kind":"Spelling","line":61,"matched_text":"re-entered","s":"Replace with: “reentered”"}
+{"who":"agent","file":"5957779837.md","rule":"NumericRangeEnDash","kind":"Formatting","line":72,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5957779837.md","rule":"OxfordComma","kind":"Style","line":40,"matched_text":"refusal","s":"Insert “,”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"and","s":"Replace with: “And”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"file","s":"Replace with: “File”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"review","s":"Replace with: “Review”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":27,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":28,"matched_text":"owed","s":"Replace with: “Owed”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":29,"matched_text":"owed","s":"Replace with: “Owed”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":30,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"lives","s":"Replace with: “Lives”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":50,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957779837.md","rule":"SentenceCapitalization","kind":"Capitalization","line":53,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957779837.md","rule":"SpellCheck","kind":"Spelling","line":72,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"## Design spec","s":"Replace with: “## Design Spec”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":11,"matched_text":"### Four phases, each leaving one artifact for one reader","s":"Replace with: “### Four Phases, Each Leaving One Artifact for One Reader”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":20,"matched_text":"### What each answer decided","s":"Replace with: “### What Each Answer Decided”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":33,"matched_text":"### Decided beyond the five questions","s":"Replace with: “### Decided Beyond the Five Questions”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":43,"matched_text":"### The measurement the answers stand on","s":"Replace with: “### The Measurement the Answers Stand On”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":59,"matched_text":"### Considered and rejected","s":"Replace with: “### Considered and Rejected”"}
+{"who":"agent","file":"5957779837.md","rule":"UseTitleCase","kind":"Capitalization","line":68,"matched_text":"### Follows from this","s":"Replace with: “### Follows from This”"}
+{"who":"agent","file":"5957780714.md","rule":"NumericRangeEnDash","kind":"Formatting","line":31,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5957780714.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"made","s":"Replace with: “Made”"}
+{"who":"agent","file":"5957780714.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"agent","file":"5957780714.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5957780714.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Two record findings from the sweep for `AGENTS.md`","s":"Replace with: “## Two Record Findings from the Sweep For `AGENTS.md`”"}
+{"who":"agent","file":"5957780714.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### 1. A carrier row names a workflow that posts nothing, and a block that does not exist","s":"Replace with: “### 1. A Carrier Row Names a Workflow That Posts Nothing, and a Block That Does Not Exist”"}
+{"who":"agent","file":"5957780714.md","rule":"UseTitleCase","kind":"Capitalization","line":19,"matched_text":"### 2. The register record counts a gate that its own exception says is not wired","s":"Replace with: “### 2. The Register Record Counts a Gate That Its Own Exception Says Is Not Wired”"}
+{"who":"agent","file":"5957810784.md","rule":"MassNouns","kind":"Agreement","line":46,"matched_text":"each linking","s":"Replace with: “each piece of linking”"}
+{"who":"agent","file":"5957810784.md","rule":"NumericRangeEnDash","kind":"Formatting","line":60,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5957810784.md","rule":"OxfordComma","kind":"Style","line":40,"matched_text":"cohesion","s":"Insert “,”"}
+{"who":"agent","file":"5957810784.md","rule":"OxfordComma","kind":"Style","line":46,"matched_text":"one","s":"Insert “,”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"ruled","s":"Replace with: “Ruled”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":26,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":32,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":40,"matched_text":"two","s":"Replace with: “Two”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":41,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957810784.md","rule":"SentenceCapitalization","kind":"Capitalization","line":58,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"agent","file":"5957810784.md","rule":"SpellCheck","kind":"Spelling","line":42,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"agent","file":"5957810784.md","rule":"SpellCheck","kind":"Spelling","line":60,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5957810784.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### Premise ledger","s":"Replace with: “### Premise Ledger”"}
+{"who":"agent","file":"5957843633.md","rule":"NumericRangeEnDash","kind":"Formatting","line":15,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5957843633.md","rule":"OxfordComma","kind":"Style","line":11,"matched_text":"spec","s":"Insert “,”"}
+{"who":"agent","file":"5957843633.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"intended","s":"Replace with: “Intended”"}
+{"who":"agent","file":"5957843633.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5957843633.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5957843633.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5957843633.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass","s":"Replace with: “## Post Pass”"}
+{"who":"agent","file":"5962085272.md","rule":"NumericRangeEnDash","kind":"Formatting","line":15,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"nothing","s":"Replace with: “Nothing”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"none","s":"Replace with: “None”"}
+{"who":"agent","file":"5962085272.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962085272.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5962085272.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec, second: what review changed","s":"Replace with: “## Design Spec, Second: What Review Changed”"}
+{"who":"agent","file":"5962188297.md","rule":"NumericRangeEnDash","kind":"Formatting","line":11,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5962188297.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5962188297.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"that","s":"Replace with: “That”"}
+{"who":"agent","file":"5962188297.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5962188297.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5962188297.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec, third: who reads a design spec","s":"Replace with: “## Design Spec, Third: Who Reads a Design Spec”"}
+{"who":"agent","file":"5962254834.md","rule":"NumericRangeEnDash","kind":"Formatting","line":14,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5962254834.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962254834.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962254834.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5962254834.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Commits reduced","s":"Replace with: “## Commits Reduced”"}
+{"who":"agent","file":"5962328857.md","rule":"NumericRangeEnDash","kind":"Formatting","line":23,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"asked","s":"Replace with: “Asked”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"nothing","s":"Replace with: “Nothing”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962328857.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962328857.md","rule":"SpellCheck","kind":"Spelling","line":23,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5962429549.md","rule":"NumericRangeEnDash","kind":"Formatting","line":131,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5962429549.md","rule":"OxfordComma","kind":"Style","line":117,"matched_text":"layout","s":"Insert “,”"}
+{"who":"agent","file":"5962429549.md","rule":"OxfordComma","kind":"Style","line":121,"matched_text":"token","s":"Insert “,”"}
+{"who":"agent","file":"5962429549.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"merged","s":"Replace with: “Merged”"}
+{"who":"agent","file":"5962429549.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962429549.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962429549.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5962429549.md","rule":"SentenceCapitalization","kind":"Capitalization","line":117,"matched_text":"measured","s":"Replace with: “Measured”"}
+{"who":"agent","file":"5962429549.md","rule":"SpellCheck","kind":"Spelling","line":91,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5962429549.md","rule":"SpellCheck","kind":"Spelling","line":131,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":3,"matched_text":"## Design spec: `AGENTS.md` holds the instructions that nothing refuses","s":"Replace with: “## Design Spec: `AGENTS.md` Holds the Instructions That Nothing Refuses”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":9,"matched_text":"## What the change writes","s":"Replace with: “## What the Change Writes”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":21,"matched_text":"## The admission test","s":"Replace with: “## The Admission Test”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":35,"matched_text":"## The lines, by the moment an agent acts","s":"Replace with: “## The Lines, by the Moment an Agent Acts”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":108,"matched_text":"## Done when","s":"Replace with: “## Done When”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":115,"matched_text":"## Considered and rejected","s":"Replace with: “## Considered and Rejected”"}
+{"who":"agent","file":"5962429549.md","rule":"UseTitleCase","kind":"Capitalization","line":125,"matched_text":"## Out of scope","s":"Replace with: “## Out of Scope”"}
+{"who":"agent","file":"5966960530.md","rule":"NumericRangeEnDash","kind":"Formatting","line":54,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5966960530.md","rule":"OxfordComma","kind":"Style","line":38,"matched_text":"cohesion","s":"Insert “,”"}
+{"who":"agent","file":"5966960530.md","rule":"OxfordComma","kind":"Style","line":46,"matched_text":"cohesion","s":"Insert “,”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"issue","s":"Replace with: “Issue”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":32,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5966960530.md","rule":"SentenceCapitalization","kind":"Capitalization","line":40,"matched_text":"rules","s":"Replace with: “Rules”"}
+{"who":"agent","file":"5966960530.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5966960530.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Implementation plan","s":"Replace with: “## Implementation Plan”"}
+{"who":"agent","file":"5966960530.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### Premise ledger","s":"Replace with: “### Premise Ledger”"}
+{"who":"agent","file":"5966987105.md","rule":"NumericRangeEnDash","kind":"Formatting","line":22,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5966987105.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"rewritten","s":"Replace with: “Rewritten”"}
+{"who":"agent","file":"5966987105.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"rewritten","s":"Replace with: “Rewritten”"}
+{"who":"agent","file":"5966987105.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"reworded","s":"Replace with: “Reworded”"}
+{"who":"agent","file":"5966987105.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5966987105.md","rule":"SpellCheck","kind":"Spelling","line":22,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5966987105.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass","s":"Replace with: “## Post Pass”"}
+{"who":"agent","file":"5967070528.md","rule":"MassNouns","kind":"Agreement","line":55,"matched_text":"a failing","s":"Replace with: “failing”"}
+{"who":"agent","file":"5967070528.md","rule":"NumericRangeEnDash","kind":"Formatting","line":121,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"reads","s":"Replace with: “Reads”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"nothing","s":"Replace with: “Nothing”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":55,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":55,"matched_text":"writing","s":"Replace with: “Writing”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":56,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":56,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":56,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":57,"matched_text":"both","s":"Replace with: “Both”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":58,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":59,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":59,"matched_text":"filing","s":"Replace with: “Filing”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":67,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":67,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":68,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":70,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":71,"matched_text":"check","s":"Replace with: “Check”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":71,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":72,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":73,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":74,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":74,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":75,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":76,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":77,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":78,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":79,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":79,"matched_text":"only","s":"Replace with: “Only”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":80,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":80,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":88,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":89,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":91,"matched_text":"mutants","s":"Replace with: “Mutants”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":92,"matched_text":"mutants","s":"Replace with: “Mutants”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":112,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":112,"matched_text":"exits","s":"Replace with: “Exits”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":113,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":113,"matched_text":"exit","s":"Replace with: “Exit”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":114,"matched_text":"read","s":"Replace with: “Read”"}
+{"who":"agent","file":"5967070528.md","rule":"SentenceCapitalization","kind":"Capitalization","line":115,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":73,"matched_text":"approver","s":"Replace with: “approve”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":104,"matched_text":"SC2312","s":"Replace with: “SCSI's”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":104,"matched_text":"SC2016","s":"Replace with: “SCSI's”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":104,"matched_text":"SC2030","s":"Replace with: “SCSI's”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":104,"matched_text":"SC2031","s":"Replace with: “SCSI's”"}
+{"who":"agent","file":"5967070528.md","rule":"SpellCheck","kind":"Spelling","line":121,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":3,"matched_text":"## Design spec","s":"Replace with: “## Design Spec”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":7,"matched_text":"### What gets written","s":"Replace with: “### What Gets Written”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":21,"matched_text":"### What the signing script does after it reads the gates","s":"Replace with: “### What the Signing Script Does After It Reads the Gates”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":49,"matched_text":"### The decisions","s":"Replace with: “### The Decisions”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":61,"matched_text":"### What the tests build","s":"Replace with: “### What the Tests Build”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":84,"matched_text":"### Whether a test detects a broken script","s":"Replace with: “### Whether a Test Detects a Broken Script”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":100,"matched_text":"### What the gates say","s":"Replace with: “### What the Gates Say”"}
+{"who":"agent","file":"5967070528.md","rule":"UseTitleCase","kind":"Capitalization","line":108,"matched_text":"### What this does not settle","s":"Replace with: “### What This Does Not Settle”"}
+{"who":"agent","file":"5967212595.md","rule":"NumericRangeEnDash","kind":"Formatting","line":58,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967212595.md","rule":"OxfordComma","kind":"Style","line":55,"matched_text":"bodies","s":"Insert “,”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"issue","s":"Replace with: “Issue”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":35,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":36,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":42,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":43,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":44,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967212595.md","rule":"SentenceCapitalization","kind":"Capitalization","line":44,"matched_text":"read","s":"Replace with: “Read”"}
+{"who":"agent","file":"5967212595.md","rule":"SpellCheck","kind":"Spelling","line":58,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967212595.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Implementation plan","s":"Replace with: “## Implementation Plan”"}
+{"who":"agent","file":"5967212595.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### Premise ledger","s":"Replace with: “### Premise Ledger”"}
+{"who":"agent","file":"5967274243.md","rule":"NumericRangeEnDash","kind":"Formatting","line":11,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"never","s":"Replace with: “Never”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967274243.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967274243.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967274243.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec, second: what review changed","s":"Replace with: “## Design Spec, Second: What Review Changed”"}
+{"who":"agent","file":"5967344274.md","rule":"NumericRangeEnDash","kind":"Formatting","line":21,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967344274.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"after","s":"Replace with: “After”"}
+{"who":"agent","file":"5967344274.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"one","s":"Replace with: “One”"}
+{"who":"agent","file":"5967344274.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"after","s":"Replace with: “After”"}
+{"who":"agent","file":"5967344274.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"agent","file":"5967344274.md","rule":"SpellCheck","kind":"Spelling","line":21,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967344274.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec","s":"Replace with: “## Design Spec”"}
+{"who":"agent","file":"5967344274.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"## What the change writes","s":"Replace with: “## What the Change Writes”"}
+{"who":"agent","file":"5967344274.md","rule":"UseTitleCase","kind":"Capitalization","line":15,"matched_text":"## Considered and rejected","s":"Replace with: “## Considered and Rejected”"}
+{"who":"agent","file":"5967400166.md","rule":"CompoundNouns","kind":"Word Choice","line":13,"matched_text":"file name","s":"Replace with: “filename”"}
+{"who":"agent","file":"5967400166.md","rule":"MassNouns","kind":"Agreement","line":3,"matched_text":"each finding","s":"Replace with: “each piece of finding”"}
+{"who":"agent","file":"5967400166.md","rule":"NumericRangeEnDash","kind":"Formatting","line":31,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"found","s":"Replace with: “Found”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"outside","s":"Replace with: “Outside”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"outside","s":"Replace with: “Outside”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"mutants","s":"Replace with: “Mutants”"}
+{"who":"agent","file":"5967400166.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"mutants","s":"Replace with: “Mutants”"}
+{"who":"agent","file":"5967400166.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"approver","s":"Replace with: “approve”"}
+{"who":"agent","file":"5967400166.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967400166.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass","s":"Replace with: “## Post Pass”"}
+{"who":"agent","file":"5967400166.md","rule":"UseTitleCase","kind":"Capitalization","line":20,"matched_text":"### Whether a test detects a broken script","s":"Replace with: “### Whether a Test Detects a Broken Script”"}
+{"who":"agent","file":"5967477015.md","rule":"NumericRangeEnDash","kind":"Formatting","line":14,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"asked","s":"Replace with: “Asked”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"rides","s":"Replace with: “Rides”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"asked","s":"Replace with: “Asked”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967477015.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"removing","s":"Replace with: “Removing”"}
+{"who":"agent","file":"5967477015.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"unwired","s":"Replace with: “umpired”"}
+{"who":"agent","file":"5967477015.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967563400.md","rule":"NumericRangeEnDash","kind":"Formatting","line":15,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"true","s":"Replace with: “True”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967563400.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"three","s":"Replace with: “Three”"}
+{"who":"agent","file":"5967563400.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967563400.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec, second: what review changed","s":"Replace with: “## Design Spec, Second: What Review Changed”"}
+{"who":"agent","file":"5967616898.md","rule":"NumericRangeEnDash","kind":"Formatting","line":11,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967616898.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967616898.md","rule":"SentenceCapitalization","kind":"Capitalization","line":6,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967616898.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967616898.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Your three answers, as commits","s":"Replace with: “## Your Three Answers, as Commits”"}
+{"who":"agent","file":"5967731346.md","rule":"NumericRangeEnDash","kind":"Formatting","line":18,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967731346.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5967735863.md","rule":"NumericRangeEnDash","kind":"Formatting","line":19,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5967735863.md","rule":"OxfordComma","kind":"Style","line":12,"matched_text":"refusal","s":"Insert “,”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"two","s":"Replace with: “Two”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5967735863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5967735863.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968023902.md","rule":"NumericRangeEnDash","kind":"Formatting","line":16,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5968023902.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968023902.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968023902.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968023902.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Records audit, and your two answers","s":"Replace with: “## Records Audit, and Your Two Answers”"}
+{"who":"agent","file":"5968120226.md","rule":"NumericRangeEnDash","kind":"Formatting","line":16,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5968120226.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968198848.md","rule":"NumericRangeEnDash","kind":"Formatting","line":31,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"six","s":"Replace with: “Six”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968198848.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968198848.md","rule":"SpellCheck","kind":"Spelling","line":31,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968198848.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Where the merge differs from the plan","s":"Replace with: “## Where the Merge Differs from the Plan”"}
+{"who":"agent","file":"5968198848.md","rule":"UseTitleCase","kind":"Capitalization","line":14,"matched_text":"## What the merge itself showed","s":"Replace with: “## What the Merge Itself Showed”"}
+{"who":"agent","file":"5968586557.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"mise","s":"Replace with: “Mise”"}
+{"who":"agent","file":"5968586557.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968586557.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":9,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":19,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":21,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":34,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":38,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968586557.md","rule":"SpellCheck","kind":"Spelling","line":38,"matched_text":"uv","s":"Replace with: “uh”"}
+{"who":"agent","file":"5968586557.md","rule":"UseTitleCase","kind":"Capitalization","line":3,"matched_text":"## Design spec","s":"Replace with: “## Design Spec”"}
+{"who":"agent","file":"5968586557.md","rule":"UseTitleCase","kind":"Capitalization","line":15,"matched_text":"### One pull request, three changes","s":"Replace with: “### One Pull Request, Three Changes”"}
+{"who":"agent","file":"5968586557.md","rule":"UseTitleCase","kind":"Capitalization","line":31,"matched_text":"### Not decided here","s":"Replace with: “### Not Decided Here”"}
+{"who":"agent","file":"5968645208.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"mise","s":"Replace with: “Mise”"}
+{"who":"agent","file":"5968645208.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968645208.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":9,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":22,"matched_text":"s.","s":"Replace with: “so”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":24,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":28,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968645208.md","rule":"SpellCheck","kind":"Spelling","line":28,"matched_text":"uv","s":"Replace with: “uh”"}
+{"who":"agent","file":"5968645208.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec","s":"Replace with: “## Design Spec”"}
+{"who":"agent","file":"5968645208.md","rule":"UseTitleCase","kind":"Capitalization","line":15,"matched_text":"### One pull request, two changes","s":"Replace with: “### One Pull Request, Two Changes”"}
+{"who":"agent","file":"5968645208.md","rule":"UseTitleCase","kind":"Capitalization","line":20,"matched_text":"### Not decided here","s":"Replace with: “### Not Decided Here”"}
+{"who":"agent","file":"5968656703.md","rule":"NumericRangeEnDash","kind":"Formatting","line":59,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"issue","s":"Replace with: “Issue”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"maturin","s":"Replace with: “Maturin”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"pip","s":"Replace with: “Pip”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":33,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":33,"matched_text":"each","s":"Replace with: “Each”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":34,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":40,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":40,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5968656703.md","rule":"SentenceCapitalization","kind":"Capitalization","line":41,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":12,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":16,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":27,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":40,"matched_text":"uv","s":"Replace with: “uh”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":40,"matched_text":"purba's","s":"Replace with: “para's”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":41,"matched_text":"unrefused","s":"Replace with: “underused”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":45,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":46,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":48,"matched_text":"maturin's","s":"Replace with: “matrix's”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":54,"matched_text":"maturin's","s":"Replace with: “matrix's”"}
+{"who":"agent","file":"5968656703.md","rule":"SpellCheck","kind":"Spelling","line":59,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968656703.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Implementation plan","s":"Replace with: “## Implementation Plan”"}
+{"who":"agent","file":"5968656703.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### Premise ledger","s":"Replace with: “### Premise Ledger”"}
+{"who":"agent","file":"5968728777.md","rule":"MassNouns","kind":"Agreement","line":3,"matched_text":"Each finding","s":"Replace with: “Each piece of finding”"}
+{"who":"agent","file":"5968728777.md","rule":"NumericRangeEnDash","kind":"Formatting","line":17,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5968728777.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"fixed","s":"Replace with: “Fixed”"}
+{"who":"agent","file":"5968728777.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"fixed","s":"Replace with: “Fixed”"}
+{"who":"agent","file":"5968728777.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"fixed","s":"Replace with: “Fixed”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"uv","s":"Replace with: “uh”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":11,"matched_text":"retitle","s":"Replace with: “rattle”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"mise's","s":"Replace with: “mike's”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":13,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5968728777.md","rule":"SpellCheck","kind":"Spelling","line":17,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5968728777.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass","s":"Replace with: “## Post Pass”"}
+{"who":"agent","file":"5969151216.md","rule":"NumericRangeEnDash","kind":"Formatting","line":12,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"no","s":"Replace with: “No”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"review","s":"Replace with: “Review”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969151216.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"once","s":"Replace with: “Once”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"maturin's","s":"Replace with: “matrix's”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"maturin's","s":"Replace with: “matrix's”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"purba","s":"Replace with: “para”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":9,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":9,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969151216.md","rule":"SpellCheck","kind":"Spelling","line":12,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5969335745.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"none","s":"Replace with: “None”"}
+{"who":"agent","file":"5969335745.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"which","s":"Replace with: “Which”"}
+{"who":"agent","file":"5969335745.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"how","s":"Replace with: “How”"}
+{"who":"agent","file":"5969335745.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"cargo","s":"Replace with: “Cargo”"}
+{"who":"agent","file":"5969429878.md","rule":"NumericRangeEnDash","kind":"Formatting","line":65,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"issue","s":"Replace with: “Issue”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":24,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":25,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":31,"matched_text":"taplo","s":"Replace with: “Taplo”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":32,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":44,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":46,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5969429878.md","rule":"SentenceCapitalization","kind":"Capitalization","line":47,"matched_text":"every","s":"Replace with: “Every”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":12,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":12,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":25,"matched_text":"s.","s":"Replace with: “so”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":36,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":62,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969429878.md","rule":"SpellCheck","kind":"Spelling","line":65,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5969429878.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Implementation plan","s":"Replace with: “## Implementation Plan”"}
+{"who":"agent","file":"5969429878.md","rule":"UseTitleCase","kind":"Capitalization","line":5,"matched_text":"### Premise ledger","s":"Replace with: “### Premise Ledger”"}
+{"who":"agent","file":"5969566374.md","rule":"ExpandStandardInputAndOutput","kind":"Style","line":13,"matched_text":"stderr","s":"Replace with: “standard error”"}
+{"who":"agent","file":"5969566374.md","rule":"MassNouns","kind":"Agreement","line":3,"matched_text":"Each finding","s":"Replace with: “Each piece of finding”"}
+{"who":"agent","file":"5969566374.md","rule":"MassNouns","kind":"Agreement","line":16,"matched_text":"A missing","s":"Replace with: “Missing”"}
+{"who":"agent","file":"5969566374.md","rule":"NumericRangeEnDash","kind":"Formatting","line":26,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5969566374.md","rule":"PronounKnew","kind":"Word Choice","line":17,"matched_text":"new","s":"Replace with: “knew”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"reproduced","s":"Replace with: “Reproduced”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"named","s":"Replace with: “Named”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"fixed","s":"Replace with: “Fixed”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":14,"matched_text":"fixed","s":"Replace with: “Fixed”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":15,"matched_text":"purba","s":"Replace with: “Purba”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":16,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5969566374.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":8,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":20,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":20,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":22,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5969566374.md","rule":"SpellCheck","kind":"Spelling","line":26,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5969566374.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass","s":"Replace with: “## Post Pass”"}
+{"who":"agent","file":"5970185217.md","rule":"SentenceCapitalization","kind":"Capitalization","line":18,"matched_text":"mise","s":"Replace with: “Mise”"}
+{"who":"agent","file":"5970185217.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970185217.md","rule":"SpellCheck","kind":"Spelling","line":30,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970185217.md","rule":"SpellCheck","kind":"Spelling","line":33,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"agent","file":"5970185217.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Design spec, replacing the issue body","s":"Replace with: “## Design Spec, Replacing the Issue Body”"}
+{"who":"agent","file":"5970185217.md","rule":"UseTitleCase","kind":"Capitalization","line":9,"matched_text":"### `mise.toml` and `Cargo.toml` are compared","s":"Replace with: “### `mise.toml` And `Cargo.toml` Are Compared”"}
+{"who":"agent","file":"5970185217.md","rule":"UseTitleCase","kind":"Capitalization","line":20,"matched_text":"### `pyproject.toml` is refused if it declares any package","s":"Replace with: “### `pyproject.toml` Is Refused If It Declares Any Package”"}
+{"who":"agent","file":"5970222573.md","rule":"NumericRangeEnDash","kind":"Formatting","line":18,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5970222573.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"mise","s":"Replace with: “Mise”"}
+{"who":"agent","file":"5970222573.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5970222573.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970222573.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970222573.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970222573.md","rule":"SpellCheck","kind":"Spelling","line":14,"matched_text":"unresolvable","s":"Replace with: “unsolvable”"}
+{"who":"agent","file":"5970222573.md","rule":"SpellCheck","kind":"Spelling","line":18,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5970222573.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## Post pass on `e685247`","s":"Replace with: “## Post Pass On `e685247`”"}
+{"who":"agent","file":"5970292075.md","rule":"NumericRangeEnDash","kind":"Formatting","line":3,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5970292075.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"agent","file":"5970370718.md","rule":"NumericRangeEnDash","kind":"Formatting","line":15,"matched_text":"-","s":"Replace with: “–”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"review","s":"Replace with: “Review”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":7,"matched_text":"taplo","s":"Replace with: “Taplo”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":8,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"controls","s":"Replace with: “Controls”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":10,"matched_text":"an","s":"Replace with: “An”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"replaced","s":"Replace with: “Replaced”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":11,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":12,"matched_text":"a","s":"Replace with: “A”"}
+{"who":"agent","file":"5970370718.md","rule":"SentenceCapitalization","kind":"Capitalization","line":13,"matched_text":"removing","s":"Replace with: “Removing”"}
+{"who":"agent","file":"5970370718.md","rule":"SpellCheck","kind":"Spelling","line":7,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970370718.md","rule":"SpellCheck","kind":"Spelling","line":10,"matched_text":"taplo","s":"Replace with: “tap's”"}
+{"who":"agent","file":"5970370718.md","rule":"SpellCheck","kind":"Spelling","line":15,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"human","file":"5798986108.md","rule":"DisjointPrefixes","kind":"Spelling","line":10,"matched_text":"Re-run","s":"Replace with: “Rerun”"}
+{"who":"human","file":"5798986108.md","rule":"DisjointPrefixes","kind":"Spelling","line":46,"matched_text":"re-run","s":"Replace with: “rerun”"}
+{"who":"human","file":"5798986108.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"element","s":"Replace with: “Element”"}
+{"who":"human","file":"5798986108.md","rule":"SentenceCapitalization","kind":"Capitalization","line":17,"matched_text":"run","s":"Replace with: “Run”"}
+{"who":"human","file":"5798986108.md","rule":"SentenceCapitalization","kind":"Capitalization","line":23,"matched_text":"signed","s":"Replace with: “Signed”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":5,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":6,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":7,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":8,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":17,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":17,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":17,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":18,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":18,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":18,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":19,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":19,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":19,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":20,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":20,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":20,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":23,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":24,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"Spaces","kind":"Formatting","line":25,"matched_text":"\t","s":"Replace with: “ ”"}
+{"who":"human","file":"5798986108.md","rule":"SpellCheck","kind":"Spelling","line":50,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":1,"matched_text":"## The owed evidence, and a correction to the body","s":"Replace with: “## The Owed Evidence, and a Correction to the Body”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":4,"matched_text":"### What the conversation view renders","s":"Replace with: “### What the Conversation View Renders”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":9,"matched_text":"### ⚠️ The body says the wrong thing about the button","s":"Replace with: “### ⚠️ The Body Says the Wrong Thing About the Button”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":14,"matched_text":"### ⚠️ It is three workflows, not one","s":"Replace with: “### ⚠️ It Is Three Workflows, Not One”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":28,"matched_text":"### The stubs still block nothing","s":"Replace with: “### The Stubs Still Block Nothing”"}
+{"who":"human","file":"5798986108.md","rule":"UseTitleCase","kind":"Capitalization","line":45,"matched_text":"### One thing ruled out","s":"Replace with: “### One Thing Ruled Out”"}
+{"who":"human","file":"5859999938.md","rule":"DiscourseMarkers","kind":"Punctuation","line":1,"matched_text":"Otherwise","s":"Insert “,”"}
+{"who":"human","file":"5872788025.md","rule":"LongSentences","kind":"Readability","line":1,"matched_text":"github/scripts/; one a human or the  project's own tooling uses belongs in scripts/ is stated on https://github.com/kalonji-tools/purba/issues/108 and in this pull request, and a-location-inherits-its-readers binds both directories to the same reader, toolsmith — so it does not distinguish them.","s":""}
+{"who":"human","file":"5872788025.md","rule":"OrthographicConsistency","kind":"Capitalization","line":3,"matched_text":"github","s":"Replace with: “GitHub”"}
+{"who":"human","file":"5872788025.md","rule":"SentenceCapitalization","kind":"Capitalization","line":5,"matched_text":"correct","s":"Replace with: “Correct”"}
+{"who":"human","file":"5872788025.md","rule":"Spaces","kind":"Formatting","line":1,"matched_text":" ","s":"Remove error"}
+{"who":"human","file":"5872788025.md","rule":"Spaces","kind":"Formatting","line":3,"matched_text":" ","s":"Remove error"}
+{"who":"human","file":"5872788025.md","rule":"SpellCheck","kind":"Spelling","line":3,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"human","file":"5872788025.md","rule":"SpellCheck","kind":"Spelling","line":5,"matched_text":"pr","s":"Replace with: “pa”"}
+{"who":"human","file":"5890108422.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"since","s":"Replace with: “Since”"}
+{"who":"human","file":"5890108422.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"claude","s":"Replace with: “clade”"}
+{"who":"human","file":"5967310145.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"sorry","s":"Replace with: “Sorry”"}
+{"who":"human","file":"5967310145.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"but","s":"Replace with: “But”"}
+{"who":"human","file":"5967310145.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"so","s":"Replace with: “So”"}
+{"who":"human","file":"5967310145.md","rule":"Spaces","kind":"Formatting","line":1,"matched_text":"  ","s":"Replace with: “ ”"}
+{"who":"human","file":"5967310145.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"pr","s":"Replace with: “pa”"}
+{"who":"human","file":"5967310145.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"pr","s":"Replace with: “pa”"}
+{"who":"human","file":"5967695917.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"go","s":"Replace with: “Go”"}
+{"who":"human","file":"r4108404905.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"human","file":"r4108404905.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"human","file":"r4108404905.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"GILess","s":"Replace with: “Giles's”"}
+{"who":"human","file":"r4108609246.md","rule":"DiscourseMarkers","kind":"Punctuation","line":1,"matched_text":"thus","s":"Insert “,”"}
+{"who":"human","file":"r4108609246.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"as","s":"Replace with: “As”"}
+{"who":"human","file":"r4108616806.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"then","s":"Replace with: “Then”"}
+{"who":"human","file":"r4108616806.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"make","s":"Replace with: “Make”"}
+{"who":"human","file":"r4108742682.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"do","s":"Replace with: “Do”"}
+{"who":"human","file":"r4108742682.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"we","s":"Replace with: “We”"}
+{"who":"human","file":"r4108742682.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"but","s":"Replace with: “But”"}
+{"who":"human","file":"r4108742682.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"YAGNI","s":"Replace with: “Yang”"}
+{"who":"human","file":"r4108840536.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"why","s":"Replace with: “Why”"}
+{"who":"human","file":"r4108999453.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"debating","s":"Replace with: “Debating”"}
+{"who":"human","file":"r4108999453.md","rule":"SentenceCapitalization","kind":"Capitalization","line":9,"matched_text":"if","s":"Replace with: “If”"}
+{"who":"human","file":"r4109078222.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"don't","s":"Replace with: “Don't”"}
+{"who":"human","file":"r4109081592.md","rule":"OrthographicConsistency","kind":"Capitalization","line":1,"matched_text":"github","s":"Replace with: “GitHub”"}
+{"who":"human","file":"r4109081592.md","rule":"Spaces","kind":"Formatting","line":1,"matched_text":" ","s":"Remove error"}
+{"who":"human","file":"r4109135071.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"should","s":"Replace with: “Should”"}
+{"who":"human","file":"r4109197826.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"would","s":"Replace with: “Would”"}
+{"who":"human","file":"r4109197826.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"human","file":"r4109197826.md","rule":"SplitWords","kind":"Typo","line":1,"matched_text":"importlib","s":"Replace with: “import lib”"}
+{"who":"human","file":"r4111090544.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"could","s":"Replace with: “Could”"}
+{"who":"human","file":"r4111218091.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"for","s":"Replace with: “For”"}
+{"who":"human","file":"r4111218091.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"we","s":"Replace with: “We”"}
+{"who":"human","file":"r4111218091.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"env","s":"Replace with: “end”"}
+{"who":"human","file":"r4111635844.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"don't","s":"Replace with: “Don't”"}
+{"who":"human","file":"r4111638960.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"make","s":"Replace with: “Make”"}
+{"who":"human","file":"r4111638960.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"lock","s":"Replace with: “Lock”"}
+{"who":"human","file":"r4111638960.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"human","file":"r4111638960.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"toml","s":"Replace with: “toll”"}
+{"who":"human","file":"r4111638960.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"human","file":"r4111675033.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4111675033.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4116576893.md","rule":"CompoundNouns","kind":"Word Choice","line":1,"matched_text":"new line","s":"Replace with: “newline”"}
+{"who":"human","file":"r4116576893.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"stylistic","s":"Replace with: “Stylistic”"}
+{"who":"human","file":"r4116593842.md","rule":"CompoundNouns","kind":"Word Choice","line":1,"matched_text":"lock files","s":"Replace with: “lockfiles”"}
+{"who":"human","file":"r4116593842.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"r4116593842.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"that","s":"Replace with: “That”"}
+{"who":"human","file":"r4116593842.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"human","file":"r4116593842.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"human","file":"r4116833175.md","rule":"AnA","kind":"Miscellaneous","line":1,"matched_text":"a","s":"Replace with: “an”"}
+{"who":"human","file":"r4116833175.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"should","s":"Replace with: “Should”"}
+{"who":"human","file":"r4116891096.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"maybe","s":"Replace with: “Maybe”"}
+{"who":"human","file":"r4116891096.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"toml","s":"Replace with: “toll”"}
+{"who":"human","file":"r4123663282.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"keep","s":"Replace with: “Keep”"}
+{"who":"human","file":"r4123663282.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"but","s":"Replace with: “But”"}
+{"who":"human","file":"r4132666832.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4133247276.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"are","s":"Replace with: “Are”"}
+{"who":"human","file":"r4149102130.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"human","file":"r4149113874.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"human","file":"r4149113874.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"what","s":"Replace with: “What”"}
+{"who":"human","file":"r4156606863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"r4156606863.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4156606863.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"asd","s":"Replace with: “ad”"}
+{"who":"human","file":"r4156606863.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"ste100","s":"Replace with: “stem's”"}
+{"who":"human","file":"r4161157970.md","rule":"DiscourseMarkers","kind":"Punctuation","line":1,"matched_text":"otherwise","s":"Insert “,”"}
+{"who":"human","file":"r4161157970.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"script","s":"Replace with: “Script”"}
+{"who":"human","file":"r4161181600.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"do","s":"Replace with: “Do”"}
+{"who":"human","file":"r4161181600.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"the","s":"Replace with: “The”"}
+{"who":"human","file":"r4164177054.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4164203548.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"r4164203548.md","rule":"SentenceCapitalization","kind":"Capitalization","line":2,"matched_text":"it's","s":"Replace with: “It's”"}
+{"who":"human","file":"r4164504113.md","rule":"DiscourseMarkers","kind":"Punctuation","line":1,"matched_text":"thus","s":"Insert “,”"}
+{"who":"human","file":"r4164504113.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"if","s":"Replace with: “If”"}
+{"who":"human","file":"r4164504113.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"but","s":"Replace with: “But”"}
+{"who":"human","file":"r4168235475.md","rule":"Spaces","kind":"Formatting","line":1,"matched_text":"  ","s":"Replace with: “ ”"}
+{"who":"human","file":"r4168248715.md","rule":"MissingDeterminer","kind":"Grammar","line":1,"matched_text":" ","s":"Replace with: “ the ”"}
+{"who":"human","file":"r4168248715.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"r4168271752.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"these","s":"Replace with: “These”"}
+{"who":"human","file":"r4168328122.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"another","s":"Replace with: “Another”"}
+{"who":"human","file":"r4168328122.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"you","s":"Replace with: “You”"}
+{"who":"human","file":"r4168328122.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"r4168328122.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"commits","s":"Replace with: “Commits”"}
+{"who":"human","file":"r4168328122.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"pr","s":"Replace with: “pa”"}
+{"who":"human","file":"r4168412540.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"there","s":"Replace with: “There”"}
+{"who":"human","file":"r4168412540.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"it's","s":"Replace with: “It's”"}
+{"who":"human","file":"r4168412540.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"you","s":"Replace with: “You”"}
+{"who":"human","file":"r4168412540.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"pr","s":"Replace with: “pa”"}
+{"who":"human","file":"r4168425300.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"you","s":"Replace with: “You”"}
+{"who":"human","file":"r4169947825.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"could","s":"Replace with: “Could”"}
+{"who":"human","file":"r4170133719.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"implementation","s":"Replace with: “Implementation”"}
+{"who":"human","file":"r4170133719.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"but","s":"Replace with: “But”"}
+{"who":"human","file":"r4170185013.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"r4170185013.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"you","s":"Replace with: “You”"}
+{"who":"human","file":"r4172302889.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"just","s":"Replace with: “Just”"}
+{"who":"human","file":"r4172302889.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"should","s":"Replace with: “Should”"}
+{"who":"human","file":"r4173029546.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"not","s":"Replace with: “Not”"}
+{"who":"human","file":"r4173029546.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"if","s":"Replace with: “If”"}
+{"who":"human","file":"r4173029546.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"human","file":"r4173029546.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"mise","s":"Replace with: “mice”"}
+{"who":"human","file":"r4173029546.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"maturin","s":"Replace with: “maturing”"}
+{"who":"human","file":"r4173064032.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"should","s":"Replace with: “Should”"}
+{"who":"human","file":"r4173064032.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"is","s":"Replace with: “Is”"}
+{"who":"human","file":"v5307190393.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5307674457.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5310469695.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5310573441.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5317056085.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5323417725.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5325811430.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5326254364.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5326314071.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5331647557.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"why","s":"Replace with: “Why”"}
+{"who":"human","file":"v5331918284.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"for","s":"Replace with: “For”"}
+{"who":"human","file":"v5331918284.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"these","s":"Replace with: “These”"}
+{"who":"human","file":"v5332332160.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5340939361.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5341082814.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5350626670.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5351534868.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"how","s":"Replace with: “How”"}
+{"who":"human","file":"v5351534868.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"monday","s":"Replace with: “Monday”"}
+{"who":"human","file":"v5351696695.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5351863839.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5352511424.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5352553382.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5363914434.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5368374158.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5368596385.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5369568575.md","rule":"OrthographicConsistency","kind":"Capitalization","line":1,"matched_text":"github","s":"Replace with: “GitHub”"}
+{"who":"human","file":"v5369568575.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"human","file":"v5369568575.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"md","s":"Replace with: “ma”"}
+{"who":"human","file":"v5369967191.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5371697795.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"does","s":"Replace with: “Does”"}
+{"who":"human","file":"v5371697795.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"this","s":"Replace with: “This”"}
+{"who":"human","file":"v5372107668.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5376585710.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5377342292.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5378082387.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5381090556.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5391366751.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5397322499.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"reduce","s":"Replace with: “Reduce”"}
+{"who":"human","file":"v5397347676.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5399866800.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5400238333.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
+{"who":"human","file":"v5400712398.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"go","s":"Replace with: “Go”"}
+{"who":"human","file":"v5401303235.md","rule":"SentenceCapitalization","kind":"Capitalization","line":1,"matched_text":"go","s":"Replace with: “Go”"}
+{"who":"human","file":"v5401326264.md","rule":"SpellCheck","kind":"Spelling","line":1,"matched_text":"LGTM","s":"Replace with: “Lath”"}
