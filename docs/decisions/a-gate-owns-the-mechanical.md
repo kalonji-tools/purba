@@ -44,6 +44,9 @@ Markdown is that case: a table row is one line by its syntax, so no line length 
 **A standard nothing can fix is still stated, and then it is only checked.**
 Line length is that standard, because no formatter wraps a line.
 Where a fixer exists it writes, and a checker is not put in its place.
+`shellcheck` only checks, because one of its fixes changes behaviour.
+`typos` writes in every file except a generated one.
+The Downside below names what that costs.
 
 ⚠️ **A standard a gate cannot decide does not become a gate.**
 The record states it, the reader judges it, and nothing blocks on it.
@@ -66,12 +69,13 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
 **Downside:**
 
 - **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
+- **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. Keeping one would need a configuration file.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**
   Inside a YAML block scalar none can be. An indented one is posted as part of whatever the block writes, and one at the first column ends the block.
   The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
-- ⚠️ **What is generated is named in two files that cannot see each other.**
-  `.gitattributes` marks it for review, and the style file excludes it from the standard. A generated file added to one and not the other gains a check it will fail.
+- ⚠️ **What is generated is named in files that cannot see each other.**
+  `.gitattributes` marks it for review, the style file excludes it from the standard, and `prek.toml` excludes one that `typos` would otherwise read. A generated file added to one and not the others gains a check it will fail, or a fix nobody wrote.
 - **Where no gate stands over a judgement, nothing records that one was made.**
   The approving review is the only trace, and it does not say what was read.
   [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) took that trade knowingly, and a resolved thread never survived a clone either.
@@ -94,9 +98,25 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 | `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every script |
 | `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
 
-⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why only the normaliser writes.
+⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why `shfmt` alone writes the shell.
 `[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer.
 A guard on an issue number would then stop refusing one.
+
+`typos` ran green and red through purba's own hooks, in [Let typos write its fix in every file except a generated one](https://github.com/kalonji-tools/purba/issues/251).
+
+| gate | green | red |
+|---|---|---|
+| `typos --write-changes` | the tree needs no rewrite | it rewrites a misspelling in a `.md` or a `.sh` file and stops the commit |
+| its exclusion of `CHANGELOG.md` | a misspelling in `CHANGELOG.md` stays as written | with the exclusion removed, `typos` rewrites it |
+
+`Cargo.lock` and `mise.lock` need no exclusion.
+By default `typos` sets `check-file = false` for its `lock` file type.
+A misspelling in either stayed as written.
+
+Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
+⚠️ **Some of its fixes in code change behaviour.**
+On three trees that already spell-check, each of its 19 rewrites in code files was wrong.
+Twelve of them renamed a name that a test misspells on purpose.
 
 The refusal of a gate over a judgement was measured on the only one this project built, in [Is the Decision Outcome rule a project goal, and if not, what is it doing in the merge path?](https://github.com/kalonji-tools/purba/issues/96).
 
