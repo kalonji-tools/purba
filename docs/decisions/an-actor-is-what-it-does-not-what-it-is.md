@@ -94,7 +94,9 @@ A tester is both at once, because purba tests itself with itself.
 
 [A location inherits its readers](a-location-inherits-its-readers.md) rejects any name that is not on this list, so a typo cannot invent a twelfth actor.
 
-⚠️ It is not wired yet, and [Build the reader-binding gate](https://github.com/kalonji-tools/purba/issues/85) owns it.
+The check reads each actor's name from the anchor its row links in `CONTEXT.md`.
+A change to that link changes the name `.readers` must use.
+`mise run lint:readers` runs it.
 
 ⚠️ No check decides whether a location truly serves the actor it names.
 Every register rule that gates successfully is a token, a phrase, a section order or a count, and this is none of those.

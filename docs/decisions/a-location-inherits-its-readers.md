@@ -33,23 +33,7 @@ A location inherits its readers.
 A directory names the actors it adds, and a file's readers are the union of every binding from the project root down to it.
 A directory that binds nothing is transparent: `src/config/pyproject.toml` reads `src/`'s actors when `config/` binds none.
 
-The bindings live in `.readers`, in gitattributes syntax:
-
-```
-[attr]contributor  architect coder toolsmith handler reviewer technical-writer
-[attr]user         tester plugin-author packager integrator
-
-README.md          stem
-CONTEXT.md         stem
-AGENTS.md          handler contributor
-.claude/**         handler
-docs/agents/**     handler
-.github/**         toolsmith
-scripts/**         toolsmith
-docs/**            technical-writer
-docs/decisions/**  architect
-src/**             coder plugin-author tester
-```
+The bindings live in [`.readers`](../../.readers), in gitattributes syntax.
 
 The project root binds nothing.
 A reviewer reaches every location by what its role is, and a role that spans everything is not a binding.
@@ -58,7 +42,9 @@ A reviewer reaches every location by what its role is, and a role that spans eve
 **Along the derivation chain.**
 A location built from another inherits that source's readers and is never authored twice.
 A commit message and a pull request derive from the paths they touch.
-`CLAUDE.md` derives from `AGENTS.md`, so it is bound nowhere and inherits.
+`CLAUDE.md` derives from `AGENTS.md`.
+Gitattributes syntax cannot say so.
+Both files name one macro, so their readers are still written once.
 
 **A tracked file that reaches no actor fails the build.**
 The failure asks three questions and does not report a broken rule: should this file exist, what does it serve, and for whom.
@@ -68,20 +54,21 @@ The tree stays organised as a side effect of being readable.
 This is scoped to tracked files.
 It never applies to a milestone, an issue or a pull request, each of which carries its own record and its own template.
 
-**purba borrows the syntax entire, and never the machinery.**
-Git reads attributes from four named places and `.readers` is not one of them, so git never sees this file.
-`gix-attributes` parses an arbitrary buffer under an arbitrary filename, so nothing is reimplemented and nothing is approximated.
+**purba borrows the syntax entire, and git's own parser with it.**
+`git check-attr` reads `.readers` when `core.attributesFile` names it, so nothing is reimplemented and nothing is approximated.
+In this repository, `info/attributes` and a tracked `.gitattributes` outrank that file.
+The check therefore runs git in an empty repository, where `.readers` is the only attribute file.
 
 | the syntax gives | what it does here |
 |---|---|
 | override is per attribute | accumulation is the default, so a nearer line silent about an actor leaves the farther one standing |
 | `**`, `*`, `?`, `[abc]`, escapes | a reader is assigned by what a file is, not only by where it sits |
 | `-actor` | inheritance stops for one actor rather than for all of them |
-| `[attr]name a b c` | where `contributor` and `user` live |
+| `[attr]name a b c` | a list of actors, written once and named by every line that uses it, as `contributor` is |
 
 **Downside:**
 
-- **The parser costs 12 packages and a breaking release roughly monthly**, six in the last nine months, against a project that pins `ruff_*` exactly. They belong to the gate rather than to the product crate, so the wheel is untouched and the cost is a recurring upgrade. The record pays it rather than hand-write a subset.
+- **The roster check reads the names off each line itself, and git does not.** A quoted pattern that holds a space splits in two. The check refuses the second half as a name off the roster, while git resolves the same line correctly.
 - ⚠️ **The check cannot tell a file that correctly has no reader from one nobody considered.** A lock file may be read by nobody, and both states look identical.
 - **A binding placed high and loosely silences every file beneath it**, and nothing detects a binding that is technically true and useless.
 
@@ -90,18 +77,19 @@ Git reads attributes from four named places and `.readers` is not one of them, s
 **The check reads `.readers` and fails the build on a tracked file that reaches no actor.**
 
 It rejects any actor name, in a binding or in a macro, that is not on the roster.
+It also rejects a macro named after an actor.
 
-⚠️ It is not wired yet, and [Build the reader-binding gate](https://github.com/kalonji-tools/purba/issues/85) owns it.
+`mise run lint:readers` runs the check.
+`mise run quality` runs that task.
 
 Both halves were exercised against real trees before this record was written.
 
 | measured | result |
 |---|---|
-| this repository as it then stood, against the bindings above | 7 of 19 tracked files reached no actor |
+| this repository as it then stood, against the bindings this record first held | 7 of 19 tracked files reached no actor |
 | the prototype repository, 1,109 files, 288 directories, 8 levels deep | one pattern reaches 688 files, four reach 956 |
 
-⚠️ The seven are root-level configuration and licence files.
-**The first output of this decision is an edit to those bindings, not a build.**
+⚠️ The seven were root-level configuration and licence files.
 
 ⚠️ No check decides whether a location truly serves the actor it names.
 That fails as friction, and friction is observed when a reader hits it.
