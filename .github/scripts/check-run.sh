@@ -20,7 +20,8 @@ fi
 check_runs_of() {
   local runs
   if ! runs=$(gh api "repos/${GH_REPO}/commits/$1/check-runs?per_page=100") ||
-    ! jq -e '.check_runs | type == "array"' >/dev/null <<<"${runs}"; then
+    ! jq -e '.check_runs | type == "array" and all(.[]; type == "object")' \
+      >/dev/null <<<"${runs}"; then
     echo "the check runs on $1 could not be read." >&2
     exit 2
   fi
