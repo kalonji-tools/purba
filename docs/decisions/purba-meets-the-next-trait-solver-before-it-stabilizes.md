@@ -33,7 +33,7 @@ Stabilizing it is the sitting 2026 project goal, and it carries 115 open bug rep
 Only the second row can strand purba on nightly, and only through code purba writes itself.
 
 A second question arrives with the channel, because the channel has to be named in a file.
-[mise names every tool version](mise-names-every-tool-version.md) already decided which file that is, and the tree contradicted it.
+[One manifest declares each package](one-manifest-declares-each-package.md) already decided which file that is, and the tree contradicted it.
 `rust-toolchain.toml` named a stable release under a comment describing a removed environment.
 Leaving both files in place is not a neutral duplication.
 Three of rustup's five precedence ranks decide why.
@@ -71,7 +71,7 @@ The nightly is named once, in `mise.toml`, as a date.
 A person moves the date.
 
 ⚠️ **A floating name drifts, and no lockfile stops it.**
-[mise names every tool version](mise-names-every-tool-version.md) holds the mechanism and what it costs.
+[One manifest declares each package](one-manifest-declares-each-package.md) holds the mechanism and what it costs.
 A date is an exact version, so it resolves only to itself, and this is the form mise documents.
 
 **This record used to refuse a second date**, predicting the two copies would disagree.
@@ -79,7 +79,7 @@ For an exact request the lock row is derived from the request, so they cannot.
 `[env] RUSTUP_TOOLCHAIN` is refused instead: it overrides what the backend installs and says nothing when the two differ.
 
 **`rust-toolchain.toml` is deleted here.**
-This follows from [mise names every tool version](mise-names-every-tool-version.md) and decides nothing new, and the deletion is what stops the tree contradicting that record.
+This follows from [one manifest declares each package](one-manifest-declares-each-package.md) and decides nothing new, and the deletion is what stops the tree contradicting that record.
 Between this change and the substrate, purba names no toolchain anywhere, which costs nothing because nothing in the tree compiles Rust yet.
 
 **A nightly only feature with no stable fallback is refused inside the product crate.**
@@ -104,7 +104,7 @@ The warrant is always exactly one record, and never one record per feature.
 **Downside:**
 
 - **The stable check does not block, and this project's own position is that a check which runs without a block is a suggestion.** It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch. A blocking check would buy that day, and forbid the solver's only two gains in advance.
-- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above. A bump can break the tree for reasons that are nobody's fault, and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [mise names every tool version](mise-names-every-tool-version.md) records in full.
+- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above. A bump can break the tree for reasons that are nobody's fault, and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [one manifest declares each package](one-manifest-declares-each-package.md) records in full.
 
 ## Confirmation
 

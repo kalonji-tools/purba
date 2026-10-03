@@ -1,8 +1,8 @@
-# mise names every tool version
+# One manifest declares each package
 
 ## Context and Problem Statement
 
-purba needs one answer to the question of which version of a tool it uses.
+purba needs one answer to the question of which version of a package it uses.
 
 The prototype purba succeeds had two answers and did not know it.
 Its development shell resolved the Rust toolchain from a toolchain file.
@@ -30,6 +30,11 @@ The shell keeps working with the wrong compiler in it.
 This was reproduced during the measurement.
 A shell served a stable rustc beside a nightly rustfmt, with no warning, on a version the pinned parser crates cannot build.
 
+**One manager cannot declare every package.**
+Only cargo links a crate into purba.
+A Python package that imports purba must share its environment.
+mise installs a Python tool into an environment of its own.
+
 ## Considered Options
 
 Four arrangements were built and run against the same criterion, a wheel that a Python interpreter then loads, on two architectures and three operating systems.
@@ -49,9 +54,36 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 
 - **mise alone.** Chosen. Same reach as the zig arrangement and faster on every platform, with nothing in the repository beyond a lockfile. The C toolchain comes from the host, which every runner and every ordinary developer machine already carries.
 
+Each answer below places the line where mise stops.
+
+- **mise declares whatever it can fetch.** Rejected. mise installs a Python tool such as pytest into an environment of its own, where it cannot import purba.
+
+- **A package declared where a foreign tool reads it, and in mise as well.** Rejected, because a package that two managers declare is a conflict in the making. It keeps maturin in `pyproject.toml` for pip and in `mise.toml` for everyone else.
+
+- **`pyproject.toml` declares maturin, and mise drops it.** Rejected. A source build would work, but no lockfile would hold the build backend.
+
+- **A package that shares purba's process or environment goes in its language's manifest, and mise declares the rest.** Chosen. One reason places a linked crate and a test runner alike.
+
 ## Decision Outcome
 
-mise names every tool version purba uses, in one committed lockfile, and purba carries no second environment manager and no compiler of its own.
+**One manifest declares each package.**
+
+| package | manifest |
+|---|---|
+| a crate purba links | `Cargo.toml` |
+| a Python package that imports purba or shares its environment | `pyproject.toml`, under `[dependency-groups]` |
+| every other package, which runs over the files | `mise.toml` |
+
+A name in two manifests is a conflict.
+A mise backend that installs through cargo or pip is one declaration, because one file names the package.
+
+`mise.toml` declares maturin.
+`pyproject.toml` keeps its `[build-system]` table with an empty `requires` list, because maturin refuses a file without that table.
+A frontend such as pip or uv installs what that list names from PyPI, so the list stays empty.
+purba chooses its Python manager with the first Python package it declares.
+
+mise names the version of every package `mise.toml` declares, in one committed lockfile.
+purba carries no tool manager beside mise, and no compiler of its own.
 
 `mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
 Both are committed.
@@ -70,6 +102,8 @@ Buying a lower floor is deferred to whatever publishes wheels, and zig is the me
 
 **Downside:**
 
+- **Nobody builds purba from source with pip or uv.** Each stops with an import error that does not name mise.
+- **Nothing refuses a second declaration yet.** Only a reviewer notices one.
 - **A machine with no C compiler does not build purba at all.** Nothing detects that before the first build script fails.
 - **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing today because nobody installs these wheels, and will cost something the day somebody does.
 - **The toolchain's entry records a version and verifies none.** `core:rust` downloads no artifacts and so carries no checksum.
@@ -97,18 +131,19 @@ Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2
 ⚠️ **`locked = true` does not refuse that.**
 Its not-in-lockfile error is withheld under the same condition, so an unlocked resolution is a silent difference rather than a failure.
 **The setting covers a tool only while that tool's backend installs into a real directory.**
-purba's other four tools satisfy that by accident, and no lockfile entry reveals it.
+Every other tool in `mise.toml` satisfies that by accident, and no lockfile entry reveals it.
 
 The toolchain is therefore named by a date, which resolves only to itself.
 [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) holds that choice.
 
-One of the three properties below is checked by `.github/workflows/build.yml`.
+One of the four properties below is checked by `.github/workflows/build.yml`.
 
 | property | check |
 |---|---|
 | the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
 | the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
+| each package is declared in one manifest | not wired. [Refuse a package that two manifests declare](https://github.com/kalonji-tools/purba/issues/246) builds the gate |
 
 The second check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension.

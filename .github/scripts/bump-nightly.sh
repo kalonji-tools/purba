@@ -2,7 +2,7 @@
 # Propose a newer nightly for a person to sign.
 #
 #   the pin:       mise.toml, under `[tools]`
-#   the decision:  docs/decisions/mise-names-every-tool-version.md
+#   the decision:  docs/decisions/one-manifest-declares-each-package.md
 #   what you owe:  CONTRIBUTING.md
 #
 #   bump-nightly.sh <branch> <issue>
