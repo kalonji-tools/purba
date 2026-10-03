@@ -96,9 +96,9 @@ stages = ["pre-commit"]
 
 [[repos.hooks]]
 id = "cargo-fmt"
-name = "cargo fmt --check"
+name = "cargo fmt"
 language = "system"
-entry = "mise run fmt:check"
+entry = "mise x -- cargo fmt"
 stages = ["pre-commit"]
 pass_filenames = false
 files = "\\.rs$"

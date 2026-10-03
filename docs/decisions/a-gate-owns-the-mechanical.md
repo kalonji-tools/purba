@@ -118,6 +118,14 @@ Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
 On three trees that already spell-check, each of its 19 rewrites in code files was wrong.
 Twelve of them renamed a name that a test misspells on purpose.
 
+`cargo fmt` ran green and red through the same hooks, in [Let the Rust format hook write its fix](https://github.com/kalonji-tools/purba/issues/252).
+
+| gate | green | red |
+|---|---|---|
+| `cargo fmt` | the tree needs no rewrite | it formats a misformatted `.rs` file and stops the commit |
+
+`quality` keeps `fmt:check`, because CI cannot write.
+
 The refusal of a gate over a judgement was measured on the only one this project built, in [Is the Decision Outcome rule a project goal, and if not, what is it doing in the merge path?](https://github.com/kalonji-tools/purba/issues/96).
 
 What is checkable here is the endpoint.
