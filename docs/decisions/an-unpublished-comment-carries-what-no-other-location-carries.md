@@ -78,12 +78,12 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 - **A reader who reaches the general record first is told this location is never gated.**
 - **The recommended citation is the form most likely to fail the gate.** A digital object identifier resolves to a publisher, and a publisher blocks the checker. The gate refuses such a link until the change that adds it also adds an exception and its reason.
 - **A checked link is not a read link.** The gate proves a page answers, never that it still says what the comment claims.
-- **The online leg depends on a network.** A change is refused for the state of somebody else's server, so only the files a change touches are read online.
-- **A dead link in a file that no change touches stays dead.** The next change to that file meets it, and its author repairs a link they did not write.
+- **The online leg depends on a network.** It refuses a change for the state of somebody else's server, so it reads only the files a change touches.
+- **A dead link in a file that no change touches stays dead.** The next change to that file meets it. Its author then repairs a link they did not write.
 
 ## Confirmation
 
-**`mise run lint:links` reads three legs, and `Quality` runs it on every pull request.**
+**`Quality` runs `mise run lint:links` on every pull request.**
 
 | leg | reads | refuses |
 |---|---|---|
@@ -95,7 +95,7 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 `scripts/test/check-links.bats` builds each shape the gate refuses.
 
 The checker reads a file it is given by name, whatever its extension.
-Outside Markdown and HTML it finds a full address only, so a cited path needs the third leg.
+Outside Markdown and HTML it finds a full address only, so a cited path needs a leg of its own.
 It extracts a bare address, a titled link and an autolink alike.
 It resolves a relative link between records to a path it then checks.
 
