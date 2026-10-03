@@ -165,6 +165,17 @@ FAKE
   [[ "${output}" != *"${offline}"* ]]
 }
 
+@test "a dead link to a file in a changed file is refused once" {
+  write c.md '[gone](gone.md)'
+  git add --all
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${offline}"* ]]
+  [[ "${output}" != *"${online}"* ]]
+}
+
 @test "a lychee that cannot run stops the check with exit 2" {
   fake lychee <<'FAKE'
 cat >/dev/null
