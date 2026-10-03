@@ -49,6 +49,10 @@ description = "Refuse a tracked file that reaches no actor, and a name off the r
 shell = "bash -c"
 run = "scripts/check-readers.sh"
 
+["lint:licences"]
+description = "Refuse a dependency whose licence is not on the allowlist"
+run = "cargo-deny check licenses"
+
 [clippy]
 description = "Refuse a lint"
 run = "cargo clippy --all-targets"
@@ -99,6 +103,7 @@ depends = [
   "lint:placement",
   "lint:manifests",
   "lint:readers",
+  "lint:licences",
   "records",
   "clippy",
   "doc",
