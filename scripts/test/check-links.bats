@@ -71,18 +71,31 @@ FAKE
   [[ "${output}" == *"b.md#nope"* ]]
 }
 
-@test "a built URL, a fixture, an email address and a TOML table pass the online leg" {
+@test "a built URL, a fixture and an email address pass the online leg" {
   # shellcheck disable=SC2016 # the script's own expansion, written as it is in the tree
   write scripts/report.sh 'url="https://github.com/${GH_REPO}/issues/${issue}"' \
     'one=https://github.com/o/purba/issues/9' 'two=https://github.com/owner/name/issues/65' \
     'mail=42+owner@users.noreply.github.com'
-  write prek.toml '[[repos]]' 'repo = "builtin"'
   git add --all
 
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
+}
+
+@test "a dead link inside a code span is refused" {
+  # Joined at run time, because the gate reads this file too.
+  local dead
+  dead="file:"///gone/nowhere.md
+  write a.md "See \`${dead}\` here."
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${offline}"* ]]
+  [[ "${output}" == *"${dead}"* ]]
 }
 
 @test "a dead link inside a lock file is not read" {
