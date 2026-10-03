@@ -47,6 +47,10 @@ bats = "1"
 # https://jqlang.org
 jq = "1"
 
+#   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+# https://lychee.cli.rs
+lychee = "0.24"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.
