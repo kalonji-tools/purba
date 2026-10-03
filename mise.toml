@@ -41,7 +41,7 @@ shfmt = "3"
 editorconfig-checker = "3"
 
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
-# https://bats-core.readthedocs.io
+# https://bats-core.readthedocs.io/en/stable/
 bats = "1"
 
 # https://jqlang.org

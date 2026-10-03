@@ -12,6 +12,9 @@ include_fragments = "full"
 include_verbatim = true
 require_https = true
 
+# A redirect is refused, so a link moves to the address it now names.
+max_redirects = 0
+
 # These optional checks stay off, at their defaults.
 #
 # Mail is not checked. Every address in this tree is a git identity, and none
