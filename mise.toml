@@ -41,11 +41,15 @@ shfmt = "3"
 editorconfig-checker = "3"
 
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
-# https://bats-core.readthedocs.io
+# https://bats-core.readthedocs.io/en/stable/
 bats = "1"
 
 # https://jqlang.org
 jq = "1"
+
+#   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+# https://lychee.cli.rs
+lychee = "0.24"
 
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an

@@ -69,51 +69,44 @@ The issue number belongs to the commit subject.
 It is not a threshold, and no check counts them.
 
 **This record is the exception to [a register belongs to one location](a-register-belongs-to-one-location.md).**
-That record states that nothing about an unpublished comment is gated.
-Link liveness is decidable, so that one property is gated and the rest is convention.
+That record calls this register convention, and names what this section gates.
+Link liveness and the paths a comment cites are decidable, so those two are gated and the rest is convention.
 
 **Downside:**
 
 - **The rule that decides is unenforceable.** Whether information belongs in another location is a judgement, so nothing gates the sentence this record exists to state.
-- **A reader who reaches the general record first is told this location is never gated.**
-- **The recommended citation is the form most likely to fail the gate.** A digital object identifier resolves to a publisher, and a publisher blocks the checker. The accepted codes below absorb it, and a resource withdrawn behind a hard block then passes.
+- **The recommended citation is the form most likely to fail the gate.** A digital object identifier resolves to a publisher, and a publisher blocks the checker. The gate refuses such a link until the change that adds it also adds an exception and its reason.
 - **A checked link is not a read link.** The gate proves a page answers, never that it still says what the comment claims.
-- **The gate depends on a network.** A change is refused for the state of somebody else's server, which is why only the changed-file leg blocks.
+- **The online leg depends on a network.** It refuses a change for the state of somebody else's server, so it reads only the files a change touches.
+- **A dead link in a file that no change touches stays dead.** The next change to that file meets it. Its author then repairs a link they did not write.
 
 ## Confirmation
 
-**`lychee` over tracked files, blocking on the changed ones and reporting on the rest.**
+**`Quality` runs `mise run lint:links` on every pull request.**
 
-| setting | value |
-|---|---|
-| inputs | tracked files, from `git ls-files` |
-| extensions | `md`, `toml`, `rs`, `yml`, `yaml`, `py`, `nix` |
-| excluded | `*.lock` |
-| accepted | `200..=299`, `403`, `429` |
-| timeouts | a failure |
-| fragments | off on the blocking leg, on for the scheduled leg |
+| leg | reads | refuses |
+|---|---|---|
+| offline | every tracked file that `.gitattributes` does not mark generated | a link to a file or a heading in the tree that does not exist |
+| online | the files a branch changes against its base, generated files left out | an address on the network that does not answer |
+| cited paths | each comment line outside Markdown and generated files | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
-A pull request is refused for a dead link in a file it changed.
-A scheduled run over the whole tree reports rot and refuses nothing.
+`lychee.toml` holds the settings both legs share, with the reason for each beside it.
+The script passes the flags that differ per leg.
+`scripts/test/check-links.bats` builds each shape the gate refuses offline.
+A fragment that quotes text, an `http` link with an `https` form and a redirect act on the network alone, and no test reaches them.
 
-The checker opens markdown and HTML only, so a comment in a source file is never read unless the extensions are named.
+The checker reads a file it is given by name, whatever its extension.
+Outside Markdown and HTML it finds a full address only, so a cited path needs a leg of its own.
 It extracts a bare address, a titled link and an autolink alike.
 It resolves a relative link between records to a path it then checks.
-That resolution is the `cited paths exist` row graded weak in [a decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md).
 
 **Blind spots.**
 
 | blind spot | effect |
 |---|---|
 | reserved example domains are excluded by default | a placeholder address is not a checked address |
-| a redirect is followed and reported valid | an address that has moved permanently is never corrected |
-| `403` and `429` are accepted | a withdrawn page passes |
-
-The gate is not wired.
-An extension list cannot name a tracked file that has no extension, and `CODEOWNERS` is one.
-So the input set above cannot reach every tracked file that holds an address.
-Naming further extensions does not repair it, because the gap is the absence of an extension.
-[Does purba wire the link gate its record describes, or refuse it?](https://github.com/kalonji-tools/purba/issues/255) decides whether purba wires the gate.
+| a root file cited with no directory, such as `mise.toml` | a rename of that file leaves the citation standing |
+| a path in a Markdown code span | a rename leaves the path standing |
 
 Nothing decides whether a comment that survives the subtraction was worth writing.
 That fails as friction.

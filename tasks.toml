@@ -49,6 +49,11 @@ description = "Refuse a tracked file that reaches no actor, and a name off the r
 shell = "bash -c"
 run = "scripts/check-readers.sh"
 
+["lint:links"]
+description = "Refuse a dead link, and a path a comment cites that git does not track"
+shell = "bash -c"
+run = "scripts/check-links.sh"
+
 [clippy]
 description = "Refuse a lint"
 run = "cargo clippy --all-targets"
@@ -62,7 +67,7 @@ description = "Run the Rust tests"
 # A plain `cargo test` leaves `extension-module` off, so PyO3 links libpython
 # and the test binary must find it again at run time. macOS does not search the
 # interpreter's own library directory, and the binary aborts as it loads.
-# https://pyo3.rs/latest/building-and-distribution.html#dynamically-embedding-the-python-interpreter
+# https://pyo3.rs/v0.29.2/building-and-distribution#dynamically-embedding-the-python-interpreter
 #
 # The assignment is rendered on macOS alone. Windows runs a task through `cmd`,
 # which reads neither this syntax nor the variable.
@@ -99,6 +104,7 @@ depends = [
   "lint:placement",
   "lint:manifests",
   "lint:readers",
+  "lint:links",
   "records",
   "clippy",
   "doc",

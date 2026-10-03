@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Whether a pull request changes one of purba's own scripts.
+# Whether a pull request changes one of purba's own scripts, or lychee.toml,
+# whose settings the link gate's test copies.
 #
 #   the caller:    .github/workflows/scripts.yml
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
@@ -29,9 +30,9 @@ if ! files=$(git -c core.quotePath=false diff --name-only --no-renames "$1" "$2"
   exit 2
 fi
 
-if grep -qE '^(scripts/|\.github/scripts/)' <<<"${files}"; then
+if grep -qE '^(scripts/|\.github/scripts/|lychee\.toml$)' <<<"${files}"; then
   echo "scripts=true"
-  echo "a script changed, so the script tests run" >&2
+  echo "a script or lychee.toml changed, so the script tests run" >&2
 else
-  echo "no script changed, so the script tests do not run" >&2
+  echo "no script and no lychee.toml changed, so the script tests do not run" >&2
 fi
