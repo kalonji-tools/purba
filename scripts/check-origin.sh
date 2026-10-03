@@ -40,9 +40,6 @@ if [[ -n "${missing}" ]]; then
   summary="these commits carry no Signed-off-by trailer, so this branch cannot be accepted. \
 CONTRIBUTING.md has the command that adds it."
 
-  # `--no-walk` is load-bearing, and it was measured. Without it this walks the
-  # ancestors of each unsigned commit, so a signed merge commit below one of
-  # them makes the sentence fire against a list that holds no merge.
   if printf '%s\n' "${missing}" | cut -d' ' -f1 |
     git rev-list --no-walk --merges --stdin | grep -q .; then
     summary="${summary} A merge commit below is not one you can sign."

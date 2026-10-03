@@ -13,7 +13,7 @@ readme = "README.md"
 # PEP 639 form: an SPDX expression, not the deprecated `{ text = "MIT" }` table
 # that PEP 639 replaced. MIT rather than dual MIT/Apache-2.0 because purba's
 # only published artifact is a wheel — `publish = false` means the crate serves
-# no `cargo add` consumer, which is who the Rust dual convention is for (#34).
+# no `cargo add` consumer, which is who the Rust dual convention is for.
 license = "MIT"
 license-files = ["LICENSE"]
 
@@ -23,7 +23,7 @@ license-files = ["LICENSE"]
 # `license` expression above, and carrying both invites them to disagree.
 #
 # No `Operating System ::` entries either. Those are a projection of the tested
-# platform set, and there is no test matrix yet (#42). A platform claim with
+# platform set, and there is no test matrix yet. A platform claim with
 # nothing comparing it against reality is precisely the drift this project
 # refuses; the classifiers arrive when the matrix that justifies them does.
 #
@@ -33,7 +33,5 @@ license-files = ["LICENSE"]
 [tool.maturin]
 module-name = "purba"
 # purba's own feature, not `pyo3/extension-module` directly. Naming the local
-# feature keeps the indirection in one place: plain cargo builds leave it off
-# so `cargo doc` and `cargo test --doc` can link libpython, and maturin turns
-# it on for the wheel.
+# feature keeps the indirection in one place.
 features = ["extension-module"]
