@@ -3,7 +3,7 @@
 #   the work:      .github/scripts/bump-nightly.sh
 #   the failure:   .github/scripts/report-bump-failure.sh
 #   the pin:       mise.toml, under `[tools]`
-#   the decisions: docs/decisions/mise-names-every-tool-version.md
+#   the decisions: docs/decisions/one-manifest-declares-each-package.md
 #                  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
 #
 # ⚠️ Keep the shell in the scripts. The only shell here calls them.

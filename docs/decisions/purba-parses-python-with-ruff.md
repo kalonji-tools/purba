@@ -65,7 +65,7 @@ Being wrong here is survivable, and being wrong the other way is not:
 | ruff | an API break | yes, a compile error | yes, the pin is exact | yes, 6 symbols in 10 weeks |
 | the rejected crate | a file does not parse | no | no, already true | no, nobody maintains it |
 
-[mise names every tool version](mise-names-every-tool-version.md) names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) names the channel.
+[One manifest declares each package](one-manifest-declares-each-package.md) names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) names the channel.
 A raised MSRV is read against those, and not against a pin in this repository.
 
 ## Confirmation
