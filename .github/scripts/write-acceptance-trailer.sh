@@ -6,7 +6,8 @@
 #   what you owe:  CONTRIBUTING.md
 #
 # Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when it
-# cannot write a check run.
+# cannot read or write a check run. Any other command that fails exits with its
+# own code, which can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
@@ -37,13 +38,22 @@ if [[ -z "${approver}" ]]; then
 fi
 
 current_head=$(git rev-parse HEAD)
+status=0
 # `GATES` holds one context per word and this script takes one per argument, so
 # quoting it would ask for a single context named after all of them.
 # shellcheck disable=SC2086
-if ! .github/scripts/require-green.sh "${current_head}" ${GATES}; then
-  echo "a gate has no verdict on this head, so there is nothing to accept yet"
-  exit 0
-fi
+.github/scripts/require-green.sh "${current_head}" ${GATES} || status=$?
+case "${status}" in
+  0) ;;
+  1)
+    echo "a gate is not green on this head, so there is nothing to accept yet"
+    exit 0
+    ;;
+  *)
+    echo "the gates on this head could not be read, so nothing was decided." >&2
+    exit 2
+    ;;
+esac
 
 # These two are written into commit messages that can never be
 # edited, so check their shape before writing them. GitHub allows only
