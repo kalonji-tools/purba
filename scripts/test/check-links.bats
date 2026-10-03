@@ -98,11 +98,12 @@ FAKE
   [[ "${output}" == *"${dead}"* ]]
 }
 
-@test "a dead link inside a lock file is not read" {
+@test "a file .gitattributes marks generated is not read for a link or a cited path" {
   # Joined at run time, because the gate reads this file too.
   local dead
   dead="file:"///gone/nowhere.md
-  write Cargo.lock "source = \"${dead}\""
+  write .gitattributes 'made.txt linguist-generated'
+  write made.txt "source = \"${dead}\"" '# docs/gone.md'
   settle
 
   run "${script}"
@@ -110,19 +111,22 @@ FAKE
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
 
-  cp Cargo.lock read.toml
-  git add read.toml
+  cp made.txt read.txt
+  git add read.txt
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${dead}"* ]]
+  [[ "${output}" == *"read.txt:2: docs/gone.md"* ]]
+  [[ "${output}" != *"made.txt"* ]]
 }
 
 @test "the online leg reads only the files changed since PURBA_BASE, and no deleted file" {
   fake_lychee
+  write .gitattributes 'made.txt linguist-generated'
+  write made.txt 'changed'
   write c.md 'new'
-  write Cargo.lock 'changed'
   git rm --quiet b.md
   git add --all
 
@@ -134,9 +138,12 @@ FAKE
   [[ ${#legs[@]} -eq 2 ]]
   [[ "${legs[0]}" == *"--offline"* ]]
   [[ "${legs[1]}" != *"--offline"* ]]
-  [[ "$(<"${BATS_TEST_TMPDIR}/inputs.online")" == "c.md" ]]
+  online_inputs=$(LC_ALL=C sort "${BATS_TEST_TMPDIR}/inputs.online")
+  expected=$(printf '%s\n' .gitattributes c.md)
+  [[ "${online_inputs}" == "${expected}" ]]
   offline_inputs=$(LC_ALL=C sort "${BATS_TEST_TMPDIR}/inputs.offline")
-  expected=$(printf '%s\n' a.md c.md chorestart docs/decisions/record.md lychee.toml tasks.toml)
+  expected=$(printf '%s\n' .gitattributes a.md c.md chorestart docs/decisions/record.md \
+    lychee.toml tasks.toml)
   [[ "${offline_inputs}" == "${expected}" ]]
 }
 
