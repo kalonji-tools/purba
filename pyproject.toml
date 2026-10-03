@@ -1,9 +1,6 @@
 [build-system]
-# 1.9.3 is the floor, NOT 1.9.0. maturin's PEP 639 support shipped in 1.9.0 and
-# was fixed twice after: 1.9.2 to emit `License-Expression` over `License`, and
-# 1.9.3 to include `project.license-files` in source distributions. A floor at
-# the announcing version ships sdists with no licence file (#34).
-requires = ["maturin>=1.9.3,<2"]
+#   the decision:  docs/decisions/one-manifest-declares-each-package.md
+requires = []
 build-backend = "maturin"
 
 [project]
