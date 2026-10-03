@@ -86,14 +86,14 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 
 | leg | reads | refuses |
 |---|---|---|
-| offline | every tracked file except `*.lock` | a link to a file or a heading in the tree that does not exist |
-| online | the files a branch changes against its base | an address on the network that does not answer |
-| cited paths | each comment line outside Markdown | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
+| offline | every tracked file that `.gitattributes` does not mark generated | a link to a file or a heading in the tree that does not exist |
+| online | the files a branch changes against its base, generated files left out | an address on the network that does not answer |
+| cited paths | each comment line outside Markdown and generated files | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
 `lychee.toml` holds the settings both legs share, with the reason for each beside it.
 The script passes the flags that differ per leg.
 `scripts/test/check-links.bats` builds each shape the gate refuses offline.
-A fragment that quotes text, and an `http` link with an `https` form, are read on the network alone, and no test reaches either.
+A fragment that quotes text, an `http` link with an `https` form and a redirect act on the network alone, and no test reaches them.
 
 The checker reads a file it is given by name, whatever its extension.
 Outside Markdown and HTML it finds a full address only, so a cited path needs a leg of its own.
@@ -105,7 +105,6 @@ It resolves a relative link between records to a path it then checks.
 | blind spot | effect |
 |---|---|
 | reserved example domains are excluded by default | a placeholder address is not a checked address |
-| a redirect is followed and reported valid | an address that has moved permanently is never corrected |
 | a root file cited with no directory, such as `mise.toml` | a rename of that file leaves the citation standing |
 | a path in a Markdown code span | a rename leaves the path standing |
 
