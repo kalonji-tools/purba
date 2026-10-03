@@ -166,10 +166,15 @@ From `q2-typos.sh`: three hook entries, each committed through purba's real
 | a fix in the staged half of a partly staged file | refused | refused, and prek **rolls the fix back**, keeping the unstaged edit | the same |
 | a word with two corrections (`wich`) | refused | refused, nothing written | the same |
 
-⚠️ **An exclusion does not hold when prek names the file.** typos checks a path
-it is given, even when its config excludes that path. `extend-exclude =
-["CHANGELOG.md"]` still let `-w` rewrite `CHANGELOG.md`. With `--force-exclude`,
-the file was left alone.
+⚠️ **typos's own exclusion does not hold when prek names the file.** typos
+checks a path it is given, even when its config excludes that path.
+`extend-exclude = ["CHANGELOG.md"]` still let `-w` rewrite `CHANGELOG.md`. With
+`--force-exclude`, the file was left alone.
+
+From `q2-exclude.sh`: **prek's own `exclude` needs neither.** prek never names
+the file, so typos keeps no configuration at all, which is what
+`a-gate-owns-the-mechanical.md` states for it. A staged `CHANGELOG.md` holding
+`recieve` committed unchanged.
 
 ### How often `-w` writes the right thing
 
@@ -218,23 +223,27 @@ purpose, as oxitest's do.
 id = "typos"
 name = "typos -w"
 language = "system"
-entry = "mise x -- typos -w --force-exclude"
+entry = "mise x -- typos -w"
 files = '\.md$'
+exclude = '^CHANGELOG\.md$'
 stages = ["pre-commit"]
 
 [[repos.hooks]]
 id = "typos-check"
 name = "typos"
 language = "system"
-entry = "mise x -- typos --force-exclude"
+entry = "mise x -- typos"
 exclude = '\.md$'
 stages = ["pre-commit"]
 ```
 
-**`-w` on every file.** One line changes:
-`entry = "mise x -- typos -w --force-exclude"`. A deliberate misspelling in a
-test is then rewritten, and the writer must notice it in the diff before staging
-it again.
+⚠️ **This breaks a sentence of `a-gate-owns-the-mechanical.md`:** *"Where a fixer
+exists it writes, and a checker is not put in its place."* The second hook is a
+checker in the fixer's place, so the record must name the exception.
+
+**`-w` on every file.** `entry = "mise x -- typos -w"`, with
+`exclude = '^CHANGELOG\.md$'`. A deliberate misspelling in a test is then
+rewritten, and the writer must notice it in the diff before staging it again.
 
 ## 3. Where `harper-ls` is declared
 
@@ -301,6 +310,7 @@ Markdown, and nobody writes that Markdown in an editor.
 | `q1-history.sh` | does #249's class recur? |
 | `lock.sh` | what does each candidate cost `mise.lock`? |
 | `q2-typos.sh` | what does each typos hook do to a commit? |
+| `q2-exclude.sh` | does prek's `exclude` keep `-w` out of `CHANGELOG.md`? |
 | `q2-where.sh` | what would `-w` rewrite in a tree that already spell-checks? |
 | `q2-history.sh` | when a person fixed a typo, did `-w` write the same fix? |
 | `q3-harper.sh` | what does Harper raise on purba's Markdown? |

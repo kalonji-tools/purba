@@ -1,0 +1,10 @@
+id = "typos"
+name = "typos -w"
+language = "system"
+entry = "mise x -- typos -w"
+files = '\.md$'
+exclude = '^CHANGELOG\.md$'
+stages = ["pre-commit"]
+md: exit 1, file `The receive step.`, second commit exit 0
+sh: exit 1, line `# recieve the list`, failed: typos
+CHANGELOG.md: exit 0, file `A recieve entry.`
