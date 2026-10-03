@@ -8,7 +8,7 @@ Five locations record why a change is the way it is, and they repeat each other.
 |---|---|
 | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) |
 | decision record | [a decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) |
-| pull request | [a register belongs to one location](a-register-belongs-to-one-location.md), until `.github/PULL_REQUEST_TEMPLATE.md` is written |
+| pull request | `.github/PULL_REQUEST_TEMPLATE.md` |
 | published comment | the language's convention for voice, and [a register belongs to one location](a-register-belongs-to-one-location.md) for which artifact earns one |
 | unpublished comment | nothing, and this record ends that |
 
