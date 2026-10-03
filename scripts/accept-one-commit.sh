@@ -18,7 +18,10 @@
 # Exits 2 when it cannot run.
 set -euo pipefail
 
-: "${TRAILER:?the acceptance trailer reaches this script through the environment}"
+if [[ -z "${TRAILER:-}" ]]; then
+  echo "TRAILER reaches this script through the environment, and it is empty here." >&2
+  exit 2
+fi
 
 # Read the trailer, never the message. The decision above says why.
 #

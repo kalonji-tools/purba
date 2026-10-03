@@ -19,7 +19,10 @@ if [[ $# -ne 2 ]]; then
   exit 2
 fi
 
-: "${GH_REPO:?set by the workflow env}"
+if [[ -z "${GH_REPO:-}" ]]; then
+  echo "GH_REPO is set by the workflow env, and it is empty here." >&2
+  exit 2
+fi
 
 run=$1
 issue=$2
