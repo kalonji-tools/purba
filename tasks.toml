@@ -44,6 +44,11 @@ description = "Refuse a package that two manifests declare, and any in pyproject
 shell = "bash -c"
 run = "scripts/check-manifests.sh"
 
+["lint:readers"]
+description = "Refuse a tracked file that reaches no actor, and a name off the roster"
+shell = "bash -c"
+run = "scripts/check-readers.sh"
+
 [clippy]
 description = "Refuse a lint"
 run = "cargo clippy --all-targets"
@@ -93,6 +98,7 @@ depends = [
   "lint:style",
   "lint:placement",
   "lint:manifests",
+  "lint:readers",
   "records",
   "clippy",
   "doc",
