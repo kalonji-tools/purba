@@ -77,18 +77,21 @@ name = "no full stop before the reference"
 stages = ["commit-msg"]
 args = ["-m", "\\A[^\\n]*[.!?]\\s*\\(#\\d+\\)\\s*$"]
 
-# Both entries reach their tool through mise, and neither may be called
-# directly. On PATH alone a hook finds no tool, and prek exits 2 without
-# running it.
+# Every entry reaches its tool through mise, and none may call it directly. On
+# PATH alone a hook finds no tool, and prek exits 2 without running it.
 # https://github.com/jdx/mise/discussions/6830
 [[repos]]
 repo = "local"
 
+# `CHANGELOG.md` is generated, and only its generator writes to it.
+#
+#   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
 [[repos.hooks]]
 id = "typos"
-name = "typos"
+name = "typos --write-changes"
 language = "system"
-entry = "mise x -- typos"
+entry = "mise x -- typos --write-changes"
+exclude = '^CHANGELOG\.md$'
 stages = ["pre-commit"]
 
 [[repos.hooks]]
