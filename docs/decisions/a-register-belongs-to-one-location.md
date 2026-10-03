@@ -91,13 +91,12 @@ Python's `__doc__` and the type stub render the Rust doc comment.
 A location does not open without a reader and a register.
 Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 
-**Nothing here is gated, with one exception.**
+**A gate holds the decision record's register.**
 
-The pull request is the one location purba could gate, because it has a merge event and `main` already requires a status check.
-A register is worth stating and is not worth refusing a merge over.
-
-The exception is [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md), which gates link liveness inside an unpublished comment.
-Everything else about that location is convention.
+`mise run records` refuses a record that breaks a rule a command can decide.
+`Quality` runs it on every pull request.
+Considered Options says why no gate holds the pull request's register or the issue's.
+purba's other registers are convention.
 
 The pull request's constraint is the one this record holds, because that register does not exist yet:
 a pull request must carry a section addressed to the human reviewer that names what they must decide.
@@ -117,17 +116,16 @@ These are titles for the parties to one pull request, and the roster in [an acto
 
 | location | its register | decidable | gated |
 |---|---|---|---|
-| commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no |
-| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | no |
+| commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no, `commit-msg` hooks refuse at the commit |
+| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | yes, `mise run records` |
 | `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no |
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
-| published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | no |
-| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness only | that one property, and nothing else |
+| published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `clippy` for a Rust doc comment |
+| unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness only | no, that gate is not wired |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | no |
 
-One row is gated, and only for link liveness.
-Two could be, and Considered Options says why.
+[Does purba wire the link gate its record describes, or refuse it?](https://github.com/kalonji-tools/purba/issues/255) owns the link-liveness gate.
 
 Five locations are closed and hold no register.
 

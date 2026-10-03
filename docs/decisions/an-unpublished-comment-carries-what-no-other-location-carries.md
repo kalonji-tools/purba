@@ -38,7 +38,7 @@ Each of the three cites the closed issue that produced the record, so the pointe
 ## Considered Options
 
 - **Locality: a comment explains the line it sits on.** Rejected. All three duplicated blocks pass it, because each is local to the line it sits on.
-- **A comment-to-code ratio.** Rejected. [A register belongs to one location](a-register-belongs-to-one-location.md) refused it by name. Removing the duplicated lines improves `Cargo.toml` and raises every ratio computable over it.
+- **A comment-to-code ratio.** Rejected. Removing the duplicated lines improves `Cargo.toml` and raises every ratio computable over it.
 - **A separate register for configuration.** Rejected. The split between configuration and code counts violations rather than a difference in kind, and the admission test below names configuration.
 - **Trap-only: a comment exists to stop a wrong edit.** Rejected as the whole rule. Whether an edit is plausible is a judgement. It survives inside the admission test.
 - **Subtraction: a comment carries what the other locations do not.** Chosen. It removes the duplicated lines by construction.
@@ -113,8 +113,7 @@ The gate is not wired.
 An extension list cannot name a tracked file that has no extension, and `CODEOWNERS` is one.
 So the input set above cannot reach every tracked file that holds an address.
 Naming further extensions does not repair it, because the gap is the absence of an extension.
-[Which tools does mise.toml name, and how does it record a tool that is refused?](https://github.com/kalonji-tools/purba/issues/113) owns whether a tool file names this checker.
-Its roster records the checker as living in this record alone.
+[Does purba wire the link gate its record describes, or refuse it?](https://github.com/kalonji-tools/purba/issues/255) decides whether purba wires the gate.
 
 Nothing decides whether a comment that survives the subtraction was worth writing.
 That fails as friction.
