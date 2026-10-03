@@ -115,3 +115,12 @@ setup() {
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"the check runs on abc123 could not be read."* ]]
 }
+
+@test "an answer whose check runs are not objects exits 2" {
+  fake gh <<<'echo "{\"check_runs\":[1]}"'
+
+  run "${script}" abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the check runs on abc123 could not be read."* ]]
+}
