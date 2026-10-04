@@ -71,6 +71,8 @@ The routing is live and enforcing:
 Read the routing back from the ruleset, not from here: `required_approving_review_count`, `require_code_owner_review` and the absence of a path condition are what decide it.
 
 The block on an approval of your own pull request keys on identity, and one human is in the organisation.
+`require_last_push_approval` stays off, because with it on a change that human pushes to a pull request needs the approval of somebody else.
+GitHub does not count a push that leaves the tree unchanged as the last push, so the `sign` job's rewrite never trips it.
 A required approval records who accepted a change and pins it to a commit.
 It does not produce a second reader.
 

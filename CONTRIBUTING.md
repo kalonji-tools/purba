@@ -149,8 +149,9 @@ in a file your branch changes is checked on the network, so a server that does
 not answer refuses your branch. `Build` refuses a failing Rust test, and a wheel
 that does not build or does not load, on every platform and Python purba
 supports. `Sign-off` records that purba accepted the branch. Your branch must
-also be current with `main`, so a branch that has fallen behind is rebased and
-reviewed against what is there now.
+also be current with `main` (`strict_required_status_checks_policy`), so a
+branch that has fallen behind is rebased and reviewed against what is there
+now.
 
 A fourth check, `Scripts`, refuses a failing test of purba's own scripts, and
 runs those tests only where your branch changes one. purba does not sign a
@@ -190,8 +191,6 @@ branch whose replay would change your content.
 The runs GitHub holds on that commit carry no jobs, and a run with no jobs
 reports no check, so nothing waits on them. The pull request offers to approve
 them anyway, and marks that offer with a warning.
-
-A commit GitHub cannot attribute to an account costs a further approval.
 
 The merge is a rebase. Squash and merge commits are both off, so your commits
 land one at a time and each message survives as you wrote it.
