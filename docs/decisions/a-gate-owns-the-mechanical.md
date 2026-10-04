@@ -21,11 +21,6 @@ Three, weighed against the published configuration of eighteen projects and agai
 - **A severity chosen where the tree is already clean.** Rejected. One of the eighteen documents the practice, and its reason is a backlog too large to repair now. purba's was four findings against nineteen lines of Rust. ⚠️ **The practice also fails on its own terms.** A floor at `warning` keeps `SC1090`, which is merely noisy, and drops `SC2102`, which is the class that put an unquoted glob into a workflow.
 - **The strictest setting the tool offers, with every exclusion named.** Chosen.
 
-A normaliser's style was weighed separately.
-
-- **Tabs, so that each reader chooses the width.** It is the only indentation that adapts to its reader, and GitHub carries a per-account setting for it. Rejected on consistency: nothing in the tree is tab-indented, and YAML forbids tabs outright, so the file a script's reader arrives from cannot match it.
-- **Two spaces, stated once for every language that admits the same value.** Chosen.
-
 ## Decision Outcome
 
 **A gate owns every standard a reviewer would otherwise state by hand.**
@@ -35,11 +30,7 @@ A tool that detects runs at the strictest setting it offers, with every optional
 A check is dropped only where it is named together with the reason it is dropped, at the location a reader meets the code.
 
 A tool that normalises has one location for its style, and tolerates no deviation from it.
-**The style is chosen for the human who reads the code**, because a machine reads any style the syntax admits.
-Consistency across languages is part of that legibility: a reader should not change indentation systems at a file boundary.
-
-⚠️ **A language whose own rules make a different value load-bearing is stated per language, with the constraint as the reason.**
-Markdown is that case: a table row is one line by its syntax, so no line length is stated for it.
+[A normaliser's style is chosen for the human who reads the code](a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md) says which style.
 
 **A standard nothing can fix is still stated, and then it is only checked.**
 Line length is that standard, because no formatter wraps a line.
