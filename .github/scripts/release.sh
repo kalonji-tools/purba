@@ -182,8 +182,8 @@ mise run sign-off
 git push --force-with-lease origin HEAD:${branch}
 \`\`\`
 
-**Merging this cuts no tag.** The merge gives the commit a new SHA, so dispatch \`Release\` \
-again after it lands, and that run tags \`v${next}\`.
+**Merging this cuts no tag.** The merge gives the commit a new SHA, so the next run of \
+\`Release\` tags \`v${next}\`, whether the schedule or a dispatch starts it.
 
 Opened by \`.github/workflows/release.yml\`, which \
 [#${issue}](https://github.com/${GH_REPO}/issues/${issue}) owns.

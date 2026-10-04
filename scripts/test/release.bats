@@ -1,4 +1,4 @@
-# .github/scripts/release.sh against each step a dispatch can owe.
+# .github/scripts/release.sh against each step a run can owe.
 : "${BATS_TEST_DIRNAME:?set by bats}"
 
 setup() {
@@ -88,6 +88,16 @@ released() {
   [[ "${asked}" == *"https://github.com/owner/name/issues/43"* ]]
   tags=$(git --git-dir="${origin}" tag)
   [[ -z "${tags}" ]]
+}
+
+@test "the pull request says the next run tags the version, whether scheduled or dispatched" {
+  run "${script}" release/next 43
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  said="the next run of \`Release\` tags \`v0.1.0\`, whether the schedule or a dispatch starts it."
+  [[ "${asked}" == *"${said}"* ]]
+  [[ "${asked}" != *"again after it lands"* ]]
 }
 
 @test "the commit is the bot's, carries no sign-off, and writes the version once on each side" {
