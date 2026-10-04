@@ -111,5 +111,4 @@ Each step leaves something a reader can look for.
 | the pull request asks for review | it is not a draft |
 | the history was kept | the pull request shows no force push between two review rounds |
 
-[What should the label roster name: the act, or the actor?](https://github.com/kalonji-tools/purba/issues/129) decides the label names.
 [`AGENTS.md`](../../AGENTS.md) carries these steps to an agent before it acts.
