@@ -76,7 +76,6 @@ Buying a lower floor is deferred to whatever publishes wheels, and zig is the me
 - **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing today because nobody installs these wheels, and will cost something the day somebody does.
 - **The toolchain's entry records a version and verifies none.** `core:rust` downloads no artifacts and so carries no checksum.
 - **The entry for `bats` verifies nothing either.** `mise lock` records a URL for it and no checksum.
-- **The toolchain is the one tool named by a date.** Somebody must move that date or purba freezes on one compiler, and [Bump the pinned nightly on a schedule, and regenerate the lockfile with it](https://github.com/kalonji-tools/purba/issues/190) owns the moving.
 - **Nothing moves mise's own pinned version.** mise cannot pin itself, and no bot reads a workflow input.
 - **The lockfile is not complete by default.** `mise lock` skips what it cannot fetch and reports success anyway, and an unauthenticated GitHub rate limit is enough to cause that. An entry carrying a stale tool option splits in two, and then fails on the platform that produced it.
 
@@ -102,11 +101,10 @@ Its not-in-lockfile error is withheld under the same condition, so an unlocked r
 Every other tool in `mise.toml` satisfies that by accident, and no lockfile entry reveals it.
 
 The toolchain is therefore named by a date, which resolves only to itself.
-[purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) holds that choice.
+[The nightly is named by a date](the-nightly-is-named-by-a-date.md) holds that choice.
 
 | property | check |
 |---|---|
-| the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
 | the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
 
