@@ -34,7 +34,7 @@ jobs:
       # The script reads no git state and writes through the API, so it needs
       # neither history nor a credential left behind on disk. It needs the
       # checkout only because a workflow cannot run a file it has not fetched.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 

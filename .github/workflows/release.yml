@@ -43,7 +43,7 @@ jobs:
     steps:
       # `persist-credentials` stays on. The script pushes with it.
       # git-cliff computes the version from every tag, so the clone is whole.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

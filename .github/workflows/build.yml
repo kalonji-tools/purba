@@ -41,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: jdx/mise-action@v4
         with:
           version: ${{ env.MISE_VERSION }}
@@ -67,7 +67,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # mise supplies the Rust toolchain and maturin, and runs first so that the
       # interpreter below wins the PATH.
@@ -75,7 +75,7 @@ jobs:
         with:
           version: ${{ env.MISE_VERSION }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
 

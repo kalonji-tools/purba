@@ -32,7 +32,7 @@ jobs:
     steps:
       # A pull request is checked out as its merge commit, whose first parent
       # is the base.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
