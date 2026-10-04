@@ -1,0 +1,16 @@
+# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+#
+# Add only what the gate's refusal names. A licence that one crate needs is an
+# exception for that crate.
+
+[licenses]
+allow = ["MIT"]
+confidence-threshold = 1.0
+include-dev = true
+unused-allowed-license = "deny"
+unused-license-exception = "deny"
+
+exceptions = [
+  { crate = "unicode-ident", allow = ["Unicode-3.0"] },
+  { crate = "target-lexicon", allow = ["Apache-2.0 WITH LLVM-exception"] },
+]

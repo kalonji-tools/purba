@@ -18,6 +18,7 @@ Cargo.toml                        coder packager
 pyproject.toml                    stem packager
 Cargo.lock                        packager
 LICENSE                           packager
+deny.toml                         toolsmith packager
 
 mise.toml                         toolsmith
 mise.lock                         toolsmith
