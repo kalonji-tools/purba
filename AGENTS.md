@@ -28,7 +28,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Open it as a draft, and write the implementation plan before the implementation. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - Write the implementation plan in the body, under the headings of [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). ([a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#decision-outcome))
 - Where a runner executes the change, follow TDD: put the test list in the plan, and push the test alone until its run fails. ([an implementation follows test-driven development](docs/decisions/an-implementation-follows-test-driven-development.md#decision-outcome))
-- Answer one issue with one pull request. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+- Answer one issue with one pull request. ([one pull request answers one issue](docs/decisions/one-pull-request-answers-one-issue.md#decision-outcome))
 - Read your own branch after the implementation, and post what you find as a comment on the pull request. ([post pass](CONTEXT.md#post-pass))
 - Find the commands you may run with `mise tasks ls`. ([`tasks.toml`](tasks.toml))
 
