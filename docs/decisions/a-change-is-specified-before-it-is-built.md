@@ -7,7 +7,6 @@ The sequence was decided on an issue that closed with no pull request, so its an
 
 The answer itself drifted.
 Later decisions removed some of its gates and changed another, and the comment still reads as current.
-A second rule, on how many issues one pull request answers, was decided the same way and sits in no file either.
 
 ## Considered Options
 
@@ -83,9 +82,7 @@ Once the reviewer is satisfied, the commits may be reduced to the ones [a commit
 The person then signs the branch, and [`CONTRIBUTING.md`](../../CONTRIBUTING.md) says how.
 No sign-off is owed before that.
 
-**One pull request answers one issue.**
-Nothing bounds the number of records it rewrites.
-A second issue rides along when one change answers both, and the pull request says so.
+[One pull request answers one issue](one-pull-request-answers-one-issue.md).
 
 **A [debrief](../../CONTEXT.md#debrief) is owed when the merged change differs from its implementation plan.**
 
@@ -112,7 +109,6 @@ Each step leaves something a reader can look for.
 | the issue is specified | `gh issue view <n> --json issueType` |
 | the spec came first | a comment on the issue, earlier than the pull request |
 | the pull request asks for review | it is not a draft |
-| one issue is answered | `gh pr view <n> --json closingIssuesReferences` |
 | the history was kept | the pull request shows no force push between two review rounds |
 
 [What should the label roster name: the act, or the actor?](https://github.com/kalonji-tools/purba/issues/129) decides the label names.
