@@ -64,7 +64,7 @@ The link is prose inside the section it bears on, and never a status field.
 Issue numbers never appear in record prose.
 The record states what is true, the issue states what happened, and the prototype leaked 417 issue references the wrong way across that line.
 
-A link titled by the question its ticket asks is the exception, and it is a citation of the question rather than of the number.
+A link titled by the question its issue asks is the exception, and it is a citation of the question rather than of the number.
 A title is falsifiable where it stands and a bare number is not. A reader who never opens the link still knows what was claimed.
 
 A programme is a milestone, not a record.
@@ -73,7 +73,7 @@ A programme is a milestone, not a record.
 
 - **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, a command that cannot see content, and [a new question gets a new record](a-new-question-gets-a-new-record.md).
 - **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift in an audit of a large Consequences section.
-- **A record must be rewritten whenever a ticket it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it. A ticket can close for reasons that have nothing to do with the record that named it.
+- **A record must be rewritten whenever an issue it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it. An issue can close for reasons that have nothing to do with the record that named it.
 
 ## Confirmation
 
@@ -84,20 +84,20 @@ A programme is a milestone, not a record.
 | the four sections are present, in order | strong |
 | record prose carries no bare issue number | strong |
 | source carries no numbered-record citation | strong |
-| a Confirmation that says a gate is unwired names the ticket that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
+| a Confirmation that says a gate is unwired names the issue that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
 
 The command refuses nothing at a commit and nothing at a merge.
 Whether a sentence admits an unwired gate is a judgement, so the check that finds one may suggest and may not gate.
 It is run by hand before a pull request opens.
 [Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) repairs the records it refuses, and the command joins the quality gate once they land.
 
-Whether a ticket a record names as owing work is still open is read by the same reader, and no check decides it.
-A record cites two kinds of ticket.
+Whether an issue a record names as owing work is still open is read by the same reader, and no check decides it.
+A record cites two kinds of issue.
 The first is one it waits on, and it must be open.
 The second records where a measurement was made, and it is closed by the time it is cited.
 One record here cites both, so a state check alone refuses it wrongly.
 
-A merged record links a ticket that closed while the gate it owned stayed unwired, and nothing read the two together.
+A merged record links an issue that closed while the gate it owned stayed unwired, and nothing read the two together.
 The fourth check reads the link and never the claim, because the link is the part a command can decide.
 
 Two things are never gateable: whether a record states one decision, and whether it is still true.

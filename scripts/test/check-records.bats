@@ -456,7 +456,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"names the ticket that will wire it"* ]]
+  [[ "${output}" == *"names the issue that will wire it"* ]]
   [[ "${output}" == *$'has an owner.\n  '"${record}"* ]]
 }
 
@@ -466,7 +466,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"names the ticket that will wire it"* ]]
+  [[ "${output}" == *"names the issue that will wire it"* ]]
 }
 
 @test "a Confirmation that names the issue passes" {

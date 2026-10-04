@@ -82,6 +82,6 @@ This record fixes the choice and the version.
 
 The version mapping above is evidence, frozen at this decision.
 Whoever first raises a pin reads it against `cargo tree`.
-No ticket owns that reading, because a check has nothing to run against until a pin exists.
+No issue owns that reading, because a check has nothing to run against until a pin exists.
 The commit that first names a ruff crate carries the declaration and that check together.
 A prescan turns this into a fitness function, and counts parse failures against a corpus.
