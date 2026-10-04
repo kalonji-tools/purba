@@ -125,6 +125,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `clippy` for a Rust doc comment |
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
+| refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | no, and [Refuse a refusal that names a record](https://github.com/kalonji-tools/purba/issues/272) wires the second |
 
 Five locations are closed and hold no register.
 
