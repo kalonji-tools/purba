@@ -42,7 +42,6 @@ esac
 toml=mise.toml
 lock=mise.lock
 
-# The identity GitHub can attribute to an account. CONTRIBUTING.md says why.
 author="github-actions[bot]"
 email="41898282+github-actions[bot]@users.noreply.github.com"
 
