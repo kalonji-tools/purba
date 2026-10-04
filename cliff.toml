@@ -1,0 +1,37 @@
+# The register of CHANGELOG.md. git-cliff writes that file from this and the
+# commit subjects, and nothing else writes it.
+#
+#   the workflow:  .github/workflows/release.yml
+#   the decision:  docs/decisions/a-register-belongs-to-one-location.md
+# https://git-cliff.org/docs/configuration/
+
+[changelog]
+# git-cliff puts a line break after the header, and each release opens with
+# one more. So every heading has one blank line above it.
+header = "# Changelog"
+body = """
+{{ "\n" }}## {{ version | trim_start_matches(pat="v") }}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {{ commit.message | split(pat="\n") | first | trim }}\
+{% endfor %}
+{% endfor %}\
+"""
+trim = false
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+tag_pattern = "v[0-9]*"
+# The number in each comment sorts the groups.
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Added" },
+  { message = "^fix", group = "<!-- 1 -->Fixed" },
+  { message = ".*", skip = true },
+]
+
+[bump]
+initial_tag = "v0.1.0"
+features_always_bump_minor = false
+breaking_always_bump_major = false

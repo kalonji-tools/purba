@@ -1,0 +1,61 @@
+# The workflow that proposes a release, and tags it once it merges. It signs
+# nothing.
+#
+#   the work:      .github/scripts/release.sh
+#   the register:  cliff.toml
+#   the decision:  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+#
+# ⚠️ Keep the shell in the script. The only shell here calls it.
+name: Release
+
+on:
+  # ⚠️ This trigger exists only while this file is on the default branch.
+  # https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+  workflow_dispatch:
+
+permissions:
+  # The script pushes the proposal branch and the tag with this token.
+  contents: write
+  # `pull-requests:` is absent: the App token opens the pull request.
+
+concurrency:
+  group: release
+  # Never `true`. Cancelled between the push and the pull request, the branch
+  # exists with nothing pointing at it.
+  cancel-in-progress: false
+
+env:
+  MISE_VERSION: 2026.9.14
+  BRANCH: release/next
+  # The issue the release commit cites, and the only place this number lives.
+  ISSUE: 43
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # `persist-credentials` stays on. The script pushes with it.
+      # git-cliff computes the version from every tag, so the clone is whole.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@v4
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      # ⚠️ `GITHUB_TOKEN` cannot open a pull request here. The record named
+      # above holds why, and what this token may and may not do.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          app-id: ${{ secrets.BUMP_APP_ID }}
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
+      - name: Tag the version main names, or propose the next
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+        run: .github/scripts/release.sh "$BRANCH" "$ISSUE"

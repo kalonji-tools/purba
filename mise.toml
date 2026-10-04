@@ -55,6 +55,10 @@ jq = "1"
 # https://lychee.cli.rs
 lychee = "0.24"
 
+#   the register:  cliff.toml
+# https://git-cliff.org
+git-cliff = "2"
+
 [settings]
 # This must be what creates `mise.lock`: a file made with `touch` reads as an
 # older format and loses its version header and every `specifiers` row.

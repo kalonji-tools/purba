@@ -19,12 +19,14 @@ pyproject.toml                    stem packager
 Cargo.lock                        packager
 LICENSE                           packager
 deny.toml                         toolsmith packager
+CHANGELOG.md                      user
 
 mise.toml                         toolsmith
 mise.lock                         toolsmith
 tasks.toml                        toolsmith
 prek.toml                         toolsmith
 lychee.toml                       toolsmith
+cliff.toml                        toolsmith
 _typos.toml                       toolsmith
 .editorconfig                     toolsmith
 .shellcheckrc                     toolsmith
