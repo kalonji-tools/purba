@@ -12,6 +12,9 @@
 # should not have to run it again to find the next.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/report.sh"
+
 dir=${1:-docs/decisions}
 
 # A leading dot does not match `*`, so the template is excluded by the glob
@@ -45,10 +48,10 @@ admits='not wired|not written yet|does not exist yet|by hand|\| *no *\|'
 
 broken=0
 
+# The blank line keeps one refusal apart from the next in a terminal.
 refuse() {
-  printf '\n%s\n' "$1" >&2
-  shift
-  printf '  %s\n' "$@" >&2
+  printf '\n' >&2
+  report "$1" "$(printf '  %s\n' "${@:2}")"
   broken=1
 }
 
