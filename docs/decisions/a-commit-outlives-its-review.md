@@ -148,9 +148,8 @@ A command that reads existence accepts such a typo.
 | substitutions possible | 1329 |
 | of those, naming a real issue | 1026 |
 
-[A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) rules on what follows.
+[A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) rules on what follows.
 A detector good enough to suggest is not good enough to gate.
-A standard a gate cannot decide does not become one.
 Nothing here owes a ticket, because purba decided against this check and did not defer it.
 
 The planned-series row is weak in both directions.

@@ -48,10 +48,7 @@ Where a fixer exists it writes, and a checker is not put in its place.
 `typos` writes in every file except a generated one.
 The Downside below names what that costs.
 
-⚠️ **A standard a gate cannot decide does not become a gate.**
-The record states it, the reader judges it, and nothing blocks on it.
-A gate over a judgement measures only that someone clicked.
-A reader who judged nothing satisfies it exactly as well.
+[A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) holds the converse.
 
 ⚠️ **A setting chosen because the tree already passes there is refused.**
 It reports the tree's current state as though that were the standard, and the two are indistinguishable afterwards.
@@ -76,9 +73,6 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
   The tree holds no such exclusion, because the shell that needed one moved into a file where a line-scoped directive works.
 - ⚠️ **What is generated is named in files that cannot see each other.**
   `.gitattributes` marks it for review, the style file excludes it from the standard, and `prek.toml` excludes one that `typos` would otherwise read. A generated file added to one and not the others gains a check it will fail, or a fix nobody wrote.
-- **Where no gate stands over a judgement, nothing records that one was made.**
-  The approving review is the only trace, and it does not say what was read.
-  [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) took that trade knowingly, and a resolved thread never survived a clone either.
 
 ## Confirmation
 
@@ -125,10 +119,3 @@ Twelve of them renamed a name that a test misspells on purpose.
 | `cargo fmt` | the tree needs no rewrite | it formats a misformatted `.rs` file and stops the commit |
 
 `quality` keeps `fmt:check`, because CI cannot write.
-
-The refusal of a gate over a judgement was measured on the only one this project built, in [Is the Decision Outcome rule a project goal, and if not, what is it doing in the merge path?](https://github.com/kalonji-tools/purba/issues/96).
-
-What is checkable here is the endpoint.
-A record comment arrives through `issues/{number}/comments`, which carries nothing to resolve.
-`required_review_thread_resolution` therefore cannot reach it.
-A review comment would be reached, and that is the whole distance between a message and a gate.

@@ -2,7 +2,7 @@
 # The comment a pull request gets when it changes a decision record.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
-#                  docs/decisions/a-gate-owns-the-mechanical.md
+#                  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
 # Exits 0 when no comment is owed and when one is already present.
