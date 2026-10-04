@@ -1,0 +1,15 @@
+# What proposes a newer version of each action the workflows use. It signs nothing.
+#
+#   the decision:  docs/decisions/dependabot-proposes-each-newer-action.md
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
