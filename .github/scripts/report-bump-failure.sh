@@ -65,5 +65,6 @@ bump runs clean.
 BODY
 )
 
-number=$(gh issue create --repo "${GH_REPO}" --title "${title}" --label bug --body "${body}")
+number=$(gh issue create --repo "${GH_REPO}" --title "${title}" \
+  --label bug --label wayfinder:task --body "${body}")
 echo "opened ${number}"
