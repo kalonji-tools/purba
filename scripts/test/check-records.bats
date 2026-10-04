@@ -493,6 +493,18 @@ words() {
   [[ "${output}" == *"Bold opens a sentence and never sits inside one"* ]]
 }
 
+@test "on a runner each rule a record breaks is one annotation" {
+  prose "Something — as #45 said — needs it."
+
+  GITHUB_ACTIONS=true run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  annotations=$(grep -c '^::error::' <<<"${output}" || true)
+  [[ "${annotations}" -eq 2 ]]
+  [[ "${output}" == *"::error::A record states what is true"*"%0A  ${record}:5:"* ]]
+  [[ "${output}" == *"::error::A record carries no em-dash"*"%0A  ${record}:5"* ]]
+}
+
 @test "the passive voice and a formal word are reported and never refused" {
   prose "The gate is refused by nothing. We utilize it."
 
