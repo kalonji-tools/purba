@@ -49,6 +49,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 ## When you write a record
 
+- Put the answer to a new question in a new record. A question is new when no title on `main` answers it. ([a new question gets a new record](docs/decisions/a-new-question-gets-a-new-record.md#decision-outcome))
 - Replace the text of a record. Never annotate it. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome))
 - Leave the Decision Outcome to the person. You may draft it. ([architectural significance is declared, not detected](docs/decisions/significance-is-declared-not-detected.md#decision-outcome))
 - Define no word in a record. A word that is specific to purba goes in `CONTEXT.md`. ([a term belongs to the glossary](docs/decisions/a-term-belongs-to-the-glossary.md#decision-outcome))
