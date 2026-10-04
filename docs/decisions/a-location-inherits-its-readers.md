@@ -41,13 +41,14 @@ A reviewer reaches every location by what its role is, and a role that spans eve
 
 **Along the derivation chain.**
 A location built from another inherits that source's readers and is never authored twice.
-A commit message and a pull request derive from the paths they touch.
+A commit message and a pull request derive from the paths they touch, and a [refusal](../../CONTEXT.md#refusal) from what it refuses.
 `CLAUDE.md` derives from `AGENTS.md`.
 Gitattributes syntax cannot say so.
 Both files name one macro, so their readers are still written once.
 
 **A tracked file that reaches no actor fails the build.**
-The failure asks three questions and does not report a broken rule: should this file exist, what does it serve, and for whom.
+The failure states the rule, as [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) requires.
+It then asks three questions: should this file exist, what does it serve, and for whom.
 Adding a file forces the question of who it is for, and the answer is the binding.
 The tree stays organised as a side effect of being readable.
 
@@ -71,6 +72,7 @@ The check therefore runs git in an empty repository, where `.readers` is the onl
 - **The roster check reads the names off each line itself, and git does not.** A quoted pattern that holds a space splits in two. The check refuses the second half as a name off the roster, while git resolves the same line correctly.
 - ⚠️ **The check cannot tell a file that correctly has no reader from one nobody considered.** A lock file may be read by nobody, and both states look identical.
 - **A binding placed high and loosely silences every file beneath it**, and nothing detects a binding that is technically true and useless.
+- **A refusal of a file that reaches no actor inherits no reader.** A branch that adds only that file reaches nobody.
 
 ## Confirmation
 

@@ -108,6 +108,10 @@ An [actor](#actor) that a [location](#location) serves. A location inherits its 
 
 A Markdown file under `docs/decisions/`, titled with a proposition, that reads as current state. It is replaced rather than annotated.
 
+### Refusal
+
+The [location](#location) a check writes into when it exits 1 on a contributor's work. What a check writes when it cannot run is not a refusal.
+
 ### Register
 
 How information is distributed within one [location](#location). A register belongs to one location and is never compared across two.
