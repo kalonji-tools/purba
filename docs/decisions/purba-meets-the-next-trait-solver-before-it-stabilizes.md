@@ -32,21 +32,6 @@ Stabilizing it is the sitting 2026 project goal, and it carries 115 open bug rep
 
 Only the second row can strand purba on nightly, and only through code purba writes itself.
 
-A second question arrives with the channel, because the channel has to be named in a file.
-[One manifest declares each package](one-manifest-declares-each-package.md) already decided which file that is, and the tree contradicted it.
-`rust-toolchain.toml` named a stable release under a comment describing a removed environment.
-Leaving both files in place is not a neutral duplication.
-Three of rustup's five precedence ranks decide why.
-
-| rustup precedence | rank |
-|---|---|
-| `cargo +toolchain` on the command line | 1 |
-| `RUSTUP_TOOLCHAIN`, which mise sets | 2 |
-| `rust-toolchain.toml` | 4 |
-
-A toolchain file that disagrees with mise loses inside a mise shell and wins in any job that does not run through mise.
-Nothing reports the difference.
-
 ## Considered Options
 
 **What the channel buys.**
@@ -64,23 +49,7 @@ Nothing reports the difference.
 
 purba builds on Rust nightly to meet the next generation trait solver before it reaches stable.
 
-**Which nightly.**
-
-The nightly is named once, in `mise.toml`, as a date.
-`mise.lock` records the same string, because mise derives an exact request's lock row from the request.
-A person moves the date.
-
-⚠️ **A floating name drifts, and no lockfile stops it.**
-[purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) holds the mechanism and what it costs.
-A date is an exact version, so it resolves only to itself, and this is the form mise documents.
-
-**This record used to refuse a second date**, predicting the two copies would disagree.
-For an exact request the lock row is derived from the request, so they cannot.
-`[env] RUSTUP_TOOLCHAIN` is refused instead: it overrides what the backend installs and says nothing when the two differ.
-
-**`rust-toolchain.toml` is deleted here.**
-This follows from [one manifest declares each package](one-manifest-declares-each-package.md) and decides nothing new, and the deletion is what stops the tree contradicting that record.
-Between this change and the substrate, purba names no toolchain anywhere, which costs nothing because nothing in the tree compiles Rust yet.
+[The nightly is named by a date](the-nightly-is-named-by-a-date.md) says which nightly.
 
 **A nightly only feature with no stable fallback is refused inside the product crate.**
 Outside it the feature is allowed, and the ticket that uses it names its fallback.
@@ -113,7 +82,7 @@ The warrant is always exactly one record, and never one record per feature.
 It fails on the day purba first writes code the old solver rejects.
 That is the day the return to stable stops being one decision wide.
 
-The `+` form is rank 1 in the table above, and the toolchain mise exports is rank 2.
+rustup ranks the `+` form above `RUSTUP_TOOLCHAIN`, which mise sets.
 So this runs inside the ordinary environment and needs no second one.
 
 ⚠️ **Nothing runs it today.**

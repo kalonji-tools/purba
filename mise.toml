@@ -7,7 +7,8 @@
 min_version = "2026.8.6"
 
 [tools]
-#   the decision:  docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+#   the decisions: docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+#                  docs/decisions/the-nightly-is-named-by-a-date.md
 # https://mise.jdx.dev/lang/rust
 rust = { version = "nightly-2026-09-29", components = "clippy,rustfmt,rust-analyzer,rust-src" }
 
