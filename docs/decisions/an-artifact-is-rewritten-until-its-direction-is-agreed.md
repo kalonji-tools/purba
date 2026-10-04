@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-purba re-scopes its own tickets, and nothing marks the part that stopped being true.
+purba re-scopes its own issues, and nothing marks the part that stopped being true.
 A re-scope arrives as a comment, the body it contradicts stays unmarked, and the reader reconciles the two wrongly.
 
 On [Post the mandatory review threads that must be resolved before a merge](https://github.com/kalonji-tools/purba/issues/53), an agent read the body first and built design questions on a premise the re-scope already killed.
@@ -38,7 +38,7 @@ The latest of 17 edits across 202 comments lands 86 minutes after the comment ap
 
 ## Considered Options
 
-- **Strike the superseded spans in place.** Rejected. Tried on a live ticket: a strike across a multi sentence list item carrying bold and links renders as noise. It works on a heading and on nothing longer.
+- **Strike the superseded spans in place.** Rejected. Tried on a live issue: a strike across a multi sentence list item carrying bold and links renders as noise. It works on a heading and on nothing longer.
 - **A banner at the top of the body.** Rejected. It marks the body and leaves the dead text persuasive, which is the failure rather than a fix for it.
 - **A `superseded` label.** Rejected. It marks the issue and never the span, and the measured defect is span level.
 - **Rewrite, and preserve the old body in a comment.** Rejected. The platform already keeps every version, so the copy is a second thing to maintain and to disagree with the first.
@@ -78,7 +78,7 @@ The declaration is public, it is a string comparison, and lifting it is recorded
 A frozen artifact gains a pointer and never loses or changes content.
 A mark is a signal and never a licence: what permits a rewrite is that the artifact is not frozen yet.
 
-**A re-scope narrows, and anything else is two tickets.**
+**A re-scope narrows, and anything else is two issues.**
 
 | the original question | what to do |
 |---|---|
@@ -86,13 +86,13 @@ A mark is a signal and never a licence: what permits a rewrite is that the artif
 | was answered, abandoned or replaced | close the original as `not_planned` carrying its answer, and open a new issue linking back |
 
 The reason is duplicate work rather than tidiness.
-A re-purposed ticket hides the answer to the question it used to ask, so the next contributor asks it again.
+A re-purposed issue hides the answer to the question it used to ask, so the next contributor asks it again.
 Nobody can tell them it was already ruled out.
 `state_reason` is public in the plain issue payload, so delivered and ruled out stay distinguishable.
 
 **Two exceptions survive the freeze, both narrow.**
 A typed issue may still have a typo or a wrong filename corrected, because the question never changed, and it may still be narrowed.
-Anything that changes which question the number asks is two tickets.
+Anything that changes which question the number asks is two issues.
 
 **A closed issue is never re-scoped**, which follows: a re-purpose is a close and an open.
 
@@ -127,7 +127,7 @@ Every pointer then stays true and the history says the project went round the lo
 
 - **Nothing in the tracker is frozen yet.** 79 of 80 issues carry no type, so every one of them becomes a draft. That is arguably correct, since none was ever agreed this way, and it means the rule protects nothing until types are set.
 - **The freeze can be lifted.** Removing a type un-freezes an issue. The removal is public and recorded, so it cannot be done quietly, but nothing refuses it.
-- **Two tickets cost more than one rename**, against a standing preference here for a re-scope over a new ticket. Re-scoping is cheaper to write and more expensive to read, and this project has one writer and expects many readers.
+- **Two issues cost more than one rename**, against a standing preference here for a re-scope over a new issue. Re-scoping is cheaper to write and more expensive to read, and this project has one writer and expects many readers.
 - **Nothing enforces any of it.** Every check below reports and none gates, because an issue has no merge event.
 
 ## Confirmation

@@ -72,7 +72,7 @@ template carries the drafting instructions, and a leading dot keeps it out of th
 mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record states what is true and an issue states what happened, so record prose carries no \
-issue number. Title the link with the question its ticket asks." \
+issue number. Title the link with the question its issue asks." \
   "${found[@]}"
 
 # The two prose rules `docs/decisions/.template.md` states.
@@ -148,7 +148,7 @@ prose=$(awk '
   }
 
     # A link counts as one word, and its title is not read as prose. The rule above
-  # refuses an issue number in record prose and asks for the question its ticket
+  # refuses an issue number in record prose and asks for the question its issue
   # asks, so the title is owed rather than chosen. Charging its words to the
   # sentence would refuse the sentence that obeys that rule.
   function strip_link(s) {
@@ -477,7 +477,7 @@ for f in "${records[@]}"; do
   printf '%s\n' "${confirmation}" | grep -q 'purba/issues/[0-9]' || found+=("${f}")
 done
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A Confirmation that says a gate is unwired names the ticket that will wire it, so the promise \
+  "A Confirmation that says a gate is unwired names the issue that will wire it, so the promise \
 has an owner." \
   "${found[@]}"
 

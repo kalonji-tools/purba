@@ -47,7 +47,7 @@ The pull request has no shape to preserve.
 - **A register per location, written inside this record.** Rejected. [A record is rewritten, not amended](a-record-is-rewritten-not-amended.md) governs records. It points at its template and does not restate it. A rule kept three clicks from the person who writes is a rule they do not read.
 - **A template, relied on as the mechanism.** Rejected by the measurements above. A template reaches the web interface and reaches nothing else.
 - **A required status check over the pull request body.** Rejected. It is the one location purba could gate this way. The gate would buy a shape that costs nothing to state, and refuse work over a heading. The project would rather lose the guarantee than spend a reviewer's merge on prose.
-- **A workflow on every issue, checking its headings.** Rejected. An issue has no merge event, so the check can only label after the fact. It would fire on every ticket of one author who already follows the rule.
+- **A workflow on every issue, checking its headings.** Rejected. An issue has no merge event, so the check can only label after the fact. It would fire on every issue of one author who already follows the rule.
 - **A register per location, named here and written where that location's author reads it.** Chosen.
 
 ## Decision Outcome

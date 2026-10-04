@@ -52,7 +52,7 @@ purba builds on Rust nightly to meet the next generation trait solver before it 
 [The nightly is named by a date](the-nightly-is-named-by-a-date.md) says which nightly.
 
 **A nightly only feature with no stable fallback is refused inside the product crate.**
-Outside it the feature is allowed, and the ticket that uses it names its fallback.
+Outside it the feature is allowed, and the issue that uses it names its fallback.
 This keeps the one thing the stable check watches free of anything stable cannot compile.
 
 **This record expires when the solver stabilizes, and the channel does not expire with it.**
@@ -62,7 +62,7 @@ More nightly features can be taken up before that day, and each of them has its 
 |---|---|
 | the solver stabilizes | this record, because the reason it gives for the channel is discharged |
 | every nightly feature in use is stable | the channel, and the stable control build with it |
-| a feature stabilizes, or the channel goes | that feature's use, which takes the fallback its ticket named |
+| a feature stabilizes, or the channel goes | that feature's use, which takes the fallback its issue named |
 
 The control build outlives this record, because it detects drift from being on nightly at all rather than drift from the solver.
 
@@ -86,5 +86,5 @@ rustup ranks the `+` form above `RUSTUP_TOOLCHAIN`, which mise sets.
 So this runs inside the ordinary environment and needs no second one.
 
 ⚠️ **Nothing runs it today.**
-[Write the quality workflow](https://github.com/kalonji-tools/purba/issues/36) wires it, and that ticket is blocked by this one.
+[Write the quality workflow](https://github.com/kalonji-tools/purba/issues/36) wires it, and that issue is blocked by this one.
 Until it lands, the hatch is open on the evidence of the table in the Context above and on nothing newer.

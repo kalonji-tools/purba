@@ -55,7 +55,7 @@ A cost under a Downside obeys the length rule, so a bullet is no way past it.
 A table holds numbers on purpose, and a length rule there would push them back into prose.
 
 **A link counts as one word.**
-Record prose carries no issue number, so a link is titled with the question its ticket asks.
+Record prose carries no issue number, so a link is titled with the question its issue asks.
 That title is owed rather than chosen, and charging its words to the sentence would refuse the sentence that obeys.
 
 **No record is a procedure, so the shorter limit reaches nothing.**

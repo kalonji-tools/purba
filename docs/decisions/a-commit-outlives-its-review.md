@@ -150,7 +150,7 @@ A command that reads existence accepts such a typo.
 
 [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) rules on what follows.
 A detector good enough to suggest is not good enough to gate.
-Nothing here owes a ticket, because purba decided against this check and did not defer it.
+Nothing here owes an issue, because purba decided against this check and did not defer it.
 
 The planned-series row is weak in both directions.
 A pattern test fires on the legitimate prose "the fourth Confirmation row", which counts a row and not a commit.
