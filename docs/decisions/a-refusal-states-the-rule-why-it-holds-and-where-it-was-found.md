@@ -47,6 +47,4 @@ The refusals in `.github/workflows/` have no test, because no runner here execut
 No command reads a refusal for its reason.
 None is planned.
 
-A command can decide whether a refusal names a record.
-None reads it yet.
-[Refuse a refusal that names a record](https://github.com/kalonji-tools/purba/issues/272) wires it.
+`report` exits 2 when the summary of a refusal names a file under `docs/decisions/`, so the test that pins that refusal fails.
