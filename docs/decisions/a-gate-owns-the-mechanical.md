@@ -47,7 +47,7 @@ It reports the tree's current state as though that were the standard, and the tw
 **A configuration file is owed only where purba deviates from a tool's default.**
 [purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) pins each one, so an accepted default already has a single location: the pinned tool.
 Writing a default into a file makes a second copy, and that copy drifts silently.
-Absence is ambiguous, so this record names what runs unconfigured: `cargo fmt` and `typos` deviate in nothing.
+Absence is ambiguous, so this record names each deviation: `cargo fmt` has none, and `typos` has only [the words the glossary avoids](the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md).
 `shfmt` does deviate, so the style is written down, and `.editorconfig` is where it lives because `shfmt` and every editor both read it.
 ⚠️ **A style flag would take that away:** `shfmt` ignores `.editorconfig` the moment one is passed, so the hook passes none.
 
@@ -57,7 +57,7 @@ A flag on a command line reaches only that command, so `tasks.toml` carries no l
 **Downside:**
 
 - **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
-- **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. Keeping one would need a configuration file.
+- **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. To keep one, a writer adds an entry to `_typos.toml`.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**
   Inside a YAML block scalar none can be. An indented one is posted as part of whatever the block writes, and one at the first column ends the block.
@@ -102,6 +102,13 @@ Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
 ⚠️ **Some of its fixes in code change behaviour.**
 On three trees that already spell-check, each of its 19 rewrites in code files was wrong.
 Twelve of them renamed a name that a test misspells on purpose.
+
+`_typos.toml` ran green and red through the same hook.
+
+| gate | green | red |
+|---|---|---|
+| `typos` reading `_typos.toml` | the tree needs no rewrite | a planted `ticket` becomes `issue` and a planted `tickets` becomes `issues`, and the commit stops |
+| its two `extend-ignore-re` patterns | the `_Avoid_` line and a `ticket` quoted in a code span stay as written | with the patterns removed, `typos` rewrites every mention, and `CONTEXT.md` reads `_Avoid_: issue` |
 
 `cargo fmt` ran green and red through the same hooks, in [Let the Rust format hook write its fix](https://github.com/kalonji-tools/purba/issues/252).
 
