@@ -74,7 +74,7 @@ It need not name the commits.
 
 **A pull request opens as a draft.**
 Marked ready, it asks for the reviewer.
-The agent that marked it ready watches it, and acts on each review before anyone asks.
+[The agent that marks a pull request ready watches it](the-agent-that-marks-a-pull-request-ready-watches-it.md).
 
 **An open pull request keeps its history.**
 A change made in review is a new commit, so the reviewer sees what moved since the last round.
@@ -98,7 +98,6 @@ A second issue rides along when one change answers both, and the pull request sa
 - **The repair exemption is a judgement.** A change that carries a decision can be called a repair, and it then merges with no spec.
 - **The type protects little yet.** Few issues carry one, so the sign that an issue is specified is new in practice.
 - **An agent can set the type with no agreement behind it.** Nothing tells the two acts apart afterwards.
-- **The watch ends when the agent stops.** A review that lands after that waits for a person to ask.
 - **A spec written early goes stale.** The read against the tree is all that catches it, and nothing prompts that read.
 - **`Origin` reads red through the whole review.** The branch stays unsigned until the reviewer is satisfied, so that check says nothing before then.
 - **The record is rewritten when a step changes.** [A location inherits its readers](a-location-inherits-its-readers.md) refused to key itself to stages for that reason.
