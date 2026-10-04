@@ -96,8 +96,10 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 `mise run records` refuses a record that breaks a rule a command can decide.
 `Quality` runs it on every pull request.
 Considered Options says why no gate holds the pull request's register or the issue's.
+
 A gate also holds part of an unpublished comment's register, and [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) names which part.
 A gate also holds part of the refusal's register, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) names which part.
+`mise run test:scripts` holds the CHANGELOG's register, because its tests render a changelog from `cliff.toml`.
 purba's other registers are convention.
 
 The pull request's register is `.github/PULL_REQUEST_TEMPLATE.md`.
@@ -112,7 +114,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 
 - **Every register depends on an author who reads it.** Nearly every issue here was written by one, so the evidence says nothing about a second author or an outside contributor.
 - **A register can drift from the record that names it.** Naming is a pointer and nothing compares the two.
-- **Five locations hold no register.** This record is revisited every time one opens.
+- **The closed locations hold no register.** This record is revisited every time one opens.
 
 ## Confirmation
 
@@ -127,12 +129,12 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
 | refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:scripts` fails on a summary that names a record |
+| CHANGELOG | `cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:scripts` renders it from the register |
 
-Five locations are closed and hold no register.
+These locations are closed and hold no register.
 
 | closed location | opens when |
 |---|---|
-| CHANGELOG | the release workflow lands, and `cliff.toml` is its register |
 | public docs site | Pages opens, and Diátaxis is its register |
 | local internals library | something is written into it |
 | wiki | never, unless a reader and a register are named first |
