@@ -1,7 +1,7 @@
 # The comment on a pull request that changes a decision record.
 #
 #   the rule:      docs/decisions/a-record-is-rewritten-not-amended.md
-#   why it posts:  docs/decisions/a-gate-owns-the-mechanical.md
+#   why it posts:  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
 #   what you owe:  CONTRIBUTING.md
 #
 # Never gate this, and the endpoint is what keeps that true. It posts an issue

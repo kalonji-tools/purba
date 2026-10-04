@@ -47,7 +47,8 @@ No public source carries the rule numbers, so purba cites none.
 
 **The active voice is reported and never refused.**
 The rule admits the passive where the agent is unknown.
-A command cannot decide whether an agent is unknown, and [a gate owns the mechanical standard](a-gate-owns-the-mechanical.md) refuses a gate over a judgement.
+A command cannot decide whether an agent is unknown.
+[A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 
 **A list item carries a sentence, and a table cell does not.**
 A cost under a Downside obeys the length rule, so a bullet is no way past it.
