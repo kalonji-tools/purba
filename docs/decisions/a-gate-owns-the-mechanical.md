@@ -57,7 +57,7 @@ A reader who judged nothing satisfies it exactly as well.
 It reports the tree's current state as though that were the standard, and the two are indistinguishable afterwards.
 
 **A configuration file is owed only where purba deviates from a tool's default.**
-[One manifest declares each package](one-manifest-declares-each-package.md) pins each one, so an accepted default already has a single location: the pinned tool.
+[purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) pins each one, so an accepted default already has a single location: the pinned tool.
 Writing a default into a file makes a second copy, and that copy drifts silently.
 Absence is ambiguous, so this record names what runs unconfigured: `cargo fmt` and `typos` deviate in nothing.
 `shfmt` does deviate, so the style is written down, and `.editorconfig` is where it lives because `shfmt` and every editor both read it.
