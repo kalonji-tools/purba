@@ -86,5 +86,5 @@ That fails as friction, and a reader reports it.
 The glossary is `CONTEXT.md` at the repository root.
 Its reader is the stem, and its register is this record.
 
-[Build the reader-binding gate](https://github.com/kalonji-tools/purba/issues/85) owes this location a binding.
+[The glossary stays open, and a gate rewrites each word it avoids](the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md) gates the word an `_Avoid_` line names.
 [Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) holds the corpus-level link graph that this rewrites part of.

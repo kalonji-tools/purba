@@ -99,4 +99,4 @@ A threshold would refuse the records that obey.
 Each refusal names the file and the line it found.
 The command reports every rule before it exits, so a writer fixing one refusal finds the next in the same run.
 
-[Does CONTEXT.md close, so a word not on it may not be used?](https://github.com/kalonji-tools/purba/issues/218) asks whether the vocabulary closes.
+[The glossary stays open, and a gate rewrites each word it avoids](the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md) answers whether the vocabulary closes.

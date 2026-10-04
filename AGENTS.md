@@ -53,12 +53,13 @@ Each line links the file that states its rule, and the section of a record that 
 - Replace the text of a record. Never annotate it. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome))
 - Leave the Decision Outcome to the person. You may draft it. ([the person owns the Decision Outcome](docs/decisions/the-person-owns-the-decision-outcome.md#decision-outcome))
 - Define no word in a record. A word that is specific to purba goes in `CONTEXT.md`. ([a term belongs to the glossary](docs/decisions/a-term-belongs-to-the-glossary.md#decision-outcome))
+- When you add an `_Avoid_` line to `CONTEXT.md`, add each form of the word to `_typos.toml`. ([the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
 - Rewrite a record when an issue it waits on closes, and remove the link to that issue. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome), [`.template.md`](docs/decisions/.template.md))
 
 ## In anything you write
 
 - Write the minimum that conveys the point. Leave out what your session left behind. ([an artifact holds the minimum that conveys its point](docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md#decision-outcome))
-- Write `issue`, never `ticket`. ([issue](CONTEXT.md#issue))
+- Outside a tracked file, write `issue`, never `ticket`. ([issue](CONTEXT.md#issue), [the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
 - Write a comment in the tree only for what no other location carries. Cite the primary source, never an issue number. ([an unpublished comment carries what no other location carries](docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md#decision-outcome))
 
 ## After the merge
