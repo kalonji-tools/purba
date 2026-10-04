@@ -49,8 +49,7 @@ The reviewer reads the change against the record that governs it.
 Where no record governs it, the reviewer asks whether one is owed.
 That question is a suggestion and never a gate, and nothing enforces it.
 
-The human owns the Decision Outcome.
-Work an agent wrote is welcome, and nothing about it changes what the reviewer reads for.
+[The person owns the Decision Outcome](the-person-owns-the-decision-outcome.md) says who answers for the decision a record holds.
 
 **Downside:**
 

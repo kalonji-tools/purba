@@ -51,7 +51,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 - Put the answer to a new question in a new record. A question is new when no title on `main` answers it. ([a new question gets a new record](docs/decisions/a-new-question-gets-a-new-record.md#decision-outcome))
 - Replace the text of a record. Never annotate it. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome))
-- Leave the Decision Outcome to the person. You may draft it. ([architectural significance is declared, not detected](docs/decisions/significance-is-declared-not-detected.md#decision-outcome))
+- Leave the Decision Outcome to the person. You may draft it. ([the person owns the Decision Outcome](docs/decisions/the-person-owns-the-decision-outcome.md#decision-outcome))
 - Define no word in a record. A word that is specific to purba goes in `CONTEXT.md`. ([a term belongs to the glossary](docs/decisions/a-term-belongs-to-the-glossary.md#decision-outcome))
 - Rewrite a record when an issue it waits on closes, and remove the link to that issue. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome), [`.template.md`](docs/decisions/.template.md))
 
