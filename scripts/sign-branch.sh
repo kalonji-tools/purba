@@ -2,7 +2,8 @@
 # The sign-off a person owes for a branch.
 #
 #   what you owe:  CONTRIBUTING.md
-#   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   the decisions: docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#                  docs/decisions/purba-records-delegation-and-does-not-prevent-it.md
 #
 #   sign-branch.sh [<base>]
 #

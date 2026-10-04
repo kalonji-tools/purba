@@ -40,8 +40,8 @@ flowchart LR
 An issue is specified when its type is set.
 [An artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md) makes the type the declaration, and this record relies on it.
 The type is set once the person who decides agrees to the spec, and never before.
-An agent may set it then.
-[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) records delegation and does not prevent it.
+An agent may then set it for that person.
+[purba records delegation and does not prevent it](purba-records-delegation-and-does-not-prevent-it.md).
 
 **Two changes owe no design spec.**
 

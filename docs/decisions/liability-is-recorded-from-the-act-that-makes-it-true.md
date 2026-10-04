@@ -109,7 +109,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 - **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` and implies nothing else.
 - **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event. The code that reports the check is therefore code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`. A pull request changes the scripts the job calls, and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it. The loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` and `/scripts/` for this reason, which makes the code owner read a change to the gate.
-- **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object. A signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not separate a person from their agent in any case. It proves custody of a key, and a key kept where the agent runs is a key the agent uses. What follows from that is decided below.
+- **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object. A signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not separate a person from their agent in any case. It proves custody of a key, and a key kept where the agent runs is a key the agent uses. [purba records delegation and does not prevent it](purba-records-delegation-and-does-not-prevent-it.md) decides what follows from that.
 
 ## Confirmation
 
@@ -172,33 +172,6 @@ The row that tells a person from their agent was once strong and is now none.
 The environment approval was the only act here an agent could not perform, and removing it removes that separation.
 An agent that holds a person's credentials can approve as that person.
 Whoever granted that access is answerable for what the agent does with it.
-
-**No act recorded here can be made impossible for that person's agent to forge.**
-Three routes lead out of it, and each one is closed.
-A key kept where the agent runs is a key the agent uses, so a signature proves custody rather than personhood.
-No credential is out of the agent's reach either, because the agent runs on the machine that holds them.
-The block GitHub documents on an approval of one's own pull request keys on the author rather than on the approver.
-
-A hardware key that demands a touch for each signature is genuinely out of reach, and git cannot ask for one.
-The allowed-signers format `ssh-keygen(1)` documents admits `cert-authority`, `namespaces`, `valid-after` and `valid-before`.
-None of them concerns the presence of a person.
-Each route was measured rather than reasoned, and [an act by a person cannot be made unforgeable here, because the agent holds the human's credentials](https://github.com/kalonji-tools/purba/issues/204) records every measurement beside the source it rests on.
-
-**So the question is not whether a trailer can be forged, but whether the procedure preserves the intent it records.**
-git's own answers to frequently asked questions refuse a `commit.signoff` setting for that reason.
-They hold that an automated sign-off would let someone argue later that the trailer was added out of habit rather than to certify anything.
-`scripts/sign-branch.sh` is the answer this project already holds.
-It refuses a caller with no terminal, prints every commit and who wrote it, and waits to be answered.
-It cannot tell who typed the answer, and it claims no more than that.
-
-**purba therefore records delegation and does not prevent it.**
-An agent acts for a person here, and that person remains answerable for what it does.
-This record says so, and implies no separation that no check makes.
-
-One consequence is a property of this repository and of no other.
-Its own git config names the agent as the committer, so `git commit -s` run here writes the agent's sign-off.
-`CONTRIBUTING.md` addresses a contributor whose committer identity is already their own.
-That is how this repository is worked rather than a defect in the document, and nothing here repairs it.
 
 Any check that reads reviews must request every page.
 The reviews endpoint returns 30 per page, and one pull request here reported zero approvals unpaginated when it carried one.
