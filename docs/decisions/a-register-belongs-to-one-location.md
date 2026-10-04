@@ -97,10 +97,8 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 `Quality` runs it on every pull request.
 Considered Options says why no gate holds the pull request's register or the issue's.
 
-A gate also holds part of an unpublished comment's register, and [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) names which part.
-A gate also holds part of the refusal's register, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) names which part.
-`mise run test:scripts` holds the CHANGELOG's register, because its tests render a changelog from `cliff.toml`.
-purba's other registers are convention.
+A gate also holds other registers, in whole or in part.
+The `gated` column of Confirmation names each one.
 
 The pull request's register is `.github/PULL_REQUEST_TEMPLATE.md`.
 It carries a section addressed to the reviewer that names what they must decide.
