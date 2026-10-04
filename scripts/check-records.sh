@@ -59,8 +59,9 @@ for f in "${records[@]}"; do
 done
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record carries four sections, in order: Context and Problem Statement, Considered Options, \
-Decision Outcome, Confirmation. Consequences is optional and sits between the outcome and the \
-confirmation." \
+Decision Outcome, Confirmation. They are a public Markdown convention cut to its minimum, and \
+Confirmation keeps a record from going stale. Consequences is optional and sits between the \
+outcome and the confirmation." \
   "${found[@]}"
 
 mapfile -t found < <(grep -HnF '<!--' "${records[@]}" || true)
@@ -359,8 +360,9 @@ prose=$(awk '
 
 mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record carries no em-dash. Use a full stop, a colon, a comma or a list. A code span and a \
-fenced block are exempt, because quoting one is quoting an artifact." \
+  "A record carries no em-dash, because an em-dash joins two ideas in one sentence. Use a full \
+stop, a colon, a comma or a list. A code span and a fenced block are exempt, because quoting one \
+is quoting an artifact." \
   "${found[@]}"
 
 mapfile -t found < <(grep '^bold' <<<"${prose}" | cut -f2- || true)
@@ -371,26 +373,27 @@ bolded phrase is one is read by a reviewer rather than decided here." \
 
 mapfile -t found < <(grep '^long' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A sentence in descriptive text runs to 25 words. A link counts as one word and so does a code \
-span, because a reader reads each as one thing." \
+  "A sentence in descriptive text runs to 25 words, a limit borrowed from Simplified Technical \
+English. A link counts as one word and so does a code span, because a reader reads each as one \
+thing." \
   "${found[@]}"
 
 mapfile -t found < <(grep '^para' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A paragraph runs to six sentences. The line named is where the seventh lands, and a blank line \
-splits the paragraph." \
+  "A paragraph runs to six sentences, a limit borrowed from Simplified Technical English. The \
+line named is where the seventh lands, and a blank line splits the paragraph." \
   "${found[@]}"
 
 mapfile -t found < <(grep '^ing' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "An -ing form is a technical noun here and never a verb. A gerund after a form of be or after a \
-preposition becomes a finite clause." \
+  "An -ing form is a technical noun here and never a verb, a rule borrowed from Simplified \
+Technical English. A gerund after a form of be or after a preposition becomes a finite clause." \
   "${found[@]}"
 
 mapfile -t found < <(grep '^tense' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record uses the simple tenses. A modal with the bare verb is one of them, so must be run \
-stands and has run does not." \
+  "A record uses the simple tenses, a rule borrowed from Simplified Technical English. A modal \
+with the bare verb is one of them, so must be run stands and has run does not." \
   "${found[@]}"
 
 # The four Downside rules `docs/decisions/.template.md` states: the label stands
@@ -451,8 +454,9 @@ record counted four costs where three rendered." \
   "${counted[@]}"
 
 [[ ${#listless[@]} -eq 0 ]] || refuse \
-  "A Downside states its costs as a list. A record with no label has no list either, so a \
-missing Downside is refused here." \
+  "A record states its costs as a list under a Downside label, because a decision without its \
+cost is advocacy, not a record. A record with no label has no list either, so a missing Downside \
+is refused here." \
   "${listless[@]}"
 
 [[ ${#unsignalled[@]} -eq 0 ]] || refuse \

@@ -8,6 +8,7 @@ setup() {
   make_repo
   mkdir -p docs/decisions
   record=docs/decisions/a-record-holds.md
+  borrowed="borrowed from Simplified Technical English"
   compliant >"${record}"
 }
 
@@ -88,6 +89,7 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A record carries four sections, in order"* ]]
+  [[ "${output}" == *"a public Markdown convention cut to its minimum"* ]]
   [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
 }
 
@@ -153,6 +155,7 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A record carries no em-dash"* ]]
+  [[ "${output}" == *"because an em-dash joins two ideas in one sentence"* ]]
   [[ "${output}" == *"${record}:5"* ]]
 }
 
@@ -209,7 +212,7 @@ words() {
   swap "word end." "word word end."
   run "${script}"
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A sentence in descriptive text runs to 25 words"* ]]
+  [[ "${output}" == *"A sentence in descriptive text runs to 25 words, a limit ${borrowed}"* ]]
   [[ "${output}" == *"${record}:5: 26 words"* ]]
 }
 
@@ -261,7 +264,7 @@ words() {
   swap $'Six.\n' $'Six.\nSeven.\nEight.\n'
   run "${script}"
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A paragraph runs to six sentences"* ]]
+  [[ "${output}" == *"A paragraph runs to six sentences, a limit ${borrowed}"* ]]
   [[ "${output}" == *"${record}:11: 7 sentences"* ]]
   [[ "${output}" != *"${record}:12: 8 sentences"* ]]
 }
@@ -296,7 +299,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"An -ing form is a technical noun here and never a verb"* ]]
+  [[ "${output}" == *"is a technical noun here and never a verb, a rule ${borrowed}"* ]]
   [[ "${output}" == *"${record}:5: running"* ]]
 }
 
@@ -356,7 +359,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record uses the simple tenses"* ]]
+  [[ "${output}" == *"A record uses the simple tenses, a rule ${borrowed}"* ]]
   [[ "${output}" == *"${record}:5: has refused"* ]]
 }
 
@@ -395,7 +398,8 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside states its costs as a list"* ]]
+  [[ "${output}" == *"A record states its costs as a list under a Downside label"* ]]
+  [[ "${output}" == *"label, because a decision without its cost is advocacy, not a record"* ]]
   [[ "${output}" == *"${record}: no Downside label"* ]]
 }
 
@@ -414,7 +418,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside states its costs as a list"* ]]
+  [[ "${output}" == *"A record states its costs as a list under a Downside label"* ]]
   [[ "${output}" == *"${record}:15"* ]]
 }
 

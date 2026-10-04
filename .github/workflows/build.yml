@@ -121,7 +121,9 @@ jobs:
           set -euo pipefail
           echo "$RESULTS"
           if grep -v '=success$' <<<"$RESULTS" | grep .; then
-            echo "::error::the jobs printed above did not succeed, so this gate refuses"
+            echo "::error::A branch is refused when a job this gate reads does not succeed, \
+            because Build stands for every Rust test and every wheel. The jobs printed above \
+            say which."
             exit 1
           fi
           echo "every job this gate reads reported success"

@@ -241,7 +241,7 @@ origin_holds() {
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${refused} -f status=completed"* ]]
   [[ "${asked}" == *"-f conclusion=failure"* ]]
   [[ "${asked}" == *"-f output[title]=Refused before anything was rewritten"* ]]
-  [[ "${asked}" == *"these commits carry no Signed-off-by trailer"* ]]
+  [[ "${asked}" == *"A commit is refused when it carries no Signed-off-by trailer"* ]]
 }
 
 @test "a commit that replays empty is refused before anything is rewritten" {
@@ -258,7 +258,7 @@ origin_holds() {
   origin_holds "${refused}"
   asked=$(calls gh)
   [[ "${asked}" == *"-f head_sha=${refused} -f status=completed -f conclusion=failure"* ]]
-  [[ "${asked}" == *"this commit replays empty"* ]]
+  [[ "${asked}" == *"A commit is refused when it replays empty"* ]]
 }
 
 @test "a rule that cannot run is reported as a check that could not run" {
