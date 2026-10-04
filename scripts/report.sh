@@ -16,6 +16,10 @@
 # has to become `%0A` to survive, and a literal `%` has to become `%25` before
 # that, or the decoder eats it.
 report() {
+  if [[ "$1" =~ docs/decisions/\.?[[:alnum:]] ]]; then
+    printf 'a refusal names no record, and this summary names one:\n%s\n' "$1" >&2
+    exit 2
+  fi
   [[ -z "${PURBA_REPORT:-}" ]] || printf '%s\n\n%s\n' "$1" "$2" >>"${PURBA_REPORT}"
 
   if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
