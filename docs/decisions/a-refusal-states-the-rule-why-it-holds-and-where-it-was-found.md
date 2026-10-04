@@ -37,7 +37,7 @@ A refusal states the rule, why it holds, and where it was found.
 
 - **No command decides whether a refusal states why its rule holds.** [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md), so a reviewer reads it.
 - **A reason can be thin.** The prose rules borrowed from Simplified Technical English give that standard as their reason, because no record states a better one.
-- **The register reaches only a check that sources `scripts/report.sh`.** `scripts/check-records.sh` prints through a function of its own. A workflow writes its refusal inline.
+- **The register reaches only a check that sources `scripts/report.sh`.** A workflow writes its refusal inline.
 
 ## Confirmation
 
@@ -50,6 +50,3 @@ None is planned.
 A command can decide whether a refusal names a record.
 None reads it yet.
 [Refuse a refusal that names a record](https://github.com/kalonji-tools/purba/issues/272) wires it.
-
-`scripts/check-records.sh` is not wired to `scripts/report.sh` yet.
-[Write the refusals of check-records.sh through report.sh](https://github.com/kalonji-tools/purba/issues/269) wires it.
