@@ -49,8 +49,8 @@ A secret cannot be bound to one workflow file, so a rule saying which workflow m
 A workflow that named these two could open a pull request and do nothing else, which is the bound worth having.
 
 **The token that reports a failure is not this one.**
-`.github/scripts/report-bump-failure.sh` opens or comments on an issue, which this identity may not do, so that step keeps `GITHUB_TOKEN`.
-A change that points it at the App token would stop the only thing that reports a scheduled run.
+`.github/scripts/report-bump-failure.sh` and `.github/scripts/report-release-failure.sh` each open or comment on an issue, which this identity may not do, so those steps keep `GITHUB_TOKEN`.
+A change that points either at the App token would stop the only thing that reports a failed run of its workflow.
 
 **Downside:**
 
@@ -78,6 +78,6 @@ A test asserts on the type.
 
 Nothing checks which workflow names the secret, and nothing needs to: the token carries its own limit.
 
-The weekly run is what reports on all of it.
+The weekly runs are what report on all of it.
 A pull request authored by the App is the working state, and a red run comments where somebody reads it.
-[Bump the pinned nightly on a schedule, and regenerate the lockfile with it](https://github.com/kalonji-tools/purba/issues/190) holds that reporting path.
+[Bump the pinned nightly on a schedule, and regenerate the lockfile with it](https://github.com/kalonji-tools/purba/issues/190) and [Run Release on a weekly schedule, as well as on dispatch](https://github.com/kalonji-tools/purba/issues/280) hold those reporting paths.
