@@ -25,8 +25,8 @@ The rewrites went mostly into a few records, and the largest absorbed the answer
 | words | 3,309 |
 | distinct issues that changed it | 18 |
 
-Its Confirmation answers a question a later issue asked: whether a person's act can be made impossible for their agent to forge.
-The title does not state that second decision, so `ls` does not show it.
+Its Confirmation answered a question a later issue asked: whether a person's act can be made impossible for their agent to forge.
+The title did not state that second decision, so `ls` did not show it.
 
 ## Considered Options
 
@@ -62,4 +62,4 @@ A record holds the minimum that conveys its point, and a reviewer judges that.
 
 [`AGENTS.md`](../../AGENTS.md) carries the rule to an agent before it writes a record, and `.template.md` carries it to a writer who starts one.
 
-[Split each record that holds a decision its title does not answer](https://github.com/kalonji-tools/purba/issues/263) brings the records that break this rule today into line.
+Each second decision a reviewer found in a record when this was decided has a record of its own.
