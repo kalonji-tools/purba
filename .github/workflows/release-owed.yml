@@ -1,0 +1,42 @@
+# The workflow that says which step of a release `main` owes. It gates nothing.
+#
+#   the work:      .github/scripts/release-owed.sh
+#   the steps:     .github/workflows/release.yml
+#   the register:  cliff.toml
+#
+# ⚠️ Keep the shell in the script. The only shell here calls it.
+name: Release owed
+
+on:
+  schedule:
+    # Weekly. What is owed changes only when a feature or a fix lands.
+    - cron: '0 9 * * 1'
+  # ⚠️ This trigger exists only while this file is on the default branch.
+  # https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MISE_VERSION: 2026.9.14
+
+jobs:
+  report:
+    name: report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # git-cliff computes the version from every tag, so the clone is whole.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: jdx/mise-action@v4
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install_args: git-cliff
+
+      - name: Say which step of a release main owes
+        run: .github/scripts/release-owed.sh >>"$GITHUB_STEP_SUMMARY"
