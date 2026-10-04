@@ -54,7 +54,8 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unbound}"* ]]
+  [[ "${output}" == *"${unbound}, because every artifact has a named reader"* ]]
+  [[ "${output}" != *"a-location-inherits-its-readers.md"* ]]
   [[ "${output}" == *"  src/lib.rs"* ]]
   [[ "${output}" != *"  chorestart"* ]]
 }
@@ -98,6 +99,8 @@ track() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${off_roster}"* ]]
+  [[ "${output}" == *"because a reader is an actor and the roster names every actor"* ]]
+  [[ "${output}" != *"an-actor-is-what-it-does-not-what-it-is.md"* ]]
   [[ "${output}" == *"  architekt"* ]]
 }
 

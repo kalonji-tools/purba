@@ -65,7 +65,7 @@ broken=0
 
 [[ -z "${conflicts}" ]] || {
   report "A package is refused when two manifests declare it, because the two declarations can \
-drift apart. one-manifest-declares-each-package.md says which manifest owns a package." \
+drift apart." \
     "${conflicts}"
   broken=1
 }

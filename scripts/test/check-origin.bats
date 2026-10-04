@@ -27,7 +27,8 @@ setup() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == "these commits carry no Signed-off-by trailer"* ]]
+  [[ "${output}" == "A commit is refused when it carries no Signed-off-by trailer"* ]]
+  [[ "${output}" == *"because that trailer records who may submit it"* ]]
   [[ "${output}" == *"feat: unsigned"* ]]
   [[ "${output}" != *"feat: signed"* ]]
 }
@@ -109,7 +110,7 @@ setup() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${#lines[@]}" -eq 1 ]]
-  [[ "${output}" == "::error::these commits carry no Signed-off-by trailer"* ]]
+  [[ "${output}" == "::error::A commit is refused when it carries no Signed-off-by trailer"* ]]
   [[ "${output}" == *"%0A"*"feat: second unsigned%0A"*"feat: reach 100%25" ]]
 }
 
@@ -119,7 +120,7 @@ setup() {
   PURBA_REPORT="${BATS_TEST_TMPDIR}/refusal" run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  grep -q "these commits carry no Signed-off-by trailer" "${BATS_TEST_TMPDIR}/refusal"
+  grep -q "refused when it carries no Signed-off-by trailer" "${BATS_TEST_TMPDIR}/refusal"
   grep -q "feat: unsigned" "${BATS_TEST_TMPDIR}/refusal"
 }
 

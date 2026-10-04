@@ -37,8 +37,8 @@ missing=$(printf '%s\n' "${commits}" | while read -r sha; do
 done)
 
 if [[ -n "${missing}" ]]; then
-  summary="these commits carry no Signed-off-by trailer, so this branch cannot be accepted. \
-CONTRIBUTING.md has the command that adds it."
+  summary="A commit is refused when it carries no Signed-off-by trailer, because that trailer \
+records who may submit it. CONTRIBUTING.md has the command that adds it."
 
   if printf '%s\n' "${missing}" | cut -d' ' -f1 |
     git rev-list --no-walk --merges --stdin | grep -q .; then

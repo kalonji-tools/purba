@@ -74,14 +74,15 @@ if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1);
   merges=$(git log --merges --format='%h %s' "${base}..${head}")
 
   if [[ -n "${merges}" ]]; then
-    report "the replay of your branch loses content, so the branch cannot be signed. The replay \
-flattens a merge commit, and the changes made in that merge are lost. Rebase your branch onto its \
-base instead." "${changed}
+    report "A branch is refused when its replay changes its content, because the rewrite that \
+signs it must leave your content untouched. The replay flattens a merge commit, and the changes \
+made in that merge are lost. Rebase your branch onto its base instead." "${changed}
 
 ${merges}"
   else
-    report "the replay of your branch loses content, so the branch cannot be signed, and this \
-check cannot say why. The branch carries no merge commit." "${changed}"
+    report "A branch is refused when its replay changes its content, because the rewrite that \
+signs it must leave your content untouched. This check cannot say why the content changed, \
+because the branch carries no merge commit." "${changed}"
   fi
   exit 1
 fi
@@ -107,16 +108,17 @@ parent_tree=$(git -C "${worktree}" rev-parse 'HEAD^1^{tree}' 2>/dev/null || true
 replay_tail=$(printf '%s\n' "${replay}" | tail -8)
 
 if [[ -f "${state}/stopped-sha" ]]; then
-  report "this commit does not apply where purba replays your branch, so the branch cannot be \
-signed. A merge commit whose conflict you resolved by hand is the usual cause. Rebase your branch \
-onto its base instead." "${detail}"
+  report "A commit is refused when it does not apply where purba replays your branch, because \
+purba writes its Accepted-by trailer into each commit it replays. A merge commit whose conflict \
+you resolved by hand is the usual cause. Rebase your branch onto its base instead." "${detail}"
 elif [[ -n "${stopped}" && -n "${parent_tree}" && "${stopped_tree}" = "${parent_tree}" ]]; then
-  report "this commit replays empty, and purba cannot write its trailer into an empty commit, so \
-the branch cannot be signed. Remove the commit. The replay empties a commit whose change is \
-already on the base as well." "${detail}"
+  report "A commit is refused when it replays empty, because purba writes its Accepted-by trailer \
+into each commit it replays and an empty commit cannot hold one. Remove the commit. The replay \
+empties a commit whose change is already on the base as well." "${detail}"
 else
-  report "the replay of this branch stopped here, and this check cannot say why. git wrote what \
-follows." "${detail}
+  report "A branch is refused when its replay stops, because purba writes its Accepted-by trailer \
+into each commit it replays. This check cannot say why it stopped here. git wrote what follows." \
+    "${detail}
 
 ${replay_tail}"
 fi

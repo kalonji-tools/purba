@@ -6,6 +6,8 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-replayable.sh"
   make_repo
+  trailer="because purba writes its Accepted-by trailer into each commit it replays"
+  untouched="because the rewrite that signs it must leave your content untouched"
   git switch --quiet --create work
 }
 
@@ -49,10 +51,24 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the replay of your branch loses content"* ]]
+  [[ "${output}" == *"A branch is refused when its replay changes its content, ${untouched}"* ]]
   [[ "${output}" == *"The replay flattens a merge commit"* ]]
   [[ "${output}" == *"only-in-the-merge"* ]]
   [[ "${output}" == *"chore: merge and change"* ]]
+}
+
+@test "content the replay changes with no merge commit is refused, and the cause is not guessed" {
+  commit "feat: one"
+  printf '#!/usr/bin/env bash\necho made > made-by-the-hook\ngit add made-by-the-hook\n' \
+    >.git/hooks/pre-commit
+  chmod +x .git/hooks/pre-commit
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A branch is refused when its replay changes its content, ${untouched}"* ]]
+  [[ "${output}" == *"This check cannot say why the content changed"* ]]
+  [[ "${output}" == *"made-by-the-hook"* ]]
 }
 
 @test "an empty commit is refused and named" {
@@ -62,7 +78,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this commit replays empty"* ]]
+  [[ "${output}" == *"A commit is refused when it replays empty, ${trailer}"* ]]
   [[ "${output}" == *"feat: nothing"* ]]
 }
 
@@ -82,7 +98,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this commit replays empty"* ]]
+  [[ "${output}" == *"A commit is refused when it replays empty, ${trailer}"* ]]
   [[ "${output}" == *"feat: theirs"* ]]
 }
 
@@ -105,7 +121,8 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this commit does not apply where purba replays your branch"* ]]
+  [[ "${output}" == *"A commit is refused when it does not apply where purba replays"* ]]
+  [[ "${output}" == *"replays your branch, ${trailer}"* ]]
   [[ "${output}" == *"feat: theirs"* ]]
 }
 
@@ -125,7 +142,8 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this commit does not apply where purba replays your branch"* ]]
+  [[ "${output}" == *"A commit is refused when it does not apply where purba replays"* ]]
+  [[ "${output}" == *"replays your branch, ${trailer}"* ]]
   [[ "${output}" == *"feat: another root"* ]]
 }
 
@@ -136,7 +154,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the replay of this branch stopped here, and this check cannot say why"* ]]
+  [[ "${output}" == *"refused when its replay stops, ${trailer}. This check cannot say why"* ]]
   [[ "${output}" == *"feat: one"* ]]
   [[ "${output}" == *"the hook refuses"* ]]
 }
@@ -158,7 +176,7 @@ refusing_hook() {
   GITHUB_ACTIONS=true run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == "::error::this commit replays empty"*"%0A"*"feat: nothing" ]]
+  [[ "${output}" == "::error::A commit is refused when it replays empty"*"%0A"*"feat: nothing" ]]
 }
 
 @test "a refusal leaves no worktree and no configuration behind" {
@@ -200,7 +218,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this check cannot say why"* ]]
+  [[ "${output}" == *"This check cannot say why"* ]]
   [[ "${output}" == *"the replay left no record of the commit it stopped on."* ]]
   [[ "${output}" == *"the hook refuses the rebase"* ]]
 }
@@ -227,8 +245,8 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"this check cannot say why"* ]]
-  [[ "${output}" != *"this commit replays empty"* ]]
+  [[ "${output}" == *"This check cannot say why"* ]]
+  [[ "${output}" != *"when it replays empty"* ]]
 }
 
 # Inside the replay worktree `HEAD` is the replayed commit, so the script must

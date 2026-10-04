@@ -49,6 +49,7 @@ pyproject_toml() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${conflict}"* ]]
+  [[ "${output}" != *"one-manifest-declares-each-package.md"* ]]
   [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as jq"* ]]
   [[ "${output}" != *"${python}"* ]]
 }

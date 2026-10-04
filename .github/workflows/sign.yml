@@ -69,8 +69,8 @@ jobs:
         if: (github.event.pull_request.head.repo.full_name ||
           github.event.workflow_run.head_repository.full_name) != github.repository
         run: |
-          echo "::error::This job cannot sign a pull request from a fork, because it is only \
-          allowed to read here. purba takes your contribution another way: see CONTRIBUTING.md."
+          echo "::error::A pull request from a fork is refused, because this job may only read \
+          here and cannot sign it. purba takes your contribution another way: see CONTRIBUTING.md."
           exit 1
 
       - uses: actions/checkout@v4

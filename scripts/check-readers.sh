@@ -86,15 +86,15 @@ broken=0
 
 [[ ${#unbound[@]} -eq 0 ]] || {
   detail=$(printf '%s\n' "${unbound[@]}")
-  report "A tracked file is refused when it reaches no actor. Decide whether it should exist, \
-what it serves and for whom, and bind that actor in .readers. \
-a-location-inherits-its-readers.md says how a binding is inherited." "${detail}"
+  report "A tracked file is refused when it reaches no actor, because every artifact has a named \
+reader. Decide whether it should exist, what it serves and for whom, and bind that actor in \
+.readers." "${detail}"
   broken=1
 }
 
 [[ -z "${off_roster}" ]] || {
-  report "A name in .readers is refused when it is neither an actor nor a macro. \
-an-actor-is-what-it-does-not-what-it-is.md holds the roster." "${off_roster}"
+  report "A name in .readers is refused when it is neither an actor nor a macro, because a reader \
+is an actor and the roster names every actor." "${off_roster}"
   broken=1
 }
 
