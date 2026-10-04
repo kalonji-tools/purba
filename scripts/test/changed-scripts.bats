@@ -33,7 +33,7 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == "scripts=true" ]]
-  [[ "${stderr}" == "a script or lychee.toml changed, so the script tests run" ]]
+  [[ "${stderr}" == "something a script test reads changed, so the script tests run" ]]
 }
 
 @test "a change to lychee.toml is seen" {
@@ -44,7 +44,17 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == "scripts=true" ]]
-  [[ "${stderr}" == "a script or lychee.toml changed, so the script tests run" ]]
+  [[ "${stderr}" == "something a script test reads changed, so the script tests run" ]]
+}
+
+@test "a change to cliff.toml is seen" {
+  echo "[bump]" >cliff.toml
+  merged
+
+  run --separate-stderr "${script}" HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
 }
 
 @test "a script under .github that changed is seen" {
@@ -122,7 +132,7 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
-  [[ "${stderr}" == "no script and no lychee.toml changed, so the script tests do not run" ]]
+  [[ "${stderr}" == "nothing a script test reads changed, so the script tests do not run" ]]
 }
 
 @test "a path that only holds the word is not a script" {
@@ -131,6 +141,7 @@ merged() {
   echo note >docs/scripts/note.md
   echo note >docs/.github/scripts/note.md
   echo 'exclude = []' >docs/lychee.toml
+  echo "[bump]" >docs/cliff.toml
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD
