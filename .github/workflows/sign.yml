@@ -73,7 +73,7 @@ jobs:
           here and cannot sign it. purba takes your contribution another way: see CONTRIBUTING.md."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ env.HEAD_REF }}
           fetch-depth: 0
