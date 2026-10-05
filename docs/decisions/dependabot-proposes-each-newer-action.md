@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-Each workflow names an action by its major version, such as `actions/checkout@v4`.
+Each workflow names an action by a version tag, such as `actions/checkout@v4`.
 Nothing in the tree proposes a newer one.
 A person learns of an old action when GitHub warns about it.
 By then GitHub already deprecated the runtime under it.
@@ -44,7 +44,7 @@ It cannot regenerate `mise.lock`.
 
 - **Dependabot cannot write a subject in purba's form.** It writes a prefix and never a suffix. A security update also inserts `[Security]` after the prefix. It takes the case of its first word from the history of `main`, and `subject-form` in `prek.toml` refuses a capital after the colon. So each of its pull requests needs a reduction. The reduction rewrites each subject to end in the number of [Keep the workflow actions current with Dependabot](https://github.com/kalonji-tools/purba/issues/282).
 - **Dependabot no longer rebases a branch once someone else pushes a commit to it.** The reduction is such a push.
-- **A workflow that no pull request runs meets a newer action only on its next run.** `bump.yml` runs on a schedule. `release.yml` runs by hand.
+- **A workflow that no pull request runs meets a newer action only on its next run.** `bump.yml` and `release.yml` run on a schedule, and `publish.yml` runs on each tag. A newer action that breaks `publish.yml` costs that version, because a dispatch runs the file its tag holds.
 
 | update | as Dependabot writes it | once reduced, where `N` is that issue's number |
 |---|---|---|
