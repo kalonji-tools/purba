@@ -5,8 +5,8 @@ build-backend = "maturin"
 
 [project]
 name = "purba"
-# maturin reads the version from Cargo.toml, where git-cliff computes it.
-dynamic = ["version"]
+# maturin reads the version and the repository from Cargo.toml.
+dynamic = ["version", "urls"]
 requires-python = ">=3.12"
 description = "A Python test framework written in Rust"
 readme = "README.md"
