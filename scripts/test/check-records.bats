@@ -321,6 +321,15 @@ words() {
   [[ "${output}" == *"${record}:5: running"* ]]
 }
 
+@test "an adverb ending in ly does not hide the gerund" {
+  prose "The gate is quickly running."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: running"* ]]
+}
+
 @test "a technical noun passes where a gerund is refused" {
   prose "A rule is nothing without tooling."
 
@@ -658,6 +667,28 @@ words() {
 
     [[ "${status}" -eq 1 ]]
     [[ "${output}" == *"A record uses the simple tenses"* ]]
+  done
+}
+
+@test "an adverb ending in ly does not hide a perfect tense" {
+  prose "A person has recently moved the date."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has moved"* ]]
+}
+
+@test "since, ever and twice do not hide a perfect tense" {
+  for perfect in "A person has since moved the date." "No person has ever moved the date." \
+    "A person has twice moved the date."; do
+    compliant >"${record}"
+    prose "${perfect}"
+
+    run "${script}"
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"${record}:5: has moved"* ]]
   done
 }
 
