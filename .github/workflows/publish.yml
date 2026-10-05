@@ -2,6 +2,7 @@
 #
 #   the caller:    .github/workflows/release.yml
 #   the check:     .github/scripts/require-abi3.sh
+#   the failure:   .github/scripts/report-publish-failure.sh
 #   the floor:     docs/decisions/purba-supports-a-python-with-two-years-left.md
 #
 # ⚠️ PyPI trusts this file by its name and by the environment below. Renaming
@@ -24,6 +25,8 @@ permissions:
 
 env:
   MISE_VERSION: 2026.9.14
+  # The issue a failure report cites, and the only place this number lives.
+  ISSUE: 48
 
 jobs:
   # The platforms `build.yml` builds and loads on, and no others.
@@ -86,3 +89,25 @@ jobs:
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.14.2
+
+  # How `failure()` reads the jobs this one needs:
+  # https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#failure
+  report:
+    name: report
+    needs: [wheel, check, upload]
+    if: failure() && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Say so where somebody reads it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: >-
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: .github/scripts/report-publish-failure.sh "$RUN_URL" "$ISSUE"
