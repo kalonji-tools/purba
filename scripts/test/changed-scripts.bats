@@ -57,6 +57,16 @@ merged() {
   [[ "${output}" == "scripts=true" ]]
 }
 
+@test "a change to pyproject.toml is seen" {
+  echo "[project]" >pyproject.toml
+  merged
+
+  run --separate-stderr "${script}" HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+}
+
 @test "a script under .github that changed is seen" {
   echo more >>.github/scripts/job.sh
   merged
@@ -142,6 +152,7 @@ merged() {
   echo note >docs/.github/scripts/note.md
   echo 'exclude = []' >docs/lychee.toml
   echo "[bump]" >docs/cliff.toml
+  echo "[project]" >docs/pyproject.toml
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD
