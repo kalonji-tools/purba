@@ -41,6 +41,10 @@ LOCK
   # A runner has no identity, so the one the script names is the one that lands.
   unset GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL
 
+  # A runner sets this for the job that runs this suite, and a tag is appended
+  # to it, so only a test that names its own file reads one.
+  unset GITHUB_OUTPUT
+
   # No pull request is open unless a test says one is.
   fake gh <<'FAKE'
 case "$1 $2" in
@@ -191,6 +195,27 @@ released() {
   [[ -z "${branches}" ]]
   asked=$(calls gh)
   [[ -z "${asked}" ]]
+}
+
+@test "a pushed tag is named as a step output" {
+  released 0.1.0
+  output_file="${BATS_TEST_TMPDIR}/output"
+
+  GITHUB_OUTPUT="${output_file}" run "${script}" release/next 43
+
+  [[ "${status}" -eq 0 ]]
+  named=$(<"${output_file}")
+  [[ "${named}" == "tag=v0.1.0" ]]
+}
+
+@test "a proposal names no tag" {
+  output_file="${BATS_TEST_TMPDIR}/output"
+
+  GITHUB_OUTPUT="${output_file}" run "${script}" release/next 43
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"proposing v0.1.0"* ]]
+  [[ ! -s "${output_file}" ]]
 }
 
 @test "an open release pull request makes the run stand down" {

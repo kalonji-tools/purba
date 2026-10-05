@@ -1,12 +1,13 @@
-# The workflow that proposes a release, and tags it once it merges. It signs
-# nothing.
+# The workflow that proposes a release, tags it once it merges, and starts
+# Publish on the tag. It signs nothing.
 #
 #   the work:      .github/scripts/release.sh
 #   the failure:   .github/scripts/report-release-failure.sh
+#   the upload:    .github/workflows/publish.yml
 #   the register:  cliff.toml
 #   the decision:  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
 #
-# ⚠️ Keep the shell in the script. The only shell here calls it.
+# ⚠️ Keep the shell in the scripts. Each `run:` here is one command.
 name: Release
 
 on:
@@ -21,6 +22,8 @@ permissions:
   contents: write
   # The failure step below opens or comments on an issue.
   issues: write
+  # The publish step below dispatches a workflow.
+  actions: write
   # `pull-requests:` is absent: the App token opens the pull request.
 
 concurrency:
@@ -60,10 +63,23 @@ jobs:
           private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
 
       - name: Tag the version main names, or propose the next
+        id: release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
         run: .github/scripts/release.sh "$BRANCH" "$ISSUE"
+
+      # ⚠️ Keep this on `GITHUB_TOKEN`. A tag that token pushes starts no workflow,
+      # and a dispatch it sends always starts one. The App holds no Actions
+      # permission.
+      # https://docs.github.com/en/actions/concepts/security/github_token
+      - name: Publish the tag it pushed
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: gh workflow run publish.yml --ref "$TAG"
 
       # ⚠️ Keep this step in the workflow, not in the script, and keep it on
       # `GITHUB_TOKEN`. The App is narrowed to pull requests, so the token

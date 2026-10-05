@@ -22,10 +22,9 @@ license-files = ["LICENSE"]
 # No `License ::` entry: PEP 639 deprecated licence classifiers in favour of the
 # `license` expression above, and carrying both invites them to disagree.
 #
-# No `Operating System ::` entries either. Those are a projection of the tested
-# platform set, and there is no test matrix yet. A platform claim with
-# nothing comparing it against reality is precisely the drift this project
-# refuses; the classifiers arrive when the matrix that justifies them does.
+# No `Operating System ::` entries either. Each wheel's platform tag already
+# states where it installs, and nothing would compare a second list with it.
+# https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
 #
 # No `Programming Language :: Python :: 3.x` entries, ever. They would be a
 # second version-shaped set that nothing compares against `requires-python`.
