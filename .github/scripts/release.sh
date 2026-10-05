@@ -10,6 +10,8 @@
 #   GH_TOKEN   a token that may open a pull request
 #
 # Pushes with the credentials of the checkout, which must hold every tag.
+# Names a tag it pushes as `tag=v<version>` in GITHUB_OUTPUT, where a runner sets
+# one.
 #
 # Exits 0 when it tags, proposes, or deliberately does neither, and 2 when it
 # cannot run.
@@ -94,6 +96,7 @@ if [[ "${version}" != 0.0.0 ]] &&
     echo "::error::v${version} could not be pushed" >&2
     exit 2
   fi
+  [[ -z "${GITHUB_OUTPUT:-}" ]] || echo "tag=v${version}" >>"${GITHUB_OUTPUT}"
   exit 0
 fi
 
