@@ -86,13 +86,38 @@ links "A link to a file or a heading in this tree is refused when its target doe
 exist. A renamed file leaves every link to it dead." "${inputs}" --offline
 
 # The offline leg reads every link to a file already, so this one reads only an
-# address on the network, and a dead file link is reported once.
+# address on the network, and never reports a dead file link a second time.
 if [[ -n "${changed}" ]]; then
   links "A link in a file this branch changes is refused when it does not answer, because a \
 server that does not answer leaves its reader nowhere. A link in any other file is read only for \
 a target in this tree." "${changed}" --scheme https \
     --scheme http
 fi
+
+# PyPI's renderer points a link to a heading at the same page, so that one passes.
+# https://github.com/pypa/readme_renderer/blob/main/readme_renderer/markdown.py
+readme=$(sed -n 's/^readme = "\(.*\)"$/\1/p' pyproject.toml 2>/dev/null || true)
+[[ -n "${readme}" ]] || {
+  printf 'pyproject.toml names no readme, so the page PyPI shows cannot be found.\n' >&2
+  exit 2
+}
+found=$(lychee --dump --offline --files-from - <<<"${readme}" 2>&1) || {
+  printf 'lychee could not run.\n%s\n' "${found}" >&2
+  exit 2
+}
+relative=()
+while IFS= read -r address; do
+  [[ "${address}" == file://* && "${address}" != "file://${top}/${readme}#"* ]] || continue
+  relative+=("  ${readme}: ${address#"file://${top}/"}")
+done <<<"${found}"
+
+[[ ${#relative[@]} -eq 0 ]] || {
+  detail=$(printf '%s\n' "${relative[@]}")
+  report "A link in the README is refused unless it names a full address or a heading of the \
+README, because PyPI shows the README as purba's page, and any other link resolves to nothing \
+there." "${detail}"
+  broken=1
+}
 
 # A comment line opens with `#` or `//`. Markdown is left out, because `#` opens
 # a heading there.
