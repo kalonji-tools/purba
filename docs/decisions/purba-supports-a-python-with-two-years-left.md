@@ -38,6 +38,9 @@ It is short enough that the floor does not outrun the versions people run.
 **The floor is recomputed when the version below it crosses the span.**
 That is an event in the release calendar rather than a date in this file.
 
+**A rise of the floor is a breaking change.**
+Its commit is a `feat` that carries `!`, so `cliff.toml` gives it the version a breaking feature earns.
+
 **`requires-python` carries no upper bound.**
 An abi3 wheel loads on a version that did not exist when it was built.
 So the claim above the floor is true, and nothing tests every version that satisfies it.
@@ -47,19 +50,19 @@ So the claim above the floor is true, and nothing tests every version that satis
 
 | location | what it sets | when the floor rises without it |
 |---|---|---|
-| `pyproject.toml` | the version a resolver refuses below | nothing refuses it |
-| `Cargo.toml` | the abi3 feature, which sets the wheel tag | nothing refuses it |
+| `pyproject.toml` | the version a resolver refuses below | `.github/workflows/publish.yml` refuses the next upload |
+| `Cargo.toml` | the abi3 feature, which sets the wheel tag | `.github/workflows/publish.yml` refuses the next upload |
 | `mise.toml` | the interpreter `mise run` builds against | `mise run check` refuses, because pyo3 compares the abi3 feature with that interpreter |
 | `mise.lock` | the version that interpreter resolves to | mise refuses a version the lockfile does not hold |
 | `.github/workflows/build.yml` | the interpreters the wheel matrix builds on | the arm below the floor fails, because pip refuses its wheel |
 
 **Downside:**
 
-- **Nothing refuses a disagreement between `requires-python` and the abi3 feature.** A person who moves one and leaves the other passes every check. The symptom is a wheel tag and a `requires-python` that name different versions.
+- **Only the upload refuses a disagreement between `requires-python` and the abi3 feature.** A person who moves one and leaves the other passes every check before the merge. The next release then fails.
 - **Nothing refuses a matrix without its floor arm.** No job then builds the wheel on the floor.
 - **Nothing refuses a build on an interpreter below the floor.** `maturin build --interpreter` writes a version-specific wheel and a warning. `mise run build` uses the interpreter mise supplies, so only a build that names another interpreter meets this.
 - **The span is a judgement and this record freezes it.** No measurement chose two years, so a later reader can only find the reasoning above, never a number that settles it.
-- **A free-threaded reader on 3.15 and later finds no wheel.** That interpreter refuses an abi3 wheel, `requires-python` still reads as yes, and the repair is the `abi3t` feature structure, which waits on the seam direction.
+- **A free-threaded reader finds no wheel.** Every free-threaded build refuses an abi3 wheel, and `requires-python` still reads as yes. The free-threaded arm of `build.yml` loads a wheel built for that interpreter alone, and no release ships that wheel. The repair is the `abi3t` feature structure, which waits on the seam direction.
 
 ## Confirmation
 
@@ -67,4 +70,5 @@ A floor is proved by a wheel that builds on it and then loads on it.
 
 [Does the wheel matrix carry free-threaded builds?](https://github.com/kalonji-tools/purba/issues/63) decided this floor and the arms that exercise it.
 `.github/workflows/build.yml` runs those arms. Its first arm is the floor.
-No job reads the wheel tag, so a wheel built without the abi3 feature also passes.
+`.github/workflows/publish.yml` refuses to upload a wheel unless its tag is abi3 at the floor that `requires-python` names.
+`build.yml` reads no tag, so a wheel built without the abi3 feature passes it.

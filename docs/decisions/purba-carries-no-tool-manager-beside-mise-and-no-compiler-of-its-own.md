@@ -68,12 +68,13 @@ Every continuous integration runner already carries one.
 A NixOS machine does not, and `pkgs.gcc` supplies both `cc` and `ld` there.
 
 The Linux wheel floor is whatever the host provides.
-Buying a lower floor is deferred to whatever publishes wheels, and zig is the measured way to buy it.
+`.github/workflows/publish.yml` keeps that floor.
+A lower floor waits for a reader who asks for one, and zig is the measured way to buy it.
 
 **Downside:**
 
 - **A machine with no C compiler does not build purba at all.** Nothing detects that before the first build script fails.
-- **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing today because nobody installs these wheels, and will cost something the day somebody does.
+- **The Linux floor is glibc 2.34 rather than 2.17.** It costs nothing while the extension exports nothing. Once it does, a reader on an older glibc finds no wheel.
 - **The toolchain's entry records a version and verifies none.** `core:rust` downloads no artifacts and so carries no checksum.
 - **The entry for `bats` verifies nothing either.** `mise lock` records a URL for it and no checksum.
 - **Nothing moves mise's own pinned version.** mise cannot pin itself, and no bot reads a workflow input.
