@@ -113,10 +113,8 @@ prose=$(awk '
           "through against into onto over under", w, " ")
     for (i in w) prep[w[i]] = 1
 
-    split("not never already also still only now then always often again " \
-          "just therefore deliberately silently correctly genuinely simply " \
-          "actually explicitly fully partly largely readily freely rarely " \
-          "once", w, " ")
+    split("not never already also still now then always often again " \
+          "just therefore once since ever twice", w, " ")
     for (i in w) adverb[w[i]] = 1
 
     # A participle that does not end in `-ed`.
@@ -203,11 +201,15 @@ prose=$(awk '
     return (w ~ /ed$/ && length(w) > 3)
   }
 
+  function is_adverb(w) {
+    return (w in adverb) || w ~ /ly$/
+  }
+
   # The word before, skipping one adverb.
   function prior(arr, i,   p) {
     if (i < 2) return ""
     p = tolower(arr[i - 1])
-    if (p in adverb && i > 2) p = tolower(arr[i - 2])
+    if (is_adverb(p) && i > 2) p = tolower(arr[i - 2])
     return p
   }
 
