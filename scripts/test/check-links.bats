@@ -12,11 +12,14 @@ setup() {
   write a.md '[the title](b.md#title)'
   write docs/decisions/record.md '# A record'
   write tasks.toml '#   the decision:  docs/decisions/record.md'
+  write pyproject.toml '[project]' 'readme = "README.md"'
+  write README.md '# purba'
   settle
   export PURBA_BASE=HEAD
   offline="A link to a file or a heading in this tree is refused"
   online="A link in a file this branch changes is refused"
   cited="A path that a comment cites is refused"
+  pypi="A link in the README is refused unless it names a full address or a heading of the README"
 }
 
 # Each file is written whole, one argument to a line.
@@ -37,6 +40,7 @@ fake_lychee() {
   fake lychee <<'FAKE'
 leg=online
 [[ "$*" != *--offline* ]] || leg=offline
+[[ "$*" != *--dump* ]] || leg=readme
 cat >"${BATS_TEST_TMPDIR}/inputs.${leg}"
 FAKE
 }
@@ -135,16 +139,18 @@ FAKE
   [[ "${status}" -eq 0 ]]
   asked=$(calls lychee)
   mapfile -t legs <<<"${asked}"
-  [[ ${#legs[@]} -eq 2 ]]
-  [[ "${legs[0]}" == *"--offline"* ]]
+  [[ ${#legs[@]} -eq 3 ]]
+  [[ "${legs[0]}" == *"--offline"* && "${legs[0]}" != *"--dump"* ]]
   [[ "${legs[1]}" != *"--offline"* ]]
+  [[ "${legs[2]}" == *"--dump"* ]]
   online_inputs=$(LC_ALL=C sort "${BATS_TEST_TMPDIR}/inputs.online")
   expected=$(printf '%s\n' .gitattributes c.md)
   [[ "${online_inputs}" == "${expected}" ]]
   offline_inputs=$(LC_ALL=C sort "${BATS_TEST_TMPDIR}/inputs.offline")
-  expected=$(printf '%s\n' .gitattributes a.md c.md chorestart docs/decisions/record.md \
-    lychee.toml tasks.toml)
+  expected=$(printf '%s\n' .gitattributes README.md a.md c.md chorestart \
+    docs/decisions/record.md lychee.toml pyproject.toml tasks.toml)
   [[ "${offline_inputs}" == "${expected}" ]]
+  [[ "$(<"${BATS_TEST_TMPDIR}/inputs.readme")" == "README.md" ]]
 }
 
 @test "on a laptop the base is the merge base with origin/main" {
@@ -279,6 +285,88 @@ FAKE
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"tasks.toml:1: docs/untracked.md"* ]]
+}
+
+@test "a relative link in the README is refused" {
+  write LICENSE 'MIT'
+  write README.md '# purba' '[MIT License](LICENSE)'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${pypi}"* ]]
+  [[ "${output}" == *"README.md: LICENSE"* ]]
+  [[ "${output}" != *"${offline}"* ]]
+}
+
+@test "a relative image in the README is refused" {
+  write docs/logo.png 'png'
+  write README.md '# purba' '![the logo](docs/logo.png)'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"README.md: docs/logo.png"* ]]
+}
+
+@test "a relative reference definition and a relative HTML link in the README are refused" {
+  write CONTRIBUTING.md '# Contributing'
+  write README.md '# purba' '[the guide][guide]' '' '[guide]: CONTRIBUTING.md' \
+    '<a href="b.md">b</a>'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"README.md: CONTRIBUTING.md"* ]]
+  [[ "${output}" == *"README.md: b.md"* ]]
+}
+
+@test "a link to a heading of the README passes" {
+  write README.md '# purba' '## Building' '[Building](#building)'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a relative link in a file PyPI does not show passes" {
+  write LICENSE 'MIT'
+  write a.md '[MIT License](LICENSE)'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "the README is the file pyproject.toml names" {
+  write LICENSE 'MIT'
+  write README.md '# purba' '[MIT License](LICENSE)'
+  write pyproject.toml '[project]' 'readme = "docs/page.md"'
+  write docs/page.md '# A page' '[the record](decisions/record.md)'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"docs/page.md: docs/decisions/record.md"* ]]
+  [[ "${output}" != *"README.md:"* ]]
+}
+
+@test "a pyproject.toml that names no readme stops the check with exit 2" {
+  write pyproject.toml '[project]' 'name = "purba"'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"names no readme"* ]]
 }
 
 @test "every refusal is reported in one run" {
