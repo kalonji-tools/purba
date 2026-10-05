@@ -42,14 +42,14 @@ It cannot regenerate `mise.lock`.
 
 **Downside:**
 
-- **Dependabot cannot write a subject in purba's form.** It writes a prefix and never a suffix. A security update also inserts `[security]` after the prefix. So each of its pull requests needs a reduction. The reduction rewrites each subject to end in the number of [Keep the workflow actions current with Dependabot](https://github.com/kalonji-tools/purba/issues/282).
+- **Dependabot cannot write a subject in purba's form.** It writes a prefix and never a suffix. A security update also inserts `[Security]` after the prefix. It takes the case of its first word from the history of `main`, and `subject-form` in `prek.toml` refuses a capital after the colon. So each of its pull requests needs a reduction. The reduction rewrites each subject to end in the number of [Keep the workflow actions current with Dependabot](https://github.com/kalonji-tools/purba/issues/282).
 - **Dependabot no longer rebases a branch once someone else pushes a commit to it.** The reduction is such a push.
 - **A workflow that no pull request runs meets a newer action only on its next run.** `bump.yml` runs on a schedule. `release.yml` runs by hand.
 
 | update | as Dependabot writes it | once reduced, where `N` is that issue's number |
 |---|---|---|
-| version | `ci(deps): bump the actions group with 2 updates` | `ci(deps): bump the actions group with 2 updates (#N)` |
-| security | `ci(deps): [security] bump actions/checkout from 4 to 7` | `ci(deps): bump actions/checkout from 4 to 7 (#N)` |
+| version | `ci(deps): Bump the actions group with 2 updates` | `ci(deps): bump the actions group with 2 updates (#N)` |
+| security | `ci(deps): [Security] Bump actions/checkout from 4 to 7` | `ci(deps): bump actions/checkout from 4 to 7 (#N)` |
 
 ## Confirmation
 
