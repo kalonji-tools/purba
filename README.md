@@ -66,9 +66,11 @@ worktree. They refuse a commit whose subject or whose files break a rule, and
 
 ## License
 
-purba is licensed under the [MIT License](LICENSE).
+purba is licensed under the
+[MIT License](https://github.com/kalonji-tools/purba/blob/main/LICENSE).
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in purba shall be licensed as above, without any additional terms
-or conditions. [CONTRIBUTING.md](CONTRIBUTING.md) states what you certify when
-you submit one, and how to write it.
+or conditions.
+[CONTRIBUTING.md](https://github.com/kalonji-tools/purba/blob/main/CONTRIBUTING.md)
+states what you certify when you submit one, and how to write it.
