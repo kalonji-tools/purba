@@ -10,7 +10,7 @@ min_version = "2026.8.6"
 #   the decisions: docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
 #                  docs/decisions/the-nightly-is-named-by-a-date.md
 # https://mise.jdx.dev/lang/rust
-rust = { version = "nightly-2026-09-29", components = "clippy,rustfmt,rust-analyzer,rust-src" }
+rust = { version = "nightly-2026-10-05", components = "clippy,rustfmt,rust-analyzer,rust-src" }
 
 # The floor `pyproject.toml` and `Cargo.toml` already name.
 # https://mise.jdx.dev/lang/python
