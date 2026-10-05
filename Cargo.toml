@@ -2,7 +2,7 @@
 name = "purba"
 # git-cliff computes the version and .github/scripts/release.sh writes it here,
 # so it is never chosen by hand. `0.0.0` means nothing is released yet.
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
 license = "MIT"
 description = "A Python test framework written in Rust"
