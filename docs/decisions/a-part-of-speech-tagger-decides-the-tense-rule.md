@@ -35,7 +35,8 @@ Only the lines the gate reads count.
 **A part-of-speech tagger decides the tense rule.**
 The check walks back from a participle to `has`, `have`, `had` or `having`.
 It stops at a determiner, a number, a noun, `to`, a form of `be` or a code span.
-In a question that opens with a form of `have`, a determiner, a number and a noun do not stop it.
+In a question that opens with a form of `have` or a question word, a determiner, a number and a noun do not stop it.
+Between `have` and the participle, a determiner or a number with no noun or pronoun opens a noun phrase, so `What has a fixed span?` is a possession.
 
 **The tagger does not catch every tense the word-list walk catches, and the trade is accepted.**
 
@@ -73,7 +74,8 @@ A tag does not separate `is refused` from `is closed`, so the passive count gain
 **Downside:**
 
 - **The tagger refuses a question about a possession.** `Has the record a fixed span?` is one. No line of the measured prose holds one.
-- **The tagger passes a question that opens with a question word.** `Which records has the gate refused?` is one. [The records gate passes a perfect tense in a question that opens with a question word](https://github.com/kalonji-tools/purba/issues/315) waits on it.
+- **The tagger refuses a question about a change to a possession.** `Which record has its scope narrowed?` is one. No line of the measured prose holds one.
+- **The tagger passes a question whose subject is a determiner alone.** `Has each refused it?` is one. No line of the measured prose holds one.
 - **A participle that Harper's dictionary lacks passes until purba's list holds it.** `grown` is the one such word the measurement found.
 - **purba cannot fix a word the tagger reads wrong.** A trained model assigns the tag, and a word list took one line to fix.
 - **A new Harper version can change a verdict on text that did not change.** The version moves only through a pull request that edits the tag, and the records gate runs on that pull request.
