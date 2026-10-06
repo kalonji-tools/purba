@@ -79,7 +79,7 @@ refusing_hook() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A commit is refused when it replays empty, ${trailer}"* ]]
-  [[ "${output}" == *"feat: nothing"* ]]
+  [[ "${output}" == *$'\n  '[0-9a-f]*" feat: nothing"* ]]
 }
 
 # Both sides add one file with one content, so the flattened replay finds the

@@ -15,10 +15,8 @@ set -euo pipefail
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-git rev-parse --git-dir >/dev/null 2>&1 || {
-  printf 'a caller can only be read inside a git repository.\n' >&2
-  exit 2
-}
+git rev-parse --git-dir >/dev/null 2>&1 ||
+  cannot 'a caller can only be read inside a git repository.'
 
 # Only what can run a script counts, so `docs/` is deliberately absent.
 #
@@ -26,19 +24,13 @@ git rev-parse --git-dir >/dev/null 2>&1 || {
 # substitution, because that discards the exit status, and a masked git failure
 # has already made `check-replayable.sh` misreport once.
 # https://www.shellcheck.net/wiki/SC2312
-scripts_list=$(git ls-files '*.sh' 'scripts/*.rs' '.github/*.rs') || {
-  printf 'the tracked scripts cannot be listed.\n' >&2
-  exit 2
-}
-callers_list=$(git ls-files '.github/workflows/*.yml' '*.sh' 'tasks.toml' 'prek.toml') || {
-  printf 'the tracked callers cannot be listed.\n' >&2
-  exit 2
-}
+scripts_list=$(git ls-files '*.sh' 'scripts/*.rs' '.github/*.rs') ||
+  cannot 'the tracked scripts cannot be listed.'
+callers_list=$(git ls-files '.github/workflows/*.yml' '*.sh' 'tasks.toml' 'prek.toml') ||
+  cannot 'the tracked callers cannot be listed.'
 
-[[ -n "${scripts_list}" ]] || {
-  printf 'no script is tracked, so no placement can be decided.\n' >&2
-  exit 2
-}
+[[ -n "${scripts_list}" ]] ||
+  cannot 'no script is tracked, so no placement can be decided.'
 
 # The caller glob covers `*.sh`, so this list is never empty while the one
 # above is not.
@@ -81,22 +73,16 @@ for script in "${scripts[@]}"; do
   fi
 done
 
-broken=0
-
-[[ ${#stranded[@]} -eq 0 ]] || {
-  detail=$(printf '  %s\n' "${stranded[@]}")
-  report "A script is refused when every caller of it lives in the other half. Only GitHub runs \
+[[ ${#stranded[@]} -eq 0 ]] || refuse \
+  "A script is refused when every caller of it lives in the other half. Only GitHub runs \
 what lives under .github, and a script a person or this project's own tooling runs lives in \
-scripts/." "${detail}"
-  broken=1
-}
+scripts/." \
+  "${stranded[@]}"
 
-[[ ${#unreachable[@]} -eq 0 ]] || {
-  detail=$(printf '  %s\n' "${unreachable[@]}")
-  report "A script under .github that nothing under .github names is reached by nothing, because \
+[[ ${#unreachable[@]} -eq 0 ]] || refuse \
+  "A script under .github that nothing under .github names is reached by nothing, because \
 the runners there are enumerable. A script a person runs lives in scripts/, where the person is a \
-caller this command cannot see." "${detail}"
-  broken=1
-}
+caller this command cannot see." \
+  "${unreachable[@]}"
 
-exit "${broken}"
+finish

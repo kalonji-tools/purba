@@ -13,39 +13,27 @@ set -euo pipefail
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-top=$(git rev-parse --show-toplevel 2>/dev/null) || {
-  printf 'the manifests can only be found inside a git repository.\n' >&2
-  exit 2
-}
+top=$(git rev-parse --show-toplevel 2>/dev/null) ||
+  cannot 'the manifests can only be found inside a git repository.'
 cd "${top}"
 
-tools=$(MISE_OFFLINE=1 mise ls --current --json) || {
-  printf 'mise.toml cannot be read.\n' >&2
-  exit 2
-}
-crates=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml) || {
-  printf 'Cargo.toml cannot be read.\n' >&2
-  exit 2
-}
-scripts_list=$(git ls-files 'scripts/*.rs' '.github/*.rs') || {
-  printf 'the tracked cargo scripts cannot be listed.\n' >&2
-  exit 2
-}
+tools=$(MISE_OFFLINE=1 mise ls --current --json) ||
+  cannot 'mise.toml cannot be read.'
+crates=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml) ||
+  cannot 'Cargo.toml cannot be read.'
+scripts_list=$(git ls-files 'scripts/*.rs' '.github/*.rs') ||
+  cannot 'the tracked cargo scripts cannot be listed.'
 scripts='[]'
 while read -r script; do
   [[ -n "${script}" ]] || continue
-  manifest=$(cargo metadata -Zscript --no-deps --format-version 1 --manifest-path "${script}") || {
-    printf '%s cannot be read.\n' "${script}" >&2
-    exit 2
-  }
+  manifest=$(cargo metadata -Zscript --no-deps --format-version 1 --manifest-path "${script}") ||
+    cannot "${script} cannot be read."
   scripts=$(jq -c --arg file "${script}" --argjson manifest "${manifest}" \
     '. + [$manifest.packages[].dependencies[] | {file: $file, as: .name, name: .name}]' \
     <<<"${scripts}")
 done <<<"${scripts_list}"
-mise config get -f pyproject.toml >/dev/null || {
-  printf 'pyproject.toml cannot be read.\n' >&2
-  exit 2
-}
+mise config get -f pyproject.toml >/dev/null ||
+  cannot 'pyproject.toml cannot be read.'
 
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
 conflicts=$(jq -nr \
@@ -65,33 +53,25 @@ conflicts=$(jq -nr \
   | group_by(.name)
   | map(select(map(.file) | unique | length > 1))
   | .[]
-  | "  \(.[0].name): " + (map("\(.file) as \(.as)") | unique | join(", "))
-') || {
-  printf 'the manifests cannot be compared.\n' >&2
-  exit 2
-}
+  | "\(.[0].name): " + (map("\(.file) as \(.as)") | unique | join(", "))
+') ||
+  cannot 'the manifests cannot be compared.'
 
 declared=()
 for key in build-system.requires project.dependencies project.optional-dependencies \
   dependency-groups; do
   value=$(mise config get -f pyproject.toml "${key}" 2>/dev/null) || continue
-  [[ "${value}" == "[]" ]] || declared+=("  ${key}")
+  [[ "${value}" == "[]" ]] || declared+=("${key}")
 done
 
-broken=0
-
-[[ -z "${conflicts}" ]] || {
-  report "A package is refused when two manifests declare it, because the two declarations can \
+[[ -z "${conflicts}" ]] || refuse \
+  "A package is refused when two manifests declare it, because the two declarations can \
 drift apart." \
-    "${conflicts}"
-  broken=1
-}
+  "${conflicts}"
 
-[[ ${#declared[@]} -eq 0 ]] || {
-  detail=$(printf '%s\n' "${declared[@]}")
-  report "A package in pyproject.toml is refused until purba chooses its Python manager. The \
-change that declares the first one gives this check a reader for it." "${detail}"
-  broken=1
-}
+[[ ${#declared[@]} -eq 0 ]] || refuse \
+  "A package in pyproject.toml is refused until purba chooses its Python manager. The \
+change that declares the first one gives this check a reader for it." \
+  "${declared[@]}"
 
-exit "${broken}"
+finish

@@ -29,7 +29,7 @@ setup() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == "A commit is refused when it carries no Signed-off-by trailer"* ]]
   [[ "${output}" == *"because that trailer records who may submit it"* ]]
-  [[ "${output}" == *"feat: unsigned"* ]]
+  [[ "${output}" == *$'\n  '[0-9a-f]*" feat: unsigned"* ]]
   [[ "${output}" != *"feat: signed"* ]]
 }
 

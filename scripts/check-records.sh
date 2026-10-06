@@ -25,10 +25,7 @@ dir=${1:-docs/decisions}
 shopt -s nullglob
 records=("${dir}"/*.md)
 
-[[ ${#records[@]} -gt 0 ]] || {
-  printf 'no record found in %s.\n' "${dir}" >&2
-  exit 2
-}
+[[ ${#records[@]} -gt 0 ]] || cannot "no record found in ${dir}."
 
 required=$(printf '%s\n' \
   '## Context and Problem Statement' \
@@ -48,15 +45,6 @@ optional=$(printf '%s\n' \
 # The last alternative matches a table cell answering `no`, which is how a
 # record states an unwired gate without writing a sentence.
 admits='not wired|not written yet|does not exist yet|by hand|\| *no *\|'
-
-broken=0
-
-# The blank line keeps one refusal apart from the next in a terminal.
-refuse() {
-  printf '\n' >&2
-  report "$1" "$(printf '  %s\n' "${@:2}")"
-  broken=1
-}
 
 found=()
 for f in "${records[@]}"; do
@@ -403,10 +391,8 @@ here=$(cd "$(dirname "$0")" && pwd)
 tense=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-tense/Cargo.lock\"" \
   run --quiet --release --locked --manifest-path "${here}/check-tense/check-tense.rs" \
   --target-dir "${here}/../target/scripts" -- \
-  "${CHECK_TENSE_PARTICIPLES:-${here}/check-tense/participles.txt}" "${records[@]}") || {
-  printf 'the tense of a record cannot be decided.\n' >&2
-  exit 2
-}
+  "${CHECK_TENSE_PARTICIPLES:-${here}/check-tense/participles.txt}" "${records[@]}") ||
+  cannot 'the tense of a record cannot be decided.'
 found=()
 [[ -z "${tense}" ]] || mapfile -t found <<<"${tense}"
 [[ ${#found[@]} -eq 0 ]] || refuse \
@@ -482,10 +468,8 @@ is refused here." \
 unmarked, and more means a cost opens mid-line and does not render." \
   "${unsignalled[@]}"
 
-git rev-parse --git-dir >/dev/null 2>&1 || {
-  printf 'a numbered-record citation can only be read inside a git repository.\n' >&2
-  exit 2
-}
+git rev-parse --git-dir >/dev/null 2>&1 ||
+  cannot 'a numbered-record citation can only be read inside a git repository.'
 mapfile -t found < <(git grep -InE 'ADR-[0-9]+' || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A number cannot be checked against the record it names, so source cites a record by its \
@@ -550,4 +534,4 @@ awk '
   }
 ' "${records[@]}" | sort -rn
 
-exit "${broken}"
+finish

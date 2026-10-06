@@ -14,15 +14,10 @@ set -euo pipefail
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-if [[ $# -ne 2 ]]; then
-  echo "usage: check-origin.sh <base> <head>" >&2
-  exit 2
-fi
+[[ $# -eq 2 ]] || cannot "usage: check-origin.sh <base> <head>"
 
-if ! commits=$(git rev-list "$1".."$2" 2>&1); then
-  report "the origin check could not read the range $1..$2." "${commits}"
-  exit 2
-fi
+commits=$(git rev-list "$1".."$2" 2>&1) ||
+  cannot "the origin check could not read the range $1..$2." "${commits}"
 
 # Read the trailer, never the message. The decision above says why.
 #
@@ -45,6 +40,7 @@ records who may submit it. CONTRIBUTING.md has the command that adds it."
     summary="${summary} A merge commit below is not one you can sign."
   fi
 
-  report "${summary}" "${missing}"
-  exit 1
+  refuse "${summary}" "${missing}"
 fi
+
+finish

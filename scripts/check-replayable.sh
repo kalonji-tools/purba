@@ -16,15 +16,10 @@ set -euo pipefail
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-if [[ $# -ne 2 ]]; then
-  echo "usage: check-replayable.sh <base> <head>" >&2
-  exit 2
-fi
+[[ $# -eq 2 ]] || cannot "usage: check-replayable.sh <base> <head>"
 
-if ! base=$(git merge-base "$1" "$2" 2>&1); then
-  report "the replay check could not find where $2 leaves $1." "${base}"
-  exit 2
-fi
+base=$(git merge-base "$1" "$2" 2>&1) ||
+  cannot "the replay check could not find where $2 leaves $1." "${base}"
 
 # Inside the worktree below, the name `HEAD` is the replayed commit, not this one.
 head=$(git rev-parse "$2^{commit}")
@@ -39,10 +34,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! out=$(git worktree add --detach --quiet "${worktree}" "${head}" 2>&1); then
-  report "the replay check could not make a worktree to replay $2 in." "${out}"
-  exit 2
-fi
+out=$(git worktree add --detach --quiet "${worktree}" "${head}" 2>&1) ||
+  cannot "the replay check could not make a worktree to replay $2 in." "${out}"
 
 # `git commit` refuses to run without a committer, and a fresh checkout has
 # none. This reaches the replay through the environment, so nothing is written
@@ -74,17 +67,17 @@ if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1);
   merges=$(git log --merges --format='%h %s' "${base}..${head}")
 
   if [[ -n "${merges}" ]]; then
-    report "A branch is refused when its replay changes its content, because the rewrite that \
+    refuse "A branch is refused when its replay changes its content, because the rewrite that \
 signs it must leave your content untouched. The replay flattens a merge commit, and the changes \
 made in that merge are lost. Rebase your branch onto its base instead." "${changed}
 
 ${merges}"
   else
-    report "A branch is refused when its replay changes its content, because the rewrite that \
+    refuse "A branch is refused when its replay changes its content, because the rewrite that \
 signs it must leave your content untouched. This check cannot say why the content changed, \
 because the branch carries no merge commit." "${changed}"
   fi
-  exit 1
+  finish
 fi
 
 # git names the commit it stopped on, and says which way it stopped. A commit
@@ -108,18 +101,18 @@ parent_tree=$(git -C "${worktree}" rev-parse 'HEAD^1^{tree}' 2>/dev/null || true
 replay_tail=$(printf '%s\n' "${replay}" | tail -8)
 
 if [[ -f "${state}/stopped-sha" ]]; then
-  report "A commit is refused when it does not apply where purba replays your branch, because \
+  refuse "A commit is refused when it does not apply where purba replays your branch, because \
 purba writes its Accepted-by trailer into each commit it replays. A merge commit whose conflict \
 you resolved by hand is the usual cause. Rebase your branch onto its base instead." "${detail}"
 elif [[ -n "${stopped}" && -n "${parent_tree}" && "${stopped_tree}" = "${parent_tree}" ]]; then
-  report "A commit is refused when it replays empty, because purba writes its Accepted-by trailer \
+  refuse "A commit is refused when it replays empty, because purba writes its Accepted-by trailer \
 into each commit it replays and an empty commit cannot hold one. Remove the commit. The replay \
 empties a commit whose change is already on the base as well." "${detail}"
 else
-  report "A branch is refused when its replay stops, because purba writes its Accepted-by trailer \
+  refuse "A branch is refused when its replay stops, because purba writes its Accepted-by trailer \
 into each commit it replays. This check cannot say why it stopped here. git wrote what follows." \
     "${detail}
 
 ${replay_tail}"
 fi
-exit 1
+finish
