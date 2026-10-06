@@ -544,7 +544,11 @@ refused the record."
 @test "a tense in a table row, a heading or a link title is not read" {
   for block in "| a | The gate has refused the record. |
 |---|---|" "### The gate has refused the record" \
-    "See [the gate has refused the record](https://example.com) here."; do
+    "See [the gate has refused the record](https://example.com) here." \
+    "[**The gate has refused the record**](https://example.com) is the case." \
+    "[*The gate has refused the record*](https://example.com) is the case." \
+    "[~~The gate has refused the record~~](https://example.com) is the case." \
+    "See [[the gate has refused the record]] here."; do
     compliant >"${record}"
     prose "Something needs a decision.
 
@@ -554,6 +558,17 @@ ${block}"
 
     [[ "${status}" -eq 0 ]]
   done
+}
+
+@test "a paragraph that ends in a link still ends there" {
+  prose "See [the list](https://example.com)
+
+Has the gate refused it?"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:7: has refused"* ]]
 }
 
 @test "a Downside label followed by a sentence is refused" {
