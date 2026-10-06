@@ -736,6 +736,24 @@ Has the gate refused it?"
   [[ "${output}" == *"in the passive voice             3 of     9 sentences  33%"* ]]
 }
 
+@test "a participle with no -ed ending is the passive voice" {
+  prose "The record is written."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"in the passive voice             3 of     8 sentences  37%"* ]]
+}
+
+@test "a word with no -ed ending that no list names is not a participle" {
+  prose "The gate is open."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"in the passive voice             2 of     8 sentences  25%"* ]]
+}
+
 @test "evidence density is reported for each record and for all of them" {
   run "${script}"
 
