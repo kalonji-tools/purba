@@ -330,6 +330,15 @@ words() {
   [[ "${output}" == *"${record}:5: running"* ]]
 }
 
+@test "two adverbs between the two do not hide the gerund" {
+  prose "The gate is not always running the checks."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: running"* ]]
+}
+
 @test "a technical noun passes where a gerund is refused" {
   prose "A rule is nothing without tooling."
 
@@ -374,6 +383,32 @@ words() {
 
 @test "a modal with the bare verb passes, and so does a bound worth having" {
   prose "The gate must be run, and that is a bound worth having."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "two adverbs do not hide a perfect tense" {
+  prose "The gate has not yet refused a record."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has refused"* ]]
+}
+
+@test "two adverbs do not hide a perfect tense after having" {
+  prose "Having not yet refused it, the gate waits."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: having refused"* ]]
+}
+
+@test "adverbs that open a sentence are not a tense" {
+  prose "Not yet refused, the record stands."
 
   run "${script}"
 
@@ -523,6 +558,15 @@ words() {
   [[ "${output}" == *"the borrowed rules a command reports and never refuses"* ]]
   [[ "${output}" == *"in the passive voice             3 of     9 sentences  33%"* ]]
   [[ "${output}" == *"the formal words found"*"utilize"* ]]
+}
+
+@test "two adverbs do not hide the passive voice" {
+  prose "The gate is not yet refused by nothing. We utilize it."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"in the passive voice             3 of     9 sentences  33%"* ]]
 }
 
 @test "evidence density is reported for each record and for all of them" {
