@@ -415,6 +415,74 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
+@test "an adverb the gate does not list does not hide a perfect tense" {
+  prose "A person has even moved the date."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has moved"* ]]
+}
+
+@test "a pronoun does not hide a perfect tense" {
+  prose "The gate has itself refused the record."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has refused"* ]]
+}
+
+@test "a pronoun subject does not hide a perfect tense in a question" {
+  prose "Has anyone moved the date?"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has moved"* ]]
+}
+
+@test "a pronoun does not hide a perfect tense after having" {
+  prose "Having itself refused it, the gate waits."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: having refused"* ]]
+}
+
+@test "a determiner keeps a possession from reading as a tense" {
+  prose "The gate has a fixed span."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "to keeps an obligation from reading as a tense" {
+  prose "A check has nothing to run against."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a form of be keeps a passive from reading as a tense" {
+  prose "The gate has records which were refused."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a code span keeps a possession from reading as a tense" {
+  prose "The lock has \`rust\` pinned."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
 @test "a Downside label followed by a sentence is refused" {
   swap "**Downside:**" "**Downside:** It costs."
 
