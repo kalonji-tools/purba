@@ -25,7 +25,7 @@ In another language each of those git invocations becomes a subprocess call carr
 
 ## Considered Options
 
-- **Rust.** Rejected. A script written in Rust must be compiled before it can gate, so it cannot gate the build that compiles it.
+- **Rust, for every script.** Rejected. A script written in Rust must be compiled before it can gate, so it cannot gate the build that compiles it.
 - **Python, now.** Rejected. It costs a linter and a test runner this project does not use, and it buys nothing shell does not already have.
 - **Bash.** Chosen. Three tools already gate it, and it fits the plumbing above.
 
@@ -42,7 +42,7 @@ So was the runner.
 ## Decision Outcome
 
 **purba writes its scripts in bash.**
-A change of language is earned by something the new language brings that bash cannot, and nothing does today.
+A change of language is earned by something the new language brings that bash cannot.
 
 **A change to Python is earned when purba runs purba's own test suite.**
 purba runs Python tests and nothing else, so at that point the scripts' tests become the product's own first user.
@@ -57,12 +57,15 @@ The trigger above turns on which runner executes a script's tests, so the exclus
 A `shellspec` file ends in `.sh`, which is the glob every shell task already reads.
 The formatter therefore reaches every spec the moment it is written.
 
-**The Python inside `build.yml` is the standing exception.**
+**The Python inside `build.yml` is one standing exception.**
 A `run:` block there asserts the built extension is a real shared object, and no linter reads it.
+
+**A script that needs a Rust library is the other.**
+[A script that needs a Rust library is a cargo script](a-script-that-needs-a-rust-library-is-a-cargo-script.md) says what that script is.
 
 **Downside:**
 
-- **Nothing checks this.** The rule is decidable by file extension and no command reads it, so no gate refuses a script for the language it is written in.
+- **Nothing checks this.** An extension shows the language of a script, and no command reads it. A reviewer decides whether a `.rs` script needs its library.
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
@@ -84,4 +87,4 @@ The Downside above carries that cost.
 The first two read a glob that names `*.sh` and `*.bats`, so both reach a test file.
 `editorconfig-checker` reads every tracked file.
 
-[Which tools does mise.toml name, and how does it record a tool that is refused?](https://github.com/kalonji-tools/purba/issues/113) owns how the roster records `shellspec`, which this record refuses and the roster does not name.
+This record refuses `shellspec`, and `mise.toml` does not name it.

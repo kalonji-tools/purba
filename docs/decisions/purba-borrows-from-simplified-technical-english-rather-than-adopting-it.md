@@ -45,6 +45,8 @@ No public source carries the rule numbers, so purba cites none.
 | no part of a sentence left out | reports |
 | no more than 20 words in a procedure | neither |
 
+[A part-of-speech tagger decides the tense rule](a-part-of-speech-tagger-decides-the-tense-rule.md) says which command refuses a tense.
+
 **The active voice is reported and never refused.**
 The rule admits the passive where the agent is unknown.
 A command cannot decide whether an agent is unknown.
