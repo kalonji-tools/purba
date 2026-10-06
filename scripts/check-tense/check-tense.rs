@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 harper-core = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
 harper-pos-utils = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
+pulldown-cmark = "0.13.4"
 
 [lints.rust]
 warnings = "deny"
@@ -30,12 +31,13 @@ nursery = { level = "deny", priority = -1 }
 
 use std::sync::Arc;
 
-use harper_core::parsers::MarkdownOptions;
+use harper_core::parsers::{Markdown, Parser};
 use harper_core::spell::{FstDictionary, MergedDictionary, MutableDictionary};
 use harper_core::{
     DictWordMetadata, Document, Token, TokenKind, TokenStringExt, VerbData, VerbFormFlags,
 };
 use harper_pos_utils::UPOS;
+use pulldown_cmark::{Event, Options, Tag};
 
 const HAVE: [&str; 4] = ["has", "have", "had", "having"];
 const BE: [&str; 8] = ["is", "are", "was", "were", "be", "been", "being", "am"];
@@ -50,19 +52,54 @@ fn main() {
         std::process::exit(2);
     };
     let dictionary = dictionary(&participles);
-    // A link counts as one word in the gate, so its title is not prose.
-    let mut options = MarkdownOptions::default();
-    options.ignore_link_title = true;
 
     for path in args {
         let Ok(text) = std::fs::read_to_string(&path) else {
             eprintln!("{path} cannot be read.");
             std::process::exit(2);
         };
-        let document = Document::new_markdown(&text, options, &dictionary);
+        let document = Document::new(&text, &CollapseLinkTitles, &dictionary);
         for (line, pair) in faults(&text, document.get_tokens()) {
             println!("{path}:{line}: {pair}");
         }
+    }
+}
+
+// A link counts as one word in the gate, so its title is not prose. Harper
+// drops a title only where the link is the innermost tag, and so reads a title
+// in bold as prose: harper-core/src/parsers/markdown.rs:226 at v2.3.0. This
+// makes each title one token, as Harper makes a plain one.
+struct CollapseLinkTitles;
+
+impl Parser for CollapseLinkTitles {
+    fn parse(&self, source: &[char]) -> Vec<Token> {
+        let text: String = source.iter().collect();
+        let char_at = |byte: usize| text[..byte].chars().count();
+        // The options Harper parses with, so both find the same links.
+        let options = Options::all().difference(Options::ENABLE_SMART_PUNCTUATION);
+        let links: Vec<_> = pulldown_cmark::Parser::new_ext(&text, options)
+            .into_offset_iter()
+            .filter(|(event, _)| matches!(event, Event::Start(Tag::Link { .. })))
+            .map(|(_, range)| char_at(range.start)..char_at(range.end))
+            .collect();
+
+        let mut tokens: Vec<Token> = Vec::new();
+        for token in Markdown::default().parse(source) {
+            // A paragraph break stays, because the paragraph or the cell that a
+            // title ends still ends there.
+            let title = links.iter().find(|range| range.contains(&token.span.start));
+            let Some(link) = title.filter(|_| !token.kind.is_paragraph_break()) else {
+                tokens.push(token);
+                continue;
+            };
+            match tokens.last_mut() {
+                Some(last) if last.kind.is_unlintable() && link.contains(&last.span.start) => {
+                    last.span.end = token.span.end;
+                }
+                _ => tokens.push(Token::new(token.span, TokenKind::Unlintable)),
+            }
+        }
+        tokens
     }
 }
 
