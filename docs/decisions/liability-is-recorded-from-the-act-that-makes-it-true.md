@@ -129,10 +129,12 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
 An advisory check reports the same rule on every push, and it is deliberately not a required one.
+
 This job pushes its own rewrite.
 GitHub creates the pull request runs on the head it writes, and concludes them `action_required` with no jobs.
 A context reported by an ordinary job is absent there, and no event arrives to report it again.
 That was measured rather than reasoned.
+If the pull request merges at that head, GitHub concludes each of those runs `failure`.
 
 A trailer is written into a commit message, and a commit message is not in the tree.
 That alone does not keep the content: the replay flattens a merge commit, and the changes made in that merge are lost.
