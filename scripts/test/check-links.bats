@@ -60,7 +60,7 @@ FAKE
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${offline}"* ]]
-  [[ "${output}" == *"[a.md]"* ]]
+  [[ "${output}" == *$'\n  [a.md]'* ]]
   [[ "${output}" == *"b.md#title"* ]]
 }
 

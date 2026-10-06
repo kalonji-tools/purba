@@ -15,16 +15,12 @@ set -euo pipefail
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
 
-top=$(git rev-parse --show-toplevel 2>/dev/null) || {
-  printf 'the bindings can only be found inside a git repository.\n' >&2
-  exit 2
-}
+top=$(git rev-parse --show-toplevel 2>/dev/null) ||
+  cannot 'the bindings can only be found inside a git repository.'
 cd "${top}"
 
-[[ -r .readers ]] || {
-  printf '.readers cannot be read.\n' >&2
-  exit 2
-}
+[[ -r .readers ]] ||
+  cannot '.readers cannot be read.'
 
 # git writes NUL-separated output, which a shell variable cannot hold, so each
 # step writes a file here.
@@ -42,10 +38,8 @@ declare -A actor=()
 while IFS= read -r slug; do
   [[ -z "${slug}" ]] || actor[${slug}]=1
 done <<<"${slugs}"
-[[ ${#actor[@]} -gt 0 ]] || {
-  printf 'the roster cannot be read from %s.\n' "${record}" >&2
-  exit 2
-}
+[[ ${#actor[@]} -gt 0 ]] ||
+  cannot "the roster cannot be read from ${record}."
 
 # Every name .readers writes, and each macro it defines, read off the lines.
 # This matches no pattern, so it catches a name on a pattern that reaches no
@@ -60,17 +54,15 @@ problems=$(slugs="${slugs}" awk '
     for (x in used) if (!(x in actor) && !(x in macro)) print "off", x
   }
 ' .readers | sort)
-off_roster=$(sed -n 's/^off /  /p' <<<"${problems}")
-shadowed=$(sed -n 's/^shadow /  /p' <<<"${problems}")
+off_roster=$(sed -n 's/^off //p' <<<"${problems}")
+shadowed=$(sed -n 's/^shadow //p' <<<"${problems}")
 
 # A template can carry an info/attributes file, so the empty repository takes none.
 git init --quiet --template= "${scratch}/empty"
 git ls-files -z >"${scratch}/files"
 GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${top}/.readers" \
-  check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" || {
-  printf 'git cannot resolve .readers.\n' >&2
-  exit 2
-}
+  check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" ||
+  cannot 'git cannot resolve .readers.'
 
 declare -A reached=()
 while IFS= read -r -d '' path && IFS= read -r -d '' name && IFS= read -r -d '' state; do
@@ -79,29 +71,23 @@ done <"${scratch}/attributes"
 
 unbound=()
 while IFS= read -r -d '' path; do
-  [[ -n "${reached[${path}]:-}" ]] || unbound+=("  ${path}")
+  [[ -n "${reached[${path}]:-}" ]] || unbound+=("${path}")
 done <"${scratch}/files"
 
-broken=0
-
-[[ ${#unbound[@]} -eq 0 ]] || {
-  detail=$(printf '%s\n' "${unbound[@]}")
-  report "A tracked file is refused when it reaches no actor, because every artifact has a named \
+[[ ${#unbound[@]} -eq 0 ]] || refuse \
+  "A tracked file is refused when it reaches no actor, because every artifact has a named \
 reader. Decide whether it should exist, what it serves and for whom, and bind that actor in \
-.readers." "${detail}"
-  broken=1
-}
+.readers." \
+  "${unbound[@]}"
 
-[[ -z "${off_roster}" ]] || {
-  report "A name in .readers is refused when it is neither an actor nor a macro, because a reader \
-is an actor and the roster names every actor." "${off_roster}"
-  broken=1
-}
+[[ -z "${off_roster}" ]] || refuse \
+  "A name in .readers is refused when it is neither an actor nor a macro, because a reader \
+is an actor and the roster names every actor." \
+  "${off_roster}"
 
-[[ -z "${shadowed}" ]] || {
-  report "A macro is refused when its name is an actor's, because .readers could not \
-then tell the two apart." "${shadowed}"
-  broken=1
-}
+[[ -z "${shadowed}" ]] || refuse \
+  "A macro is refused when its name is an actor's, because .readers could not \
+then tell the two apart." \
+  "${shadowed}"
 
-exit "${broken}"
+finish
