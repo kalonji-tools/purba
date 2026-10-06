@@ -416,14 +416,6 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
-@test "a three-letter word is not a participle" {
-  prose "The run had red beside it."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
 @test "a perfect tense is refused" {
   prose "The gate has refused a record."
 
@@ -711,6 +703,15 @@ ${block}"
 
 @test "two adverbs do not hide the passive voice" {
   prose "The gate is not yet refused by nothing. We utilize it."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"in the passive voice             3 of     9 sentences  33%"* ]]
+}
+
+@test "a three-letter word is not a participle" {
+  prose "The light was red. The gate is used."
 
   run "${script}"
 
