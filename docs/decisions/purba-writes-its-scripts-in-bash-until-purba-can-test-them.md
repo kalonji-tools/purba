@@ -2,11 +2,10 @@
 
 ## Context and Problem Statement
 
-purba's own scripts are shell, and nothing in the tree said what language they had to be written in.
-The question governs every script added from now on.
+Every script purba adds needs a language, and a reader needs one place that names it.
 
-Nothing tested any of that shell when purba took this decision.
-Every defect in it was found by continuous integration or by a throwaway pull request.
+Nothing tested purba's shell scripts when purba took this decision.
+Every defect in them was found by continuous integration or by a throwaway pull request.
 One of them refused the pull request that introduced it.
 A language is worth no more here than the runner that can test it.
 
@@ -65,7 +64,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 
 **Downside:**
 
-- **Nothing checks this.** An extension shows the language of a script, and no command reads it. A reviewer decides whether a `.rs` script needs its library.
+- **Nothing checks this.** An extension shows the language of a script, and no command refuses a script for its language. A reviewer decides whether a `.rs` script needs its library.
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.

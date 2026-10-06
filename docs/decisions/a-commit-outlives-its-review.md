@@ -82,7 +82,7 @@ Depth belongs on the issue, so the body stops at the conclusion and the number c
 The subject is such a location.
 Where no sentence survives, the subject stands alone.
 
-- Addressed to the reader who has long since forgotten the details, never to the reviewer.
+- Addressed to the reader who no longer remembers the details, never to the reviewer.
 - What any other location already holds is not written in the body again, and neither is what the diff already shows. [A register belongs to one location](a-register-belongs-to-one-location.md) names the locations and the register of each.
 - It names what a change relates to, and never its position in a planned series. A series can shrink. A body cannot be corrected.
 

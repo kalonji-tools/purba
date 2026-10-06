@@ -16,7 +16,7 @@ CODEOWNERS                        reviewer
 
 Cargo.toml                        coder packager
 pyproject.toml                    stem packager
-Cargo.lock                        packager
+/Cargo.lock                       packager
 LICENSE                           packager
 deny.toml                         toolsmith packager
 CHANGELOG.md                      user

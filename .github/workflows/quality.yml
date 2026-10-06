@@ -40,6 +40,13 @@ jobs:
         with:
           version: ${{ env.MISE_VERSION }}
 
+      # .github/workflows/cargo-scripts.yml fills this cache on main.
+      - uses: actions/cache@v6
+        with:
+          path: target/scripts
+          key: "cargo-scripts-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', 'mise.toml') }}"
+
       - name: Refuse a lint, a formatting difference or a broken record
         run: mise run quality
         env:

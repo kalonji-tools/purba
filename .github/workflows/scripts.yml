@@ -1,6 +1,7 @@
-# The gate that refuses a merge on a failing test of purba's own scripts.
+# The gate that refuses a merge on a failing test of purba's own scripts, or on
+# a cargo script that is unformatted or breaks a lint.
 #
-#   the command:   tasks.toml, under `test:scripts`
+#   the commands:  tasks.toml, under `test:scripts` and `lint:cargo-scripts`
 #   the tools:     mise.toml
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
@@ -48,6 +49,18 @@ jobs:
         with:
           version: ${{ env.MISE_VERSION }}
 
+      # .github/workflows/cargo-scripts.yml fills this cache on main.
+      - uses: actions/cache@v6
+        if: steps.changed.outputs.scripts == 'true'
+        with:
+          path: target/scripts
+          key: "cargo-scripts-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', 'mise.toml') }}"
+
       - name: Refuse a script that fails its own test
         if: steps.changed.outputs.scripts == 'true'
         run: mise run test:scripts
+
+      - name: Refuse an unformatted cargo script, or one that breaks a lint
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run lint:cargo-scripts

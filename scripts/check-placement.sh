@@ -26,7 +26,7 @@ git rev-parse --git-dir >/dev/null 2>&1 || {
 # substitution, because that discards the exit status, and a masked git failure
 # has already made `check-replayable.sh` misreport once.
 # https://www.shellcheck.net/wiki/SC2312
-scripts_list=$(git ls-files '*.sh') || {
+scripts_list=$(git ls-files '*.sh' 'scripts/*.rs' '.github/*.rs') || {
   printf 'the tracked scripts cannot be listed.\n' >&2
   exit 2
 }

@@ -58,7 +58,7 @@ mise names the version of every package `mise.toml` declares, in one committed l
 `mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
 Both are committed.
 A lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
-`Cargo.lock` and `mise.lock` both carry that mark.
+Every `Cargo.lock` and `mise.lock` in the tree carries that mark.
 mise chooses the platform list itself rather than being given one.
 
 **purba requires a C toolchain on the host and does not supply one.**

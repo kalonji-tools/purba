@@ -26,4 +26,4 @@ Markdown is that case: a table row is one line by its syntax, so no line length 
 ## Confirmation
 
 `shfmt` and `editorconfig-checker` read the style from `.editorconfig`.
-Under a style that demands tabs, `shfmt` rewrites every script and `editorconfig-checker` refuses the tree.
+Under a style that demands tabs, `shfmt` rewrites every shell script and `editorconfig-checker` refuses the tree.

@@ -187,3 +187,16 @@ pyproject_toml() {
   [[ "${output}" == *"${python}"* ]]
   [[ "${output}" == *"  project.dependencies"* ]]
 }
+
+@test "a crate in a cargo script and Cargo.toml is refused" {
+  mkdir -p scripts/check
+  printf '%s\n' '---cargo' '[dependencies]' 'serde = "1"' '---' '' 'fn main() {}' \
+    >scripts/check/check.rs
+  git add scripts/check/check.rs
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${conflict}"* ]]
+  [[ "${output}" == *"  serde: Cargo.toml as serde, scripts/check/check.rs as serde"* ]]
+}

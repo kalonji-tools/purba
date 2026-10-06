@@ -6,6 +6,9 @@
 #
 #   check-records.sh [directory]
 #
+# CHECK_TENSE_PARTICIPLES names another list of participles for the tense rule,
+# which a test needs.
+#
 # Exits 1 when a record breaks a rule, and 2 when this script cannot decide.
 #
 # It reports every rule before it exits, because a writer fixing one refusal
@@ -232,21 +235,6 @@ prose=$(awk '
     return ""
   }
 
-  # `has`, `have` or `had` with a participle, and `having` with one. A modal
-  # with `be` is the infinitive, which the standard admits, so `must be run`
-  # is not a fault.
-  function tense_fault(sent,   n, i, arr, lw, p) {
-    gsub(/\001/, " codespan ", sent)
-    n = split(sent, arr, wordsep)
-    for (i = 1; i <= n; i++) {
-      lw = tolower(arr[i])
-      if (! is_participle(lw) && lw != "been") continue
-      p = prior(arr, i)
-      if (p == "has" || p == "have" || p == "had" || p == "having") return p " " lw
-    }
-    return ""
-  }
-
   # Everything the report reads, in one pass over the sentence. The passive
   # voice is reported and never refused, because the rule admits the passive
   # where the agent is unknown and no command decides that.
@@ -341,9 +329,6 @@ prose=$(awk '
         hit = ing_fault(sent[s])
         if (hit != "" && ! seen["i" FILENAME ":" FNR]++) \
           printf "ing\t%s:%d: %s\n", FILENAME, FNR, hit
-        hit = tense_fault(sent[s])
-        if (hit != "" && ! seen["t" FILENAME ":" FNR]++) \
-          printf "tense\t%s:%d: %s\n", FILENAME, FNR, hit
 
         sentences++
         if (tally(sent[s])) passives++
@@ -394,7 +379,19 @@ mapfile -t found < <(grep '^ing' <<<"${prose}" | cut -f2- || true)
 Technical English. A gerund after a form of be or after a preposition becomes a finite clause." \
   "${found[@]}"
 
-mapfile -t found < <(grep '^tense' <<<"${prose}" | cut -f2- || true)
+# Harper's tagger decides the tense rule, through a cargo script.
+#
+#   the decision:  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
+here=$(cd "$(dirname "$0")" && pwd)
+tense=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-tense/Cargo.lock\"" \
+  run --quiet --release --locked --manifest-path "${here}/check-tense/check-tense.rs" \
+  --target-dir "${here}/../target/scripts" -- \
+  "${CHECK_TENSE_PARTICIPLES:-${here}/check-tense/participles.txt}" "${records[@]}") || {
+  printf 'the tense of a record cannot be decided.\n' >&2
+  exit 2
+}
+found=()
+[[ -z "${tense}" ]] || mapfile -t found <<<"${tense}"
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record uses the simple tenses, a rule borrowed from Simplified Technical English. A modal \
 with the bare verb is one of them, so must be run stands and has run does not." \

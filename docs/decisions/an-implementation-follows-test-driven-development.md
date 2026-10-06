@@ -30,7 +30,8 @@ So was a gate.
 ## Decision Outcome
 
 **An implementation follows test-driven development (TDD) wherever a runner executes the change.**
-That is shell under `scripts/` or `.github/scripts/`, which `bats` runs, and Rust, which `cargo test` runs.
+That is shell under `scripts/` or `.github/scripts/`, which `bats` runs, and Rust in the crate, which `cargo test` runs.
+`bats` tests a cargo script through the bash script that calls it.
 A change to prose or to configuration owes no test of its own.
 The test of a gate covers the configuration that the gate reads.
 Kent Beck's [Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd) defines the cycle.

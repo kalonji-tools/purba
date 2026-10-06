@@ -415,6 +415,94 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
+# Each sentence, and the pair the refusal names.
+@test "a word between has and its participle does not hide the tense" {
+  while IFS='|' read -r sentence pair; do
+    compliant >"${record}"
+    prose "${sentence}"
+
+    run "${script}" </dev/null
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"${record}:5: ${pair}"* ]]
+  done <<'CASES'
+A person has even moved the date.|has moved
+The gate has itself refused the record.|has refused
+Has anyone moved the date?|has moved
+Having itself refused it, the gate waits.|having refused
+CASES
+}
+
+@test "a participle that no list names is a tense" {
+  while IFS='|' read -r sentence pair; do
+    compliant >"${record}"
+    prose "${sentence}"
+
+    run "${script}" </dev/null
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"${record}:5: ${pair}"* ]]
+  done <<'CASES'
+This project has never had a contributor.|has had
+The person has rewritten the record.|has rewritten
+CASES
+}
+
+@test "a participle in the participle list is a tense" {
+  prose "It has grown one workflow at a time."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has grown"* ]]
+}
+
+@test "with an empty participle list, has grown is no tense" {
+  prose "It has grown one workflow at a time."
+  : >"${BATS_TEST_TMPDIR}/participles.txt"
+
+  CHECK_TENSE_PARTICIPLES="${BATS_TEST_TMPDIR}/participles.txt" run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a tense wrapped across two lines is refused at its first line" {
+  prose "The gate has
+refused the record."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: has refused"* ]]
+}
+
+@test "a possession, an obligation, a passive and a code span are no tense" {
+  for sentence in "The gate has a fixed span." "A check has nothing to run against." \
+    "The gate has records which were refused." "The lock has \`rust\` pinned."; do
+    compliant >"${record}"
+    prose "${sentence}"
+
+    run "${script}"
+
+    [[ "${status}" -eq 0 ]]
+  done
+}
+
+@test "a tense in a table row, a heading or a link title is not read" {
+  for block in "| a | The gate has refused the record. |
+|---|---|" "### The gate has refused the record" \
+    "See [the gate has refused the record](https://example.com) here."; do
+    compliant >"${record}"
+    prose "Something needs a decision.
+
+${block}"
+
+    run "${script}"
+
+    [[ "${status}" -eq 0 ]]
+  done
+}
+
 @test "a Downside label followed by a sentence is refused" {
   swap "**Downside:**" "**Downside:** It costs."
 

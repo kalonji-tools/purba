@@ -1,0 +1,54 @@
+# The build of each cargo script, cached on main for every pull request.
+#
+#   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
+#   the commands:  tasks.toml, under `records` and `lint:cargo-scripts`
+#
+# A pull request restores a cache that its base branch saved, and never one
+# that another pull request saved.
+# https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+name: Cargo scripts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**.rs"
+      - "scripts/**/Cargo.lock"
+      - ".github/**.rs"
+      - ".github/**/Cargo.lock"
+      - "mise.toml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cargo-scripts
+  cancel-in-progress: true
+
+env:
+  MISE_VERSION: 2026.9.14
+
+jobs:
+  cache:
+    name: Cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v4
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - uses: actions/cache@v6
+        with:
+          path: target/scripts
+          key: "cargo-scripts-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', 'mise.toml') }}"
+
+      # `records` builds each script to run it, and `lint:cargo-scripts` checks
+      # each one, so the cache holds what both jobs read.
+      - name: Build each cargo script, and check it
+        run: |
+          mise run records
+          mise run lint:cargo-scripts
