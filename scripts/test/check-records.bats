@@ -484,6 +484,9 @@ The gate has itself refused the record.|has refused
 Has anyone moved the date?|has moved
 Has the gate refused the record?|has refused
 Have purba's own 92 issues been consistent?|have been
+Which records has the gate refused?|has refused
+Why has the gate refused the record?|has refused
+Have they all refused it?|have refused
 Having itself refused it, the gate waits.|having refused
 CASES
 }
@@ -534,7 +537,9 @@ refused the record."
 @test "a possession, an obligation, a passive and a code span are no tense" {
   for sentence in "The gate has a fixed span." "A check has nothing to run against." \
     "The gate has records which were refused." "The lock has \`rust\` pinned." \
-    "Does the record have a fixed span?" "Having a record refused is rare."; do
+    "Does the record have a fixed span?" "Having a record refused is rare." \
+    "What has a fixed span?" "Which record has 3 fixed spans?" \
+    "The record has its scope narrowed."; do
     compliant >"${record}"
     prose "${sentence}"
 

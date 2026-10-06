@@ -39,6 +39,9 @@ use harper_pos_utils::UPOS;
 
 const HAVE: [&str; 4] = ["has", "have", "had", "having"];
 const BE: [&str; 8] = ["is", "are", "was", "were", "be", "been", "being", "am"];
+const ASK: [&str; 9] = [
+    "what", "which", "who", "whom", "whose", "why", "where", "when", "how",
+];
 
 fn main() {
     let mut args = std::env::args().skip(1);
@@ -122,14 +125,18 @@ fn asks(sentence: &[Token], word: &impl Fn(&Token) -> String) -> bool {
     let last = sentence
         .iter()
         .rfind(|t| !matches!(t.kind, TokenKind::Space(_) | TokenKind::Newline(_)));
-    first.is_some_and(|t| HAVE.contains(&word(t).as_str())) && last.is_some_and(|t| word(t) == "?")
+    first.is_some_and(|t| {
+        let w = word(t);
+        HAVE.contains(&w.as_str()) || ASK.contains(&w.as_str())
+    }) && last.is_some_and(|t| word(t) == "?")
 }
 
 // The index of `have` and the pair it forms, for the first participle that a
 // walk back over any word reaches `have` from. A determiner, a number or a noun
 // opens a noun phrase, so `has a fixed span` is a possession. `to` and a form
 // of `be` end the walk, so `has nothing to run` and `has records which were
-// refused` are not tenses.
+// refused` are not tenses. In a question the subject follows `have`, so the
+// walk passes a noun phrase there, unless no noun or pronoun stands in it.
 fn perfect(sentence: &[Token], word: &impl Fn(&Token) -> String) -> Option<(usize, String)> {
     let question = asks(sentence, word);
     for (i, token) in sentence.iter().enumerate() {
@@ -146,27 +153,32 @@ fn perfect(sentence: &[Token], word: &impl Fn(&Token) -> String) -> Option<(usiz
         if !past {
             continue;
         }
+        let mut opened = false;
+        let mut subject = false;
         for j in (0..i).rev() {
             match &sentence[j].kind {
                 TokenKind::Space(_) | TokenKind::Newline(_) | TokenKind::Punctuation(_) => {}
                 TokenKind::Word(before) => {
                     let w = word(&sentence[j]);
                     if HAVE.contains(&w.as_str()) {
+                        if opened && !subject {
+                            break;
+                        }
                         return Some((j, format!("{w} {participle}")));
                     }
                     let tag = before.as_ref().and_then(|m| m.pos_tag);
-                    if w == "to"
-                        || BE.contains(&w.as_str())
-                        || (!question
-                            && matches!(
-                                tag,
-                                Some(UPOS::DET | UPOS::NUM | UPOS::NOUN | UPOS::PROPN)
-                            ))
-                    {
+                    if w == "to" || BE.contains(&w.as_str()) {
                         break;
                     }
+                    match tag {
+                        Some(UPOS::NOUN | UPOS::PROPN) if question => subject = true,
+                        Some(UPOS::PRON) => subject = true,
+                        Some(UPOS::DET | UPOS::NUM) if question => opened = true,
+                        Some(UPOS::DET | UPOS::NUM | UPOS::NOUN | UPOS::PROPN) => break,
+                        _ => {}
+                    }
                 }
-                TokenKind::Number(_) if question => {}
+                TokenKind::Number(_) if question => opened = true,
                 // A code span, a number or an address.
                 _ => break,
             }
