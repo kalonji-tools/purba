@@ -91,7 +91,7 @@ Whether a sentence admits an unwired gate is a judgement, so the check that find
 It is run by hand before a pull request opens.
 [Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) repairs the records it refuses, and the command joins the quality gate once they land.
 
-Whether an issue a record names as owing work is still open is read by the same reader, and no check decides it.
+Whether an issue that a record says owes work is still open is read by the same reader, and no check decides it.
 A record cites two kinds of issue.
 The first is one it waits on, and it must be open.
 The second records where a measurement was made, and it is closed by the time it is cited.

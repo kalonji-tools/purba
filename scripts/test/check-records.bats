@@ -312,6 +312,24 @@ words() {
   [[ "${output}" == *"${record}:5: running"* ]]
 }
 
+@test "a gerund after as is refused" {
+  prose "The record names it as owing work."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: owing"* ]]
+}
+
+@test "a gerund after because is refused" {
+  prose "The gate stops, because refusing would close the issue."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: refusing"* ]]
+}
+
 @test "an adverb between the two does not hide the gerund" {
   prose "The gate is already running the checks."
 

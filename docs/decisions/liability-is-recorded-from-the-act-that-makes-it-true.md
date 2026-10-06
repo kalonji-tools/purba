@@ -72,7 +72,7 @@ A machine cannot hold a right to submit anything, so a machine never makes this 
 **One exception, and it is a repository setting rather than a file.**
 `web_commit_signoff_required` is on, so GitHub writes the trailer into a commit made in its web interface and names the account that made it.
 The person is told before they commit, so the act is still theirs and the machine only transcribes it.
-GitHub documents that as reaching every commit made there. The merge commit that brings a branch current is made there and carries no trailer.
+GitHub documents that the setting reaches every commit made there. The merge commit that brings a branch current is made there and carries no trailer.
 purba is the only repository in this organisation with the setting on, and a reader who audits files alone cannot see it.
 
 **A workflow writes the acceptance trailer, and no person writes one.**
