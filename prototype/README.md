@@ -96,6 +96,14 @@ less than a second in each later run. A debug build is quicker to make and
 runs too slowly to gate. `resolver.lockfile-path` writes the lockfile of the
 script where `script/time.sh` asks, and `--locked` then holds the build to it.
 
+## A word the dictionary lacks
+
+From `dictionary.sh`. The `+d` variants merge a dictionary of purba's own over
+Harper's, and give `grown` its verb form. Only one line changes:
+`issue-142.md:3`, *"now that it has grown one workflow"*, which `lib-np` passes
+and `lib-np+d` refuses. Every other output in `out/` is the same with or
+without it.
+
 ## The gerund
 
 From `gerund.sh`. The library variant `ing-lead+u` keeps the scope of the bash
@@ -138,4 +146,5 @@ mise exec harper-cli@2.3.0 -- ./keys.sh         # needs zip and cargo
 mise exec harper-cli@2.3.0 -- ./probes.sh > out/probes.md
 ./gerund.sh > out/gerund.md
 mise exec -- ./script/time.sh > out/script-times.md   # needs the nightly
+./dictionary.sh > out/dictionary.md
 ```

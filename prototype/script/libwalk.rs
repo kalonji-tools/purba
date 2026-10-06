@@ -20,6 +20,7 @@ harper-pos-utils = { git = "https://github.com/Automattic/harper", tag = "v2.3.0
 //   det+v   det, and a word the tagger marks VERB also counts as a participle
 //   np+v    np, with the same fallback
 //   ing-*   the gerund rule; see `gerund()` below
+//   <v>+d   the variant, with a dictionary of purba's own merged over Harper's
 //
 // Prints `file:line: have participle` for each sentence with a fault, one per
 // sentence (the first), and only on lines the bash gate reads: a table row
@@ -36,7 +37,22 @@ const BE: [&str; 8] = ["is", "are", "was", "were", "be", "been", "being", "am"];
 fn main() {
     let mut args = std::env::args().skip(1);
     let variant = args.next().expect("variant");
-    let dict = FstDictionary::curated();
+    // `+d` merges a dictionary of purba's own over Harper's, which gives a
+    // word the dictionary lacks its verb form.
+    let curated = FstDictionary::curated();
+    let mut extra = harper_core::spell::MutableDictionary::new();
+    if variant.ends_with("+d") {
+        let mut meta = harper_core::DictWordMetadata::default();
+        meta.verb = Some(harper_core::VerbData {
+            verb_forms: Some(harper_core::VerbFormFlags::PAST_PARTICIPLE),
+            ..Default::default()
+        });
+        extra.append_word_str("grown", meta);
+    }
+    let mut dict = harper_core::spell::MergedDictionary::new();
+    dict.add_dictionary(curated);
+    dict.add_dictionary(std::sync::Arc::new(extra));
+    let variant = variant.trim_end_matches("+d").to_string();
     for path in args {
         let text = std::fs::read_to_string(&path).expect("read");
         let source: Vec<char> = text.chars().collect();
