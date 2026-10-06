@@ -1,0 +1,13 @@
+# PROTOTYPE for #308, never merged. The tense rule with harper-core as a library.
+[package]
+name = "libwalk"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# harper-core 2.3.0 is not on crates.io, so the tag is the pin.
+[dependencies]
+harper-core = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
+harper-pos-utils = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
+
+[workspace]

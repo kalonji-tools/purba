@@ -1,0 +1,24 @@
+# A perfect tense: a form of `have`, up to four modifier tokens, then a word
+# the tagger reads as VERB or AUX.
+# Weir has no repetition operator, so each gap length is spelled out.
+expr have [has, have, had, having, hasn't, haven't, hadn't, (has n't), (have n't), (had n't)]
+expr gap [ADV, PRON, ADJ, SCONJ, <PART, !to>]
+expr part [VERB, AUX]
+expr gap0 (@have @part)
+expr gap1 (@have @gap @part)
+expr gap2 (@have @gap @gap @part)
+expr gap3 (@have @gap @gap @gap @part)
+expr gap4 (@have @gap @gap @gap @gap @part)
+expr main [@gap0, @gap1, @gap2, @gap3, @gap4]
+
+let message "A perfect tense."
+let description "Flags has/have/had/having followed by a participle."
+let kind "Style"
+let becomes "PERFECT"
+let strategy "Exact"
+
+test "The gate has refused the record." "The gate PERFECT the record."
+test "The gate has itself refused the record." "The gate PERFECT the record."
+allows "The gate must be run."
+test "This project has never had." "This project PERFECT."
+allows "A person has to be told."
