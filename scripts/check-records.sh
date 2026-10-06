@@ -468,11 +468,9 @@ is refused here." \
 unmarked, and more means a cost opens mid-line and does not render." \
   "${unsignalled[@]}"
 
-git rev-parse --git-dir >/dev/null 2>&1 ||
-  cannot 'a numbered-record citation can only be read inside a git repository.'
-mapfile -t found < <(git grep -InE 'ADR-[0-9]+' || true)
+mapfile -t found < <(grep -HnE 'ADR-[0-9]+' "${records[@]}" || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
-  "A number cannot be checked against the record it names, so source cites a record by its \
+  "A number cannot be checked against the record it names, so a record cites another by its \
 proposition." \
   "${found[@]}"
 
