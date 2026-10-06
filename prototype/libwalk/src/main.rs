@@ -9,10 +9,11 @@
 //   np      det, and also stop at NOUN and PROPN
 //   det+v   det, and a word the tagger marks VERB also counts as a participle
 //   np+v    np, with the same fallback
+//   ing-*   the gerund rule; see `gerund()` below
 //
 // Prints `file:line: have participle` for each sentence with a fault, one per
 // sentence (the first), and only on lines the bash gate reads: a table row
-// (`|`) and a heading (`#`) are skipped.
+// (`|`) and a heading (`#`) are skipped, and a link title is not read.
 
 use harper_core::parsers::MarkdownOptions;
 use harper_core::{Document, TokenKind, TokenStringExt};
@@ -30,7 +31,9 @@ fn main() {
         let text = std::fs::read_to_string(&path).expect("read");
         let source: Vec<char> = text.chars().collect();
         let lines: Vec<&str> = text.lines().collect();
-        let doc = Document::new_markdown(&text, MarkdownOptions::default(), &dict);
+        let mut options = MarkdownOptions::default();
+        options.ignore_link_title = true;
+        let doc = Document::new_markdown(&text, options, &dict);
         let tokens = doc.get_tokens();
         let line_of = |idx: usize| source[..idx].iter().filter(|c| **c == '\n').count() + 1;
         let word = |i: usize| -> String {
@@ -42,6 +45,10 @@ fn main() {
             let start = (sentence.as_ptr() as usize - tokens.as_ptr() as usize)
                 / std::mem::size_of::<harper_core::Token>();
             let end = start + sentence.len();
+            if variant.starts_with("ing") {
+                gerund(&variant, tokens, &source, &lines, start, end, &path);
+                continue;
+            }
             'tok: for i in start..end {
                 let TokenKind::Word(Some(meta)) = &tokens[i].kind else { continue };
                 let w = word(i);
@@ -97,5 +104,76 @@ fn main() {
                 }
             }
         }
+    }
+}
+
+// The gerund rule. An `-ing` word is a verb form when the tagger marks it VERB
+// or AUX, and with `+u` also when it has no tag and the dictionary marks it
+// progressive. No technical-noun list.
+//
+//   ing-lead   refused after a form of `be`, or a word tagged ADP or SCONJ,
+//              skipping words tagged ADV (the scope of the bash rule)
+//   ing-any    refused wherever it stands
+fn gerund(
+    variant: &str,
+    tokens: &[harper_core::Token],
+    source: &[char],
+    lines: &[&str],
+    start: usize,
+    end: usize,
+    path: &str,
+) {
+    let word = |i: usize| -> String {
+        tokens[i].span.get_content(source).iter().collect::<String>().to_lowercase()
+    };
+    let line_of = |idx: usize| source[..idx].iter().filter(|c| **c == '\n').count() + 1;
+    for i in start..end {
+        let TokenKind::Word(Some(meta)) = &tokens[i].kind else { continue };
+        let w = word(i);
+        if !w.ends_with("ing") || w.chars().count() < 5 {
+            continue;
+        }
+        // a hyphenated compound such as `load-bearing`
+        if i > start && matches!(tokens[i - 1].kind, TokenKind::Punctuation(_)) {
+            let prev: String = tokens[i - 1].span.get_content(source).iter().collect();
+            if prev == "-" {
+                continue;
+            }
+        }
+        let verb = matches!(meta.pos_tag, Some(UPOS::VERB) | Some(UPOS::AUX))
+            || (variant.ends_with("+u")
+                && meta.pos_tag.is_none()
+                && meta.is_verb_progressive_form());
+        if !verb {
+            continue;
+        }
+        let mut lead = !variant.starts_with("ing-lead");
+        let mut j = i;
+        while !lead && j > start {
+            j -= 1;
+            match &tokens[j].kind {
+                TokenKind::Space(_) | TokenKind::Newline(_) => continue,
+                TokenKind::Word(m) => {
+                    let p = word(j);
+                    let tag = m.as_ref().and_then(|m| m.pos_tag);
+                    if matches!(tag, Some(UPOS::ADV) | Some(UPOS::PART)) && p != "to" {
+                        continue;
+                    }
+                    lead = BE.contains(&p.as_str())
+                        || matches!(tag, Some(UPOS::ADP) | Some(UPOS::SCONJ));
+                    break;
+                }
+                _ => break,
+            }
+        }
+        if !lead {
+            continue;
+        }
+        let line = line_of(tokens[i].span.start);
+        let l = lines.get(line - 1).unwrap_or(&"").trim_start();
+        if !(l.starts_with('|') || l.starts_with('#')) {
+            println!("{}:{}: {}", path, line, w);
+        }
+        return;
     }
 }

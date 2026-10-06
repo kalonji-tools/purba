@@ -80,18 +80,38 @@ See `out/probes.md`. Three results decide most of it:
 [purba writes its scripts in bash until purba can test them](https://github.com/kalonji-tools/purba/blob/main/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md)
 stands against a gate written in Rust. This prototype does not answer that.
 
-## Gerund and passive
+## The gerund
 
-These counts come from a scratch run with Weir rules, and no script here
-reproduces them.
+From `gerund.sh`. The library variant `ing-lead+u` keeps the scope of the bash
+rule and drops both of its lists. An `-ing` word is a verb form when the tagger
+marks it a verb, or when it has no tag and the dictionary marks it progressive.
+It is refused after a form of `be`, or after a word the tagger marks as a
+preposition or a subordinator, and the walk skips adverbs and particles.
 
-- **Gerund.** In the lines the gate reads, the tagger finds 2 true gerunds in
-  the records that the gate misses: `names as owing work` and
-  `documents that as reaching`. [#310](https://github.com/kalonji-tools/purba/issues/310)
-  owns them. The tagger gives 40 of the 541 `-ing` words in the records no tag,
-  among them `blocking` and `parsing`.
-- **Passive.** A tag does not separate `is refused` from `is closed`, so the
-  tagger decides the passive no better than the count does.
+Only the disagreements are labelled, in `out/g-labels.tsv`. `being` is counted
+apart because the bash rule admits it on purpose, and a quotation is counted
+apart because a record quotes it as it was written.
+
+| corpus | refused by | true | `being` | quoted | false |
+|---|---|---|---|---|---|
+| records | bash only | 0 | 0 | 0 | 0 |
+| records | library only | 3 | 4 | 1 | 1 |
+| wild | bash only | 14 | 0 | 0 | 0 |
+| wild | library only | 7 | 3 | 4 | 2 |
+
+The library misses 14 true gerunds that bash refuses, such as
+`without reopening`, `while recording` and `is shrinking`. The tagger marks
+these words as a noun or an adjective. That is the noun-or-verb question that
+the technical-noun list exists to answer, and a tag does not answer it here.
+
+Of the 10 true gerunds the library adds, 9 follow `as` or `because`, the words
+[#310](https://github.com/kalonji-tools/purba/issues/310) adds to the bash rule.
+
+## The passive
+
+A tag does not separate `is refused` from `is closed`, so the tagger decides the
+passive no better than the count does. A scratch run with a Weir rule showed
+this, and no script here reproduces it.
 
 ## Run it
 
@@ -100,4 +120,5 @@ reproduces them.
 mise exec harper-cli@2.3.0 -- ./keys.sh         # needs zip and cargo
 ./score.sh > out/score.md
 mise exec harper-cli@2.3.0 -- ./probes.sh > out/probes.md
+./gerund.sh > out/gerund.md
 ```
