@@ -117,6 +117,14 @@ prose=$(awk '
           "just therefore once since ever twice yet", w, " ")
     for (i in w) adverb[w[i]] = 1
 
+    # A word that opens a noun phrase, and `to`. The walk back to `has` stops
+    # at one, so `has a fixed span` and `has nothing to run` are not tenses.
+    split("a an the this that these those its their his her our your my " \
+          "some any no each every all both either neither many few several " \
+          "much more most one two three four five six seven eight nine ten " \
+          "codespan to", w, " ")
+    for (i in w) halt[w[i]] = 1
+
     # A participle that does not end in `-ed`.
     split("been begun bound bought broken brought built burnt caught " \
           "chosen cost cut dealt done drawn driven eaten fallen felt " \
@@ -235,14 +243,20 @@ prose=$(awk '
   # `has`, `have` or `had` with a participle, and `having` with one. A modal
   # with `be` is the infinitive, which the standard admits, so `must be run`
   # is not a fault.
-  function tense_fault(sent,   n, i, arr, lw, p) {
+  #
+  # The walk back passes any word, because an adverb list is never complete.
+  # A form of `be` ends it, so `has records which were refused` is a passive.
+  function tense_fault(sent,   n, i, j, arr, lw, p) {
     gsub(/\001/, " codespan ", sent)
     n = split(sent, arr, wordsep)
     for (i = 1; i <= n; i++) {
       lw = tolower(arr[i])
       if (! is_participle(lw) && lw != "been") continue
-      p = prior(arr, i)
-      if (p == "has" || p == "have" || p == "had" || p == "having") return p " " lw
+      for (j = i - 1; j >= 1; j--) {
+        p = tolower(arr[j])
+        if (p == "has" || p == "have" || p == "had" || p == "having") return p " " lw
+        if (p in halt || p in beform) break
+      }
     }
     return ""
   }
