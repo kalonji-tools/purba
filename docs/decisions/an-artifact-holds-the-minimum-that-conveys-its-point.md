@@ -12,7 +12,7 @@ A written rule changes what is written. Records forbid em-dashes and carry almos
 | commit messages | [a commit outlives its review](a-commit-outlives-its-review.md) | 0.34 |
 | issue bodies | none | 10.1 |
 
-The complaint named padding, and padding is absent. A wordiness rule of 119 patterns finds nothing in the records. The corrections point instead at material another location already holds, such as reasoning the history carries.
+The complaint named padding, and padding is absent. A wordiness rule of 119 patterns finds nothing in the records. The corrections point instead at material another location already holds, such as the reasons the history carries.
 
 So the defect is what an artifact admits, not how its sentences read.
 

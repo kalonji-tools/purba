@@ -66,7 +66,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 
 - **The approved dictionary is excluded.** The list is not obtainable here, so the largest rule in the standard binds nothing.
 - **The rule numbers are absent.** A reader holding the specification matches these rules to it by their words.
-- **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` and what follows a preposition, so a gerund elsewhere passes.
+- **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` or a word in its list of prepositions and conjunctions, so a gerund elsewhere passes.
 - **A reported number binds nobody.** The passive voice is the largest deviation in the corpus and nothing refuses it.
 - **The file stating these rules is not checked against them.** `.template.md` sits outside the glob, and its prose lives inside a comment the same command refuses elsewhere.
 
@@ -76,7 +76,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 |---|---|
 | `mise run records` refuses a sentence over 25 words | `scripts/check-records.sh` |
 | the same command refuses a paragraph over six sentences | `scripts/check-records.sh` |
-| the same command refuses an `-ing` form after `be` or a preposition | `scripts/check-records.sh` |
+| the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-records.sh` |
 | the same command refuses `has`, `have` or `had` with a participle | `scripts/check-records.sh` |
 | the same command reports the passive voice and refuses nothing | `scripts/check-records.sh` |
 | the approved dictionary | a reader, and there will be no check |

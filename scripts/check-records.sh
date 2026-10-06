@@ -113,7 +113,7 @@ prose=$(awk '
     for (i in w) beform[w[i]] = 1
 
     split("by for of without before after while when on in about from than " \
-          "through against into onto over under", w, " ")
+          "through against into onto over under as because", w, " ")
     for (i in w) prep[w[i]] = 1
 
     split("not never already also still now then always often again " \
@@ -376,7 +376,8 @@ line named is where the seventh lands, and a blank line splits the paragraph." \
 mapfile -t found < <(grep '^ing' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "An -ing form is a technical noun here and never a verb, a rule borrowed from Simplified \
-Technical English. A gerund after a form of be or after a preposition becomes a finite clause." \
+Technical English. A gerund after a form of be, a preposition or a conjunction becomes a \
+finite clause." \
   "${found[@]}"
 
 # Harper's tagger decides the tense rule, through a cargo script.
