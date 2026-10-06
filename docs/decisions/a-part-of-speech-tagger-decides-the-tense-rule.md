@@ -52,7 +52,7 @@ Its refusals print under the tense rule, so one rule still gives one message.
 |---|---|
 | the version | harper-core at a git tag |
 | a participle the dictionary lacks | a list of purba's own beside the script, merged over Harper's dictionary |
-| continuous integration | the build directory is cached, keyed on the `Cargo.lock` of the script |
+| continuous integration | a run on `main` caches the build directory, keyed on the `Cargo.lock` of the script and on `mise.toml` |
 | when review refuses the Rust check | the Weir rule, run by `harper-cli`, and never beside the library |
 
 **The gerund rule and the passive count keep their word lists.**
@@ -78,5 +78,6 @@ A tag does not separate `is refused` from `is closed`, so the passive count gain
 
 ## Confirmation
 
-**`mise run records` does not run the tagger yet.**
-[The records gate passes a perfect tense behind an adverb that neither ends in -ly nor is listed](https://github.com/kalonji-tools/purba/issues/302) wires the script, its cache and its call from `scripts/check-records.sh`.
+**`mise run records` runs the tagger.**
+`scripts/check-records.sh` calls `scripts/check-tense/check-tense.rs`, and prints its hits under the tense rule.
+`scripts/test/check-records.bats` holds the sentences it refuses and the ones it passes.

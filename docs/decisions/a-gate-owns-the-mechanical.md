@@ -51,7 +51,8 @@ Absence is ambiguous, so this record names each deviation: `cargo fmt` has none,
 `shfmt` does deviate, so the style is written down, and `.editorconfig` is where it lives because `shfmt` and every editor both read it.
 ⚠️ **A style flag would take that away:** `shfmt` ignores `.editorconfig` the moment one is passed, so the hook passes none.
 
-Every lint level lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
+Every lint level of the crate lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
+A cargo script carries its own, in the manifest inside it.
 A flag on a command line reaches only that command, so `tasks.toml` carries no lint flag.
 
 **Downside:**
@@ -80,7 +81,7 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 | gate | green | red |
 |---|---|---|
 | `shellcheck` at `enable=all` | the repaired tree reports nothing | a bare `$var` reinstated anywhere draws `SC2250` while `.shellcheckrc` is present, and nothing without it. Each suppression removed restores its own finding |
-| `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every script |
+| `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every shell script |
 | `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
 
 ⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why `shfmt` alone writes the shell.
@@ -117,3 +118,10 @@ Twelve of them renamed a name that a test misspells on purpose.
 | `cargo fmt` | the tree needs no rewrite | it formats a misformatted `.rs` file and stops the commit |
 
 `quality` keeps `fmt:check`, because CI cannot write.
+
+`lint:cargo-scripts` and the hook that formats a cargo script ran green and red on `scripts/check-tense/check-tense.rs`.
+
+| gate | green | red |
+|---|---|---|
+| `lint:cargo-scripts` | the tree reports nothing | a planted unused variable exits 1, and a misformatted line exits 123 |
+| the `rustfmt-cargo-scripts` hook | the tree needs no rewrite | it formats a misformatted cargo script and stops the commit |

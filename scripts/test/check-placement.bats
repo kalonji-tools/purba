@@ -208,3 +208,14 @@ placed() {
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"a caller can only be read inside a git repository."* ]]
 }
+
+@test "a cargo script outside .github named only by a workflow is refused" {
+  placed
+  track scripts/check/check.rs 'fn main() {}'
+  track .github/workflows/w.yml 'run: .github/scripts/job.sh && scripts/check/check.rs'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"scripts/check/check.rs is named only by .github/workflows/w.yml"* ]]
+}

@@ -103,6 +103,16 @@ stages = ["pre-commit"]
 pass_filenames = false
 files = "\\.rs$"
 
+# `cargo fmt` formats the crate and never a cargo script.
+[[repos.hooks]]
+id = "rustfmt-cargo-scripts"
+name = "rustfmt, each cargo script"
+language = "system"
+entry = "mise run fmt:cargo-scripts"
+stages = ["pre-commit"]
+pass_filenames = false
+files = '^(scripts|\.github)/.*\.rs$'
+
 # `-x` follows the `# shellcheck source=` directives three scripts carry. A hook
 # passes one file at a time, where a whole-tree run does not, so without it every
 # `.` draws SC1091.

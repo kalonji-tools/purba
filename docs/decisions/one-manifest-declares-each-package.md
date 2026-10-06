@@ -48,11 +48,10 @@ purba chooses its Python manager with the first Python package it declares.
 - **Nobody builds purba from source with pip or uv.** Each stops with an import error that does not name mise.
 - **The gate compares names, not packages.** A package published under a different name in each registry passes `mise run lint:manifests`. A mise key that names a URL passes it as well.
 - **The first Python package owes the gate a reader.** Until then the gate refuses any package in `pyproject.toml`.
-- **`lint:manifests` does not read the manifest inside a cargo script yet.** A crate named there and in `Cargo.toml` passes.
 
 ## Confirmation
 
 | property | check |
 |---|---|
-| each package is declared in one manifest | ✅ `mise run lint:manifests`, through `quality`. It compares `mise.toml` with `Cargo.toml` by name, in lower case with each run of `-`, `_` and `.` read as one `-`. It refuses any package in `pyproject.toml` |
-| a crate a cargo script links is declared in that script alone | not checked yet. [The records gate passes a perfect tense behind an adverb that neither ends in -ly nor is listed](https://github.com/kalonji-tools/purba/issues/302) adds the first cargo script, and teaches `lint:manifests` to read it |
+| each package is declared in one manifest | ✅ `mise run lint:manifests`, through `quality`. It compares `mise.toml`, `Cargo.toml` and the manifest inside each cargo script by name, in lower case with each run of `-`, `_` and `.` read as one `-`. It refuses any package in `pyproject.toml` |
+| a crate a cargo script links is declared in that script alone | ✅ the same command. `cargo metadata -Zscript` reads the manifest inside each tracked cargo script |

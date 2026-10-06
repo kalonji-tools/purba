@@ -12,13 +12,18 @@ run = "cargo clean"
 
 [fmt]
 description = "Rewrite the formatting"
-depends = ["fmt:shell"]
+depends = ["fmt:shell", "fmt:cargo-scripts"]
 run = "cargo fmt"
 
 ["fmt:shell"]
 description = "Rewrite the shell formatting"
 shell = "bash -c"
 run = "shfmt --write $(git ls-files '*.sh' '*.bats')"
+
+["fmt:cargo-scripts"]
+description = "Rewrite the formatting of each cargo script"
+shell = "bash -c"
+run = "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024"
 
 ["fmt:check"]
 description = "Refuse unformatted code"
@@ -61,6 +66,21 @@ run = "scripts/check-links.sh"
 [clippy]
 description = "Refuse a lint"
 run = "cargo clippy --all-targets"
+
+# A script changes far less often than `src/`, so `quality` does not run this.
+#   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
+["lint:cargo-scripts"]
+description = "Refuse an unformatted cargo script, or one that breaks a lint"
+shell = "bash -c"
+run = [
+  "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024 --check",
+  '''
+git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+  cargo clippy -Zscript --release --locked --manifest-path "$s" --target-dir target/scripts \
+    --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
+done
+''',
+]
 
 [doc]
 description = "Refuse a broken link in the Rust documentation"
@@ -118,7 +138,7 @@ depends = [
 
 [check]
 description = "Every gate, in one command"
-depends = ["quality", "test:rust", "test:scripts"]
+depends = ["quality", "lint:cargo-scripts", "test:rust", "test:scripts"]
 
 [preflight]
 description = "Every gate, from a clean tree"

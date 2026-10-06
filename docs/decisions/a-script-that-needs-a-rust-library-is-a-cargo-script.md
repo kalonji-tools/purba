@@ -45,6 +45,8 @@ The library earns the change of language, and the runner does not change.
 
 ## Confirmation
 
-**No cargo script is in the tree yet, and no Rust formatter, linter or placement check reads one.**
-`scripts/check-placement.sh` reads `*.sh` only.
-[The records gate passes a perfect tense behind an adverb that neither ends in -ly nor is listed](https://github.com/kalonji-tools/purba/issues/302) adds the first cargo script, and wires all three with it.
+| property | check |
+|---|---|
+| a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
+| a cargo script sits where its callers are | `mise run lint:placement` reads `*.rs` under `scripts/` and `.github/` |
+| its build is paid once for each lockfile | `.github/workflows/cargo-scripts.yml` builds and checks each cargo script on `main` when one changes, and saves `target/scripts`. Quality and Scripts restore it, because a pull request reads the cache of its base branch |

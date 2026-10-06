@@ -166,6 +166,6 @@ The same instruction block in the prototype ran at 83.9% on one carrier and at n
 | an issue or pull request template | the web interface and nothing else | 0 of 1,317 issues and 0 of 899 pull requests in the prototype |
 
 A template is rendered by the client that opens it and every issue here arrived through the API, the reason [a register belongs to one location](a-register-belongs-to-one-location.md) already gives.
-`CONTRIBUTING.md` fails from the other side, addressing outside contributors this project has never had.
+`CONTRIBUTING.md` fails from the other side, addressing outside contributors this project does not have.
 
 The reviewer judges what no check can, which is the reader [architectural significance is declared, not detected](significance-is-declared-not-detected.md) already relies on.

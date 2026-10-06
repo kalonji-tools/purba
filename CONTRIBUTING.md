@@ -153,10 +153,10 @@ also be current with `main` (`strict_required_status_checks_policy`), so a
 branch that has fallen behind is rebased and reviewed against what is there
 now.
 
-A fourth check, `Scripts`, refuses a failing test of purba's own scripts, and
-runs those tests only where your branch changes a script or a setting a script
-test copies. purba does not sign a branch while `Scripts` is red, so it stops a
-merge through `Sign-off`.
+A fourth check, `Scripts`, refuses a failing test of purba's own scripts, and a
+cargo script that is unformatted or breaks a lint. It runs only where your
+branch changes a script or a setting a script test copies. purba does not sign
+a branch while `Scripts` is red, so it stops a merge through `Sign-off`.
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
