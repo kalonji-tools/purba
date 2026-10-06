@@ -83,7 +83,7 @@ A programme is a milestone, not a record.
 |---|---|
 | the four sections are present, in order | strong |
 | record prose carries no bare issue number | strong |
-| source carries no numbered-record citation | strong |
+| a record carries no numbered-record citation | strong |
 | a sentence stays on one line | strong |
 | a Confirmation that says a gate is unwired names the issue that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
 

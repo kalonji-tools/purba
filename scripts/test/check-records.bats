@@ -641,17 +641,19 @@ Has the gate refused it?"
   [[ "${output}" == *"${record}:15: 2 lead-ins over 1 costs"* ]]
 }
 
-# The number is joined to its prefix here and never written beside it. The rule
-# reads every tracked file, this one included, and would refuse its own test.
-@test "a numbered citation in any tracked file is refused" {
-  printf 'oxitest recorded this as ADR-%s.\n' 0019 >NOTES.md
+@test "a numbered citation is refused in a record and passes outside one" {
+  citing=docs/decisions/a-second-record-holds.md
+  compliant >"${citing}"
+  swap_in "${citing}" "Something needs a decision." "Something needs a decision, as ADR-0019 says."
+  printf 'oxitest recorded this as ADR-0019.\n' >NOTES.md
   git add NOTES.md
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"source cites a record by its proposition"* ]]
-  [[ "${output}" == *"NOTES.md:1:"* ]]
+  [[ "${output}" == *"so a record cites another by its proposition"* ]]
+  [[ "${output}" == *"${citing}:5:"* ]]
+  [[ "${output}" != *"NOTES.md"* ]]
 }
 
 @test "a Confirmation that admits an unwired gate and names no issue is refused" {
@@ -759,15 +761,14 @@ Has the gate refused it?"
   [[ "${output}" == *"no record found in docs/nowhere."* ]]
 }
 
-@test "outside a git repository it exits 2" {
+@test "outside a git repository it reads the records" {
   mkdir -p "${BATS_TEST_TMPDIR}/bare/docs/decisions"
   cp "${record}" "${BATS_TEST_TMPDIR}/bare/docs/decisions/"
   cd "${BATS_TEST_TMPDIR}/bare"
 
   run "${script}"
 
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"can only be read inside a git repository"* ]]
+  [[ "${status}" -eq 0 ]]
 }
 
 @test "each phrase that admits an unwired gate needs an issue" {
