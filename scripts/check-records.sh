@@ -265,13 +265,13 @@ prose=$(awk '
 
   # Indented, because a fence nested under a list item still opens a block, and
   # an anchor at column zero reads its contents as prose.
-  FNR == 1 { fence = 0; psent = 0; preported = 0 }
+  FNR == 1 { fence = 0; psent = 0; preported = 0; unended = 0 }
 
-  /^[[:space:]]*```/ { fence = ! fence; psent = 0; preported = 0; next }
+  /^[[:space:]]*```/ { fence = ! fence; psent = 0; preported = 0; unended = 0; next }
   fence { next }
   # A heading is not a sentence, and it closes the paragraph above it. The
   # evidence-density pass below skips one too.
-  /^#/ { psent = 0; preported = 0; next }
+  /^#/ { psent = 0; preported = 0; unended = 0; next }
   {
     masked = mask($0)
     # A unit is a line, or a table cell once the row is split on the pipes that
@@ -294,6 +294,15 @@ prose=$(awk '
     prose_line = (text_line && $0 !~ /^[[:space:]]/ && $0 !~ /^[-*+] / \
                   && $0 !~ /^[0-9]+\. / && $0 !~ /^>/)
     if (! prose_line) { psent = 0; preported = 0 }
+
+    # `docs/decisions/.template.md` puts one sentence on one line. A line that
+    # ends mid-sentence is wrapped when the next line goes on with it, and a
+    # blank line, a list item and a table row each open something new.
+    body = $0
+    sub(/^[[:space:]>]*/, "", body)
+    if (unended && body != "" && body !~ /^([-*+]|[0-9]+\.) |^\|/) \
+      printf "wrap\t%s:%d\n", FILENAME, unended
+    unended = (body != "" && body !~ /^\|/ && body !~ /[.!?][*")\]]*[[:space:]]*$/) ? FNR : 0
 
     for (u = 1; u <= units; u++) {
       unit = cell[u]
@@ -358,6 +367,13 @@ mapfile -t found < <(grep '^bold' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "Bold opens a sentence and never sits inside one. A lead-in is what bold is for, and whether a \
 bolded phrase is one is read by a reviewer rather than decided here." \
+  "${found[@]}"
+
+mapfile -t found < <(grep '^wrap' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A sentence stays on one line. A record is rewritten in place, and a wrapped paragraph reflows \
+on a one word edit and buries the change in the diff. The line named is where the sentence \
+breaks." \
   "${found[@]}"
 
 mapfile -t found < <(grep '^long' <<<"${prose}" | cut -f2- || true)
