@@ -114,7 +114,7 @@ prose=$(awk '
     for (i in w) prep[w[i]] = 1
 
     split("not never already also still now then always often again " \
-          "just therefore once since ever twice", w, " ")
+          "just therefore once since ever twice yet", w, " ")
     for (i in w) adverb[w[i]] = 1
 
     # A participle that does not end in `-ed`.
@@ -205,12 +205,13 @@ prose=$(awk '
     return (w in adverb) || w ~ /ly$/
   }
 
-  # The word before, skipping one adverb.
+  # The word before, skipping every adverb.
   function prior(arr, i,   p) {
-    if (i < 2) return ""
-    p = tolower(arr[i - 1])
-    if (is_adverb(p) && i > 2) p = tolower(arr[i - 2])
-    return p
+    while (--i >= 1) {
+      p = tolower(arr[i])
+      if (! is_adverb(p)) return p
+    }
+    return ""
   }
 
   # A masked code span becomes a word and never a gap. Dropping it makes the
@@ -239,11 +240,9 @@ prose=$(awk '
     n = split(sent, arr, wordsep)
     for (i = 1; i <= n; i++) {
       lw = tolower(arr[i])
-      if (lw == "having" && i < n && is_participle(tolower(arr[i + 1]))) \
-        return "having " arr[i + 1]
       if (! is_participle(lw) && lw != "been") continue
       p = prior(arr, i)
-      if (p == "has" || p == "have" || p == "had") return p " " lw
+      if (p == "has" || p == "have" || p == "had" || p == "having") return p " " lw
     }
     return ""
   }
