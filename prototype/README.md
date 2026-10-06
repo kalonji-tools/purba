@@ -80,6 +80,22 @@ See `out/probes.md`. Three results decide most of it:
 [purba writes its scripts in bash until purba can test them](https://github.com/kalonji-tools/purba/blob/main/docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md)
 stands against a gate written in Rust. This prototype does not answer that.
 
+## The cargo script
+
+From `script/time.sh`. `script/libwalk.rs` is `libwalk/` as one file, with its
+manifest inside it. Each form starts from an empty build directory.
+
+| form | cold build and first run | each later run |
+|---|---|---|
+| a binary crate, release | 82.0 s | 1.0 s |
+| a cargo script, release | 89.3 s | 1.2 s |
+| a cargo script, debug | 59.7 s | 25.7 s |
+
+Two runs of the script differed by several seconds in each cold row, and by
+less than a second in each later run. A debug build is quicker to make and
+runs too slowly to gate. `resolver.lockfile-path` writes the lockfile of the
+script where `script/time.sh` asks, and `--locked` then holds the build to it.
+
 ## The gerund
 
 From `gerund.sh`. The library variant `ing-lead+u` keeps the scope of the bash
@@ -121,4 +137,5 @@ mise exec harper-cli@2.3.0 -- ./keys.sh         # needs zip and cargo
 ./score.sh > out/score.md
 mise exec harper-cli@2.3.0 -- ./probes.sh > out/probes.md
 ./gerund.sh > out/gerund.md
+mise exec -- ./script/time.sh > out/script-times.md   # needs the nightly
 ```
