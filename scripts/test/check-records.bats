@@ -203,6 +203,41 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
+@test "a sentence wrapped across two lines is refused where it breaks" {
+  for pair in $'The gate is\nchecking the record.' $'- The gate is\n  checking the record.' \
+    $'> The gate is\n> checking the record.'; do
+    compliant >"${record}"
+    prose "${pair}"
+
+    run "${script}"
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"A sentence stays on one line."* ]]
+    [[ "${output}" == *"${record}:5"* ]]
+  done
+}
+
+@test "a line before a list, a table, a fence or a heading passes" {
+  for block in $'The rules are these:\n- One.' $'The rules are these:\n| a |\n|---|' \
+    $'The rules are these:\n```\nrule\n```\nThat is all.' $'The rules are these:\n### Rules\nOne.' \
+    $'- The rules are these:\n  - One.' $'> The rules are these:\n> - One.'; do
+    compliant >"${record}"
+    prose "${block}"
+
+    run "${script}"
+
+    [[ "${status}" -eq 0 ]]
+  done
+}
+
+@test "a sentence that ends inside bold is not wrapped" {
+  prose $'**The rule is decided.**\nIt holds.'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
 @test "a sentence of twenty-five words passes and one of twenty-six is refused" {
   words 25
   prose "${filler}end."
