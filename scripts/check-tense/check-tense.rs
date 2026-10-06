@@ -115,12 +115,23 @@ fn faults(text: &str, tokens: &[Token]) -> Vec<(usize, String)> {
     found
 }
 
+fn asks(sentence: &[Token], word: &impl Fn(&Token) -> String) -> bool {
+    let first = sentence
+        .iter()
+        .find(|t| matches!(t.kind, TokenKind::Word(_)));
+    let last = sentence
+        .iter()
+        .rfind(|t| !matches!(t.kind, TokenKind::Space(_) | TokenKind::Newline(_)));
+    first.is_some_and(|t| HAVE.contains(&word(t).as_str())) && last.is_some_and(|t| word(t) == "?")
+}
+
 // The index of `have` and the pair it forms, for the first participle that a
 // walk back over any word reaches `have` from. A determiner, a number or a noun
 // opens a noun phrase, so `has a fixed span` is a possession. `to` and a form
 // of `be` end the walk, so `has nothing to run` and `has records which were
 // refused` are not tenses.
 fn perfect(sentence: &[Token], word: &impl Fn(&Token) -> String) -> Option<(usize, String)> {
+    let question = asks(sentence, word);
     for (i, token) in sentence.iter().enumerate() {
         let TokenKind::Word(Some(metadata)) = &token.kind else {
             continue;
@@ -146,11 +157,16 @@ fn perfect(sentence: &[Token], word: &impl Fn(&Token) -> String) -> Option<(usiz
                     let tag = before.as_ref().and_then(|m| m.pos_tag);
                     if w == "to"
                         || BE.contains(&w.as_str())
-                        || matches!(tag, Some(UPOS::DET | UPOS::NUM | UPOS::NOUN | UPOS::PROPN))
+                        || (!question
+                            && matches!(
+                                tag,
+                                Some(UPOS::DET | UPOS::NUM | UPOS::NOUN | UPOS::PROPN)
+                            ))
                     {
                         break;
                     }
                 }
+                TokenKind::Number(_) if question => {}
                 // A code span, a number or an address.
                 _ => break,
             }

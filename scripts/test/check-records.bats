@@ -447,6 +447,8 @@ words() {
 A person has even moved the date.|has moved
 The gate has itself refused the record.|has refused
 Has anyone moved the date?|has moved
+Has the gate refused the record?|has refused
+Have purba's own 92 issues been consistent?|have been
 Having itself refused it, the gate waits.|having refused
 CASES
 }
@@ -496,7 +498,8 @@ refused the record."
 
 @test "a possession, an obligation, a passive and a code span are no tense" {
   for sentence in "The gate has a fixed span." "A check has nothing to run against." \
-    "The gate has records which were refused." "The lock has \`rust\` pinned."; do
+    "The gate has records which were refused." "The lock has \`rust\` pinned." \
+    "Does the record have a fixed span?" "Having a record refused is rare."; do
     compliant >"${record}"
     prose "${sentence}"
 
