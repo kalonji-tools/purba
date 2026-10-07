@@ -49,8 +49,9 @@ A secret cannot be bound to one workflow file, so a rule saying which workflow m
 A workflow that named these two could open a pull request and do nothing else, which is the bound worth having.
 
 **The token that reports a failure is not this one.**
-`.github/scripts/report-bump-failure.sh` and `.github/scripts/report-release-failure.sh` each open or comment on an issue, which this identity may not do, so those steps keep `GITHUB_TOKEN`.
-A change that points either at the App token would stop the only thing that reports a failed run of its workflow.
+`.github/scripts/report-run-failure.sh` opens or comments on an issue when `bump.yml`, `release.yml` or `publish.yml` fails.
+This identity may not do that, so each of those steps keeps `GITHUB_TOKEN`.
+A change that points one of them at the App token would stop the only thing that reports a failed run of its workflow.
 
 **Downside:**
 
