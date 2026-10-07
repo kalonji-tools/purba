@@ -1,4 +1,4 @@
-# scripts/apply-fork-contribution.sh against the code owners it refuses.
+# scripts/apply-fork-contribution.sh against the code owners it refuses and the diff it reads.
 : "${BATS_TEST_DIRNAME:?set by bats}"
 
 setup() {
@@ -49,4 +49,61 @@ FAKE
   accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
   work=$(git rev-parse work)
   [[ "${accepted}" == "${work}"* ]]
+}
+
+# A pipe holds 64 KiB on Linux, so `grep -q` that stops reading at the first
+# path leaves `git diff` to die of SIGPIPE on the rest. pipe(7), the section
+# "Pipe capacity".
+@test "a contribution that changes .github/ and more names than a pipe holds is warned about" {
+  git switch --quiet work
+  mkdir -p .github/workflows many
+  touch .github/workflows/run.yml
+  for number in $(seq 2000); do
+    touch "many/a-path-name-long-enough-that-two-thousand-of-them-fill-a-pipe-${number}"
+  done
+  git add .github many
+  commit "feat: many" "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet --force origin work:refs/pull/7/head
+  git switch --quiet main
+  mkdir -p .github
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"warning: this contribution changes .github/"* ]]
+}
+
+@test "a contribution that changes only a .github/ path outside ASCII is warned about" {
+  git switch --quiet work
+  mkdir -p .github/workflows
+  touch .github/workflows/café.yml
+  git add .github
+  commit "feat: café" "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet --force origin work:refs/pull/7/head
+  git switch --quiet main
+  mkdir -p .github
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"warning: this contribution changes .github/"* ]]
+}
+
+@test "a contribution whose diff cannot be read exits 2 and pushes nothing" {
+  echo "* @someone" >.github/CODEOWNERS
+  git=$(command -v git)
+  fake git <<FAKE
+for argument in "\$@"; do
+  [[ "\${argument}" != diff ]] || exit 128
+done
+exec "${git}" "\$@"
+FAKE
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 2 ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
 }
