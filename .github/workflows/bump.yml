@@ -1,7 +1,7 @@
 # The workflow that proposes a compiler. It signs nothing.
 #
 #   the work:      .github/scripts/bump-nightly.sh
-#   the failure:   .github/scripts/report-bump-failure.sh
+#   the failure:   .github/scripts/report-run-failure.sh
 #   the pin:       .config/mise.toml, under `[tools]`
 #   the decisions: docs/decisions/the-nightly-is-named-by-a-date.md
 #                  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
@@ -73,4 +73,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_URL: >-
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: .github/scripts/report-bump-failure.sh "$RUN_URL" "$ISSUE"
+        run: .github/scripts/report-run-failure.sh bump "$RUN_URL" "$ISSUE"

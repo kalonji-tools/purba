@@ -2,7 +2,7 @@
 #
 #   the caller:    .github/workflows/release.yml
 #   the check:     .github/scripts/require-abi3.sh
-#   the failure:   .github/scripts/report-publish-failure.sh
+#   the failure:   .github/scripts/report-run-failure.sh
 #   the floor:     docs/decisions/purba-supports-a-python-with-two-years-left.md
 #
 # ⚠️ PyPI trusts this file by its name and by the environment below. Renaming
@@ -110,4 +110,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_URL: >-
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: .github/scripts/report-publish-failure.sh "$RUN_URL" "$ISSUE"
+        run: .github/scripts/report-run-failure.sh publish "$RUN_URL" "$ISSUE"
