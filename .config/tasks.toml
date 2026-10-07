@@ -6,10 +6,6 @@
 description = "Build the wheel"
 run = "maturin build"
 
-[clean]
-description = "Remove the build output"
-run = "cargo clean"
-
 [fmt]
 description = "Rewrite the formatting"
 depends = ["fmt:shell", "fmt:cargo-scripts"]
@@ -148,13 +144,8 @@ depends = [
 ]
 
 [check]
-description = "Every gate, in one command"
+description = "Every lint and every test, in one command"
 depends = ["quality", "lint:cargo-scripts", "test:cargo-scripts", "test:rust", "test:scripts"]
-
-[preflight]
-description = "Every gate, from a clean tree"
-depends = ["clean"]
-depends_post = ["check", "build"]
 
 ["sign-off"]
 description = "Sign every commit on your branch. A person runs this, never an agent"
