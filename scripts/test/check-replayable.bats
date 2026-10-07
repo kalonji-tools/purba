@@ -17,14 +17,32 @@ refusing_hook() {
   chmod +x ".git/hooks/$1"
 }
 
-@test "a branch that replays onto its base passes" {
+@test "a branch that replays prints the head it built, and each commit carries the trailer" {
   commit "feat: one"
   commit "feat: two"
+  owed="Accepted-by: owner-1 <42+owner-1@users.noreply.github.com>"
 
-  run "${script}" main work
+  TRAILER="${owed}" run "${script}" main work
 
   [[ "${status}" -eq 0 ]]
-  [[ -z "${output}" ]]
+  [[ "${output}" =~ ^[0-9a-f]{40}$ ]]
+  replayed=$(git rev-parse "${output}^{tree}")
+  kept=$(git rev-parse 'work^{tree}')
+  [[ "${replayed}" == "${kept}" ]]
+  trailers=$(git log --format='%(trailers:key=Accepted-by)' "main..${output}")
+  carried=$(grep -c -x -F "${owed}" <<<"${trailers}")
+  [[ "${carried}" -eq 2 ]]
+}
+
+@test "the replay keeps the committer its caller gives" {
+  commit "feat: one"
+
+  GIT_COMMITTER_NAME=caller GIT_COMMITTER_EMAIL=caller@example.invalid run "${script}" main work
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" =~ ^[0-9a-f]{40}$ ]]
+  committer=$(git log -1 --format='%cn <%ce>' "${output}")
+  [[ "${committer}" == "caller <caller@example.invalid>" ]]
 }
 
 @test "a base that moved on reads the same commits" {
