@@ -14,7 +14,7 @@ Both candidate managers were asked for `nightly` on one machine inside one hour.
 | reader | rustc | cargo |
 |---|---|---|
 | devenv, pinned by `devenv.lock` | `1.100.0-nightly (0fc141305 2026-09-11)` | `1.100.0-nightly (3c0b53475 2026-09-04)` |
-| mise, pinned by `mise.lock` | `1.100.0-nightly (574ff7d98 2026-09-14)` | `1.100.0-nightly (7941be6fb 2026-09-11)` |
+| mise, pinned by `.config/mise.lock` | `1.100.0-nightly (574ff7d98 2026-09-14)` | `1.100.0-nightly (7941be6fb 2026-09-11)` |
 
 They disagree by four days on the compiler and by a week on cargo.
 
@@ -52,13 +52,13 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 ## Decision Outcome
 
 **purba carries no tool manager beside mise, and no compiler of its own.**
-mise names the version of every package `mise.toml` declares, in one committed lockfile.
-[One manifest declares each package](one-manifest-declares-each-package.md) says which packages `mise.toml` declares.
+mise names the version of every package `.config/mise.toml` declares, in one committed lockfile.
+[One manifest declares each package](one-manifest-declares-each-package.md) says which packages `.config/mise.toml` declares.
 
-`mise.toml` names what purba accepts and `mise.lock` records what those names resolved to.
+`.config/mise.toml` names what purba accepts and `.config/mise.lock` records what those names resolved to.
 Both are committed.
 A lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
-Every `Cargo.lock` and `mise.lock` in the tree carries that mark.
+`.config/mise.lock` and every `Cargo.lock` in the tree carry that mark.
 mise chooses the platform list itself rather than being given one.
 
 **purba requires a C toolchain on the host and does not supply one.**
@@ -99,7 +99,7 @@ Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2
 ⚠️ **`locked = true` does not refuse that.**
 Its not-in-lockfile error is withheld under the same condition, so an unlocked resolution is a silent difference rather than a failure.
 **The setting covers a tool only while that tool's backend installs into a real directory.**
-Every other tool in `mise.toml` satisfies that by accident, and no lockfile entry reveals it.
+Every other tool in `.config/mise.toml` satisfies that by accident, and no lockfile entry reveals it.
 
 The toolchain is therefore named by a date, which resolves only to itself.
 [The nightly is named by a date](the-nightly-is-named-by-a-date.md) holds that choice.

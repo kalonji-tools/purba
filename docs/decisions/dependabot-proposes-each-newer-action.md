@@ -37,7 +37,7 @@ A security update arrives on its own, whenever an advisory names an action.
 [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) says how.
 
 **Dependabot never proposes the nightly.**
-It cannot regenerate `mise.lock`.
+It cannot regenerate `.config/mise.lock`.
 `.github/workflows/bump.yml` proposes the nightly instead.
 
 **Downside:**

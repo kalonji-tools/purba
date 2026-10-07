@@ -1,4 +1,4 @@
-# Every command purba runs. `mise.toml` names which versions of a tool purba
+# Every command purba runs. `.config/mise.toml` names which versions of a tool purba
 # accepts; this file names which commands purba runs with them.
 # https://mise.jdx.dev/tasks/
 

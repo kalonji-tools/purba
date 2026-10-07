@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The tracked files that reach no actor, and the names in .readers that are not
-# on the roster.
+# The tracked files that reach no actor, and the names in .config/readers that
+# are not on the roster.
 #
 #   the decision:  docs/decisions/a-location-inherits-its-readers.md
 #   the roster:    docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
@@ -8,7 +8,7 @@
 #
 #   check-readers.sh
 #
-# Exits 1 when it refuses a file or a name, and 2 when .readers or the roster
+# Exits 1 when it refuses a file or a name, and 2 when .config/readers or the roster
 # cannot be read.
 set -euo pipefail
 
@@ -19,8 +19,8 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) ||
   cannot 'the bindings can only be found inside a git repository.'
 cd "${top}"
 
-[[ -r .readers ]] ||
-  cannot '.readers cannot be read.'
+[[ -r .config/readers ]] ||
+  cannot '.config/readers cannot be read.'
 
 # git writes NUL-separated output, which a shell variable cannot hold, so each
 # step writes a file here.
@@ -41,7 +41,7 @@ done <<<"${slugs}"
 [[ ${#actor[@]} -gt 0 ]] ||
   cannot "the roster cannot be read from ${record}."
 
-# Every name .readers writes, and each macro it defines, read off the lines.
+# Every name .config/readers writes, and each macro it defines, read off the lines.
 # This matches no pattern, so it catches a name on a pattern that reaches no
 # file.
 problems=$(slugs="${slugs}" awk '
@@ -53,16 +53,16 @@ problems=$(slugs="${slugs}" awk '
     for (x in macro) if (x in actor) print "shadow", x
     for (x in used) if (!(x in actor) && !(x in macro)) print "off", x
   }
-' .readers | sort)
+' .config/readers | sort)
 off_roster=$(sed -n 's/^off //p' <<<"${problems}")
 shadowed=$(sed -n 's/^shadow //p' <<<"${problems}")
 
 # A template can carry an info/attributes file, so the empty repository takes none.
 git init --quiet --template= "${scratch}/empty"
 git ls-files -z >"${scratch}/files"
-GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${top}/.readers" \
+GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${top}/.config/readers" \
   check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" ||
-  cannot 'git cannot resolve .readers.'
+  cannot 'git cannot resolve .config/readers.'
 
 declare -A reached=()
 while IFS= read -r -d '' path && IFS= read -r -d '' name && IFS= read -r -d '' state; do
@@ -77,16 +77,16 @@ done <"${scratch}/files"
 [[ ${#unbound[@]} -eq 0 ]] || refuse \
   "A tracked file is refused when it reaches no actor, because every artifact has a named \
 reader. Decide whether it should exist, what it serves and for whom, and bind that actor in \
-.readers." \
+.config/readers." \
   "${unbound[@]}"
 
 [[ -z "${off_roster}" ]] || refuse \
-  "A name in .readers is refused when it is neither an actor nor a macro, because a reader \
+  "A name in .config/readers is refused when it is neither an actor nor a macro, because a reader \
 is an actor and the roster names every actor." \
   "${off_roster}"
 
 [[ -z "${shadowed}" ]] || refuse \
-  "A macro is refused when its name is an actor's, because .readers could not \
+  "A macro is refused when its name is an actor's, because .config/readers could not \
 then tell the two apart." \
   "${shadowed}"
 

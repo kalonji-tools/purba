@@ -11,7 +11,7 @@ So the boundary was crossed in both directions, and nothing in the tree said whi
 [A location inherits its readers](a-location-inherits-its-readers.md) binds `.github/**` and `scripts/**` to the same actor, so it answers who reads a script and not where one goes.
 
 The stakes are not tidiness.
-`CODEOWNERS` covered `/.github/` and did not cover `scripts/`, so placement decided who reviews the code that gates every merge.
+`.github/CODEOWNERS` covered `/.github/` and did not cover `scripts/`, so placement decided who reviews the code that gates every merge.
 
 ## Considered Options
 
@@ -25,7 +25,7 @@ The stakes are not tidiness.
 A script is refused when every caller of it lives in the other half of the tree.
 
 `.github/**` is GitHub's half.
-Everything else is a person's, and `tasks.toml` and `prek.toml` are in it because a person reaches a task through them.
+Everything else is a person's, and `.config/tasks.toml` and `prek.toml` are in it because a person reaches a task through them.
 A script a person runs, or that this project's own tooling runs, lives in `scripts/`.
 
 A sourced helper needs no rule of its own.
@@ -35,7 +35,7 @@ A script that no caller in the tree names is refused under `.github` and accepte
 The runners under `.github` are enumerable, so nothing there reaches a script that no workflow and no sibling names.
 A person is a caller this repository cannot see, which is why the fork command belonged in `scripts/` while nothing here ran it at all.
 
-**`CODEOWNERS` covers both directories.**
+**`.github/CODEOWNERS` covers both directories.**
 Placement decides which directory a script sits in, and never who approves it.
 The gate's own code is the last thing that should lose a reviewer to a move.
 

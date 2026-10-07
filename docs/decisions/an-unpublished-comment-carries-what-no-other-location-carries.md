@@ -91,7 +91,7 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 | readme | the file `pyproject.toml` names as `readme`, which PyPI shows as purba's page | a link that names neither a full address nor a heading of that file |
 | cited paths | each comment line outside Markdown and generated files | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
-`lychee.toml` holds the settings the checker reads in each leg that runs it, with the reason for each beside it.
+`[tool.lychee]` in `pyproject.toml` holds the settings the checker reads in each leg that runs it, with the reason for each beside it.
 The script passes the flags that differ per leg.
 `scripts/test/check-links.bats` builds each shape the gate refuses offline.
 A fragment that quotes text, an `http` link with an `https` form and a redirect act on the network alone, and no test reaches them.
@@ -106,7 +106,7 @@ It resolves a relative link between records to a path it then checks.
 | blind spot | effect |
 |---|---|
 | reserved example domains are excluded by default | a placeholder address is not a checked address |
-| a root file cited with no directory, such as `mise.toml` | a rename of that file leaves the citation standing |
+| a root file cited with no directory, such as `deny.toml` | a rename of that file leaves the citation standing |
 | a path in a Markdown code span | a rename leaves the path standing |
 | a link to a heading of the README that names the README, such as `README.md#building` | PyPI resolves it to nothing, and the readme leg passes it, because the checker reads it as a heading of the same file |
 

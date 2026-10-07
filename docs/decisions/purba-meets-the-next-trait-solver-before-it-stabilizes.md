@@ -73,7 +73,7 @@ The warrant is always exactly one record, and never one record per feature.
 **Downside:**
 
 - **The stable check does not block, and this project's own position is that a check which runs without a block is a suggestion.** It will sit red and ignored. That is accepted because its output is read on one day only, the day someone reaches for the hatch. A blocking check would buy that day, and forbid the solver's only two gains in advance.
-- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above. A bump can break the tree for reasons that are nobody's fault, and still cost a day. `mise.lock` records a date for the toolchain and does not pin it, which [purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) records in full.
+- **The channel moves under purba without anyone choosing a moment.** A nightly is a snapshot of a compiler whose new solver still carries the open bug reports counted above. A bump can break the tree for reasons that are nobody's fault, and still cost a day. `.config/mise.lock` records a date for the toolchain and does not pin it, which [purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) records in full.
 
 ## Confirmation
 

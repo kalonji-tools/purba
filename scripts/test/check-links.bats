@@ -7,12 +7,15 @@ setup() {
   script="${BATS_TEST_DIRNAME}/../check-links.sh"
   make_repo
   # The comments cite paths in purba, and this repository holds none of them.
-  grep -v -E '^[[:space:]]*#' "${BATS_TEST_DIRNAME}/../../lychee.toml" >lychee.toml
+  # The settings are the `[tool.lychee]` table, wherever it sits in the file.
+  awk '/^\[/ { inside = ($0 ~ /^\[tool\.lychee[].]/) } inside && !/^[[:space:]]*#/' \
+    "${BATS_TEST_DIRNAME}/../../pyproject.toml" >lychee.part
   write b.md '# Title'
   write a.md '[the title](b.md#title)'
   write docs/decisions/record.md '# A record'
   write tasks.toml '#   the decision:  docs/decisions/record.md'
-  write pyproject.toml '[project]' 'readme = "README.md"'
+  write pyproject.toml '[project]' 'readme = "README.md"' "$(<lychee.part)"
+  rm lychee.part
   write README.md '# purba'
   settle
   export PURBA_BASE=HEAD
@@ -148,7 +151,7 @@ FAKE
   [[ "${online_inputs}" == "${expected}" ]]
   offline_inputs=$(LC_ALL=C sort "${BATS_TEST_TMPDIR}/inputs.offline")
   expected=$(printf '%s\n' .gitattributes README.md a.md c.md chorestart \
-    docs/decisions/record.md lychee.toml pyproject.toml tasks.toml)
+    docs/decisions/record.md pyproject.toml tasks.toml)
   [[ "${offline_inputs}" == "${expected}" ]]
   [[ "$(<"${BATS_TEST_TMPDIR}/inputs.readme")" == "README.md" ]]
 }

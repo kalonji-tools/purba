@@ -18,7 +18,7 @@ pr=$1
 root=$(git rev-parse --show-toplevel)
 me=$(gh api user --jq .login)
 
-if grep -oE '@[A-Za-z0-9-]+' "${root}/CODEOWNERS" | tr -d '@' | grep -qxF "${me}"; then
+if grep -oE '@[A-Za-z0-9-]+' "${root}/.github/CODEOWNERS" | tr -d '@' | grep -qxF "${me}"; then
   echo "refused: ${me} is a code owner, so ${me} cannot approve a pull request that ${me} opens." \
     >&2
   echo "Run this as the account that opens pull requests here." >&2

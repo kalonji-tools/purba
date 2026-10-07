@@ -53,12 +53,12 @@ Absence is ambiguous, so this record names each deviation: `cargo fmt` has none,
 
 Every lint level of the crate lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
 A cargo script carries its own, in the manifest inside it.
-A flag on a command line reaches only that command, so `tasks.toml` carries no lint flag.
+A flag on a command line reaches only that command, so `.config/tasks.toml` carries no lint flag.
 
 **Downside:**
 
 - **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
-- **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. To keep one, a writer adds an entry to `_typos.toml`.
+- **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. To keep one, a writer adds an entry to `[tool.typos]` in `pyproject.toml`.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**
   Inside a YAML block scalar none can be. An indented one is posted as part of whatever the block writes, and one at the first column ends the block.
@@ -95,7 +95,7 @@ A guard on an issue number would then stop refusing one.
 | `typos --write-changes` | the tree needs no rewrite | it rewrites a misspelling in a `.md` or a `.sh` file and stops the commit |
 | its exclusion of `CHANGELOG.md` | a misspelling in `CHANGELOG.md` stays as written | with the exclusion removed, `typos` rewrites it |
 
-`Cargo.lock` and `mise.lock` need no exclusion.
+`Cargo.lock` and `.config/mise.lock` need no exclusion.
 By default `typos` sets `check-file = false` for its `lock` file type.
 A misspelling in either stayed as written.
 
@@ -104,11 +104,11 @@ Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
 On three trees that already spell-check, each of its 19 rewrites in code files was wrong.
 Twelve of them renamed a name that a test misspells on purpose.
 
-`_typos.toml` ran green and red through the same hook.
+`[tool.typos]` in `pyproject.toml` ran green and red through the same hook.
 
 | gate | green | red |
 |---|---|---|
-| `typos` reading `_typos.toml` | the tree needs no rewrite | a planted `ticket` becomes `issue` and a planted `tickets` becomes `issues`, and the commit stops |
+| `typos` reading `[tool.typos]` | the tree needs no rewrite | a planted `ticket` becomes `issue` and a planted `tickets` becomes `issues`, and the commit stops |
 | its two `extend-ignore-re` patterns | the `_Avoid_` line and a `ticket` quoted in a code span stay as written | with the patterns removed, `typos` rewrites every mention, and `CONTEXT.md` reads `_Avoid_: issue` |
 
 `cargo fmt` ran green and red through the same hooks, in [Let the Rust format hook write its fix](https://github.com/kalonji-tools/purba/issues/252).

@@ -87,7 +87,7 @@ No sign-off is owed before that.
 **A [debrief](../../CONTEXT.md#debrief) is owed when the merged change differs from its implementation plan.**
 
 **A [gate](../../CONTEXT.md#gate) runs at any point before the review.**
-`tasks.toml` names the ones a contributor runs, and `CONTRIBUTING.md` names what refuses a merge.
+`.config/tasks.toml` names the ones a contributor runs, and `CONTRIBUTING.md` names what refuses a merge.
 
 **Downside:**
 

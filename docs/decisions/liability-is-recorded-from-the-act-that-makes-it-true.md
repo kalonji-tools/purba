@@ -35,7 +35,7 @@ Four of the five statements below are events, and the fifth is a standing role.
 
 Stewardship never belongs in a commit.
 A commit is immutable and an owner changes, so a commit that names an owner records a fact with an expiry date.
-`CODEOWNERS` holds it, and [a location inherits its readers](a-location-inherits-its-readers.md) holds the same shape for readers.
+`.github/CODEOWNERS` holds it, and [a location inherits its readers](a-location-inherits-its-readers.md) holds the same shape for readers.
 
 **Acceptance had no home, and the obvious one is already occupied.**
 Git carries an author and a committer.
@@ -63,7 +63,7 @@ It is written where that act can still be read once the pull request is gone.
 | origin | the contributor | as the commit is made, or once the reviewer is satisfied | `Signed-off-by:` |
 | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
 | acceptance | a workflow, from the approval | the moment the code owner approves | an `Accepted-by:` trailer on every commit |
-| stewardship | the code owner | whenever ownership changes | `CODEOWNERS` |
+| stewardship | the code owner | whenever ownership changes | `.github/CODEOWNERS` |
 
 **The contributor writes the origin trailer, and no workflow writes one.**
 A machine cannot hold a right to submit anything, so a machine never makes this statement.
@@ -108,7 +108,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 - **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` and implies nothing else.
-- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event. The code that reports the check is therefore code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`. A pull request changes the scripts the job calls, and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it. The loss is real rather than a restatement of the row above. `CODEOWNERS` covers `/.github/` and `/scripts/` for this reason, which makes the code owner read a change to the gate.
+- **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event. The code that reports the check is therefore code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`. A pull request changes the scripts the job calls, and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it. The loss is real rather than a restatement of the row above. `.github/CODEOWNERS` covers `/.github/` and `/scripts/` for this reason, which makes the code owner read a change to the gate.
 - **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object. A signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not separate a person from their agent in any case. It proves custody of a key, and a key kept where the agent runs is a key the agent uses. [purba records delegation and does not prevent it](purba-records-delegation-and-does-not-prevent-it.md) decides what follows from that.
 
 ## Confirmation
@@ -123,7 +123,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
-| a change to the gate reaches the code owner | strong, `CODEOWNERS` covers `/.github/` and `/scripts/`, and a code owner review is required |
+| a change to the gate reaches the code owner | strong, `.github/CODEOWNERS` covers `/.github/` and `/scripts/`, and a code owner review is required |
 | a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because the refusal is the first step and no such pull request exists here |
 | the contributor read what they signed | none, and no check can make it |
 

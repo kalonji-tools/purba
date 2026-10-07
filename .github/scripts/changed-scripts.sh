@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Whether a pull request changes one of purba's own scripts, or a setting a
-# script test copies: lychee.toml for the link gate, cliff.toml for the release,
-# pyproject.toml for the wheel tag.
+# script test copies: .config/cliff.toml for the release, and pyproject.toml
+# for the link gate's `[tool.lychee]` and the wheel tag.
 #
 #   the caller:    .github/workflows/scripts.yml
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
@@ -31,7 +31,7 @@ if ! files=$(git -c core.quotePath=false diff --name-only --no-renames "$1" "$2"
   exit 2
 fi
 
-read_by_a_test='^(scripts/|\.github/scripts/|lychee\.toml$|cliff\.toml$|pyproject\.toml$)'
+read_by_a_test='^(scripts/|\.github/scripts/|\.config/cliff\.toml$|pyproject\.toml$)'
 if grep -qE "${read_by_a_test}" <<<"${files}"; then
   echo "scripts=true"
   echo "something a script test reads changed, so the script tests run" >&2

@@ -21,8 +21,8 @@ Two things come from outside this repository. Everything else comes from the
 first of them.
 
 **[mise](https://mise.jdx.dev)** installs the Rust toolchain, Python, maturin
-and the rest from `mise.toml`, and pins what they resolved to in `mise.lock`.
-Installing mise itself is
+and the rest from `.config/mise.toml`, and pins what they resolved to in
+`.config/mise.lock`. Installing mise itself is
 [documented upstream](https://mise.jdx.dev/installing-mise.html).
 
 **A C toolchain**, which purba needs and does not supply. Rust links through

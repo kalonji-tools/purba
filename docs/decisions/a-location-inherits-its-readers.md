@@ -33,7 +33,7 @@ A location inherits its readers.
 A directory names the actors it adds, and a file's readers are the union of every binding from the project root down to it.
 A directory that binds nothing is transparent: `src/config/pyproject.toml` reads `src/`'s actors when `config/` binds none.
 
-The bindings live in [`.readers`](../../.readers), in gitattributes syntax.
+The bindings live in [`.config/readers`](../../.config/readers), in gitattributes syntax.
 
 The project root binds nothing.
 A reviewer reaches every location by what its role is, and a role that spans everything is not a binding.
@@ -56,9 +56,9 @@ This is scoped to tracked files.
 It never applies to a milestone, an issue or a pull request, each of which carries its own record and its own template.
 
 **purba borrows the syntax entire, and git's own parser with it.**
-`git check-attr` reads `.readers` when `core.attributesFile` names it, so nothing is reimplemented and nothing is approximated.
+`git check-attr` reads `.config/readers` when `core.attributesFile` names it, so nothing is reimplemented and nothing is approximated.
 In this repository, `info/attributes` and a tracked `.gitattributes` outrank that file.
-The check therefore runs git in an empty repository, where `.readers` is the only attribute file.
+The check therefore runs git in an empty repository, where `.config/readers` is the only attribute file.
 
 | the syntax gives | what it does here |
 |---|---|
@@ -76,7 +76,7 @@ The check therefore runs git in an empty repository, where `.readers` is the onl
 
 ## Confirmation
 
-**The check reads `.readers` and fails the build on a tracked file that reaches no actor.**
+**The check reads `.config/readers` and fails the build on a tracked file that reaches no actor.**
 
 It rejects any actor name, in a binding or in a macro, that is not on the roster.
 It also rejects a macro named after an actor.

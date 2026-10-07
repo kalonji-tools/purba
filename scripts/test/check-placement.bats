@@ -20,7 +20,7 @@ track() {
 # One script in each half, each named from its own half.
 placed() {
   track scripts/tool.sh 'echo tool'
-  track tasks.toml 'run = "scripts/tool.sh"'
+  track .config/tasks.toml 'run = "scripts/tool.sh"'
   track .github/scripts/job.sh 'echo job'
   track .github/workflows/w.yml 'run: .github/scripts/job.sh'
 }
@@ -37,19 +37,19 @@ placed() {
 @test "a script under .github named only by a task is refused" {
   placed
   track .github/workflows/w.yml 'run: true'
-  track tasks.toml 'run = ".github/scripts/job.sh"'
+  track .config/tasks.toml 'run = ".github/scripts/job.sh"'
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${stranded}"* ]]
-  [[ "${output}" == *".github/scripts/job.sh is named only by tasks.toml"* ]]
+  [[ "${output}" == *".github/scripts/job.sh is named only by .config/tasks.toml"* ]]
   [[ "${output}" != *"${unreachable}"* ]]
 }
 
 @test "a script outside .github named only by a workflow is refused" {
   placed
-  track tasks.toml 'run = "true"'
+  track .config/tasks.toml 'run = "true"'
   track .github/workflows/w.yml 'run: .github/scripts/job.sh && scripts/tool.sh'
 
   run "${script}"
@@ -62,7 +62,7 @@ placed() {
 
 @test "a script named from both halves passes" {
   placed
-  track tasks.toml 'run = "scripts/tool.sh .github/scripts/job.sh"'
+  track .config/tasks.toml 'run = "scripts/tool.sh .github/scripts/job.sh"'
 
   run "${script}"
 
@@ -150,7 +150,7 @@ placed() {
 
 @test "a hook that names a script is its caller" {
   placed
-  track tasks.toml 'run = "true"'
+  track .config/tasks.toml 'run = "true"'
   track prek.toml 'entry = "scripts/tool.sh"'
   track .github/workflows/w.yml 'run: .github/scripts/job.sh && scripts/tool.sh'
 
@@ -161,7 +161,7 @@ placed() {
 
 @test "every misplaced script is reported in one run" {
   placed
-  track tasks.toml 'run = "true"'
+  track .config/tasks.toml 'run = "true"'
   track .github/workflows/w.yml 'run: scripts/tool.sh'
 
   run "${script}"

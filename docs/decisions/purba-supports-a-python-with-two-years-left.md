@@ -39,7 +39,7 @@ It is short enough that the floor does not outrun the versions people run.
 That is an event in the release calendar rather than a date in this file.
 
 **A rise of the floor is a breaking change.**
-Its commit is a `feat` that carries `!`, so `cliff.toml` gives it the version a breaking feature earns.
+Its commit is a `feat` that carries `!`, so `.config/cliff.toml` gives it the version a breaking feature earns.
 
 **`requires-python` carries no upper bound.**
 An abi3 wheel loads on a version that did not exist when it was built.
@@ -52,8 +52,8 @@ So the claim above the floor is true, and nothing tests every version that satis
 |---|---|---|
 | `pyproject.toml` | the version a resolver refuses below | `.github/workflows/publish.yml` refuses the next upload |
 | `Cargo.toml` | the abi3 feature, which sets the wheel tag | `.github/workflows/publish.yml` refuses the next upload |
-| `mise.toml` | the interpreter `mise run` builds against | `mise run check` refuses, because pyo3 compares the abi3 feature with that interpreter |
-| `mise.lock` | the version that interpreter resolves to | mise refuses a version the lockfile does not hold |
+| `.config/mise.toml` | the interpreter `mise run` builds against | `mise run check` refuses, because pyo3 compares the abi3 feature with that interpreter |
+| `.config/mise.lock` | the version that interpreter resolves to | mise refuses a version the lockfile does not hold |
 | `.github/workflows/build.yml` | the interpreters the wheel matrix builds on | the arm below the floor fails, because pip refuses its wheel |
 
 **Downside:**

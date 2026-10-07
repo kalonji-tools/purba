@@ -15,10 +15,11 @@ setup() {
 
 # Each manifest is written whole, one argument to a line.
 mise_toml() {
+  mkdir -p .config
   {
     printf '[tools]\n'
     printf '%s\n' "$@"
-  } >mise.toml
+  } >.config/mise.toml
 }
 
 cargo_toml() {
@@ -42,7 +43,7 @@ pyproject_toml() {
   [[ -z "${output}" ]]
 }
 
-@test "a package in mise.toml and Cargo.toml is refused" {
+@test "a package in .config/mise.toml and Cargo.toml is refused" {
   cargo_toml 'jq = "1"'
 
   run "${script}"
@@ -50,7 +51,7 @@ pyproject_toml() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"${conflict}"* ]]
   [[ "${output}" != *"one-manifest-declares-each-package.md"* ]]
-  [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as jq"* ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
   [[ "${output}" != *"${python}"* ]]
 }
 
@@ -61,7 +62,8 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  editorconfig-checker: Cargo.toml as Editorconfig_Checker, mise.toml as"* ]]
+  [[ "${output}" == *"  editorconfig-checker: .config/mise.toml as editorconfig-checker,"* ]]
+  [[ "${output}" == *"editorconfig-checker, Cargo.toml as Editorconfig_Checker"* ]]
 }
 
 @test "a mise key is read without its backend and its owner" {
@@ -71,8 +73,8 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as aqua:jqlang/jq"* ]]
-  [[ "${output}" == *"  black: Cargo.toml as black, mise.toml as pipx:black"* ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as aqua:jqlang/jq, Cargo.toml as jq"* ]]
+  [[ "${output}" == *"  black: .config/mise.toml as pipx:black, Cargo.toml as black"* ]]
 }
 
 @test "a renamed crate is read by its package name" {
@@ -81,7 +83,7 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as jq"* ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
 }
 
 @test "a package that one manifest declares twice passes" {
@@ -95,7 +97,7 @@ pyproject_toml() {
 }
 
 @test "a mise.toml above the repository declares nothing" {
-  printf '[tools]\nshellcheck = "0"\n' >../mise.toml
+  mkdir -p ../.config && printf '[tools]\nshellcheck = "0"\n' >../.config/mise.toml
   cargo_toml 'shellcheck = "0"'
 
   run "${script}"
@@ -122,7 +124,7 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as jq"* ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
 }
 
 @test "a package in pyproject.toml is refused, wherever it is declared" {
@@ -162,7 +164,7 @@ pyproject_toml() {
 
 @test "a manifest that cannot be read stops the check" {
   local manifest
-  for manifest in mise.toml Cargo.toml pyproject.toml; do
+  for manifest in .config/mise.toml Cargo.toml pyproject.toml; do
     cp "${manifest}" "${manifest}.kept"
     printf '[broken\n' >"${manifest}"
 
@@ -182,8 +184,8 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  jq: Cargo.toml as jq, mise.toml as jq"* ]]
-  [[ "${output}" == *"  shfmt: Cargo.toml as shfmt, mise.toml as shfmt"* ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
+  [[ "${output}" == *"  shfmt: .config/mise.toml as shfmt, Cargo.toml as shfmt"* ]]
   [[ "${output}" == *"${python}"* ]]
   [[ "${output}" == *"  project.dependencies"* ]]
 }

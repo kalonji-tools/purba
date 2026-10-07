@@ -28,7 +28,7 @@ A word missing from `CONTEXT.md` may be used.
 No command holds a word on it to one sense.
 
 **A gate rewrites each word an `_Avoid_` line names.**
-`_typos.toml` names each form of the word and the word that replaces it.
+`[tool.typos]` in `pyproject.toml` names each form of the word and the word that replaces it.
 `typos --write-changes` then rewrites it in every tracked file.
 `typos` matches a whole word, so a plural is a form of its own.
 Two patterns spare a mention: the `_Avoid_` line, and a code span that quotes the word.
@@ -39,7 +39,7 @@ An issue, a comment, a pull request and a commit message are outside the gate.
 
 **Downside:**
 
-- **`CONTEXT.md` and `_typos.toml` cannot see each other.** An `_Avoid_` line added without its forms in `_typos.toml` goes unrefused. Nothing reports it.
+- **`CONTEXT.md` and `[tool.typos]` cannot see each other.** An `_Avoid_` line added without its forms in `[tool.typos]` goes unrefused. Nothing reports it.
 - **A rewrite can break the sentence around it.** An article written before `ticket` stays `a`, so the result reads `a issue`. The commit stops, so the writer reads the diff. No gate catches it after that.
 - **`typos` rewrites a mention outside a code span.** The two patterns spare nothing else.
 - **The gate reaches tracked files only.** An issue, a comment, a pull request and a commit message rely on `AGENTS.md`. A contributor who never reads it writes the avoided word there.
@@ -50,5 +50,5 @@ An issue, a comment, a pull request and a commit message are outside the gate.
 `typos` runs in the `pre-commit` hook, and in `Quality` through `prek run --all-files`.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) records its green run and its red run.
 
-No command checks that each `_Avoid_` line in `CONTEXT.md` has its forms in `_typos.toml`.
+No command checks that each `_Avoid_` line in `CONTEXT.md` has its forms in `[tool.typos]`.
 `AGENTS.md` tells an agent that adds an `_Avoid_` line to add its forms there.

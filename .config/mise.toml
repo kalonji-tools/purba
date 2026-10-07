@@ -3,7 +3,7 @@
 #
 # https://mise.jdx.dev/configuration
 
-# The floor is the version that regenerates `mise.lock` unchanged.
+# The floor is the version that regenerates `.config/mise.lock` unchanged.
 min_version = "2026.8.6"
 
 [tools]
@@ -55,13 +55,13 @@ jq = "1"
 # https://lychee.cli.rs
 lychee = "0.24"
 
-#   the register:  cliff.toml
+#   the register:  .config/cliff.toml
 # https://git-cliff.org
 git-cliff = "2"
 
 [settings]
-# This must be what creates `mise.lock`: a file made with `touch` reads as an
-# older format and loses its version header and every `specifiers` row.
+# This must be what creates `.config/mise.lock`: a file made with `touch` reads
+# as an older format and loses its version header and every `specifiers` row.
 # https://mise.jdx.dev/dev-tools/mise-lock
 lockfile = true
 
@@ -77,4 +77,4 @@ locked = true
 compile = false
 
 [task_config]
-includes = ["tasks.toml"]
+includes = [".config/tasks.toml"]
