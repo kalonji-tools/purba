@@ -107,6 +107,17 @@ Both are judgements. Nothing here decides them and a reviewer reads for them.
 The full statement, and the categories a review has already named, are in
 [an artifact holds the minimum that conveys its point](docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md).
 
+## Where a tool's configuration goes
+
+Configuration files crowd the project root, so purba places them by a
+hierarchy of three locations. A tool's configuration goes in the first one
+the tool reads with no flag and no environment variable: `.config/`, then
+`pyproject.toml`, then the root.
+
+Nothing refuses a file in the wrong place, and a reviewer reads for it. The
+rule and its reasons are in
+[configuration takes the first location its tool reads](docs/decisions/configuration-takes-the-first-location-its-tool-reads.md).
+
 ## How your work reaches `main`
 
 If you can push to this repository, you push a branch here and your pull
