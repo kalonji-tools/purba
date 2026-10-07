@@ -159,24 +159,6 @@ words() {
   [[ "${output}" == *"${record}:5"* ]]
 }
 
-@test "an em-dash in a table cell is refused" {
-  prose $'| a | b |\n|---|---|\n| one — two | three |'
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries no em-dash"* ]]
-  [[ "${output}" == *"${record}:7"* ]]
-}
-
-@test "an em-dash in a code span or a fenced block passes" {
-  prose $'It quotes `a — b` here.\n\n```\na — b\n```'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
 @test "bold inside a sentence is refused" {
   prose "Something **really** needs a decision."
 
@@ -195,47 +177,14 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
-@test "two globs on one line are not read as bold" {
-  prose "It names .github/** and /scripts/** alike."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
 @test "a sentence wrapped across two lines is refused where it breaks" {
-  for pair in $'The gate is\nchecking the record.' $'- The gate is\n  checking the record.' \
-    $'> The gate is\n> checking the record.'; do
-    compliant >"${record}"
-    prose "${pair}"
-
-    run "${script}"
-
-    [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"A sentence stays on one line."* ]]
-    [[ "${output}" == *"${record}:5"* ]]
-  done
-}
-
-@test "a line before a list, a table, a fence or a heading passes" {
-  for block in $'The rules are these:\n- One.' $'The rules are these:\n| a |\n|---|' \
-    $'The rules are these:\n```\nrule\n```\nThat is all.' $'The rules are these:\n### Rules\nOne.' \
-    $'- The rules are these:\n  - One.' $'> The rules are these:\n> - One.'; do
-    compliant >"${record}"
-    prose "${block}"
-
-    run "${script}"
-
-    [[ "${status}" -eq 0 ]]
-  done
-}
-
-@test "a sentence that ends inside bold is not wrapped" {
-  prose $'**The rule is decided.**\nIt holds.'
+  prose $'The gate runs\non each record.'
 
   run "${script}"
 
-  [[ "${status}" -eq 0 ]]
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A sentence stays on one line."* ]]
+  [[ "${output}" == *"${record}:5"* ]]
 }
 
 @test "a sentence of twenty-five words passes and one of twenty-six is refused" {
@@ -251,46 +200,6 @@ words() {
   [[ "${output}" == *"${record}:5: 26 words"* ]]
 }
 
-@test "a link counts as one word, whatever its title holds" {
-  words 24
-  prose "${filler}[a title that is ten words long all on its own](https://example.invalid) end."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a code span counts as one word, and never as none" {
-  words 24
-  prose "${filler}\`one two three four five\` end."
-  run "${script}"
-  [[ "${status}" -eq 0 ]]
-
-  swap "word \`one" "word word \`one"
-  run "${script}"
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:5: 26 words"* ]]
-}
-
-@test "a long sentence in a list item is refused" {
-  words 26
-  swap "The cost is named." "${filler}end."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:17: "*" words"* ]]
-}
-
-@test "a long table cell passes" {
-  words 30
-  prose $'| a |\n|---|\n| '"${filler}"$'end |'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
 @test "a paragraph of six sentences passes and a seventh is refused once" {
   prose $'One.\nTwo.\nThree.\nFour.\nFive.\nSix.'
   run "${script}"
@@ -302,30 +211,6 @@ words() {
   [[ "${output}" == *"A paragraph runs to six sentences, a limit ${borrowed}"* ]]
   [[ "${output}" == *"${record}:11: 7 sentences"* ]]
   [[ "${output}" != *"${record}:12: 8 sentences"* ]]
-}
-
-@test "a blank line splits a paragraph" {
-  prose $'One.\nTwo.\nThree.\nFour.\n\nFive.\nSix.\nSeven.\nEight.'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "seven list items are not a paragraph" {
-  swap "- **This.** Chosen." $'- One.\n- Two.\n- Three.\n- Four.\n- Five.\n- Six.\n- Seven.'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "bold that opens a table cell passes" {
-  prose $'| a | b |\n|---|---|\n| one | **two** |'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
 }
 
 @test "a gerund after a form of be is refused" {
@@ -402,14 +287,6 @@ words() {
 
 @test "a hyphenated compound is not a verb form" {
   prose "The setting is load-bearing."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a code span between a preposition and a gerund keeps them apart" {
-  prose "It reads over \`the tree\`, checking each line."
 
   run "${script}"
 
@@ -516,16 +393,6 @@ CASES
   [[ "${status}" -eq 0 ]]
 }
 
-@test "a tense wrapped across two lines is refused at its first line" {
-  prose "The gate has
-refused the record."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:5: has refused"* ]]
-}
-
 @test "a possession, an obligation, a passive and a code span are no tense" {
   for sentence in "The gate has a fixed span." "A check has nothing to run against." \
     "The gate has records which were refused." "The lock has \`rust\` pinned." \
@@ -539,36 +406,6 @@ refused the record."
 
     [[ "${status}" -eq 0 ]]
   done
-}
-
-@test "a tense in a table row, a heading or a link title is not read" {
-  for block in "| a | The gate has refused the record. |
-|---|---|" "### The gate has refused the record" \
-    "See [the gate has refused the record](https://example.com) here." \
-    "[**The gate has refused the record**](https://example.com) is the case." \
-    "[*The gate has refused the record*](https://example.com) is the case." \
-    "[~~The gate has refused the record~~](https://example.com) is the case." \
-    "See [[the gate has refused the record]] here."; do
-    compliant >"${record}"
-    prose "Something needs a decision.
-
-${block}"
-
-    run "${script}"
-
-    [[ "${status}" -eq 0 ]]
-  done
-}
-
-@test "a paragraph that ends in a link still ends there" {
-  prose "See [the list](https://example.com)
-
-Has the gate refused it?"
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:7: has refused"* ]]
 }
 
 @test "a Downside label followed by a sentence is refused" {
@@ -842,49 +679,6 @@ Has the gate refused it?"
   [[ "${status}" -eq 0 ]]
 }
 
-@test "a fence nested under a list item opens a block" {
-  swap "- **This.** Chosen." $'- **This.** Chosen.\n\n  ```\n  a — b\n  ```'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-# The first record ends inside a fence it never closes. A reader that carried
-# that state into the second would skip everything the second holds.
-@test "a fence one record leaves open does not hide the next record" {
-  swap "\`mise run records\` reads this." $'\`mise run records\` reads this.\n\n```\nunclosed'
-  second=docs/decisions/b-second-record.md
-  compliant >"${second}"
-  swap_in "${second}" "Something needs a decision." "Something — else."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries no em-dash"* ]]
-  [[ "${output}" == *"${second}:5"* ]]
-}
-
-@test "each line that is not prose closes the paragraph above it" {
-  for closer in '### A heading' '> Quoted.' '1. Numbered.' '  Indented.' '* Starred.' '+ Plus.'; do
-    compliant >"${record}"
-    prose $'One.\nTwo.\nThree.\nFour.\n'"${closer}"$'\nFive.\nSix.\nSeven.\nEight.'
-
-    run "${script}"
-
-    [[ "${status}" -eq 0 ]]
-  done
-}
-
-@test "an exclamation mark and a question mark each end a sentence" {
-  words 14
-  prose "${filler}end! ${filler}end? ${filler}end."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
 @test "a perfect tense is refused in each of its forms" {
   for perfect in "They have refused it." "It had refused it." "It has written it." \
     "Having refused it, the gate stops."; do
@@ -922,24 +716,6 @@ Has the gate refused it?"
 
 @test "a word of four letters that ends in ing is not a gerund" {
   prose "A host answers by ping."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "bold after a code span sits inside the sentence and is refused" {
-  prose "\`mise\` **really** runs it."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"Bold opens a sentence and never sits inside one"* ]]
-}
-
-@test "a mark with no letter and no digit in it is not a word" {
-  words 25
-  prose "${filler}/ end."
 
   run "${script}"
 
@@ -1010,13 +786,4 @@ Has the gate refused it?"
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"articles                         2 in    20 words"* ]]
   [[ "${output}" == *"formal words                     0 in    20 words"* ]]
-}
-
-@test "a prose line that holds a link is not a bare line" {
-  prose "Something needs [a decision](https://example.invalid)."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *" 50.0%    2 of   4  ${record}"* ]]
 }

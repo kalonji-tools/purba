@@ -1,7 +1,8 @@
 # The build of each cargo script, cached on main for every pull request.
 #
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
-#   the commands:  .config/tasks.toml, under `records` and `lint:cargo-scripts`
+#   the commands:  .config/tasks.toml, under `records`, `lint:cargo-scripts`
+#                  and `test:cargo-scripts`
 #
 # A pull request restores a cache that its base branch saved, and never one
 # that another pull request saved.
@@ -46,9 +47,11 @@ jobs:
           key: "cargo-scripts-\
             ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
 
-      # `records` builds each script to run it, and `lint:cargo-scripts` checks
-      # each one, so the cache holds what both jobs read.
-      - name: Build each cargo script, and check it
+      # `records` builds each script to run it, `lint:cargo-scripts` checks each
+      # one and `test:cargo-scripts` tests each one, so the cache holds what the
+      # jobs read.
+      - name: Build each cargo script, check it and test it
         run: |
           mise run records
           mise run lint:cargo-scripts
+          mise run test:cargo-scripts

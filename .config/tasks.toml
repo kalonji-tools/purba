@@ -82,6 +82,17 @@ done
 ''',
 ]
 
+#   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
+["test:cargo-scripts"]
+description = "Run the tests inside each cargo script"
+shell = "bash -c"
+run = '''
+git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+  cargo -Zscript test --release --locked --manifest-path "$s" --target-dir target/scripts \
+    --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
+done
+'''
+
 [doc]
 description = "Refuse a broken link in the Rust documentation"
 run = "cargo doc --no-deps"
@@ -138,7 +149,7 @@ depends = [
 
 [check]
 description = "Every gate, in one command"
-depends = ["quality", "lint:cargo-scripts", "test:rust", "test:scripts"]
+depends = ["quality", "lint:cargo-scripts", "test:cargo-scripts", "test:rust", "test:scripts"]
 
 [preflight]
 description = "Every gate, from a clean tree"

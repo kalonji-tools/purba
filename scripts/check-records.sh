@@ -70,279 +70,16 @@ mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
 issue number. Title the link with the question its issue asks." \
   "${found[@]}"
 
-# The two prose rules `docs/decisions/.template.md` states.
+# The prose rules, read through CommonMark by a cargo script. It prints one
+# tagged line for each finding, and each tag below gives its refusal.
 #
 #   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
-#
-# `**` opens bold only where it flanks, which is a left-flanking delimiter run.
-# https://spec.commonmark.org/0.31.2/#left-flanking-delimiter-run
-# Without that test an unbackticked `.github/**` and `/scripts/**` on one line
-# pair into a bold run, and masking code spans does not reach it.
-prose=$(awk '
-  BEGIN {
-    limit = 25
-    parlimit = 6
-
-    # A word keeps its apostrophe and its hyphen. The separator is built
-    # rather than written, because this awk program is inside a quoted
-    # string and an apostrophe would close it.
-    wordsep = "[^A-Za-z" sprintf("%c", 39) "-]+"
-
-    # An `-ing` word the rule admits, because it is a technical noun rather
-    # than a verb form.
-    split("setting settings heading headings listing listings mapping " \
-          "mappings warning warnings wording tooling tracking logging " \
-          "string strings thing things nothing something anything " \
-          "everything during according including being morning evening " \
-          "spring ceiling meaning rating ratings casing padding wrapping", w, " ")
-    for (i in w) ingok[w[i]] = 1
-
-    split("is are was were be been being am", w, " ")
-    for (i in w) beform[w[i]] = 1
-
-    split("by for of without before after while when on in about from than " \
-          "through against into onto over under as because", w, " ")
-    for (i in w) prep[w[i]] = 1
-
-    split("not never already also still now then always often again " \
-          "just therefore once since ever twice yet", w, " ")
-    for (i in w) adverb[w[i]] = 1
-
-    # A participle that does not end in `-ed`.
-    split("been begun bound bought broken brought built burnt caught " \
-          "chosen cost cut dealt done drawn driven eaten fallen felt " \
-          "fought found forgotten given gone grown heard held kept laid " \
-          "led left lent lost made meant met paid put run said seen sold " \
-          "sent set shown shut sung slept spoken spent stood taken taught " \
-          "told thought thrown understood won written forbidden hidden " \
-          "risen torn worn proven shaken stuck struck sworn read beaten " \
-          "frozen", w, " ")
-    for (i in w) irreg[w[i]] = 1
-
-
-    # A formal word the standard replaces with a plain one. The list holds
-    # only words with no second sense here: `required` and `per` are left out
-    # because GitHub names a required check and a rate per hour.
-    split("utilize utilise utilization commence commences commenced " \
-          "terminate terminates terminated endeavour endeavor ascertain " \
-          "aforementioned notwithstanding whilst amongst heretofore " \
-          "thereof herein pursuant facilitate facilitates expedite", w, " ")
-    for (i in w) formal[w[i]] = 1
-  }
-
-  # A code span becomes \001. Splitting on the backtick puts every span in an
-  # even field, which is what a regex cannot do: it pairs a closing backtick
-  # with a later opening one.
-  function mask(line,   part, n, i, out) {
-    n = split(line, part, "`")
-    out = part[1]
-    for (i = 2; i <= n; i++) out = out (i % 2 == 0 ? "\001" : part[i])
-    return out
-  }
-
-    # A link counts as one word, and its title is not read as prose. The rule above
-  # refuses an issue number in record prose and asks for the question its issue
-  # asks, so the title is owed rather than chosen. Charging its words to the
-  # sentence would refuse the sentence that obeys that rule.
-  function strip_link(s) {
-    gsub(/\[[^]]*\]\([^)]*\)/, "\001", s)
-    return s
-  }
-
-  # A code span counts as one word, because a reader reads it as one thing. The
-  # mask leaves it as one character carrying no letter, so it becomes the same
-  # word the detectors below put in its place.
-  function words(s,   n, i, arr, c) {
-    gsub(/\001/, " codespan ", s)
-    n = split(s, arr, /[[:space:]]+/)
-    c = 0
-    for (i = 1; i <= n; i++) if (arr[i] ~ /[A-Za-z0-9]/) c++
-    return c
-  }
-
-  # A boundary is `.`, `!` or `?` then whitespace. A version number and a bare
-  # filename keep their full stop, because neither puts a space after it.
-  #
-  # A lowercase word is not a continuation. The corpus holds no abbreviation
-  # and no initial, and it opens a sentence with a lowercase name: `purba`,
-  # `mise`, `zig` and `devenv`. Reading those as continuations joined two
-  # sentences and refused the pair for the length of both.
-  function split_sentences(unit, sent,   n, cur, head, tail, rest) {
-    n = 0
-    cur = ""
-    rest = unit
-    while (match(rest, /[.!?][*")\]]*[[:space:]]+/)) {
-      head = substr(rest, 1, RSTART + RLENGTH - 1)
-      tail = substr(rest, RSTART + RLENGTH)
-      n++
-      sent[n] = cur head
-      cur = ""
-      rest = tail
-    }
-    if (rest ~ /[^[:space:]]/) {
-      n++
-      sent[n] = cur rest
-    }
-    return n
-  }
-
-  # Three letters or fewer is not a participle, which is what keeps `red` out.
-  function is_participle(w) {
-    if (w in irreg) return 1
-    return (w ~ /ed$/ && length(w) > 3)
-  }
-
-  function is_adverb(w) {
-    return (w in adverb) || w ~ /ly$/
-  }
-
-  # The word before, skipping every adverb.
-  function prior(arr, i,   p) {
-    while (--i >= 1) {
-      p = tolower(arr[i])
-      if (! is_adverb(p)) return p
-    }
-    return ""
-  }
-
-  # A masked code span becomes a word and never a gap. Dropping it makes the
-  # words on either side adjacent, and `over CODE, checking` then reads as a
-  # preposition with a gerund nobody wrote.
-  function ing_fault(sent,   n, i, arr, lw, p) {
-    gsub(/\001/, " codespan ", sent)
-    n = split(sent, arr, wordsep)
-    for (i = 1; i <= n; i++) {
-      lw = tolower(arr[i])
-      # A hyphenated word is a compound adjective and never a verb form, so
-      # `load-bearing` after `is` is not the progressive it looks like.
-      if (lw ~ /-/) continue
-      if (lw !~ /ing$/ || length(lw) < 5 || lw in ingok) continue
-      p = prior(arr, i)
-      if (p in beform || p in prep) return arr[i]
-    }
-    return ""
-  }
-
-  # Everything the report reads, in one pass over the sentence. The passive
-  # voice is reported and never refused, because the rule admits the passive
-  # where the agent is unknown and no command decides that.
-  function tally(sent,   n, i, arr, lw, p, passive) {
-    gsub(/\001/, " codespan ", sent)
-    n = split(sent, arr, wordsep)
-    passive = 0
-    for (i = 1; i <= n; i++) {
-      lw = tolower(arr[i])
-      if (lw == "a" || lw == "an" || lw == "the") arts++
-      if (lw in formal) { formals++; seenformal[lw] = 1 }
-      if (lw ~ /[A-Za-z]/) wordcount++
-      if (passive || ! is_participle(lw)) continue
-      p = prior(arr, i)
-      if (p in beform) passive = 1
-    }
-    return passive
-  }
-
-  # A sentence starts at the head of a unit, or after `.`, `!` or `?`, which a
-  # closing `**` may follow. A non-alphanumeric run may precede the bold, which
-  # is the allowance the Downside lead-in count already grants a list marker.
-  function opens(unit, at,   head) {
-    head = substr(unit, 1, at - 1)
-    sub(/^.*[.!?]\**[[:space:]]+/, "", head)
-    return (head ~ /^[^A-Za-z0-9\001]*$/)
-  }
-
-  # Indented, because a fence nested under a list item still opens a block, and
-  # an anchor at column zero reads its contents as prose.
-  FNR == 1 { fence = 0; psent = 0; preported = 0; unended = 0 }
-
-  /^[[:space:]]*```/ { fence = ! fence; psent = 0; preported = 0; unended = 0; next }
-  fence { next }
-  # A heading is not a sentence, and it closes the paragraph above it. The
-  # evidence-density pass below skips one too.
-  /^#/ { psent = 0; preported = 0; unended = 0; next }
-  {
-    masked = mask($0)
-    # A unit is a line, or a table cell once the row is split on the pipes that
-    # are not inside a code span.
-    units = 1
-    cell[1] = masked
-    if ($0 ~ /^\|/) units = split(masked, cell, /\|/)
-
-    # The em-dash and the bold rules read a table cell. The length rules do
-    # not: a cell is a cell, and the template puts numbers in a table on
-    # purpose, so a length rule there would push them back into prose.
-    table_row = ($0 ~ /^\|/)
-
-    # A sentence in a list item is still a sentence, so a Downside cost cannot
-    # dodge the length rule by being a bullet.
-    text_line = ($0 ~ /[^[:space:]]/ && ! table_row && $0 !~ /^<!--/)
-
-    # A paragraph is narrower: a run of lines at column zero. A blank line, a
-    # table, a list item, a quotation and a heading all close one.
-    prose_line = (text_line && $0 !~ /^[[:space:]]/ && $0 !~ /^[-*+] / \
-                  && $0 !~ /^[0-9]+\. / && $0 !~ /^>/)
-    if (! prose_line) { psent = 0; preported = 0 }
-
-    # `docs/decisions/.template.md` puts one sentence on one line. A line that
-    # ends mid-sentence is wrapped when the next line goes on with it, and a
-    # blank line, a list item and a table row each open something new.
-    body = $0
-    sub(/^[[:space:]>]*/, "", body)
-    if (unended && body != "" && body !~ /^([-*+]|[0-9]+\.) |^\|/) \
-      printf "wrap\t%s:%d\n", FILENAME, unended
-    unended = (body != "" && body !~ /^\|/ && body !~ /[.!?][*")\]]*[[:space:]]*$/) ? FNR : 0
-
-    for (u = 1; u <= units; u++) {
-      unit = cell[u]
-      sub(/^[[:space:]]+/, "", unit)
-      if (unit == "") continue
-
-      # The literal character, never a \x escape: that escape is not POSIX and
-      # an awk that ignores it matches nothing and reports a clean tree.
-      if (index(unit, "—") && ! seen["e" FILENAME ":" FNR]++) \
-        printf "emdash\t%s:%d\n", FILENAME, FNR
-
-      rest = unit
-      base = 0
-      while (match(rest, /\*\*[^[:space:]][^*]*[^[:space:]]\*\*|\*\*[^[:space:]*]\*\*/)) {
-        at = base + RSTART
-        if (! opens(unit, at) && ! seen["b" FILENAME ":" FNR]++) \
-          printf "bold\t%s:%d\n", FILENAME, FNR
-        base = at + RLENGTH - 1
-        rest = substr(rest, RSTART + RLENGTH)
-      }
-    }
-
-    if (text_line) {
-      line = strip_link(masked)
-      sub(/^[[:space:]]+/, "", line)
-      sub(/^([-*+]|[0-9]+\.)[[:space:]]+/, "", line)
-      ns = split_sentences(line, sent)
-      if (prose_line) psent += ns
-      for (s = 1; s <= ns; s++) {
-        n = words(sent[s])
-        if (n > limit && ! seen["l" FILENAME ":" FNR]++) \
-          printf "long\t%s:%d: %d words\n", FILENAME, FNR, n
-        hit = ing_fault(sent[s])
-        if (hit != "" && ! seen["i" FILENAME ":" FNR]++) \
-          printf "ing\t%s:%d: %s\n", FILENAME, FNR, hit
-
-        sentences++
-        if (tally(sent[s])) passives++
-      }
-    }
-
-    if (prose_line && psent > parlimit && ! preported++) \
-      printf "para\t%s:%d: %d sentences\n", FILENAME, FNR, psent
-  }
-
-  END {
-    list = ""
-    for (f in seenformal) list = list (list == "" ? "" : " ") f
-    printf "tally\t%d\t%d\t%d\t%d\t%d\t%s\n", \
-      sentences, passives, arts, formals, wordcount, list
-  }
-' "${records[@]}")
+here=$(cd "$(dirname "$0")" && pwd)
+prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\"" \
+  run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs" \
+  --target-dir "${here}/../target/scripts" -- \
+  "${CHECK_TENSE_PARTICIPLES:-${here}/check-prose/participles.txt}" "${records[@]}") ||
+  cannot 'the prose of a record cannot be read.'
 
 mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
@@ -384,17 +121,10 @@ Technical English. A gerund after a form of be, a preposition or a conjunction b
 finite clause." \
   "${found[@]}"
 
-# Harper's tagger decides the tense rule, through a cargo script.
+# Harper's tagger decides the tense rule.
 #
 #   the decision:  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
-here=$(cd "$(dirname "$0")" && pwd)
-tense=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-tense/Cargo.lock\"" \
-  run --quiet --release --locked --manifest-path "${here}/check-tense/check-tense.rs" \
-  --target-dir "${here}/../target/scripts" -- \
-  "${CHECK_TENSE_PARTICIPLES:-${here}/check-tense/participles.txt}" "${records[@]}") ||
-  cannot 'the tense of a record cannot be decided.'
-found=()
-[[ -z "${tense}" ]] || mapfile -t found <<<"${tense}"
+mapfile -t found < <(grep '^tense' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record uses the simple tenses, a rule borrowed from Simplified Technical English. A modal \
 with the bare verb is one of them, so must be run stands and has run does not." \
@@ -508,28 +238,7 @@ printf '  %-28s %5d in %5d words\n' 'formal words' "${formals}" "${wordcount}"
 # Evidence density, reported and never refused. `docs/decisions/.template.md`
 # moves numbers out of sentences, so a record that obeys it scores bare by
 # construction and a threshold would refuse the records that comply.
-#
-# A prose line starts at column zero and is not a heading, a table row, a list
-# item, a fenced block or a comment. It is bare when it carries no digit, no
-# code span and no link. An indented line is a list continuation here, because
-# no record indents prose.
 printf '\nevidence density: prose lines carrying no number, no code span and no link\n\n'
-awk '
-  /^[[:space:]]*```/ { fence = ! fence; next }
-  fence || /^$/ || /^[[:space:]]/ || /^#/ || /^\|/ || /^[-*] / || /^[0-9]+\. / || /^<!--/ { next }
-  { prose[FILENAME]++; lines++ }
-  ! /[0-9`]/ && ! /\]\(/ { bare[FILENAME]++; barelines++ }
-  END {
-    for (f in prose) {
-      printf "%5.1f%%  %3d of %3d  %s\n", 100 * bare[f] / prose[f], bare[f], prose[f], f
-    }
-    # Same reason as the report above: a corpus with no prose line is
-    # refused already, and dividing by its zero would abort this one.
-    if (lines == 0)
-      printf "all records  no prose line to read\n"
-    else
-      printf "all records  %.1f%%  %d of %d\n", 100 * barelines / lines, barelines, lines
-  }
-' "${records[@]}" | sort -rn
+{ grep '^density' <<<"${prose}" || true; } | cut -f2- | sort -rn
 
 finish
