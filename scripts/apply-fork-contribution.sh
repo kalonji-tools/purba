@@ -31,7 +31,17 @@ base=$(git merge-base origin/main FETCH_HEAD)
 
 "$(dirname "$0")/check-origin.sh" "${base}" FETCH_HEAD
 
-if git diff --name-only "${base}" FETCH_HEAD | grep -q '^\.github/'; then
+# The list is read into a variable first. Piped straight into `grep -q`, a
+# `git diff` that failed would read as a contribution that changes nothing, and
+# one longer than a pipe holds dies of SIGPIPE once `grep` stops reading.
+#
+# A path is printed as it is written, because git quotes one that holds a byte
+# outside ASCII, and the quote would hide the directory it starts with.
+if ! changed=$(git -c core.quotePath=false diff --name-only "${base}" FETCH_HEAD); then
+  echo "what the contribution changes could not be read, so nothing was pushed." >&2
+  exit 2
+fi
+if grep -q '^\.github/' <<<"${changed}"; then
   echo "warning: this contribution changes .github/, so its workflows run with this repository's \
 token once it is a branch here, before anyone approves it." >&2
 fi
