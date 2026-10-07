@@ -52,6 +52,6 @@ unnecessary_wraps = "allow"
 multiple_crate_versions = "allow"
 
 [lints.cargo]
-# A manifest lint is not a rustc lint, so this warned on every preflight while
-# preflight exited 0.
+# A manifest lint is not a rustc lint, so this warned on every `check` while
+# `check` exited 0.
 unused_dependencies = "deny"
