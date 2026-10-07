@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The packages that two of mise.toml, Cargo.toml and the manifest inside a cargo
-# script declare, and any package pyproject.toml declares.
+# The packages that two of .config/mise.toml, Cargo.toml and the manifest
+# inside a cargo script declare, and any package pyproject.toml declares.
 #
 #   the decision:  docs/decisions/one-manifest-declares-each-package.md
 #   the command:   mise run lint:manifests
@@ -18,7 +18,7 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) ||
 cd "${top}"
 
 tools=$(MISE_OFFLINE=1 mise ls --current --json) ||
-  cannot 'mise.toml cannot be read.'
+  cannot '.config/mise.toml cannot be read.'
 crates=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml) ||
   cannot 'Cargo.toml cannot be read.'
 scripts_list=$(git ls-files 'scripts/*.rs' '.github/*.rs') ||
@@ -37,14 +37,15 @@ mise config get -f pyproject.toml >/dev/null ||
 
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
 conflicts=$(jq -nr \
-  --arg here "${top}/mise.toml" \
+  --arg here "${top}/.config/mise.toml" \
   --argjson tools "${tools}" \
   --argjson crates "${crates}" \
   --argjson scripts "${scripts}" '
   [
     ($tools | to_entries[]
       | select(any(.value[]; .source.path == $here))
-      | {file: "mise.toml", as: .key, name: (.key | sub("^[^:]*:"; "") | split("/") | last)}),
+      | {file: ".config/mise.toml", as: .key,
+        name: (.key | sub("^[^:]*:"; "") | split("/") | last)}),
     ($crates.packages[].dependencies[]
       | {file: "Cargo.toml", as: .name, name: .name}),
     $scripts[]

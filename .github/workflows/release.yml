@@ -4,7 +4,7 @@
 #   the work:      .github/scripts/release.sh
 #   the failure:   .github/scripts/report-release-failure.sh
 #   the upload:    .github/workflows/publish.yml
-#   the register:  cliff.toml
+#   the register:  .config/cliff.toml
 #   the decision:  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
 #
 # ⚠️ Keep the shell in the scripts. Each `run:` here is one command.

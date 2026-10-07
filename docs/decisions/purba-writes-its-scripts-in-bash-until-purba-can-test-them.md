@@ -76,7 +76,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 A reviewer reads the extension.
 The Downside above carries that cost.
 
-`mise.toml` names `bats`.
+`.config/mise.toml` names `bats`.
 `mise run test:scripts` runs every test under `scripts/test`.
 `mise run check` runs that task.
 `.github/workflows/scripts.yml` runs it when a pull request changes a file that `.github/scripts/changed-scripts.sh` names.
@@ -86,4 +86,4 @@ The Downside above carries that cost.
 The first two read a glob that names `*.sh` and `*.bats`, so both reach a test file.
 `editorconfig-checker` reads every tracked file.
 
-This record refuses `shellspec`, and `mise.toml` does not name it.
+This record refuses `shellspec`, and `.config/mise.toml` does not name it.

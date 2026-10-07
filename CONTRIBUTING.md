@@ -135,8 +135,8 @@ branch that carried it.
 These rules apply to the branch that merges, whichever path carried it.
 
 One approving review releases it. A code owner's review is required as well
-where `CODEOWNERS` names the path, and it names `/docs/decisions/`,
-`/.github/`, `/scripts/` and `/.readers`.
+where `.github/CODEOWNERS` names the path, and it names `/docs/decisions/`,
+`/.github/`, `/scripts/` and `/.config/readers`.
 
 Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather

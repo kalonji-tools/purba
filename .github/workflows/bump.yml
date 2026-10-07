@@ -2,7 +2,7 @@
 #
 #   the work:      .github/scripts/bump-nightly.sh
 #   the failure:   .github/scripts/report-bump-failure.sh
-#   the pin:       mise.toml, under `[tools]`
+#   the pin:       .config/mise.toml, under `[tools]`
 #   the decisions: docs/decisions/the-nightly-is-named-by-a-date.md
 #                  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
 #

@@ -4,7 +4,7 @@
 #
 #   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
 #   the command:   mise run lint:links
-#   the settings:  lychee.toml
+#   the settings:  pyproject.toml, under `[tool.lychee]`
 #
 #   check-links.sh
 #

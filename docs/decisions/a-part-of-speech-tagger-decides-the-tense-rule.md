@@ -54,7 +54,7 @@ Its refusals print under the tense rule, so one rule still gives one message.
 |---|---|
 | the version | harper-core at a git tag |
 | a participle the dictionary lacks | a list of purba's own beside the script, merged over Harper's dictionary |
-| continuous integration | a run on `main` caches the build directory, keyed on the `Cargo.lock` of the script and on `mise.toml` |
+| continuous integration | a run on `main` caches the build directory, keyed on the `Cargo.lock` of the script and on `.config/mise.toml` |
 | when review refuses the Rust check | the Weir rule, run by `harper-cli`, and never beside the library |
 
 **The gerund rule and the passive count keep their word lists.**

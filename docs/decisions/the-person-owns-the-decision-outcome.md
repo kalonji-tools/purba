@@ -18,7 +18,7 @@ When purba took this decision, the places that stated the rule disagreed.
 
 - **The person writes it, or the change does not merge.** Rejected. A gate over a judgement measures only that someone clicked. [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 - **An agent drafts it only where the person showed, in review, that the points are read and understood.** Rejected. Comprehension is the person's own goal, and not the project's.
-- **The person owns it, and work an agent wrote is welcome.** Chosen. `CODEOWNERS` routes the directory and the required approval pins it, so the rule is decidable and true.
+- **The person owns it, and work an agent wrote is welcome.** Chosen. `.github/CODEOWNERS` routes the directory and the required approval pins it, so the rule is decidable and true.
 
 ## Decision Outcome
 
@@ -31,7 +31,7 @@ Work an agent wrote is welcome, and nothing about it changes what the reviewer r
 
 ## Confirmation
 
-`CODEOWNERS` assigns `/docs/decisions/` to the person.
+`.github/CODEOWNERS` assigns `/docs/decisions/` to the person.
 The ruleset requires that owner's review on a pull request that touches it.
 Read it back from the ruleset with `require_code_owner_review`.
 

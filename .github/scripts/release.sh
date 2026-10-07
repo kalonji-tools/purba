@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tag the version `main` names, or propose the next one for a person to sign.
 #
-#   the register:  cliff.toml
+#   the register:  .config/cliff.toml
 #   what you owe:  CONTRIBUTING.md
 #
 #   release.sh <branch> <issue>

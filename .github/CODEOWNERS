@@ -12,7 +12,7 @@
 
 /docs/decisions/ @snregales
 
-/.readers @snregales
+/.config/readers @snregales
 
 # The gate lives here, and a pull request runs its own copy of it.
 #   docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md

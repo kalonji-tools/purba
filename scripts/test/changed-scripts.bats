@@ -36,19 +36,8 @@ merged() {
   [[ "${stderr}" == "something a script test reads changed, so the script tests run" ]]
 }
 
-@test "a change to lychee.toml is seen" {
-  echo 'exclude = []' >lychee.toml
-  merged
-
-  run --separate-stderr "${script}" HEAD^1 HEAD
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == "scripts=true" ]]
-  [[ "${stderr}" == "something a script test reads changed, so the script tests run" ]]
-}
-
-@test "a change to cliff.toml is seen" {
-  echo "[bump]" >cliff.toml
+@test "a change to .config/cliff.toml is seen" {
+  mkdir -p .config && echo "[bump]" >.config/cliff.toml
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD

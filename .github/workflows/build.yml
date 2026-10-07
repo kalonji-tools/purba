@@ -1,7 +1,7 @@
 # Every gate that refuses a merge on the build and on the load.
 #
-#   the command:    tasks.toml, under `build`
-#   the tools:      mise.toml
+#   the command:    .config/tasks.toml, under `build`
+#   the tools:      .config/mise.toml
 #   the floor:      docs/decisions/purba-supports-a-python-with-two-years-left.md
 #
 # This gate proves the claims purba makes about its own distribution.
@@ -30,7 +30,7 @@ env:
   MISE_VERSION: 2026.9.14
 
 jobs:
-  # `tasks.toml` carries a macOS workaround for this task and a note that
+  # `.config/tasks.toml` carries a macOS workaround for this task and a note that
   # Windows runs a task through cmd. Both are exercised only here.
   rust:
     name: rust ${{ matrix.os }}

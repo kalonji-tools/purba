@@ -1,8 +1,8 @@
 # The gate that refuses a merge on a failing test of purba's own scripts, or on
 # a cargo script that is unformatted or breaks a lint.
 #
-#   the commands:  tasks.toml, under `test:scripts` and `lint:cargo-scripts`
-#   the tools:     mise.toml
+#   the commands:  .config/tasks.toml, under `test:scripts` and `lint:cargo-scripts`
+#   the tools:     .config/mise.toml
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
@@ -55,7 +55,7 @@ jobs:
         with:
           path: target/scripts
           key: "cargo-scripts-\
-            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', 'mise.toml') }}"
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
 
       - name: Refuse a script that fails its own test
         if: steps.changed.outputs.scripts == 'true'

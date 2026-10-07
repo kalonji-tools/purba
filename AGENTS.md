@@ -30,7 +30,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Where a runner executes the change, follow TDD: put the test list in the plan, and push the test alone until its run fails. ([an implementation follows test-driven development](docs/decisions/an-implementation-follows-test-driven-development.md#decision-outcome))
 - Answer one issue with one pull request. ([one pull request answers one issue](docs/decisions/one-pull-request-answers-one-issue.md#decision-outcome))
 - Read your own branch after the implementation, and post what you find as a comment on the pull request. ([post pass](CONTEXT.md#post-pass))
-- Find the commands you may run with `mise tasks ls`. ([`tasks.toml`](tasks.toml))
+- Find the commands you may run with `mise tasks ls`. ([`.config/tasks.toml`](.config/tasks.toml))
 
 ## During the review
 
@@ -41,7 +41,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 ## In every commit
 
-- Never write a `Signed-off-by:` trailer, and never run `mise run sign-off`. ([liability is recorded from the act that makes it true](docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md#decision-outcome), [`tasks.toml`](tasks.toml))
+- Never write a `Signed-off-by:` trailer, and never run `mise run sign-off`. ([liability is recorded from the act that makes it true](docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md#decision-outcome), [`.config/tasks.toml`](.config/tasks.toml))
 - Write an `Assisted-by: AGENT:MODEL` trailer, and no session address. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
 - Write a body only for a sentence that must outlive the review and that no other location carries. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
 - Never name the position of a commit in a planned series. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
@@ -54,7 +54,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Replace the text of a record. Never annotate it. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome))
 - Leave the Decision Outcome to the person. You may draft it. ([the person owns the Decision Outcome](docs/decisions/the-person-owns-the-decision-outcome.md#decision-outcome))
 - Define no word in a record. A word that is specific to purba goes in `CONTEXT.md`. ([a term belongs to the glossary](docs/decisions/a-term-belongs-to-the-glossary.md#decision-outcome))
-- When you add an `_Avoid_` line to `CONTEXT.md`, add each form of the word to `_typos.toml`. ([the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
+- When you add an `_Avoid_` line to `CONTEXT.md`, add each form of the word to `[tool.typos]` in `pyproject.toml`. ([the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
 - Rewrite a record when an issue it waits on closes, and remove the link to that issue. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome), [`.template.md`](docs/decisions/.template.md))
 
 ## In anything you write

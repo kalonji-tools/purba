@@ -53,7 +53,7 @@ On a bare cdylib it exits 101 with "no library targets found". The same command 
 
 | what reaches it | where |
 |---|---|
-| `mise run quality`, through its `doc` and `test:doc` dependencies | `tasks.toml` |
+| `mise run quality`, through its `doc` and `test:doc` dependencies | `.config/tasks.toml` |
 | the `Quality` job, whose name the ruleset holds as a required context | `.github/workflows/quality.yml` |
 
 `Cargo.toml` denies the rustdoc lint under `[lints.rustdoc]`.

@@ -95,7 +95,7 @@ A tester is both at once, because purba tests itself with itself.
 [A location inherits its readers](a-location-inherits-its-readers.md) rejects any name that is not on this list, so a typo cannot invent a twelfth actor.
 
 The check reads each actor's name from the anchor its row links in `CONTEXT.md`.
-A change to that link changes the name `.readers` must use.
+A change to that link changes the name `.config/readers` must use.
 `mise run lint:readers` runs it.
 
 ⚠️ No check decides whether a location truly serves the actor it names.

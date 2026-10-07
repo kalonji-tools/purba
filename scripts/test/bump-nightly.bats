@@ -14,9 +14,10 @@ setup() {
 
   # The real file names a second version above the pin, and the pin must not be
   # read from that line.
-  printf 'min_version = "2026.1.1"\nrust = { version = "nightly-2026-01-01" }\n' >mise.toml
-  printf 'version = "nightly-2026-01-01"\n' >mise.lock
-  git add mise.toml mise.lock
+  mkdir -p .config
+  printf 'min_version = "2026.1.1"\nrust = { version = "nightly-2026-01-01" }\n' >.config/mise.toml
+  printf 'version = "nightly-2026-01-01"\n' >.config/mise.lock
+  git add .config/mise.toml .config/mise.lock
   git commit --quiet --message "chore: pin"
   start=$(git rev-parse HEAD)
 
@@ -32,7 +33,7 @@ esac
 FAKE
   week ':'
 
-  moved='sed -i "s/2026-01-01/2026-01-08/" mise.toml mise.lock'
+  moved='sed -i "s/2026-01-01/2026-01-08/" .config/mise.toml .config/mise.lock'
   subject="chore: move the nightly to 2026-01-08 (#65)"
 }
 
@@ -94,7 +95,7 @@ as_writer() {
   signed=$(pushed '%(trailers:key=Signed-off-by)')
   [[ -z "${signed}" ]]
   files=$(git --git-dir="${origin}" show --format= --name-only bump/nightly)
-  [[ "${files}" == $'mise.lock\nmise.toml' ]]
+  [[ "${files}" == $'.config/mise.lock\n.config/mise.toml' ]]
 }
 
 @test "the caller keeps the tree it checked out" {
@@ -130,7 +131,7 @@ as_writer() {
 
   [[ "${status}" -eq 0 ]]
   files=$(git --git-dir="${origin}" show --format= --name-only bump/nightly)
-  [[ "${files}" == $'mise.lock\nmise.toml' ]]
+  [[ "${files}" == $'.config/mise.lock\n.config/mise.toml' ]]
 }
 
 @test "a bump that changes a third file is refused and pushes nothing" {
@@ -139,7 +140,7 @@ as_writer() {
   run "${script}" bump/nightly 65
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the bump changed files beyond mise.toml and mise.lock"* ]]
+  [[ "${output}" == *"the bump changed files beyond .config/mise.toml and .config/mise.lock"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
   asked=$(calls gh)
@@ -163,24 +164,24 @@ as_writer() {
 }
 
 @test "a pin the script cannot read exits 2 before it upgrades" {
-  printf 'rust = "nightly"\n' >mise.toml
+  printf 'rust = "nightly"\n' >.config/mise.toml
   as_writer commit --quiet --all --message "chore: a pin with no version key"
 
   run "${script}" bump/nightly 65
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"mise.toml does not name a rust version this script can read"* ]]
+  [[ "${output}" == *".config/mise.toml does not name a rust version this script can read"* ]]
   upgraded=$(calls mise)
   [[ -z "${upgraded}" ]]
 }
 
 @test "a pin the bump left unreadable exits 2 and pushes nothing" {
-  week 'printf "rust = \"nightly\"\n" >mise.toml'
+  week 'printf "rust = \"nightly\"\n" >.config/mise.toml'
 
   run "${script}" bump/nightly 65
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"mise.toml no longer names a rust version this script can read"* ]]
+  [[ "${output}" == *".config/mise.toml no longer names a rust version this script can read"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
 }
@@ -298,7 +299,7 @@ FAKE
 }
 
 @test "a bump that rewrites the lock and moves no pin proposes nothing" {
-  week 'echo "# a comment" >>mise.toml; echo "another line" >>mise.lock'
+  week 'echo "# a comment" >>.config/mise.toml; echo "another line" >>.config/mise.lock'
 
   run "${script}" bump/nightly 65
 

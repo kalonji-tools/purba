@@ -13,7 +13,7 @@ setup() {
   git remote add origin "${origin}"
 
   # The real register, so a test reads the bump git-cliff will compute.
-  cp "${BATS_TEST_DIRNAME}/../../cliff.toml" cliff.toml
+  cp "${BATS_TEST_DIRNAME}/../../.config/cliff.toml" cliff.toml
 
   # A second `version` key on each side, which the script must leave alone.
   cat >Cargo.toml <<'TOML'

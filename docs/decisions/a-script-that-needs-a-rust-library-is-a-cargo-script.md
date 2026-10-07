@@ -41,7 +41,7 @@ The library earns the change of language, and the runner does not change.
 - **It needs the nightly toolchain.** `-Zscript` exists only on nightly, and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) allows it outside the product crate.
 - **A cold build takes more than a minute.** A cache pays it once for each lockfile, and a machine without the cache pays it on its first run.
 - **A test reaches the script only through its caller.** A defect inside the script shows as a wrong refusal of the bash script.
-- **`lint:licences` reads the crate graph of purba only, so the crates of a cargo script carry any licence.** They never reach the wheel, like a tool that `mise.toml` declares.
+- **`lint:licences` reads the crate graph of purba only, so the crates of a cargo script carry any licence.** They never reach the wheel, like a tool that `.config/mise.toml` declares.
 
 ## Confirmation
 

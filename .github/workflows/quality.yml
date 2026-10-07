@@ -1,7 +1,7 @@
 # Every gate that refuses a merge on lint, format and record form.
 #
-#   the commands:   tasks.toml, under `quality`
-#   the tools:      mise.toml
+#   the commands:   .config/tasks.toml, under `quality`
+#   the tools:      .config/mise.toml
 #   the doc lints:  docs/decisions/the-crate-carries-an-rlib.md
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
@@ -45,7 +45,7 @@ jobs:
         with:
           path: target/scripts
           key: "cargo-scripts-\
-            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', 'mise.toml') }}"
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
 
       - name: Refuse a lint, a formatting difference or a broken record
         run: mise run quality
@@ -59,6 +59,6 @@ jobs:
         run: mise x -- prek run --all-files
 
       # Nothing else in this job would see a tool installation rewrite a
-      # lockfile, and `mise.toml` says it reports success either way.
+      # lockfile, and `.config/mise.toml` says it reports success either way.
       - name: Refuse a gate that rewrote the tree
         run: git diff --exit-code

@@ -26,7 +26,7 @@ git rev-parse --git-dir >/dev/null 2>&1 ||
 # https://www.shellcheck.net/wiki/SC2312
 scripts_list=$(git ls-files '*.sh' 'scripts/*.rs' '.github/*.rs') ||
   cannot 'the tracked scripts cannot be listed.'
-callers_list=$(git ls-files '.github/workflows/*.yml' '*.sh' 'tasks.toml' 'prek.toml') ||
+callers_list=$(git ls-files '.github/workflows/*.yml' '*.sh' '.config/tasks.toml' 'prek.toml') ||
   cannot 'the tracked callers cannot be listed.'
 
 [[ -n "${scripts_list}" ]] ||

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Propose a newer nightly for a person to sign.
 #
-#   the pin:       mise.toml, under `[tools]`
+#   the pin:       .config/mise.toml, under `[tools]`
 #   the decision:  docs/decisions/the-nightly-is-named-by-a-date.md
 #   what you owe:  CONTRIBUTING.md
 #
@@ -39,8 +39,8 @@ case "${issue}" in
 esac
 
 # The pin lives in these two, and nothing else here may be committed.
-toml=mise.toml
-lock=mise.lock
+toml=.config/mise.toml
+lock=.config/mise.lock
 
 author="github-actions[bot]"
 email="41898282+github-actions[bot]@users.noreply.github.com"

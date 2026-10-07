@@ -6,37 +6,31 @@
 [attr]user                tester plugin-author packager integrator
 [attr]agent-instructions  handler contributor
 
-.readers                          architect
 README.md                         stem
 CONTEXT.md                        stem
 CONTRIBUTING.md                   stem contributor
 AGENTS.md                         agent-instructions
 CLAUDE.md                         agent-instructions
-CODEOWNERS                        reviewer
 
 Cargo.toml                        coder packager
-pyproject.toml                    stem packager
+pyproject.toml                    stem packager toolsmith
 /Cargo.lock                       packager
 LICENSE                           packager
 deny.toml                         toolsmith packager
 CHANGELOG.md                      user
 
-mise.toml                         toolsmith
-mise.lock                         toolsmith
-tasks.toml                        toolsmith
 prek.toml                         toolsmith
-lychee.toml                       toolsmith
-cliff.toml                        toolsmith
-_typos.toml                       toolsmith
 .editorconfig                     toolsmith
 .shellcheckrc                     toolsmith
 .config/**                        toolsmith
+.config/readers                   architect -toolsmith
 .gitattributes                    toolsmith
 .gitignore                        toolsmith
 
 .claude/**                        handler
 docs/agents/**                    handler
 .github/**                        toolsmith
+.github/CODEOWNERS                reviewer -toolsmith
 .github/ISSUE_TEMPLATE/**         architect
 .github/PULL_REQUEST_TEMPLATE.md  coder reviewer
 scripts/**                        toolsmith

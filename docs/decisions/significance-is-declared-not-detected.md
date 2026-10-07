@@ -37,7 +37,7 @@ No threshold catches what mattered, because nothing ever required a person to re
 
 A change is architecturally significant if and only if it adds or changes a decision record.
 
-`CODEOWNERS` assigns `/docs/decisions/` to the human, and the ruleset requires that owner's review on a pull request touching it.
+`.github/CODEOWNERS` assigns `/docs/decisions/` to the human, and the ruleset requires that owner's review on a pull request touching it.
 The same ruleset requires one approving review on every pull request, under no path condition.
 
 The reviewer reads for one thing: whether the decision, the spec and the implementation are the same thing.
