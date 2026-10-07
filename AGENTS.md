@@ -32,6 +32,10 @@ Each line links the file that states its rule, and the section of a record that 
 - Read your own branch after the implementation, and post what you find as a comment on the pull request. ([post pass](CONTEXT.md#post-pass))
 - Find the commands you may run with `mise tasks ls`. ([`.config/tasks.toml`](.config/tasks.toml))
 
+## When you add a tool
+
+- Put its configuration in the first location the pinned tool reads with no flag and no environment variable: `.config/`, then `pyproject.toml`, then the root. ([configuration takes the first location its tool reads](docs/decisions/configuration-takes-the-first-location-its-tool-reads.md#decision-outcome))
+
 ## During the review
 
 - After you mark a pull request ready, watch it for review, and act on each round before anyone asks. ([the agent that marks a pull request ready watches it](docs/decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md#decision-outcome))

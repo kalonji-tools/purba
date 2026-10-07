@@ -51,6 +51,8 @@ Absence is ambiguous, so this record names each deviation: `cargo fmt` has none,
 `shfmt` does deviate, so the style is written down, and `.editorconfig` is where it lives because `shfmt` and every editor both read it.
 ⚠️ **A style flag would take that away:** `shfmt` ignores `.editorconfig` the moment one is passed, so the hook passes none.
 
+Where an owed file lives is a standard no gate holds, and [configuration takes the first location its tool reads](configuration-takes-the-first-location-its-tool-reads.md) says why.
+
 Every lint level of the crate lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
 A cargo script carries its own, in the manifest inside it.
 A flag on a command line reaches only that command, so `.config/tasks.toml` carries no lint flag.
