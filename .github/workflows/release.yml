@@ -2,7 +2,7 @@
 # Publish on the tag. It signs nothing.
 #
 #   the work:      .github/scripts/release.sh
-#   the failure:   .github/scripts/report-release-failure.sh
+#   the failure:   .github/scripts/report-run-failure.sh
 #   the upload:    .github/workflows/publish.yml
 #   the register:  .config/cliff.toml
 #   the decision:  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
@@ -91,4 +91,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_URL: >-
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: .github/scripts/report-release-failure.sh "$RUN_URL" "$ISSUE"
+        run: .github/scripts/report-run-failure.sh release "$RUN_URL" "$ISSUE"
