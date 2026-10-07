@@ -41,7 +41,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Name whether this pull request changes a script or a setting its test copies
+      - name: Name whether this pull request changes what a script test depends on
         id: changed
         run: .github/scripts/changed-scripts.sh HEAD^1 HEAD >>"$GITHUB_OUTPUT"
 

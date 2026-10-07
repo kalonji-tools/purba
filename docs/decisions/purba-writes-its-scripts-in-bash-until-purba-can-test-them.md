@@ -68,7 +68,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
-- **A pull request runs the tests only when it changes a script or a setting a script test copies.** A new version of `bats`, `jq` or git can break a script. The next change to a script is what finds the break.
+- **A pull request runs the tests only when it changes a script, a setting a test copies, or what runs the tests.** A new version of `bats`, `jq` or git can break a script. The next change to a script is what finds the break.
 
 ## Confirmation
 
