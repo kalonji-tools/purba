@@ -106,30 +106,24 @@ anything a reader can use. The run log holds what it did.")
 
 scripts/check-origin.sh "${base}" HEAD || refuse $?
 
-scripts/check-replayable.sh "${base}" HEAD || refuse $?
+export GIT_COMMITTER_NAME="github-actions[bot]"
+export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
 
-# A fresh checkout has no git identity, and `git commit` refuses to
-# run without one. These two lines only satisfy that. The name does
-# not survive: the merge replaces the committer.
-git config user.name "github-actions[bot]"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-# The acceptance command is one file, copied out before the replay starts.
-# `scripts/accept-one-commit.sh` says why the copy is load-bearing, and why
-# leaving a commit alone when it already names the approver is what stops this
-# repeating forever: the commits stop changing, so the push below stops.
-#
-# `$TRAILER` reaches the command through the environment, where it
+# `$TRAILER` reaches the replay through the environment, where it
 # stays data. Expanding it into a command string instead would let the
 # shell paste it in as code, and that was measured running a command
 # hidden inside a login.
-accept_exec="${RUNNER_TEMP}/accept-one-commit.sh"
-cp scripts/accept-one-commit.sh "${accept_exec}"
-git rebase "${base}" --exec "${accept_exec}"
+status=0
+head_sha=$(scripts/check-replayable.sh "${base}" HEAD) || status=$?
+if [[ "${status}" -ne 0 ]]; then
+  # On a runner the refusal is an annotation on stdout, which the line above
+  # took, so the log gets it here.
+  [[ -z "${head_sha}" ]] || printf '%s\n' "${head_sha}"
+  refuse "${status}"
+fi
 
-head_sha=$(git rev-parse HEAD)
 if [[ "${head_sha}" != "${before}" ]]; then
-  git push --force origin "HEAD:${HEAD_REF}"
+  git push --force origin "${head_sha}:refs/heads/${HEAD_REF}"
 fi
 
 accepted_summary="Every commit on this branch carries an \`Accepted-by:\` trailer \

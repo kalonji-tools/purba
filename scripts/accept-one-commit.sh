@@ -6,8 +6,8 @@
 #
 #   TRAILER   the `Accepted-by:` line this commit must carry
 #
-# `git rebase --exec` runs this once per replayed commit, and both the signing
-# job and the replay check name this file.
+# `git rebase --exec` runs this once per replayed commit. `check-replayable.sh`
+# is its one caller.
 #
 # ⚠️ A caller must copy this file out of the repository before it starts the
 # rebase, and exec the copy. `--exec` runs against the tree of the commit it

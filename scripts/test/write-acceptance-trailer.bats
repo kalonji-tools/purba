@@ -78,9 +78,13 @@ esac
 FAKE
 }
 
+held() {
+  git --git-dir="${BATS_TEST_TMPDIR}/origin.git" rev-parse work
+}
+
 origin_holds() {
   local remote
-  remote=$(git --git-dir="${BATS_TEST_TMPDIR}/origin.git" rev-parse work)
+  remote=$(held)
   [[ "${remote}" == "$1" ]]
 }
 
@@ -91,15 +95,14 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  head=$(git rev-parse HEAD)
+  head=$(held)
   [[ "${head}" != "${pushed}" ]]
-  origin_holds "${head}"
   [[ "${output}" == *"recorded acceptance by owner-1 on ${head}"* ]]
   owed="Accepted-by: owner-1 <42+owner-1@users.noreply.github.com>"
-  trailers=$(git log --format='%(trailers:key=Accepted-by)' main..HEAD)
+  trailers=$(git log --format='%(trailers:key=Accepted-by)' "main..${head}")
   carried=$(grep -c -x -F "${owed}" <<<"${trailers}")
   [[ "${carried}" -eq 2 ]]
-  committer=$(git log -1 --format='%cn <%ce>')
+  committer=$(git log -1 --format='%cn <%ce>' "${head}")
   bot="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
   [[ "${committer}" == "${bot}" ]]
   written=$(cat "${GITHUB_OUTPUT}")
@@ -118,8 +121,25 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  kept=$(git rev-parse HEAD~2)
+  head=$(held)
+  kept=$(git rev-parse "${head}~2")
   [[ "${kept}" == "${branched}" ]]
+}
+
+@test "the head it pushes is the head the replay check printed" {
+  # shellcheck disable=SC2016
+  printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' >scripts/check-replayable.sh
+  git commit --quiet --all --message "chore: a replay check that prints one head" \
+    --message "Signed-off-by: A Person <person@example.invalid>"
+  printed=$(git commit-tree -p HEAD -m "feat: as replayed" 'HEAD^{tree}')
+  echo "${printed}" >"${BATS_TEST_TMPDIR}/printed"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  origin_holds "${printed}"
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${printed} -f status=completed"* ]]
 }
 
 @test "the approval that came last is the one accepted, and a comment is not one" {
@@ -129,7 +149,8 @@ origin_holds() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"recorded acceptance by owner-2"* ]]
-  carried=$(git log -1 --format='%(trailers:key=Accepted-by)')
+  head=$(held)
+  carried=$(git log -1 --format='%(trailers:key=Accepted-by)' "${head}")
   [[ "${carried}" == "Accepted-by: owner-2 <43+owner-2@users.noreply.github.com>" ]]
 }
 
@@ -261,6 +282,38 @@ origin_holds() {
   [[ "${asked}" == *"A commit is refused when it replays empty"* ]]
 }
 
+@test "on a runner the refusal of the replay check reaches the log" {
+  git commit --quiet --allow-empty --message "feat: nothing" \
+    --message "Signed-off-by: A Person <person@example.invalid>"
+
+  GITHUB_ACTIONS=true run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"::error::A commit is refused when it replays empty"* ]]
+}
+
+@test "a branch whose replay changes its content is refused, and nothing is pushed" {
+  git switch --quiet --create side main
+  commit "feat: side" "Signed-off-by: A Person <person@example.invalid>"
+  git switch --quiet work
+  git merge --quiet --no-commit --no-ff side
+  printf 'made in the merge\n' >only-in-the-merge
+  git add only-in-the-merge
+  git commit --quiet --message "chore: merge and change" \
+    --message "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet origin work
+  refused=$(git rev-parse HEAD)
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  origin_holds "${refused}"
+  [[ ! -s "${GITHUB_OUTPUT}" ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f head_sha=${refused} -f status=completed -f conclusion=failure"* ]]
+  [[ "${asked}" == *"A branch is refused when its replay changes its content"* ]]
+}
+
 @test "a rule that cannot run is reported as a check that could not run" {
   printf '#!/usr/bin/env bash\nexit 2\n' >scripts/check-origin.sh
 
@@ -290,9 +343,8 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 2 ]]
-  head=$(git rev-parse HEAD)
+  head=$(held)
   [[ "${head}" != "${pushed}" ]]
-  origin_holds "${head}"
   [[ ! -s "${GITHUB_OUTPUT}" ]]
   [[ "${output}" == *"the check run Sign-off could not be written onto ${head}."* ]]
   [[ "${output}" != *"recorded acceptance"* ]]
@@ -300,7 +352,9 @@ origin_holds() {
 
 @test "a second run on an accepted branch pushes nothing and reports again" {
   "${script}"
-  accepted=$(git rev-parse HEAD)
+  accepted=$(held)
+  # The next run checks out the head this one pushed.
+  git reset --quiet --hard "${accepted}"
   : >"${GITHUB_OUTPUT}"
   git switch --quiet --create elsewhere
   commit "feat: three" "Signed-off-by: A Person <person@example.invalid>"
@@ -311,8 +365,6 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  head=$(git rev-parse HEAD)
-  [[ "${head}" == "${accepted}" ]]
   origin_holds "${moved}"
   written=$(cat "${GITHUB_OUTPUT}")
   [[ "${written}" == "before=${accepted}"$'\n'"after=${accepted}" ]]
@@ -334,9 +386,10 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  kept=$(git rev-parse HEAD~2)
+  head=$(held)
+  kept=$(git rev-parse "${head}~2")
   [[ "${kept}" == "${below}" ]]
-  trailers=$(git log --format='%(trailers:key=Accepted-by)' below..HEAD)
+  trailers=$(git log --format='%(trailers:key=Accepted-by)' "below..${head}")
   carried=$(grep -c . <<<"${trailers}")
   [[ "${carried}" -eq 2 ]]
 }

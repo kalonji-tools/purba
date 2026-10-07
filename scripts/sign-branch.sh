@@ -25,7 +25,7 @@ if ! start=$(git merge-base "${base}" HEAD 2>&1); then
   exit 2
 fi
 
-"$(dirname "$0")/check-replayable.sh" "${base}" HEAD
+"$(dirname "$0")/check-replayable.sh" "${base}" HEAD >/dev/null
 
 echo "Measured from ${base}:"
 git --no-pager log --reverse --format='  %h  %an  %s' "${start}..HEAD"

@@ -6,11 +6,14 @@
 #
 #   check-replayable.sh <base> <head>
 #
+#   TRAILER   the `Accepted-by:` line the replay writes, and a placeholder when unset
+#
 # <base> is a branch point or a base branch, and this reads the same commits
 # either way.
 #
-# Exits 1 when a commit refuses to replay, or when the replay completes and
-# loses content. Exits 2 when this script cannot run.
+# Prints the replayed head when the replay keeps the content. Exits 1 when a
+# commit refuses to replay, or when the replay completes and loses content.
+# Exits 2 when this script cannot run.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
@@ -41,24 +44,24 @@ out=$(git worktree add --detach --quiet "${worktree}" "${head}" 2>&1) ||
 # none. This reaches the replay through the environment, so nothing is written
 # to the config of the repository this runs in. The author is not set, because
 # `--amend` keeps the one each commit already carries.
-export GIT_COMMITTER_NAME=purba GIT_COMMITTER_EMAIL=purba@invalid
+export GIT_COMMITTER_NAME="${GIT_COMMITTER_NAME:-purba}"
+export GIT_COMMITTER_EMAIL="${GIT_COMMITTER_EMAIL:-purba@invalid}"
 
-export TRAILER="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
+placeholder="Accepted-by: placeholder <0+placeholder@users.noreply.github.com>"
+export TRAILER="${TRAILER:-${placeholder}}"
 
-# The acceptance command is one file, and both of its callers copy it out before
-# they replay. `accept-one-commit.sh` says why the copy is load-bearing: `--exec`
-# runs against the tree of the commit it has just replayed, and a path inside the
-# worktree is not there for a commit older than the file.
+# `accept-one-commit.sh` says why the copy below is load-bearing.
 #
-# The placeholder above matches nothing a commit carries, so every commit is
-# rewritten in the replay. That costs this check nothing: it compares trees, and
-# a trailer lives in the message.
+# With no `TRAILER` given, the placeholder above matches nothing a commit
+# carries, so every commit is rewritten in the replay. That costs this check
+# nothing: it compares trees, and a trailer lives in the message.
 accept_exec="${scratch}/accept-one-commit.sh"
 cp "$(dirname "$0")/accept-one-commit.sh" "${accept_exec}"
 if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1); then
   replayed_tree=$(git -C "${worktree}" rev-parse 'HEAD^{tree}') || exit 2
   head_tree=$(git rev-parse "${head}^{tree}") || exit 2
   if [[ "${replayed_tree}" = "${head_tree}" ]]; then
+    git -C "${worktree}" rev-parse HEAD || exit 2
     exit 0
   fi
 
