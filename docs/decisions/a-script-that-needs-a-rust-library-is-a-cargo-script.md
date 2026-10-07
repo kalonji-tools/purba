@@ -33,14 +33,14 @@ It waits for the day `-Zscript` breaks on a nightly.
 `resolver.lockfile-path` puts the `Cargo.lock` beside the script, and `--locked` holds every build to it.
 [One manifest declares each package](one-manifest-declares-each-package.md) gives the crates of the script to the script's own manifest.
 
-**`bats` tests it through the bash script that calls it.**
-The library earns the change of language, and the runner does not change.
+**Its own tests pin what it reads, and `bats` tests each refusal through the bash script that calls it.**
+`cargo -Zscript test` runs the tests inside the script.
 
 **Downside:**
 
 - **It needs the nightly toolchain.** `-Zscript` exists only on nightly, and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) allows it outside the product crate.
 - **A cold build takes more than a minute.** A cache pays it once for each lockfile, and a machine without the cache pays it on its first run.
-- **A test reaches the script only through its caller.** A defect inside the script shows as a wrong refusal of the bash script.
+- **Two runners test one script.** A writer who changes the script finds its tests in two files.
 - **`lint:licences` reads the crate graph of purba only, so the crates of a cargo script carry any licence.** They never reach the wheel, like a tool that `.config/mise.toml` declares.
 
 ## Confirmation
@@ -48,5 +48,6 @@ The library earns the change of language, and the runner does not change.
 | property | check |
 |---|---|
 | a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
+| a cargo script passes its own tests | `mise run test:cargo-scripts` runs `cargo -Zscript test --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
 | a cargo script sits where its callers are | `mise run lint:placement` reads `*.rs` under `scripts/` and `.github/` |
-| its build is paid once for each lockfile | `.github/workflows/cargo-scripts.yml` builds and checks each cargo script on `main` when one changes, and saves `target/scripts`. Quality and Scripts restore it, because a pull request reads the cache of its base branch |
+| its build is paid once for each lockfile | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts`. Quality and Scripts restore it, because a pull request reads the cache of its base branch |

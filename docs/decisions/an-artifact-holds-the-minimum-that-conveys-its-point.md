@@ -90,9 +90,9 @@ A threshold would refuse the records that obey.
 | `mise run records` refuses a `**Downside:**` label carrying a preamble or a count | `scripts/check-records.sh` |
 | the same command refuses a Downside that states no list of costs | `scripts/check-records.sh` |
 | the same command refuses a label whose bolded lead-ins do not equal its list items | `scripts/check-records.sh` |
-| the same command reports evidence density and refuses nothing on it | `scripts/check-records.sh` |
-| the same command refuses an em-dash, and exempts one inside a code span or a fence | `scripts/check-records.sh` |
-| the same command refuses bold that does not open a sentence | `scripts/check-records.sh` |
+| the same command reports evidence density and refuses nothing on it | `scripts/check-prose/check-prose.rs` |
+| the same command refuses an em-dash, and exempts one inside a code span or a fence | `scripts/check-prose/check-prose.rs` |
+| the same command refuses bold that does not open a sentence | `scripts/check-prose/check-prose.rs` |
 | the diagram rule, and the sufficiency test under it | a reviewer, and there will be no check |
 | whether a bolded phrase is a lead-in | a reviewer, and there will be no check |
 
