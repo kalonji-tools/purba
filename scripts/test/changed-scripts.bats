@@ -33,7 +33,7 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == "scripts=true" ]]
-  [[ "${stderr}" == "something a script test reads changed, so the script tests run" ]]
+  [[ "${stderr}" == "something a script test depends on changed, so the script tests run" ]]
 }
 
 @test "a change to .config/cliff.toml is seen" {
@@ -48,6 +48,26 @@ merged() {
 
 @test "a change to pyproject.toml is seen" {
   echo "[project]" >pyproject.toml
+  merged
+
+  run --separate-stderr "${script}" HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+}
+
+@test "a change to .config/tasks.toml is seen" {
+  mkdir -p .config && echo "[tasks]" >.config/tasks.toml
+  merged
+
+  run --separate-stderr "${script}" HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+}
+
+@test "a change to .github/workflows/scripts.yml is seen" {
+  mkdir -p .github/workflows && echo "name: Scripts" >.github/workflows/scripts.yml
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD
@@ -131,17 +151,20 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
-  [[ "${stderr}" == "nothing a script test reads changed, so the script tests do not run" ]]
+  [[ "${stderr}" == "nothing a script test depends on changed, so the script tests do not run" ]]
 }
 
 @test "a path that only holds the word is not a script" {
-  mkdir -p myscripts docs/scripts docs/.github/scripts
+  mkdir -p myscripts docs/scripts docs/.github/scripts docs/.github/workflows docs/.config
   echo tool >myscripts/tool.sh
   echo note >docs/scripts/note.md
   echo note >docs/.github/scripts/note.md
   echo 'exclude = []' >docs/lychee.toml
   echo "[bump]" >docs/cliff.toml
+  echo "[bump]" >docs/.config/cliff.toml
   echo "[project]" >docs/pyproject.toml
+  echo "[tasks]" >docs/.config/tasks.toml
+  echo "name: Scripts" >docs/.github/workflows/scripts.yml
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD
