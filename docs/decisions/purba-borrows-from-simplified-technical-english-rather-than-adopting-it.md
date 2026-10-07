@@ -74,11 +74,11 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 
 | what proves it | where |
 |---|---|
-| `mise run records` refuses a sentence over 25 words | `scripts/check-records.sh` |
-| the same command refuses a paragraph over six sentences | `scripts/check-records.sh` |
-| the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-records.sh` |
-| the same command refuses `has`, `have` or `had` with a participle | `scripts/check-records.sh` |
-| the same command reports the passive voice and refuses nothing | `scripts/check-records.sh` |
+| `mise run records` refuses a sentence over 25 words | `scripts/check-prose/check-prose.rs` |
+| the same command refuses a paragraph over six sentences | `scripts/check-prose/check-prose.rs` |
+| the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-prose/check-prose.rs` |
+| the same command refuses `has`, `have` or `had` with a participle | `scripts/check-prose/check-prose.rs` |
+| the same command reports the passive voice and refuses nothing | `scripts/check-prose/check-prose.rs` |
 | the approved dictionary | a reader, and there will be no check |
 
 Each refusal names the file and the line it found.

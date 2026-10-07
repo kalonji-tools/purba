@@ -92,6 +92,10 @@ The [actor](#actor) that builds a plugin against purba's public interfaces.
 
 A read of a branch, after the implementation, for what can be removed or improved. It leaves its findings as a comment on the [pull request](#pull-request).
 
+### Prose
+
+The sentences of a [record](#record) outside its headings, tables, fenced blocks and quotations.
+
 ### Published comment
 
 A comment that purba renders to a [reader](#reader) outside the tree, through a documentation site, a type stub or a language's own help.

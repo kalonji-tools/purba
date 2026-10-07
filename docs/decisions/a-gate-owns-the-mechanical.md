@@ -121,7 +121,7 @@ Twelve of them renamed a name that a test misspells on purpose.
 
 `quality` keeps `fmt:check`, because CI cannot write.
 
-`lint:cargo-scripts` and the hook that formats a cargo script ran green and red on `scripts/check-tense/check-tense.rs`.
+`lint:cargo-scripts` and the hook that formats a cargo script ran green and red on `scripts/check-prose/check-prose.rs`.
 
 | gate | green | red |
 |---|---|---|
