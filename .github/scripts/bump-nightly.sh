@@ -14,14 +14,15 @@
 # when it refuses what it found, and 2 when it cannot run.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
+
 if [[ $# -ne 2 ]]; then
-  echo "usage: bump-nightly.sh <branch> <issue>" >&2
-  exit 2
+  cannot "usage: bump-nightly.sh <branch> <issue>"
 fi
 
 if [[ -z "${GH_REPO:-}" ]]; then
-  echo "GH_REPO is set by the workflow env, and it is empty here." >&2
-  exit 2
+  cannot "GH_REPO is set by the workflow env, and it is empty here."
 fi
 
 branch=$1
@@ -32,8 +33,7 @@ issue=$2
 
 case "${issue}" in
   '' | 0 | *[!0-9]*)
-    echo "bump-nightly.sh needs an issue number, and was given '${issue}'." >&2
-    exit 2
+    cannot "bump-nightly.sh needs an issue number, and was given '${issue}'."
     ;;
   *) ;;
 esac
@@ -46,17 +46,15 @@ author="github-actions[bot]"
 email="41898282+github-actions[bot]@users.noreply.github.com"
 
 if ! git diff --quiet HEAD --; then
-  echo "bump-nightly.sh needs a clean tree, because it rewinds to one." >&2
-  git --no-pager status --short >&2
-  exit 2
+  dirty=$(git --no-pager status --short)
+  cannot "bump-nightly.sh needs a clean tree, because it rewinds to one." "${dirty}"
 fi
 
 # ⚠️ Never replace this with a force-push. A pull request that broke keeps
 # the head that refused it, and the logs hanging off that head.
 if ! open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
   '.[].number'); then
-  echo "the open pull requests on ${branch} could not be read." >&2
-  exit 2
+  cannot "the open pull requests on ${branch} could not be read."
 fi
 if [[ -n "${open}" ]]; then
   echo "pull request #${open} is already proposing a nightly on ${branch}, so this run stands down"
@@ -71,13 +69,11 @@ read_pin() {
 before=$(git rev-parse HEAD)
 was=$(read_pin)
 if [[ -z "${was}" ]]; then
-  echo "::error::${toml} does not name a rust version this script can read" >&2
-  exit 2
+  cannot "${toml} does not name a rust version this script can read"
 fi
 
 if ! mise upgrade --bump rust; then
-  echo "::error::mise could not upgrade the pinned nightly" >&2
-  exit 2
+  cannot "mise could not upgrade the pinned nightly"
 fi
 
 # ⚠️ Read the tree, never the exit code.
@@ -89,15 +85,14 @@ fi
 # ⚠️ Refuse a tracked file this changed and did not ask for. The commit below
 # names the two files it takes, so nothing else reaches the proposal.
 if ! git diff --quiet -- . ":!${toml}" ":!${lock}"; then
-  echo "::error::the bump changed files beyond ${toml} and ${lock}, so it is not proposed"
-  git --no-pager diff --stat >&2
-  exit 1
+  changed=$(git --no-pager diff --stat)
+  refuse "the bump changed files beyond ${toml} and ${lock}, so it is not proposed" "${changed}"
+  finish
 fi
 
 now=$(read_pin)
 if [[ -z "${now}" ]]; then
-  echo "::error::${toml} no longer names a rust version this script can read" >&2
-  exit 2
+  cannot "${toml} no longer names a rust version this script can read"
 fi
 
 if [[ "${now}" = "${was}" ]]; then
@@ -113,8 +108,7 @@ subject="chore: move the nightly to ${now#nightly-} (#${issue})"
 # ⚠️ No `-s`. CONTRIBUTING.md: a machine never writes that trailer.
 if ! git -c "user.name=${author}" -c "user.email=${email}" \
   commit --quiet -m "${subject}" -- "${toml}" "${lock}"; then
-  echo "::error::the bump could not be committed" >&2
-  exit 2
+  cannot "the bump could not be committed"
 fi
 
 # The branch outlives a closed pull request, so this replaces it. The caller
@@ -123,8 +117,7 @@ pushed=0
 git push --force origin "HEAD:refs/heads/${branch}" || pushed=$?
 git reset --quiet --hard "${before}"
 if [[ ${pushed} -ne 0 ]]; then
-  echo "::error::the proposal could not be pushed to ${branch}" >&2
-  exit 2
+  cannot "the proposal could not be pushed to ${branch}"
 fi
 
 body=$(
@@ -159,6 +152,5 @@ BODY
 if ! gh pr create --repo "${GH_REPO}" --base main --head "${branch}" \
   --title "${subject}" \
   --body "${body}"; then
-  echo "::error::${branch} is pushed, and its pull request could not be opened" >&2
-  exit 2
+  cannot "${branch} is pushed, and its pull request could not be opened"
 fi

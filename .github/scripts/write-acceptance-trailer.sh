@@ -21,6 +21,8 @@ set -euo pipefail
 
 # shellcheck source=.github/scripts/check-run.sh
 . "$(dirname "$0")/check-run.sh"
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
 
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
@@ -50,8 +52,7 @@ case "${status}" in
     exit 0
     ;;
   *)
-    echo "the gates on this head could not be read, so nothing was decided." >&2
-    exit 2
+    cannot "the gates on this head could not be read, so nothing was decided."
     ;;
 esac
 
@@ -60,16 +61,16 @@ esac
 # letters, digits and hyphens in a login today.
 case "${approver}" in
   *[!A-Za-z0-9-]*)
-    echo "::error::the approver login has a character this job will not \
+    refuse "the approver login has a character this job will not \
 write into a commit: ${approver}"
-    exit 1
+    finish
     ;;
   *) ;;
 esac
 case "${approver_id}" in
   "" | *[!0-9]*)
-    echo "::error::the approver id is not a number: ${approver_id}"
-    exit 1
+    refuse "the approver id is not a number: ${approver_id}"
+    finish
     ;;
   *) ;;
 esac
@@ -90,7 +91,7 @@ before=$(git rev-parse HEAD)
 # cannot repair a missing trailer.
 export PURBA_REPORT="${RUNNER_TEMP}/refusal"
 
-refuse() {
+post_refusal() {
   case "$1" in
     1) title="Refused before anything was rewritten" ;;
     *) title="This check could not run" ;;
@@ -104,7 +105,7 @@ anything a reader can use. The run log holds what it did.")
   exit 1
 }
 
-scripts/check-origin.sh "${base}" HEAD || refuse $?
+scripts/check-origin.sh "${base}" HEAD || post_refusal $?
 
 export GIT_COMMITTER_NAME="github-actions[bot]"
 export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
@@ -116,10 +117,7 @@ export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.co
 status=0
 head_sha=$(scripts/check-replayable.sh "${base}" HEAD) || status=$?
 if [[ "${status}" -ne 0 ]]; then
-  # On a runner the refusal is an annotation on stdout, which the line above
-  # took, so the log gets it here.
-  [[ -z "${head_sha}" ]] || printf '%s\n' "${head_sha}"
-  refuse "${status}"
+  post_refusal "${status}"
 fi
 
 if [[ "${head_sha}" != "${before}" ]]; then

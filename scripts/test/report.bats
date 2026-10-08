@@ -1,5 +1,6 @@
 # scripts/report.sh against a record named in a refusal.
 : "${BATS_TEST_DIRNAME:?set by bats}"
+bats_require_minimum_version 1.5.0
 
 setup() {
   # shellcheck source=scripts/test/fixture.sh
@@ -88,11 +89,19 @@ such file" ]]
   [[ "${output}" == "docs/decisions/a-rule.md cannot be read." ]]
 }
 
-@test "on a runner, cannot with no detail is one annotation" {
-  GITHUB_ACTIONS=true run cannot "the check could not run."
+@test "on a runner, a refusal leaves stdout empty" {
+  GITHUB_ACTIONS=true run --separate-stderr refuse "A rule holds, because it has a reason." a.md
+
+  [[ -z "${output}" ]]
+  [[ "${stderr}" == "::error::A rule holds, because it has a reason.%0A  a.md" ]]
+}
+
+@test "on a runner, cannot with no detail is one annotation, and stdout stays empty" {
+  GITHUB_ACTIONS=true run --separate-stderr cannot "the check could not run."
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == "::error::the check could not run." ]]
+  [[ -z "${output}" ]]
+  [[ "${stderr}" == "::error::the check could not run." ]]
 }
 
 @test "on a runner, a caller's detail is the same after a refusal" {
