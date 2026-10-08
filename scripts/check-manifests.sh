@@ -3,7 +3,7 @@
 # inside a cargo script declare, and any package pyproject.toml declares.
 #
 #   the decision:  docs/decisions/one-manifest-declares-each-package.md
-#   the command:   mise run lint:manifests
+#   the task:      mise run lint:manifests
 #
 #   check-manifests.sh
 #

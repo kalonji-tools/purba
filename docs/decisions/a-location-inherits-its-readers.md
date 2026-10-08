@@ -82,7 +82,7 @@ It rejects any actor name, in a binding or in a macro, that is not on the roster
 It also rejects a macro named after an actor.
 
 `mise run lint:readers` runs the check.
-`mise run quality` runs that task.
+`mise run lint` runs that task.
 
 Both halves were exercised against real trees before this record was written.
 

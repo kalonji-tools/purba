@@ -1,6 +1,6 @@
 # Every gate that refuses a merge on lint, format and record form.
 #
-#   the commands:   .config/tasks.toml, under `quality`
+#   the tasks:      .config/tasks.toml, under `lint`
 #   the tools:      .config/mise.toml
 #   the doc lints:  docs/decisions/the-crate-carries-an-rlib.md
 #
@@ -48,7 +48,7 @@ jobs:
             ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
 
       - name: Refuse a lint, a formatting difference or a broken record
-        run: mise run quality
+        run: mise run lint
         env:
           PURBA_BASE: HEAD^1
           # Without it lychee reads github.com anonymously, and a rate limit

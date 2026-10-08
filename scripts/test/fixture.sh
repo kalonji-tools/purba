@@ -2,7 +2,7 @@
 # The repository a test builds, and the fake commands a script finds on PATH.
 #
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
-#   the command:   mise run test:scripts
+#   the task:      mise run test:shell
 #
 #   isolate                        nothing from the machine, and nothing from the
 #                                  repository this suite is run in

@@ -1,8 +1,7 @@
-# The gate that refuses a merge on a failing test of purba's own scripts, or on
-# a cargo script that is unformatted or breaks a lint.
+# The gate that refuses a merge on a failing test of purba's own scripts, or of
+# a cargo script.
 #
-#   the commands:  .config/tasks.toml, under `test:scripts`, `lint:cargo-scripts`
-#                  and `test:cargo-scripts`
+#   the tasks:     .config/tasks.toml, under `test:shell` and `test:cargo-scripts`
 #   the tools:     .config/mise.toml
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
@@ -60,11 +59,7 @@ jobs:
 
       - name: Refuse a script that fails its own test
         if: steps.changed.outputs.scripts == 'true'
-        run: mise run test:scripts
-
-      - name: Refuse an unformatted cargo script, or one that breaks a lint
-        if: steps.changed.outputs.scripts == 'true'
-        run: mise run lint:cargo-scripts
+        run: mise run test:shell
 
       - name: Refuse a cargo script that fails its own test
         if: steps.changed.outputs.scripts == 'true'

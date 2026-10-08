@@ -53,5 +53,5 @@ purba chooses its Python manager with the first Python package it declares.
 
 | property | check |
 |---|---|
-| each package is declared in one manifest | ✅ `mise run lint:manifests`, through `quality`. It compares `.config/mise.toml`, `Cargo.toml` and the manifest inside each cargo script by name, in lower case with each run of `-`, `_` and `.` read as one `-`. It refuses any package in `pyproject.toml` |
+| each package is declared in one manifest | ✅ `mise run lint:manifests`, through `lint`. It compares `.config/mise.toml`, `Cargo.toml` and the manifest inside each cargo script by name, in lower case with each run of `-`, `_` and `.` read as one `-`. It refuses any package in `pyproject.toml` |
 | a crate a cargo script links is declared in that script alone | ✅ the same command. `cargo metadata -Zscript` reads the manifest inside each tracked cargo script |

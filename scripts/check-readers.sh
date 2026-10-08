@@ -4,7 +4,7 @@
 #
 #   the decision:  docs/decisions/a-location-inherits-its-readers.md
 #   the roster:    docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
-#   the command:   mise run lint:readers
+#   the task:      mise run lint:readers
 #
 #   check-readers.sh
 #

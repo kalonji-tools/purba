@@ -87,7 +87,7 @@ A threshold would refuse the records that obey.
 
 | what proves it | where |
 |---|---|
-| `mise run records` refuses a `**Downside:**` label carrying a preamble or a count | `scripts/check-records.sh` |
+| `mise run lint:records` refuses a `**Downside:**` label carrying a preamble or a count | `scripts/check-records.sh` |
 | the same command refuses a Downside that states no list of costs | `scripts/check-records.sh` |
 | the same command refuses a label whose bolded lead-ins do not equal its list items | `scripts/check-records.sh` |
 | the same command reports evidence density and refuses nothing on it | `scripts/check-prose/check-prose.rs` |

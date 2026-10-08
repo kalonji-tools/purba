@@ -23,4 +23,4 @@
        1. Write `deny.toml` with an empty allowlist.
        2. Run `cargo deny check licenses`, and add each licence it names,
           with a comment naming the crate that forced it.
-       3. Add the check to `quality`. -->
+       3. Name the check `lint:licences`, so `lint` runs it. -->
