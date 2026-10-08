@@ -103,15 +103,13 @@ description = "Run the Rust tests"
 # The assignment is rendered on macOS alone. Windows runs a task through `cmd`,
 # which reads neither this syntax nor the variable.
 # https://mise.jdx.dev/tasks/task-configuration.html
+#
+#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 run = """
 {% if os() == "macos" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c \
 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
-{% endif %}cargo test
+{% endif %}cargo test --all-targets && cargo test --doc
 """
-
-["test:doc"]
-description = "Run the examples in the Rust documentation"
-run = "cargo test --doc"
 
 ["test:scripts"]
 description = "Run purba's own scripts against the shapes they refuse"
@@ -140,7 +138,6 @@ depends = [
   "records",
   "clippy",
   "doc",
-  "test:doc",
 ]
 
 [check]
