@@ -230,19 +230,26 @@ origin_holds() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the approver login has a character this job will not write"* ]]
-  [[ "${output}" == *"into a commit: ${login}"* ]]
+  summary="A login is written into an Accepted-by trailer only when it holds letters, digits"
+  summary+=" and hyphens, because the trailer names the person who accepts the commit, and GitHub"
+  summary+=" allows no other character in a person's login."
+  [[ "${output}" == *"${summary}"* ]]
+  [[ "${output}" == *"  login: ${login}"* ]]
   origin_holds "${pushed}"
 }
 
 @test "an approver id that is not a number, or is absent, is refused" {
-  for id in '"4x"' null; do
-    reviews "APPROVED:owner-1:${id}"
+  summary="An id is written into an Accepted-by trailer only when it is a number, because the"
+  summary+=" trailer reaches main, where no commit message is edited, and GitHub gives each"
+  summary+=" account a numeric id."
+  for case in '"4x":4x' null:none; do
+    reviews "APPROVED:owner-1:${case%%:*}"
 
     run "${script}"
 
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"the approver id is not a number"* ]]
+    [[ "${output}" == *"${summary}"* ]]
+    [[ "${output}" == *"  id: ${case#*:}"* ]]
   done
   origin_holds "${pushed}"
 }

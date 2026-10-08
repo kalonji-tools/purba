@@ -56,20 +56,21 @@ case "${status}" in
     ;;
 esac
 
-# These two are written into commit messages that can never be
-# edited, so check their shape before writing them. GitHub allows only
-# letters, digits and hyphens in a login today.
 case "${approver}" in
   *[!A-Za-z0-9-]*)
-    refuse "the approver login has a character this job will not \
-write into a commit: ${approver}"
+    refuse "A login is written into an Accepted-by trailer only when it holds letters, digits \
+and hyphens, because the trailer names the person who accepts the commit, and GitHub allows \
+no other character in a person's login." "login: ${approver}"
     finish
     ;;
   *) ;;
 esac
 case "${approver_id}" in
   "" | *[!0-9]*)
-    refuse "the approver id is not a number: ${approver_id}"
+    refuse "An id is written into an Accepted-by trailer only when it is a number, because the \
+trailer reaches main, where no commit message is edited, and GitHub gives each account a \
+numeric id." \
+      "id: ${approver_id:-none}"
     finish
     ;;
   *) ;;
