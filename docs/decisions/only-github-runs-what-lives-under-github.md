@@ -51,7 +51,7 @@ The gate's own code is the last thing that should lose a reviewer to a move.
 
 ## Confirmation
 
-**`mise run lint:placement` reads the rule, and `quality` depends on it.**
+**`mise run lint:placement` reads the rule, and `lint` runs it.**
 `scripts/check-placement.sh` keys on the callers a code line names.
 A comment line naming a script it no longer runs counts for nothing, and neither does a record naming one in prose.
 
@@ -62,8 +62,8 @@ No workflow names it and nothing sources it, because a sibling under `.github/sc
 That row is the case the clause above exists to admit, and it is also what a hand-written copy of a machine-readable fact becomes.
 
 `scripts/test/check-placement.bats` builds a tree for each control below and runs the command against it.
-`mise run test:scripts` runs that file.
-`quality` reads the tree itself on every run.
+`mise run test:shell` runs that file.
+`lint` reads the tree itself on every run.
 
 A test under `scripts/test` runs a script from either half.
 The command does not read a test as a caller, so no test moves a script.

@@ -35,7 +35,7 @@ Something needs a decision.
 
 ## Confirmation
 
-`mise run records` reads this.
+`mise run lint:records` reads this.
 RECORD
 }
 
@@ -316,7 +316,7 @@ words() {
 }
 
 @test "a Confirmation that admits an unwired gate and names no issue is refused" {
-  swap "\`mise run records\` reads this." "The gate is not wired."
+  swap "\`mise run lint:records\` reads this." "The gate is not wired."
 
   run "${script}"
 
@@ -326,7 +326,7 @@ words() {
 }
 
 @test "a Confirmation whose table answers no is refused the same way" {
-  swap "\`mise run records\` reads this." $'| rule | checked |\n|---|---|\n| one | no |'
+  swap "\`mise run lint:records\` reads this." $'| rule | checked |\n|---|---|\n| one | no |'
 
   run "${script}"
 
@@ -335,7 +335,7 @@ words() {
 }
 
 @test "a Confirmation that names the issue passes" {
-  swap "\`mise run records\` reads this." \
+  swap "\`mise run lint:records\` reads this." \
     "The gate is not wired. [Wire it](https://github.com/o/purba/issues/9) owns it."
 
   run "${script}"
@@ -415,7 +415,7 @@ words() {
 @test "each phrase that admits an unwired gate needs an issue" {
   for admission in "It is run by hand." "The check is not written yet." "It does not exist yet."; do
     compliant >"${record}"
-    swap "\`mise run records\` reads this." "${admission}"
+    swap "\`mise run lint:records\` reads this." "${admission}"
 
     run "${script}"
 
@@ -450,7 +450,7 @@ words() {
 }
 
 @test "a list under a later heading is not a Downside cost" {
-  swap "\`mise run records\` reads this." "- \`mise run records\` reads this."
+  swap "\`mise run lint:records\` reads this." "- \`mise run lint:records\` reads this."
 
   run "${script}"
 
@@ -505,7 +505,7 @@ words() {
 }
 
 @test "an admission needs a link to an issue of this repository" {
-  swap "\`mise run records\` reads this." \
+  swap "\`mise run lint:records\` reads this." \
     "The gate is not wired. [Wire it](https://github.com/o/other/issues/9) owns it."
 
   run "${script}"

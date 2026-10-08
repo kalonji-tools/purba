@@ -119,7 +119,7 @@ Twelve of them renamed a name that a test misspells on purpose.
 |---|---|---|
 | `cargo fmt` | the tree needs no rewrite | it formats a misformatted `.rs` file and stops the commit |
 
-`quality` keeps `fmt:check`, because CI cannot write.
+`lint:rust` and `lint:shell` refuse unformatted code, because CI cannot write.
 
 `lint:cargo-scripts` and the hook that formats a cargo script ran green and red on `scripts/check-prose/check-prose.rs`.
 

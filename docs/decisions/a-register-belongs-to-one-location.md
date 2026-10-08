@@ -93,7 +93,7 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 
 **A gate holds the decision record's register.**
 
-`mise run records` refuses a record that breaks a rule a command can decide.
+`mise run lint:records` refuses a record that breaks a rule a command can decide.
 `Quality` runs it on every pull request.
 Considered Options says why no gate holds the pull request's register or the issue's.
 
@@ -119,15 +119,15 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | location | its register | decidable | gated |
 |---|---|---|---|
 | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no, `commit-msg` hooks refuse at the commit |
-| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | yes, `mise run records` |
+| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | yes, `mise run lint:records` |
 | `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no, and its record says ungated |
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
-| published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `clippy` for a Rust doc comment |
+| published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `lint:rust` for a Rust doc comment |
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
-| refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:scripts` fails on a summary that names a record |
-| CHANGELOG | `.config/cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:scripts` renders it from the register |
+| refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:shell` fails on a summary that names a record |
+| CHANGELOG | `.config/cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:shell` renders it from the register |
 
 These locations are closed and hold no register.
 

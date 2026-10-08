@@ -1,6 +1,6 @@
 # Every gate that refuses a merge on the build and on the load.
 #
-#   the command:    .config/tasks.toml, under `build`
+#   the task:       .config/tasks.toml, under `build`
 #   the tools:      .config/mise.toml
 #   the floor:      docs/decisions/purba-supports-a-python-with-two-years-left.md
 #

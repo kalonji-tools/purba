@@ -47,7 +47,7 @@ It waits for the day `-Zscript` breaks on a nightly.
 
 | property | check |
 |---|---|
-| a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
+| a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `Quality` runs it on every pull request, through `mise run lint` |
 | a cargo script passes its own tests | `mise run test:cargo-scripts` runs `cargo -Zscript test --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
 | a cargo script sits where its callers are | `mise run lint:placement` reads `*.rs` under `scripts/` and `.github/` |
 | its build is paid once for each lockfile | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts`. Quality and Scripts restore it, because a pull request reads the cache of its base branch |

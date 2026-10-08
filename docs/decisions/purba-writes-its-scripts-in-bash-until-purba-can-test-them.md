@@ -77,12 +77,12 @@ A reviewer reads the extension.
 The Downside above carries that cost.
 
 `.config/mise.toml` names `bats`.
-`mise run test:scripts` runs every test under `scripts/test`.
+`mise run test:shell` runs every test under `scripts/test`.
 `mise run check` runs that task.
 `.github/workflows/scripts.yml` runs it when a pull request changes a file that `.github/scripts/changed-scripts.sh` names.
 `.github/workflows/sign.yml` waits for the `Scripts` check, so purba does not sign a branch whose test fails.
 
-`shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run quality`.
+`shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run lint`.
 The first two read a glob that names `*.sh` and `*.bats`, so both reach a test file.
 `editorconfig-checker` reads every tracked file.
 

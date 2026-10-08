@@ -77,7 +77,7 @@ A programme is a milestone, not a record.
 
 ## Confirmation
 
-`mise run records`, over `docs/decisions/`, checking only what is decidable:
+`mise run lint:records`, over `docs/decisions/`, checking only what is decidable:
 
 | check | strength |
 |---|---|

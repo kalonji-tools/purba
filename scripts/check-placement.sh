@@ -2,7 +2,7 @@
 # The directory a script belongs in, decided from the callers it has.
 #
 #   the decision:  docs/decisions/only-github-runs-what-lives-under-github.md
-#   the command:   mise run lint:placement
+#   the task:      mise run lint:placement
 #
 #   check-placement.sh
 #

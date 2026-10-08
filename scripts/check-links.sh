@@ -3,7 +3,7 @@
 # does not track.
 #
 #   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
-#   the command:   mise run lint:links
+#   the task:      mise run lint:links
 #   the settings:  pyproject.toml, under `[tool.lychee]`
 #
 #   check-links.sh

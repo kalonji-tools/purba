@@ -1,14 +1,32 @@
-# Every command purba runs. `.config/mise.toml` names which versions of a tool purba
-# accepts; this file names which commands purba runs with them.
+# Every task purba runs. `.config/mise.toml` names which versions of a tool purba
+# accepts; this file names which tasks purba runs with them.
 # https://mise.jdx.dev/tasks/
+
+["apply-fork"]
+description = "Carry a contribution from a fork into this repository"
+hide = true
+shell = "bash -c"
+run = "scripts/apply-fork-contribution.sh"
 
 [build]
 description = "Build the wheel"
 run = "maturin build"
 
+[check]
+description = "Every lint and every test, in one command"
+depends = ["lint", "test"]
+
 [fmt]
-description = "Rewrite the formatting"
-depends = ["fmt:shell", "fmt:cargo-scripts"]
+description = "Rewrite every formatting difference, in one command"
+depends = ["fmt:*"]
+
+["fmt:cargo-scripts"]
+description = "Rewrite the formatting of each cargo script"
+shell = "bash -c"
+run = "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024"
+
+["fmt:rust"]
+description = "Rewrite the Rust formatting"
 run = "cargo fmt"
 
 ["fmt:shell"]
@@ -16,54 +34,10 @@ description = "Rewrite the shell formatting"
 shell = "bash -c"
 run = "shfmt --write $(git ls-files '*.sh' '*.bats')"
 
-["fmt:cargo-scripts"]
-description = "Rewrite the formatting of each cargo script"
-shell = "bash -c"
-run = "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024"
+[lint]
+description = "Every lint, in one command"
+depends = ["lint:*"]
 
-["fmt:check"]
-description = "Refuse unformatted code"
-shell = "bash -c"
-run = ["cargo fmt --check", "shfmt --diff $(git ls-files '*.sh' '*.bats')"]
-
-["lint:shell"]
-description = "Refuse a shell defect"
-shell = "bash -c"
-run = "shellcheck -x $(git ls-files '*.sh' '*.bats')"
-
-["lint:style"]
-description = "Refuse a line that breaks the style every editor reads"
-run = "ec"
-
-["lint:placement"]
-description = "Refuse a script that sits in the wrong directory"
-shell = "bash -c"
-run = "scripts/check-placement.sh"
-
-["lint:manifests"]
-description = "Refuse a package that two manifests declare, and any in pyproject.toml"
-shell = "bash -c"
-run = "scripts/check-manifests.sh"
-
-["lint:readers"]
-description = "Refuse a tracked file that reaches no actor, and a name off the roster"
-shell = "bash -c"
-run = "scripts/check-readers.sh"
-
-["lint:licences"]
-description = "Refuse a dependency whose licence is not on the allowlist"
-run = "cargo-deny check licenses"
-
-["lint:links"]
-description = "Refuse a dead link, and a path a comment cites that git does not track"
-shell = "bash -c"
-run = "scripts/check-links.sh"
-
-[clippy]
-description = "Refuse a lint"
-run = "cargo clippy --all-targets"
-
-# A script changes far less often than `src/`, so `quality` does not run this.
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
 ["lint:cargo-scripts"]
 description = "Refuse an unformatted cargo script, or one that breaks a lint"
@@ -78,6 +52,63 @@ done
 ''',
 ]
 
+["lint:licences"]
+description = "Refuse a dependency whose licence is not on the allowlist"
+run = "cargo-deny check licenses"
+
+["lint:links"]
+description = "Refuse a dead link, and a path a comment cites that git does not track"
+shell = "bash -c"
+run = "scripts/check-links.sh"
+
+["lint:manifests"]
+description = "Refuse a package that two manifests declare, and any in pyproject.toml"
+shell = "bash -c"
+run = "scripts/check-manifests.sh"
+
+["lint:placement"]
+description = "Refuse a script that sits in the wrong directory"
+shell = "bash -c"
+run = "scripts/check-placement.sh"
+
+["lint:readers"]
+description = "Refuse a tracked file that reaches no actor, and a name off the roster"
+shell = "bash -c"
+run = "scripts/check-readers.sh"
+
+["lint:records"]
+description = "Refuse a decision record that breaks a rule a command can decide"
+shell = "bash -c"
+run = "scripts/check-records.sh"
+
+["lint:rust"]
+description = "Refuse unformatted Rust, a Rust lint, or a broken link in the Rust documentation"
+run = ["cargo fmt --check", "cargo clippy --all-targets", "cargo doc --no-deps"]
+
+["lint:shell"]
+description = "Refuse a shell defect or unformatted shell"
+shell = "bash -c"
+run = [
+  "shellcheck -x $(git ls-files '*.sh' '*.bats')",
+  "shfmt --diff $(git ls-files '*.sh' '*.bats')",
+]
+
+["lint:style"]
+description = "Refuse a line that breaks the style every editor reads"
+run = "ec"
+
+["sign-off"]
+description = "Sign every commit on your branch. A person runs this, never an agent"
+# Hidden because that listing is what an agent reads to find what it may run.
+hide = true
+# cmd cannot exec a shebang.
+shell = "bash -c"
+run = "scripts/sign-branch.sh"
+
+[test]
+description = "Every test, in one command"
+depends = ["test:*"]
+
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
 ["test:cargo-scripts"]
 description = "Run the tests inside each cargo script"
@@ -88,10 +119,6 @@ git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
     --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
 done
 '''
-
-[doc]
-description = "Refuse a broken link in the Rust documentation"
-run = "cargo doc --no-deps"
 
 ["test:rust"]
 description = "Run the Rust tests"
@@ -111,49 +138,10 @@ run = """
 {% endif %}cargo test --all-targets && cargo test --doc
 """
 
-["test:scripts"]
+["test:shell"]
 description = "Run purba's own scripts against the shapes they refuse"
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
 # bats names the line that failed and never what the script wrote, so the flag
 # prints the script's output beside it.
 run = "bats --print-output-on-failure --recursive scripts/test"
-
-[records]
-description = "Refuse a decision record that breaks a rule a command can decide"
-shell = "bash -c"
-run = "scripts/check-records.sh"
-
-[quality]
-description = "Every lint, format and record gate, in one command"
-depends = [
-  "fmt:check",
-  "lint:shell",
-  "lint:style",
-  "lint:placement",
-  "lint:manifests",
-  "lint:readers",
-  "lint:licences",
-  "lint:links",
-  "records",
-  "clippy",
-  "doc",
-]
-
-[check]
-description = "Every lint and every test, in one command"
-depends = ["quality", "lint:cargo-scripts", "test:cargo-scripts", "test:rust", "test:scripts"]
-
-["sign-off"]
-description = "Sign every commit on your branch. A person runs this, never an agent"
-# Hidden because that listing is what an agent reads to find what it may run.
-hide = true
-# cmd cannot exec a shebang.
-shell = "bash -c"
-run = "scripts/sign-branch.sh"
-
-["apply-fork"]
-description = "Carry a contribution from a fork into this repository"
-hide = true
-shell = "bash -c"
-run = "scripts/apply-fork-contribution.sh"

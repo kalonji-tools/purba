@@ -2,7 +2,7 @@
 # The decision-record rules a command can decide.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
-#   the command:   mise run records
+#   the task:      mise run lint:records
 #
 #   check-records.sh [directory]
 #
