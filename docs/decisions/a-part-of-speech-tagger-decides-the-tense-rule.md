@@ -84,4 +84,6 @@ A tag does not separate `is refused` from `is closed`, so the passive count gain
 
 **`mise run records` runs the tagger.**
 `scripts/check-records.sh` calls `scripts/check-prose/check-prose.rs`, and prints its hits under the tense rule.
-`scripts/test/check-records.bats` and the tests in `check-prose.rs` hold the sentences it refuses and the ones it passes.
+The tests in `check-prose.rs` hold the sentences it refuses and the ones it passes.
+`scripts/test/check-records.bats` holds its refusal.
+That refusal reads the shipped participle list.

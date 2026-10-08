@@ -776,12 +776,21 @@ mod tests {
 
     // The findings a record holding `text` gives, with the path left out.
     fn findings(text: &str) -> Vec<String> {
-        let dictionary = dictionary("");
+        findings_with("", text)
+    }
+
+    fn findings_with(participles: &str, text: &str) -> Vec<String> {
+        let dictionary = dictionary(participles);
         Record::read("r.md", text, &dictionary)
             .findings
             .into_iter()
             .map(|finding| finding.replace("r.md:", ""))
             .collect()
+    }
+
+    fn passives(text: &str) -> u32 {
+        let dictionary = dictionary("");
+        Record::read("r.md", text, &dictionary).tally.passives
     }
 
     // The bare lines and the prose lines that evidence density counts.
@@ -1014,5 +1023,163 @@ mod tests {
     #[test]
     fn a_list_item_opened_by_a_plus_holds_no_prose_line() {
         assert_eq!(density("+ **This.** Chosen.\n"), (0, 0));
+    }
+
+    #[test]
+    fn bold_that_opens_a_second_sentence_passes() {
+        let found = findings("Something needs a decision. **This one.** It is taken.\n");
+        assert_eq!(found, [] as [&str; 0]);
+    }
+
+    #[test]
+    fn one_bold_letter_inside_a_sentence_is_bold() {
+        assert_eq!(findings("Something needs **a** decision.\n"), ["bold\t1"]);
+    }
+
+    #[test]
+    fn a_paragraph_of_six_sentences_passes_and_a_longer_one_is_found_once() {
+        let six = "One.\nTwo.\nThree.\nFour.\nFive.\nSix.\n";
+        assert_eq!(findings(six), [] as [&str; 0]);
+        let found = findings(&format!("{six}Seven.\nEight.\n"));
+        assert_eq!(found, ["para\t7: 7 sentences"]);
+    }
+
+    #[test]
+    fn a_gerund_after_a_form_of_be_or_a_preposition_is_found() {
+        for (text, gerund) in [
+            ("The gate is running the checks.", "running"),
+            ("A writer finds it by running the gate.", "running"),
+            ("The record names it as owing work.", "owing"),
+            (
+                "The gate stops, because refusing would close the issue.",
+                "refusing",
+            ),
+        ] {
+            assert_eq!(findings(text), [format!("ing\t1: {gerund}")], "{text}");
+        }
+    }
+
+    #[test]
+    fn an_adverb_between_the_two_does_not_hide_the_gerund() {
+        for text in [
+            "The gate is already running the checks.",
+            "The gate is quickly running.",
+            "The gate is not always running the checks.",
+        ] {
+            assert_eq!(findings(text), ["ing\t1: running"], "{text}");
+        }
+    }
+
+    #[test]
+    fn a_technical_noun_a_compound_and_a_word_of_four_letters_are_no_gerund() {
+        for text in [
+            "A rule is nothing without tooling.",
+            "The setting is load-bearing.",
+            "A host answers by ping.",
+        ] {
+            assert_eq!(findings(text), [] as [&str; 0], "{text}");
+        }
+    }
+
+    #[test]
+    fn a_perfect_tense_is_found_in_each_of_its_forms() {
+        for (text, pair) in [
+            ("They have refused it.", "have refused"),
+            ("It had refused it.", "had refused"),
+            ("It has written it.", "has written"),
+            ("Having refused it, the gate stops.", "having refused"),
+        ] {
+            assert_eq!(findings(text), [format!("tense\t1: {pair}")], "{text}");
+        }
+    }
+
+    #[test]
+    fn an_adverb_does_not_hide_a_perfect_tense() {
+        for (text, pair) in [
+            ("The gate has not yet refused a record.", "has refused"),
+            (
+                "Having not yet refused it, the gate waits.",
+                "having refused",
+            ),
+            ("A person has recently moved the date.", "has moved"),
+            ("A person has since moved the date.", "has moved"),
+            ("No person has ever moved the date.", "has moved"),
+            ("A person has twice moved the date.", "has moved"),
+        ] {
+            assert_eq!(findings(text), [format!("tense\t1: {pair}")], "{text}");
+        }
+    }
+
+    #[test]
+    fn a_word_between_have_and_its_participle_does_not_hide_the_tense() {
+        for (text, pair) in [
+            ("A person has even moved the date.", "has moved"),
+            ("The gate has itself refused the record.", "has refused"),
+            ("Has anyone moved the date?", "has moved"),
+            ("Has the gate refused the record?", "has refused"),
+            ("Have purba's own 92 issues been consistent?", "have been"),
+            ("Which records has the gate refused?", "has refused"),
+            ("Why has the gate refused the record?", "has refused"),
+            ("Have they all refused it?", "have refused"),
+            (
+                "Having itself refused it, the gate waits.",
+                "having refused",
+            ),
+        ] {
+            assert_eq!(findings(text), [format!("tense\t1: {pair}")], "{text}");
+        }
+    }
+
+    #[test]
+    fn a_participle_that_no_list_names_is_a_tense() {
+        for (text, pair) in [
+            ("This project has never had a contributor.", "has had"),
+            ("The person has rewritten the record.", "has rewritten"),
+        ] {
+            assert_eq!(findings(text), [format!("tense\t1: {pair}")], "{text}");
+        }
+    }
+
+    #[test]
+    fn a_participle_is_a_tense_only_when_the_list_names_it() {
+        let text = "It has grown one workflow at a time.\n";
+        assert_eq!(findings(text), [] as [&str; 0]);
+        assert_eq!(findings_with("grown\n", text), ["tense\t1: has grown"]);
+    }
+
+    #[test]
+    fn a_modal_a_possession_an_obligation_a_passive_and_a_code_span_are_no_tense() {
+        for text in [
+            "The gate must be run, and that is a bound worth having.",
+            "Not yet refused, the record stands.",
+            "The gate has a fixed span.",
+            "A check has nothing to run against.",
+            "The gate has records which were refused.",
+            "The lock has `rust` pinned.",
+            "Does the record have a fixed span?",
+            "Having a record refused is rare.",
+            "What has a fixed span?",
+            "Which record has 3 fixed spans?",
+            "The record has its scope narrowed.",
+        ] {
+            assert_eq!(findings(text), [] as [&str; 0], "{text}");
+        }
+    }
+
+    #[test]
+    fn an_adverb_does_not_hide_the_passive_voice() {
+        assert_eq!(passives("The gate is not yet refused by nothing.\n"), 1);
+    }
+
+    #[test]
+    fn a_participle_is_irregular_or_ends_in_ed_and_runs_past_three_letters() {
+        for (text, passive) in [
+            ("The gate is used.", 1),
+            ("The record is written.", 1),
+            ("The light was red.", 0),
+            ("The gate is open.", 0),
+        ] {
+            assert_eq!(passives(text), passive, "{text}");
+        }
     }
 }
