@@ -6,9 +6,6 @@
 #
 #   check-records.sh [directory]
 #
-# CHECK_TENSE_PARTICIPLES names another list of participles for the tense rule,
-# which a test needs.
-#
 # Exits 1 when a record breaks a rule, and 2 when this script cannot decide.
 #
 # It reports every rule before it exits, because a writer fixing one refusal
@@ -78,7 +75,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\"" \
   run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs" \
   --target-dir "${here}/../target/scripts" -- \
-  "${CHECK_TENSE_PARTICIPLES:-${here}/check-prose/participles.txt}" "${records[@]}") ||
+  "${here}/check-prose/participles.txt" "${records[@]}") ||
   cannot 'the prose of a record cannot be read.'
 
 mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
