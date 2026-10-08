@@ -60,7 +60,8 @@ case "${approver}" in
   *[!A-Za-z0-9-]*)
     refuse "A login is written into an Accepted-by trailer only when it holds letters, digits \
 and hyphens, because the trailer names the person who accepts the commit, and GitHub allows \
-no other character in a person's login." "login: ${approver}"
+no other character in a person's login. Ask a person to approve the pull request." \
+      "login: ${approver}"
     finish
     ;;
   *) ;;
@@ -69,7 +70,7 @@ case "${approver_id}" in
   "" | *[!0-9]*)
     refuse "An id is written into an Accepted-by trailer only when it is a number, because the \
 trailer reaches main, where no commit message is edited, and GitHub gives each account a \
-numeric id." \
+numeric id. Ask a person to approve the pull request." \
       "id: ${approver_id:-none}"
     finish
     ;;
