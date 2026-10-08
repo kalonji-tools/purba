@@ -155,6 +155,47 @@ origin_holds() {
   [[ "${carried}" == "Accepted-by: owner-2 <43+owner-2@users.noreply.github.com>" ]]
 }
 
+@test "an approval its author follows with a change request does not stand" {
+  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-1:42
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"no approval stands on this head, so there is nothing to accept"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"check-runs"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "an approval given again after a change request stands, and a comment leaves it" {
+  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-1:42 APPROVED:owner-1:42 \
+    COMMENTED:owner-1:42
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"recorded acceptance by owner-1"* ]]
+}
+
+@test "a change request from another reviewer leaves an approval standing" {
+  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-2:43
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"recorded acceptance by owner-1"* ]]
+}
+
+@test "an approval its author follows with a dismissed review does not stand" {
+  reviews APPROVED:owner-1:42 DISMISSED:owner-1:42
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"no approval stands on this head, so there is nothing to accept"* ]]
+  origin_holds "${pushed}"
+}
+
 @test "with no approval it writes nothing and reads no gate" {
   reviews COMMENTED:owner-1:42
 
