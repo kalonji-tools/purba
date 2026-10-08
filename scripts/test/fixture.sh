@@ -26,7 +26,8 @@
 # of it. A script's own scratch directory lands inside it too.
 #
 # `report` writes an annotation on a runner and plain text everywhere else, so a
-# test that leaves the variable alone reads a different message in CI.
+# test that leaves the variable alone reads a different message in CI. A tool
+# can print a different line when FORCE_COLOR is set, and no workflow sets it.
 isolate() {
   local names
   local -a handed
@@ -41,7 +42,7 @@ isolate() {
   export GIT_CEILING_DIRECTORIES="${BATS_TEST_TMPDIR}"
   export GIT_AUTHOR_NAME=writer GIT_AUTHOR_EMAIL=writer@example.invalid
   export GIT_COMMITTER_NAME=writer GIT_COMMITTER_EMAIL=writer@example.invalid
-  unset GITHUB_ACTIONS PURBA_REPORT
+  unset GITHUB_ACTIONS PURBA_REPORT FORCE_COLOR
 }
 
 make_repo() {
