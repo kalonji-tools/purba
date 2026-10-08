@@ -98,32 +98,6 @@ as_writer() {
   [[ "${files}" == $'.config/mise.lock\n.config/mise.toml' ]]
 }
 
-@test "the caller keeps the tree it checked out" {
-  week "${moved}"
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 0 ]]
-  head=$(git rev-parse HEAD)
-  [[ "${head}" == "${start}" ]]
-  dirty=$(git status --porcelain)
-  [[ -z "${dirty}" ]]
-}
-
-@test "a branch a closed pull request left behind is replaced" {
-  git switch --quiet --detach
-  as_writer commit --quiet --allow-empty --message "chore: an older proposal"
-  git push --quiet origin HEAD:refs/heads/bump/nightly
-  git switch --quiet main
-  week "${moved}"
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 0 ]]
-  landed=$(pushed %s)
-  [[ "${landed}" == "${subject}" ]]
-}
-
 @test "a file the bump staged is not in the commit it pushes" {
   week "${moved}; echo new >staged-by-the-bump; git add staged-by-the-bump"
 
@@ -132,19 +106,6 @@ as_writer() {
   [[ "${status}" -eq 0 ]]
   files=$(git --git-dir="${origin}" show --format= --name-only bump/nightly)
   [[ "${files}" == $'.config/mise.lock\n.config/mise.toml' ]]
-}
-
-@test "a bump that changes a third file is refused and pushes nothing" {
-  week "${moved}; echo stray >>chorestart"
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the bump changed files beyond .config/mise.toml and .config/mise.lock"* ]]
-  remote=$(git ls-remote origin)
-  [[ -z "${remote}" ]]
-  asked=$(calls gh)
-  [[ "${asked}" != *"pr create"* ]]
 }
 
 @test "an open proposal makes the run stand down before it upgrades" {
@@ -212,35 +173,6 @@ as_writer() {
   [[ -z "${upgraded}" ]]
 }
 
-@test "an issue that is not a number exits 2" {
-  for issue in sixty-five 0 "" 6x; do
-    run "${script}" bump/nightly "${issue}"
-
-    [[ "${status}" -eq 2 ]]
-    [[ "${output}" == *"bump-nightly.sh needs an issue number, and was given '${issue}'."* ]]
-  done
-  asked=$(calls gh)
-  [[ -z "${asked}" ]]
-}
-
-@test "with an empty repository name it stops before it calls the API" {
-  export GH_REPO=
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"set by the workflow env"* ]]
-  asked=$(calls gh)
-  [[ -z "${asked}" ]]
-}
-
-@test "the wrong number of arguments exits 2" {
-  run "${script}" bump/nightly
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"usage: bump-nightly.sh <branch> <issue>"* ]]
-}
-
 @test "open pull requests that cannot be read exit 2 before it upgrades" {
   fake gh <<<'exit 4'
 
@@ -260,42 +192,9 @@ as_writer() {
   run "${script}" bump/nightly 65
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the bump could not be committed"* ]]
+  [[ "${output}" == *"the proposal could not be committed"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
-}
-
-@test "a push that fails exits 2, and the caller keeps the tree it checked out" {
-  week "${moved}"
-  git remote set-url origin "${BATS_TEST_TMPDIR}/nowhere.git"
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the proposal could not be pushed to bump/nightly"* ]]
-  head=$(git rev-parse HEAD)
-  [[ "${head}" == "${start}" ]]
-  dirty=$(git status --porcelain)
-  [[ -z "${dirty}" ]]
-  asked=$(calls gh)
-  [[ "${asked}" != *"pr create"* ]]
-}
-
-@test "a pull request that cannot be opened exits 2 and says the branch is pushed" {
-  week "${moved}"
-  fake gh <<'FAKE'
-case "$1 $2" in
-  "pr create") exit 4 ;;
-  *) ;;
-esac
-FAKE
-
-  run "${script}" bump/nightly 65
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"bump/nightly is pushed, and its pull request could not be opened"* ]]
-  landed=$(pushed %s)
-  [[ "${landed}" == "${subject}" ]]
 }
 
 @test "a bump that rewrites the lock and moves no pin proposes nothing" {

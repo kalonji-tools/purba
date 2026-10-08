@@ -229,29 +229,6 @@ released() {
   [[ -z "${remote}" ]]
 }
 
-@test "the caller keeps the tree it checked out" {
-  run "${script}" release/next 43
-
-  [[ "${status}" -eq 0 ]]
-  head=$(git rev-parse HEAD)
-  [[ "${head}" == "${start}" ]]
-  dirty=$(git status --porcelain)
-  [[ -z "${dirty}" ]]
-}
-
-@test "a branch a closed pull request left behind is replaced" {
-  git switch --quiet --detach
-  as_writer commit --quiet --allow-empty --message "chore: an older proposal"
-  git push --quiet origin HEAD:refs/heads/release/next
-  git switch --quiet main
-
-  run "${script}" release/next 43
-
-  [[ "${status}" -eq 0 ]]
-  landed=$(pushed %s)
-  [[ "${landed}" == "chore(release): cut v0.1.0 (#43)" ]]
-}
-
 @test "a commit git refuses exits 2, pushes nothing, and leaves no changelog" {
   printf '#!/usr/bin/env bash\nexit 1\n' >.git/hooks/pre-commit
   chmod +x .git/hooks/pre-commit
@@ -259,11 +236,27 @@ released() {
   run "${script}" release/next 43
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the release could not be committed"* ]]
+  [[ "${output}" == *"the proposal could not be committed"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
   dirty=$(git status --porcelain)
   [[ -z "${dirty}" ]]
+}
+
+@test "a release that changes a third file is refused and pushes nothing" {
+  real=$(command -v git-cliff)
+  fake git-cliff <<FAKE
+"${real}" "\$@" && echo stray >>chorestart
+FAKE
+
+  run "${script}" release/next 43
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"the run changed files beyond Cargo.toml, Cargo.lock and CHANGELOG.md"* ]]
+  remote=$(git ls-remote origin)
+  [[ -z "${remote}" ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"pr create"* ]]
 }
 
 @test "a register git-cliff refuses exits 2 and shows why" {
@@ -289,48 +282,6 @@ released() {
   [[ -z "${asked}" ]]
 }
 
-@test "an issue that is not a number exits 2" {
-  for issue in forty-three 0 "" 4x; do
-    run "${script}" release/next "${issue}"
-
-    [[ "${status}" -eq 2 ]]
-    [[ "${output}" == *"release.sh needs an issue number, and was given '${issue}'."* ]]
-  done
-}
-
-@test "with an empty repository name it stops before it calls the API" {
-  export GH_REPO=
-
-  run "${script}" release/next 43
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"set by the workflow env"* ]]
-  asked=$(calls gh)
-  [[ -z "${asked}" ]]
-}
-
-@test "the wrong number of arguments exits 2" {
-  run "${script}" release/next
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"usage: release.sh <branch> <issue>"* ]]
-}
-
-@test "a push that fails exits 2, and the caller keeps the tree it checked out" {
-  git remote set-url origin "${BATS_TEST_TMPDIR}/nowhere.git"
-
-  run "${script}" release/next 43
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the proposal could not be pushed to release/next"* ]]
-  head=$(git rev-parse HEAD)
-  [[ "${head}" == "${start}" ]]
-  dirty=$(git status --porcelain)
-  [[ -z "${dirty}" ]]
-  asked=$(calls gh)
-  [[ "${asked}" != *"pr create"* ]]
-}
-
 @test "a tag that cannot be pushed exits 2" {
   released 0.1.0
   git remote set-url origin "${BATS_TEST_TMPDIR}/nowhere.git"
@@ -339,20 +290,4 @@ released() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"v0.1.0 could not be pushed"* ]]
-}
-
-@test "a pull request that cannot be opened exits 2 and says the branch is pushed" {
-  fake gh <<'FAKE'
-case "$1 $2" in
-  "pr create") exit 4 ;;
-  *) ;;
-esac
-FAKE
-
-  run "${script}" release/next 43
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"release/next is pushed, and its pull request could not be opened"* ]]
-  landed=$(pushed %s)
-  [[ "${landed}" == "chore(release): cut v0.1.0 (#43)" ]]
 }

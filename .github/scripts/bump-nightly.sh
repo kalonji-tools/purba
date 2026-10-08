@@ -8,65 +8,26 @@
 #   bump-nightly.sh <branch> <issue>
 #
 #   GH_REPO    the repository `gh` acts on
-#   GH_TOKEN   a token that may push and open a pull request
+#   GH_TOKEN   a token that may open a pull request
 #
 # Exits 0 when it proposes one, 0 when it deliberately proposes nothing, 1
 # when it refuses what it found, and 2 when it cannot run.
 set -euo pipefail
 
-# shellcheck source=scripts/report.sh
-. "$(dirname "$0")/../../scripts/report.sh"
+# shellcheck source=.github/scripts/ask-for-sign-off.sh
+. "$(dirname "$0")/ask-for-sign-off.sh"
 
-if [[ $# -ne 2 ]]; then
-  cannot "usage: bump-nightly.sh <branch> <issue>"
-fi
-
-if [[ -z "${GH_REPO:-}" ]]; then
-  cannot "GH_REPO is set by the workflow env, and it is empty here."
-fi
-
-branch=$1
-issue=$2
-
-# The subject rule requires a reference, so a subject cannot be built without
-# one. docs/decisions/a-commit-outlives-its-review.md
-
-case "${issue}" in
-  '' | 0 | *[!0-9]*)
-    cannot "bump-nightly.sh needs an issue number, and was given '${issue}'."
-    ;;
-  *) ;;
-esac
+sign_off_start bump-nightly.sh .github/workflows/bump.yml "$@"
+stand_down_while_open "a nightly"
 
 # The pin lives in these two, and nothing else here may be committed.
 toml=.config/mise.toml
 lock=.config/mise.lock
 
-author="github-actions[bot]"
-email="41898282+github-actions[bot]@users.noreply.github.com"
-
-if ! git diff --quiet HEAD --; then
-  dirty=$(git --no-pager status --short)
-  cannot "bump-nightly.sh needs a clean tree, because it rewinds to one." "${dirty}"
-fi
-
-# ⚠️ Never replace this with a force-push. A pull request that broke keeps
-# the head that refused it, and the logs hanging off that head.
-if ! open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
-  '.[].number'); then
-  cannot "the open pull requests on ${branch} could not be read."
-fi
-if [[ -n "${open}" ]]; then
-  echo "pull request #${open} is already proposing a nightly on ${branch}, so this run stands down"
-  echo "nothing bumps until a person signs that one or closes it"
-  exit 0
-fi
-
 read_pin() {
   sed -n 's/^rust = .*version = "\([^"]*\)".*/\1/p' "${toml}"
 }
 
-before=$(git rev-parse HEAD)
 was=$(read_pin)
 if [[ -z "${was}" ]]; then
   cannot "${toml} does not name a rust version this script can read"
@@ -82,14 +43,6 @@ if git diff --quiet -- "${toml}" "${lock}"; then
   exit 0
 fi
 
-# ⚠️ Refuse a tracked file this changed and did not ask for. The commit below
-# names the two files it takes, so nothing else reaches the proposal.
-if ! git diff --quiet -- . ":!${toml}" ":!${lock}"; then
-  changed=$(git --no-pager diff --stat)
-  refuse "the bump changed files beyond ${toml} and ${lock}, so it is not proposed" "${changed}"
-  finish
-fi
-
 now=$(read_pin)
 if [[ -z "${now}" ]]; then
   cannot "${toml} no longer names a rust version this script can read"
@@ -97,60 +50,14 @@ fi
 
 if [[ "${now}" = "${was}" ]]; then
   echo "the pin is still ${was}, so there is nothing to propose"
-  git checkout --quiet -- "${toml}" "${lock}"
   exit 0
 fi
 
 echo "proposing ${now}, which replaces ${was}"
 
-subject="chore: move the nightly to ${now#nightly-} (#${issue})"
-
-# ⚠️ No `-s`. CONTRIBUTING.md: a machine never writes that trailer.
-if ! git -c "user.name=${author}" -c "user.email=${email}" \
-  commit --quiet -m "${subject}" -- "${toml}" "${lock}"; then
-  cannot "the bump could not be committed"
-fi
-
-# The branch outlives a closed pull request, so this replaces it. The caller
-# keeps the tree it checked out, whether or not the push lands.
-pushed=0
-git push --force origin "HEAD:refs/heads/${branch}" || pushed=$?
-git reset --quiet --hard "${before}"
-if [[ ${pushed} -ne 0 ]]; then
-  cannot "the proposal could not be pushed to ${branch}"
-fi
-
-body=$(
-  cat <<BODY
-A machine wrote this. It proposes a compiler and certifies nothing.
-
-| | |
-|---|---|
-| from | \`${was}\` |
-| to | \`${now}\` |
-| files | \`${toml}\` and \`${lock}\`, one line each |
-
-⚠️ **\`Origin\` is red on this branch, and that is correct.** A machine never writes a \
-\`Signed-off-by:\` trailer, so a person adds it to these commits:
-
-\`\`\`
-git fetch origin ${branch}
-git switch --detach FETCH_HEAD
-mise run sign-off
-git push --force-with-lease origin HEAD:${branch}
-\`\`\`
-
-**If \`Build\` is red, this nightly broke purba.** Leave this pull request open and nothing bumps \
-until somebody closes it: the weekly run stands down while it is here, so the compiler that broke \
-keeps the head that refused it.
-
-Opened by \`.github/workflows/bump.yml\`, which \
-[#${issue}](https://github.com/${GH_REPO}/issues/${issue}) owns.
-BODY
-)
-
-if ! gh pr create --repo "${GH_REPO}" --base main --head "${branch}" \
-  --title "${subject}" \
-  --body "${body}"; then
-  cannot "${branch} is pushed, and its pull request could not be opened"
-fi
+ask_for_sign_off "chore: move the nightly to ${now#nightly-} (#${issue})" "a compiler" \
+  "${was}" "${now}" \
+  "**If \`Build\` is red, this nightly broke purba.** Leave this pull request open and nothing \
+bumps until somebody closes it: the weekly run stands down while it is here, so the compiler that \
+broke keeps the head that refused it." \
+  "${toml}" "${lock}"
