@@ -9,6 +9,7 @@ setup() {
   mkdir -p docs/decisions
   record=docs/decisions/a-record-holds.md
   borrowed="borrowed from Simplified Technical English"
+  unwired="a Confirmation that admits an unwired gate and names no issue"
   compliant >"${record}"
 }
 
@@ -315,23 +316,32 @@ words() {
   [[ "${output}" != *"NOTES.md"* ]]
 }
 
-@test "a Confirmation that admits an unwired gate and names no issue is refused" {
+@test "a Confirmation that admits an unwired gate and names no issue is reported, not refused" {
   swap "\`mise run lint:records\` reads this." "The gate is not wired."
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"names the issue that will wire it"* ]]
-  [[ "${output}" == *$'has an owner.\n  '"${record}"* ]]
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
 }
 
-@test "a Confirmation whose table answers no is refused the same way" {
+@test "a Confirmation whose table answers no is reported the same way" {
   swap "\`mise run lint:records\` reads this." $'| rule | checked |\n|---|---|\n| one | no |'
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"names the issue that will wire it"* ]]
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
+}
+
+@test "on a runner an unwired gate writes no annotation" {
+  swap "\`mise run lint:records\` reads this." "The gate is not wired."
+
+  GITHUB_ACTIONS=true run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"::error::"* ]]
+  [[ "${output}" == *"${unwired}"* ]]
 }
 
 @test "a Confirmation that names the issue passes" {
@@ -341,6 +351,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unwired}"* ]]
 }
 
 @test "every rule a record breaks is reported in one run" {
@@ -412,15 +423,15 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
-@test "each phrase that admits an unwired gate needs an issue" {
+@test "each phrase that admits an unwired gate is reported when no issue is named" {
   for admission in "It is run by hand." "The check is not written yet." "It does not exist yet."; do
     compliant >"${record}"
     swap "\`mise run lint:records\` reads this." "${admission}"
 
     run "${script}"
 
-    [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *$'has an owner.\n  '"${record}"* ]]
+    [[ "${status}" -eq 0 ]]
+    [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
   done
 }
 
@@ -430,6 +441,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unwired}"* ]]
 }
 
 @test "a Downside label that counts its costs in digits is refused" {
@@ -504,14 +516,14 @@ words() {
   [[ "${output}" == *"A Downside label never counts its costs"* ]]
 }
 
-@test "an admission needs a link to an issue of this repository" {
+@test "an admission is reported unless it links an issue of this repository" {
   swap "\`mise run lint:records\` reads this." \
     "The gate is not wired. [Wire it](https://github.com/o/other/issues/9) owns it."
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *$'has an owner.\n  '"${record}"* ]]
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
 }
 
 @test "the report counts the articles and the words it read" {

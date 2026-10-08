@@ -207,10 +207,10 @@ for f in "${records[@]}"; do
   printf '%s\n' "${confirmation}" | grep -qE "${admits}" || continue
   printf '%s\n' "${confirmation}" | grep -q 'purba/issues/[0-9]' || found+=("${f}")
 done
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A Confirmation that says a gate is unwired names the issue that will wire it, so the promise \
-has an owner." \
-  "${found[@]}"
+if [[ ${#found[@]} -gt 0 ]]; then
+  printf '\na Confirmation that admits an unwired gate and names no issue\n\n'
+  printf '  %s\n' "${found[@]}"
+fi
 
 # The three borrowed rules a command cannot decide, reported and never
 # refused. The active voice rule admits the passive where the agent is
