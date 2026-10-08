@@ -23,6 +23,9 @@ setup() {
   online="A link in a file this branch changes is refused"
   cited="A path that a comment cites is refused"
   pypi="A link in the README is refused unless it names a full address or a heading of the README"
+  task="A \`mise run\` in a tracked file is refused when no task has that name"
+  # Joined at run time, because the gate reads this file too.
+  cite="mise ""run"
 }
 
 # Each file is written whole, one argument to a line.
@@ -31,6 +34,14 @@ write() {
   shift
   mkdir -p "$(dirname "${file}")"
   printf '%s\n' "$@" >"${file}"
+}
+
+# Three tasks that mise lists for this repository, one of them hidden. mise
+# reads a configuration only from a directory it trusts.
+roster() {
+  write mise.toml '[tasks.lint]' 'run = "true"' '[tasks."lint:x"]' 'run = "true"' \
+    '[tasks.sign-off]' 'hide = true' 'run = "true"'
+  export MISE_TRUSTED_CONFIG_PATHS="${PWD}"
 }
 
 settle() {
@@ -288,6 +299,77 @@ FAKE
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"tasks.toml:1: docs/untracked.md"* ]]
+}
+
+@test "a citation of a task that exists passes, and so does one of a hidden task" {
+  roster
+  write c.md "Run \`${cite} lint:x\`, then \`${cite} sign-off\`."
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a citation of no task is refused, with its file, line and name" {
+  roster
+  write c.md '# Title' "Run \`${cite} lint:gone\`."
+  write .github/workflows/x.yml "      run: ${cite} records"
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${task}"* ]]
+  [[ "${output}" == *"c.md:2: ${cite} lint:gone"* ]]
+  [[ "${output}" == *".github/workflows/x.yml:1: ${cite} records"* ]]
+}
+
+@test "the arguments after a task's name are not read, and a placeholder passes" {
+  roster
+  # shellcheck disable=SC2016 # a command line written as it is in the tree
+  write c.md "${cite} lint --interpreter \"\$(command -v python)\"" "\`${cite} <name>\` runs one."
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a file .gitattributes marks generated is not read for a citation of a task" {
+  roster
+  write .gitattributes 'made.txt linguist-generated'
+  write made.txt "${cite} gone"
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+
+  cp made.txt read.txt
+  git add read.txt
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"read.txt:1: ${cite} gone"* ]]
+  [[ "${output}" != *"made.txt"* ]]
+}
+
+@test "a mise that cannot list the tasks stops the check with exit 2" {
+  fake mise <<'FAKE'
+printf 'mise ERROR Config files are not trusted.\n' >&2
+exit 1
+FAKE
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the tasks cannot be listed"* ]]
+  [[ "${output}" == *"not trusted"* ]]
 }
 
 @test "a relative link in the README is refused" {
