@@ -1,0 +1,11 @@
+a-gate-owns-the-mechanical	reach:Cargo.toml
+a-location-inherits-its-readers	reach:Cargo.toml,reach:pyproject.toml,reach:scripts/check-origin.sh
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:Cargo.toml,reach:pyproject.toml,reach:scripts/check-origin.sh
+liability-is-recorded-from-the-act-that-makes-it-true	link:scripts/check-origin.sh,reach:scripts/check-origin.sh
+one-manifest-declares-each-package	link:pyproject.toml,reach:Cargo.toml,reach:pyproject.toml
+only-github-runs-what-lives-under-github	reach:scripts/check-origin.sh
+purba-meets-the-next-trait-solver-before-it-stabilizes	reach:Cargo.toml
+purba-parses-python-with-ruff	reach:Cargo.toml
+purba-supports-a-python-with-two-years-left	reach:Cargo.toml,reach:pyproject.toml
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	reach:scripts/check-origin.sh
+the-crate-carries-an-rlib	reach:Cargo.toml

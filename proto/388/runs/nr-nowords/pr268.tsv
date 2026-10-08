@@ -1,0 +1,6 @@
+a-location-inherits-its-readers	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+an-implementation-follows-test-driven-development	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+a-workflow-is-granted-an-identity-not-a-power	reach:.github/scripts/report-bump-failure.sh
+only-github-runs-what-lives-under-github	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats

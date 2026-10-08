@@ -1,0 +1,8 @@
+a-commit-outlives-its-review	link:.github/scripts/bump-nightly.sh
+a-gate-owns-the-mechanical	changed,link:mise.toml
+a-workflow-is-granted-an-identity-not-a-power	link:.github/workflows/bump.yml
+mise-names-every-tool-version	changed,link:.github/scripts/bump-nightly.sh,link:.github/workflows/bump.yml
+one-manifest-declares-each-package	changed
+purba-meets-the-next-trait-solver-before-it-stabilizes	changed,link:mise.toml
+purba-parses-python-with-ruff	changed
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	link:mise.toml

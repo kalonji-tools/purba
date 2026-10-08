@@ -1,0 +1,11 @@
+a-commit-outlives-its-review	link:docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md,link:.github/scripts/bump-nightly.sh
+a-gate-owns-the-mechanical	link:docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md,link:mise.toml
+a-location-inherits-its-readers	link:docs/decisions/only-github-runs-what-lives-under-github.md
+an-artifact-holds-the-minimum-that-conveys-its-point	changed,link:CONTRIBUTING.md,link:scripts/check-records.sh
+a-record-is-rewritten-not-amended	link:scripts/check-records.sh
+liability-is-recorded-from-the-act-that-makes-it-true	link:.github/scripts/carry-verdicts.sh,link:.github/scripts/check-run.sh,link:.github/scripts/require-green.sh,link:.github/scripts/write-acceptance-trailer.sh,link:.github/workflows/sign.yml,link:scripts/check-replayable.sh
+mise-names-every-tool-version	changed,link:.github/scripts/bump-nightly.sh
+only-github-runs-what-lives-under-github	changed,link:.github/scripts/write-acceptance-trailer.sh
+purba-borrows-from-simplified-technical-english-rather-than-adopting-it	link:docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+purba-meets-the-next-trait-solver-before-it-stabilizes	link:docs/decisions/mise-names-every-tool-version.md,link:mise.toml
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	changed

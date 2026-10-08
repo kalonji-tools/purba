@@ -1,0 +1,7 @@
+a-gate-owns-the-mechanical	reach:.github/workflows/quality.yml,reach:tasks.toml
+a-location-inherits-its-readers	reach:.github/workflows/quality.yml,reach:tasks.toml
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:.github/workflows/quality.yml,reach:tasks.toml
+a-workflow-is-granted-an-identity-not-a-power	reach:.github/workflows/quality.yml
+mise-names-every-tool-version	reach:.github/workflows/quality.yml
+only-github-runs-what-lives-under-github	reach:.github/workflows/quality.yml,reach:tasks.toml
+the-crate-carries-an-rlib	link:.github/workflows/quality.yml,reach:.github/workflows/quality.yml,reach:tasks.toml

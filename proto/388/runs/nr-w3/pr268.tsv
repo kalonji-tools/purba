@@ -1,0 +1,12 @@
+a-change-is-specified-before-it-is-built	word:issue,word:pull-request
+a-commit-outlives-its-review	word:commit-message
+a-location-inherits-its-readers	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats,word:commit-message,word:issue,word:pull-request
+an-artifact-is-rewritten-until-its-direction-is-agreed	word:issue,word:pull-request
+an-implementation-follows-test-driven-development	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats,word:pull-request
+an-outside-contribution-is-applied-not-merged	word:commit-message
+a-workflow-is-granted-an-identity-not-a-power	reach:.github/scripts/report-bump-failure.sh
+liability-is-recorded-from-the-act-that-makes-it-true	word:commit-message
+only-github-runs-what-lives-under-github	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats
+purba-meets-the-next-trait-solver-before-it-stabilizes	word:issue
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	reach:.github/scripts/report-bump-failure.sh,reach:scripts/test/report-bump-failure.bats

@@ -1,0 +1,5 @@
+a-gate-owns-the-mechanical	link:mise.toml
+a-location-inherits-its-readers	reach:mise.lock,reach:mise.toml
+mise-names-every-tool-version	reach:mise.lock,reach:mise.toml
+purba-meets-the-next-trait-solver-before-it-stabilizes	link:mise.toml,reach:mise.toml
+purba-supports-a-python-with-two-years-left	reach:mise.lock,reach:mise.toml

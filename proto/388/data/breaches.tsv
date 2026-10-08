@@ -1,0 +1,21 @@
+227	an-artifact-holds-the-minimum-that-conveys-its-point	A sentence described the record and stated nothing
+227	a-commit-outlives-its-review	A commit body restated two numbers its record holds
+234	an-unpublished-comment-carries-what-no-other-location-carries	Comment lines restated a record, the issue or the code
+234	an-artifact-holds-the-minimum-that-conveys-its-point	A comment and the issue body told the order of the work
+234	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	Two ideas in one sentence in six added record lines
+234	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	A passive verb in two added record lines
+234	a-term-belongs-to-the-glossary	The avoided word for an issue in a commit body, four test names and the issue body
+234	a-commit-outlives-its-review	A commit body restated its diff
+234	a-register-belongs-to-one-location	No section named what the reviewer must decide
+241	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	An AGENTS.md line ran to 42 words
+241	an-artifact-is-rewritten-until-its-direction-is-agreed	The spec changed in review, and no second part was posted
+247	an-unpublished-comment-carries-what-no-other-location-carries	A comment restated the record
+247	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	Two ideas joined with , and in record sentences
+247	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	The Decision Outcome opened in the passive
+247	an-artifact-holds-the-minimum-that-conveys-its-point	Considered Options told how the work arrived
+247	a-commit-outlives-its-review	Two commit bodies said the same thing
+271	a-record-is-rewritten-not-amended	A record linked the issue this pull request closes as open
+271	purba-borrows-from-simplified-technical-english-rather-than-adopting-it	, and joins, a passive with a known agent, and an opening gerund
+271	an-unpublished-comment-carries-what-no-other-location-carries	A _typos.toml comment restated the record its header names
+271	an-artifact-holds-the-minimum-that-conveys-its-point	A post pass reported an edit never pushed
+271	the-person-owns-the-decision-outcome	A Downside edit sat inside the Decision Outcome, and the body did not list it as drafted

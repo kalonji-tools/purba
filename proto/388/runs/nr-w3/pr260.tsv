@@ -1,0 +1,16 @@
+a-change-is-specified-before-it-is-built	reach:CONTRIBUTING.md,reach:tasks.toml,word:issue,word:pull-request
+a-commit-outlives-its-review	word:commit-message
+a-gate-owns-the-mechanical	link:mise.toml,reach:deny.toml,reach:tasks.toml
+a-location-inherits-its-readers	link:.readers,reach:CONTRIBUTING.md,reach:deny.toml,reach:mise.lock,reach:mise.toml,reach:.readers,reach:tasks.toml
+an-actor-is-what-it-does-not-what-it-is	link:.readers,reach:.readers
+an-artifact-holds-the-minimum-that-conveys-its-point	link:CONTRIBUTING.md,reach:CONTRIBUTING.md,reach:deny.toml,reach:mise.lock,reach:mise.toml,reach:.readers,reach:tasks.toml,word:commit-message,word:issue,word:pull-request
+an-artifact-is-rewritten-until-its-direction-is-agreed	word:issue,word:pull-request
+an-implementation-follows-test-driven-development	word:pull-request
+an-outside-contribution-is-applied-not-merged	word:commit-message
+liability-is-recorded-from-the-act-that-makes-it-true	word:commit-message
+one-manifest-declares-each-package	reach:mise.toml
+only-github-runs-what-lives-under-github	reach:tasks.toml
+purba-meets-the-next-trait-solver-before-it-stabilizes	link:mise.toml,reach:mise.toml,word:issue
+purba-supports-a-python-with-two-years-left	reach:mise.lock,reach:mise.toml
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	link:mise.toml,link:tasks.toml,reach:mise.toml,reach:tasks.toml
+the-crate-carries-an-rlib	reach:tasks.toml

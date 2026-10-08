@@ -1,0 +1,9 @@
+a-change-is-specified-before-it-is-built	changed
+a-location-inherits-its-readers	reach:AGENTS.md,reach:CLAUDE.md,reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:AGENTS.md,reach:CLAUDE.md,reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+an-artifact-is-rewritten-until-its-direction-is-agreed	changed
+a-record-is-rewritten-not-amended	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+a-register-belongs-to-one-location	changed
+a-term-belongs-to-the-glossary	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+purba-borrows-from-simplified-technical-english-rather-than-adopting-it	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+significance-is-declared-not-detected	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md

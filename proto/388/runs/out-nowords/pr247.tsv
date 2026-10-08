@@ -1,0 +1,16 @@
+a-commit-outlives-its-review	link:.github/scripts/bump-nightly.sh
+a-gate-owns-the-mechanical	changed,link:mise.toml
+a-location-inherits-its-readers	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:.github/scripts/bump-nightly.sh,reach:.github/workflows/bump.yml,reach:mise.toml,reach:pyproject.toml
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:.github/scripts/bump-nightly.sh,reach:.github/workflows/bump.yml,reach:mise.toml,reach:pyproject.toml
+a-record-is-rewritten-not-amended	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md
+a-term-belongs-to-the-glossary	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md
+a-workflow-is-granted-an-identity-not-a-power	link:.github/workflows/bump.yml,reach:.github/workflows/bump.yml
+mise-names-every-tool-version	changed,link:.github/scripts/bump-nightly.sh,link:.github/workflows/bump.yml
+one-manifest-declares-each-package	changed
+only-github-runs-what-lives-under-github	reach:.github/scripts/bump-nightly.sh,reach:.github/workflows/bump.yml
+purba-borrows-from-simplified-technical-english-rather-than-adopting-it	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md
+purba-meets-the-next-trait-solver-before-it-stabilizes	changed,link:mise.toml
+purba-parses-python-with-ruff	changed
+purba-supports-a-python-with-two-years-left	reach:mise.toml,reach:pyproject.toml
+purba-writes-its-scripts-in-bash-until-purba-can-test-them	link:mise.toml,reach:.github/scripts/bump-nightly.sh,reach:.github/workflows/bump.yml,reach:mise.toml
+significance-is-declared-not-detected	reach:docs/decisions/a-gate-owns-the-mechanical.md,reach:docs/decisions/mise-names-every-tool-version.md,reach:docs/decisions/one-manifest-declares-each-package.md,reach:docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md,reach:docs/decisions/purba-parses-python-with-ruff.md
