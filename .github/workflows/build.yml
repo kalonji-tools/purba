@@ -30,8 +30,8 @@ env:
   MISE_VERSION: 2026.9.14
 
 jobs:
-  # `.config/tasks.toml` carries a macOS workaround for this task and a note that
-  # Windows runs a task through cmd. Both are exercised only here.
+  # Only this job exercises the macOS workaround that `.config/tasks.toml`
+  # carries for this task.
   rust:
     name: rust ${{ matrix.os }}
     strategy:

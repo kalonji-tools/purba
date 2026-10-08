@@ -1,11 +1,11 @@
 # Every task purba runs. `.config/mise.toml` names which versions of a tool purba
-# accepts; this file names which tasks purba runs with them.
+# accepts; this file names which tasks purba runs with them. The shell every task
+# runs through, and each `{{vars.x}}` below, are set in `.config/mise.toml`.
 # https://mise.jdx.dev/tasks/
 
 ["apply-fork"]
 description = "Carry a contribution from a fork into this repository"
 hide = true
-shell = "bash -c"
 run = "scripts/apply-fork-contribution.sh"
 
 [build]
@@ -22,8 +22,7 @@ depends = ["fmt:*"]
 
 ["fmt:cargo-scripts"]
 description = "Rewrite the formatting of each cargo script"
-shell = "bash -c"
-run = "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024"
+run = "git ls-files -z {{vars.cargo_scripts}} | xargs -0 -r rustfmt --edition 2024"
 
 ["fmt:rust"]
 description = "Rewrite the Rust formatting"
@@ -31,8 +30,7 @@ run = "cargo fmt"
 
 ["fmt:shell"]
 description = "Rewrite the shell formatting"
-shell = "bash -c"
-run = "shfmt --write $(git ls-files '*.sh' '*.bats')"
+run = "shfmt --write $(git ls-files {{vars.shell_files}})"
 
 [lint]
 description = "Every lint, in one command"
@@ -41,11 +39,10 @@ depends = ["lint:*"]
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
 ["lint:cargo-scripts"]
 description = "Refuse an unformatted cargo script, or one that breaks a lint"
-shell = "bash -c"
 run = [
-  "git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024 --check",
+  "git ls-files -z {{vars.cargo_scripts}} | xargs -0 -r rustfmt --edition 2024 --check",
   '''
-git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+git ls-files {{vars.cargo_scripts}} | while read -r s; do
   cargo clippy -Zscript --release --locked --manifest-path "$s" --target-dir target/scripts \
     --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
 done
@@ -58,27 +55,22 @@ run = "cargo-deny check licenses"
 
 ["lint:links"]
 description = "Refuse a dead link, and a path a comment cites that git does not track"
-shell = "bash -c"
 run = "scripts/check-links.sh"
 
 ["lint:manifests"]
 description = "Refuse a package that two manifests declare, and any in pyproject.toml"
-shell = "bash -c"
 run = "scripts/check-manifests.sh"
 
 ["lint:placement"]
 description = "Refuse a script that sits in the wrong directory"
-shell = "bash -c"
 run = "scripts/check-placement.sh"
 
 ["lint:readers"]
 description = "Refuse a tracked file that reaches no actor, and a name off the roster"
-shell = "bash -c"
 run = "scripts/check-readers.sh"
 
 ["lint:records"]
 description = "Refuse a decision record that breaks a rule a command can decide"
-shell = "bash -c"
 run = "scripts/check-records.sh"
 
 ["lint:rust"]
@@ -87,10 +79,9 @@ run = ["cargo fmt --check", "cargo clippy --all-targets", "cargo doc --no-deps"]
 
 ["lint:shell"]
 description = "Refuse a shell defect or unformatted shell"
-shell = "bash -c"
 run = [
-  "shellcheck -x $(git ls-files '*.sh' '*.bats')",
-  "shfmt --diff $(git ls-files '*.sh' '*.bats')",
+  "shellcheck -x $(git ls-files {{vars.shell_files}})",
+  "shfmt --diff $(git ls-files {{vars.shell_files}})",
 ]
 
 ["lint:style"]
@@ -101,8 +92,6 @@ run = "ec"
 description = "Sign every commit on your branch. A person runs this, never an agent"
 # Hidden because that listing is what an agent reads to find what it may run.
 hide = true
-# cmd cannot exec a shebang.
-shell = "bash -c"
 run = "scripts/sign-branch.sh"
 
 [test]
@@ -112,9 +101,8 @@ depends = ["test:*"]
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
 ["test:cargo-scripts"]
 description = "Run the tests inside each cargo script"
-shell = "bash -c"
 run = '''
-git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+git ls-files {{vars.cargo_scripts}} | while read -r s; do
   cargo -Zscript test --release --locked --manifest-path "$s" --target-dir target/scripts \
     --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
 done
@@ -127,9 +115,7 @@ description = "Run the Rust tests"
 # interpreter's own library directory, and the binary aborts as it loads.
 # https://pyo3.rs/v0.29.2/building-and-distribution#dynamically-embedding-the-python-interpreter
 #
-# The assignment is rendered on macOS alone. Windows runs a task through `cmd`,
-# which reads neither this syntax nor the variable.
-# https://mise.jdx.dev/tasks/task-configuration.html
+# The assignment is rendered on macOS alone, the one platform that needs it.
 #
 #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 run = """

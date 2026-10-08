@@ -76,5 +76,13 @@ locked = true
 # compiled entry splits the lockfile by the platform that produced it.
 compile = false
 
+# https://mise.jdx.dev/configuration/vars.html
+[vars]
+cargo_scripts = "'scripts/*.rs' '.github/*.rs'"
+shell_files = "'*.sh' '*.bats'"
+
 [task_config]
 includes = [".config/tasks.toml"]
+# Windows otherwise runs a task through `cmd`, which cannot exec a shebang.
+# https://mise.jdx.dev/tasks/task-configuration.html
+shell = "bash -c -o errexit"
