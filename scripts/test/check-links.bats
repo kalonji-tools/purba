@@ -67,6 +67,17 @@ FAKE
   [[ "${output}" == *"b.md#title"* ]]
 }
 
+@test "a dead link is named when FORCE_COLOR is set" {
+  git rm --quiet b.md
+  settle
+
+  run env FORCE_COLOR=3 "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${offline}"* ]]
+  [[ "${output}" == *"b.md#title"* ]]
+}
+
 @test "a link to a heading that does not exist is refused" {
   write a.md '[the title](b.md#nope)'
   settle

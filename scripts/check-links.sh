@@ -54,12 +54,15 @@ done <<<"${written}"
 # Reports the dead links lychee finds, each path made relative to the top, and
 # stops the check when lychee cannot run. lychee exits 2 for a dead link and for
 # a mistake in how it was called, so a dead link is told apart by the line it
-# prints.
+# prints. In plain mode that line starts with `[`. The colour mode, lychee's
+# default whenever FORCE_COLOR turns colour on, can put spaces before it.
+# editorconfig-checker-disable-next-line
+# https://github.com/lycheeverse/lychee/blob/lychee-v0.24.2/lychee-bin/src/formatters/response/color.rs#L44
 links() {
   local summary=$1 files=$2 found dead status=0
   shift 2
-  found=$(lychee --no-progress --format compact "$@" --files-from - <<<"${files}" 2>&1) ||
-    status=$?
+  found=$(lychee --no-progress --mode plain --format compact "$@" --files-from - \
+    <<<"${files}" 2>&1) || status=$?
   [[ ${status} -ne 0 ]] || return 0
   found=${found//"file://${top}/"/}
   if [[ ${status} -eq 2 ]] && grep -q '^\[' <<<"${found}"; then

@@ -43,10 +43,11 @@ setup() {
 }
 
 @test "what a runner or a caller sets does not reach a test" {
-  export GITHUB_ACTIONS=true PURBA_REPORT="${BATS_TEST_TMPDIR}/report"
+  export GITHUB_ACTIONS=true PURBA_REPORT="${BATS_TEST_TMPDIR}/report" FORCE_COLOR=3
 
   isolate
 
   [[ -z "${GITHUB_ACTIONS:-}" ]]
   [[ -z "${PURBA_REPORT:-}" ]]
+  [[ -z "${FORCE_COLOR:-}" ]]
 }
