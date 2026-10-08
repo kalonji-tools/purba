@@ -87,19 +87,19 @@ A programme is a milestone, not a record.
 | a sentence stays on one line | strong |
 | a Confirmation that says a gate is unwired names the issue that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
 
-The command refuses nothing at a commit and nothing at a merge.
+`mise run lint` runs the command, `Quality` runs `mise run lint` on each pull request, and `protect-main` requires `Quality`.
+So the command refuses a broken record at a merge, and nothing runs it at a commit.
 Whether a sentence admits an unwired gate is a judgement, so the check that finds one may suggest and may not gate.
-It is run by hand before a pull request opens.
-[Audit the decision records for alignment, cohesion and truth](https://github.com/kalonji-tools/purba/issues/89) repairs the records it refuses, and the command joins the quality gate once they land.
+The command lists each record whose Confirmation holds a phrase that admits one and names no issue, and refuses none of them.
 
-Whether an issue that a record says owes work is still open is read by the same reader, and no check decides it.
+The code owner reads whether an issue that a record says owes work is still open, and no check decides it.
 A record cites two kinds of issue.
 The first is one it waits on, and it must be open.
 The second records where a measurement was made, and it is closed by the time it is cited.
 One record here cites both, so a state check alone refuses it wrongly.
 
 A merged record links an issue that closed while the gate it owned stayed unwired, and nothing read the two together.
-The fourth check reads the link and never the claim, because the link is the part a command can decide.
+The check for an unwired gate reads the link and never the claim, because the link is the part a command can decide.
 
 Two things are never gateable: whether a record states one decision, and whether it is still true.
 The code owner judges both, and is the only reader who can.
