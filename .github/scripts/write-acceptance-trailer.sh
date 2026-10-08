@@ -27,10 +27,13 @@ set -euo pipefail
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
 reviews=$(gh api "repos/${GH_REPO}/pulls/${PR}/reviews" --paginate)
-approver=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.login // empty' \
-  <<<"${reviews}")
-approver_id=$(jq -r '[.[] | select(.state == "APPROVED")] | last | .user.id // empty' \
-  <<<"${reviews}")
+stands=$(jq -c '
+  to_entries | map(.value + {order: .key})
+  | map(select(.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))
+  | group_by(.user.id) | map(max_by(.order)) | map(select(.state == "APPROVED"))
+  | max_by(.order) // empty' <<<"${reviews}")
+approver=$(jq -r '.user.login // empty' <<<"${stands}")
+approver_id=$(jq -r '.user.id // empty' <<<"${stands}")
 
 # With no approval, write no check at all. A missing check already
 # blocks the merge, so this job stops here and succeeds.
