@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# The links that resolve to nothing, and the paths a comment cites that git
-# does not track.
+# The links that resolve to nothing, the paths a comment cites that git does not
+# track, and each `mise run` of a task that does not exist.
 #
-#   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+#   the decisions: docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+#                  docs/decisions/a-task-is-named-for-what-it-does-to-the-tree.md
 #   the task:      mise run lint:links
 #   the settings:  pyproject.toml, under `[tool.lychee]`
 #
@@ -11,7 +12,7 @@
 #   PURBA_BASE   the commit this branch is compared with. Without it, the merge
 #                base with origin/main
 #
-# Exits 1 when it refuses a link or a path, and 2 when it cannot run.
+# Exits 1 when it refuses a link, a path or a task, and 2 when it cannot run.
 #
 # It reports every refusal before it exits, because an author repairing one
 # should not have to run it again to find the next.
@@ -136,5 +137,37 @@ done <<<"${comments}"
   "A path that a comment cites is refused when git does not track it. A renamed file \
 leaves every comment that cites it pointing nowhere." \
   "${missing[@]}"
+
+# The roster is what mise runs, with its includes and its hidden tasks. A second
+# run reads why mise failed, because the first keeps its warnings out of the JSON.
+if ! listed=$(mise tasks ls --hidden --json 2>/dev/null); then
+  why=$(mise tasks ls --hidden --json 2>&1 >/dev/null || true)
+  cannot 'the tasks cannot be listed.' "${why}"
+fi
+names=$(jq -r '.[].name' <<<"${listed}") ||
+  cannot 'mise listed the tasks in a form jq cannot read.' "${listed}"
+
+# What follows the name is its arguments. A placeholder such as `<name>` does not
+# start with a letter, so it is not read.
+citations=$(git -c core.quotePath=false grep -n -I -o -E 'mise run +[a-z][a-z0-9:_-]*' -- \
+  . "${authored}") || {
+  status=$?
+  [[ ${status} -eq 1 ]] ||
+    cannot 'the citations of a task cannot be read.'
+  citations=""
+}
+unknown=()
+while IFS= read -r hit; do
+  [[ -n "${hit}" ]] || continue
+  file=${hit%%:*}
+  rest=${hit#*:}
+  grep -qxF -e "${hit##* }" <<<"${names}" ||
+    unknown+=("${file}:${rest%%:*}: ${rest#*:}")
+done <<<"${citations}"
+
+[[ ${#unknown[@]} -eq 0 ]] || refuse \
+  "A \`mise run\` in a tracked file is refused when no task has that name. A renamed task \
+leaves every citation of its old name failing for the reader who runs it." \
+  "${unknown[@]}"
 
 finish

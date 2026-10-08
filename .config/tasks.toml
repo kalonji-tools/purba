@@ -54,7 +54,7 @@ description = "Refuse a dependency whose licence is not on the allowlist"
 run = "cargo-deny check licenses"
 
 ["lint:links"]
-description = "Refuse a dead link, and a path a comment cites that git does not track"
+description = "Refuse a dead link, an untracked path a comment cites, and a `mise run` of no task"
 run = "scripts/check-links.sh"
 
 ["lint:manifests"]

@@ -1,4 +1,4 @@
-# scripts/check-links.sh against the links and the cited paths it refuses.
+# scripts/check-links.sh against the links, the cited paths and the tasks it refuses.
 : "${BATS_TEST_DIRNAME:?set by bats}"
 
 setup() {
