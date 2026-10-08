@@ -132,6 +132,7 @@ origin_holds() {
   printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' >scripts/check-replayable.sh
   git commit --quiet --all --message "chore: a replay check that prints one head" \
     --message "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet origin work
   printed=$(git commit-tree -p HEAD -m "feat: as replayed" 'HEAD^{tree}')
   echo "${printed}" >"${BATS_TEST_TMPDIR}/printed"
 
@@ -141,6 +142,22 @@ origin_holds() {
   origin_holds "${printed}"
   asked=$(calls gh)
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${printed} -f status=completed"* ]]
+}
+
+@test "a commit pushed after the checkout stays on the branch, and nothing is accepted" {
+  git switch --quiet --create elsewhere
+  commit "feat: three" "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet origin elsewhere:work
+  moved=$(git rev-parse HEAD)
+  git switch --quiet work
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  origin_holds "${moved}"
+  [[ ! -s "${GITHUB_OUTPUT}" ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"--method POST"* ]]
 }
 
 @test "the approval that came last is the one accepted, and a comment is not one" {

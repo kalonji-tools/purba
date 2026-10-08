@@ -125,8 +125,10 @@ if [[ "${status}" -ne 0 ]]; then
   post_refusal "${status}"
 fi
 
+# Never a plain --force: it drops a commit pushed after the checkout.
 if [[ "${head_sha}" != "${before}" ]]; then
-  git push --force origin "${head_sha}:refs/heads/${HEAD_REF}"
+  git push --force-with-lease="refs/heads/${HEAD_REF}:${before}" origin \
+    "${head_sha}:refs/heads/${HEAD_REF}"
 fi
 
 accepted_summary="Every commit on this branch carries an \`Accepted-by:\` trailer \
