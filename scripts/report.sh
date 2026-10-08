@@ -63,5 +63,5 @@ emit() {
     return
   fi
   [[ -z "${detail}" ]] || detail=%0A${detail//%/%25}
-  printf '::error::%s%s\n' "${summary}" "${detail//$'\n'/%0A}"
+  printf '::error::%s%s\n' "${summary}" "${detail//$'\n'/%0A}" >&2
 }

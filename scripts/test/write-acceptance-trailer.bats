@@ -1,5 +1,6 @@
 # .github/scripts/write-acceptance-trailer.sh against the branches it accepts and refuses.
 : "${BATS_TEST_DIRNAME:?set by bats}"
+bats_require_minimum_version 1.5.0
 
 setup() {
   # shellcheck source=scripts/test/fixture.sh
@@ -282,14 +283,16 @@ origin_holds() {
   [[ "${asked}" == *"A commit is refused when it replays empty"* ]]
 }
 
-@test "on a runner the refusal of the replay check reaches the log" {
+@test "on a runner the refusal of the replay check reaches the log once, on stderr" {
   git commit --quiet --allow-empty --message "feat: nothing" \
     --message "Signed-off-by: A Person <person@example.invalid>"
 
-  GITHUB_ACTIONS=true run "${script}"
+  GITHUB_ACTIONS=true run --separate-stderr "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"::error::A commit is refused when it replays empty"* ]]
+  [[ "${output}" != *"::error::"* ]]
+  refusals=$(grep -cF "::error::A commit is refused when it replays empty" <<<"${stderr}")
+  [[ "${refusals}" -eq 1 ]]
 }
 
 @test "a branch whose replay changes its content is refused, and nothing is pushed" {

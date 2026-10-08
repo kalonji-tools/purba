@@ -17,14 +17,15 @@
 # cannot run.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
+
 if [[ $# -ne 2 ]]; then
-  echo "usage: release.sh <branch> <issue>" >&2
-  exit 2
+  cannot "usage: release.sh <branch> <issue>"
 fi
 
 if [[ -z "${GH_REPO:-}" ]]; then
-  echo "GH_REPO is set by the workflow env, and it is empty here." >&2
-  exit 2
+  cannot "GH_REPO is set by the workflow env, and it is empty here."
 fi
 
 branch=$1
@@ -32,8 +33,7 @@ issue=$2
 
 case "${issue}" in
   '' | 0 | *[!0-9]*)
-    echo "release.sh needs an issue number, and was given '${issue}'." >&2
-    exit 2
+    cannot "release.sh needs an issue number, and was given '${issue}'."
     ;;
   *) ;;
 esac
@@ -47,9 +47,8 @@ email="41898282+github-actions[bot]@users.noreply.github.com"
 as_bot=(-c "user.name=${author}" -c "user.email=${email}")
 
 if ! git diff --quiet HEAD --; then
-  echo "release.sh needs a clean tree, because it rewinds to one." >&2
-  git --no-pager status --short >&2
-  exit 2
+  dirty=$(git --no-pager status --short)
+  cannot "release.sh needs a clean tree, because it rewinds to one." "${dirty}"
 fi
 
 # The version the `[package]` table names, read from standard input, since only
@@ -63,8 +62,7 @@ read_version() {
 
 version=$(read_version <"${manifest}")
 if [[ -z "${version}" ]]; then
-  echo "::error::${manifest} names no package version this script can read" >&2
-  exit 2
+  cannot "${manifest} names no package version this script can read"
 fi
 
 if [[ "${version}" != 0.0.0 ]] &&
@@ -72,8 +70,7 @@ if [[ "${version}" != 0.0.0 ]] &&
   # The newest commit whose parent named another version, read from the table
   # alone, since a dependency table can name the same version.
   if ! touched=$(git log --format=%H -- "${manifest}"); then
-    echo "::error::the history of ${manifest} could not be read" >&2
-    exit 2
+    cannot "the history of ${manifest} could not be read"
   fi
   wrote=""
   for commit in ${touched}; do
@@ -88,13 +85,11 @@ if [[ "${version}" != 0.0.0 ]] &&
   done
   echo "tagging v${version} on ${wrote}"
   if ! git "${as_bot[@]}" tag --annotate --message "v${version}" "v${version}" "${wrote}"; then
-    echo "::error::v${version} could not be tagged" >&2
-    exit 2
+    cannot "v${version} could not be tagged"
   fi
   if ! git push origin "refs/tags/v${version}"; then
     git tag --delete "v${version}" >/dev/null
-    echo "::error::v${version} could not be pushed" >&2
-    exit 2
+    cannot "v${version} could not be pushed"
   fi
   [[ -z "${GITHUB_OUTPUT:-}" ]] || echo "tag=v${version}" >>"${GITHUB_OUTPUT}"
   exit 0
@@ -104,8 +99,7 @@ fi
 # the head that refused it, and the logs hanging off that head.
 if ! open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
   '.[].number'); then
-  echo "the open pull requests on ${branch} could not be read." >&2
-  exit 2
+  cannot "the open pull requests on ${branch} could not be read."
 fi
 if [[ -n "${open}" ]]; then
   echo "pull request #${open} is already proposing a release on ${branch}, so this run stands down"
@@ -113,8 +107,7 @@ if [[ -n "${open}" ]]; then
 fi
 
 if ! next=$(git-cliff --bumped-version); then
-  echo "::error::git-cliff could not compute the next version" >&2
-  exit 2
+  cannot "git-cliff could not compute the next version"
 fi
 if [[ "${next}" == "v${version}" ]]; then
   echo "nothing since v${version} is released, so there is nothing to propose"
@@ -134,14 +127,12 @@ sed -i "/^name = \"purba\"$/{n;s/^version = \".*\"$/version = \"${next}\"/}" "${
 written=$(read_version <"${manifest}")
 if [[ "${written}" != "${next}" ]] || git diff --quiet -- "${lock}"; then
   restore
-  echo "::error::the version could not be written into ${manifest} and ${lock}" >&2
-  exit 2
+  cannot "the version could not be written into ${manifest} and ${lock}"
 fi
 
 if ! git-cliff --bump --output "${changelog}"; then
   restore
-  echo "::error::git-cliff could not write ${changelog}" >&2
-  exit 2
+  cannot "git-cliff could not write ${changelog}"
 fi
 
 subject="chore(release): cut v${next} (#${issue})"
@@ -151,8 +142,7 @@ git add -- "${changelog}"
 if ! git "${as_bot[@]}" commit --quiet -m "${subject}" -- \
   "${manifest}" "${lock}" "${changelog}"; then
   restore
-  echo "::error::the release could not be committed" >&2
-  exit 2
+  cannot "the release could not be committed"
 fi
 
 # The branch outlives a closed pull request, so this replaces it. The caller
@@ -161,8 +151,7 @@ pushed=0
 git push --force origin "HEAD:refs/heads/${branch}" || pushed=$?
 restore
 if [[ ${pushed} -ne 0 ]]; then
-  echo "::error::the proposal could not be pushed to ${branch}" >&2
-  exit 2
+  cannot "the proposal could not be pushed to ${branch}"
 fi
 
 body=$(
@@ -196,6 +185,5 @@ BODY
 if ! gh pr create --repo "${GH_REPO}" --base main --head "${branch}" \
   --title "${subject}" \
   --body "${body}"; then
-  echo "::error::${branch} is pushed, and its pull request could not be opened" >&2
-  exit 2
+  cannot "${branch} is pushed, and its pull request could not be opened"
 fi

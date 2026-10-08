@@ -1,5 +1,6 @@
 # .github/scripts/require-abi3.sh against the wheels it refuses.
 : "${BATS_TEST_DIRNAME:?set by bats}"
+bats_require_minimum_version 1.5.0
 
 setup() {
   # shellcheck source=scripts/test/fixture.sh
@@ -39,6 +40,20 @@ wheels() {
   [[ "${output}" == *"cp312-abi3"* ]]
   [[ "${output}" == *"purba-0.1.0-cp314-cp314t-manylinux_2_34_x86_64.whl"* ]]
   [[ "${output}" != *"win_amd64"* ]]
+}
+
+@test "on a runner, the annotation names each wheel it refuses" {
+  wheels purba-0.1.0-cp312-abi3-win_amd64.whl \
+    purba-0.1.0-cp313-abi3-win_amd64.whl \
+    purba-0.1.0-cp314-cp314t-manylinux_2_34_x86_64.whl
+
+  GITHUB_ACTIONS=true run --separate-stderr "${script}" dist
+
+  [[ "${status}" -eq 1 ]]
+  annotation=$(grep '^::error::' <<<"${stderr}")
+  [[ "${annotation}" == *"%0A  purba-0.1.0-cp313-abi3-win_amd64.whl"* ]]
+  [[ "${annotation}" == *"%0A  purba-0.1.0-cp314-cp314t-manylinux_2_34_x86_64.whl"* ]]
+  [[ "${annotation}" != *"cp312-abi3-win_amd64"* ]]
 }
 
 @test "an abi3 wheel at another floor is refused" {
