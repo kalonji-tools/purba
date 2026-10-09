@@ -143,8 +143,8 @@ merged() {
 
 @test "a pull request that changes no script prints nothing and says so" {
   echo more >>docs/note.md
-  echo task >tasks.toml
-  echo lock >mise.lock
+  mkdir -p .config && echo "[tools]" >.config/mise.toml
+  echo lock >.config/mise.lock
   merged
 
   run --separate-stderr "${script}" HEAD^1 HEAD
