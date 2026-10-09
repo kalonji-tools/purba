@@ -260,3 +260,23 @@ FAKE
   accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
   [[ -z "${accepted}" ]]
 }
+
+@test "a .github/CODEOWNERS that cannot be read exits 2 and pushes nothing" {
+  run "${script}" 7
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *".github/CODEOWNERS could not be read, so nothing was pushed."* ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
+}
+
+@test "a .github/CODEOWNERS that is a directory exits 2 and pushes nothing" {
+  mkdir .github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *".github/CODEOWNERS could not be read, so nothing was pushed."* ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
+}
