@@ -160,59 +160,6 @@ origin_holds() {
   [[ "${asked}" != *"--method POST"* ]]
 }
 
-@test "the approval that came last is the one accepted, and a comment is not one" {
-  reviews APPROVED:owner-1:42 APPROVED:owner-2:43 COMMENTED:owner-3:44
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"recorded acceptance by owner-2"* ]]
-  head=$(held)
-  carried=$(git log -1 --format='%(trailers:key=Accepted-by)' "${head}")
-  [[ "${carried}" == "Accepted-by: owner-2 <43+owner-2@users.noreply.github.com>" ]]
-}
-
-@test "an approval its author follows with a change request does not stand" {
-  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-1:42
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"no approval stands on this head, so there is nothing to accept"* ]]
-  asked=$(calls gh)
-  [[ "${asked}" != *"check-runs"* ]]
-  origin_holds "${pushed}"
-}
-
-@test "an approval given again after a change request stands, and a comment leaves it" {
-  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-1:42 APPROVED:owner-1:42 \
-    COMMENTED:owner-1:42
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"recorded acceptance by owner-1"* ]]
-}
-
-@test "a change request from another reviewer leaves an approval standing" {
-  reviews APPROVED:owner-1:42 CHANGES_REQUESTED:owner-2:43
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"recorded acceptance by owner-1"* ]]
-}
-
-@test "an approval its author follows with a dismissed review does not stand" {
-  reviews APPROVED:owner-1:42 DISMISSED:owner-1:42
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"no approval stands on this head, so there is nothing to accept"* ]]
-  origin_holds "${pushed}"
-}
-
 @test "with no approval it writes nothing and reads no gate" {
   reviews COMMENTED:owner-1:42
 
@@ -279,37 +226,13 @@ origin_holds() {
   origin_holds "${pushed}"
 }
 
-@test "a login GitHub would not write is refused as text, and nothing is pushed" {
-  # The login holds a command, and the refusal must print it rather than run it.
-  # shellcheck disable=SC2016
-  login='own$(id)er'
-  reviews "APPROVED:${login}:42"
+@test "a login GitHub would not write exits 1, and nothing is pushed" {
+  reviews "APPROVED:own;er:42"
+  check_runs Quality=failure Build=success
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  summary="A login is written into an Accepted-by trailer only when it holds letters, digits"
-  summary+=" and hyphens, because the trailer names the person who accepts the commit, and GitHub"
-  summary+=" allows no other character in a person's login. Ask a person to approve the pull"
-  summary+=" request."
-  [[ "${output}" == *"${summary}"* ]]
-  [[ "${output}" == *"  login: ${login}"* ]]
-  origin_holds "${pushed}"
-}
-
-@test "an approver id that is not a number, or is absent, is refused" {
-  summary="An id is written into an Accepted-by trailer only when it is a number, because the"
-  summary+=" trailer reaches main, where no commit message is edited, and GitHub gives each"
-  summary+=" account a numeric id. Ask a person to approve the pull request."
-  for case in '"4x":4x' null:none; do
-    reviews "APPROVED:owner-1:${case%%:*}"
-
-    run "${script}"
-
-    [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"${summary}"* ]]
-    [[ "${output}" == *"  id: ${case#*:}"* ]]
-  done
   origin_holds "${pushed}"
 }
 

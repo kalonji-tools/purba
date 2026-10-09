@@ -5,9 +5,10 @@
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when it
-# cannot read or write a check run. Any other command that fails exits with its
-# own code, which can be 1.
+# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when the
+# reviews gh returns are not ones the rule can read, or when it cannot read or
+# write a check run. Any other command that fails exits with its own code, which
+# can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
@@ -21,19 +22,14 @@ set -euo pipefail
 
 # shellcheck source=.github/scripts/check-run.sh
 . "$(dirname "$0")/check-run.sh"
-# shellcheck source=scripts/report.sh
-. "$(dirname "$0")/../../scripts/report.sh"
+# shellcheck source=.github/scripts/standing-approver.sh
+. "$(dirname "$0")/standing-approver.sh"
 
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
 reviews=$(gh api "repos/${GH_REPO}/pulls/${PR}/reviews" --paginate)
-stands=$(jq -c '
-  to_entries | map(.value + {order: .key})
-  | map(select(.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))
-  | group_by(.user.id) | map(max_by(.order)) | map(select(.state == "APPROVED"))
-  | max_by(.order) // empty' <<<"${reviews}")
-approver=$(jq -r '.user.login // empty' <<<"${stands}")
-approver_id=$(jq -r '.user.id // empty' <<<"${stands}")
+stands=$(standing_approver <<<"${reviews}")
+read -r approver approver_id <<<"${stands}"
 
 # With no approval, write no check at all. A missing check already
 # blocks the merge, so this job stops here and succeeds.
@@ -57,27 +53,6 @@ case "${status}" in
   *)
     cannot "the gates on this head could not be read, so nothing was decided."
     ;;
-esac
-
-case "${approver}" in
-  *[!A-Za-z0-9-]*)
-    refuse "A login is written into an Accepted-by trailer only when it holds letters, digits \
-and hyphens, because the trailer names the person who accepts the commit, and GitHub allows \
-no other character in a person's login. Ask a person to approve the pull request." \
-      "login: ${approver}"
-    finish
-    ;;
-  *) ;;
-esac
-case "${approver_id}" in
-  "" | *[!0-9]*)
-    refuse "An id is written into an Accepted-by trailer only when it is a number, because the \
-trailer reaches main, where no commit message is edited, and GitHub gives each account a \
-numeric id. Ask a person to approve the pull request." \
-      "id: ${approver_id:-none}"
-    finish
-    ;;
-  *) ;;
 esac
 
 # The numeric id survives a username change. A username-only address
