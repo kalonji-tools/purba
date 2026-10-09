@@ -14,6 +14,8 @@ set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
+# shellcheck source=scripts/reach.sh
+. "$(dirname "$0")/reach.sh"
 
 dir=${1:-docs/decisions}
 
@@ -55,10 +57,7 @@ Confirmation keeps a record from going stale. Consequences is optional and sits 
 outcome and the confirmation." \
   "${found[@]}"
 
-# The first paragraph under the Decision Outcome heading, which opens with
-# `**Reach:**` and names a location as a code span or as a link to the
-# glossary. A reach can wrap, so the whole paragraph is read. A record with no
-# such heading is refused above.
+# A record with no Decision Outcome heading is refused above.
 #
 #   the decision:  docs/decisions/a-record-names-every-location-where-it-applies.md
 tick=$'\x60'
@@ -67,14 +66,7 @@ location="^\*\*Reach:\*\* .*(${one})"
 declare -A reach=()
 found=()
 for f in "${records[@]}"; do
-  # The line the paragraph starts on, then the paragraph. A heading where the
-  # paragraph should be gives its line and nothing else.
-  paragraph=$(awk '
-    /^## Decision Outcome$/ { at = 1; next }
-    at && !NF { if (shown) exit; next }
-    at && /^#/ { if (!shown) print NR; exit }
-    at { if (!shown) print NR; shown = 1; print }
-  ' "${f}")
+  paragraph=$(reach_paragraph <"${f}")
   [[ -n "${paragraph}" ]] || continue
   text=""
   [[ "${paragraph}" != *$'\n'* ]] || text=${paragraph#*$'\n'}
@@ -255,10 +247,9 @@ if [[ ${#found[@]} -gt 0 ]]; then
   printf '  %s\n' "${found[@]}"
 fi
 
-# Each pattern a reach writes in a code span, matched as git matches an
-# attribute, which is not how it matches a pathspec. A pattern can match nothing
-# on purpose, so each one is listed and none is refused. Outside a git
-# repository no file is tracked, and nothing is matched.
+# Each pattern a reach writes in a code span is matched against the tracked
+# files. Outside a git repository no file is tracked, and nothing is
+# matched.
 if top=$(git rev-parse --show-toplevel 2>/dev/null); then
   # git writes NUL-separated output, which a shell variable cannot hold.
   scratch=$(mktemp -d)
@@ -276,19 +267,14 @@ if top=$(git rev-parse --show-toplevel 2>/dev/null); then
   done
 
   if [[ ${#patterns[@]} -gt 0 ]]; then
-    # A template can carry an info/attributes file, so the empty repository takes none.
-    git init --quiet --template= "${scratch}/empty" ||
-      cannot "git cannot make the empty repository a reach is matched in."
     git -C "${top}" ls-files -z >"${scratch}/files" ||
       cannot "git cannot list the tracked files."
-    GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${scratch}/reaches" \
-      check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" ||
-      cannot 'git cannot match the patterns of a reach.'
+    reach_match "${scratch}" "${scratch}/reaches" "${scratch}/files" >"${scratch}/matched"
 
     declare -A matched=()
-    while IFS= read -r -d '' _ && IFS= read -r -d '' name && IFS= read -r -d '' state; do
-      [[ "${state}" != set ]] || matched[${name}]=1
-    done <"${scratch}/attributes"
+    while IFS= read -r -d '' attribute && IFS= read -r -d '' _; do
+      matched[${attribute}]=1
+    done <"${scratch}/matched"
 
     found=()
     for i in "${!patterns[@]}"; do
