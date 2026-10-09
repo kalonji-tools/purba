@@ -10,7 +10,10 @@ setup() {
   record=docs/decisions/a-record-holds.md
   borrowed="borrowed from Simplified Technical English"
   unwired="a Confirmation that admits an unwired gate and names no issue"
+  unmatched="a pattern in a reach that matches no tracked file"
+  reach="**Reach:** \`docs/decisions/*.md\`"
   compliant >"${record}"
+  git add "${record}"
 }
 
 # A record no rule refuses. Each test changes one thing in it.
@@ -27,6 +30,8 @@ Something needs a decision.
 - **This.** Chosen.
 
 ## Decision Outcome
+
+**Reach:** `docs/decisions/*.md`
 
 **This is decided.**
 
@@ -239,7 +244,7 @@ words() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A Downside label stands on its own line"* ]]
   [[ "${output}" != *"A Downside label never counts its costs"* ]]
-  [[ "${output}" == *"${record}:15"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
 }
 
 @test "a Downside label that counts its costs is refused for both" {
@@ -279,7 +284,7 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A record states its costs as a list under a Downside label"* ]]
-  [[ "${output}" == *"${record}:15"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
 }
 
 @test "a cost with no bold lead-in is refused" {
@@ -289,7 +294,7 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"Bold marks every Downside lead-in"* ]]
-  [[ "${output}" == *"${record}:15: 0 lead-ins over 1 costs"* ]]
+  [[ "${output}" == *"${record}:17: 0 lead-ins over 1 costs"* ]]
 }
 
 @test "two costs on one line are refused" {
@@ -298,7 +303,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:15: 2 lead-ins over 1 costs"* ]]
+  [[ "${output}" == *"${record}:17: 2 lead-ins over 1 costs"* ]]
 }
 
 @test "a numbered citation is refused in a record and passes outside one" {
@@ -414,6 +419,7 @@ words() {
 }
 
 @test "outside a git repository it reads the records" {
+  swap "${reach}" "${reach} \`nowhere/**\`"
   mkdir -p "${BATS_TEST_TMPDIR}/bare/docs/decisions"
   cp "${record}" "${BATS_TEST_TMPDIR}/bare/docs/decisions/"
   cd "${BATS_TEST_TMPDIR}/bare"
@@ -421,6 +427,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unmatched}"* ]]
 }
 
 @test "each phrase that admits an unwired gate is reported when no issue is named" {
@@ -532,4 +539,133 @@ words() {
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"articles                         2 in    20 words"* ]]
   [[ "${output}" == *"formal words                     0 in    20 words"* ]]
+}
+
+@test "a Decision Outcome that does not open with a reach is refused" {
+  swap "${reach}"$'\n\n' ""
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  [[ "${output}" == *"${record}:13"* ]]
+}
+
+@test "a reach below the first line of the Decision Outcome is refused" {
+  swap "${reach}"$'\n\n**This is decided.**' $'**This is decided.**\n\n'"${reach}"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  [[ "${output}" == *"${record}:13"* ]]
+}
+
+@test "a pattern that matches no tracked file is listed, and refused nowhere" {
+  swap "${reach}" "${reach} \`nowhere/**\`"
+  mkdir nowhere
+  printf 'untracked\n' >nowhere/file
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unmatched}"$'\n\n  '"${record}: nowhere/**"* ]]
+  [[ "${output}" != *": docs/decisions/*.md"* ]]
+}
+
+@test "a pattern is matched as gitattributes matches it, not as a pathspec" {
+  swap "${reach}" "**Reach:** \`docs/*.md\` \`a-record-holds.md\`"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unmatched}"$'\n\n  '"${record}: docs/*.md"* ]]
+  [[ "${output}" != *": a-record-holds.md"* ]]
+}
+
+@test "a glossary word in a reach is not a pattern" {
+  swap "${reach}" "**Reach:** [commit message](../../CONTEXT.md#commit-message)"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unmatched}"* ]]
+}
+
+@test "on a runner a pattern that matches nothing writes no annotation" {
+  swap "${reach}" "${reach} \`nowhere/**\`"
+
+  GITHUB_ACTIONS=true run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"::error::"* ]]
+  [[ "${output}" == *"${unmatched}"* ]]
+}
+
+@test "a reach that names no location is refused" {
+  swap "${reach}" "**Reach:** each location where a change makes this record apply"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"its glossary word, linked to its CONTEXT.md entry"* ]]
+  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  [[ "${output}" == *"${record}:13"* ]]
+}
+
+@test "a reach is not prose, so its length and its words are not counted" {
+  printf -v many "\`p%d/**\` " {1..30}
+  swap "${reach}" "${reach} ${many% }"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"runs to 25 words"* ]]
+  [[ "${output}" == *"articles                         2 in    20 words"* ]]
+}
+
+@test "a reach that wraps is read whole, so a pattern on its second line is listed" {
+  swap "${reach}" "${reach}"$'\n'"\`nowhere/**\`"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"${unmatched}"$'\n\n  '"${record}: nowhere/**"* ]]
+}
+
+@test "a reach quoted before the Decision Outcome is not the reach" {
+  prose "Something needs a decision."$'\n\n```\n'"**Reach:** \`nowhere/**\`"$'\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"nowhere/**"* ]]
+}
+
+@test "a paragraph that opens with Reach outside the Decision Outcome is prose" {
+  words 26
+  prose "**Reach:** ${filler}end."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"runs to 25 words"* ]]
+}
+
+@test "a reach that holds prose beside its locations is refused" {
+  swap "${reach}" "${reach}"$'\n'"It has never read the records."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A Decision Outcome opens with a reach"*"and holds nothing else"* ]]
+  [[ "${output}" == *"${record}:13"* ]]
+}
+
+@test "a reach of words and patterns across two lines passes" {
+  swap "${reach}" "${reach} [commit message](../../CONTEXT.md#commit-message)"$'\n'"\`chorestart\`"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
 }

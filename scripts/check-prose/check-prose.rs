@@ -370,6 +370,20 @@ impl<'a> Record<'a> {
 
     fn open(&mut self, walk: &mut Walk, tag: &Tag, range: &Range<usize>) {
         match tag {
+            // A reach is a list of locations, so it is hidden like a heading.
+            // Only the paragraph that opens the Decision Outcome is one.
+            Tag::Paragraph
+                if self.text[range.start..].starts_with("**Reach:**")
+                    && self.text[..range.start]
+                        .trim_end()
+                        .lines()
+                        .last()
+                        .is_some_and(|line| line == "## Decision Outcome") =>
+            {
+                self.flush(walk.current.take());
+                walk.hidden += 1;
+                walk.reach = true;
+            }
             Tag::Paragraph => {
                 self.flush(walk.current.take());
                 let top = walk.quoted == 0 && walk.nested == 0;
@@ -417,6 +431,10 @@ impl<'a> Record<'a> {
 
     fn close(&mut self, walk: &mut Walk, tag: TagEnd) {
         match tag {
+            TagEnd::Paragraph if walk.reach => {
+                walk.hidden -= 1;
+                walk.reach = false;
+            }
             TagEnd::Paragraph | TagEnd::TableCell | TagEnd::List(_) | TagEnd::Table => {
                 self.flush(walk.current.take());
             }
@@ -552,6 +570,7 @@ struct Walk {
     hidden: usize,
     linked: usize,
     link: usize,
+    reach: bool,
 }
 
 impl Walk {
@@ -793,6 +812,11 @@ mod tests {
         Record::read("r.md", text, &dictionary).tally.passives
     }
 
+    fn sentences(text: &str) -> u32 {
+        let dictionary = dictionary("");
+        Record::read("r.md", text, &dictionary).tally.sentences
+    }
+
     // The bare lines and the prose lines that evidence density counts.
     fn density(text: &str) -> (u32, u32) {
         let dictionary = dictionary("");
@@ -910,6 +934,29 @@ mod tests {
         let text = format!("> {}end — and **so** on.\n", filler(25));
         assert_eq!(findings(&text), [] as [&str; 0]);
         assert_eq!(density(&text), (0, 0));
+    }
+
+    #[test]
+    fn a_reach_is_not_prose() {
+        let text = format!(
+            "## Decision Outcome\n\n**Reach:** {}\n[a word](a.md#a)\n",
+            "`p/**` ".repeat(30)
+        );
+        assert_eq!(findings(&text), [] as [&str; 0]);
+        assert_eq!(density(&text), (0, 0));
+        assert_eq!(sentences(&text), 0);
+    }
+
+    #[test]
+    fn the_paragraph_after_a_reach_is_prose() {
+        let text = "## Decision Outcome\n\n**Reach:** `p/**`\n\nThe gate has run.\n";
+        assert_eq!(findings(text), ["tense\t5: has run"]);
+    }
+
+    #[test]
+    fn a_reach_outside_the_decision_outcome_is_prose() {
+        let text = format!("## Context\n\n**Reach:** {}end.\n", filler(25));
+        assert_eq!(findings(&text), ["long\t3: 27 words"]);
     }
 
     #[test]
