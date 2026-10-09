@@ -34,7 +34,7 @@ The prototype's context document pointed at records and did not restate them, an
 
 ## Decision Outcome
 
-**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/list-records.sh` `scripts/test/list-records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh`
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/list-records.sh` `scripts/test/list-records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh` `docs/agents/post-pass.md`
 
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
@@ -75,7 +75,7 @@ A programme is a milestone, not a record.
 
 - **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, a command that cannot see content, and [a new question gets a new record](a-new-question-gets-a-new-record.md).
 - **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift in an audit of a large Consequences section.
-- **A record must be rewritten whenever an issue it waits on closes.** Nothing prompts that rewrite. The Confirmation states the obligation and says no check decides it. An issue can close for reasons that have nothing to do with the record that named it.
+- **A record must be rewritten whenever an issue it waits on closes.** The [post pass](../../CONTEXT.md#post-pass) prompts that rewrite only on work an agent wrote, when a commit subject names the issue. The Confirmation states the obligation and says no check decides it. An issue can close for reasons that have nothing to do with the record that named it.
 
 ## Confirmation
 
