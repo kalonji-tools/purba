@@ -33,9 +33,6 @@ request targets one, with `mise run sign-off origin/<branch>`. Measured from a
 base your pull request does not target, the range reaches back past that
 branch and offers you commits somebody else wrote.
 
-The replay lands your branch on that base, so it brings a branch that has
-fallen behind current as well.
-
 Running it again adds nothing. `git commit -s` on its own would: it adds a
 trailer whenever the sign-off is not the last one, and purba writes its own
 trailer after yours.
@@ -172,8 +169,8 @@ does not sign a branch while `Scripts` is red, so it stops a merge through
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
-added to one, so purba refuses it. The sign-off command above replays. So does
-the **Update with rebase** entry GitHub offers on the pull request.
+added to one, so purba refuses it. The **Update with rebase** entry GitHub
+offers on the pull request replays.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
 once an approval stands and every other required check is green. On a branch
