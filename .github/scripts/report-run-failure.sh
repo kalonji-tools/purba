@@ -14,6 +14,9 @@
 # Exits 0 when the failure is recorded, and 2 when it cannot run.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
+
 if [[ $# -ne 3 ]]; then
   echo "usage: report-run-failure.sh <run> <run-url> <issue>" >&2
   exit 2
@@ -124,15 +127,22 @@ BODY
 esac
 
 # ⚠️ Never use `--search` here.
-existing=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 \
-  --json number,title --jq "[.[] | select(.title == \"${title}\")] | first | .number // empty")
+if ! existing=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 \
+  --json number,title \
+  --jq "[.[] | select(.title == \"${title}\")] | first | .number // empty"); then
+  cannot "the open issues could not be read, so the failure of ${workflow} was not recorded."
+fi
 
 if [[ -n "${existing}" ]]; then
-  gh issue comment "${existing}" --repo "${GH_REPO}" --body "It failed again: ${run}"
+  if ! gh issue comment "${existing}" --repo "${GH_REPO}" --body "It failed again: ${run}"; then
+    cannot "#${existing} could not be commented on, so the failure of ${workflow} was not recorded."
+  fi
   echo "commented on #${existing} rather than opening a second issue"
   exit 0
 fi
 
-number=$(gh issue create --repo "${GH_REPO}" --title "${title}" \
-  --label bug --label wayfinder:task --body "${body}")
+if ! number=$(gh issue create --repo "${GH_REPO}" --title "${title}" \
+  --label bug --label wayfinder:task --body "${body}"); then
+  cannot "the issue could not be opened, so the failure of ${workflow} was not recorded."
+fi
 echo "opened ${number}"
