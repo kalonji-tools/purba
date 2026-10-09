@@ -30,6 +30,8 @@ Run bare, with no flag and no environment variable, each pinned tool finds its f
 
 ## Decision Outcome
 
+**Reach:** `/*` `/.config/**` `typos.toml` `_typos.toml` `.typos.toml` `lychee.toml` `.github/scripts/changed-scripts.sh` `scripts/test/changed-scripts.bats`
+
 **A tool's configuration lives in the first location its tool reads: `.config/`, then `pyproject.toml`, then the root.**
 
 "Reads" means the pinned tool finds the file run bare, with no flag and no environment variable.

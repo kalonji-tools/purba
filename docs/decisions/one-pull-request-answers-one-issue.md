@@ -27,6 +27,8 @@ Records touched is not decisions carried.
 
 ## Decision Outcome
 
+**Reach:** [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) `/AGENTS.md`
+
 **One pull request answers one issue.**
 Nothing bounds the number of records it rewrites.
 A second issue rides along when one change answers both, and the pull request says so.

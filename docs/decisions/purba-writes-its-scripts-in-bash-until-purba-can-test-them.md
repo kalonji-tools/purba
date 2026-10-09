@@ -40,6 +40,8 @@ So was the runner.
 
 ## Decision Outcome
 
+**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml` `/.config/mise.toml` `/.config/tasks.toml` `/prek.toml`
+
 **purba writes its scripts in bash.**
 A change of language is earned by something the new language brings that bash cannot.
 

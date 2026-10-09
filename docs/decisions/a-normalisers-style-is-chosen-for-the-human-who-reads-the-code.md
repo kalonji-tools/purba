@@ -12,6 +12,8 @@ It does not decide which style.
 
 ## Decision Outcome
 
+**Reach:** `/.editorconfig`
+
 **A normaliser's style is chosen for the human who reads the code**, because a machine reads any style the syntax admits.
 Consistency across languages is part of that legibility: a reader should not change indentation systems at a file boundary.
 purba therefore indents with two spaces, stated once for every language that admits the same value.

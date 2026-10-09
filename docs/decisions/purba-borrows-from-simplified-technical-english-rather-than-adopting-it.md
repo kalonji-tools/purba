@@ -27,6 +27,8 @@ Two of these rules were already purba's.
 
 ## Decision Outcome
 
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**`
+
 purba borrows a prose rule from the standard, and never adopts the standard.
 
 A borrowed rule is quoted in the words the standard uses.

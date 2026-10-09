@@ -28,6 +28,8 @@ Nothing reports the difference.
 
 ## Decision Outcome
 
+**Reach:** `/.config/mise.toml` `/.config/mise.lock` `rust-toolchain.toml` `.github/workflows/*.yml` `.github/scripts/bump-nightly.sh`
+
 **The nightly is named once, in `.config/mise.toml`, as a date.**
 `.config/mise.lock` records the same string, because mise derives an exact request's lock row from the request.
 So `.config/mise.lock` cannot disagree with `.config/mise.toml`.

@@ -42,6 +42,8 @@ The vocabulary had neither.
 
 ## Decision Outcome
 
+**Reach:** `/CONTEXT.md` `docs/decisions/*.md` `/AGENTS.md`
+
 A term is defined once, in `CONTEXT.md`, and a record names it and does not hold it.
 
 **The split.**

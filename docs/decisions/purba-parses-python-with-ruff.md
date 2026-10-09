@@ -26,6 +26,8 @@ The evidence is in its issues and its README, not in repository metadata.
 
 ## Decision Outcome
 
+**Reach:** `/Cargo.toml` `src/**`
+
 purba parses with four ruff crates, pinned exactly at `=0.0.12`, behind a thin parsing seam.
 
 | crate | what the seam needs from it |

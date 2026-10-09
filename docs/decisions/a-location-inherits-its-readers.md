@@ -24,6 +24,8 @@ The prototype shows what an unanswered location question costs.
 
 ## Decision Outcome
 
+**Reach:** `**`
+
 A location inherits its readers.
 
 **The words this record uses are defined once.**

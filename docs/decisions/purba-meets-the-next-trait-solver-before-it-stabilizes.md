@@ -47,6 +47,8 @@ Only the second row can strand purba on nightly, and only through code purba wri
 
 ## Decision Outcome
 
+**Reach:** [issue](../../CONTEXT.md#issue) `*.rs` `/Cargo.toml` `/.config/mise.toml` `.github/workflows/*.yml`
+
 purba builds on Rust nightly to meet the next generation trait solver before it reaches stable.
 
 [The nightly is named by a date](the-nightly-is-named-by-a-date.md) says which nightly.

@@ -22,6 +22,8 @@ When purba took this decision, the places that stated the rule disagreed.
 
 ## Decision Outcome
 
+**Reach:** `.github/CODEOWNERS` `docs/decisions/*.md` `/AGENTS.md`
+
 **The person owns the Decision Outcome.**
 Work an agent wrote is welcome, and nothing about it changes what the reviewer reads for.
 

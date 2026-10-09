@@ -29,6 +29,8 @@ It is which identity opens it.
 
 ## Decision Outcome
 
+**Reach:** `.github/workflows/*.yml` `.github/scripts/report-run-failure.sh`
+
 An act `GITHUB_TOKEN` may not perform earns an identity scoped to that act.
 Actions' own token is never widened to reach it.
 
