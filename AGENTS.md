@@ -29,7 +29,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Write the implementation plan in the body, under the headings of [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). ([a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#decision-outcome))
 - Where a runner executes the change, follow TDD: put the test list in the plan, and push the test alone until its run fails. ([an implementation follows test-driven development](docs/decisions/an-implementation-follows-test-driven-development.md#decision-outcome))
 - Answer one issue with one pull request. ([one pull request answers one issue](docs/decisions/one-pull-request-answers-one-issue.md#decision-outcome))
-- Read your own branch after the implementation, and post what you find as a comment on the pull request. ([post pass](CONTEXT.md#post-pass))
+- Before you mark the pull request ready, run the [post pass](docs/agents/post-pass.md), and post it as a comment. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - Find the tasks you may run with `mise tasks ls`. ([`.config/tasks.toml`](.config/tasks.toml))
 
 ## When you add a tool
@@ -40,6 +40,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 - After you mark a pull request ready, watch it for review, and act on each round before anyone asks. ([the agent that marks a pull request ready watches it](docs/decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md#decision-outcome))
 - Make a change asked for in review as a new commit. Rewrite the branch only to follow `main`. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+- After a review round that changes the patch, or that changes the records `mise run list:records` names, post a new [post pass](docs/agents/post-pass.md) if you wrote a commit of the round. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - Reduce the commits only once the reviewer is satisfied. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - When you reduce a pull request Dependabot opened, rewrite each subject in the form its record shows. ([Dependabot proposes each newer action](docs/decisions/dependabot-proposes-each-newer-action.md#decision-outcome))
 

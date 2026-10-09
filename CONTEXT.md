@@ -90,7 +90,7 @@ The [actor](#actor) that builds a plugin against purba's public interfaces.
 
 ### Post pass
 
-A read of a branch, after the implementation, for what can be removed or improved. It leaves its findings as a comment on the [pull request](#pull-request).
+A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).
 
 ### Prose
 
