@@ -137,3 +137,38 @@ setup() {
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"usage: check-origin.sh <base> <head>"* ]]
 }
+
+# A git that exits 128 on any call whose arguments hold the text it is given, and
+# runs every other.
+fail_git() {
+  local git
+  git=$(command -v git)
+  fake git <<FAKE
+for argument in "\$@"; do
+  [[ "\${argument}" != *"$1"* ]] || { echo "fatal: bad object" >&2; exit 128; }
+done
+exec "${git}" "\$@"
+FAKE
+}
+
+@test "a trailer that cannot be read exits 2, and refuses no commit" {
+  commit "feat: one" "${signed}"
+  fail_git "trailers"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the origin check could not read the trailers of "* ]]
+  [[ "${output}" != *"is refused"* ]]
+}
+
+@test "a subject that cannot be read exits 2, and does not pass the commit" {
+  commit "feat: signed" "${signed}"
+  commit "feat: unsigned"
+  fail_git "%h %s"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the origin check could not read the subject of "* ]]
+}
