@@ -1,0 +1,11 @@
+a-commit-outlives-its-review	changed
+a-location-inherits-its-readers	reach:docs/decisions/a-commit-outlives-its-review.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:docs/decisions/the-crate-carries-an-rlib.md
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:docs/decisions/a-commit-outlives-its-review.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:docs/decisions/the-crate-carries-an-rlib.md,word:commit-message,word:issue,word:pull-request
+an-artifact-is-rewritten-until-its-direction-is-agreed	word:issue,word:pull-request
+an-outside-contribution-is-applied-not-merged	word:commit-message
+a-record-is-rewritten-not-amended	reach:docs/decisions/a-commit-outlives-its-review.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:docs/decisions/the-crate-carries-an-rlib.md
+a-term-belongs-to-the-glossary	reach:docs/decisions/a-commit-outlives-its-review.md,reach:docs/decisions/purba-parses-python-with-ruff.md,reach:docs/decisions/the-crate-carries-an-rlib.md
+liability-is-recorded-from-the-act-that-makes-it-true	word:commit-message
+purba-meets-the-next-trait-solver-before-it-stabilizes	word:issue
+purba-parses-python-with-ruff	changed
+the-crate-carries-an-rlib	changed

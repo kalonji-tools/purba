@@ -1,0 +1,13 @@
+a-change-is-specified-before-it-is-built	changed
+a-commit-outlives-its-review	word:commit-message
+a-location-inherits-its-readers	reach:AGENTS.md,reach:CLAUDE.md,reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+an-artifact-holds-the-minimum-that-conveys-its-point	reach:AGENTS.md,reach:CLAUDE.md,reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md,word:commit-message,word:issue,word:pull-request
+an-artifact-is-rewritten-until-its-direction-is-agreed	changed
+an-outside-contribution-is-applied-not-merged	word:commit-message
+a-record-is-rewritten-not-amended	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+a-register-belongs-to-one-location	changed
+a-term-belongs-to-the-glossary	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+liability-is-recorded-from-the-act-that-makes-it-true	word:commit-message
+purba-borrows-from-simplified-technical-english-rather-than-adopting-it	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
+purba-meets-the-next-trait-solver-before-it-stabilizes	word:issue
+significance-is-declared-not-detected	reach:docs/decisions/a-change-is-specified-before-it-is-built.md,reach:docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md,reach:docs/decisions/a-register-belongs-to-one-location.md
