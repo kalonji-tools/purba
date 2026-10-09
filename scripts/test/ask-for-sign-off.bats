@@ -38,7 +38,7 @@ propose() {
   sign_off_start propose.sh .github/workflows/propose.yml "$@"
   stand_down_while_open "a change"
   eval "${change}"
-  ask_for_sign_off "chore: a change (#7)" "a change" one two "**A closing line.**" wanted
+  ask_for_sign_off "chore: a change" "a change" one two "**A closing line.**" wanted
 }
 
 # One field of the commit on the proposal branch, as `git log --format` names it.
