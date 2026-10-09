@@ -85,3 +85,40 @@ FAKE
   asked=$(calls gh)
   [[ -z "${asked}" ]]
 }
+
+@test "a failed read of the open issues exits 2, and says the failure was not recorded" {
+  fake gh <<'FAKE'
+[[ "$1 $2" != "issue list" ]] || { echo "HTTP 502" >&2; exit 1; }
+FAKE
+
+  run "${script}" bump https://example.invalid/run 43
+
+  [[ "${status}" -eq 2 ]]
+  said="the open issues could not be read, so the failure of bump was not recorded."
+  [[ "${output}" == *"${said}"* ]]
+}
+
+@test "a failed comment on the open issue exits 2, and says the failure was not recorded" {
+  fake gh <<'FAKE'
+[[ "$1 $2" != "issue list" ]] || echo 7
+[[ "$1 $2" != "issue comment" ]] || { echo "HTTP 502" >&2; exit 1; }
+FAKE
+
+  run "${script}" bump https://example.invalid/run 43
+
+  [[ "${status}" -eq 2 ]]
+  said="#7 could not be commented on, so the failure of bump was not recorded."
+  [[ "${output}" == *"${said}"* ]]
+}
+
+@test "a failed issue create exits 2, and says the failure was not recorded" {
+  fake gh <<'FAKE'
+[[ "$1 $2" != "issue create" ]] || { echo "HTTP 502" >&2; exit 1; }
+FAKE
+
+  run "${script}" bump https://example.invalid/run 43
+
+  [[ "${status}" -eq 2 ]]
+  said="the issue could not be opened, so the failure of bump was not recorded."
+  [[ "${output}" == *"${said}"* ]]
+}
