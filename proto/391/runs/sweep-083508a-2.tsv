@@ -1,0 +1,24 @@
+R1	docs/decisions/one-manifest-declares-each-package.md:66	were put to the owner	Passive voice, and the reader knows who put the answers to the owner.
+R1	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner	Passive voice, and the line itself names the agent; "The owner rejected it" says the same.
+R1	docs/decisions/one-manifest-declares-each-package.md:80	Each package is declared in one manifest	Passive voice with a known agent; the record's own title gives the active form, "One manifest declares each package".
+R1	docs/decisions/one-manifest-declares-each-package.md:149	is checked by `.github/workflows/build.yml`	Passive voice that names its agent; ".github/workflows/build.yml checks one of the four properties below" says the same.
+R1	docs/decisions/one-manifest-declares-each-package.md:156	each package is declared in one manifest	Passive voice with a known agent, repeating line 80; it should change together with line 80.
+R1	-	swept	56 lines read
+R2	docs/decisions/one-manifest-declares-each-package.md:144	reveals	"shows" says the same thing in a shorter, more common word.
+R2	-	swept	56 lines read
+R3	docs/decisions/one-manifest-declares-each-package.md:68	Rejected.	A bold lead-in followed by a fragment with no subject and no verb, not by a full sentence.
+R3	docs/decisions/one-manifest-declares-each-package.md:70	Rejected for the chosen wording.	A fragment with no subject and no finite verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner, because a package that two managers declare is a conflict in the making.	The main clause has no subject and no finite verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:74	Rejected.	A bold lead-in followed by a fragment with no subject and no verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:76	Chosen.	A bold lead-in followed by a fragment with no subject and no verb.
+R3	-	swept	56 lines read
+C1	docs/decisions/a-gate-owns-the-mechanical.md:57	pins each one, so an accepted default already has a single location	Two independent clauses, the fact and its consequence, joined with ", so".
+C1	docs/decisions/one-manifest-declares-each-package.md:41	`mise run build` read the first, and `pip wheel .` read the second.	Two independent clauses joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:45	must share its environment, and mise installs a Python tool into an environment of its own	Two separate facts joined with ", and"; each could stand as a sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:70	It places the same packages, and the chosen one names why	Two ideas, the same placement and the better reason, joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:74	A source build would work, but no lockfile would hold the build backend, and the build task would move to pip or uv.	Three independent clauses in one sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:144	satisfies that by accident, and no lockfile entry reveals it	Two independent clauses joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	already decided which file that is, and the tree contradicted it	Two independent clauses joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	and decides nothing new, and the deletion is what stops the tree contradicting that record	Two ideas, no new decision and what the deletion fixes, joined with ", and".
+C1	docs/decisions/purba-parses-python-with-ruff.md:68	names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](...) names the channel	Two independent clauses with different subjects joined with "and".
+C1	-	swept	56 lines read

@@ -1,0 +1,24 @@
+C1	docs/decisions/one-manifest-declares-each-package.md:34	Two manifests declared maturin, and nothing compared them.	Two independent clauses joined with ", and" that could each stand as a sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:41	`mise run build` read the first, and `pip wheel .` read the second.	Two independent clauses joined with ", and" carry two facts.
+C1	docs/decisions/one-manifest-declares-each-package.md:45	must share its environment, and mise installs a Python tool into an environment of its own	Two independent ideas (the package's need, mise's behaviour) are joined in one sentence.
+R1	docs/decisions/one-manifest-declares-each-package.md:66	were put to the owner	The passive hides the actor, and the reader can name it as the record's drafter.
+R3	docs/decisions/one-manifest-declares-each-package.md:68	Rejected.	A verdict with no subject and no verb is a fragment.
+R1	docs/decisions/one-manifest-declares-each-package.md:68	Rejected.	The reader can name the owner as the one who rejects, so the passive is not needed.
+R3	docs/decisions/one-manifest-declares-each-package.md:70	Rejected for the chosen wording.	A verdict with no subject and no verb is a fragment.
+R1	docs/decisions/one-manifest-declares-each-package.md:70	Rejected for the chosen wording.	The reader can name the owner as the one who rejects, so the passive is not needed.
+C1	docs/decisions/one-manifest-declares-each-package.md:70	It places the same packages, and the chosen one names why	Two independent clauses joined with ", and" carry two ideas.
+R3	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner, because a package that two managers declare is a conflict in the making.	The sentence has no subject and no finite verb.
+R1	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner	The passive names its agent, so write "The owner rejected it".
+R3	docs/decisions/one-manifest-declares-each-package.md:74	Rejected.	A verdict with no subject and no verb is a fragment.
+R1	docs/decisions/one-manifest-declares-each-package.md:74	Rejected.	The reader can name the owner as the one who rejects, so the passive is not needed.
+C1	docs/decisions/one-manifest-declares-each-package.md:74	A source build would work, but no lockfile would hold the build backend, and the build task would move to pip or uv.	Three independent clauses in one sentence carry three ideas.
+R3	docs/decisions/one-manifest-declares-each-package.md:76	Chosen.	A verdict with no subject and no verb is a fragment.
+R1	docs/decisions/one-manifest-declares-each-package.md:76	Chosen.	The reader can name the owner as the one who chose, so the passive is not needed.
+R1	docs/decisions/one-manifest-declares-each-package.md:80	Each package is declared in one manifest.	The record's own title names the actor: "One manifest declares each package".
+C1	docs/decisions/one-manifest-declares-each-package.md:144	satisfies that by accident, and no lockfile entry reveals it	Two independent clauses joined with ", and" carry two ideas.
+R1	docs/decisions/one-manifest-declares-each-package.md:149	is checked by `.github/workflows/build.yml`	The passive names its agent, so write "`.github/workflows/build.yml` checks one of...".
+R1	docs/decisions/one-manifest-declares-each-package.md:156	each package is declared in one manifest	The passive property hides the actor that the record's title names.
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	already decided which file that is, and the tree contradicted it	Two independent clauses joined with ", and" carry two ideas.
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	and decides nothing new, and the deletion is what stops the tree contradicting that record	Two independent ideas are joined with ", and" in one sentence.
+C1	docs/decisions/purba-parses-python-with-ruff.md:68	names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) names the channel	Two independent clauses with different subjects are joined with "and".
+all	-	read	56 lines read

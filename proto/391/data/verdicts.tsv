@@ -1,0 +1,43 @@
+head	rule	line	verdict	reason
+083508a	R1	one-manifest-declares-each-package.md:66	true	"were put to the owner": passive, and the author is the agent
+083508a	R1	one-manifest-declares-each-package.md:68	false	"Rejected." is the form .template.md prescribes: "<Chosen. Why it won.>"
+083508a	R1	one-manifest-declares-each-package.md:70	false	the same template form
+083508a	R1	one-manifest-declares-each-package.md:72	true	"Rejected by the owner": a passive that names its agent
+083508a	R1	one-manifest-declares-each-package.md:74	false	the same template form
+083508a	R1	one-manifest-declares-each-package.md:76	false	the same template form
+083508a	R1	one-manifest-declares-each-package.md:80	known	the breach a review found
+083508a	R1	one-manifest-declares-each-package.md:149	true	"is checked by build.yml": a passive that names its agent
+083508a	R1	one-manifest-declares-each-package.md:156	repeat	a table cell that quotes line 80
+083508a	R2	one-manifest-declares-each-package.md:144	doubtful	"reveals", "satisfies": common words, not formal ones
+083508a	R3	one-manifest-declares-each-package.md:68	false	the template form
+083508a	R3	one-manifest-declares-each-package.md:70	false	the template form
+083508a	R3	one-manifest-declares-each-package.md:72	false	the template form
+083508a	R3	one-manifest-declares-each-package.md:74	false	the template form
+083508a	R3	one-manifest-declares-each-package.md:76	false	the template form
+083508a	C1	a-gate-owns-the-mechanical.md:57	doubtful	", so" joins a fact to its consequence
+083508a	C1	one-manifest-declares-each-package.md:34	true	two independent clauses with ", and"
+083508a	C1	one-manifest-declares-each-package.md:41	true	two independent clauses with ", and"
+083508a	C1	one-manifest-declares-each-package.md:45	known	the breach a review found
+083508a	C1	one-manifest-declares-each-package.md:70	true	two independent clauses with ", and"
+083508a	C1	one-manifest-declares-each-package.md:74	known	the breach a review found
+083508a	C1	one-manifest-declares-each-package.md:144	true	two independent clauses with ", and"
+083508a	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	true	two independent clauses with ", and"
+083508a	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	true	three ideas, two "and"s
+083508a	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:107	doubtful	a compound predicate and a relative clause, not two independent clauses
+083508a	C1	purba-parses-python-with-ruff.md:68	true	two independent clauses with "and"
+85dfe79	R1	one-manifest-declares-each-package.md:70	known	the breach a review found
+85dfe79	R1	one-manifest-declares-each-package.md:140	true	"is checked by build.yml": a passive that names its agent
+85dfe79	R1	one-manifest-declares-each-package.md:147	repeat	a table cell that quotes line 70
+85dfe79	R2	one-manifest-declares-each-package.md:135	doubtful	"reveals": a common word
+85dfe79	R3	one-manifest-declares-each-package.md:58	false	the template form
+85dfe79	R3	one-manifest-declares-each-package.md:60	false	the template form
+85dfe79	R3	one-manifest-declares-each-package.md:62	false	the template form
+85dfe79	R3	one-manifest-declares-each-package.md:64	false	the template form
+85dfe79	R3	one-manifest-declares-each-package.md:66	false	the template form
+85dfe79	C1	one-manifest-declares-each-package.md:35	known	the breach a review found
+85dfe79	C1	one-manifest-declares-each-package.md:64	known	the breach a review found
+85dfe79	C1	one-manifest-declares-each-package.md:135	true	two independent clauses with ", and"
+85dfe79	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	true	two independent clauses with ", and"
+85dfe79	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	true	three ideas, two "and"s
+85dfe79	C1	purba-meets-the-next-trait-solver-before-it-stabilizes.md:107	doubtful	a compound predicate and a relative clause
+85dfe79	C1	purba-parses-python-with-ruff.md:68	true	two independent clauses with "and"

@@ -1,0 +1,20 @@
+R1	docs/decisions/one-manifest-declares-each-package.md:70	Each package is declared in one manifest	A passive clause whose agent the reader can name: the manifest declares the package, as the record's own title says.
+R1	docs/decisions/one-manifest-declares-each-package.md:140	is checked by `.github/workflows/build.yml`	A passive clause that names its agent, so the workflow can be the subject.
+R1	docs/decisions/one-manifest-declares-each-package.md:147	each package is declared in one manifest	The same passive as line 70, so this row changes when line 70 changes.
+R1	-	swept	47 lines read
+R2	docs/decisions/one-manifest-declares-each-package.md:135	reveals	A formal word where the short word "shows" says the same thing.
+R2	-	swept	47 lines read
+R3	docs/decisions/one-manifest-declares-each-package.md:58	Rejected.	The sentence has no subject and no verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:60	Rejected for the chosen wording, which names why a package goes there	The sentence has no subject and no main verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:62	Rejected, because a package that two managers declare is a conflict in the making.	The main clause has no subject and no verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:64	Rejected.	The sentence has no subject and no verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:66	Chosen.	The sentence has no subject and no verb.
+R3	-	swept	47 lines read
+C1	docs/decisions/one-manifest-declares-each-package.md:35	must share its environment, and mise installs a Python tool into an environment of its own	Two independent clauses joined with ", and" that can each stand as a sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:64	A source build would work, but no lockfile would hold the build backend, and the build task would move to pip or uv.	Three independent clauses in one sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:135	satisfies that by accident, and no lockfile entry reveals it	Two independent clauses joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	already decided which file that is, and the tree contradicted it	Two independent clauses joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	and decides nothing new, and the deletion is what stops the tree contradicting that record	One sentence has three ideas: the source of the decision, that it decides nothing new, and what the deletion stops.
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:107	records a date for the toolchain and does not pin it, which [one manifest declares each package](one-manifest-declares-each-package.md) records in full	One sentence states a fact about the toolchain and also points to the record that holds the rest.
+C1	docs/decisions/purba-parses-python-with-ruff.md:68	names the file that holds the toolchain and [purba meets the next trait solver before it stabilizes](...) names the channel	Two independent clauses, each with its own subject, joined with "and".
+C1	-	swept	47 lines read

@@ -1,0 +1,3 @@
+# PROTOTYPE: run data, one record or reason per line.
+[*.{tsv,txt,sh}]
+max_line_length = off

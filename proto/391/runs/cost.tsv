@@ -1,0 +1,9 @@
+run	what it reads	tokens	seconds
+sweep-083508a-1	rules.md, added.txt (56 lines)	56513	69.3
+sweep-083508a-2	rules.md, added.txt (56 lines)	54312	53.3
+sweep-083508a-3	rules.md, added.txt (56 lines)	54802	56.1
+sweep-85dfe79-1	rules.md, added.txt (47 lines)	53572	48.8
+allrules-083508a-1	rules.md, added.txt (56 lines)	54999	57.1
+allrules-083508a-2	rules.md, added.txt (56 lines)	54179	49.5
+judge-083508a-1	diff.patch, commits.txt, outcomes.md (10,091 words)	85840	105.7
+judge-85dfe79-1	diff.patch, commits.txt, outcomes.md (10,105 words)	83738	87.0

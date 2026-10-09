@@ -1,0 +1,7 @@
+head	rule	location	the breach a review found (#374, #388; fixed in 5db5182, whose body names "two record sentences held two ideas")
+083508a	R1	docs/decisions/one-manifest-declares-each-package.md:80	The Decision Outcome opened in the passive
+083508a	C1	docs/decisions/one-manifest-declares-each-package.md:45	Two ideas joined with , and (split in 5db5182)
+083508a	C1	docs/decisions/one-manifest-declares-each-package.md:74	Three clauses in one sentence (last clause cut in 5db5182)
+85dfe79	R1	docs/decisions/one-manifest-declares-each-package.md:70	The Decision Outcome opened in the passive
+85dfe79	C1	docs/decisions/one-manifest-declares-each-package.md:35	Two ideas joined with , and (split in 5db5182)
+85dfe79	C1	docs/decisions/one-manifest-declares-each-package.md:64	Three clauses in one sentence (last clause cut in 5db5182)

@@ -1,0 +1,28 @@
+R1	docs/decisions/one-manifest-declares-each-package.md:68	Rejected.	The text names the owner as the one who rejects, so write "The owner rejected it."
+R1	docs/decisions/one-manifest-declares-each-package.md:70	Rejected for the chosen wording.	The owner does the rejecting, and the text names the owner at line 66.
+R1	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner	The passive names its own agent, so write "The owner rejected it".
+R1	docs/decisions/one-manifest-declares-each-package.md:74	Rejected.	The text names the owner as the one who rejects, so write "The owner rejected it."
+R1	docs/decisions/one-manifest-declares-each-package.md:76	Chosen.	The owner does the choosing, so write "The owner chose it."
+R1	docs/decisions/one-manifest-declares-each-package.md:80	Each package is declared in one manifest.	purba does the declaring (line 93 says so), and the title already gives the active form "One manifest declares each package".
+R1	docs/decisions/one-manifest-declares-each-package.md:149	is checked by `.github/workflows/build.yml`	The passive names its own agent, so write "`.github/workflows/build.yml` checks one of the four properties below."
+R1	docs/decisions/one-manifest-declares-each-package.md:156	each package is declared in one manifest	The row repeats the passive of line 80, and the reader can name the agent.
+R1	-	swept	56 lines read
+R2	docs/decisions/one-manifest-declares-each-package.md:144	satisfies ... reveals	"meets" and "shows" say the same thing in shorter, more common words.
+R2	-	swept	56 lines read
+R3	docs/decisions/one-manifest-declares-each-package.md:68	Rejected.	This sentence has no subject and no full verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:70	Rejected for the chosen wording.	This sentence has no subject and no full verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:72	Rejected by the owner, because a package that two managers declare is a conflict in the making.	The main clause has no subject and no full verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:74	Rejected.	This sentence has no subject and no full verb.
+R3	docs/decisions/one-manifest-declares-each-package.md:76	Chosen.	This sentence has no subject and no full verb.
+R3	-	swept	56 lines read
+C1	docs/decisions/a-gate-owns-the-mechanical.md:57	pins each one, so an accepted default already has a single location	Two independent clauses are joined with ", so", and each one can stand as a sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:34	Two manifests declared maturin, and nothing compared them.	Two independent clauses are joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:41	`mise run build` read the first, and `pip wheel .` read the second.	Two independent clauses are joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:45	must share its environment, and mise installs a Python tool into an environment of its own	Two independent clauses are joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:70	It places the same packages, and the chosen one names why	Two independent clauses are joined with ", and".
+C1	docs/decisions/one-manifest-declares-each-package.md:74	A source build would work, but no lockfile would hold the build backend, and the build task would move to pip or uv.	Three independent clauses are in one sentence.
+C1	docs/decisions/one-manifest-declares-each-package.md:144	satisfies that by accident, and no lockfile entry reveals it	Two independent clauses are joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:36	already decided which file that is, and the tree contradicted it	Two independent clauses are joined with ", and".
+C1	docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md:82	and decides nothing new, and the deletion is what stops the tree contradicting that record	The sentence chains three ideas, and the last one is an independent clause after ", and".
+C1	docs/decisions/purba-parses-python-with-ruff.md:68	names the file that holds the toolchain and [...] names the channel	Two independent clauses with different subjects are joined with "and".
+C1	-	swept	56 lines read
