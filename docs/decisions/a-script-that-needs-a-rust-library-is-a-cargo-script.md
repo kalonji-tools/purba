@@ -39,7 +39,7 @@ It waits for the day `-Zscript` breaks on a nightly.
 **Downside:**
 
 - **It needs the nightly toolchain.** `-Zscript` exists only on nightly, and [purba meets the next trait solver before it stabilizes](purba-meets-the-next-trait-solver-before-it-stabilizes.md) allows it outside the product crate.
-- **A cold build takes more than a minute.** A cache pays it once for each lockfile, and a machine without the cache pays it on its first run.
+- **A cold build takes more than a minute.** A change to the `Cargo.lock` of a script or `.config/mise.toml` pays it again, and a machine without the cache pays it on its first run.
 - **Two runners test one script.** A writer who changes the script finds its tests in two files.
 - **`lint:licences` reads the crate graph of purba only, so the crates of a cargo script carry any licence.** They never reach the wheel, like a tool that `.config/mise.toml` declares.
 
@@ -50,4 +50,4 @@ It waits for the day `-Zscript` breaks on a nightly.
 | a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `Quality` runs it on every pull request, through `mise run lint` |
 | a cargo script passes its own tests | `mise run test:cargo-scripts` runs `cargo -Zscript test --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
 | a cargo script sits where its callers are | `mise run lint:placement` reads `*.rs` under `scripts/` and `.github/` |
-| its build is paid once for each lockfile | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts`. Quality and Scripts restore it, because a pull request reads the cache of its base branch |
+| its cache key hashes the `Cargo.lock` of each script and `.config/mise.toml`, and no `.rs` file | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts` when the key changes. Quality and Scripts restore it with the same key, because a pull request reads the cache of its base branch |
