@@ -34,7 +34,7 @@ The prototype's context document pointed at records and did not restate them, an
 
 ## Decision Outcome
 
-**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh`
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/list-records.sh` `scripts/test/list-records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh`
 
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
@@ -53,7 +53,7 @@ Consequences is optional. The downside is required, inside Decision Outcome.
 
 The title is a proposition.
 Filenames carry no numbers and there is no index.
-`ls` and `grep` are the whole interface.
+`ls`, `grep` and `mise run list:records` are the whole interface.
 
 Records cite each other by proposition, never by number.
 A proposition survives a rename and is falsifiable at a glance.

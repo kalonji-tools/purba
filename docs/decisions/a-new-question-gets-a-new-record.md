@@ -6,7 +6,7 @@ The [architect](../../CONTEXT.md#architect) chooses purba's direction, so it nee
 Every other reader arrives at one record through a link.
 No file sends a reader through the whole set.
 
-[A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) makes `ls` and `grep` the whole interface, and each title is a proposition.
+[A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) makes `ls`, `grep` and `mise run list:records` the whole interface, and each title is a proposition.
 So `ls` shows a decision only while a title states it.
 
 The records on `main` at `6b79589`, read at 238 words a minute:
