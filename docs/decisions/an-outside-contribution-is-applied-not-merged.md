@@ -10,9 +10,8 @@ A gate finishing starts the same workflow from `main`, where the token is this r
 There the `sign` job refuses the fork in its first step, and does not rely on the token.
 Either way the branch is refused and the required status check is never posted.
 
-The pull request therefore cannot merge, and nothing says what happens instead.
-`sign.yml` tells the contributor that purba takes their contribution another way.
-`CONTRIBUTING.md` does not say what that way is.
+The pull request therefore cannot merge.
+`sign.yml` tells the contributor that purba takes their contribution another way, and points to `CONTRIBUTING.md`.
 
 Five prototypes measured what a workflow can and cannot do across the fork boundary, and they are held by [How does purba accept a contribution from a fork?](https://github.com/kalonji-tools/purba/issues/102).
 
