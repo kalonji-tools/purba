@@ -52,7 +52,7 @@ The pull request has no shape to preserve.
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
 
 A register belongs to one location, and this record names it and does not hold it.
 
@@ -128,6 +128,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `lint:rust` for a Rust doc comment |
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
+| `docs/agents/post-pass.md` | its closing section, *What belongs in this file* | its links, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
 | refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:shell` fails on a summary that names a record |
 | CHANGELOG | `.config/cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:shell` renders it from the register |
 

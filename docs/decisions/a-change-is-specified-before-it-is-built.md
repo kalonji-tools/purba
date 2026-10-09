@@ -14,7 +14,7 @@ Later decisions removed some of its gates and changed another, and the comment s
 
 ## Decision Outcome
 
-**Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [implementation plan](../../CONTEXT.md#implementation-plan) [post pass](../../CONTEXT.md#post-pass) [debrief](../../CONTEXT.md#debrief) `/AGENTS.md` `/CONTRIBUTING.md` `/.config/tasks.toml` `.github/PULL_REQUEST_TEMPLATE.md`
+**Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [implementation plan](../../CONTEXT.md#implementation-plan) [post pass](../../CONTEXT.md#post-pass) [debrief](../../CONTEXT.md#debrief) `/AGENTS.md` `/CONTRIBUTING.md` `/.config/tasks.toml` `.github/PULL_REQUEST_TEMPLATE.md` `docs/agents/post-pass.md`
 
 A change is specified before it is built, and it moves through four phases that each leave one artifact for one reader.
 
@@ -72,6 +72,10 @@ It need not name the commits.
 [A register belongs to one location](a-register-belongs-to-one-location.md) names the register that says where the plan is written.
 
 **The [post pass](../../CONTEXT.md#post-pass) is owed on work an agent wrote.**
+[Run a post pass](../agents/post-pass.md) says how to run one.
+The agent owes a new pass after each review round that changes the patch, or that changes the records `mise run list:records` names.
+It owes the pass only when it wrote a commit of the round, and it posts the pass before it asks for the next review.
+A round that only signs the branch, reduces the commits, or rebases with no conflict owes no new pass.
 
 **A pull request opens as a draft.**
 Marked ready, it asks for the reviewer.
