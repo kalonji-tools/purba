@@ -31,6 +31,7 @@ A group that lists its members by hand runs a new lint in CI only when its autho
 |---|---|
 | `fmt` | rewrites files |
 | `lint` | reads files and refuses, and never runs the code it reads |
+| `list` | reads files and prints, and never refuses |
 | `test` | runs code and refuses on a failure |
 
 **A subject keeps one word under every verb.**
@@ -41,6 +42,11 @@ A check that reads the whole repository takes the name of its rule, such as `lin
 `fmt`, `lint` and `test` each depend on their prefix with a wildcard, and `check` runs `lint` and `test`.
 A new `lint:` task runs in CI on the day it is written.
 `build` is bare because it is the only task of its verb.
+
+`list` also has one task.
+`list:records` keeps its subject, because `records` names the same files under `lint`.
+No bare `list` runs it, because a group of one task runs nothing more than that task.
+So `check` does not run it.
 
 **`.config/tasks.toml` lists its tasks A to Z.**
 That is the order `mise tasks ls` prints.

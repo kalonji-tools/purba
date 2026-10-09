@@ -28,7 +28,7 @@ A link in a file cannot name that, and a file that a change adds carries no link
 
 ## Decision Outcome
 
-**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `docs/decisions/*.md` `/CONTEXT.md` `scripts/check-records.sh` `scripts/check-prose/check-prose.rs` `scripts/test/check-records.bats` `/AGENTS.md`
+**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `docs/decisions/*.md` `/CONTEXT.md` `scripts/check-records.sh` `scripts/reach.sh` `scripts/list-records.sh` `scripts/check-prose/check-prose.rs` `scripts/test/check-records.bats` `scripts/test/list-records.bats` `/AGENTS.md`
 
 **Each record opens its Decision Outcome with its [reach](../../CONTEXT.md#reach).**
 
@@ -64,5 +64,6 @@ Its prose rules do not read a reach, so a reach of any length passes them.
 `scripts/test/check-records.bats` builds each case, and `mise run test:shell` runs it.
 [A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) lists these checks with the other checks of `lint:records`.
 
-No command reads a reach to name the records a change must satisfy yet. [list:records names the records a change must satisfy](https://github.com/kalonji-tools/purba/issues/401) builds it.
+`mise run list:records` reads each reach as this Decision Outcome says, and names the records a change must satisfy.
+`scripts/test/list-records.bats` builds each way a record gets on a list.
 The breaches above were counted on [Would the links from files to records have named the record each past audit found broken?](https://github.com/kalonji-tools/purba/issues/374).
