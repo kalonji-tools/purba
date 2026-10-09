@@ -35,6 +35,8 @@ No threshold catches what mattered, because nothing ever required a person to re
 
 ## Decision Outcome
 
+**Reach:** `.github/CODEOWNERS` `docs/decisions/*.md`
+
 A change is architecturally significant if and only if it adds or changes a decision record.
 
 `.github/CODEOWNERS` assigns `/docs/decisions/` to the human, and the ruleset requires that owner's review on a pull request touching it.

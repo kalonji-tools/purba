@@ -22,6 +22,8 @@ The same check was built in each form, against harper-core and the records.
 
 ## Decision Outcome
 
+**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/cargo-scripts.yml` `.github/workflows/scripts.yml` `/.config/tasks.toml` `/.config/mise.toml`
+
 **A script that needs a Rust library that bash cannot call is a cargo script.**
 `cargo -Zscript` builds it in the release profile.
 A debug build runs too slowly to gate.

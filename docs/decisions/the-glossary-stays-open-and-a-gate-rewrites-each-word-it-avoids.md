@@ -23,6 +23,8 @@ No command reads an `_Avoid_` line.
 
 ## Decision Outcome
 
+**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) `/CONTEXT.md` `/pyproject.toml` `/prek.toml` `/AGENTS.md`
+
 **The glossary stays open.**
 A word missing from `CONTEXT.md` may be used.
 No command holds a word on it to one sense.

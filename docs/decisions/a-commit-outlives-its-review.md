@@ -47,6 +47,8 @@ Permanence decides what is eligible. A second question decides what is written.
 
 ## Decision Outcome
 
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `/prek.toml` `/.config/cliff.toml` `/AGENTS.md` `.github/scripts/ask-for-sign-off.sh` `/CONTRIBUTING.md`
+
 A commit message carries what must outlive the review that produced it, and nothing else.
 
 Everything a review consumes and discards belongs in the pull request or the issue.

@@ -34,6 +34,8 @@ The prototype's context document pointed at records and did not restate them, an
 
 ## Decision Outcome
 
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh`
+
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
 This is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).
@@ -86,6 +88,10 @@ A programme is a milestone, not a record.
 | a record carries no numbered-record citation | strong |
 | a sentence stays on one line | strong |
 | a Confirmation that says a gate is unwired names the issue that will wire it | strong for the link, weak for the admission, which is matched as a phrase |
+| a Decision Outcome opens with a [reach](../../CONTEXT.md#reach) | strong |
+| a pattern in a reach matches a tracked file | listed, never refused |
+
+[A record names every location where it applies](a-record-names-every-location-where-it-applies.md) holds the rules of a reach.
 
 `mise run lint` runs the command, `Quality` runs `mise run lint` on each pull request, and `protect-main` requires `Quality`.
 So the command refuses a broken record at a merge, and nothing runs it at a commit.

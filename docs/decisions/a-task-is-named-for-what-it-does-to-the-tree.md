@@ -23,6 +23,8 @@ A group that lists its members by hand runs a new lint in CI only when its autho
 
 ## Decision Outcome
 
+**Reach:** `/.config/tasks.toml` `/prek.toml` `.github/workflows/*.yml`
+
 **A task is named `<verb>:<subject>`.**
 
 | verb | what the task does to the tree |

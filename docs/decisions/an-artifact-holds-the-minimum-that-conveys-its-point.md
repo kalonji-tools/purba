@@ -27,6 +27,8 @@ So the defect is what an artifact admits, not how its sentences read.
 
 ## Decision Outcome
 
+**Reach:** [commit message](../../CONTEXT.md#commit-message) [issue](../../CONTEXT.md#issue) [pull request](../../CONTEXT.md#pull-request) `**`
+
 An artifact holds the minimum that conveys its point.
 
 **The test is a judgement.**

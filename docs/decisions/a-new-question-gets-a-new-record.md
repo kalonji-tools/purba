@@ -37,6 +37,8 @@ The title did not state that second decision, so `ls` did not show it.
 
 ## Decision Outcome
 
+**Reach:** `docs/decisions/*.md` `/AGENTS.md`
+
 **A new question gets a new record.**
 When an issue asks a question that no title on `main` answers, its answer goes in a new record.
 The new record and the older one link each other, each in one line.

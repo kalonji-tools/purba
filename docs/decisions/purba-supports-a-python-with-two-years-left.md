@@ -26,6 +26,8 @@ PEP 693 states the lifetime: security fixes run for five years after a version's
 
 ## Decision Outcome
 
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `/pyproject.toml` `/Cargo.toml` `/.config/mise.toml` `/.config/mise.lock` `/.config/cliff.toml` `.github/workflows/build.yml` `.github/workflows/publish.yml` `.github/scripts/require-abi3.sh`
+
 purba's Python floor is the oldest CPython that still has two years of support left.
 
 The rule computes the floor, and `pyproject.toml` declares what it computes today.

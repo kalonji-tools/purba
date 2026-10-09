@@ -55,6 +55,8 @@ No signature is available as a third place: GitHub does not sign what a rebase m
 
 ## Decision Outcome
 
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/commits.yml` `.github/scripts/require-green.sh` `.github/scripts/standing-approver.sh` `.github/scripts/carry-verdicts.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/ask-for-sign-off.sh` `scripts/check-origin.sh` `scripts/check-replayable.sh` `scripts/sign-branch.sh` `/CONTRIBUTING.md` `/AGENTS.md` `.github/scripts/check-run.sh` `scripts/accept-one-commit.sh`
+
 Each liability is written from the act that makes it true.
 It is written where that act can still be read once the pull request is gone.
 

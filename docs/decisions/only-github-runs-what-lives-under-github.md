@@ -21,6 +21,8 @@ The stakes are not tidiness.
 
 ## Decision Outcome
 
+**Reach:** `.github/workflows/**` `.github/scripts/**` `.github/CODEOWNERS` `scripts/**` `/.config/tasks.toml` `/prek.toml`
+
 **Only GitHub runs what lives under `.github`.**
 A script is refused when every caller of it lives in the other half of the tree.
 

@@ -20,6 +20,8 @@ Two forms were in use.
 
 ## Decision Outcome
 
+**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml`
+
 A refusal states the rule, why it holds, and where it was found.
 
 | part | required |

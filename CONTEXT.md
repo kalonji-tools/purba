@@ -94,7 +94,7 @@ A read of a branch, after the implementation, for what can be removed or improve
 
 ### Prose
 
-The sentences of a [record](#record) outside its headings, tables, fenced blocks and quotations.
+The sentences of a [record](#record) outside its headings, its [reach](#reach), tables, fenced blocks and quotations.
 
 ### Published comment
 
@@ -103,6 +103,10 @@ A comment that purba renders to a [reader](#reader) outside the tree, through a 
 ### Pull request
 
 The [location](#location) that holds the discussion of how a change was implemented. That discussion stays here and never reaches the [commit message](#commit-message), because the review consumes it.
+
+### Reach
+
+The [locations](#location) a [record](#record) applies to. It names every location where a change makes the record apply, and a location where the change goes to a person counts.
 
 ### Reader
 
