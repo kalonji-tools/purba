@@ -47,7 +47,7 @@ Kent Beck's [Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd) defines the
 
 **The author pushes the test alone, and its run fails before the code follows.**
 `Scripts` and `Build` cancel a run when a new push lands, and a cancelled run proves nothing.
-The failed head outlives a reduction of the commits, because the pull request keeps each head that a force push replaced.
+The failed head outlives a reduction of the commits, because each head that a force push replaced keeps the commits below it.
 
 **A change with no new behaviour proves its coverage first.**
 The plan names the test that covers the code.
@@ -73,10 +73,10 @@ No command decides any of this, and none is planned.
 | the test failed first | a head that holds only the test, with `Scripts` or `Build` at `FAILURE` |
 
 A head still on the pull request shows its checks there.
-This query reads a head that a force push replaced:
+This query reads each commit below a head that a force push replaced:
 
 ```
-gh api graphql -f query='{repository(owner:"kalonji-tools",name:"purba"){pullRequest(number:<n>){timelineItems(first:50,itemTypes:[HEAD_REF_FORCE_PUSHED_EVENT]){nodes{... on HeadRefForcePushedEvent{beforeCommit{oid checkSuites(first:20){nodes{conclusion workflowRun{workflow{name}}}}}}}}}}}'
+gh api graphql -f query='{repository(owner:"kalonji-tools",name:"purba"){pullRequest(number:<n>){timelineItems(first:50,itemTypes:[HEAD_REF_FORCE_PUSHED_EVENT]){nodes{... on HeadRefForcePushedEvent{beforeCommit{history(first:20){nodes{oid checkSuites(first:20){nodes{conclusion workflowRun{workflow{name}}}}}}}}}}}}}'
 ```
 
 [`AGENTS.md`](../../AGENTS.md) carries this rule to an agent before it acts.
