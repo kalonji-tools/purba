@@ -20,8 +20,9 @@ if [[ $# -ne 2 ]]; then
   exit 2
 fi
 
-# The list is read into a variable first. Piped straight into `grep`, a
-# `git diff` that failed would read as a pull request that changes nothing.
+# The changed paths are read into a variable first. Piped straight into
+# `grep`, a `git diff` that failed would read as a pull request that changes
+# nothing.
 #
 # A rename is read as a deletion and an addition. git names a renamed file by
 # its new path alone, so a script moved out of either directory would pass
@@ -44,5 +45,5 @@ if grep -q "${a_test_depends_on[@]}" <<<"${files}"; then
   echo "scripts=true"
   echo "something a script test depends on changed, so the script tests run" >&2
 else
-  echo "nothing a script test depends on changed, so the script tests do not run" >&2
+  echo "no path on the list in changed-scripts.sh changed, so the script tests do not run" >&2
 fi
