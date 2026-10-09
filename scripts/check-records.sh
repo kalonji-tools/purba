@@ -55,6 +55,49 @@ Confirmation keeps a record from going stale. Consequences is optional and sits 
 outcome and the confirmation." \
   "${found[@]}"
 
+# The first paragraph under the Decision Outcome heading, which opens with
+# `**Reach:**` and names a location as a code span or as a link to the
+# glossary. A reach can wrap, so the whole paragraph is read. A record with no
+# such heading is refused above.
+#
+#   the decision:  docs/decisions/a-record-names-every-location-where-it-applies.md
+tick=$'\x60'
+one="${tick}[^${tick}]+${tick}|\[[^]]+\]\(\.\./\.\./CONTEXT\.md#[a-z-]+\)"
+location="^\*\*Reach:\*\* .*(${one})"
+declare -A reach=()
+found=()
+for f in "${records[@]}"; do
+  # The line the paragraph starts on, then the paragraph. A heading where the
+  # paragraph should be gives its line and nothing else.
+  paragraph=$(awk '
+    /^## Decision Outcome$/ { at = 1; next }
+    at && !NF { if (shown) exit; next }
+    at && /^#/ { if (!shown) print NR; exit }
+    at { if (!shown) print NR; shown = 1; print }
+  ' "${f}")
+  [[ -n "${paragraph}" ]] || continue
+  text=""
+  [[ "${paragraph}" != *$'\n'* ]] || text=${paragraph#*$'\n'}
+  # What is left once each location is taken out must be blank, because the
+  # prose rules do not read a reach.
+  rest=${text#"**Reach:**"}
+  while [[ "${rest}" =~ ${one} ]]; do
+    rest=${rest/"${BASH_REMATCH[0]}"/}
+  done
+  if [[ "${text}" =~ ${location} && -z "${rest//[[:space:]]/}" ]]; then
+    reach[${f}]=${text}
+  else
+    found+=("${f}:${paragraph%%$'\n'*}")
+  fi
+done
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A Decision Outcome opens with a reach: a **Reach:** paragraph that names every location where \
+a change makes the record apply, and holds nothing else. A record with no reach names no \
+location, so no change can be matched to it, and the prose rules do not read a reach. Write a \
+path as a gitattributes pattern in a code span, and a location with no path as its glossary \
+word, linked to its CONTEXT.md entry." \
+  "${found[@]}"
+
 mapfile -t found < <(grep -HnF '<!--' "${records[@]}" || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record reads as current state, so it carries no comment addressed to a reviewer. The \
@@ -210,6 +253,52 @@ done
 if [[ ${#found[@]} -gt 0 ]]; then
   printf '\na Confirmation that admits an unwired gate and names no issue\n\n'
   printf '  %s\n' "${found[@]}"
+fi
+
+# Each pattern a reach writes in a code span, matched as git matches an
+# attribute, which is not how it matches a pathspec. A pattern can match nothing
+# on purpose, so each one is listed and none is refused. Outside a git
+# repository no file is tracked, and nothing is matched.
+if top=$(git rev-parse --show-toplevel 2>/dev/null); then
+  # git writes NUL-separated output, which a shell variable cannot hold.
+  scratch=$(mktemp -d)
+  trap 'rm -rf "${scratch}"' EXIT
+
+  # One attribute for each pattern, so each one is matched on its own.
+  patterns=()
+  for f in "${records[@]}"; do
+    line=${reach[${f}]:-}
+    while [[ "${line}" =~ \`([^\`]+)\` ]]; do
+      patterns+=("${f}: ${BASH_REMATCH[1]}")
+      printf '%s p%d\n' "${BASH_REMATCH[1]}" "${#patterns[@]}" >>"${scratch}/reaches"
+      line=${line#*"${BASH_REMATCH[0]}"}
+    done
+  done
+
+  if [[ ${#patterns[@]} -gt 0 ]]; then
+    # A template can carry an info/attributes file, so the empty repository takes none.
+    git init --quiet --template= "${scratch}/empty" ||
+      cannot "git cannot make the empty repository a reach is matched in."
+    git -C "${top}" ls-files -z >"${scratch}/files" ||
+      cannot "git cannot list the tracked files."
+    GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${scratch}/reaches" \
+      check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" ||
+      cannot 'git cannot match the patterns of a reach.'
+
+    declare -A matched=()
+    while IFS= read -r -d '' _ && IFS= read -r -d '' name && IFS= read -r -d '' state; do
+      [[ "${state}" != set ]] || matched[${name}]=1
+    done <"${scratch}/attributes"
+
+    found=()
+    for i in "${!patterns[@]}"; do
+      [[ -n "${matched[p$((i + 1))]:-}" ]] || found+=("${patterns[i]}")
+    done
+    if [[ ${#found[@]} -gt 0 ]]; then
+      printf '\na pattern in a reach that matches no tracked file\n\n'
+      printf '  %s\n' "${found[@]}"
+    fi
+  fi
 fi
 
 # The three borrowed rules a command cannot decide, reported and never
