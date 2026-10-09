@@ -25,7 +25,10 @@ if ! me=$(gh api user --jq .login); then
   cannot "the account gh acts as could not be read, so nothing was pushed."
 fi
 
-if grep -oE '@[A-Za-z0-9-]+' "${root}/.github/CODEOWNERS" | tr -d '@' | grep -qxF "${me}"; then
+if ! owners=$(cat "${root}/.github/CODEOWNERS"); then
+  cannot ".github/CODEOWNERS could not be read, so nothing was pushed."
+fi
+if grep -oE '@[A-Za-z0-9-]+' <<<"${owners}" | tr -d '@' | grep -qxF "${me}"; then
   echo "refused: ${me} is a code owner, so ${me} cannot approve a pull request that ${me} opens." \
     >&2
   echo "Run this as the account that opens pull requests here." >&2
