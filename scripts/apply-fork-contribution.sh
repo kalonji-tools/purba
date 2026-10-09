@@ -9,14 +9,21 @@
 # Exits 1 when it refuses, and 2 when it cannot run.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/report.sh"
+
 if [[ $# -ne 1 ]]; then
   echo "usage: apply-fork-contribution.sh <pull-request-number>" >&2
   exit 2
 fi
 
 pr=$1
-root=$(git rev-parse --show-toplevel)
-me=$(gh api user --jq .login)
+if ! root=$(git rev-parse --show-toplevel); then
+  cannot "the top of the work tree could not be found, so nothing was pushed."
+fi
+if ! me=$(gh api user --jq .login); then
+  cannot "the account gh acts as could not be read, so nothing was pushed."
+fi
 
 if grep -oE '@[A-Za-z0-9-]+' "${root}/.github/CODEOWNERS" | tr -d '@' | grep -qxF "${me}"; then
   echo "refused: ${me} is a code owner, so ${me} cannot approve a pull request that ${me} opens." \
@@ -25,9 +32,15 @@ if grep -oE '@[A-Za-z0-9-]+' "${root}/.github/CODEOWNERS" | tr -d '@' | grep -qx
   exit 1
 fi
 
-git fetch --quiet origin main
-git fetch --quiet origin "refs/pull/${pr}/head"
-base=$(git merge-base origin/main FETCH_HEAD)
+if ! git fetch --quiet origin main; then
+  cannot "main could not be fetched, so nothing was pushed."
+fi
+if ! git fetch --quiet origin "refs/pull/${pr}/head"; then
+  cannot "#${pr} could not be fetched, so nothing was pushed."
+fi
+if ! base=$(git merge-base origin/main FETCH_HEAD); then
+  cannot "the merge base of #${pr} and main could not be found, so nothing was pushed."
+fi
 
 "$(dirname "$0")/check-origin.sh" "${base}" FETCH_HEAD
 
@@ -46,23 +59,34 @@ if grep -q '^\.github/' <<<"${changed}"; then
 token once it is a branch here, before anyone approves it." >&2
 fi
 
-git push --quiet --force origin "FETCH_HEAD:refs/heads/accepted/pr-${pr}"
+if ! git push --quiet --force origin "FETCH_HEAD:refs/heads/accepted/pr-${pr}"; then
+  cannot "accepted/pr-${pr} could not be pushed, so no pull request was opened."
+fi
 
-url=$(gh pr list --head "accepted/pr-${pr}" --state open --json url --jq '.[0].url // empty')
+if ! url=$(gh pr list --head "accepted/pr-${pr}" --state open --json url \
+  --jq '.[0].url // empty'); then
+  cannot "accepted/pr-${pr} is pushed, and its open pull requests could not be read."
+fi
 if [[ -z "${url}" ]]; then
-  title=$(gh pr view "${pr}" --json title --jq .title) || exit 2
-  url=$(gh pr create --base main --head "accepted/pr-${pr}" \
+  if ! title=$(gh pr view "${pr}" --json title --jq .title); then
+    cannot "accepted/pr-${pr} is pushed, and the title of #${pr} could not be read."
+  fi
+  if ! url=$(gh pr create --base main --head "accepted/pr-${pr}" \
     --title "${title}" --body \
     "Carries the work proposed in #${pr}, unchanged.
 
-purba does not sign a branch that lives on a fork, so this branch is what merges.")
+purba does not sign a branch that lives on a fork, so this branch is what merges."); then
+    cannot "accepted/pr-${pr} is pushed, and its pull request could not be opened."
+  fi
 
-  gh pr comment "${pr}" --body \
+  if ! gh pr comment "${pr}" --body \
     "Your work is on \`accepted/pr-${pr}\` in this repository, and ${url} is what merges.
 
 A workflow here cannot write to your fork, so purba carries a contribution in rather than merging \
 it from one. Your commits are unchanged: the author field and your \`Signed-off-by:\` trailer stay \
-yours. CONTRIBUTING.md states what purba records on its side."
+yours. CONTRIBUTING.md states what purba records on its side."; then
+    cannot "${url} is open, and #${pr} could not be told where its work went."
+  fi
 fi
 
 cat <<EOF
