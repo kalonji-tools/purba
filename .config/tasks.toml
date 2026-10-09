@@ -88,6 +88,10 @@ run = [
 description = "Refuse a line that breaks the style every editor reads"
 run = "ec"
 
+["list:records"]
+description = "Name the records a change must satisfy, and refuse nothing"
+run = "scripts/list-records.sh"
+
 ["sign-off"]
 description = "Sign every commit on your branch. A person runs this, never an agent"
 # Hidden because that listing is what an agent reads to find what it may run.

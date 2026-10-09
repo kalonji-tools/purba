@@ -669,3 +669,15 @@ words() {
 
   [[ "${status}" -eq 0 ]]
 }
+
+@test "a tracked path that ends in a newline is matched like any other" {
+  swap "${reach}" "${reach} \`t/**\`"
+  mkdir t
+  printf 'file\n' >"t/a"$'\n'
+  git add --all
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unmatched}"* ]]
+}
