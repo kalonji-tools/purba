@@ -5,16 +5,22 @@
 #                  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
-# Exits 0 when no comment is owed and when one is already present.
+# Exits 0 when no comment is owed and when one is already present, and 2 when
+# the files of the pull request cannot be read.
 set -euo pipefail
+
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
 
 # The workflow supplies these, so naming them refuses early rather than at the
 # line that first reads one.
 : "${GH_REPO:?set by the workflow env}"
 : "${PR:?set by the workflow env}"
 
-decisions=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename' |
-  LC_ALL=C sort | grep '^docs/decisions/' || true)
+if ! files=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename'); then
+  cannot "the files of pull request ${PR} could not be read, so no record was looked for."
+fi
+decisions=$(LC_ALL=C sort <<<"${files}" | grep '^docs/decisions/' || true)
 if [[ -z "${decisions}" ]]; then
   echo "the diff does not touch docs/decisions, so no comment is owed"
   exit 0
