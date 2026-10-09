@@ -23,13 +23,19 @@ commits=$(git rev-list "$1".."$2" 2>&1) ||
 #
 # The address must sit inside angle brackets, because CONTRIBUTING.md asks a
 # sign-off to reach someone.
-missing=$(printf '%s\n' "${commits}" | while read -r sha; do
+missing=""
+while read -r sha; do
   [[ -n "${sha}" ]] || continue
-  if ! git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "${sha}" |
-    grep -q '<.*@.*>'; then
-    git log -1 --format='%h %s' "${sha}"
+  if ! trailers=$(git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "${sha}"); then
+    cannot "the origin check could not read the trailers of ${sha}."
   fi
-done)
+  ! grep -q '<.*@.*>' <<<"${trailers}" || continue
+  if ! named=$(git log -1 --format='%h %s' "${sha}"); then
+    cannot "the origin check could not read the subject of ${sha}."
+  fi
+  missing+="${named}"$'\n'
+done <<<"${commits}"
+missing=${missing%$'\n'}
 
 if [[ -n "${missing}" ]]; then
   summary="A commit is refused when it carries no Signed-off-by trailer, because that trailer \
