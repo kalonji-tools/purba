@@ -151,7 +151,8 @@ merged() {
 
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
-  [[ "${stderr}" == "nothing a script test depends on changed, so the script tests do not run" ]]
+  said="no path on the list in changed-scripts.sh changed, so the script tests do not run"
+  [[ "${stderr}" == "${said}" ]]
 }
 
 @test "a path that only holds the word is not a script" {
