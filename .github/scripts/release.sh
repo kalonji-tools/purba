@@ -94,7 +94,7 @@ if ! git-cliff --bump --output "${changelog}"; then
   cannot "git-cliff could not write ${changelog}"
 fi
 
-ask_for_sign_off "chore(release): cut v${next} (#${issue})" "a release" "${version}" "${next}" \
+ask_for_sign_off "chore(release): cut v${next}" "a release" "${version}" "${next}" \
   "**Merging this cuts no tag.** The merge gives the commit a new SHA, so the next run of \
 \`Release\` tags \`v${next}\`, whether the schedule or a dispatch starts it." \
   "${manifest}" "${lock}" "${changelog}"

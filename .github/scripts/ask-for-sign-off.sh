@@ -9,10 +9,12 @@
 #       exits 0 while a pull request is open on <branch>
 #   ask_for_sign_off <subject> <what> <from> <to> <closing> <file>...
 #       refuses a change beyond <file>..., commits them as the bot, pushes
-#       <branch>, and opens the pull request
+#       <branch>, and opens the pull request; pass <subject> without its reference
 #
 #   GH_REPO    the repository `gh` acts on
 #   GH_TOKEN   a token that may open a pull request
+#
+#   as_bot     the options a caller passes to `git` to write as the bot
 #
 # A failure exits 2, and a change beyond <file>... exits 1.
 
@@ -83,7 +85,7 @@ listed() {
 }
 
 ask_for_sign_off() {
-  local subject=$1 what=$2 from=$3 to=$4 closing=$5
+  local subject="$1 (#${issue})" what=$2 from=$3 to=$4 closing=$5
   local files=("${@:6}") others=() quoted=() file named shown changed body
   for file in "${files[@]}"; do
     others+=(":!${file}")
