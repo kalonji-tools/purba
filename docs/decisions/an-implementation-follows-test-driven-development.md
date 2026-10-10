@@ -60,7 +60,7 @@ The plan says whether its first push fails or passes.
 - **Nothing refuses a skipped test.** Only the reviewer reads the history, and a reviewer who does not look finds nothing.
 - **A red run costs a wait.** The author waits for CI to report before the code is pushed.
 - **Whether a change adds behaviour is a judgement.** A change the author calls a refactor owes a pass instead of a failure.
-- **The proof stays on GitHub.** `main` carries the test and the code in one commit, so only the pull request shows the failed head.
+- **The proof stays on GitHub.** `Scripts` and `Build` run on a pull request only, so only the pull request shows the failed head.
 - **Configuration that no gate reads owes no test.** A wrong value there waits for the change that first reads it.
 
 ## Confirmation
