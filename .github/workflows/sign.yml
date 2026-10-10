@@ -23,7 +23,8 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
   workflow_run:
-    # The ruleset holds a further copy of this list and is not in the tree.
+    # The ruleset is not in the tree. It requires the jobs named Quality and
+    # Build, not Scripts. A red Scripts withholds Sign-off instead.
     workflows: [Quality, Build, Scripts]
     types: [completed]
 
