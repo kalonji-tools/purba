@@ -150,8 +150,8 @@ A conclusion is reported again only where it answers for the tree.
 
 GitHub draws a check run's conclusion from a fixed set, and `success` and `failure` are the two members of it that answer.
 The rest report what happened to the run, so this job names the conclusion it refused and leaves the context absent.
-A run nobody restarts leaves a pull request blocked until somebody notices.
-Where the two trees differ it carries nothing.
+The pull request then stays blocked until somebody closes it and reopens it, which runs the gates on the rewritten head.
+Where the two trees differ this job carries nothing.
 The `sign` job cannot reach that case, because it refuses a branch whose replay changes the content before it rewrites anything.
 This script is given two heads and cannot know what produced them, so it reads the trees and does not trust its caller.
 
