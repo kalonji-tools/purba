@@ -80,7 +80,7 @@ run = ["cargo fmt --check", "cargo clippy --all-targets", "cargo doc --no-deps"]
 ["lint:shell"]
 description = "Refuse a shell defect or unformatted shell"
 run = [
-  "shellcheck -x $(git ls-files {{vars.shell_files}})",
+  "shellcheck $(git ls-files {{vars.shell_files}})",
   "shfmt --diff $(git ls-files {{vars.shell_files}})",
 ]
 

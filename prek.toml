@@ -113,14 +113,9 @@ stages = ["pre-commit"]
 pass_filenames = false
 files = '^(scripts|\.github)/.*\.rs$'
 
-# `-x` follows the `# shellcheck source=` directives three scripts carry. A hook
-# passes one file at a time, where a whole-tree run does not, so without it every
-# `.` draws SC1091.
-#
-#   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
 [[repos.hooks]]
 id = "shellcheck"
-name = "shellcheck -x"
+name = "shellcheck"
 language = "system"
 entry = "mise run lint:shell"
 stages = ["pre-commit"]
