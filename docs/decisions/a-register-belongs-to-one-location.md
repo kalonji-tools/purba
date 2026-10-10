@@ -5,13 +5,13 @@
 On 2026-09-14, purba wrote into twelve locations.
 Two of them stated how to write there.
 
-| location | states how to write there |
+| location | stated how to write there |
 |---|---|
 | commit message | yes, in [a commit message outlives its review](a-commit-outlives-its-review.md) |
 | `docs/decisions/` | yes, in `docs/decisions/.template.md` |
 | the other ten | no |
 
-Confirmation names each location today, with its register.
+Confirmation names each location today, and the register of each open one.
 
 [A location inherits its readers](a-location-inherits-its-readers.md) says who reads each location.
 It does not say what belongs there, and a reader who arrives at an undescribed location writes whatever the last author wrote.
