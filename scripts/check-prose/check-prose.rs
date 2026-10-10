@@ -19,12 +19,14 @@ nursery = { level = "deny", priority = -1 }
 # script never used.
 ---
 
-//! The prose rules of the records, read once through CommonMark.
+//! The prose rules and the figure rules of the records, read once through
+//! CommonMark.
 //!
 //!   the decisions:
 //!     docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
 //!     docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
 //!     docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
+//!     docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
 //!   the caller:  scripts/check-records.sh
 //!
 //!   check-prose.rs <participles> <record>...
@@ -41,7 +43,7 @@ use harper_core::parsers::{Parser, PlainEnglish};
 use harper_core::spell::{FstDictionary, MergedDictionary, MutableDictionary};
 use harper_core::{DictWordMetadata, Document, Token, TokenKind, VerbData, VerbFormFlags};
 use harper_pos_utils::UPOS;
-use pulldown_cmark::{Event, Options, Tag, TagEnd};
+use pulldown_cmark::{CodeBlockKind, Event, Options, Tag, TagEnd};
 
 const LIMIT: usize = 25;
 const PARAGRAPH: usize = 6;
@@ -276,6 +278,45 @@ impl Block {
     }
 }
 
+// The icons Mermaid draws in an `architecture` diagram with no pack registered.
+//   https://mermaid.js.org/syntax/architecture.html
+const BUILT_IN: [&str; 5] = ["cloud", "database", "disk", "internet", "server"];
+
+// The prefixes Mermaid reads as FontAwesome in a label, as in `fa:fa-twitter`.
+//   https://mermaid.js.org/syntax/flowchart.html
+const FONT_AWESOME: [&str; 7] = ["fa", "fab", "fas", "far", "fal", "fad", "fak"];
+
+// Whether a line of a `mermaid` fence draws an icon other than a built-in one.
+fn icon(line: &str) -> bool {
+    let words = line.trim_start();
+    // `service db(logos:aws-rds)[DB]` or `group api(cloud)[API]`. The icon stands
+    // right after the name, so a bracket in the label is not one.
+    let architecture = words
+        .strip_prefix("service ")
+        .or_else(|| words.strip_prefix("group "))
+        .map(|named| {
+            named
+                .trim_start()
+                .trim_start_matches(|c: char| c.is_alphanumeric() || c == '_' || c == '-')
+        })
+        .and_then(|rest| rest.strip_prefix('('))
+        .and_then(|rest| rest.split_once(')'))
+        .is_some_and(|(name, _)| !BUILT_IN.contains(&name.trim()));
+    // `A@{ icon: "fa:user" }` in a flowchart, or `::icon(fa fa-book)` in a mindmap.
+    let shape = line
+        .split_once("@{")
+        .is_some_and(|(_, metadata)| metadata.contains("icon:"))
+        || line.contains("::icon(");
+    let label = line.match_indices(":fa-").any(|(at, _)| {
+        let prefix = line[..at]
+            .rsplit(|c: char| !c.is_ascii_alphanumeric())
+            .next()
+            .unwrap_or_default();
+        FONT_AWESOME.contains(&prefix)
+    });
+    architecture || shape || label
+}
+
 // Whether a line closes at a boundary, which bold or a quotation mark may follow.
 fn ends(line: &str) -> bool {
     line.trim_end_matches(|c: char| c.is_ascii_whitespace())
@@ -330,6 +371,16 @@ impl<'a> Record<'a> {
         }
     }
 
+    fn icons(&mut self, text: &str, at: usize) {
+        let mut offset = 0;
+        for line in text.split_inclusive('\n') {
+            if icon(line) {
+                self.find("icon", self.line(at + offset), "");
+            }
+            offset += line.len();
+        }
+    }
+
     // The options Harper reads Markdown with, so `[[a title]]` is still a link.
     fn walk(&mut self) {
         let options = Options::all().difference(Options::ENABLE_SMART_PUNCTUATION);
@@ -349,10 +400,16 @@ impl<'a> Record<'a> {
                         walk.block().push(&text, range.start);
                     }
                 }
-                Event::Code(_)
-                | Event::InlineMath(_)
-                | Event::DisplayMath(_)
-                | Event::FootnoteReference(_)
+                Event::Text(text) if walk.mermaid => self.icons(&text, range.start),
+                // GitHub renders `$` math wherever it stands, so a heading and a
+                // link title are read too.
+                Event::InlineMath(_) | Event::DisplayMath(_) => {
+                    self.find("math", self.line(range.start), "");
+                    if walk.hidden == 0 && walk.linked == 0 {
+                        walk.block().push(&ATOM.to_string(), range.start);
+                    }
+                }
+                Event::Code(_) | Event::FootnoteReference(_)
                     if walk.hidden == 0 && walk.linked == 0 =>
                 {
                     walk.block().push(&ATOM.to_string(), range.start);
@@ -410,6 +467,8 @@ impl<'a> Record<'a> {
             Tag::Heading { .. } | Tag::CodeBlock(_) | Tag::MetadataBlock(_) => {
                 self.flush(walk.current.take());
                 walk.hidden += 1;
+                walk.mermaid = matches!(tag, Tag::CodeBlock(CodeBlockKind::Fenced(info))
+                    if info.split_whitespace().next() == Some("mermaid"));
             }
             Tag::List(_) | Tag::Table(_) | Tag::DefinitionList | Tag::HtmlBlock => {
                 self.flush(walk.current.take());
@@ -451,6 +510,7 @@ impl<'a> Record<'a> {
             }
             TagEnd::Heading(_) | TagEnd::CodeBlock | TagEnd::MetadataBlock(_) => {
                 walk.hidden -= 1;
+                walk.mermaid = false;
             }
             TagEnd::Link | TagEnd::Image => {
                 walk.linked -= 1;
@@ -571,6 +631,7 @@ struct Walk {
     linked: usize,
     link: usize,
     reach: bool,
+    mermaid: bool,
 }
 
 impl Walk {
@@ -1228,5 +1289,47 @@ mod tests {
         ] {
             assert_eq!(passives(text), passive, "{text}");
         }
+    }
+
+    #[test]
+    fn inline_math_and_a_display_block_are_math() {
+        let found = findings("It costs $x^2$ here.\n\n$$\ny = mx\n$$\n");
+        assert_eq!(found, ["math\t1", "math\t3"]);
+    }
+
+    #[test]
+    fn math_in_a_heading_or_a_link_title_is_math() {
+        let found = findings("# The $x$ rule\n\nRead [the $y$ rule](a.md) here.\n");
+        assert_eq!(found, ["math\t1", "math\t3"]);
+    }
+
+    #[test]
+    fn a_code_span_a_math_fence_and_a_price_are_not_math() {
+        let text =
+            "Both `$var` and `$x` stay.\n\nIt costs $5 and $10 today.\n\n```math\ny = mx\n```\n";
+        assert_eq!(findings(text), [] as [&str; 0]);
+    }
+
+    #[test]
+    fn each_form_of_an_icon_in_a_mermaid_fence_is_found_at_its_line() {
+        let text = "```mermaid\narchitecture-beta\n  service db(logos:aws-rds)[DB]\n```\n\n\
+            ```mermaid\nflowchart LR\n  A@{ icon: \"fa:user\" }\n  B[fa:fa-twitter Tweet]\n  \
+            C[fab:fa-github Code]\n```\n\n\
+            ```mermaid\nmindmap\n  root\n    A\n    ::icon(fa fa-book)\n```\n";
+        assert_eq!(
+            findings(text),
+            ["icon\t3", "icon\t8", "icon\t9", "icon\t10", "icon\t17"]
+        );
+    }
+
+    #[test]
+    fn a_built_in_icon_and_an_icon_outside_a_mermaid_fence_pass() {
+        let text = "```mermaid\narchitecture-beta\n  group api(cloud)[API]\n  \
+            service db(database)[DB] in api\n  service store(disk)[Store] in api\n  \
+            service net(internet)[Net]\n  service web(server)[Web] in api\n  \
+            service app[Label (x)]\n```\n\n\
+            ```mermaid\nflowchart LR\n  A[\"icon: x\"]\n```\n\n\
+            ```text\nA@{ icon: \"fa:user\" }\n```\n\nIt quotes `fa:fa-twitter` here.\n";
+        assert_eq!(findings(text), [] as [&str; 0]);
     }
 }
