@@ -10,9 +10,11 @@
 # thing it reads, so its answer is genuinely different and carrying it lies.
 #
 # Exits 0 whether or not anything was carried, and 2 when it cannot run. The
-# caller must not let a failure here fail the signing job: a branch that is
-# signed and uncarried is recovered by restarting the run, and one that is
-# unsigned is not.
+# caller must not let a failure here fail the signing job. A restart does not
+# carry what this script missed: the restarted run reads the gates on the
+# rewritten head, finds a gate with no verdict there, and stops. Closing and
+# reopening the pull request runs the gates on that head. The run after the
+# last gate then signs it again with no push.
 set -euo pipefail
 
 if [[ $# -lt 3 ]]; then
