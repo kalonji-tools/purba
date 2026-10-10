@@ -127,7 +127,7 @@ Every pointer then stays true and the history says the project went round the lo
 
 **Downside:**
 
-- **Nothing in the tracker is frozen yet.** 79 of 80 issues carry no type, so every one of them becomes a draft. That is arguably correct, since none was ever agreed this way, and it means the rule protects nothing until types are set.
+- **An issue with no type stays a draft, even after it closes.** Anyone who can edit the issue can still rewrite its body and its spec with no mark.
 - **The freeze can be lifted.** Removing a type un-freezes an issue. The removal is public and recorded, so it cannot be done quietly, but nothing refuses it.
 - **Two issues cost more than one rename**, against a standing preference here for a re-scope over a new issue. Re-scoping is cheaper to write and more expensive to read, and this project has one writer and expects many readers.
 - **Nothing enforces any of it.** Every check below reports and none gates, because an issue has no merge event.
