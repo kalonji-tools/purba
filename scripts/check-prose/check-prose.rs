@@ -192,7 +192,7 @@ fn dictionary(list: &str) -> MergedDictionary {
     merged
 }
 
-// The three borrowed rules a command cannot decide, counted for the report.
+// Three borrowed rules a command cannot decide, counted for the report.
 #[derive(Default)]
 struct Tally {
     sentences: u32,
