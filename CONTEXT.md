@@ -60,6 +60,10 @@ A unit of work, holding a question to settle or a task to do.
 
 _Avoid_: ticket
 
+### Landscape
+
+purba seen whole, in one file, at the level of its parts. It states what purba is for, what surrounds it, how it divides, the invariants between the divisions, its cross-cutting concerns, its risks, and the order in which each part is designed in depth.
+
 ### Liability
 
 A statement about who is answerable for a change. Each one is written from the act that makes it true.
