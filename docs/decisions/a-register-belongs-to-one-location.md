@@ -30,17 +30,17 @@ The cause is mechanical rather than a failure of discipline.
 A template is rendered by the client that opens it, and 1,317 of 1,317 issues plus 849 of 899 pull requests arrived through the API.
 GitHub's own documentation says the setting that hides the blank-issue link "encourages" template use.
 
-purba's two busiest locations already disagree with each other.
+purba's two busiest locations disagreed with each other.
 
 | | issues | pull requests |
 |---|---:|---:|
-| written so far | 74 | 11 |
+| written by 2026-09-14 | 74 | 11 |
 | distinct second-level headings | | 33 |
 | opening with `## Question` or `## Task` | 72 | |
 | carrying no second-level heading at all | 0 | 3 |
 
 The issue reached 72 of 74 with nothing enforcing it.
-The pull request has no shape to preserve.
+The pull request had no shape to preserve.
 
 ## Considered Options
 
