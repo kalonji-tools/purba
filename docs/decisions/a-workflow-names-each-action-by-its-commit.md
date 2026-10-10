@@ -12,11 +12,12 @@ These jobs run an action while they hold a credential:
 
 | job | credential | action |
 |---|---|---|
-| `bump.yml` `bump` | `contents: write`, then the App key | `jdx/mise-action`, which sets the `PATH` that later steps run `git` and `gh` from |
-| `publish.yml` `wheel` | `contents: read`, and it builds the file that `upload` sends to PyPI | `jdx/mise-action` |
-| `publish.yml` `upload` | `id-token: write` | `pypa/gh-action-pypi-publish` |
+| `bump.yml` `bump` | `contents: write` and `issues: write`, then the App key | `actions/checkout`, `actions/create-github-app-token`, and `jdx/mise-action`, which sets the `PATH` that later steps run `git` and `gh` from |
+| `publish.yml` `report` | `issues: write` | `actions/checkout` |
+| `publish.yml` `upload` | `id-token: write` | `actions/download-artifact`, `pypa/gh-action-pypi-publish` |
+| `publish.yml` `wheel` | `contents: read`, and it builds the file that `upload` sends to PyPI | `actions/checkout`, `actions/upload-artifact`, `jdx/mise-action` |
 | `records.yml` `decision-records` | `pull-requests: write` | `actions/checkout` |
-| `release.yml` `release` | `contents: write` and `actions: write`, then the App key | `jdx/mise-action` |
+| `release.yml` `release` | `contents: write`, `issues: write` and `actions: write`, then the App key | `actions/checkout`, `actions/create-github-app-token`, `jdx/mise-action` |
 | `sign.yml` `sign` | `contents: write` and `checks: write` | `actions/checkout` |
 
 ## Considered Options
@@ -27,7 +28,7 @@ These jobs run an action while they hold a credential:
 
 ## Decision Outcome
 
-**Reach:** `.github/workflows/*.yml`
+**Reach:** `.github/workflows/*.yml` `/.config/tasks.toml` `/prek.toml` `/.pinact.yaml` `/.pinact.yml` `.github/pinact.yaml` `.github/pinact.yml`
 
 **Each `uses:` names an action by its full commit, and a comment names the version tag on that commit.**
 
@@ -36,20 +37,35 @@ These jobs run an action while they hold a credential:
 ```
 
 The comment holds the most specific version tag on the commit.
-The comment ends the line.
 A new action takes the commit that its tag names on the day a person adds it.
-[Dependabot proposes each newer action](dependabot-proposes-each-newer-action.md) moves the commit and the comment together.
+Dependabot moves the commit and the comment together, as [Dependabot proposes each newer action](dependabot-proposes-each-newer-action.md) says.
+
+**`mise run fmt:pins` writes the pin, and a hook runs it at commit.**
+`mise run lint:pins` refuses a tag and a comment that names another version.
+`Quality` runs it, because CI cannot write.
 
 **Downside:**
 
 - **Dependabot raises no alert for an action named by its commit.** [GitHub](https://docs.github.com/en/actions/reference/security/secure-use) says: "Dependabot only creates alerts for vulnerable actions that use semantic versioning and will not create alerts for actions pinned to SHA values." A fixed action arrives only with the next weekly version update.
-- **The comment can be false.** Nothing checks that the comment names the version of its commit. A hand edit can move one and not the other.
-- **A person who adds an action resolves its commit by hand.** `git ls-remote --tags` prints it. Where a tag has a peeled `^{}` line, that line holds the commit.
+- **`lint:pins` reads the GitHub API.** It needs the network, like `lint:links`. Without a token it reads anonymously, and a rate limit fails it.
+- **A commit that adds an action by a tag needs the network.** The hook resolves the tag through the GitHub API.
 
 ## Confirmation
 
-| property | check |
-|---|---|
-| each `uses:` names a commit and a version | `grep -nE 'uses: [^ ]+@' .github/workflows/*.yml \| grep -vE '@[0-9a-f]{40} # v[0-9]+(\.[0-9]+)*$'` prints nothing. The gate is not wired: [No gate refuses a workflow that names an action by a tag](https://github.com/kalonji-tools/purba/issues/456) |
-| Dependabot moves the comment with the commit | read from `updated_comment` in [`version_commenter.rb`](https://raw.githubusercontent.com/dependabot/dependabot-core/3b68008e805baffb205e066abc61522083cb3f8b/github_actions/lib/dependabot/github_actions/file_updater/workflow_updater/version_commenter.rb), not measured. It rewrites a comment that ends in the version of the old commit. The first Dependabot pull request after this record shows it |
-| the comment names the version of its commit | nothing checks it |
+Each row ran on copies of `.github/workflows/`, with the pinact that `.config/mise.lock` holds.
+
+| tree | `fmt:pins` | `lint:pins` |
+|---|---|---|
+| every action by a tag | writes the pins the workflows hold now | not run |
+| every action by its commit | changes nothing | exits 0 |
+| one `actions/checkout@v7` | writes its pin | exits 1, and changes no file |
+| one `# v7` on the commit of `v7.0.1` | writes `# v7.0.1` | exits 1 |
+| one `# v7.0.0` on the commit of `v7.0.1` | not run | exits 3 |
+| every action by its commit, with a token GitHub refuses | changes nothing, so it calls no API | exits 3 |
+
+`pinact run --fix=false --no-api` reads no API.
+It misses the false comment, so `lint:pins` does not use it.
+
+Whether Dependabot moves the comment with the commit is read from `updated_comment` in [`version_commenter.rb`](https://raw.githubusercontent.com/dependabot/dependabot-core/3b68008e805baffb205e066abc61522083cb3f8b/github_actions/lib/dependabot/github_actions/file_updater/workflow_updater/version_commenter.rb), not measured.
+`updated_comment` rewrites a comment that ends in the version of the old commit.
+The first Dependabot pull request after this record shows it.

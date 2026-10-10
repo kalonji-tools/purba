@@ -129,6 +129,15 @@ entry = "mise run fmt:shell"
 stages = ["pre-commit"]
 pass_filenames = false
 
+[[repos.hooks]]
+id = "pinact"
+name = "pinact run"
+language = "system"
+entry = "mise run fmt:pins"
+stages = ["pre-commit"]
+pass_filenames = false
+files = '^\.github/workflows/'
+
 # Invoked as `ec`: the roster name is `editorconfig-checker`, but the package
 # ships the binary under the short name.
 [[repos.hooks]]
