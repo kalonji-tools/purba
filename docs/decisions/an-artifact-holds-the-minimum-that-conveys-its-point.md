@@ -70,6 +70,7 @@ The purpose of bold stays where the diagram rule sits, and the Downside names wh
 
 A diagram may not raise the record's word count.
 That rule is decidable and a reviewer decides it, because the length of a record without its diagram is not a number the tree holds.
+[A figure in a record is a fence GitHub renders](a-figure-in-a-record-is-a-fence-github-renders.md) says which form a diagram takes.
 
 **Evidence density is reported and refuses nothing.**
 It counts the prose lines that carry no number, no code span and no link.
