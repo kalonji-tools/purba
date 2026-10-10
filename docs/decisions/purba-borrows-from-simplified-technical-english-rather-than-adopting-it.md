@@ -45,6 +45,7 @@ No public source carries the rule numbers, so purba cites none.
 | the active voice | reports |
 | no wordy or formal word | reports |
 | no part of a sentence left out | reports |
+| one idea in one sentence | reports |
 | no more than 20 words in a procedure | neither |
 
 [A part-of-speech tagger decides the tense rule](a-part-of-speech-tagger-decides-the-tense-rule.md) says which command refuses a tense.
@@ -81,6 +82,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 | the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-prose/check-prose.rs` |
 | the same command refuses `has`, `have` or `had` with a participle | `scripts/check-prose/check-prose.rs` |
 | the same command reports the passive voice and refuses nothing | `scripts/check-prose/check-prose.rs` |
+| the post pass judges each added line against every rule this record reports | `docs/agents/post-pass.md` |
 | the approved dictionary | a reader, and there will be no check |
 
 Each refusal names the file and the line it found.
