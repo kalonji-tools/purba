@@ -19,7 +19,7 @@ It does not say how an author builds it.
 
 The proof of the order was weighed separately.
 
-- **The order of the commits.** Rejected. It shows an order and no failure, and a reduction of the commits erases it.
+- **The order of the commits.** Rejected. It shows an order and no failure.
 - **A push that holds only the test, and fails.** Chosen. CI runs on the head of a push, so only a push of its own runs the test alone.
 
 So was a gate.
@@ -73,10 +73,10 @@ No command decides any of this, and none is planned.
 | the test failed first | a head that holds only the test, with `Scripts` or `Build` at `FAILURE` |
 
 A head still on the pull request shows its checks there.
-This query reads each commit below a head that a force push replaced:
+This query reads up to 100 commits below each head that a force push replaced:
 
 ```
-gh api graphql -f query='{repository(owner:"kalonji-tools",name:"purba"){pullRequest(number:<n>){timelineItems(first:50,itemTypes:[HEAD_REF_FORCE_PUSHED_EVENT]){nodes{... on HeadRefForcePushedEvent{beforeCommit{history(first:20){nodes{oid checkSuites(first:20){nodes{conclusion workflowRun{workflow{name}}}}}}}}}}}}}'
+gh api graphql -f query='{repository(owner:"kalonji-tools",name:"purba"){pullRequest(number:<n>){timelineItems(first:50,itemTypes:[HEAD_REF_FORCE_PUSHED_EVENT]){nodes{... on HeadRefForcePushedEvent{beforeCommit{history(first:100){nodes{oid checkSuites(first:20){nodes{conclusion workflowRun{workflow{name}}}}}}}}}}}}}'
 ```
 
 [`AGENTS.md`](../../AGENTS.md) carries this rule to an agent before it acts.
