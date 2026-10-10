@@ -21,7 +21,7 @@ It carries these parts:
 - the first two lists, as `mise run list:records` prints them;
 - the number of lines on the third list;
 - what can be removed or improved;
-- each breach, with the commit that fixed it.
+- each breach, with the commit that fixed it, if one did.
 
 A stale sentence is a breach of [a decision record is rewritten, not amended](../decisions/a-record-is-rewritten-not-amended.md#decision-outcome).
 The comment does not repeat the third list, because the command prints it again from the head.
@@ -29,8 +29,8 @@ The comment does not repeat the third list, because the command prints it again 
 Post the comment even when the pass finds no breach.
 Also write each breach that you do not fix in the pull request body, under "What you must decide".
 
-A new pass reads the whole change, and its comment links the pass it replaces.
-Never edit an earlier pass.
+A new pass reads the whole change.
+It supersedes the pass it replaces by the procedure in [an artifact is rewritten until its direction is agreed](../decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md#decision-outcome).
 
 ## What belongs in this file
 

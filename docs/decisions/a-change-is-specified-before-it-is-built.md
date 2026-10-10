@@ -73,9 +73,9 @@ It need not name the commits.
 
 **The [post pass](../../CONTEXT.md#post-pass) is owed on work an agent wrote.**
 [Run a post pass](../agents/post-pass.md) says how to run one.
-The agent owes a new pass after each review round that changes the patch, or that changes the records `mise run list:records` names.
+The agent owes a new pass after each review round that changes the patch, or that changes the records that `mise run list:records` names.
 It owes the pass only when it wrote a commit of the round, and it posts the pass before it asks for the next review.
-A round that only signs the branch, reduces the commits, or rebases with no conflict owes no new pass.
+A round that only signs the branch, reduces the commits, or rebases with no conflict leaves the patch as it was.
 
 **A pull request opens as a draft.**
 Marked ready, it asks for the reviewer.
@@ -99,10 +99,10 @@ No sign-off is owed before that.
 
 - **Nothing refuses any of it.** Every step is a convention, and only the reviewer notices one that was skipped.
 - **The repair exemption is a judgement.** A change that carries a decision can be called a repair, and it then merges with no spec.
-- **The type protects little yet.** Few issues carry one, so the sign that an issue is specified is new in practice.
 - **An agent can set the type with no agreement behind it.** Nothing tells the two acts apart afterwards.
 - **A spec written early goes stale.** The read against the tree is all that catches it, and nothing prompts that read.
 - **`Origin` reads red through the whole review.** The branch stays unsigned until the reviewer is satisfied, so that check says nothing before then.
+- **Each round that owes a pass costs about [140k tokens](https://github.com/kalonji-tools/purba/issues/391#issuecomment-6078214981).** The reviewer also reads one more comment on the pull request for each such round.
 - **The record is rewritten when a step changes.** [A location inherits its readers](a-location-inherits-its-readers.md) refused to key itself to stages for that reason.
 
 ## Confirmation
