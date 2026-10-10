@@ -2,15 +2,16 @@
 
 ## Context and Problem Statement
 
-purba writes into thirteen locations.
-Three of them state how to write there.
+On 2026-09-14, purba wrote into twelve locations.
+Two of them stated how to write there.
 
-| location | states how to write there |
+| location | stated how to write there |
 |---|---|
 | commit message | yes, in [a commit message outlives its review](a-commit-outlives-its-review.md) |
 | `docs/decisions/` | yes, in `docs/decisions/.template.md` |
-| `CONTEXT.md` | yes, in [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) |
 | the other ten | no |
+
+Confirmation names each location today, and the register of each open one.
 
 [A location inherits its readers](a-location-inherits-its-readers.md) says who reads each location.
 It does not say what belongs there, and a reader who arrives at an undescribed location writes whatever the last author wrote.
@@ -29,17 +30,17 @@ The cause is mechanical rather than a failure of discipline.
 A template is rendered by the client that opens it, and 1,317 of 1,317 issues plus 849 of 899 pull requests arrived through the API.
 GitHub's own documentation says the setting that hides the blank-issue link "encourages" template use.
 
-purba's two busiest locations already disagree with each other.
+purba's two busiest locations disagreed with each other.
 
 | | issues | pull requests |
 |---|---:|---:|
-| written so far | 74 | 11 |
+| written by 2026-09-14 | 74 | 11 |
 | distinct second-level headings | | 33 |
 | opening with `## Question` or `## Task` | 72 | |
 | carrying no second-level heading at all | 0 | 3 |
 
 The issue reached 72 of 74 with nothing enforcing it.
-The pull request has no shape to preserve.
+The pull request had no shape to preserve.
 
 ## Considered Options
 
@@ -52,7 +53,7 @@ The pull request has no shape to preserve.
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/LANDSCAPE.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
 
 A register belongs to one location, and this record names it and does not hold it.
 
@@ -129,6 +130,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
 | `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
 | `docs/agents/post-pass.md` | its closing section, *What belongs in this file* | its links, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
+| `LANDSCAPE.md` | its closing section, *What belongs in this file* | the order of its sections, its length and its links | partly, `mise run lint:links` refuses a link that resolves to nothing |
 | refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:shell` fails on a summary that names a record |
 | CHANGELOG | `.config/cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:shell` renders it from the register |
 

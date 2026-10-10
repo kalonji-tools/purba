@@ -22,12 +22,12 @@ A session answering a single question about the issue register read four records
 | read | 408 |
 | the corpus | 1,491 |
 
-The corpus also disagrees with itself.
+On 2026-09-19, the corpus also disagreed with itself.
 
 | the collision | where |
 |---|---|
-| `issue` and `ticket` name one thing | both appear in one sentence of [a register belongs to one location](a-register-belongs-to-one-location.md) |
-| `maintainer` was removed from the actor roster and is still used as a role | [an actor is what it does, not what it is](an-actor-is-what-it-does-not-what-it-is.md) removes it, and two records use it ten times |
+| `issue` and `ticket` named one thing | both appeared in one sentence of [a register belongs to one location](a-register-belongs-to-one-location.md) |
+| `maintainer` was removed from the actor roster and was still used as a role | [an actor is what it does, not what it is](an-actor-is-what-it-does-not-what-it-is.md) removed it, and two records used it ten times |
 
 [A register belongs to one location](a-register-belongs-to-one-location.md) says a location does not open without a reader and a register.
 The vocabulary had neither.
