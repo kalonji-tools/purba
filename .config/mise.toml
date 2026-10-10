@@ -16,11 +16,12 @@ rust = { version = "nightly-2026-10-05", components = "clippy,rustfmt,rust-analy
 # https://mise.jdx.dev/lang/python
 python = "3.12"
 
-# 1.9.3 is the floor, not 1.9.0. PEP 639 support shipped in 1.9.0 and was fixed
-# twice after: 1.9.2 writes `License-Expression` over `License`, and 1.9.3 adds
-# `project.license-files` to a source distribution.
+# 1.9.3 is the floor. PEP 639 support shipped in 1.9.0 and was fixed twice
+# after: 1.9.2 writes `License-Expression` over `License`, and 1.9.3 adds
+# `project.license-files` to a source distribution. mise reads no version range
+# for maturin, so the request names a minor from 1.10 on, and never `1` or `1.9`.
 # https://www.maturin.rs/changelog.html
-maturin = "1"
+maturin = "1.15"
 
 prek = "0.5"
 
