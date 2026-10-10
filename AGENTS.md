@@ -40,7 +40,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 - After you mark a pull request ready, watch it for review, and act on each round before anyone asks. ([the agent that marks a pull request ready watches it](docs/decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md#decision-outcome))
 - Make a change asked for in review as a new commit. Rewrite the branch only to follow `main`. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
-- After a review round that changes the patch, or that changes the records `mise run list:records` names, post a new [post pass](docs/agents/post-pass.md) if you wrote a commit of the round. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+- After a review round that changes the patch, or that changes the records that `mise run list:records` names, post a new [post pass](docs/agents/post-pass.md) before you ask for the next review, if you wrote a commit of the round. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - Reduce the commits only once the reviewer is satisfied. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - When you reduce a pull request Dependabot opened, rewrite each subject in the form its record shows. ([Dependabot proposes each newer action](docs/decisions/dependabot-proposes-each-newer-action.md#decision-outcome))
 
