@@ -82,7 +82,9 @@ jobs:
         id: accept
         run: .github/scripts/write-acceptance-trailer.sh
       - name: Carry the verdicts the content still answers for
-        if: steps.accept.outputs.after != ''
+        # Never true, on this prototype branch only. A run started by this pull
+        # request's own events signs the branch and carries nothing.
+        if: steps.accept.outputs.after == 'never'
         continue-on-error: true
         env:
           BEFORE: ${{ steps.accept.outputs.before }}
