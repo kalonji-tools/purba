@@ -50,7 +50,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Write an `Assisted-by: AGENT:MODEL` trailer, and no session address. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
 - Write a body only for a sentence that must outlive the review and that no other location carries. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
 - Never name the position of a commit in a planned series. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
-- In a commit that rewrites a record, say what was wrong before, unless the diff shows it. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
+- In a commit that rewrites a record, say what was wrong before and why, unless the diff shows it. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#decision-outcome))
 - Check that the number in the subject names the issue the change answers. ([a commit message outlives its review](docs/decisions/a-commit-outlives-its-review.md#confirmation))
 
 ## When you write a record
