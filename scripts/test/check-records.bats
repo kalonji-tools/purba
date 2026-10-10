@@ -670,6 +670,27 @@ words() {
   [[ "${status}" -eq 0 ]]
 }
 
+@test "math outside a math fence is refused" {
+  prose "Something needs a decision at \$x\$ now."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A formula in a record is a"* ]]
+  [[ "${output}" == *"A record writes each kind of figure in one form"* ]]
+  [[ "${output}" == *"${record}:5"* ]]
+}
+
+@test "an icon in a mermaid fence is refused" {
+  prose $'Something needs a decision.\n\n```mermaid\nflowchart LR\n  A[fa:fa-twitter Tweet]\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"draws no icon"* ]]
+  [[ "${output}" == *"${record}:9"* ]]
+}
+
 @test "a tracked path that ends in a newline is matched like any other" {
   swap "${reach}" "${reach} \`t/**\`"
   mkdir t

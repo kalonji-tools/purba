@@ -162,6 +162,22 @@ mapfile -t found < <(grep '^tense' <<<"${prose}" | cut -f2- || true)
 with the bare verb is one of them, so must be run stands and has run does not." \
   "${found[@]}"
 
+# The figure rules a command can decide, read in the same pass.
+#
+#   the decision:  docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
+mapfile -t found < <(grep '^math' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A formula in a record is a math fence, so \$ math is refused outside one. A record writes \
+each kind of figure in one form." \
+  "${found[@]}"
+
+mapfile -t found < <(grep '^icon' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A mermaid fence in a record draws no icon. GitHub registers no icon pack and loads no \
+FontAwesome, so an icon draws nothing and raises no error. The built-in icons of an \
+architecture diagram are the exception: cloud, database, disk, internet and server." \
+  "${found[@]}"
+
 # The four Downside rules `docs/decisions/.template.md` states: the label stands
 # on its own line, it never counts the costs, the costs are a list, and bold
 # marks every lead-in.
