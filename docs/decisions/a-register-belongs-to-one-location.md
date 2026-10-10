@@ -2,15 +2,16 @@
 
 ## Context and Problem Statement
 
-purba writes into thirteen locations.
-Three of them state how to write there.
+On 2026-09-14, purba wrote into twelve locations.
+Two of them stated how to write there.
 
 | location | states how to write there |
 |---|---|
 | commit message | yes, in [a commit message outlives its review](a-commit-outlives-its-review.md) |
 | `docs/decisions/` | yes, in `docs/decisions/.template.md` |
-| `CONTEXT.md` | yes, in [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) |
 | the other ten | no |
+
+Confirmation names each location today, with its register.
 
 [A location inherits its readers](a-location-inherits-its-readers.md) says who reads each location.
 It does not say what belongs there, and a reader who arrives at an undescribed location writes whatever the last author wrote.
