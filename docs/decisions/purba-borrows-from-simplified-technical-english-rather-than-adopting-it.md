@@ -72,6 +72,8 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 - **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` or a word in its list of prepositions and conjunctions, so a gerund elsewhere passes.
 - **A reported number binds nobody.** The passive voice is the largest deviation in the corpus and nothing refuses it.
 - **The file stating these rules is not checked against them.** `.template.md` sits outside the glob, and its prose lives inside a comment the same command refuses elsewhere.
+- **Nothing reports a breach of one idea in one sentence already on `main`.** Only the post pass reports that rule. The pass judges only the lines a change adds.
+- **Nothing reports a breach of one idea in one sentence in a change that a person writes.** [A change is specified before it is built](a-change-is-specified-before-it-is-built.md#decision-outcome) owes a post pass on work an agent wrote. No record owes a post pass on a person's work.
 
 ## Confirmation
 
