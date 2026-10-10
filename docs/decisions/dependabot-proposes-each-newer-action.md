@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-Each workflow names an action by a version tag, such as `actions/checkout@v4`.
+Each workflow names an action by its commit, as [a workflow names each action by its commit](a-workflow-names-each-action-by-its-commit.md) says.
 Nothing in the tree proposes a newer one.
 A person learns of an old action when GitHub warns about it.
 By then GitHub already deprecated the runtime under it.
@@ -33,7 +33,7 @@ Security updates never raise one.
 **Dependabot proposes each newer action the workflows use.**
 It reads `.github/dependabot.yml` once a week.
 Version updates move every action in one pull request.
-A security update arrives on its own, whenever an advisory names an action.
+No security update arrives for an action, because GitHub raises no alert for an action named by its commit.
 
 **A person signs it, like any other branch.**
 [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) says how.
@@ -44,14 +44,13 @@ It cannot regenerate `.config/mise.lock`.
 
 **Downside:**
 
-- **Dependabot cannot write a subject in purba's form.** It writes a prefix and never a suffix. A security update also inserts `[Security]` after the prefix. It takes the case of its first word from the history of `main`, and `subject-form` in `prek.toml` refuses a capital after the colon. So each of its pull requests needs a reduction. The reduction rewrites each subject to end in the number of [Keep the workflow actions current with Dependabot](https://github.com/kalonji-tools/purba/issues/282).
+- **Dependabot cannot write a subject in purba's form.** It writes a prefix and never a suffix. It takes the case of its first word from the history of `main`, and `subject-form` in `prek.toml` refuses a capital after the colon. So each of its pull requests needs a reduction. The reduction rewrites each subject to end in the number of [Keep the workflow actions current with Dependabot](https://github.com/kalonji-tools/purba/issues/282).
 - **Dependabot no longer rebases a branch once someone else pushes a commit to it.** The reduction is such a push.
 - **A workflow that no pull request runs meets a newer action only on its next run.** `bump.yml` and `release.yml` run on a schedule, and `publish.yml` runs on each tag. A newer action that breaks `publish.yml` costs that version, because a dispatch runs the file its tag holds.
 
 | update | as Dependabot writes it | once reduced, where `N` is that issue's number |
 |---|---|---|
 | version | `ci(deps): Bump the actions group with 2 updates` | `ci(deps): bump the actions group with 2 updates (#N)` |
-| security | `ci(deps): [Security] Bump actions/checkout from 4 to 7` | `ci(deps): bump actions/checkout from 4 to 7 (#N)` |
 
 ## Confirmation
 

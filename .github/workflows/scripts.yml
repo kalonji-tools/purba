@@ -37,7 +37,7 @@ jobs:
     steps:
       # A pull request is checked out as its merge commit, whose first parent
       # is the base.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
 
@@ -45,13 +45,13 @@ jobs:
         id: changed
         run: .github/scripts/changed-scripts.sh HEAD^1 HEAD >>"$GITHUB_OUTPUT"
 
-      - uses: jdx/mise-action@v5
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         if: steps.changed.outputs.scripts == 'true'
         with:
           version: ${{ env.MISE_VERSION }}
 
       # .github/workflows/cargo-scripts.yml fills this cache on main.
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: steps.changed.outputs.scripts == 'true'
         with:
           path: target/scripts
