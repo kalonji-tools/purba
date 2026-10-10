@@ -115,6 +115,6 @@ Each step leaves something a reader can look for.
 | the issue is specified | `gh issue view <n> --json issueType` |
 | the spec came first | a comment on the issue, earlier than the pull request |
 | the pull request asks for review | it is not a draft |
-| the history was kept | the pull request shows no force push between two review rounds |
+| the history was kept | each force push between two review rounds leaves the patch as it was, unless it resolves a conflict with `main` |
 
 [`AGENTS.md`](../../AGENTS.md) carries these steps to an agent before it acts.
