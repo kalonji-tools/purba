@@ -62,8 +62,9 @@ if [[ "${before_tree}" != "${after_tree}" ]]; then
   exit 0
 fi
 
+runs=$(check_runs_of "${before}")
+
 for context in "$@"; do
-  runs=$(check_runs_of "${before}")
   conclusion=$(last_conclusion "${context}" <<<"${runs}")
 
   # Absent reads the same as refused here, on purpose.

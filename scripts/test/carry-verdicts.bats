@@ -82,6 +82,19 @@ setup() {
   [[ "${posted}" -eq 1 ]]
 }
 
+@test "three contexts read the check runs once" {
+  check_runs Quality=success Build=success Scripts=success
+
+  run "${script}" "${before}" "${after}" Quality Build Scripts
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  read=$(grep -c 'check-runs?per_page' <<<"${asked}")
+  [[ "${read}" -eq 1 ]]
+  posted=$(grep -c -- '--method POST' <<<"${asked}")
+  [[ "${posted}" -eq 3 ]]
+}
+
 @test "a rewrite that changed the content carries nothing" {
   check_runs Quality=success
   commit "feat: more content"
