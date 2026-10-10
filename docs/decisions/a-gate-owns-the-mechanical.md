@@ -57,7 +57,8 @@ Where an owed file lives is a standard no gate holds, and [configuration takes t
 
 Every lint level of the crate lives in `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
 A cargo script carries its own, in the manifest inside it.
-A flag on a command line reaches only that command, so `.config/tasks.toml` carries no lint flag.
+A flag on a command line reaches only that command, so `.config/tasks.toml` carries a lint flag only where its tool reads no file for it.
+`lint:pins` passes `--verify-comment`, because pinact reads no setting for that check.
 
 **Downside:**
 

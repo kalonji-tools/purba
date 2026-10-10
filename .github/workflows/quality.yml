@@ -51,8 +51,8 @@ jobs:
         run: mise run lint
         env:
           PURBA_BASE: HEAD^1
-          # Without it lychee reads github.com anonymously, and a rate limit
-          # refuses a live link.
+          # Without it lychee and pinact read github.com anonymously, and a rate
+          # limit refuses a live link or a pinned action.
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Refuse what a commit already refuses

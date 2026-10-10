@@ -17,12 +17,16 @@ description = "Every lint and every test, in one command"
 depends = ["lint", "test"]
 
 [fmt]
-description = "Rewrite every formatting difference, in one command"
+description = "Rewrite every formatting difference and every action not named by its commit"
 depends = ["fmt:*"]
 
 ["fmt:cargo-scripts"]
 description = "Rewrite the formatting of each cargo script"
 run = "git ls-files -z {{vars.cargo_scripts}} | xargs -0 -r rustfmt --edition 2024"
+
+["fmt:pins"]
+description = "Rewrite each action a workflow names by a tag to its commit"
+run = "pinact run"
 
 ["fmt:rust"]
 description = "Rewrite the Rust formatting"
@@ -60,6 +64,12 @@ run = "scripts/check-links.sh"
 ["lint:manifests"]
 description = "Refuse a package that two manifests declare, and any in pyproject.toml"
 run = "scripts/check-manifests.sh"
+
+# `--min-age` is the one optional check left off. It refuses a release younger
+# than a number of days, and no record chooses that number.
+["lint:pins"]
+description = "Refuse an action not named by its commit, or a comment naming another version"
+run = "pinact run --check --verify-comment"
 
 ["lint:placement"]
 description = "Refuse a script that sits in the wrong directory"
