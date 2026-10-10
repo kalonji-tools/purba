@@ -6,7 +6,8 @@
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
-# refuses are the same thing to the ruleset, so a filtered run blocks forever.
+# refuses are the same thing to `sign.yml`, which waits for this one, so a
+# filtered run blocks forever.
 # The job reads what the pull request changes instead, and reports either way.
 #
 # ⚠️ `sign.yml` names this workflow, and names its job in two more lists. A

@@ -172,9 +172,9 @@ added to one, so purba refuses it. The **Update with rebase** entry GitHub
 offers on the pull request replays.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
-once an approval stands and every other required check is green. On a branch
-whose `Quality` is still running, your approval lands and nothing appears to
-happen until the gate finishes.
+once an approval stands and `Quality`, `Build` and `Scripts` are green. On a
+branch whose `Quality` is still running, your approval lands and nothing
+appears to happen until the gate finishes.
 
 Where purba refuses your branch instead, `Sign-off` turns red and names what
 it found. It is written before anything on your branch is rewritten, so the
