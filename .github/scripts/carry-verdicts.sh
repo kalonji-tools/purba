@@ -9,8 +9,13 @@
 # Never name a context here that reads a commit message. The rewrite edits the
 # thing it reads, so its answer is genuinely different and carrying it lies.
 #
-# Exits 0 whether or not anything was carried, and 2 when it cannot run. The
-# caller must not let a failure here fail the signing job. A restart does not
+# Exits 0 whether or not anything was carried, and 2 when it cannot run. Once
+# it holds <after>, a 2 also tries to write a failed `Carry` onto <after>,
+# because a pull request shows only the check runs on its head. The job that
+# calls this started before <after> existed, so its own check run is on another
+# commit. Failing that job would not reach the pull request, and a run that a
+# finished gate started would mark the head of `main` red. So the caller keeps
+# the job green. A restart does not
 # carry what this script missed: the restarted run reads the gates on the
 # rewritten head, finds a gate with no verdict there, and stops. Closing and
 # reopening the pull request runs the gates on that head. The run after the
@@ -28,6 +33,13 @@ fi
 before=$1
 after=$2
 shift 2
+
+report_uncarried() {
+  post_check_run Carry "${after}" failure "Not carried: close and reopen this pull request" \
+    "Not every verdict on \`${before}\` was carried onto this commit. Closing and \
+reopening this pull request runs the gates here."
+}
+trap '[[ $? -ne 2 ]] || report_uncarried' EXIT
 
 # Nothing moved, so the verdicts are already where they belong. Without this
 # the loop below would read a commit's own verdict and post it back onto it.

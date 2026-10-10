@@ -117,20 +117,25 @@ setup() {
   [[ -z "${asked}" ]]
 }
 
-@test "fewer than three arguments exits 2" {
+@test "fewer than three arguments exits 2, and calls no gh" {
   run "${script}" "${before}" "${after}"
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"usage: carry-verdicts.sh <before> <after> <context>..."* ]]
+  asked=$(calls gh)
+  [[ -z "${asked}" ]]
 }
 
-@test "a commit git does not hold exits 2" {
+@test "a commit git does not hold exits 2 and reports a failed Carry on the rewritten head" {
   run "${script}" 0000000000000000000000000000000000000000 "${after}" Quality
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"could not be read."* ]]
   asked=$(calls gh)
-  [[ -z "${asked}" ]]
+  [[ "${asked}" != *"check-runs?per_page"* ]]
+  [[ "${asked}" == *"--method POST repos/owner/name/check-runs -f name=Carry"* ]]
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]
+  [[ "${asked}" == *"-f conclusion=failure"*"close and reopen this pull request"* ]]
 }
 
 @test "a read the API refuses exits 2" {
@@ -151,7 +156,7 @@ setup() {
   [[ "${output}" == *"the check runs on ${before} could not be read."* ]]
 }
 
-@test "a verdict the API refuses to take exits 2" {
+@test "a verdict the API refuses to take exits 2, and then asks for Carry" {
   check_runs Quality=success
   fake gh <<'FAKE'
 case "$*" in
@@ -165,4 +170,23 @@ FAKE
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"the check run Quality could not be written onto ${after}."* ]]
   [[ "${output}" != *"carried Quality"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]
+}
+
+@test "a read the API refuses reports a failed Carry on the rewritten head" {
+  fake gh <<'FAKE'
+case "$*" in
+  *"--method POST"*) echo "https://example.invalid/check-run" ;;
+  *) exit 4 ;;
+esac
+FAKE
+
+  run "${script}" "${before}" "${after}" Quality
+
+  [[ "${status}" -eq 2 ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"--method POST repos/owner/name/check-runs -f name=Carry"* ]]
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]
+  [[ "${asked}" == *"-f conclusion=failure"*"close and reopen this pull request"* ]]
 }
