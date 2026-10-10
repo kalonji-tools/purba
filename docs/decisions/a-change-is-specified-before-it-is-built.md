@@ -102,7 +102,7 @@ No sign-off is owed before that.
 - **An agent can set the type with no agreement behind it.** Nothing tells the two acts apart afterwards.
 - **A spec written early goes stale.** The read against the tree is all that catches it, and nothing prompts that read.
 - **`Origin` reads red through the whole review.** The branch stays unsigned until the reviewer is satisfied, so that check says nothing before then.
-- **Each round that owes a pass costs about [140k tokens](https://github.com/kalonji-tools/purba/issues/391#issuecomment-6078214981).** The reviewer also reads one more comment on the pull request for each such round.
+- **Each new pass costs about 140k tokens.** [Does a sweep of each prose rule find the prose breaches the agent missed?](https://github.com/kalonji-tools/purba/issues/391#issuecomment-6078214981) measured it. The reviewer also reads one more comment on the pull request for each pass.
 - **The record is rewritten when a step changes.** [A location inherits its readers](a-location-inherits-its-readers.md) refused to key itself to stages for that reason.
 
 ## Confirmation
