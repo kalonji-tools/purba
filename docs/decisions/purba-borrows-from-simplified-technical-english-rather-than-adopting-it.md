@@ -27,7 +27,7 @@ Two of these rules were already purba's.
 
 ## Decision Outcome
 
-**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**`
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**` `docs/agents/post-pass.md`
 
 purba borrows a prose rule from the standard, and never adopts the standard.
 
