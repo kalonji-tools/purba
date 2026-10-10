@@ -162,9 +162,10 @@ branch that has fallen behind is rebased and reviewed against what is there
 now.
 
 A fourth check, `Scripts`, refuses a failing test of purba's own scripts, or of
-a cargo script. It runs only where your branch changes a script, a setting a
-test copies, or what runs the tests. purba does not sign a branch while
-`Scripts` is red, so it stops a merge through `Sign-off`.
+a cargo script. It reports on every pull request, and runs the tests only where
+your branch changes a script, a setting a test copies, or what runs the tests.
+purba does not sign a branch while `Scripts` is red, so it stops a merge
+through `Sign-off`.
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
