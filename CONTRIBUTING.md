@@ -104,6 +104,10 @@ Both are judgements. Nothing here decides them and a reviewer reads for them.
 The full statement, and the categories a review has already named, are in
 [an artifact holds the minimum that conveys its point](docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md).
 
+In a decision record, a diagram, a formula or a plot is a fence that GitHub
+renders from its source:
+[a figure in a record is a fence GitHub renders](docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md).
+
 ## Where a tool's configuration goes
 
 Configuration files crowd the project root, so purba places them by a
