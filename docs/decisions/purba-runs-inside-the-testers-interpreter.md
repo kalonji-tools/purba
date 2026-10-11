@@ -2,8 +2,7 @@
 
 ## Context and Problem Statement
 
-[What surrounds purba, and where is its boundary?](https://github.com/kalonji-tools/purba/issues/468) asks what purba exchanges data with, and where purba ends.
-The answer depends on where CPython sits.
+Where purba ends depends on where CPython sits.
 The scaffold took the shape of an extension module before any decision chose it.
 A Rust host could start first and load the tester's interpreter, or ship an interpreter of its own.
 Each arrangement decides which interpreter runs the tester's code.
@@ -25,7 +24,7 @@ Each arrangement decides which interpreter runs the tester's code.
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/pyproject.toml`
+**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/pyproject.toml` `.github/scripts/require-abi3.sh` `src/**`
 
 **purba runs inside the tester's interpreter, as an extension module.**
 The tester's CPython loads purba, so each test runs on the interpreter and the packages that the tester chose.
@@ -52,7 +51,6 @@ CPython is outside purba's boundary.
 
 - **pip refuses the `abi3` wheel on a free-threaded interpreter.** A free-threaded interpreter needs a wheel of its own, as [purba supports a Python with two years left](purba-supports-a-python-with-two-years-left.md) states.
 - **Selection starts after the interpreter starts.** purba reads the tests as text before any test import. It cannot read them before CPython starts.
-- **A pytest suite restates what its `conftest.py` supplied.** Each fixture that a `conftest.py` put into a test by name becomes an import.
 
 ## Confirmation
 

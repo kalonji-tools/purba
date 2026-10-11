@@ -64,7 +64,7 @@ So the claim above the floor is true, and nothing tests every version that satis
 - **Nothing refuses a matrix without its floor arm.** No job then builds the wheel on the floor.
 - **Nothing refuses a build on an interpreter below the floor.** `maturin build --interpreter` writes a version-specific wheel and a warning. `mise run build` uses the interpreter mise supplies, so only a build that names another interpreter meets this.
 - **The span is a judgement and this record freezes it.** No measurement chose two years, so a later reader can only find the reasoning above, never a number that settles it.
-- **A free-threaded reader finds no wheel.** Every free-threaded build refuses an abi3 wheel, and `requires-python` still reads as yes. The free-threaded arm of `build.yml` loads a wheel built for that interpreter alone, and no release ships that wheel. The repair is the `abi3t` feature structure.
+- **A free-threaded reader finds no wheel.** pip refuses an abi3 wheel on every free-threaded build, and `requires-python` still reads as yes. The free-threaded arm of `build.yml` loads a wheel built for that interpreter alone, and no release ships that wheel. The repair is the `abi3t` feature structure.
 
 ## Confirmation
 
