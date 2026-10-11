@@ -53,6 +53,10 @@ done
 ''',
 ]
 
+["lint:gates"]
+description = "Refuse a tracked path that .config/gates does not mark for each gate it names"
+run = "scripts/check-gates.sh"
+
 ["lint:licences"]
 description = "Refuse a dependency whose licence is not on the allowlist"
 run = "cargo-deny check licenses"
