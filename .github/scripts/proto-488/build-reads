@@ -1,0 +1,37 @@
+# PROTOTYPE for issue 488. Never merge.
+#
+# Every tracked path, sorted into the two halves the classifier rule needs:
+# `build` starts Build, `-build` does not. The `build` lines are the list that
+# "Which tracked paths do the jobs of build.yml read?" found. A path no line
+# reaches is unspecified, and the lint refuses it.
+#
+# Read the way .config/readers is read: gitattributes patterns, a later line
+# wins over an earlier one.
+
+.github/**                    -build
+.github/workflows/build.yml   build
+.config/mise.toml             build
+.config/mise.lock             build
+.config/tasks.toml            build
+.config/readers               -build
+.config/cliff.toml            -build
+/Cargo.toml                   build
+/Cargo.lock                   build
+src/**                        build
+/pyproject.toml               build
+/README.md                    build
+/LICENSE                      build
+.gitignore                    build
+.gitattributes                build
+
+/AGENTS.md                    -build
+/CLAUDE.md                    -build
+/CONTEXT.md                   -build
+/CONTRIBUTING.md              -build
+/LANDSCAPE.md                 -build
+/deny.toml                    -build
+/prek.toml                    -build
+/.editorconfig                -build
+/.shellcheckrc                -build
+docs/**                       -build
+scripts/**                    -build

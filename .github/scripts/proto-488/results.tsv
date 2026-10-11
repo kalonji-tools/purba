@@ -1,0 +1,13 @@
+scenario	pr	reads	detector	classify	readers	depinfo	strace
+docs-edit	1	no	skip	pass	pass	[pass]	[pass]
+readme-edit	1	yes	run	pass	pass	pass	pass
+build-rs	1	yes	skip	refuse: build.rs 	refuse	[refuse: build.rs ]	[refuse: build.rs ]
+tests-dir	1	yes	skip	refuse: tests/proto.rs 	refuse	[refuse: tests/proto.rs ]	[refuse: tests/proto.rs ]
+shadow-pkg	1	yes	skip	refuse: purba/__init__.py 	refuse	[pass]	[refuse: purba/__init__.py ]
+mise-confd	1	yes	skip	refuse: .config/mise/conf.d/proto.toml 	pass	[pass]	[pass]
+cargo-config	1	yes	skip	refuse: .cargo/config.toml 	refuse	[pass]	[refuse: .cargo/config.toml ]
+root-doc	1	no	skip	refuse: SECURITY.md 	refuse	[pass]	[pass]
+include-str	1	yes	run	pass	pass	refuse: docs/agents/proto-488.md 	refuse: docs/agents/proto-488.md 
+include-str	2	yes	skip	pass	pass	[refuse: docs/agents/proto-488.md ]	[refuse: docs/agents/proto-488.md ]
+step-script	1	yes	run	pass	pass	pass	pass
+step-script	2	yes	skip	pass	pass	[pass]	[pass]
