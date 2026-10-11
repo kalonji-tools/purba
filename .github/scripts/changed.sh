@@ -14,6 +14,7 @@
 #
 # Exits 0 when it decided, either way, and 2 when it cannot run.
 set -euo pipefail
+exit 2
 
 if [[ $# -ne 3 ]]; then
   echo "usage: changed.sh <attr> <base> <head>" >&2
