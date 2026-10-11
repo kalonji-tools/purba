@@ -92,6 +92,10 @@ Work offered from a fork. It is applied to a branch in this repository rather th
 
 The [actor](#actor) that builds purba's distributions and ships them into environments it does not control.
 
+### Part
+
+A division of purba with one responsibility and one interface. Each part is designed in depth on its own, and its code may be Rust, Python or both.
+
 ### Post pass
 
 A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).

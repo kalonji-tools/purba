@@ -52,6 +52,35 @@ flowchart LR
 
 [purba runs inside the tester's interpreter](docs/decisions/purba-runs-inside-the-testers-interpreter.md) holds why.
 
+## The parts and their dependencies
+
+- **command.** Reads the command, starts a run, and sets the exit code.
+- **selection.** Reads test files as text, imports none of them, and answers which tests a query names.
+- **parsing.** Turns Python source into an AST, and reports a file that does not parse as a diagnostic.
+- **dispatch.** Hands each selected test to a worker and returns its outcome, whatever the worker is.
+- **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
+- **fixtures.** Builds each input a test names by type, and tears it down after.
+- **assertion.** Rewrites each assert in a selected module as it is imported, so that a failure shows its values.
+- **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
+
+An arrow points from a part to the part whose interface it uses.
+
+```mermaid
+flowchart TD
+  command -- "a query" --> selection
+  command -- "the selected tests" --> dispatch
+  command -- "the outcomes" --> reporting
+  selection -- "an AST" --> parsing
+  assertion -- "an AST" --> parsing
+  dispatch -- "a selected test" --> selection
+  dispatch -- "one test, and its outcome" --> execution
+  execution -- "the inputs a test names" --> fixtures
+  execution -- "a rewritten module" --> assertion
+  reporting -- "an outcome" --> execution
+```
+
+[purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
+
 ## What belongs in this file
 
 This section is the register of this file, and [a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#confirmation) names it.
