@@ -2,6 +2,37 @@
 
 This file shows purba whole, at the level of its parts, and ranks the order in which each part is designed in depth.
 
+## The problem
+
+A [tester](CONTEXT.md#tester) needs a test run to tell the truth about their code, fast enough to run often.
+pytest is the most used Python test framework, at about twice the share of unittest.
+Its core is held by the backward compatibility its users depend on, so its strict options stay off by default, and a change like subtests took nine years to land.
+Its collection is import, so selecting ten tests still imports the whole suite.
+The language lets a test do almost anything, and agents that write tests have been measured editing the test instead of fixing the code.
+So a run can go green while checking nothing, and the reader may not notice.
+
+## The quality priorities
+
+Each quality wins over every quality below it.
+
+1. **Honest outcome.** Green means a behaviour was checked, `unknown` is never shown as clean, and no outcome depends on the worker that ran the test.
+2. **Explicit.** Nothing affects a test, or its outcome, unless the test names it, and a test names its inputs by type.
+3. **Legible result.** A person and an agent both read what failed and why, with no re-run.
+4. **Reviewable core.** A change inside one part can be reviewed without reading another part.
+5. **Fast feedback.** Selecting a subset does no work for the tests outside it.
+
+## The driver scenarios
+
+Each quality has one scenario, and a test can check it on any machine.
+
+- **Honest outcome.** Given a pinned third-party suite and its desired-state suite, when pytest runs the first and purba the second, then each test name has the same outcome in both.
+- **Explicit.** Given a test that states no expectation, when purba runs it, then purba does not report it as passed.
+- **Legible result.** Given the deliberately broken pinned suite, when purba runs it, then each failure's report matches its agreed expected output, as text for a person and as data for an agent.
+- **Reviewable core.** Given a change inside one part that leaves its interface unchanged, when the change is made, then no file of another part changes.
+- **Fast feedback.** Given a 10,000-test suite, when the tester selects 10 tests, then no other test module is imported.
+
+[purba ranks an honest outcome first](docs/decisions/purba-ranks-an-honest-outcome-first.md) holds why for these three sections.
+
 ## What belongs in this file
 
 This section is the register of this file, and [a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#confirmation) names it.
