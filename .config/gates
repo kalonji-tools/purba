@@ -2,6 +2,8 @@
 # `-build` a path whose change need not. Quality, Records, Commits and Sign-off always
 # run, so none has an attribute.
 #
+# A gate reads the marks on the base branch, so a mark takes effect once it merges.
+#
 # A pattern that reaches the root, such as `*` or `*.rs`, marks a path before anyone
 # decides it, and the lint then passes that path.
 #
