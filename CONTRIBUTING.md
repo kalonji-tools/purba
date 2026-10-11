@@ -148,7 +148,7 @@ These rules apply to the branch that merges, whichever path carried it.
 
 One approving review releases it. A code owner's review is required as well
 where `.github/CODEOWNERS` names the path, and it names `/docs/decisions/`,
-`/.github/`, `/scripts/` and `/.config/readers`.
+`/.github/`, `/scripts/`, `/.config/readers` and `/.config/gates`.
 
 Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather
@@ -160,8 +160,10 @@ an action a workflow names by a tag, a failing example and a dependency whose
 licence is not on the allowlist. A link in a file your branch changes is
 checked on the network, so a server that does not answer refuses your branch.
 `Build` refuses a failing Rust test, and a wheel that does not build or does
-not load, on every platform and Python purba supports. `Sign-off` records that
-purba accepted the branch. Your branch must also be current with `main`
+not load, on every platform and Python purba supports. It reports on every
+pull request, and runs its jobs unless `.config/gates` marks every path your
+branch changes `-build`. `Sign-off` records that purba accepted the branch.
+Your branch must also be current with `main`
 (`strict_required_status_checks_policy`), so a branch that has fallen behind is
 rebased and reviewed against what is there now.
 
