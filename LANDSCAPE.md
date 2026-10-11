@@ -33,6 +33,25 @@ Each quality has one scenario, and a test can check it on any machine.
 
 [purba ranks an honest outcome first](docs/decisions/purba-ranks-an-honest-outcome-first.md) holds why for these three sections.
 
+## The context
+
+```mermaid
+flowchart LR
+  tester["tester<br/>(a person or an agent)"]
+  integrator["integrator<br/>(CI, an IDE)"]
+  project["the tester's project<br/>(tests and code under test)"]
+  cpython["CPython<br/>(the tester's interpreter)"]
+  purba(["purba"])
+  tester -- "runs" --> purba
+  purba -- "a report, as text and as data" --> tester
+  integrator -- "runs" --> purba
+  purba -- "an exit code and data" --> integrator
+  cpython -- "loads, as an extension module" --> purba
+  purba -- "reads the tests as text, then imports the selected ones" --> project
+```
+
+[purba runs inside the tester's interpreter](docs/decisions/purba-runs-inside-the-testers-interpreter.md) holds why.
+
 ## What belongs in this file
 
 This section is the register of this file, and [a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#confirmation) names it.
