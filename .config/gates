@@ -1,0 +1,37 @@
+# Each attribute names a gate that can skip a pull request. `build` marks a path that a
+# job of build.yml reads, and `-build` a path that none reads. Quality, Records, Commits
+# and Sign-off never skip.
+#
+# A pattern that reaches the root, such as `*` or `*.rs`, marks a path before anyone
+# decides it, and the lint then passes that path.
+#
+#   the task:  mise run lint:gates
+
+.github/**                    -build
+.github/workflows/build.yml   build
+.config/mise.toml             build
+.config/mise.lock             build
+.config/tasks.toml            build
+.config/gates                 build
+.config/readers               -build
+.config/cliff.toml            -build
+/Cargo.toml                   build
+/Cargo.lock                   build
+src/**                        build
+/pyproject.toml               build
+/README.md                    build
+/LICENSE                      build
+.gitignore                    build
+.gitattributes                build
+
+/AGENTS.md                    -build
+/CLAUDE.md                    -build
+/CONTEXT.md                   -build
+/CONTRIBUTING.md              -build
+/LANDSCAPE.md                 -build
+/deny.toml                    -build
+/prek.toml                    -build
+/.editorconfig                -build
+/.shellcheckrc                -build
+docs/**                       -build
+scripts/**                    -build
