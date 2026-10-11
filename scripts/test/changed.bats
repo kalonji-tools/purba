@@ -13,7 +13,8 @@ setup() {
     'chorestart     -build  -scripts' \
     'src/**         build   -scripts' \
     'docs/**        -build  -scripts' \
-    'scripts/**     -build  scripts' >.config/gates
+    'scripts/**     -build  scripts' \
+    '.gitattributes -build  -scripts' >.config/gates
   echo code >src/lib.rs
   echo note >docs/note.md
   echo tool >scripts/tool.sh
@@ -105,7 +106,6 @@ merged() {
 @test "the repository's own attributes do not mark a path for the gate" {
   echo 'build.rs  -build' >.gitattributes
   echo 'fn main() {}' >build.rs
-  printf '%s\n' '.gitattributes  -build' >>.config/gates
   merged
 
   run --separate-stderr "${script}" build HEAD^1 HEAD
