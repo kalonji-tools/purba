@@ -68,6 +68,10 @@ purba seen whole, in one file, at the level of its parts. It states what purba i
 
 A statement about who is answerable for a change. Each one is written from the act that makes it true.
 
+### Library author
+
+The [actor](#actor) that builds a library against purba's public interface, which a test imports by name.
+
 ### Location
 
 A place purba writes into. A [commit message](#commit-message), an [issue](#issue) and `docs/decisions/` are three of them.
@@ -87,10 +91,6 @@ Work offered from a fork. It is applied to a branch in this repository rather th
 ### Packager
 
 The [actor](#actor) that builds purba's distributions and ships them into environments it does not control.
-
-### Plugin author
-
-The [actor](#actor) that builds a plugin against purba's public interfaces.
 
 ### Post pass
 

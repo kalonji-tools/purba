@@ -46,7 +46,7 @@ The roster is flat.
 | [**reviewer**](../../CONTEXT.md#reviewer) | I am about to become answerable for work I did not write |
 | [**technical writer**](../../CONTEXT.md#technical-writer) | someone outside this work must understand it without asking |
 | [**tester**](../../CONTEXT.md#tester) | I need purba to tell me the truth about my own code |
-| [**plugin author**](../../CONTEXT.md#plugin-author) | I build against purba, and I need its shape to hold still |
+| [**library author**](../../CONTEXT.md#library-author) | I build against purba, and I need its shape to hold still |
 | [**packager**](../../CONTEXT.md#packager) | I must get purba into an environment I do not control, and prove I am allowed to ship it |
 | [**integrator**](../../CONTEXT.md#integrator) | purba must tell a machine what happened, the same way every time |
 
@@ -81,7 +81,7 @@ Something that reads purba and wants nothing from it is not an actor.
 An agent wants what the actor it occupies wants, so it adds no row.
 
 ⚠️ Three actors sit in both branches of the work, and one sits in both permanently.
-A plugin author becomes a contributor when it sends a hook upstream, and a packager when it sends a build fix.
+A library author becomes a contributor when it sends a change upstream, and a packager when it sends a build fix.
 A tester is both at once, because purba tests itself with itself.
 
 **Downside:**

@@ -3,7 +3,7 @@
 #   the task:      mise run lint:readers
 
 [attr]contributor         architect coder toolsmith handler reviewer technical-writer
-[attr]user                tester plugin-author packager integrator
+[attr]user                tester library-author packager integrator
 [attr]agent-instructions  handler contributor
 
 README.md                         stem
@@ -37,4 +37,4 @@ docs/agents/**                    handler
 scripts/**                        toolsmith
 docs/**                           technical-writer
 docs/decisions/**                 architect
-src/**                            coder plugin-author tester
+src/**                            coder library-author tester
