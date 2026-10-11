@@ -2,12 +2,15 @@
 #
 #   the task:       .config/tasks.toml, under `build`
 #   the tools:      .config/mise.toml
+#   the paths:      .config/gates
 #   the floor:      docs/decisions/purba-supports-a-python-with-two-years-left.md
 #
 # This gate proves the claims purba makes about its own distribution.
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
 # refuses are the same thing to the ruleset, so a filtered run blocks forever.
+# The job `changed` reads what the pull request changes instead, and `Build`
+# reports either way.
 #
 # ⚠️ Never add `continue-on-error` to a job here. A tolerated arm reports
 # `failure` as its own conclusion while the matrix still reports `success` to
@@ -30,10 +33,28 @@ env:
   MISE_VERSION: 2026.9.14
 
 jobs:
+  changed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      build: ${{ steps.changed.outputs.build }}
+    steps:
+      # A pull request is checked out as its merge commit, whose first parent
+      # is the base.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Name whether this pull request changes a path that starts Build
+        id: changed
+        run: .github/scripts/changed.sh build HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
   # Only this job exercises the macOS workaround that `.config/tasks.toml`
   # carries for this task.
   rust:
     name: rust ${{ matrix.os }}
+    needs: changed
+    if: needs.changed.outputs.build == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -57,6 +78,8 @@ jobs:
   # mise cannot supply a free-threaded build at all.
   wheel:
     name: wheel ${{ matrix.os }} py${{ matrix.python }}
+    needs: changed
+    if: needs.changed.outputs.build == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -106,24 +129,32 @@ jobs:
 
   Build:
     name: Build
-    needs: [rust, wheel]
+    needs: [changed, rust, wheel]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Refuse unless every job succeeded
+      # A failed or cancelled `changed` skips the matrix too, so a skip passes
+      # only when `changed` succeeded and asked for none.
+      - name: Refuse unless every job did what the job changed asked
         shell: bash
         env:
-          RESULTS: |
+          RESULTS: >-
+            changed=${{ needs.changed.result }}
+            build=${{ needs.changed.outputs.build }}
             rust=${{ needs.rust.result }}
             wheel=${{ needs.wheel.result }}
         run: |
           set -euo pipefail
           echo "$RESULTS"
-          if grep -v '=success$' <<<"$RESULTS" | grep .; then
-            echo "::error::A branch is refused when a job this gate reads does not succeed, \
-            because Build stands for every Rust test and every wheel. The jobs printed above \
-            say which."
-            exit 1
-          fi
-          echo "every job this gate reads reported success"
+          case "$RESULTS" in
+            "changed=success build=true rust=success wheel=success")
+              echo "every job this gate reads reported success" ;;
+            "changed=success build= rust=skipped wheel=skipped")
+              echo "no path that starts Build changed, so its jobs did not run" ;;
+            *)
+              echo "::error::A branch is refused unless the job changed succeeded and every \
+          job it started succeeded, because Build stands for every Rust test and every wheel \
+          whenever a path that starts it changes. The results printed above say which."
+              exit 1 ;;
+          esac
