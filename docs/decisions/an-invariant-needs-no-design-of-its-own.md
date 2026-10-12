@@ -66,5 +66,5 @@ The landscape needs a test that keeps out what a concern already states.
 
 No check refuses a breach yet.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) applies to the invariants that the landscape names.
-Which of them a gate refuses is a later question on [purba's landscape, drawn and ranked](https://github.com/kalonji-tools/purba/issues/463).
+[A gate refuses each invariant a tool can see, from the first code it reads](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) says which of them a gate refuses, and when.
 The walking skeleton is the first to run code that each invariant binds.
