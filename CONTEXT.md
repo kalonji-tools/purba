@@ -30,6 +30,10 @@ The [actor](#actor) that implements a settled decision in code.
 
 The [location](#location) that carries what must outlive the review that produced it. Its subject is the changelog entry.
 
+### Concern
+
+A rule or mechanism that two or more [parts](#part) follow, and that no part owns. Like a part, each concern is designed in depth on its own.
+
 ### Debrief
 
 A comment on a merged [pull request](#pull-request) that says where the change differs from its [implementation plan](#implementation-plan). It is owed only where the two differ.
@@ -62,7 +66,7 @@ _Avoid_: ticket
 
 ### Landscape
 
-purba seen whole, in one file, at the level of its parts. It states what purba is for, what surrounds it, how it divides, the invariants between the divisions, its cross-cutting concerns, its risks, and the order in which each part is designed in depth.
+purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, invariants, cross-cutting [concerns](#concern) and risks, and the order in which each part and concern is designed in depth.
 
 ### Liability
 
