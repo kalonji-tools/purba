@@ -58,6 +58,10 @@ What the author of a [pull request](#pull-request) writes before the implementat
 
 The [actor](#actor) that wires purba's machine-readable output into another system.
 
+### Invariant
+
+A rule that two or more [parts](#part) follow, written as an absence. Unlike a [concern](#concern), it needs no design of its own.
+
 ### Issue
 
 A unit of work, holding a question to settle or a task to do.
@@ -66,7 +70,7 @@ _Avoid_: ticket
 
 ### Landscape
 
-purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, invariants, cross-cutting [concerns](#concern) and risks, and the order in which each part and concern is designed in depth.
+purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, [invariants](#invariant), cross-cutting [concerns](#concern) and risks, and the order in which each part and concern is designed in depth.
 
 ### Liability
 

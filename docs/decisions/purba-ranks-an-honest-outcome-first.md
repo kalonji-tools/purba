@@ -66,5 +66,6 @@ Each scenario in [the landscape](../../LANDSCAPE.md#the-driver-scenarios) become
 No test runs one yet, because purba holds no product code.
 The walking skeleton is the first to run one.
 
-[Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) states lazy work.
+[The landscape](../../LANDSCAPE.md#the-invariants) states lazy work.
+[An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) holds why.
 [Write the record of how a milestone and its pinned candidate decide when a feature is done](https://github.com/kalonji-tools/purba/issues/473) defines the desired-state suite.

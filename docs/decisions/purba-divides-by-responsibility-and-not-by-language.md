@@ -43,7 +43,7 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 **What is not a part:**
 
 - **The Rust/Python seam, strictness, configuration and interrupt handling.** Each one is a [concern](../../CONTEXT.md#concern).
-- **Async.** It is a property of execution. Its tie to fixture scopes is an invariant between execution and fixtures.
+- **Async.** It is a property of execution. The async invariants tie it to fixtures. [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) names them.
 
 **What stays off the diagram:**
 
@@ -64,4 +64,4 @@ The reviewable-core scenario in [the landscape](../../LANDSCAPE.md#the-driver-sc
 
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the parts each concern crosses.
 [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds why each one is a concern.
-[Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) and [Which risks threaten purba, and in what order are its parts and concerns designed in depth?](https://github.com/kalonji-tools/purba/issues/472) each name these parts.
+[Which risks threaten purba, and in what order are its parts and concerns designed in depth?](https://github.com/kalonji-tools/purba/issues/472) names these parts.
