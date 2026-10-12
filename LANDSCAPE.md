@@ -1,6 +1,6 @@
 # purba's landscape
 
-This file shows purba whole, at the level of its parts, and ranks the order in which each part is designed in depth.
+This file shows purba whole, at the level of its parts, and ranks the order in which each part and concern is designed in depth.
 
 ## The problem
 
@@ -80,6 +80,16 @@ flowchart TD
 ```
 
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
+
+## The cross-cutting concerns
+
+- **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.
+- **strictness.** Never shows as passed what was not checked, in selection, execution, fixtures and reporting. No switch turns it off.
+- **configuration.** States facts about the project, in command, selection, dispatch and reporting.
+- **interrupt handling.** Stops the run on Ctrl-C and tears down what was built, in command, dispatch, execution, fixtures and reporting.
+- **errors.** Keeps a test's outcome, a diagnostic about the tester's project and an error inside purba apart, in every part.
+
+[A concern is what no part can own](docs/decisions/a-concern-is-what-no-part-can-own.md) holds why.
 
 ## What belongs in this file
 

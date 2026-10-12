@@ -48,7 +48,7 @@ So a run can go green and check nothing, and its reader may not notice.
   Each test name keeps the outcome of a pytest control run.
   That match proves an honest outcome.
 - **Readable test code comes from the explicit quality and from strictness.** It is not a quality of its own.
-- **Lazy work is a mechanism of fast feedback, and not a quality.** It belongs to the invariants or to the cross-cutting concerns.
+- **Lazy work is a mechanism of fast feedback, and not a quality.** It is an invariant, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) says.
 - **A scenario uses a count of imports, not a time.** A count gives the same answer on any machine.
 - **An agent reads the result, as a person does.** [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10) gave machine-readable output no design, and this reverses that.
 
@@ -66,5 +66,5 @@ Each scenario in [the landscape](../../LANDSCAPE.md#the-driver-scenarios) become
 No test runs one yet, because purba holds no product code.
 The walking skeleton is the first to run one.
 
-[Which cross-cutting concerns does purba carry?](https://github.com/kalonji-tools/purba/issues/470) and [Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) place lazy work.
+[Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) states lazy work.
 [Write the record of how a milestone and its pinned candidate decide when a feature is done](https://github.com/kalonji-tools/purba/issues/473) defines the desired-state suite.

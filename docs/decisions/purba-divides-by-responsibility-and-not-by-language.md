@@ -42,7 +42,7 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 
 **What is not a part:**
 
-- **The Rust/Python seam, strictness, configuration and interrupt handling.** Each one cuts across several parts, so each one is a concern.
+- **The Rust/Python seam, strictness, configuration and interrupt handling.** Each one is a [concern](../../CONTEXT.md#concern).
 - **Async.** It is a property of execution. Its tie to fixture scopes is an invariant between execution and fixtures.
 
 **What stays off the diagram:**
@@ -53,7 +53,7 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 
 **Downside:**
 
-- **The cost of the seam spreads over several parts.** Each part that touches a test object crosses the seam, and no single part holds that cost.
+- **The cost of the seam spreads over several parts.** Each part whose job needs a live Python object crosses the seam, and no single part holds that cost.
 - **A test that hangs has no owner until dispatch is designed.** A hung test threatens an honest outcome.
 - **The two research findings disagree about parallel execution.** This record follows oxitest's cost. cargo-nextest, the one comparable runner that runs tests in parallel, keeps it inside its executor.
 
@@ -62,4 +62,6 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 No check reads the diagram, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 The reviewable-core scenario in [the landscape](../../LANDSCAPE.md#the-driver-scenarios) checks the division once code exists.
 
-[Which cross-cutting concerns does purba carry?](https://github.com/kalonji-tools/purba/issues/470), [Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) and [Which risks threaten purba, and in what order are its parts and concerns designed in depth?](https://github.com/kalonji-tools/purba/issues/472) each name these parts.
+[The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the parts each concern crosses.
+[A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds why each one is a concern.
+[Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) and [Which risks threaten purba, and in what order are its parts and concerns designed in depth?](https://github.com/kalonji-tools/purba/issues/472) each name these parts.
