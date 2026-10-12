@@ -70,7 +70,7 @@ _Avoid_: ticket
 
 ### Landscape
 
-purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, [invariants](#invariant), cross-cutting [concerns](#concern) and risks, and the order in which each part and concern is designed in depth.
+purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, [invariants](#invariant), cross-cutting [concerns](#concern) and [risks](#risk), and the order in which each part and concern is designed in depth.
 
 ### Liability
 
@@ -147,6 +147,10 @@ A change that restores what a [record](#record), a [design spec](#design-spec) o
 ### Reviewer
 
 The [actor](#actor) that reads and approves work it did not write.
+
+### Risk
+
+A failure scenario a test can check. It lands on one [part](#part) or [concern](#concern), and is weighed by how likely it is and by the quality it breaks.
 
 ### Significance
 
