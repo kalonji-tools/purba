@@ -69,11 +69,11 @@ The record states what is true, the issue states what happened, and the prototyp
 A link titled by the question its issue asks is the exception, and it is a citation of the question rather than of the number.
 A title is falsifiable where it stands and a bare number is not. A reader who never opens the link still knows what was claimed.
 
-A programme is a milestone, not a record.
+A programme is a set of issues, not a record.
 
 **Downside:**
 
-- **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, the milestone, a command that cannot see content, and [a new question gets a new record](a-new-question-gets-a-new-record.md).
+- **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, a set of issues, a command that cannot see content, and [a new question gets a new record](a-new-question-gets-a-new-record.md).
 - **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift in an audit of a large Consequences section.
 - **A record must be rewritten whenever an issue it waits on closes.** The [post pass](../../CONTEXT.md#post-pass) prompts that rewrite only on work an agent wrote, when a commit subject names the issue. The Confirmation states the obligation and says no check decides it. An issue can close for reasons that have nothing to do with the record that named it.
 

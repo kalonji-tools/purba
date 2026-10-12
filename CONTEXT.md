@@ -22,6 +22,10 @@ The [actor](#actor) that chooses purba's direction and is answerable for what th
 
 Anything purba writes for a [reader](#reader), and never a file that a workflow uploads from a job. It is rewritten in place until its direction is agreed, and frozen after.
 
+### Candidate
+
+A third-party Python project, pinned to a commit, whose tests decide when a [milestone](#milestone) is done.
+
 ### Coder
 
 The [actor](#actor) that implements a settled decision in code.
@@ -41,6 +45,10 @@ A comment on a merged [pull request](#pull-request) that says where the change d
 ### Design spec
 
 A comment on an [issue](#issue) that states what a change must do and what was rejected. An issue is specified once its type is set, which declares that the person who decides agrees to the spec.
+
+### Desired-state suite
+
+A [candidate's](#candidate) tests, restated for purba before purba can run them. The person approves it before the build starts.
 
 ### Gate
 
@@ -87,6 +95,10 @@ A place purba writes into. A [commit message](#commit-message), an [issue](#issu
 ### Maintainer
 
 A person who holds write access to this repository. It is not an [actor](#actor), because it names who somebody is rather than what they read.
+
+### Milestone
+
+A set of [issues](#issue) that a pinned [candidate](#candidate) decides is done. GitHub's milestone object carries it, so purba never uses a milestone for a release.
 
 ### Origin
 

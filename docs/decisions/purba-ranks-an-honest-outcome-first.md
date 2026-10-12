@@ -43,8 +43,8 @@ So a run can go green and check nothing, and its reader may not notice.
 | 5 | fast feedback | |
 
 - **Type first is part of the explicit quality.** A type is how a test names an input.
-- **Migration fidelity does not make purba a drop-in replacement for pytest.** A pinned suite does not run under purba unchanged.
-  Its desired-state suite restates the tests.
+- **Migration fidelity does not make purba a drop-in replacement for pytest.** A [candidate's](../../CONTEXT.md#candidate) tests do not run under purba unchanged.
+  Its [desired-state suite](../../CONTEXT.md#desired-state-suite) restates the tests.
   Each test name keeps the outcome of a pytest control run.
   That match proves an honest outcome.
 - **Readable test code comes from the explicit quality and from strictness.** It is not a quality of its own.
@@ -68,4 +68,4 @@ The walking skeleton is the first to run one.
 
 [The landscape](../../LANDSCAPE.md#the-invariants) states lazy work.
 [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) holds why.
-[Write the record of how a milestone and its pinned candidate decide when a feature is done](https://github.com/kalonji-tools/purba/issues/473) defines the desired-state suite.
+[A pinned candidate decides when a milestone is done](a-pinned-candidate-decides-when-a-milestone-is-done.md#decision-outcome) holds how the person approves a desired-state suite.

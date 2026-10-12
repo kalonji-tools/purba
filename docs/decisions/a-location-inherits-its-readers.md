@@ -55,7 +55,7 @@ Adding a file forces the question of who it is for, and the answer is the bindin
 The tree stays organised as a side effect of being readable.
 
 This is scoped to tracked files.
-It never applies to a milestone, an issue or a pull request, each of which carries its own record and its own template.
+It never applies to a milestone, an issue or a pull request, each of which carries its own record.
 
 **purba borrows the syntax entire, and git's own parser with it.**
 `git check-attr` reads `.config/readers` when `core.attributesFile` names it, so nothing is reimplemented and nothing is approximated.
