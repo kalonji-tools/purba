@@ -104,6 +104,40 @@ flowchart TD
 
 [A concern is what no part can own](docs/decisions/a-concern-is-what-no-part-can-own.md) holds why.
 
+## The risks
+
+Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in depth reduces it.
+
+- **text selection disagrees with import.** Given a pinned suite, when selection reads it as text, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
+- **a fixture reaches a test that never named it.** Given two tests where only the first names a fixture, when both run, then the outcome of the second depends on that fixture. Lands on fixtures; probability high, impact high.
+- **an outcome depends on the worker.** Given a selection, when it runs on one worker and then on many, then the outcome of some test differs. Lands on dispatch; probability high, impact high.
+- **purba's own error shows as a test failure.** Given a defect inside purba during a test, when purba reports the run, then the test shows as failed, and not as an error inside purba. Lands on errors; probability medium, impact high.
+- **an interrupt leaves a fixture built.** Given a run stopped by Ctrl-C during a test, when purba exits, then a fixture built for that test is never torn down. Lands on interrupt handling; probability medium, impact high.
+- **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
+- **a change in one part edits another part.** Given a change inside one part that leaves its interface unchanged, when the change is made, then a file of another part changes. Lands on command; probability high, impact medium.
+- **strictness refuses a test that checks.** Given a test that checks its result through a helper, when purba runs it, then purba does not report it as passed. Lands on strictness; probability medium, impact medium.
+- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing reports a diagnostic and selection finds no test in it. Lands on parsing; probability low, impact high.
+
+## The order of design
+
+Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
+
+1. **errors.**
+2. **interrupt handling.**
+3. **strictness.**
+4. **parsing.**
+5. **configuration.**
+6. **selection.**
+7. **the Rust/Python seam.**
+8. **fixtures.**
+9. **assertion.**
+10. **execution.**
+11. **dispatch.**
+12. **reporting.**
+13. **command.**
+
+[A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
+
 ## What belongs in this file
 
 This section is the register of this file, and [a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#confirmation) names it.
@@ -118,4 +152,5 @@ A line belongs here when all three are true.
 
 A diagram is a `mermaid` fence, as [a figure in a record is a fence GitHub renders](docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md) requires of a record.
 
-The whole file fits on two screens.
+Each item takes one line.
+A risk or an order line leaves the file when the design in depth of its part or concern merges.
