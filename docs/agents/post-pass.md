@@ -38,3 +38,4 @@ This section is the register of this file, and [a register belongs to one locati
 
 A line belongs here when it says how to run a post pass, or what its comment carries.
 This file links a rule that a record holds, and never states it.
+probe
