@@ -88,6 +88,55 @@ merged() {
   [[ "${output}" == "build=true" ]]
 }
 
+@test "a path moved into a directory marked with the gate starts it" {
+  git mv docs/note.md scripts/note.md
+  merged
+
+  run --separate-stderr "${script}" scripts HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+}
+
+# git sorts the changed paths, so the path marked - is read first.
+@test "a marked path among paths marked - starts the gate" {
+  echo more >>docs/note.md
+  mkdir scripts/test
+  echo test >scripts/test/tool.bats
+  merged
+
+  run --separate-stderr "${script}" scripts HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+  [[ "${stderr}" == "scripts/test/tool.bats is not marked -scripts, so the gate runs" ]]
+}
+
+# git quotes such a path unless told otherwise, and the quote comes first.
+@test "a path whose name holds a letter outside ASCII is read whole" {
+  echo tool >scripts/hé.sh
+  merged
+
+  run --separate-stderr "${script}" scripts HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "scripts=true" ]]
+  [[ "${stderr}" == "scripts/hé.sh is not marked -scripts, so the gate runs" ]]
+}
+
+# The file marks docs/** before scripts/**, so a pattern that matched below the
+# root would mark the path and start the gate.
+@test "a pattern with a slash matches from the root only" {
+  mkdir -p docs/scripts
+  echo note >docs/scripts/note.md
+  merged
+
+  run --separate-stderr "${script}" scripts HEAD^1 HEAD
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
 @test "each gate reads its own attribute from the same file" {
   echo more >>scripts/tool.sh
   merged

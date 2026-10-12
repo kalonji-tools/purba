@@ -40,7 +40,7 @@ So was the runner.
 
 ## Decision Outcome
 
-**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml` `/.config/mise.toml` `/.config/tasks.toml` `/prek.toml`
+**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml` `/.config/mise.toml` `/.config/tasks.toml` `/.config/gates` `/prek.toml`
 
 **purba writes its scripts in bash.**
 A change of language is earned by something the new language brings that bash cannot.
@@ -70,7 +70,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
-- **A pull request runs the tests only when it changes a script, a setting a test copies, or what runs the tests.** A new version of `bats`, `jq` or git can break a script. The next change to a script is what finds the break.
+- **A pull request skips the tests when `.config/gates` on `main` marks every path it changes `-scripts`.** `.config/mise.lock` locks `bats` and `jq`, so a new version of either starts the tests. A new version of git on the runner can break a script. The next change to a path marked `scripts` finds the break.
 
 ## Confirmation
 
@@ -81,7 +81,7 @@ The Downside above carries that cost.
 `.config/mise.toml` names `bats`.
 `mise run test:shell` runs every test under `scripts/test`.
 `mise run check` runs that task.
-`.github/workflows/scripts.yml` runs it when a pull request changes a file that `.github/scripts/changed-scripts.sh` names.
+`.github/workflows/scripts.yml` runs it unless `.config/gates` on `main` marks every path a pull request changes `-scripts`.
 `.github/workflows/sign.yml` waits for the `Scripts` check, so purba does not sign a branch whose test fails.
 
 `shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run lint`.
