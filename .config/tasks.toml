@@ -17,12 +17,19 @@ description = "Every lint and every test, in one command"
 depends = ["lint", "test"]
 
 [fmt]
-description = "Rewrite every formatting difference and every action not named by its commit"
+description = """\
+Rewrite every formatting difference, every action not named by its commit, \
+and the order of design"""
 depends = ["fmt:*"]
 
 ["fmt:cargo-scripts"]
 description = "Rewrite the formatting of each cargo script"
 run = "git ls-files -z {{vars.cargo_scripts}} | xargs -0 -r rustfmt --edition 2024"
+
+#   the decision:  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
+["fmt:order"]
+description = "Rewrite the order of design in LANDSCAPE.md, and print each step the rule takes"
+run = "scripts/order-of-design.sh"
 
 ["fmt:pins"]
 description = "Rewrite each action a workflow names by a tag to its commit"
@@ -68,6 +75,11 @@ run = "scripts/check-links.sh"
 ["lint:manifests"]
 description = "Refuse a package that two manifests declare, and any in pyproject.toml"
 run = "scripts/check-manifests.sh"
+
+#   the decision:  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
+["lint:order"]
+description = "Refuse an order of design the rule does not calculate, or a risk unlike its record"
+run = "scripts/order-of-design.sh --check"
 
 # `--min-age` is the one optional check left off. It refuses a release younger
 # than a number of days, and no record chooses that number.
