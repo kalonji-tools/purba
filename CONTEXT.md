@@ -172,6 +172,10 @@ The property that routes a change to the code owner. A change is architecturally
 
 The [actor](#actor) that has arrived at a part of purba it does not know yet. An actor returns to the stem at every part it does not know.
 
+### Strict check
+
+A rule that judges one of a [tester's](#tester) tests and gives a verdict of violation, clean or unknown. A [gate](#gate) judges a contributor's change instead.
+
 ### Technical writer
 
 The [actor](#actor) that writes purba's documentation for a [reader](#reader) outside the work.

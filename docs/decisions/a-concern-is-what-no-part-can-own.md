@@ -40,6 +40,8 @@ The landscape needs a test that keeps out what a part can own.
 | interrupt handling | each part that holds a test while it runs must stop the test, and each part that holds what was built for it must tear that down |
 | errors | every part can fail, and each failure is one of three kinds: a test's outcome, a diagnostic about the tester's project, or an error inside purba |
 
+[purba is always strict](purba-is-always-strict.md#decision-outcome) holds why no switch turns strictness off.
+
 **A part crosses the seam when its job needs a live Python object.**
 Command takes the arguments and returns an exit code, both data, so it does not cross the seam.
 Dispatch and reporting pass data, so neither crosses it.
