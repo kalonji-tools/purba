@@ -10,6 +10,9 @@
 # request, and on any other event they would replace their own verdict with a
 # skip.
 #
+# Never add `ready_for_review` to the types below. Marking a draft ready
+# changes no commit, and nothing waits for this verdict.
+#
 # Never add these to the required status checks. The Confirmation section of
 # the decision above says why. `Replay` has a second reason: it is a
 # prediction, because the base can move between this run and the signing, and
@@ -18,7 +21,7 @@ name: Commits
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read

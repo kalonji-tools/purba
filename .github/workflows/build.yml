@@ -12,6 +12,13 @@
 # The job `changed` reads what the pull request changes instead, and `Build`
 # reports either way.
 #
+# Never add `ready_for_review` to the types below. Marking a draft ready
+# changes no commit, and the ruleset reads this check on the head commit,
+# whatever event made it. The page below says so. Its address cannot be
+# wrapped, so the style check skips that line.
+# editorconfig-checker-disable-next-line
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/troubleshooting-rules#troubleshooting-required-status-checks
+#
 # ⚠️ Never add `continue-on-error` to a job here. A tolerated arm reports
 # `failure` as its own conclusion while the matrix still reports `success` to
 # the rollup, so the gate passes with a failed arm inside it. Nothing in the
@@ -20,7 +27,7 @@ name: Build
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read

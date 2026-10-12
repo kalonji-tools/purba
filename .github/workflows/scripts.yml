@@ -10,13 +10,17 @@
 # filtered run blocks forever.
 # The job reads what the pull request changes instead, and reports either way.
 #
+# Never add `ready_for_review` to the types below. Marking a draft ready
+# changes no commit, and `sign.yml` reads this check on the head commit,
+# whatever event made it.
+#
 # ⚠️ `sign.yml` names this workflow, and names its job in two more lists. A
 # rename here that does not reach all three stops every branch from merging.
 name: Scripts
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read

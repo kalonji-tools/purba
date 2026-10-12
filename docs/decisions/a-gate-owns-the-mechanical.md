@@ -87,7 +87,7 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 |---|---|---|
 | `shellcheck` at `enable=all` | the repaired tree reports nothing | a bare `$var` reinstated anywhere draws `SC2250` while `.shellcheckrc` is present, and nothing without it. Each suppression removed restores its own finding |
 | `shfmt` reading `.editorconfig` | the tree needs no rewrite | a style demanding tabs rewrites every shell script |
-| `editorconfig-checker` | the tree reports nothing | every exclusion removed restores three refusals, one per excluded line, and a style demanding tabs draws seventy-two |
+| `editorconfig-checker` | the tree reports nothing | each exclusion removed restores the refusal of the line it covers, and a style demanding tabs draws seventy-two |
 
 ⚠️ **One of the linter's own fixes was measured changing behaviour**, which is why `shfmt` alone writes the shell.
 `[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer.
