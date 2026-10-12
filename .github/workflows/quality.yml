@@ -6,11 +6,18 @@
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
 # refuses are the same thing to the ruleset, so a filtered run blocks forever.
+#
+# Never add `ready_for_review` to the types below. Marking a draft ready
+# changes no commit, and the ruleset reads this check on the head commit,
+# whatever event made it. The page below says so. Its address cannot be
+# wrapped, so the style check skips that line.
+# editorconfig-checker-disable-next-line
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/troubleshooting-rules#troubleshooting-required-status-checks
 name: Quality
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
