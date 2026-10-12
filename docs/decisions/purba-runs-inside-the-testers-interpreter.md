@@ -44,7 +44,7 @@ CPython is outside purba's boundary.
 - **pytest.** It runs the control run of a pinned suite. purba does not call it.
 - **The packager.** It builds purba before purba runs. No data crosses while purba runs.
 - **The library author.** It joins the diagram when the public surface holds something that a test imports.
-- **A plugin.** [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10#issuecomment-5593350290) refused a plugin API.
+- **A plugin.** [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) refuses a plugin API.
 - **How purba is developed.** The landscape draws the product.
 
 **Downside:**
@@ -58,5 +58,3 @@ CPython is outside purba's boundary.
 A Rust host builds a wheel with no `abi3` tag, so the upload refuses it.
 No check reads the diagram, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 The walking skeleton is the first to run one test through this boundary.
-
-[Write the record that purba's public surface starts empty and has no plugin API](https://github.com/kalonji-tools/purba/issues/475) records the refusal of a plugin API.

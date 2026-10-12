@@ -7,7 +7,7 @@ edition = "2024"
 license = "MIT"
 description = "A Python test framework written in Rust"
 repository = "https://github.com/kalonji-tools/purba"
-# The Rust crate surface is outside purba's public API.
+# The Rust crate is outside purba's public surface.
 publish = false
 
 # `rust-version` is deliberately absent. It is a claim about consumers, and
