@@ -19,6 +19,7 @@ So the base branch and the head can hold different marks, and the gate reads one
 **`changed.sh` reads `.config/gates` on the base branch of the pull request.**
 A pull request cannot mark the paths it changes to skip its own gate.
 A pull request to another branch reads the marks of that branch.
+`.config/gates` marks itself `-build` and `-scripts`, because no gate that can skip reads the copy a pull request changes.
 
 **Downside:**
 

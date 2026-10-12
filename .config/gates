@@ -17,7 +17,7 @@
 .config/mise.toml              build   scripts
 .config/mise.lock              build   scripts
 .config/tasks.toml             build   scripts
-.config/gates                  build   -scripts
+.config/gates                  -build  -scripts
 .config/readers                -build  -scripts
 .config/cliff.toml             -build  scripts
 /Cargo.toml                    build   -scripts
