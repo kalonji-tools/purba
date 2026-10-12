@@ -9,8 +9,8 @@ So a convention no tool enforces is not a convention.
 It is a review comment, rewritten forever, by the reader whose attention is scarcest.
 That reader's work is a judgement of whether a change solves its problem, and everything mechanical competes with it.
 
-[What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32) answered the product half: purba is strict for the suites it runs, and strict is not a dial.
-It also drew the line this record needs: a defensible house rule for purba's own tests is a strong claim to make about someone else's.
+[purba is always strict](purba-is-always-strict.md#decision-outcome) answers the product half: purba is strict for the suites it runs, and no switch turns that off.
+[What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32) drew the line this record needs: a defensible house rule for purba's own tests is a strong claim to make about someone else's.
 This record answers the house half, which nothing answered: how purba configures the tools that read purba.
 
 ## Considered Options
