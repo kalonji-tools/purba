@@ -50,5 +50,3 @@ The `Build` job refuses a skipped matrix when the job `changed` failed.
 
 No command checks that a mark is right.
 The Downside above carries that cost.
-
-[.config/gates marks itself build, but a change to it need not start Build](https://github.com/kalonji-tools/purba/issues/510) asks that `.config/gates` mark itself `-build`.
