@@ -47,7 +47,8 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 
 **What stays off the diagram:**
 
-- **The `inspect` TUI, doctest and a plugin API.** [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10#issuecomment-5593350290) refused them.
+- **The `inspect` TUI and doctest.** [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10#issuecomment-5593350290) refused them.
+- **A plugin API.** [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) refuses it.
 - **The cache, affected tests, retry, the debugger and coverage.** No decision admits them yet.
 - **Built-in fixtures and JUnit output.** Built-in fixtures belong inside fixtures, and JUnit output belongs inside reporting.
 

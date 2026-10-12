@@ -86,7 +86,7 @@ A statement about who is answerable for a change. Each one is written from the a
 
 ### Library author
 
-The [actor](#actor) that builds a library against purba's public interface, which a test imports by name.
+The [actor](#actor) that builds a library against purba's [public surface](#public-surface), which a test imports by name.
 
 ### Location
 
@@ -123,6 +123,10 @@ A read of a branch, after the implementation, for what can be removed or improve
 ### Prose
 
 The sentences of a [record](#record) outside its headings, its [reach](#reach), tables, fenced blocks and quotations.
+
+### Public surface
+
+What a [tester](#tester), a [library author](#library-author) or an [integrator](#integrator) can depend on: the names a test imports, the command's flags and exit code, the data purba writes, and the format of its configuration.
 
 ### Published comment
 
