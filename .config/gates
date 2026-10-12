@@ -1,5 +1,6 @@
 # Each attribute names a gate. `build` marks a path whose change must start Build, and
-# `-build` a path whose change need not. Quality, Records, Commits and Sign-off always
+# `scripts` a path whose change must start the script tests. `-build` and `-scripts`
+# mark a path whose change need not. Quality, Records, Commits and Sign-off always
 # run, so none has an attribute.
 #
 # A gate reads the marks on the base branch, so a mark takes effect once it merges.
@@ -9,31 +10,33 @@
 #
 #   the task:  mise run lint:gates
 
-.github/**                    -build
-.github/workflows/build.yml   build
-.config/mise.toml             build
-.config/mise.lock             build
-.config/tasks.toml            build
-.config/gates                 build
-.config/readers               -build
-.config/cliff.toml            -build
-/Cargo.toml                   build
-/Cargo.lock                   build
-src/**                        build
-/pyproject.toml               build
-/README.md                    build
-/LICENSE                      build
-.gitignore                    build
-.gitattributes                build
+.github/**                     -build  -scripts
+.github/workflows/build.yml    build   -scripts
+.github/workflows/scripts.yml  -build  scripts
+.github/scripts/**             -build  scripts
+.config/mise.toml              build   scripts
+.config/mise.lock              build   scripts
+.config/tasks.toml             build   scripts
+.config/gates                  build   -scripts
+.config/readers                -build  -scripts
+.config/cliff.toml             -build  scripts
+/Cargo.toml                    build   -scripts
+/Cargo.lock                    build   -scripts
+src/**                         build   -scripts
+/pyproject.toml                build   scripts
+/README.md                     build   -scripts
+/LICENSE                       build   -scripts
+.gitignore                     build   -scripts
+.gitattributes                 build   scripts
 
-/AGENTS.md                    -build
-/CLAUDE.md                    -build
-/CONTEXT.md                   -build
-/CONTRIBUTING.md              -build
-/LANDSCAPE.md                 -build
-/deny.toml                    -build
-/prek.toml                    -build
-/.editorconfig                -build
-/.shellcheckrc                -build
-docs/**                       -build
-scripts/**                    -build
+/AGENTS.md                     -build  -scripts
+/CLAUDE.md                     -build  -scripts
+/CONTEXT.md                    -build  -scripts
+/CONTRIBUTING.md               -build  -scripts
+/LANDSCAPE.md                  -build  -scripts
+/deny.toml                     -build  -scripts
+/prek.toml                     -build  -scripts
+/.editorconfig                 -build  -scripts
+/.shellcheckrc                 -build  -scripts
+docs/**                        -build  -scripts
+scripts/**                     -build  scripts

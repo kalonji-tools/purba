@@ -168,8 +168,8 @@ path your branch changes `-build`, so a new mark takes effect once it merges.
 rebased and reviewed against what is there now.
 
 A fourth check, `Scripts`, refuses a failing test of purba's own scripts, or of
-a cargo script. It reports on every pull request, and runs the tests only where
-your branch changes a script, a setting a test copies, or what runs the tests.
+a cargo script. It reports on every pull request, and runs the tests unless
+`.config/gates` on `main` marks every path your branch changes `-scripts`.
 purba does not sign a branch while `Scripts` is red, so it stops a merge
 through `Sign-off`.
 

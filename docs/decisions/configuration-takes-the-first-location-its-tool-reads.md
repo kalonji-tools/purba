@@ -30,7 +30,7 @@ Run bare, with no flag and no environment variable, each pinned tool finds its f
 
 ## Decision Outcome
 
-**Reach:** `/*` `/.config/**` `typos.toml` `_typos.toml` `.typos.toml` `lychee.toml` `.github/scripts/changed-scripts.sh` `scripts/test/changed-scripts.bats`
+**Reach:** `/*` `/.config/**` `typos.toml` `_typos.toml` `.typos.toml` `lychee.toml` `scripts/check-gates.sh`
 
 **A tool's configuration lives in the first location its tool reads: `.config/`, then `pyproject.toml`, then the root.**
 
@@ -59,7 +59,7 @@ It refuses nothing when a new tool arrives, which is the one time the rule appli
 | property | check |
 |---|---|
 | each tool reads its moved configuration | run bare from the root: `typos` refuses a planted `ticket`, `lychee --dump` lists a URL inside a fenced block, `mise ls --current` lists every tool, and `git-cliff --bumped-version` names the next version |
-| a change to the release configuration runs the release tests | `.github/scripts/changed-scripts.sh` matches `.config/cliff.toml`, and `scripts/test/changed-scripts.bats` holds it |
+| a change to the release configuration runs the release tests | `.config/gates` marks `.config/cliff.toml` `scripts`, and `mise run lint:gates` refuses the release configuration at a path the marks do not name |
 | a citation of a moved file names where it lives | `mise run lint:links` refuses a path under `.config/` that git does not track |
 
 No command checks the order itself, and none is planned.
