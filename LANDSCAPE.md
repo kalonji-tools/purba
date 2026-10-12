@@ -81,6 +81,19 @@ flowchart TD
 
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
 
+## The invariants
+
+- **lazy work.** No part imports, rewrites, builds or runs anything outside the selection, in dispatch, execution, fixtures and assertion.
+- **an outcome is data.** An outcome carries no live Python object, in execution, dispatch and reporting.
+- **an outcome is final.** No part changes an outcome once it is made, in dispatch and reporting.
+- **one identity.** No part names a test except by the identity that selection gives it, in dispatch, execution and reporting.
+- **one parser.** No part but parsing turns Python source into an AST, in selection and assertion.
+- **an async fixture stays on its loop.** No async fixture leaves the event loop that built it, in execution and fixtures.
+- **an async fixture shares its test's task.** No async fixture built for one test runs outside that test's task, in execution and fixtures.
+- **the diagram is the only wiring.** No part uses an interface that the diagram does not draw, in every part.
+
+[An invariant needs no design of its own](docs/decisions/an-invariant-needs-no-design-of-its-own.md) holds why.
+
 ## The cross-cutting concerns
 
 - **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.

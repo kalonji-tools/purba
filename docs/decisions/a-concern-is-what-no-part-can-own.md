@@ -51,18 +51,18 @@ Dispatch and reporting pass data, so neither crosses it.
 - **A log of purba's own work.** No decision admits one yet.
 - **Lazy work.** It has no design of its own, so it is not a concern.
   It is an invariant.
-  [Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) states it.
+  [The landscape](../../LANDSCAPE.md#the-invariants) states it.
+  [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) holds why.
   [purba ranks an honest outcome first](purba-ranks-an-honest-outcome-first.md#decision-outcome) makes it a mechanism of fast feedback.
 
 **Downside:**
 
 - **The errors concern crosses every part.** The interface of each part waits on the kinds of failure that errors keeps apart.
-- **The seam rule holds only while an outcome is data.** If an outcome carries a live Python object, each part that passes it crosses the seam.
+- **The seam rule rests on the invariant that an outcome is data.** [The landscape](../../LANDSCAPE.md#the-invariants) states that invariant. A breach of it puts each part that passes an outcome across the seam.
 - **The line between a fact about the project and a switch is thin.** [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32#issuecomment-5600829294) names it a risk.
 
 ## Confirmation
 
 No check reads the concerns, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 
-[Which invariants hold between purba's parts?](https://github.com/kalonji-tools/purba/issues/471) decides whether reporting may call into Python.
 [Which risks threaten purba, and in what order are its parts and concerns designed in depth?](https://github.com/kalonji-tools/purba/issues/472) ranks these concerns.
