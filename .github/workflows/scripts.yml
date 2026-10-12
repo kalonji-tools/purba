@@ -3,6 +3,7 @@
 #
 #   the tasks:     .config/tasks.toml, under `test:shell` and `test:cargo-scripts`
 #   the tools:     .config/mise.toml
+#   the paths:     .config/gates
 #   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
@@ -47,7 +48,7 @@ jobs:
 
       - name: Name whether this pull request changes a path that starts the script tests
         id: changed
-        run: .github/scripts/changed-scripts.sh HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+        run: .github/scripts/changed.sh scripts HEAD^1 HEAD >>"$GITHUB_OUTPUT"
 
       - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         if: steps.changed.outputs.scripts == 'true'
