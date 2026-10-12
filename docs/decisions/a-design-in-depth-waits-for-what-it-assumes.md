@@ -29,7 +29,7 @@ The order of design must also put the effort where a failure is likely and costs
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
+**Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `scripts/order-of-design.sh`
 
 **A design in depth waits for every part it uses and every concern that crosses it, and risk orders what nothing blocks.**
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each part and concern.
@@ -66,24 +66,6 @@ A risk stays out of the landscape when it scores less than a high impact at a lo
 | the Rust/Python seam costs more per test than pytest | the Rust/Python seam | fast feedback | low | medium | stays out |
 | a failure needs a re-run to read | assertion | legible result | medium | low | stays out. oxitest's assert rewriter drew 1 fix. |
 
-This walk applies the rule, and shows what nothing blocked at each step.
-
-| step | unblocked, with score | chosen | decided by |
-|--:|---|---|---|
-| 1 | errors 6, interrupt handling 6, strictness 4, the Rust/Python seam 0, configuration 0 | errors | what waits on it, 42 against 30 |
-| 2 | interrupt handling 6, strictness 4, parsing 3, the Rust/Python seam 0, configuration 0 | interrupt handling | score |
-| 3 | strictness 4, parsing 3, the Rust/Python seam 0, configuration 0 | strictness | score |
-| 4 | parsing 3, the Rust/Python seam 0, configuration 0 | parsing | score |
-| 5 | the Rust/Python seam 0, configuration 0 | configuration | what waits on it, 24 against 15 |
-| 6 | the Rust/Python seam 0, selection 9 | selection | score |
-| 7 | the Rust/Python seam 0 | the Rust/Python seam | alone |
-| 8 | fixtures 15, assertion 0 | fixtures | score |
-| 9 | assertion 0 | assertion | alone |
-| 10 | execution 0 | execution | alone |
-| 11 | dispatch 9, reporting 0 | dispatch | score |
-| 12 | reporting 0 | reporting | alone |
-| 13 | command 6 | command | alone |
-
 When the design in depth of a part or concern merges, its order line and its risk lines leave the landscape.
 Its line in the parts or the concerns then links its design.
 
@@ -91,11 +73,12 @@ Its line in the parts or the concerns then links its design.
 
 - **The part that churned most in oxitest comes last.** Command wires the run, so it waits for every part it uses. Until then, the walking skeleton guards it, and so does the invariant [the diagram is the only wiring](../../LANDSCAPE.md#the-invariants).
 - **The item with the highest score waits.** Fixtures waits for the Rust/Python seam, whose only risk stays out of the landscape, so items with lower scores come before it.
-- **Some probabilities are judgments.** A wrong judgment carries into the order until a later design in depth corrects it.
-- **The last tie-break is arbitrary.** No step of the walk uses it yet.
-- **Each design in depth edits the landscape.** Its pull request removes the risk and order lines of its part or concern, and links the design.
+- **Some probabilities are judgments.** A wrong judgment carries into the order until a pull request with new evidence corrects it.
+- **The last tie-break is arbitrary.** `mise run fmt:order` prints each step, and names a step that this tie-break decides.
+- **Each design in depth edits the landscape.** Its pull request removes the risk and order lines of its part or concern, links the design, and rewrites each other line it makes untrue.
+  [A script calculates the order of design, and only a changed input moves it](only-a-changed-input-moves-the-order-of-design.md#decision-outcome) says when the order changes.
 
 ## Confirmation
 
 No check judges a probability, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies.
-The walk table lets a reviewer recompute each step from those probabilities.
+`mise run lint:order` calculates the order from those probabilities, and refuses an order section that differs.
