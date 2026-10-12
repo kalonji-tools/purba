@@ -70,7 +70,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
 - **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
-- **A pull request skips the tests when `.config/gates` on `main` marks every path it changes `-scripts`.** `.config/mise.lock` locks `bats` and `jq`, so a new version of either starts the tests. A new version of git on the runner can break a script. The next change to a path marked `scripts` finds the break.
+- **A pull request skips the tests when `.config/gates` on the base branch marks every path the pull request changes `-scripts`.** `.config/mise.lock` locks `bats` and `jq`, so a new version of either starts the tests. A new version of git on the runner can break a script. The next change to a path marked `scripts` finds the break.
 
 ## Confirmation
 
@@ -81,7 +81,8 @@ The Downside above carries that cost.
 `.config/mise.toml` names `bats`.
 `mise run test:shell` runs every test under `scripts/test`.
 `mise run check` runs that task.
-`.github/workflows/scripts.yml` runs it unless `.config/gates` on `main` marks every path a pull request changes `-scripts`.
+`.github/workflows/scripts.yml` runs `mise run test:shell` unless `.config/gates` on the base branch marks every path a pull request changes `-scripts`.
+[A path not marked to skip starts the gate](a-path-not-marked-to-skip-starts-the-gate.md) says when a gate skips.
 `.github/workflows/sign.yml` waits for the `Scripts` check, so purba does not sign a branch whose test fails.
 
 `shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run lint`.
