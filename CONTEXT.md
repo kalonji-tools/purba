@@ -60,7 +60,7 @@ The [actor](#actor) that writes the instructions an agent acts on.
 
 ### Implementation plan
 
-What the author of a [pull request](#pull-request) writes to say how the [design spec](#design-spec) is built. The [reviewer](#reviewer) reads it.
+What the author of a [pull request](#pull-request) writes to say how the change is built. The [reviewer](#reviewer) reads it.
 
 ### Integrator
 
