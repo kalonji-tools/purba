@@ -6,7 +6,8 @@ Strictness is one of purba's cross-cutting [concerns](../../CONTEXT.md#concern).
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) says that no switch turns it off.
 A runner with no switch must still be able to change its checks.
 rustc and clippy buy that right with a hatch.
-purba refuses the hatch.
+purba buys that right with a [suppression](../../CONTEXT.md#suppression).
+[A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds that decision.
 
 | fact | source |
 |---|---|
@@ -23,7 +24,7 @@ purba refuses the hatch.
 ## Considered Options
 
 - **A mode switch, as oxitest's `abort`, `enforce` and `off`.** Rejected. A switch makes a broken check survivable, so the broken check survives.
-- **Strict by default, with an opt-out for each test or each check.** Rejected. Each opt-out is the same switch at a smaller scale.
+- **Strict by default, with a silent opt-out for each test or each check.** Rejected. Each silent opt-out is the same switch at a smaller scale.
 - **Every strict check decides every test.** Rejected. A lint in rustc or clippy stays silent where it cannot see. Even a correctness lint carries an open false positive.
 - **Always strict, and a strict check exists only when its predicate guarantees each verdict it gives.** Chosen. The bar is a property of the predicate, and the design of the check sets it.
 
@@ -41,9 +42,8 @@ purba refuses the hatch.
 
 **Downside:**
 
-- **A false positive blocks the tester until a fix ships.** [The landscape](../../LANDSCAPE.md#the-risks) names it as the risk that strictness refuses a test that checks its result through a helper.
+- **A false positive costs the tester a suppression and its reason until a fix ships.** [The landscape](../../LANDSCAPE.md#the-risks) names it as the risk that strictness refuses a test that checks its result through a helper.
 - **A check that warns and does not block needs a category beside the checks that block, and not a separate channel.** A separate channel of suggestions failed in rustc.
-- **A demotion must ship faster than a repair.**
 - **Each demotion states its trigger.**
 - **A removed check keeps its name and states why it went.**
 - **A suggested fix carries its own confidence, apart from the verdict.**

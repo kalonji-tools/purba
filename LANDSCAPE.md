@@ -98,7 +98,7 @@ flowchart TD
 
 - **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.
 - **strictness.** Never shows as passed what was not checked, in selection, execution, fixtures and reporting. No switch turns it off.
-- **configuration.** States facts about the project, in command, selection, dispatch and reporting.
+- **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on Ctrl-C and tears down what was built, in command, dispatch, execution, fixtures and reporting.
 - **errors.** Keeps a test's outcome, a diagnostic about the tester's project and an error inside purba apart, in every part.
 

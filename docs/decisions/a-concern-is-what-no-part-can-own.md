@@ -36,11 +36,12 @@ The landscape needs a test that keeps out what a part can own.
 |---|---|
 | the Rust/Python seam | execution, fixtures and assertion each hold a live Python object |
 | strictness | each part that makes or shows an outcome must refuse to show as passed what was not checked |
-| configuration | the part that reads a value owns what it means, and every reader follows one rule: a value states a fact about the project, and never turns a check off |
+| configuration | the part that reads a value owns what it means, and every reader follows one rule: a value states a fact about the project or tightens a check, and never turns a check off |
 | interrupt handling | each part that holds a test while it runs must stop the test, and each part that holds what was built for it must tear that down |
 | errors | every part can fail, and each failure is one of three kinds: a test's outcome, a diagnostic about the tester's project, or an error inside purba |
 
 [purba is always strict](purba-is-always-strict.md#decision-outcome) holds why no switch turns strictness off.
+[A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds why a value that tightens a check is not a switch.
 
 **A part crosses the seam when its job needs a live Python object.**
 Command takes the arguments and returns an exit code, both data, so it does not cross the seam.
