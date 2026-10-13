@@ -45,7 +45,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 | an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
 | an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a field that changes through `&self`, such as a `Cell`, and a part that builds a replacement outcome |
 | one identity | only selection constructs a test's identity | the identity type | a part that formats its own name for a test |
-| lazy work | selection and execution both exist | the walking skeleton, as a test that selects one of two modules and refuses any import, rewrite, fixture or run for the other | a path that the test does not take |
+| lazy work | selection and execution both exist | the walking skeleton, as a test that runs one of two modules and refuses any import of the other | a module that only a query leaves out, a rewrite that reads the other module and never imports it, and a path that the test does not take |
 | the diagram is the only wiring | each part has a boundary that a tool reads | the code of the second part | an import between parts in Python, until the Python half is built |
 
 **The async invariants have no gate.** Only a run shows which loop and which task hold a value.
