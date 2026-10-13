@@ -180,6 +180,10 @@ The [actor](#actor) that has arrived at a part of purba it does not know yet. An
 
 A rule that judges one of a [tester's](#tester) tests and gives a verdict of violation, clean or unknown. A [gate](#gate) judges a contributor's change instead.
 
+### Suppression
+
+A [tester's](#tester) statement, at a site, that names one [strict check](#strict-check) and gives a reason. purba shows each suppressed verdict as a warning.
+
 ### Technical writer
 
 The [actor](#actor) that writes purba's documentation for a [reader](#reader) outside the work.
