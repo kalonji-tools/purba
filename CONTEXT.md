@@ -174,7 +174,7 @@ The property that routes a change to the code owner. A change is architecturally
 
 ### Stem
 
-The [actor](#actor) that has arrived at a part of purba it does not know yet. An actor returns to the stem at every part it does not know.
+The [actor](#actor) that arrives at a [location](#location) it does not know yet. An actor returns to the stem at every location it does not know.
 
 ### Strict check
 

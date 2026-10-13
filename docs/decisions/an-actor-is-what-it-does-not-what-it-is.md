@@ -38,7 +38,7 @@ The roster is flat.
 
 | actor | mindset |
 |---|---|
-| [**stem**](../../CONTEXT.md#stem) | I do not know this part of purba, and I need footing before I can do anything |
+| [**stem**](../../CONTEXT.md#stem) | I do not know this location, and I need footing before I can do anything |
 | [**architect**](../../CONTEXT.md#architect) | I must choose a direction, and I will be answerable for what it costs |
 | [**coder**](../../CONTEXT.md#coder) | the decision is made, and I must build it correctly |
 | [**toolsmith**](../../CONTEXT.md#toolsmith) | a mistake must be stopped before a person has to catch it |
@@ -60,11 +60,13 @@ An actor earns its place when its mindset is not contained by another's.
 Two merge when one is contained, and the survivor is the larger.
 
 Running it removed the maintainer.
-A reader returning cold does not know this part of purba, which is the stem's mindset, and it becomes whichever actor the work then needs.
+A reader that returns cold does not know the location it returns to.
+That is the stem's mindset.
+The reader then becomes whichever actor the work needs.
 ⚠️ A want list kept that role alive, because it named a need no other row named. Stating the mindset instead made it visible as the stem.
 
 **A reader does not leave the stem once.**
-It returns whenever it meets a part of purba it does not know.
+It returns whenever it meets a location it does not know.
 A coder sent into the pipeline is a stem again, and so is a coder sent into a language it does not write.
 
 ⚠️ The stem is the only actor purba can lose when it does nothing.
@@ -88,7 +90,7 @@ A tester is both at once, because purba tests itself with itself.
 
 - **The merge test compares sentences a person wrote.** A mindset phrased narrowly survives a merge it should lose, and one phrased broadly swallows a role it should not. Rewording a single row can change the roster, and rewording one did.
 - **The overlaps are recorded and not resolved.** Anything that later routes on an actor must decide which branch wins, and this record does not decide it.
-- **The stem is scoped to a part of purba, and this record names no parts.** [A location inherits its readers](a-location-inherits-its-readers.md) names them, so a reader needs both records to know whether it is a stem right now.
+- **Whether a reader is a stem depends on the location, and this record binds no actor to a location.** [A location inherits its readers](a-location-inherits-its-readers.md) holds those bindings, so a reader needs both records to know whether it is a stem right now.
 
 ## Confirmation
 
