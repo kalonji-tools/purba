@@ -51,3 +51,4 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 No command checks it, because purba holds no product code.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its exit code.
+[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.

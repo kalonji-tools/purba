@@ -47,6 +47,7 @@ A change of language is earned by something the new language brings that bash ca
 
 **A change to Python is earned when purba runs purba's own test suite.**
 purba runs Python tests and nothing else, so at that point the scripts' tests become the product's own first user.
+[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) keeps the end-to-end test of purba in bats after that point.
 
 **The language the product is written in is not evidence for the language its scripts are written in.**
 A script and the product share no user.
@@ -68,7 +69,7 @@ A `run:` block there asserts the built extension is a real shared object, and no
 
 - **Nothing checks this.** An extension shows the language of a script, and no command refuses a script for its language. A reviewer decides whether a `.rs` script needs its library.
 - **The trigger cannot be confirmed until purba can meet it.** No reader can test half of this record today.
-- **A test suite written in bash is rewritten when the trigger fires.** The tests move with the scripts they cover.
+- **The scripts' test suite is rewritten when the trigger fires.** The tests move with the scripts they cover.
 - **Adopting `bats` widens a glob in two files.** A narrowed glob removes a gate and nothing fails.
 - **A pull request skips the tests when `.config/gates` on the base branch marks every path the pull request changes `-scripts`.** `.config/mise.lock` locks `bats` and `jq`, so a new version of either starts the tests. A new version of git on the runner can break a script. The next change to a path marked `scripts` finds the break.
 

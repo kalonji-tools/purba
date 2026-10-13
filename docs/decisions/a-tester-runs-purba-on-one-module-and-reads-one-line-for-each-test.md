@@ -59,4 +59,5 @@ tests/test_a.py::test_three unknown: no assert ran
 
 No command checks it, because purba holds no product code.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its lines.
+[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.
 [Where does each part of the walking skeleton live, Rust or Python?](https://github.com/kalonji-tools/purba/issues/536) may decide that command holds a Python file.
