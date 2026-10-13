@@ -18,8 +18,8 @@ purba holds no product code, so no gate over an invariant has anything to read y
 | with pyo3's `serde` feature on, a `Py<T>` serialises when `T` is a `#[pyclass]` that serialises | [pyo3 v0.29.2](https://github.com/PyO3/pyo3/blob/v0.29.2/src/conversions/serde.rs#L18-L20) |
 | ruff exposes more than one function that parses | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | `.config/mise.toml` pinned no Python linter | [`.config/mise.toml`](https://github.com/kalonji-tools/purba/blob/4c57d5049d9782f114243868a3be8774ffb1810b/.config/mise.toml#L9-L64) |
-| a private `Cell` field that changes through `&self`, and a `#[serde(skip)]` field that holds a `Py<PyAny>`, each compiled on purba's pins with `serde` off | [the post pass on PR 524](https://github.com/kalonji-tools/purba/pull/524#issuecomment-6128075652) |
-| `#[allow(C)]` overrides the check for C, so that its violations go unreported | [the Rust Reference](https://doc.rust-lang.org/reference/attributes/diagnostics.html#lint-check-attributes) |
+| a private `Cell` field that changes through `&self`, and an `Option<Py<PyAny>>` field that `#[serde(skip)]` leaves out, each compiled in a struct that derives `Serialize` and `Deserialize`, on purba's pins and serde `1.0.229`, with pyo3's `serde` feature off | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6141818801) |
+| `#[allow(C)]` overrides the check for C, so that its violations go unreported, and `#[expect(C)]` suppresses C too | [the Rust Reference](https://doc.rust-lang.org/reference/attributes/diagnostics.html#lint-check-attributes) |
 
 ## Considered Options
 
