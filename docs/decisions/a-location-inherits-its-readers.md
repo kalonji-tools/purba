@@ -14,7 +14,7 @@ The prototype shows what an unanswered location question costs.
 
 ## Considered Options
 
-- **Bind each location to one reader.** Rejected. `docs/decisions/` serves the architect and the technical writer at once, and the roster already says so.
+- **Bind each location to one reader.** Rejected. `docs/decisions/` serves the architect and the technical writer at once.
 - **Let a child override its parent, as GitHub's `CODEOWNERS` does.** Rejected. The last matching pattern wins there, so a child naming the architect would dismiss the technical writer. Override is correct for an approval and wrong for a reader.
 - **Author a reader list for every location.** Rejected. A commit and a changelog hold no content of their own, so a second authored list can disagree with the thing it describes. [Decide purba's documentation harness and example verification](https://github.com/kalonji-tools/purba/issues/28) settled the form: a check that detects drift is worse than a design where drift cannot happen.
 - **Route by the stage of work rather than by the location.** Rejected. A stage can be reordered or removed while every location stays, so a record keyed to stages is rewritten on each revision.
