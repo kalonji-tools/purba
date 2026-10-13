@@ -25,7 +25,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 ## When you open a pull request
 
-- Open it as a draft, and write the implementation plan before the implementation. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+- Open it as a draft, and write the implementation plan before the implementation. Where no runner executes the change, write the plan when the draft opens, and say that it follows the implementation. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
 - Write the implementation plan in the body, under the headings of [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). ([a register belongs to one location](docs/decisions/a-register-belongs-to-one-location.md#decision-outcome))
 - Where a runner executes the change, follow TDD: put the test list in the plan, say why each case fails today, and push the test alone until its run fails. For a change with no new behaviour, instead name in the plan the test that covers the code, or, where none does, push a characterization test first, and say in the plan whether the first push fails or passes. ([an implementation follows test-driven development](docs/decisions/an-implementation-follows-test-driven-development.md#decision-outcome))
 - Answer one issue with one pull request. ([one pull request answers one issue](docs/decisions/one-pull-request-answers-one-issue.md#decision-outcome))

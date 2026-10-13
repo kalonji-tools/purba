@@ -68,6 +68,8 @@ The spec is read against the tree when the issue is taken up, and narrowed where
 
 **An [implementation plan](../../CONTEXT.md#implementation-plan) is owed before the implementation.**
 It shows the reviewer how the author meant to build the change.
+Where no runner executes the change, the author writes the plan when the pull request opens as a draft.
+The plan says that it follows the implementation.
 It need not name the commits.
 [A register belongs to one location](a-register-belongs-to-one-location.md) names the register that says where the plan is written.
 
@@ -104,6 +106,7 @@ No sign-off is owed before that.
 - **`Origin` reads red through the whole review.** The branch stays unsigned until the reviewer is satisfied, so that check says nothing before then.
 - **Each new pass costs about 140k tokens.** [Does a sweep of each prose rule find the prose breaches the agent missed?](https://github.com/kalonji-tools/purba/issues/391#issuecomment-6078214981) measured it. The reviewer also reads one more comment on the pull request for each pass.
 - **The record is rewritten when a step changes.** [A location inherits its readers](a-location-inherits-its-readers.md) refused to key itself to stages for that reason.
+- **The plan of a change no runner executes follows its implementation.** The reviewer cannot tell whether the author fitted the plan to the diff.
 
 ## Confirmation
 
