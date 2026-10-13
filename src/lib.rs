@@ -145,3 +145,18 @@ fn purba(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(_run, module)?)?;
     Ok(())
 }
+
+// PROTOTYPE: execution and assertion run under `cargo test`, with no wheel.
+// On Linux the test binary needs LD_LIBRARY_PATH set to the interpreter's LIBDIR.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_skeleton_module_exits_1() {
+        Python::initialize();
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/skeleton/test_a.py");
+        let code = Python::attach(|py| run(py, path, "cargo test")).unwrap();
+        assert_eq!(code, 1, "test_two fails, so the run exits 1");
+    }
+}
