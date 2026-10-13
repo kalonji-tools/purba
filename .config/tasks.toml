@@ -161,3 +161,15 @@ description = "Run purba's own scripts against the shapes they refuse"
 # bats names the line that failed and never what the script wrote, so the flag
 # prints the script's output beside it.
 run = "bats --print-output-on-failure --recursive scripts/test"
+
+# PROTOTYPE for #535. Never merges.
+["test:wheel"]
+description = "Build the wheel, install it into a venv, and run the end-to-end tests"
+run = '''
+venv=target/wheel-venv
+rm -rf "$venv" target/wheel-dist
+python -m venv "$venv"
+maturin build --interpreter "$venv/bin/python" --out target/wheel-dist
+"$venv/bin/python" -m pip install --quiet --no-index --find-links target/wheel-dist purba
+PATH="$PWD/$venv/bin:$PATH" bats --print-output-on-failure tests
+'''

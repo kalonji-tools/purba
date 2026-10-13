@@ -17,6 +17,10 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 
+# PROTOTYPE for #535. Never merges.
+[project.scripts]
+purba = "purba:_main"
+
 # Classifiers are deliberately absent.
 #
 # No `License ::` entry: PEP 639 deprecated licence classifiers in favour of the
