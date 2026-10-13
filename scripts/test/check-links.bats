@@ -214,8 +214,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${online} when it does not answer"* ]]
-  [[ "${output}" == *"because a server that does not answer leaves its reader nowhere"* ]]
+  [[ "${output}" == *"${online} unless it reaches its target as written"* ]]
+  [[ "${output}" == *"because its reader must reach the address it names"* ]]
   [[ "${output}" == *"[404] https://example.invalid/gone"* ]]
   [[ "${output}" != *"${offline}"* ]]
 }

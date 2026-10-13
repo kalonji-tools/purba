@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The links that resolve to nothing, and the paths a comment cites that git
-# does not track.
+# The links that do not reach their target as written, and the paths a comment
+# cites that git does not track.
 #
 #   the decision:  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
 #   the task:      mise run lint:links
@@ -80,9 +80,9 @@ exist. A renamed file leaves every link to it dead." "${inputs}" --offline
 # The offline leg reads every link to a file already, so this one reads only an
 # address on the network, and never reports a dead file link a second time.
 if [[ -n "${changed}" ]]; then
-  links "A link in a file this branch changes is refused when it does not answer, because a \
-server that does not answer leaves its reader nowhere. A link in any other file is read only for \
-a target in this tree." "${changed}" --scheme https \
+  links "A link in a file this branch changes is refused unless it reaches its target as written, \
+because its reader must reach the address it names. A link in any other file is read only for a \
+target in this tree." "${changed}" --scheme https \
     --scheme http
 fi
 
