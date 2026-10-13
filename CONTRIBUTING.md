@@ -158,7 +158,8 @@ Three checks are required. `Quality` refuses a lint, a formatting difference,
 a broken decision record, a dead link, a broken link in the Rust documentation,
 an action a workflow names by a tag, a failing example and a dependency whose
 licence is not on the allowlist. A link in a file your branch changes is
-checked on the network, so a server that does not answer refuses your branch.
+checked on the network, so a link that does not reach its target as written
+refuses your branch.
 `Build` refuses a failing Rust test, and a wheel that does not build or does
 not load, on every platform and Python purba supports. It reports on every
 pull request, and runs its jobs unless `.config/gates` on `main` marks every

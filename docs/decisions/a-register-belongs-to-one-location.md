@@ -127,9 +127,9 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |
 | published doc comments | the language's convention for voice, and this record for which artifact earns one | by that language's tooling, where it exists | partly, `lint:rust` for a Rust doc comment |
 | unpublished comments | [An unpublished comment carries what no other location carries](an-unpublished-comment-carries-what-no-other-location-carries.md) | link liveness, and the paths a comment cites | partly, `mise run lint:links` reads an address on the network only in a file a change touches |
-| `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
-| `docs/agents/post-pass.md` | its closing section, *What belongs in this file* | its links, and nothing else | partly, `mise run lint:links` refuses a link that resolves to nothing |
-| `LANDSCAPE.md` | its closing section, *What belongs in this file* | the order of its sections, its length and its links | partly, `mise run lint:links` refuses a link that resolves to nothing |
+| `AGENTS.md` | its closing section, *What belongs in this file* | the link in each line, and nothing else | partly, `mise run lint:links` refuses a link that does not reach its target as written |
+| `docs/agents/post-pass.md` | its closing section, *What belongs in this file* | its links, and nothing else | partly, `mise run lint:links` refuses a link that does not reach its target as written |
+| `LANDSCAPE.md` | its closing section, *What belongs in this file* | the order of its sections, its length and its links | partly, `mise run lint:links` refuses a link that does not reach its target as written |
 | refusal | the header of `scripts/report.sh`, and [a refusal states the rule, why it holds, and where it was found](a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md) for what it carries | partly, where it was found and whether it names a record | partly, `mise run test:shell` fails on a summary that names a record |
 | CHANGELOG | `.config/cliff.toml` | yes, which commit types it renders and the version each one earns | yes, `mise run test:shell` renders it from the register |
 
