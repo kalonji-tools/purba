@@ -104,6 +104,10 @@ A set of [issues](#issue) that a pinned [candidate](#candidate) decides is done.
 
 The statement that a contributor has the right to submit a contribution. Only a person can make it, so no workflow writes one.
 
+### Outcome
+
+What a [run](#run) says about one selected test, such as passed, failed or unknown. A test is unknown when purba cannot say that it checked a behaviour.
+
 ### Outside contribution
 
 Work offered from a fork. It is applied to a branch in this repository rather than merged from the fork.
@@ -167,6 +171,10 @@ The [actor](#actor) that reads and approves work it did not write.
 ### Risk
 
 A failure scenario a test can check. It lands on one [part](#part) or [concern](#concern), and is weighed by how likely it is and by the quality it breaks.
+
+### Run
+
+One start of purba, from the command it reads to the exit code it sets.
 
 ### Significance
 
