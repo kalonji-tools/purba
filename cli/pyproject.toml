@@ -1,0 +1,13 @@
+# PROTOTYPE for #536 Q2a. maturin drops a [[bin]] from a pyo3 wheel, so the
+# executable needs a package of its own.
+[build-system]
+requires = []
+build-backend = "maturin"
+
+[project]
+name = "purba-cli"
+version = "0.0.0"
+requires-python = ">=3.12"
+
+[tool.maturin]
+bindings = "bin"

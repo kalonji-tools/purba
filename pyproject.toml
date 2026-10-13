@@ -88,3 +88,7 @@ exclude = [
   # with no scheme, because lychee reads this file too.
   '//github\.com/(o|owner)/',
 ]
+
+# PROTOTYPE for #536 Q2a: the CRATE shape.
+[project.scripts]
+purba = "purba:_main"

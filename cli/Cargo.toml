@@ -1,0 +1,10 @@
+# PROTOTYPE for #536 Q2a: the EXECUTABLE shape. Throwaway, never merges.
+[package]
+name = "purba-cli"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "purba-exe"
+path = "src/main.rs"
