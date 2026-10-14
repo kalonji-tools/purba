@@ -25,7 +25,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Decision Outcome
 
-**Reach:** `src/**`
+**Reach:** `crates/**`
 
 **A run exits 0 only when at least one test ran and every test passed.**
 

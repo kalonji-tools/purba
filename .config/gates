@@ -22,7 +22,7 @@
 .config/cliff.toml             -build  scripts
 /Cargo.toml                    build   -scripts
 /Cargo.lock                    build   -scripts
-src/**                         build   -scripts
+crates/**                      build   -scripts
 /pyproject.toml                build   scripts
 /README.md                     build   -scripts
 /LICENSE                       build   -scripts

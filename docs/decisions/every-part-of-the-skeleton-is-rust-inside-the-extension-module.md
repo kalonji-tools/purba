@@ -22,7 +22,7 @@ A part needs its language before anyone writes it.
 
 ## Decision Outcome
 
-**Reach:** `src/**` `/pyproject.toml` `/Cargo.toml`
+**Reach:** `crates/**` `/pyproject.toml` `/Cargo.toml`
 
 **Every part of the walking skeleton is Rust, inside the one extension module.**
 

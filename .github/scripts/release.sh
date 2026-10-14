@@ -22,7 +22,7 @@ set -euo pipefail
 
 sign_off_start release.sh .github/workflows/release.yml "$@"
 
-manifest=Cargo.toml
+manifest=crates/purba/Cargo.toml
 lock=Cargo.lock
 changelog=CHANGELOG.md
 

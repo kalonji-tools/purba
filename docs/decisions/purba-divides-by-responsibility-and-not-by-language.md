@@ -26,7 +26,7 @@ oxitest divided by language, into Rust modules and one Python package with a bri
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `src/**`
+**Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `crates/**`
 
 **purba divides into parts by responsibility, and not by language.**
 Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.

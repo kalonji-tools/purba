@@ -1,34 +1,25 @@
-[package]
-name = "purba"
-# git-cliff computes the version and .github/scripts/release.sh writes it here,
-# so it is never chosen by hand. `0.0.0` means nothing is released yet.
-version = "0.0.0"
+#   the decision:  docs/decisions/every-crate-lives-under-crates.md
+[workspace]
+members = ["crates/*"]
+resolver = "3"
+
+[workspace.package]
 edition = "2024"
 license = "MIT"
-description = "A Python test framework written in Rust"
 repository = "https://github.com/kalonji-tools/purba"
-# The Rust crate is outside purba's public surface.
+# The Rust crates are outside purba's public surface.
 publish = false
 
 # `rust-version` is deliberately absent. It is a claim about consumers, and
 # `publish = false` means purba has none.
 
-[lib]
-name = "purba"
-#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
-crate-type = ["cdylib", "rlib"]
+[workspace.dependencies]
+pyo3 = "0.29.2"
 
-[dependencies]
-pyo3 = { version = "0.29.2", features = ["abi3-py312"] }
-
-[features]
-#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
-extension-module = ["pyo3/extension-module"]
-
-[lints.rust]
+[workspace.lints.rust]
 warnings = "deny"
 
-[lints.rustdoc]
+[workspace.lints.rustdoc]
 # rustdoc reports a broken link as a warning and exits 0, so without this
 # `cargo doc` builds the documentation and refuses nothing. Only the crate-level
 # `//!` block is reached: rustdoc does not document a private item, so it never
@@ -36,7 +27,7 @@ warnings = "deny"
 # https://doc.rust-lang.org/rustdoc/lints.html
 all = "deny"
 
-[lints.clippy]
+[workspace.lints.clippy]
 # `priority = -1` is load-bearing on every group in this table. Without it cargo
 # refuses the manifest with "lint group `pedantic` has the same priority (0) as
 # a lint", and the two exclusions below never apply.
@@ -51,7 +42,7 @@ unnecessary_wraps = "allow"
 # `syn` 2.x and 3.x both arrive through dependencies. purba names neither.
 multiple_crate_versions = "allow"
 
-[lints.cargo]
+[workspace.lints.cargo]
 # A manifest lint is not a rustc lint, so this warned on every `check` while
 # `check` exited 0.
 unused_dependencies = "deny"

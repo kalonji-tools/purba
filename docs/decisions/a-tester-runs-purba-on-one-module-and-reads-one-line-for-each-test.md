@@ -25,7 +25,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Decision Outcome
 
-**Reach:** `/pyproject.toml` `src/**`
+**Reach:** `/pyproject.toml` `crates/**`
 
 **A [tester](../../CONTEXT.md#tester) runs `purba <path>` on one module, and reads one line for each test and a count.**
 
