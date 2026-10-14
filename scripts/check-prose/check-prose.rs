@@ -19,10 +19,11 @@ nursery = { level = "deny", priority = -1 }
 # script never used.
 ---
 
-//! The prose rules and the figure rules of the records, read once through
-//! CommonMark.
+//! The prose rules, the figure rules and the structure rules of the records,
+//! read once through CommonMark.
 //!
 //!   the decisions:
+//!     docs/decisions/a-record-is-rewritten-not-amended.md
 //!     docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
 //!     docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
 //!     docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
@@ -43,7 +44,24 @@ use harper_core::parsers::{Parser, PlainEnglish};
 use harper_core::spell::{FstDictionary, MergedDictionary, MutableDictionary};
 use harper_core::{DictWordMetadata, Document, Token, TokenKind, VerbData, VerbFormFlags};
 use harper_pos_utils::UPOS;
-use pulldown_cmark::{CodeBlockKind, Event, Options, Tag, TagEnd};
+use pulldown_cmark::{CodeBlockKind, Event, HeadingLevel, Options, Tag, TagEnd};
+
+const SECTIONS: [&str; 4] = [
+    "Context and Problem Statement",
+    "Considered Options",
+    "Decision Outcome",
+    "Confirmation",
+];
+
+// Consequences is the one optional section, and it sits where the format it
+// follows puts it, after the outcome and before the confirmation.
+const WITH_CONSEQUENCES: [&str; 5] = [
+    "Context and Problem Statement",
+    "Considered Options",
+    "Decision Outcome",
+    "Consequences",
+    "Confirmation",
+];
 
 const LIMIT: usize = 25;
 const PARAGRAPH: usize = 6;
@@ -126,6 +144,9 @@ fn main() {
         let record = Record::read(&path, &text, &dictionary);
         for finding in &record.findings {
             println!("{finding}");
+        }
+        if record.sections != SECTIONS && record.sections != WITH_CONSEQUENCES {
+            println!("sections\t{path}");
         }
         tally.add(&record.tally);
         density.push((path.clone(), record.bare, record.prose));
@@ -336,6 +357,8 @@ struct Record<'a> {
     tally: Tally,
     prose: u32,
     bare: u32,
+    sections: Vec<String>,
+    code: Vec<Range<usize>>,
 }
 
 impl<'a> Record<'a> {
@@ -354,8 +377,11 @@ impl<'a> Record<'a> {
             tally: Tally::default(),
             prose: 0,
             bare: 0,
+            sections: Vec::new(),
+            code: Vec::new(),
         };
         record.walk();
+        record.outside_code();
         record
     }
 
@@ -387,6 +413,9 @@ impl<'a> Record<'a> {
         let mut walk = Walk::default();
         for (event, range) in pulldown_cmark::Parser::new_ext(self.text, options).into_offset_iter()
         {
+            if let (Some(section), Event::Text(text)) = (walk.section.as_mut(), &event) {
+                section.push_str(text);
+            }
             match event {
                 Event::Start(tag) => self.open(&mut walk, &tag, &range),
                 Event::End(tag) => self.close(&mut walk, tag),
@@ -467,6 +496,20 @@ impl<'a> Record<'a> {
             Tag::Heading { .. } | Tag::CodeBlock(_) | Tag::MetadataBlock(_) => {
                 self.flush(walk.current.take());
                 walk.hidden += 1;
+                if matches!(
+                    tag,
+                    Tag::Heading {
+                        level: HeadingLevel::H2,
+                        ..
+                    }
+                ) && walk.quoted == 0
+                    && walk.nested == 0
+                {
+                    walk.section = Some(String::new());
+                }
+                if matches!(tag, Tag::CodeBlock(_)) {
+                    self.code.push(range.clone());
+                }
                 walk.mermaid = matches!(tag, Tag::CodeBlock(CodeBlockKind::Fenced(info))
                     if info.split_whitespace().next() == Some("mermaid"));
             }
@@ -511,6 +554,9 @@ impl<'a> Record<'a> {
             TagEnd::Heading(_) | TagEnd::CodeBlock | TagEnd::MetadataBlock(_) => {
                 walk.hidden -= 1;
                 walk.mermaid = false;
+                if let Some(section) = walk.section.take() {
+                    self.sections.push(section);
+                }
             }
             TagEnd::Link | TagEnd::Image => {
                 walk.linked -= 1;
@@ -520,6 +566,33 @@ impl<'a> Record<'a> {
                 }
             }
             _ => {}
+        }
+    }
+
+    // A line inside a code block quotes an artifact, so the rules that read a
+    // record line by line skip it.
+    fn outside_code(&mut self) {
+        for (i, line) in self.lines.clone().into_iter().enumerate() {
+            let start = self.starts[i];
+            let end = start + line.len();
+            if self
+                .code
+                .iter()
+                .any(|code| code.start < end && start < code.end)
+            {
+                continue;
+            }
+            for (rule, mark, numbered) in [
+                ("comment", "<!--", false),
+                ("issue", "#", true),
+                ("adr", "ADR-", true),
+            ] {
+                if line.match_indices(mark).any(|(at, _)| {
+                    !numbered || line[at + mark.len()..].starts_with(|c: char| c.is_ascii_digit())
+                }) {
+                    self.find(rule, i + 1, &format!(":{line}"));
+                }
+            }
         }
     }
 
@@ -632,6 +705,7 @@ struct Walk {
     link: usize,
     reach: bool,
     mermaid: bool,
+    section: Option<String>,
 }
 
 impl Walk {
@@ -883,6 +957,41 @@ mod tests {
         let dictionary = dictionary("");
         let record = Record::read("r.md", text, &dictionary);
         (record.bare, record.prose)
+    }
+
+    fn sections(text: &str) -> Vec<String> {
+        let dictionary = dictionary("");
+        Record::read("r.md", text, &dictionary).sections
+    }
+
+    #[test]
+    fn a_level_two_heading_in_a_quote_or_a_list_item_is_not_a_section() {
+        assert_eq!(sections("> ## Quoted\n\n- ## Listed\n"), [] as [&str; 0]);
+    }
+
+    #[test]
+    fn a_line_underlined_with_dashes_is_a_section() {
+        assert_eq!(sections("Confirmation\n---\n"), ["Confirmation"]);
+    }
+
+    #[test]
+    fn a_mark_in_a_fenced_or_an_indented_code_block_is_not_found() {
+        let found = findings("```\n<!-- #12 ADR-12\n```\n\n    <!-- #12 ADR-12\n");
+        assert_eq!(found, [] as [&str; 0]);
+    }
+
+    #[test]
+    fn a_mark_outside_a_code_block_is_found() {
+        assert_eq!(
+            findings("<!-- a note -->\n"),
+            ["comment\t1:<!-- a note -->"]
+        );
+        assert_eq!(
+            findings("It waits on #12.\n"),
+            ["issue\t1:It waits on #12."]
+        );
+        assert_eq!(findings("It cites ADR-12.\n"), ["adr\t1:It cites ADR-12."]);
+        assert_eq!(findings("It links #decision-outcome.\n"), [] as [&str; 0]);
     }
 
     fn filler(words: usize) -> String {

@@ -26,30 +26,24 @@ records=("${dir}"/*.md)
 
 [[ ${#records[@]} -gt 0 ]] || cannot "no record found in ${dir}."
 
-required=$(printf '%s\n' \
-  '## Context and Problem Statement' \
-  '## Considered Options' \
-  '## Decision Outcome' \
-  '## Confirmation')
-
-# Consequences is the one optional section, and it sits where the format it
-# follows puts it, after the outcome and before the confirmation.
-optional=$(printf '%s\n' \
-  '## Context and Problem Statement' \
-  '## Considered Options' \
-  '## Decision Outcome' \
-  '## Consequences' \
-  '## Confirmation')
+# The prose rules, the section order, and the comment, issue-number and
+# citation rules, read through CommonMark by a cargo script, so a fenced line
+# is not read as prose. It prints one tagged line for each finding, and each
+# tag below gives its refusal.
+#
+#   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+here=$(cd "$(dirname "$0")" && pwd)
+prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\"" \
+  run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs" \
+  --target-dir "${here}/../target/scripts" -- \
+  "${here}/check-prose/participles.txt" "${records[@]}") ||
+  cannot 'the prose of a record cannot be read.'
 
 # The last alternative matches a table cell answering `no`, which is how a
 # record states an unwired gate without writing a sentence.
 admits='not wired|not written yet|does not exist yet|by hand|\| *no *\|'
 
-found=()
-for f in "${records[@]}"; do
-  headings=$(grep '^## ' "${f}" || true)
-  [[ "${headings}" = "${required}" ]] || [[ "${headings}" = "${optional}" ]] || found+=("${f}")
-done
+mapfile -t found < <(grep '^sections' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record carries four sections, in order: Context and Problem Statement, Considered Options, \
 Decision Outcome, Confirmation. They are a public Markdown convention cut to its minimum, and \
@@ -90,28 +84,17 @@ path as a gitattributes pattern in a code span, and a location with no path as i
 word, linked to its CONTEXT.md entry." \
   "${found[@]}"
 
-mapfile -t found < <(grep -HnF '<!--' "${records[@]}" || true)
+mapfile -t found < <(grep '^comment' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record reads as current state, so it carries no comment addressed to a reviewer. The \
 template carries the drafting instructions, and a leading dot keeps it out of this glob." \
   "${found[@]}"
 
-mapfile -t found < <(grep -HnE '#[0-9]+' "${records[@]}" || true)
+mapfile -t found < <(grep '^issue' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A record states what is true and an issue states what happened, so record prose carries no \
 issue number. Title the link with the question its issue asks." \
   "${found[@]}"
-
-# The prose rules, read through CommonMark by a cargo script. It prints one
-# tagged line for each finding, and each tag below gives its refusal.
-#
-#   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
-here=$(cd "$(dirname "$0")" && pwd)
-prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\"" \
-  run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs" \
-  --target-dir "${here}/../target/scripts" -- \
-  "${here}/check-prose/participles.txt" "${records[@]}") ||
-  cannot 'the prose of a record cannot be read.'
 
 mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
@@ -246,7 +229,7 @@ is refused here." \
 unmarked, and more means a cost opens mid-line and does not render." \
   "${unsignalled[@]}"
 
-mapfile -t found < <(grep -HnE 'ADR-[0-9]+' "${records[@]}" || true)
+mapfile -t found < <(grep '^adr' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A number cannot be checked against the record it names, so a record cites another by its \
 proposition." \

@@ -702,3 +702,54 @@ words() {
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"${unmatched}"* ]]
 }
+
+@test "a record whose fence holds a ## line passes" {
+  prose $'Something needs a decision.\n\n```sh\n## not a heading\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a record whose fence holds a <!-- passes" {
+  prose $'Something needs a decision.\n\n```html\n<!-- quoted -->\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a record whose fence holds a #12 passes" {
+  prose $'Something needs a decision.\n\n```sh\ngh issue view #12\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a record whose fence holds an ADR-12 passes" {
+  prose $'Something needs a decision.\n\n```text\nADR-12\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a #12 on the line after a closing fence is refused" {
+  prose $'Something needs a decision.\n\n```sh\ngh issue view\n```\nIt waits on #12.'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"record prose carries no issue number"* ]]
+  [[ "${output}" == *"${record}:10:"* ]]
+}
+
+@test "a paragraph line followed by --- is refused for its sections" {
+  prose $'Something needs a decision.\n---'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
+}
