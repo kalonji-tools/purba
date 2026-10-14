@@ -248,6 +248,9 @@ if wants clippy; then
   printf 'disallowed-methods = [{ path = "std::fs::read_to_string", reason = "probe" }]\n' >"${dir}/clippy.toml"
   out=$(cargo clippy --offline --manifest-path "${dir}/Cargo.toml" 2>&1)
   echo "    cargo clippy: exit $? $(grep -m1 -- '-->' <<<"${out}")"
+  sed -i "/^\[lints\]\$/,/^workspace = true\$/d" "${dir}/crates/command/Cargo.toml"
+  out=$(cargo clippy --offline --manifest-path "${dir}/Cargo.toml" 2>&1)
+  echo "    the same, with \`[lints] workspace = true\` left out of command: exit $? $(grep -m2 -E "missing|disallowed" <<<"${out}" | tr "\n" " ")"
   echo
 fi
 
