@@ -32,7 +32,7 @@ So was a gate.
 **Reach:** [implementation plan](../../CONTEXT.md#implementation-plan) [pull request](../../CONTEXT.md#pull-request) `scripts/**` `.github/scripts/**` `*.rs` `/AGENTS.md` `.github/workflows/scripts.yml` `.github/workflows/build.yml`
 
 **An implementation follows test-driven development (TDD) wherever a runner executes the change.**
-That is shell under `scripts/` or `.github/scripts/`, which `bats` runs, and Rust in the crate, which `cargo test` runs.
+That is shell under `scripts/` or `.github/scripts/`, which `bats` runs, and Rust in purba's crates, which `cargo test` runs.
 A cargo script holds the tests of what it reads, beside the `bats` tests of its refusals.
 A change to prose or to configuration owes no test of its own.
 The test of a gate covers the configuration that the gate reads.
