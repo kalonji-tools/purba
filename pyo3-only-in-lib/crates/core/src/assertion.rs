@@ -11,7 +11,10 @@ pub fn rewrite(source: &str) -> (String, Vec<String>) {
                 |expr| {
                     let indent = &line[..line.len() - body.len()];
                     asserts.push(body.to_owned());
-                    format!("{indent}assert _purba_ran({}, {expr})", asserts.len() - 1)
+                    let (test, message) = expr
+                        .split_once(", ")
+                        .map_or((expr, String::new()), |(t, m)| (t, format!(", {m}")));
+                    format!("{indent}assert _purba_ran({}, {test}){message}", asserts.len() - 1)
                 },
             )
         })
