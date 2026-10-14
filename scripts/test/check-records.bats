@@ -277,6 +277,22 @@ words() {
   [[ "${output}" == *"${record}: no Downside label"* ]]
 }
 
+@test "a fenced Downside label before the real one is not the label" {
+  prose $'Something needs a decision.\n\n```markdown\n**Downside:** a quoted label.\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a fenced ## line under the Downside label does not end its costs" {
+  swap $'**Downside:**\n\n' $'**Downside:**\n\n```sh\n## a shell comment\n```\n\n'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
 @test "a Downside with no list is refused" {
   swap "- **It costs something.** The cost is named." "It costs something."
 
@@ -352,6 +368,16 @@ words() {
 @test "a Confirmation that names the issue passes" {
   swap "\`mise run lint:records\` reads this." \
     "The gate is not wired. [Wire it](https://github.com/o/purba/issues/9) owns it."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"${unwired}"* ]]
+}
+
+@test "a fenced Confirmation line is not the Confirmation" {
+  fenced=$'```markdown\n## Confirmation\n\nThe old gate ran by hand.\n```'
+  prose "Something needs a decision."$'\n\n'"${fenced}"
 
   run "${script}"
 
