@@ -54,6 +54,8 @@ flowchart TD
   purba-reporting --> purba-execution
 ```
 
+[Every crate lives under crates/](every-crate-lives-under-crates.md#decision-outcome) holds where each crate lives.
+
 - **A check compares the arrows of the manifests with the diagram.** It reads the `purba-*` edges from `cargo metadata`, and the arrows from the fence in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies).
 - **The pull request that adds the second part builds the check.** It runs the check green and red, as [a gate refuses each invariant a tool can see, from the first code it reads](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) requires.
 - **This record binds no Python file.** The design in depth that first moves a part to Python decides how the boundary of that part shows.

@@ -51,14 +51,15 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 `cargo test --doc`, which the required `Build` check runs on Linux, macOS and Windows.
 
 It does more than run examples.
-On a bare cdylib it exits 101 with "no library targets found". The same command that verifies the examples therefore guards the crate-type line.
+On a bare cdylib, `cargo test --doc` on the crate that builds the extension module exits 101 with "no library targets found".
+The same command that verifies the examples therefore guards the crate-type line.
 
 | what reaches it | where |
 |---|---|
 | `mise run test:rust` | `.config/tasks.toml` |
 | the `Build` job, whose name the ruleset holds as a required context | `.github/workflows/build.yml` |
 
-`Cargo.toml` denies the rustdoc lint under `[lints.rustdoc]`.
+The root `Cargo.toml` denies the rustdoc lint in its lint tables.
 No flag on a command line sets it.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) states why.
 A manifest reaches a task, a bare `cargo doc` and an editor alike.

@@ -16,6 +16,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 | clippy's `disallowed-methods` refused a call to `ruff_python_parser::parse_module` outside the parsing module, which carried the one `#[expect]` | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | the compiler refused a `Py<PyAny>` inside an outcome that derives `Serialize` and `Deserialize` | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | with pyo3's `serde` feature on, a `Py<T>` serialises when `T` is a `#[pyclass]` that serialises | [pyo3 v0.29.2](https://github.com/PyO3/pyo3/blob/v0.29.2/src/conversions/serde.rs#L18-L20) |
+| a `clippy.toml` at the root of a workspace refused a disallowed call inside a member crate that takes the workspace's lints, and only warned in one that does not | [the probes' output](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6170716506) |
 | ruff exposes more than one function that parses | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | `.config/mise.toml` pinned no Python linter | [`.config/mise.toml`](https://github.com/kalonji-tools/purba/blob/4c57d5049d9782f114243868a3be8774ffb1810b/.config/mise.toml#L9-L64) |
 | a private `Cell` field that changes through `&self`, and an `Option<Py<PyAny>>` field that `#[serde(skip)]` leaves out, each compiled in a struct that derives `Serialize` and `Deserialize`, on purba's pins and serde `1.0.229`, with pyo3's `serde` feature off | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6141818801) |
@@ -41,7 +42,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 | invariant | a gate can refuse it when | the code that first builds it | what it misses |
 |---|---|---|---|
-| one parser | (no condition: clippy sees it in one crate) | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, and Python's `ast.parse` until the Python half is built |
+| one parser | the crate takes the workspace's lints | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, a call in a crate that leaves out `[lints] workspace = true`, and Python's `ast.parse` until the Python half is built |
 | an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
 | an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a field that changes through `&self`, such as a `Cell`, and a part that builds a replacement outcome |
 | one identity | only selection constructs a test's identity | the identity type | a part that formats its own name for a test |
