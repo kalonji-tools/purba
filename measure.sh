@@ -3,7 +3,7 @@
 #
 #   S=<scratch dir> PY312=<a 3.12 python> mise exec -- ./measure.sh [section...]
 #
-# Sections: arrow libpython repo fair clippy wheel. With none, it runs all six. Every probe
+# Sections: arrow libpython repo fair clippy doctest wheel. With none, it runs all seven. Every probe
 # runs on a copy under $S, and the repo section on a detached worktree of
 # origin/main under $S, which it removes.
 set -uo pipefail
@@ -13,7 +13,7 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 LIBDIR=$("${PY312}" -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 export PYO3_PYTHON=${PY312} CARGO_TARGET_DIR=${S}/target
 LAYOUTS=(one-crate cli-lib-core crate-per-part)
-SECTIONS=("${@:-arrow libpython repo fair clippy wheel}")
+SECTIONS=("${@:-arrow libpython repo fair clippy doctest wheel}")
 wants() { [[ " ${SECTIONS[*]} " == *" $1 "* ]]; }
 
 fresh() { # $1 layout, $2 copy name: a clean copy of the layout under $S
@@ -251,6 +251,17 @@ if wants clippy; then
   sed -i "/^\[lints\]\$/,/^workspace = true\$/d" "${dir}/crates/command/Cargo.toml"
   out=$(cargo clippy --offline --manifest-path "${dir}/Cargo.toml" 2>&1)
   echo "    the same, with \`[lints] workspace = true\` left out of command: exit $? $(grep -m2 -E "missing|disallowed" <<<"${out}" | tr "\n" " ")"
+  echo
+fi
+
+if wants doctest; then
+  echo "################ DOCTEST: a bare cdylib in crates/purba, and cargo test --doc"
+  dir=$(fresh crates-virtual doctest-crates-virtual)
+  sed -i 's/^crate-type = \["cdylib", "rlib"\]$/crate-type = ["cdylib"]/' "${dir}/crates/purba/Cargo.toml"
+  out=$(cargo test --offline --doc --manifest-path "${dir}/Cargo.toml" 2>&1)
+  echo "    at the root: exit $? $(grep -m1 -E 'not supported|no library' <<<"${out}")"
+  out=$(cargo test --offline --doc -p purba --manifest-path "${dir}/Cargo.toml" 2>&1)
+  echo "    with -p purba: exit $? $(grep -m1 -E 'not supported|no library' <<<"${out}")"
   echo
 fi
 
