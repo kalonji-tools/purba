@@ -117,7 +117,8 @@ comments=$(git -c core.quotePath=false grep -n -I -E '^[[:space:]]*(#|//)' -- \
 
 # A cited path starts at one of the directories a reader opens, and does not end
 # on the full stop of the sentence it sits in.
-cites='(^|[^A-Za-z0-9_./-])(docs|scripts|src|\.github|\.config)/[A-Za-z0-9_./*-]*[A-Za-z0-9_*/-]'
+roots='crates|docs|scripts|src|\.github|\.config'
+cites="(^|[^A-Za-z0-9_./-])(${roots})/[A-Za-z0-9_./*-]*[A-Za-z0-9_*/-]"
 missing=()
 while IFS= read -r hit; do
   [[ -n "${hit}" ]] || continue
@@ -127,7 +128,7 @@ while IFS= read -r hit; do
   tokens=$(grep -oE "${cites}" <<<"${rest#*:}" || true)
   while IFS= read -r path; do
     [[ -n "${path}" ]] || continue
-    [[ "${path}" =~ ^(docs|scripts|src|\.github|\.config)/ ]] || path=${path:1}
+    [[ "${path}" =~ ^(${roots})/ ]] || path=${path:1}
     path=${path%/}
     [[ "${path}" != *'*'* ]] || continue
     # A cited directory passes when git tracks a file inside it.

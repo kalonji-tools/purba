@@ -28,7 +28,7 @@ Its Rust workflow states in a comment that it excludes doc tests on purpose.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `/.config/tasks.toml` `.github/workflows/build.yml` `*.rs` `.github/workflows/quality.yml`
+**Reach:** `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/tasks.toml` `.github/workflows/build.yml` `*.rs` `.github/workflows/quality.yml`
 
 The crate declares `crate-type = ["cdylib", "rlib"]`, and `extension-module` is a named feature rather than a default one.
 
@@ -48,10 +48,10 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 ## Confirmation
 
-`cargo test --doc`, which the required `Build` check runs on Linux, macOS and Windows.
+The required `Build` check runs `cargo test --doc -p purba` on Linux, macOS and Windows.
 
 It does more than run examples.
-On a bare cdylib, `cargo test --doc` on the crate that builds the extension module exits 101 with "no library targets found".
+On a bare cdylib, `cargo test --doc -p purba` exits 101 with "no library targets found".
 The same command that verifies the examples therefore guards the crate-type line.
 
 | what reaches it | where |
@@ -59,7 +59,7 @@ The same command that verifies the examples therefore guards the crate-type line
 | `mise run test:rust` | `.config/tasks.toml` |
 | the `Build` job, whose name the ruleset holds as a required context | `.github/workflows/build.yml` |
 
-The root `Cargo.toml` denies the rustdoc lint in its lint tables.
+Each member denies the rustdoc lint through `[lints] workspace = true`, which reads `[workspace.lints]` in the root `Cargo.toml`.
 No flag on a command line sets it.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) states why.
 A manifest reaches a task, a bare `cargo doc` and an editor alike.

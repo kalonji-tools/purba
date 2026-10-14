@@ -32,7 +32,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `clippy.toml` `src/**` `*.py`
+**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `clippy.toml` `crates/**` `*.py`
 
 **A gate refuses each invariant that a tool can see, from the first code the gate reads.**
 

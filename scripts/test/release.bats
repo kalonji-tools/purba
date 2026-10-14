@@ -16,7 +16,8 @@ setup() {
   cp "${BATS_TEST_DIRNAME}/../../.config/cliff.toml" cliff.toml
 
   # A second `version` key on each side, which the script must leave alone.
-  cat >Cargo.toml <<'TOML'
+  mkdir -p crates/purba
+  cat >crates/purba/Cargo.toml <<'TOML'
 [package]
 name = "purba"
 version = "0.0.0"
@@ -33,7 +34,7 @@ version = "0.27.0"
 name = "purba"
 version = "0.0.0"
 LOCK
-  git add cliff.toml Cargo.toml Cargo.lock
+  git add cliff.toml crates/purba/Cargo.toml Cargo.lock
   git commit --quiet --message "chore: manifests"
   commit "feat: hold a thing (#1)"
   start=$(git rev-parse HEAD)
@@ -72,7 +73,7 @@ later() {
 
 # `main` as it reads once a release pull request for <version> has merged.
 released() {
-  sed -i "s/^version = \"0.0.0\"/version = \"$1\"/" Cargo.toml
+  sed -i "s/^version = \"0.0.0\"/version = \"$1\"/" crates/purba/Cargo.toml
   as_writer commit --quiet --all --message "chore(release): cut v$1 (#43)"
 }
 
@@ -84,7 +85,7 @@ released() {
   landed=$(pushed '%s on %P')
   [[ "${landed}" == "chore(release): cut v0.1.0 (#43) on ${start}" ]]
   files=$(git --git-dir="${origin}" show --format= --name-only release/next)
-  [[ "${files}" == $'CHANGELOG.md\nCargo.lock\nCargo.toml' ]]
+  [[ "${files}" == $'CHANGELOG.md\nCargo.lock\ncrates/purba/Cargo.toml' ]]
   asked=$(calls gh)
   [[ "${asked}" == *"pr create --repo owner/name --base main --head release/next"* ]]
   [[ "${asked}" == *"--title chore(release): cut v0.1.0 (#43)"* ]]
@@ -112,7 +113,7 @@ released() {
   [[ "${author}" == "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>" ]]
   signed=$(pushed '%(trailers:key=Signed-off-by)')
   [[ -z "${signed}" ]]
-  toml=$(git --git-dir="${origin}" show release/next:Cargo.toml)
+  toml=$(git --git-dir="${origin}" show release/next:crates/purba/Cargo.toml)
   [[ "${toml}" == *$'version = "0.1.0"\n'* ]]
   [[ "${toml}" == *'pyo3 = { version = "0.27" }'* ]]
   lock=$(git --git-dir="${origin}" show release/next:Cargo.lock)
@@ -180,7 +181,7 @@ released() {
   wrote=$(git rev-parse HEAD)
   # A later commit to the manifest that leaves the version alone, and writes
   # the same version line under another table.
-  printf '\n[dependencies.serde]\nversion = "0.1.0"\n' >>Cargo.toml
+  printf '\n[dependencies.serde]\nversion = "0.1.0"\n' >>crates/purba/Cargo.toml
   as_writer commit --quiet --all --message "feat: depend on a thing (#6)"
 
   run "${script}" release/next 43
@@ -252,7 +253,8 @@ FAKE
   run "${script}" release/next 43
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the run changed files beyond Cargo.toml, Cargo.lock and CHANGELOG.md"* ]]
+  beyond="beyond crates/purba/Cargo.toml, Cargo.lock and CHANGELOG.md"
+  [[ "${output}" == *"the run changed files ${beyond}"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
   asked=$(calls gh)

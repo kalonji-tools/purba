@@ -24,7 +24,7 @@ Each arrangement decides which interpreter runs the tester's code.
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/pyproject.toml` `.github/scripts/require-abi3.sh` `src/**`
+**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/pyproject.toml` `.github/scripts/require-abi3.sh` `crates/**`
 
 **purba runs inside the tester's interpreter, as an extension module.**
 The tester's CPython loads purba, so each test runs on the interpreter and the packages that the tester chose.

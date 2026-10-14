@@ -30,7 +30,7 @@ A runner that refuses plugins must say how an integration reaches a test.
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `/pyproject.toml` `src/**`
+**Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `/pyproject.toml` `crates/**`
 
 **purba's [public surface](../../CONTEXT.md#public-surface) starts empty, and nothing joins it except through the issue that needs it.**
 

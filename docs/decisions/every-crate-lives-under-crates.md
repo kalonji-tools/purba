@@ -16,9 +16,9 @@ Each predates any product code outside `src/`.
 | `cargo clippy` and `cargo fmt` refused a breach inside a member crate | [How do three layouts of a part's boundary compare when the walking skeleton and purba's own tasks run on them?](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6168468953) |
 | once `.config/gates` and `.config/readers` named each directory, `src/<part>/` and `crates/` passed the same tasks, and a change inside a part named as many records | [How do three layouts of a part's boundary compare when the walking skeleton and purba's own tasks run on them?](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6168468953) |
 | a member without `[lints] workspace = true` took the default lint levels, and cargo warned of it and exited 0 | [the probes' output](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6170716506) |
-| at a root that holds only the workspace, `cargo test --doc` warned on a bare cdylib and exited 0, and `cargo test --doc -p purba` exited 101 | [the probes' output](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6170716506) |
-| `release.sh` reads purba's version from the `[package]` table of `Cargo.toml` | [`.github/scripts/release.sh`](../../.github/scripts/release.sh) |
-| `check-links.sh` checks a cited path only under `docs`, `scripts`, `src`, `.github` and `.config` | [`scripts/check-links.sh`](../../scripts/check-links.sh) |
+| at a root that holds only the workspace, with another member that has a library, `cargo test --doc` warned on a bare cdylib and exited 0, and `cargo test --doc -p purba` exited 101 | [the probes' output](https://github.com/kalonji-tools/purba/issues/556#issuecomment-6170716506) |
+| `release.sh` reads purba's version from the `[package]` table of `Cargo.toml` | [`.github/scripts/release.sh` at the base](https://github.com/kalonji-tools/purba/blob/499a8c8d777921b4e035ee35e4ff208dbc7e1bf7/.github/scripts/release.sh#L25) |
+| `check-links.sh` checks a cited path only under `docs`, `scripts`, `src`, `.github` and `.config` | [`scripts/check-links.sh` at the base](https://github.com/kalonji-tools/purba/blob/499a8c8d777921b4e035ee35e4ff208dbc7e1bf7/scripts/check-links.sh#L120) |
 
 ## Considered Options
 
@@ -57,5 +57,15 @@ Each predates any product code outside `src/`.
 
 ## Confirmation
 
-No command checks it, because no crate lives under `crates/` yet.
-The slice of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) that moves `src/lib.rs` into `crates/purba/` registers `crates/`.
+`/Cargo.toml` names `members = ["crates/*"]`, so a crate elsewhere is not a member of the workspace.
+Three commands refused a crate at `tools/stray/`:
+
+| what | result |
+|---|---|
+| `mise run lint:gates` | exit 1: `.config/gates` marks none of its files |
+| `mise run lint:readers` | exit 1: its `src/lib.rs` reaches no actor |
+| `cargo check` inside it | exit 101: "current package believes it's in a workspace when it's not" |
+
+`mise run lint:rust` and `mise run test:rust` exited 0, because neither builds a crate that is not a member.
+A person who marks its directory in `.config/gates` and `.config/readers` passes `lint:gates` and `lint:readers`.
+The reviewer then reads where the crate lives.

@@ -37,4 +37,4 @@ docs/agents/**                    handler
 scripts/**                        toolsmith
 docs/**                           technical-writer
 docs/decisions/**                 architect
-src/**                            coder library-author tester
+crates/**                         coder library-author tester

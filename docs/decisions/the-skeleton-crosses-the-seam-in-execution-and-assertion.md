@@ -21,7 +21,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 ## Decision Outcome
 
-**Reach:** `src/**`
+**Reach:** `crates/**`
 
 **The walking skeleton crosses the seam in execution and assertion.**
 

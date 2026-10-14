@@ -26,7 +26,7 @@ PEP 693 states the lifetime: security fixes run for five years after a version's
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) `/pyproject.toml` `/Cargo.toml` `/.config/mise.toml` `/.config/mise.lock` `/.config/cliff.toml` `.github/workflows/build.yml` `.github/workflows/publish.yml` `.github/scripts/require-abi3.sh`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `/pyproject.toml` `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/mise.toml` `/.config/mise.lock` `/.config/cliff.toml` `.github/workflows/build.yml` `.github/workflows/publish.yml` `.github/scripts/require-abi3.sh`
 
 purba's Python floor is the oldest CPython that still has two years of support left.
 
@@ -53,7 +53,7 @@ So the claim above the floor is true, and nothing tests every version that satis
 | location | what it sets | when the floor rises without it |
 |---|---|---|
 | `pyproject.toml` | the version a resolver refuses below | `.github/workflows/publish.yml` refuses the next upload |
-| `Cargo.toml` | the abi3 feature, which sets the wheel tag | `.github/workflows/publish.yml` refuses the next upload |
+| `crates/purba/Cargo.toml` | the abi3 feature, which sets the wheel tag | `.github/workflows/publish.yml` refuses the next upload |
 | `.config/mise.toml` | the interpreter `mise run` builds against | `mise run check` refuses, because pyo3 compares the abi3 feature with that interpreter |
 | `.config/mise.lock` | the version that interpreter resolves to | mise refuses a version the lockfile does not hold |
 | `.github/workflows/build.yml` | the interpreters the wheel matrix builds on | the arm below the floor fails, because pip refuses its wheel |

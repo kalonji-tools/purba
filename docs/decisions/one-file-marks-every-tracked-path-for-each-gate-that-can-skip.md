@@ -29,7 +29,7 @@ Where do the marks live?
 **`.config/gates` marks each tracked path for each gate it names, and `mise run lint:gates` refuses a path left unmarked.**
 
 **Each gate takes one attribute in the file.**
-A line such as `src/**  build  -scripts` marks a path for both gates.
+A line such as `crates/**  build  -scripts` marks a path for both gates.
 
 **Downside:**
 

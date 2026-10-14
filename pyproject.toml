@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "purba"
-# maturin reads the version and the repository from Cargo.toml.
+# maturin reads the version and the repository from crates/purba/Cargo.toml.
 dynamic = ["version", "urls"]
 requires-python = ">=3.12"
 description = "A Python test framework written in Rust"
@@ -31,6 +31,7 @@ license-files = ["LICENSE"]
 
 [tool.maturin]
 module-name = "purba"
+manifest-path = "crates/purba/Cargo.toml"
 # purba's own feature, not `pyo3/extension-module` directly. Naming the local
 # feature keeps the indirection in one place.
 features = ["extension-module"]

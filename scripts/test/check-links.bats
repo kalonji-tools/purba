@@ -289,6 +289,19 @@ FAKE
   [[ "${output}" == *"src/lib.rs:1: scripts/gone.sh"* ]]
 }
 
+@test "a path that a comment cites under crates/ is checked" {
+  write crates/purba/Cargo.toml '[package]'
+  write crates/purba/src/lib.rs '// crates/purba/gone.rs' '// crates/purba/Cargo.toml'
+  settle
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${cited}"* ]]
+  [[ "${output}" == *"crates/purba/src/lib.rs:1: crates/purba/gone.rs"* ]]
+  [[ "${output}" != *"crates/purba/src/lib.rs:2:"* ]]
+}
+
 @test "a cited path on disk that git does not track is refused" {
   write docs/untracked.md '# Not tracked'
   write tasks.toml '# docs/untracked.md'

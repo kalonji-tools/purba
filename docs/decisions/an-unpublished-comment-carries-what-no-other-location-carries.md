@@ -91,7 +91,7 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 | offline | every tracked file that `.gitattributes` does not mark generated | a link to a file or a heading in the tree that does not exist |
 | online | the files a branch changes against its base, generated files left out | an address on the network that does not reach its target as written |
 | readme | the file `pyproject.toml` names as `readme`, which PyPI shows as purba's page | a link that names neither a full address nor a heading of that file |
-| cited paths | each comment line outside Markdown and generated files | a path under `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
+| cited paths | each comment line outside Markdown and generated files | a path under `crates/`, `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
 `[tool.lychee]` in `pyproject.toml` holds the settings the checker reads in each leg that runs it, with the reason for each beside it.
 The script passes the flags that differ per leg.

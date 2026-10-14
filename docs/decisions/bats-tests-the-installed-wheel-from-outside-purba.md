@@ -23,7 +23,7 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 
 ## Decision Outcome
 
-**Reach:** `/.config/tasks.toml` `.github/workflows/build.yml` `tests/**` `src/**` `/pyproject.toml`
+**Reach:** `/.config/tasks.toml` `.github/workflows/build.yml` `tests/**` `crates/**` `/pyproject.toml`
 
 **bats tests the `purba` command that the wheel installs, from outside purba.**
 

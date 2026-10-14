@@ -12,7 +12,7 @@ min_version = "2026.8.6"
 # https://mise.jdx.dev/lang/rust
 rust = { version = "nightly-2026-10-12", components = "clippy,rustfmt,rust-analyzer,rust-src" }
 
-# The floor `pyproject.toml` and `Cargo.toml` already name.
+# The floor `pyproject.toml` and `crates/purba/Cargo.toml` already name.
 # https://mise.jdx.dev/lang/python
 python = "3.12"
 
