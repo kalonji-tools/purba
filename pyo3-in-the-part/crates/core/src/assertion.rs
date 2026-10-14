@@ -60,6 +60,9 @@ pub fn load<'py>(
         .call1(("test_module",))?;
     let globals = module.getattr("__dict__")?;
     globals.set_item("__file__", path)?;
+    py.import("sys")?
+        .getattr("modules")?
+        .set_item("test_module", &module)?;
     globals.set_item("_purba_ran", wrap_pyfunction!(_purba_ran, py)?)?;
     let builtins = py.import("builtins")?;
     let code = builtins
