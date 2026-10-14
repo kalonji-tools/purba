@@ -18,7 +18,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Considered Options
 
-- **`python -m purba`, alone or beside the console script.** Rejected. It needs a `__main__.py` in purba's package, so command holds a Python file. [Where does each part of the walking skeleton live, Rust or Python?](https://github.com/kalonji-tools/purba/issues/536) decides that.
+- **`python -m purba`, alone or beside the console script.** Rejected. It needs a `__main__.py` in purba's package, so command holds a Python file. [Every part of the skeleton is Rust, inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) keeps Python files out.
 - **A directory and a query as the input.** Rejected. The query language belongs to the design in depth of selection.
 - **A data format for an [integrator](../../CONTEXT.md#integrator) now, such as JSON Lines.** Rejected. Reporting decides a format in its design in depth, and a format chosen now joins the public surface first.
 - **A console script on one path to one module, which prints one line for each test.** Chosen. It adds one command and one private name, and the wheel keeps its layout.
@@ -60,4 +60,3 @@ tests/test_a.py::test_three unknown: no assert ran
 No command checks it, because purba holds no product code.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its lines.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.
-[Where does each part of the walking skeleton live, Rust or Python?](https://github.com/kalonji-tools/purba/issues/536) may decide that command holds a Python file.
