@@ -14,8 +14,8 @@ set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
-# shellcheck source=scripts/reach.sh
-. "$(dirname "$0")/reach.sh"
+# shellcheck source=scripts/records.sh
+. "$(dirname "$0")/records.sh"
 
 dir=${1:-docs/decisions}
 
@@ -54,27 +54,10 @@ outcome and the confirmation." \
 # A record with no Decision Outcome heading is refused above.
 #
 #   the decision:  docs/decisions/a-record-names-every-location-where-it-applies.md
-tick=$'\x60'
-one="${tick}[^${tick}]+${tick}|\[[^]]+\]\(\.\./\.\./CONTEXT\.md#[a-z-]+\)"
-location="^\*\*Reach:\*\* .*(${one})"
-declare -A reach=()
 found=()
 for f in "${records[@]}"; do
-  paragraph=$(reach_paragraph <"${f}")
-  [[ -n "${paragraph}" ]] || continue
-  text=""
-  [[ "${paragraph}" != *$'\n'* ]] || text=${paragraph#*$'\n'}
-  # What is left once each location is taken out must be blank, because the
-  # prose rules do not read a reach.
-  rest=${text#"**Reach:**"}
-  while [[ "${rest}" =~ ${one} ]]; do
-    rest=${rest/"${BASH_REMATCH[0]}"/}
-  done
-  if [[ "${text}" =~ ${location} && -z "${rest//[[:space:]]/}" ]]; then
-    reach[${f}]=${text}
-  else
-    found+=("${f}:${paragraph%%$'\n'*}")
-  fi
+  span=$(reach_lines "${f}")
+  [[ -z "${span}" || "${span}" == *' reach' ]] || found+=("${f}:${span%% *}")
 done
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A Decision Outcome opens with a reach: a **Reach:** paragraph that names every location where \
@@ -254,35 +237,26 @@ if top=$(git rev-parse --show-toplevel 2>/dev/null); then
   scratch=$(mktemp -d)
   trap 'rm -rf "${scratch}"' EXIT
 
-  # One attribute for each pattern, so each one is matched on its own.
-  patterns=()
+  git -C "${top}" ls-files -z >"${scratch}/files" ||
+    cannot "git cannot list the tracked files."
+  reach_hits "${scratch}" "${scratch}/files" "${records[@]}" >"${scratch}/matched"
+
+  declare -A matched=()
+  while IFS= read -r -d '' f && IFS= read -r -d '' pattern && IFS= read -r -d '' _; do
+    matched["${f}"$'\n'"${pattern}"]=1
+  done <"${scratch}/matched"
+
+  found=()
   for f in "${records[@]}"; do
-    line=${reach[${f}]:-}
-    while [[ "${line}" =~ \`([^\`]+)\` ]]; do
-      patterns+=("${f}: ${BASH_REMATCH[1]}")
-      printf '%s p%d\n' "${BASH_REMATCH[1]}" "${#patterns[@]}" >>"${scratch}/reaches"
-      line=${line#*"${BASH_REMATCH[0]}"}
-    done
+    patterns=$(reach_patterns "${f}")
+    [[ -n "${patterns}" ]] || continue
+    while IFS= read -r pattern; do
+      [[ -n "${matched["${f}"$'\n'"${pattern}"]:-}" ]] || found+=("${f}: ${pattern}")
+    done <<<"${patterns}"
   done
-
-  if [[ ${#patterns[@]} -gt 0 ]]; then
-    git -C "${top}" ls-files -z >"${scratch}/files" ||
-      cannot "git cannot list the tracked files."
-    reach_match "${scratch}" "${scratch}/reaches" "${scratch}/files" >"${scratch}/matched"
-
-    declare -A matched=()
-    while IFS= read -r -d '' attribute && IFS= read -r -d '' _; do
-      matched[${attribute}]=1
-    done <"${scratch}/matched"
-
-    found=()
-    for i in "${!patterns[@]}"; do
-      [[ -n "${matched[p$((i + 1))]:-}" ]] || found+=("${patterns[i]}")
-    done
-    if [[ ${#found[@]} -gt 0 ]]; then
-      printf '\na pattern in a reach that matches no tracked file\n\n'
-      printf '  %s\n' "${found[@]}"
-    fi
+  if [[ ${#found[@]} -gt 0 ]]; then
+    printf '\na pattern in a reach that matches no tracked file\n\n'
+    printf '  %s\n' "${found[@]}"
   fi
 fi
 

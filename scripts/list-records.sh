@@ -26,8 +26,8 @@ set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
-# shellcheck source=scripts/reach.sh
-. "$(dirname "$0")/reach.sh"
+# shellcheck source=scripts/records.sh
+. "$(dirname "$0")/records.sh"
 
 added="" given=origin/main
 while [[ $# -gt 0 ]]; do
@@ -99,15 +99,13 @@ for path in "${changed[@]}"; do
   edited[${path}]=1
 done
 
-# A record is a Markdown file directly under docs/decisions/, and a leading dot
-# keeps the template out.
-is_record='^docs/decisions/[^/.][^/]*\.md$'
 listing=$(git ls-tree --name-only "${base}" docs/decisions/) ||
   cannot "git cannot list the records at the base."
 mapfile -t at_base <<<"${listing}"
 records=()
 for path in "${at_base[@]}" "${changed[@]}"; do
-  [[ ! "${path}" =~ ${is_record} ]] || records+=("${path}")
+  record=$(is_record "${path}")
+  [[ -z "${record}" ]] || records+=("${path}")
 done
 sorted=$(printf '%s\n' "${records[@]}" | LC_ALL=C sort -u)
 mapfile -t records <<<"${sorted}"
@@ -137,27 +135,19 @@ link() {
   printf '[%s](%s/blob/%s/%s)' "${title:-$1}" "${address}" "${commit[$1]}" "$1"
 }
 
-# Each reach is one attribute, so a match names its record.
-declare -A everywhere=() named=() reach_at=() reach_lines=()
-: >"${scratch}/reaches"
-for i in "${!records[@]}"; do
-  path=${records[i]}
-  paragraph=$(reach_paragraph <"${text[${path}]}")
-  reach=${paragraph#*$'\n'}
-  [[ "${reach}" == '**Reach:**'* ]] || continue
-  reach_at[${path}]=${paragraph%%$'\n'*}
-  reach_lines[${path}]=$(wc -l <<<"${reach}")
-  [[ "${reach}" != *'](../../CONTEXT.md#'* ]] || everywhere[${path}]=1
-  while [[ "${reach}" =~ \`([^\`]+)\` ]]; do
-    [[ "${BASH_REMATCH[1]}" != '**' ]] || everywhere[${path}]=1
-    printf '%s r%d\n' "${BASH_REMATCH[1]}" "${i}" >>"${scratch}/reaches"
-    reach=${reach#*"${BASH_REMATCH[0]}"}
-  done
+declare -A everywhere=() named=() reach_at=() path_of=()
+for path in "${records[@]}"; do
+  path_of[${text[${path}]}]=${path}
+  span=$(reach_lines "${text[${path}]}")
+  [[ "${span}" == *' reach' ]] || continue
+  reach_at[${path}]=${span% reach}
+  scope=$(reach_is_everywhere "${text[${path}]}")
+  [[ -z "${scope}" ]] || everywhere[${path}]=1
 done
 
-reach_match "${scratch}" "${scratch}/reaches" "${scratch}/changed" >"${scratch}/matched"
-while IFS= read -r -d '' attribute && IFS= read -r -d '' _; do
-  named[${records[${attribute#r}]}]=1
+reach_hits "${scratch}" "${scratch}/changed" "${text[@]}" >"${scratch}/matched"
+while IFS= read -r -d '' file && IFS= read -r -d '' _ && IFS= read -r -d '' _; do
+  named[${path_of[${file}]}]=1
 done <"${scratch}/matched"
 
 for path in "${changed[@]}"; do
@@ -210,8 +200,7 @@ for path in "${records[@]}"; do
 done
 for path in "${records[@]}"; do
   [[ -z "${edited[${path}]:-}" ]] || continue
-  first=${reach_at[${path}]:-0}
-  last=$((first + ${reach_lines[${path}]:-0}))
+  read -r first last <<<"${reach_at[${path}]:-0 -1}"
   lines=$(awk -v first="${first}" -v last="${last}" -v path="${path}" '
     # A directory counts only where a path starts with it, after any `./` or
     # `../`, so `scripts/` is not named by `.github/scripts/`.
@@ -230,7 +219,7 @@ for path in "${records[@]}"; do
       return 0
     }
     NR == FNR { names[NR] = $0; count = NR; next }
-    FNR >= first && FNR < last { next }
+    FNR >= first && FNR <= last { next }
     {
       for (n = 1; n <= count; n++)
         if (holds($0, names[n])) printf "- `%s:%d` names `%s`\n", path, FNR, names[n]

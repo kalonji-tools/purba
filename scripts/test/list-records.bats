@@ -134,17 +134,18 @@ link() {
   [[ "${got}" == "${named} none." ]]
 }
 
-@test "a pattern is matched as gitattributes matches it, not as a pathspec" {
-  record tools "\`tools/*.sh\`"
+@test "a reach that holds prose beside its locations names nothing by its patterns" {
+  record tools "\`tools/*.sh\` and every script"
   land_base
-  mkdir -p tools/sub
-  echo run >tools/sub/a.sh
+  mkdir tools
+  echo run >tools/a.sh
   land_change
 
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"tools record"* ]]
+  section "${named}"
+  [[ "${got}" == "${named} none." ]]
 }
 
 @test "a changed file outside docs/decisions that links a record at the base names it" {

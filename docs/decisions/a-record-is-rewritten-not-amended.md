@@ -34,7 +34,7 @@ The prototype's context document pointed at records and did not restate them, an
 
 ## Decision Outcome
 
-**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/list-records.sh` `scripts/test/list-records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh` `docs/agents/post-pass.md`
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/list-records.sh` `scripts/records.sh` `scripts/test/list-records.bats` `scripts/test/records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh` `docs/agents/post-pass.md`
 
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 

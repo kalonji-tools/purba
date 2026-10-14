@@ -573,25 +573,6 @@ words() {
   [[ "${output}" != *": docs/decisions/*.md"* ]]
 }
 
-@test "a pattern is matched as gitattributes matches it, not as a pathspec" {
-  swap "${reach}" "**Reach:** \`docs/*.md\` \`a-record-holds.md\`"
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"${unmatched}"$'\n\n  '"${record}: docs/*.md"* ]]
-  [[ "${output}" != *": a-record-holds.md"* ]]
-}
-
-@test "a glossary word in a reach is not a pattern" {
-  swap "${reach}" "**Reach:** [commit message](../../CONTEXT.md#commit-message)"
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"${unmatched}"* ]]
-}
-
 @test "on a runner a pattern that matches nothing writes no annotation" {
   swap "${reach}" "${reach} \`nowhere/**\`"
 
@@ -622,24 +603,6 @@ words() {
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"runs to 25 words"* ]]
   [[ "${output}" == *"articles                         2 in    20 words"* ]]
-}
-
-@test "a reach that wraps is read whole, so a pattern on its second line is listed" {
-  swap "${reach}" "${reach}"$'\n'"\`nowhere/**\`"
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"${unmatched}"$'\n\n  '"${record}: nowhere/**"* ]]
-}
-
-@test "a reach quoted before the Decision Outcome is not the reach" {
-  prose "Something needs a decision."$'\n\n```\n'"**Reach:** \`nowhere/**\`"$'\n```'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"nowhere/**"* ]]
 }
 
 @test "a paragraph that opens with Reach outside the Decision Outcome is prose" {
@@ -689,18 +652,6 @@ words() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"draws no icon"* ]]
   [[ "${output}" == *"${record}:9"* ]]
-}
-
-@test "a tracked path that ends in a newline is matched like any other" {
-  swap "${reach}" "${reach} \`t/**\`"
-  mkdir t
-  printf 'file\n' >"t/a"$'\n'
-  git add --all
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"${unmatched}"* ]]
 }
 
 @test "a record whose fence holds a ## line passes" {
