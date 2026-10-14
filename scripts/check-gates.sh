@@ -6,12 +6,14 @@
 #
 #   check-gates.sh
 #
-# Exits 1 when it refuses a path, and 2 when .config/gates cannot be read, names no
-# gate, or holds a line git cannot resolve.
+# Exits 1 when it refuses a path, and 2 when .config/gates cannot be read or names no
+# gate, or when git cannot match it.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
+# shellcheck source=scripts/attributes.sh
+. "$(dirname "$0")/attributes.sh"
 
 top=$(git rev-parse --show-toplevel 2>/dev/null) ||
   cannot 'the marks can only be found inside a git repository.'
@@ -26,20 +28,14 @@ scratch=$(mktemp -d)
 trap 'rm -rf "${scratch}"' EXIT
 
 # Each word after a pattern names a gate, whichever state it gives the path.
-names=$(awk '
-  /^[[:space:]]*(#|$)/ { next }
-  { for (i = 2; i <= NF; i++) { x = $i; sub(/^[-!]/, "", x); sub(/=.*/, "", x); print x } }
-' .config/gates | sort -u)
+names=$(attr_names .config/gates)
 mapfile -t gates <<<"${names}"
 [[ -n "${names}" ]] ||
   cannot '.config/gates names no gate, so no path can be checked.'
 
-# A template can carry an info/attributes file, so the empty repository takes none.
-git init --quiet --template= "${scratch}/empty"
 git ls-files -z >"${scratch}/files"
-GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${top}/.config/gates" \
-  check-attr -z --stdin "${gates[@]}" <"${scratch}/files" >"${scratch}/marks" ||
-  cannot 'git cannot resolve .config/gates.'
+attr_states "${scratch}" "${top}/.config/gates" "${gates[@]}" <"${scratch}/files" \
+  >"${scratch}/marks"
 
 unmarked=()
 while IFS= read -r -d '' path && IFS= read -r -d '' gate && IFS= read -r -d '' state; do

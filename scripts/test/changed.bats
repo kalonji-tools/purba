@@ -152,15 +152,16 @@ merged() {
   [[ -z "${output}" ]]
 }
 
-@test "the repository's own attributes do not mark a path for the gate" {
-  echo 'build.rs  -build' >.gitattributes
-  echo 'fn main() {}' >build.rs
+@test "a git that cannot make the empty repository exits 2 and prints nothing" {
+  echo 'fn main() {}' >src/lib.rs
   merged
+  git_fails_on init
 
   run --separate-stderr "${script}" build HEAD^1 HEAD
 
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == "build=true" ]]
+  [[ "${status}" -eq 2 ]]
+  [[ -z "${output}" ]]
+  [[ "${stderr}" == *"git cannot make the empty repository"* ]]
 }
 
 @test "the wrong number of arguments exits 2" {

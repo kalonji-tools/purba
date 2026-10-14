@@ -28,7 +28,7 @@ A link in a file cannot name that, and a file that a change adds carries no link
 
 ## Decision Outcome
 
-**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `docs/decisions/*.md` `/CONTEXT.md` `scripts/check-records.sh` `scripts/reach.sh` `scripts/list-records.sh` `scripts/check-prose/check-prose.rs` `scripts/test/check-records.bats` `scripts/test/list-records.bats` `/AGENTS.md`
+**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `docs/decisions/*.md` `/CONTEXT.md` `scripts/check-records.sh` `scripts/reach.sh` `scripts/attributes.sh` `scripts/list-records.sh` `scripts/check-prose/check-prose.rs` `scripts/test/check-records.bats` `scripts/test/list-records.bats` `scripts/test/attributes.bats` `/AGENTS.md`
 
 **Each record opens its Decision Outcome with its [reach](../../CONTEXT.md#reach).**
 

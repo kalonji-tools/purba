@@ -420,6 +420,18 @@ link() {
   [[ "${stderr}" == *"no-such-base"* ]]
 }
 
+@test "a git that cannot make the empty repository exits 2" {
+  land_base
+  echo change >notes.txt
+  land_change
+  git_fails_on init
+
+  run --separate-stderr "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${stderr}" == *"git cannot make the empty repository"* ]]
+}
+
 @test "a repository with no origin exits 2" {
   land_base
   git remote remove origin

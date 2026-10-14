@@ -16,6 +16,11 @@
 # Exits 0 when it decided, either way, and 2 when it cannot run.
 set -euo pipefail
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
+# shellcheck source=scripts/attributes.sh
+. "$(dirname "$0")/../../scripts/attributes.sh"
+
 if [[ $# -ne 3 ]]; then
   echo "usage: changed.sh <attr> <base> <head>" >&2
   exit 2
@@ -46,15 +51,7 @@ if ! git show "${base}:.config/gates" >"${scratch}/gates" 2>/dev/null; then
   exit 2
 fi
 
-# The repository's own attributes would answer for an attribute they happen to
-# name, so the marks are resolved in an empty repository. A template can carry
-# an info/attributes file, so the empty repository takes none.
-git init --quiet --template= "${scratch}/empty"
-if ! GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${scratch}/gates" \
-  check-attr -z --stdin "${attr}" <"${scratch}/files" >"${scratch}/marks"; then
-  echo "git cannot resolve .config/gates at ${base}." >&2
-  exit 2
-fi
+attr_states "${scratch}" "${scratch}/gates" "${attr}" <"${scratch}/files" >"${scratch}/marks"
 
 while IFS= read -r -d '' path && IFS= read -r -d '' _ && IFS= read -r -d '' state; do
   if [[ "${state}" != unset ]]; then

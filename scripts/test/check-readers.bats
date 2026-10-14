@@ -167,17 +167,14 @@ track() {
   [[ "${status}" -eq 0 ]]
 }
 
-@test "the repository's own attributes do not change what .config/readers resolves" {
-  printf '* -toolsmith -architect\n' >.git/info/attributes
-  printf '* -toolsmith -architect\n' >.gitattributes
-  git add .gitattributes
-  readers '.config/readers  architect' 'docs/**  architect' 'chorestart  toolsmith' \
-    '.gitattributes  toolsmith'
+@test "a git that cannot make the empty repository is an error, not a refusal" {
+  git_fails_on init
 
   run "${script}"
 
-  [[ "${status}" -eq 0 ]]
-  [[ -z "${output}" ]]
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"git cannot make the empty repository"* ]]
+  [[ "${output}" != *"is refused"* ]]
 }
 
 @test "a missing .config/readers is an error, not a refusal" {
