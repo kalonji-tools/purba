@@ -12,6 +12,8 @@
 #   fake <command>                 a fake first on PATH, its body on standard input
 #   calls <command>                each call that fake received, its arguments
 #                                  joined by spaces, and nothing if it received none
+#   git_fails_on <word>            a fake git that exits 128 on a call with the
+#                                  argument <word>, and runs every other
 #   fake_gh                        a fake `gh` that answers the check-runs API
 #   check_runs [<run>...]          what that fake answers a read with, one run for
 #                                  each `<name>=<conclusion>[@<day>]`. An empty
@@ -79,6 +81,17 @@ fake() {
 
 calls() {
   [[ ! -e "${BATS_TEST_TMPDIR}/calls.$1" ]] || cat "${BATS_TEST_TMPDIR}/calls.$1"
+}
+
+git_fails_on() {
+  local git
+  git=$(command -v git)
+  fake git <<FAKE
+for argument in "\$@"; do
+  [[ "\${argument}" != "$1" ]] || { echo "fatal: git cannot $1" >&2; exit 128; }
+done
+exec "${git}" "\$@"
+FAKE
 }
 
 fake_gh() {

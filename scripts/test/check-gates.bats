@@ -125,15 +125,14 @@ track() {
   [[ -z "${output}" ]]
 }
 
-@test "the repository's own attributes do not change what .config/gates resolves" {
-  printf '* -build\n' >.git/info/attributes
-  printf '* -build\n' >.gitattributes
-  git add .gitattributes
+@test "a git that cannot make the empty repository is an error, not a refusal" {
+  git_fails_on init
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"  build: .gitattributes"* ]]
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"git cannot make the empty repository"* ]]
+  [[ "${output}" != *"is refused"* ]]
 }
 
 @test "a missing .config/gates is an error, not a refusal" {

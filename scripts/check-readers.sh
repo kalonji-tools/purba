@@ -9,11 +9,13 @@
 #   check-readers.sh
 #
 # Exits 1 when it refuses a file or a name, and 2 when .config/readers or the roster
-# cannot be read.
+# cannot be read, or when git cannot match .config/readers.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
+# shellcheck source=scripts/attributes.sh
+. "$(dirname "$0")/attributes.sh"
 
 top=$(git rev-parse --show-toplevel 2>/dev/null) ||
   cannot 'the bindings can only be found inside a git repository.'
@@ -44,11 +46,13 @@ done <<<"${slugs}"
 # Every name .config/readers writes, and each macro it defines, read off the lines.
 # This matches no pattern, so it catches a name on a pattern that reaches no
 # file.
-problems=$(slugs="${slugs}" awk '
-  BEGIN { n = split(ENVIRON["slugs"], list, "\n"); for (i = 1; i <= n; i++) actor[list[i]] = 1 }
-  /^[[:space:]]*(#|$)/ { next }
+names=$(attr_names .config/readers)
+problems=$(slugs="${slugs}" names="${names}" awk '
+  BEGIN {
+    n = split(ENVIRON["slugs"], list, "\n"); for (i = 1; i <= n; i++) actor[list[i]] = 1
+    n = split(ENVIRON["names"], list, "\n"); for (i = 1; i <= n; i++) used[list[i]] = 1
+  }
   $1 ~ /^\[attr\]/ { macro[substr($1, 7)] = 1 }
-  { for (i = 2; i <= NF; i++) { x = $i; sub(/^[-!]/, "", x); sub(/=.*/, "", x); used[x] = 1 } }
   END {
     for (x in macro) if (x in actor) print "shadow", x
     for (x in used) if (!(x in actor) && !(x in macro)) print "off", x
@@ -57,12 +61,8 @@ problems=$(slugs="${slugs}" awk '
 off_roster=$(sed -n 's/^off //p' <<<"${problems}")
 shadowed=$(sed -n 's/^shadow //p' <<<"${problems}")
 
-# A template can carry an info/attributes file, so the empty repository takes none.
-git init --quiet --template= "${scratch}/empty"
 git ls-files -z >"${scratch}/files"
-GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${top}/.config/readers" \
-  check-attr -z --all --stdin <"${scratch}/files" >"${scratch}/attributes" ||
-  cannot 'git cannot resolve .config/readers.'
+attr_states "${scratch}" "${top}/.config/readers" <"${scratch}/files" >"${scratch}/attributes"
 
 declare -A reached=()
 while IFS= read -r -d '' path && IFS= read -r -d '' name && IFS= read -r -d '' state; do
