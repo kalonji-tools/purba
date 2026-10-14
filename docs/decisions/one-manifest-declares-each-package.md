@@ -24,18 +24,19 @@ Each answer below places the line where mise stops.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `/pyproject.toml` `/.config/mise.toml` `scripts/**/*.rs` `scripts/check-manifests.sh` `.github/**/*.rs` `rust-toolchain.toml`
+**Reach:** `/Cargo.toml` `crates/*/Cargo.toml` `/pyproject.toml` `/.config/mise.toml` `scripts/**/*.rs` `scripts/check-manifests.sh` `.github/**/*.rs` `rust-toolchain.toml`
 
 **One manifest declares each package.**
 
 | package | manifest |
 |---|---|
-| a crate purba links | `Cargo.toml` |
+| a crate purba links | a `Cargo.toml` of purba's workspace |
 | a Python package that imports purba or shares its environment | `pyproject.toml`, under `[dependency-groups]` |
 | every other package, which runs over the files | `.config/mise.toml` |
 | a crate a cargo script links | the manifest inside that script |
 
 A name in two manifests is a conflict.
+The `Cargo.toml` files of purba's workspace count as one manifest, so a crate that two parts name is no conflict.
 A mise backend that installs through cargo or pip is one declaration, because one file names the package.
 A crate shares the process of the cargo script that links it, so the script declares it.
 [A script that needs a Rust library is a cargo script](a-script-that-needs-a-rust-library-is-a-cargo-script.md) says when a script is one.
