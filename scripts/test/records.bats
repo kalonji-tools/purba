@@ -127,6 +127,48 @@ hits() {
   [[ "${output}" == "13 13 reach" ]]
 }
 
+@test "record_line gives the first match outside a fence, below the line it starts after" {
+  record r.md $'```\nX in a fence\n```\nX outside' "**Reach:** \`a/**\`"
+
+  run record_line r.md '^X'
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == 8 ]]
+
+  run record_line r.md '^## '
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == 3 ]]
+
+  run record_line r.md '^## ' 3
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == 10 ]]
+}
+
+@test "record_line skips a fence until a run of its own character, at least as long, closes it" {
+  printf '%s\n' '~~~~' '````' '## X' '~~~' '## X' '~~~~' '## X' >r.md
+
+  run record_line r.md '^## X'
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == 7 ]]
+}
+
+@test "record_line gives nothing with no match outside a fence, and an open fence runs on" {
+  record r.md $'```\nX in a fence' "**Reach:** \`a/**\`"
+
+  run record_line r.md '^X'
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+
+  run record_line r.md '^## Decision Outcome$'
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
 @test "each code span in a reach is a pattern, in order, and a glossary word is not" {
   record r.md "Something." \
     $'**Reach:** [commit message](../../CONTEXT.md#commit-message) `a/**`\n`b/*.md`'

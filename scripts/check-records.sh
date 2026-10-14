@@ -161,7 +161,7 @@ unsignalled=()
 for f in "${records[@]}"; do
   # Anchored: a record naming the label inside a table would otherwise locate
   # the label at that row, and a preamble on the real label would go unseen.
-  at=$(awk '/^\*\*Downside:\*\*/{print NR; exit}' "${f}")
+  at=$(record_line "${f}" '^\*\*Downside:\*\*')
   if [[ -z "${at}" ]]; then
     listless+=("${f}: no Downside label")
     continue
@@ -178,7 +178,8 @@ for f in "${records[@]}"; do
   fi
 
   # To the next section heading. The Downside is the last thing in the outcome.
-  costs=$(awk -v start="${at}" 'NR > start && /^## /{exit} NR > start' "${f}")
+  end=$(record_line "${f}" '^## ' "${at}")
+  costs=$(awk -v from="${at}" -v to="${end:-0}" 'NR > from && (!to || NR < to)' "${f}")
   items=$(grep -cE '^[[:space:]]*- ' <<<"${costs}" || true)
   # Occurrences rather than lines: two lead-ins on one line is the shape that
   # renders three costs where four are written.
@@ -220,7 +221,9 @@ proposition." \
 
 found=()
 for f in "${records[@]}"; do
-  confirmation=$(sed -n '/^## Confirmation/,$p' "${f}")
+  start=$(record_line "${f}" '^## Confirmation')
+  [[ -n "${start}" ]] || continue
+  confirmation=$(sed -n "${start},\$p" "${f}")
   printf '%s\n' "${confirmation}" | grep -qE "${admits}" || continue
   printf '%s\n' "${confirmation}" | grep -q 'purba/issues/[0-9]' || found+=("${f}")
 done
