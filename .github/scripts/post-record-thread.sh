@@ -11,6 +11,8 @@ set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/../../scripts/report.sh"
+# shellcheck source=scripts/records.sh
+. "$(dirname "$0")/../../scripts/records.sh"
 
 # The workflow supplies these, so naming them refuses early rather than at the
 # line that first reads one.
@@ -20,9 +22,9 @@ set -euo pipefail
 if ! files=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename'); then
   cannot "the files of pull request ${PR} could not be read, so no record was looked for."
 fi
-# A record is a Markdown file directly under docs/decisions/, and a leading dot
-# keeps the template out.
-decisions=$(LC_ALL=C sort <<<"${files}" | grep -E '^docs/decisions/[^/.][^/]*\.md$' || true)
+decisions=$(LC_ALL=C sort <<<"${files}" | while IFS= read -r path; do
+  is_record "${path}"
+done)
 if [[ -z "${decisions}" ]]; then
   echo "the diff changes no decision record, so no comment is owed"
   exit 0
