@@ -50,6 +50,11 @@ impl Interpreter for Python3<'_> {
         match module.getattr(name).and_then(|f| f.call0()) {
             Err(e) if e.is_instance_of::<PyAssertionError>(self.py) => Call::AssertionFailed {
                 assert_index: LAST.load(Ordering::SeqCst),
+                message: e
+                    .value(self.py)
+                    .str()
+                    .map(|s| s.to_string())
+                    .unwrap_or_default(),
             },
             Err(e) => Call::Raised(e.to_string()),
             Ok(_) => Call::Returned {
@@ -86,7 +91,10 @@ mod tests {
             python.load("test_a.py", &rewritten).unwrap();
             assert_eq!(
                 python.call("test_two"),
-                Call::AssertionFailed { assert_index: 0 },
+                Call::AssertionFailed {
+                    assert_index: 0,
+                    message: String::new(),
+                },
                 "1 == 2 fails"
             );
         });

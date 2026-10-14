@@ -22,7 +22,13 @@ pub fn run(path: &str, source: &str, names: &[String]) -> Result<Vec<Outcome>, S
                 let (before, _) = assertion::ran();
                 match module.getattr(name.as_str())?.call0() {
                     Err(e) if e.is_instance_of::<PyAssertionError>(py) => {
-                        Ok(Outcome::Failed(asserts[assertion::ran().1].clone()))
+                        let text = &asserts[assertion::ran().1];
+                        let message = e.value(py).str()?.to_string();
+                        Ok(Outcome::Failed(if message.is_empty() {
+                            text.clone()
+                        } else {
+                            format!("{text} ({message})")
+                        }))
                     }
                     Err(e) => Err(e),
                     Ok(_) if assertion::ran().0 > before => Ok(Outcome::Passed),

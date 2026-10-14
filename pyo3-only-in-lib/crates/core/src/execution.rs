@@ -10,8 +10,13 @@ pub enum Outcome {
 /// What one call of a test function did, as data.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Call {
-    Returned { asserts_ran: usize },
-    AssertionFailed { assert_index: usize },
+    Returned {
+        asserts_ran: usize,
+    },
+    AssertionFailed {
+        assert_index: usize,
+        message: String,
+    },
     Raised(String),
 }
 
@@ -43,8 +48,16 @@ pub fn run(
         .map(|name| match interpreter.call(name) {
             Call::Returned { asserts_ran: 0 } => Ok(Outcome::Unknown),
             Call::Returned { .. } => Ok(Outcome::Passed),
-            Call::AssertionFailed { assert_index } => {
-                Ok(Outcome::Failed(asserts[assert_index].clone()))
+            Call::AssertionFailed {
+                assert_index,
+                message,
+            } => {
+                let text = &asserts[assert_index];
+                Ok(Outcome::Failed(if message.is_empty() {
+                    text.clone()
+                } else {
+                    format!("{text} ({message})")
+                }))
             }
             Call::Raised(e) => Err(e),
         })
@@ -74,7 +87,10 @@ mod tests {
         let names = crate::selection::select(src);
         let mut python = Scripted(vec![
             Call::Returned { asserts_ran: 1 },
-            Call::AssertionFailed { assert_index: 1 },
+            Call::AssertionFailed {
+                assert_index: 1,
+                message: String::new(),
+            },
             Call::Returned { asserts_ran: 0 },
         ]);
         let got = run(&mut python, "test_a.py", src, &names).unwrap();
