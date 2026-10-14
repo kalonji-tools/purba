@@ -33,7 +33,10 @@ pub fn rewrite(source: &str) -> (String, Vec<String>) {
                     let (test, message) = expr
                         .split_once(", ")
                         .map_or((expr, String::new()), |(t, m)| (t, format!(", {m}")));
-                    format!("{indent}assert _purba_ran({}, {test}){message}", asserts.len() - 1)
+                    format!(
+                        "{indent}assert _purba_ran({}, {test}){message}",
+                        asserts.len() - 1
+                    )
                 },
             )
         })
