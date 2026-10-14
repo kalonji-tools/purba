@@ -20,9 +20,11 @@ set -euo pipefail
 if ! files=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename'); then
   cannot "the files of pull request ${PR} could not be read, so no record was looked for."
 fi
-decisions=$(LC_ALL=C sort <<<"${files}" | grep '^docs/decisions/' || true)
+# A record is a Markdown file directly under docs/decisions/, and a leading dot
+# keeps the template out.
+decisions=$(LC_ALL=C sort <<<"${files}" | grep -E '^docs/decisions/[^/.][^/]*\.md$' || true)
 if [[ -z "${decisions}" ]]; then
-  echo "the diff does not touch docs/decisions, so no comment is owed"
+  echo "the diff changes no decision record, so no comment is owed"
   exit 0
 fi
 
