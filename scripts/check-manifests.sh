@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# The packages that two of .config/mise.toml, Cargo.toml and the manifest
-# inside a cargo script declare, and any package pyproject.toml declares.
+# The packages that two of .config/mise.toml, the Cargo.toml files of the
+# workspace and the manifest inside a cargo script declare, and any package
+# pyproject.toml declares.
 #
 #   the decision:  docs/decisions/one-manifest-declares-each-package.md
 #   the task:      mise run lint:manifests
@@ -37,6 +38,7 @@ mise config get -f pyproject.toml >/dev/null ||
 
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
 conflicts=$(jq -nr \
+  --arg top "${top}/" \
   --arg here "${top}/.config/mise.toml" \
   --argjson tools "${tools}" \
   --argjson crates "${crates}" \
@@ -46,15 +48,15 @@ conflicts=$(jq -nr \
       | select(any(.value[]; .source.path == $here))
       | {file: ".config/mise.toml", as: .key,
         name: (.key | sub("^[^:]*:"; "") | split("/") | last)}),
-    ($crates.packages[].dependencies[]
-      | {file: "Cargo.toml", as: .name, name: .name}),
+    ($crates.packages[] | (.manifest_path | ltrimstr($top)) as $shown | .dependencies[]
+      | {file: "Cargo.toml", shown: $shown, as: .name, name: .name}),
     $scripts[]
   ]
-  | map(.name |= (ascii_downcase | gsub("[-_.]+"; "-")))
+  | map(.name |= (ascii_downcase | gsub("[-_.]+"; "-")) | .shown //= .file)
   | group_by(.name)
   | map(select(map(.file) | unique | length > 1))
   | .[]
-  | "\(.[0].name): " + (map("\(.file) as \(.as)") | unique | join(", "))
+  | "\(.[0].name): " + (map("\(.shown) as \(.as)") | unique | join(", "))
 ') ||
   cannot 'the manifests cannot be compared.'
 

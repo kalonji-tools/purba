@@ -202,3 +202,36 @@ pyproject_toml() {
   [[ "${output}" == *"${conflict}"* ]]
   [[ "${output}" == *"  serde: Cargo.toml as serde, scripts/check/check.rs as serde"* ]]
 }
+
+@test "a member's package is named by the member's own manifest" {
+  rm -r src
+  printf '[workspace]\nmembers = ["crates/*"]\nresolver = "3"\n' >Cargo.toml
+  mkdir -p crates/member/src
+  : >crates/member/src/lib.rs
+  printf '%s\n' '[package]' 'name = "member"' 'version = "0.1.0"' 'edition = "2021"' \
+    '[dependencies]' 'jq = "1"' \
+    >crates/member/Cargo.toml
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"  jq: .config/mise.toml as jq, crates/member/Cargo.toml as jq"* ]]
+}
+
+@test "a crate that two members name is no conflict" {
+  rm -r src
+  printf '[workspace]\nmembers = ["crates/*"]\nresolver = "3"\n' >Cargo.toml
+  local member
+  for member in one two; do
+    mkdir -p "crates/${member}/src"
+    : >"crates/${member}/src/lib.rs"
+    printf '%s\n' '[package]' "name = \"${member}\"" 'version = "0.1.0"' 'edition = "2021"' \
+      '[dependencies]' 'serde = "1"' \
+      >"crates/${member}/Cargo.toml"
+  done
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
