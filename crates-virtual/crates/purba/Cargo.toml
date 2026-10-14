@@ -1,0 +1,31 @@
+[package]
+name = "purba"
+# git-cliff computes the version and .github/scripts/release.sh writes it here,
+# so it is never chosen by hand. `0.0.0` means nothing is released yet.
+version = "0.0.0"
+edition = "2024"
+license = "MIT"
+description = "A Python test framework written in Rust"
+repository = "https://github.com/kalonji-tools/purba"
+# The Rust crate is outside purba's public surface.
+publish = false
+
+# `rust-version` is deliberately absent. It is a claim about consumers, and
+# `publish = false` means purba has none.
+
+[lib]
+name = "purba"
+#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { workspace = true }
+purba-command = { path = "../command" }
+
+[features]
+#   the decision:  docs/decisions/the-crate-carries-an-rlib.md
+extension-module = ["pyo3/extension-module"]
+
+[lints]
+workspace = true
+

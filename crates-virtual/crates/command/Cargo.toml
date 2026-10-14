@@ -1,0 +1,14 @@
+[package]
+name = "purba-command"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+purba-dispatch = { path = "../dispatch" }
+purba-reporting = { path = "../reporting" }
+purba-selection = { path = "../selection" }
+
+[lints]
+workspace = true

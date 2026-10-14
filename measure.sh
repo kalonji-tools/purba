@@ -3,7 +3,7 @@
 #
 #   S=<scratch dir> PY312=<a 3.12 python> mise exec -- ./measure.sh [section...]
 #
-# Sections: arrow libpython repo wheel. With none, it runs all four. Every probe
+# Sections: arrow libpython repo fair wheel. With none, it runs all five. Every probe
 # runs on a copy under $S, and the repo section on a detached worktree of
 # origin/main under $S, which it removes.
 set -uo pipefail
@@ -13,7 +13,7 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 LIBDIR=$("${PY312}" -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 export PYO3_PYTHON=${PY312} CARGO_TARGET_DIR=${S}/target
 LAYOUTS=(one-crate cli-lib-core crate-per-part)
-SECTIONS=("${@:-arrow libpython repo wheel}")
+SECTIONS=("${@:-arrow libpython repo fair wheel}")
 wants() { [[ " ${SECTIONS[*]} " == *" $1 "* ]]; }
 
 fresh() { # $1 layout, $2 copy name: a clean copy of the layout under $S
@@ -94,7 +94,8 @@ if wants libpython; then
     echo "== ${layout}"
     while read -r name exe; do
       needs=no
-      ldd "${exe}" | grep -q libpython && needs=yes
+      ldd "${exe}" >"${S}/ldd.txt" 2>&1
+      grep -q libpython "${S}/ldd.txt" && needs=yes
       out=$(env -u LD_LIBRARY_PATH "${exe}" 2>&1)
       code=$?
       printf '    %-18s libpython: %-3s  run without it: exit %-3s %s\n' "${name}" "${needs}" "${code}" \
@@ -154,6 +155,87 @@ if wants repo; then
       out=$(mise run lint:rust 2>&1)
       code=$?
       echo "    lint:rust after a format breach inside ${part_file}: exit ${code} $(grep -m1 '^Diff in' <<<"${out}")"
+    )
+    git -C "${ROOT}" worktree remove --force "${wt}"
+  done
+  echo
+fi
+
+if wants fair; then
+  echo "################ FAIR: each crate-per-part directory, registered first, then main's tasks"
+  # Registration is what main must change, outside the code, for the directory to be
+  # read the way src/ is read today.
+  for variant in src-parts crates-parts crates-virtual; do
+    echo "== ${variant}"
+    wt="${S}/fair-${variant}"
+    git -C "${ROOT}" worktree remove --force "${wt}" 2>/dev/null
+    git -C "${ROOT}" worktree add -q --detach "${wt}" origin/main
+    (
+      cd "${wt}" || exit 1
+      reach_src=$(grep -l '^\*\*Reach:\*\*.*`src/\*\*`' docs/decisions/*.md)
+      rm -rf src Cargo.toml
+      case ${variant} in
+        src-parts)
+          cp -r "${ROOT}/crate-per-part/src" "${ROOT}/crate-per-part/Cargo.toml" .
+          sed -i 's|^resolver = "3"$|resolver = "3"\ndefault-members = [".", "src/*"]|' Cargo.toml
+          patterns='src/**'
+          ;;
+        crates-parts)
+          cp -r "${ROOT}/crate-per-part/src" "${ROOT}/crate-per-part/Cargo.toml" .
+          mkdir crates && for part in src/*/; do mv "${part}" crates/; done
+          sed -i 's|"src/|"crates/|g; s|^resolver = "3"$|resolver = "3"\ndefault-members = [".", "crates/*"]|' Cargo.toml
+          sed -i 's|^src/\*\*\( *\)build   -scripts$|&\ncrates/**\1build   -scripts|' .config/gates
+          for record in ${reach_src}; do sed -i '/^\*\*Reach:\*\*/s|`src/\*\*`|`src/**` `crates/**`|' "${record}"; done
+          patterns='src/** crates/**'
+          ;;
+        crates-virtual)
+          cp -r "${ROOT}/crates-virtual/crates" "${ROOT}/crates-virtual/Cargo.toml" .
+          sed -i 's|^src/\*\*\( *\)|crates/**\1|' .config/gates
+          for record in ${reach_src}; do sed -i '/^\*\*Reach:\*\*/s|`src/\*\*`|`crates/**`|' "${record}"; done
+          sed -i 's|^module-name = "purba"$|&\nmanifest-path = "crates/purba/Cargo.toml"|' pyproject.toml
+          sed -i 's|^manifest=Cargo.toml$|manifest=crates/purba/Cargo.toml|' .github/scripts/release.sh
+          patterns='crates/**'
+          ;;
+      esac
+      mise trust -q . >/dev/null 2>&1
+      cargo metadata --offline --format-version 1 >/dev/null 2>&1 # rewrites Cargo.lock
+      echo "    registration, outside the code and Cargo.toml:" \
+        "$(git diff --shortstat -- . ':!src' ':!crates' ':!Cargo.toml' ':!Cargo.lock' | sed 's/^ //')"
+      git diff --name-only -- . ':!src' ':!crates' ':!Cargo.toml' ':!Cargo.lock' | sed 's/^/      /'
+      echo "    a record about product code names: ${patterns}"
+      git add -A && git -c user.name=probe -c user.email=probe@invalid -c commit.gpgsign=false \
+        commit -qm 'probe: the layout, registered' --no-verify
+      for task in lint:rust test:rust lint:gates lint:records lint:manifests lint:licences; do
+        out=$(LD_LIBRARY_PATH="${LIBDIR}" mise run "${task}" 2>&1)
+        code=$?
+        printf '    %-15s exit %s' "${task}" "${code}"
+        [[ ${task} == test:rust ]] && printf '  tests passed: %s, with libpython on the path' \
+          "$(grep -oE '^test result: [a-z]+\. [0-9]+ passed' <<<"${out}" | awk '{ n += $4 } END { print n + 0 }')"
+        [[ ${code} != 0 ]] && printf '  %s' "$(grep -m1 -E '^error|refuse' <<<"${out}" | cut -c1-120)"
+        echo
+      done
+      manifest=$(sed -n 's/^manifest=//p' .github/scripts/release.sh)
+      version=$(awk '/^\[/ { inside = ($0 == "[package]") } inside && /^version = "/ { split($0, p, "\""); print p[2]; exit }' "${manifest}")
+      echo "    release.sh reads the version from ${manifest}: '${version}'"
+      maturin build -q --release --interpreter "${PY312}" -o "${S}/fair-wheels-${variant}" >/dev/null 2>&1
+      echo "    maturin build with main's pyproject.toml: exit $?"
+      part_file=$(git ls-files '*selection/src/lib.rs')
+      echo "// probe" >>"${part_file}"
+      git commit -qam 'probe: a change inside selection' --no-verify
+      named=$(scripts/list-records.sh HEAD~1 2>/dev/null | awk "/^\*\*Named by this change:\*\*/ { on = 1; next } on && /^- / { n++ } on && !NF { exit } END { print n + 0 }")
+      echo "    a change inside ${part_file}: list:records names ${named} records"
+      # Two facts that leave /Cargo.toml: the extension module's crate-type, and a
+      # crate a part links.
+      for probe in "the-crate-carries-an-rlib:$(git ls-files 'Cargo.toml' 'crates/purba/Cargo.toml' | tail -1)" \
+        "one-manifest-declares-each-package:$(git ls-files '*parsing/Cargo.toml')"; do
+        record=${probe%%:*}
+        file=${probe#*:}
+        echo "# probe" >>"${file}"
+        git commit -qam "probe: a change in ${file}" --no-verify
+        scripts/list-records.sh HEAD~1 >"${S}/lr-${variant}-${record}.txt" 2>&1
+        if awk "/^\*\*Named by this change:\*\*/ { on = 1; next } on && !NF { exit } on" "${S}/lr-${variant}-${record}.txt" | grep -q "${record}.md"; then found=yes; else found=NO; fi
+        echo "    a change in ${file}: list:records names ${record}: ${found}"
+      done
     )
     git -C "${ROOT}" worktree remove --force "${wt}"
   done

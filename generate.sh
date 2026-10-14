@@ -81,4 +81,20 @@ member_toml purba-core 'pyo3 = { workspace = true }' >cli-lib-core/src/core/Carg
 } >cli-lib-core/src/core/src/lib.rs
 for part in "${core_parts[@]}"; do cp "one-crate/src/${part}.rs" cli-lib-core/src/core/src/; done
 for layout in cli-lib-core crate-per-part; do cp one-crate/pyproject.toml "${layout}/"; done
+
+# crates-virtual: crate-per-part with every crate, the extension module too, under
+# crates/, and a root manifest that holds only the workspace.
+rm -rf crates-virtual && mkdir -p crates-virtual/crates/purba/src
+for part in "${parts[@]}"; do cp -r "crate-per-part/src/${part}" crates-virtual/crates/; done
+cp crate-per-part/src/lib.rs crates-virtual/crates/purba/src/
+sed -i 's/each part is a crate under src\//every crate is under crates\//' crates-virtual/crates/purba/src/lib.rs
+# A line before the first header, or under a [workspace...] header, goes to the root.
+awk -v root=crates-virtual/Cargo.toml -v member=crates-virtual/crates/purba/Cargo.toml '
+  /^\[/ { to = ($0 ~ /^\[workspace/) ? root : member }
+  { print > (to ? to : member) }
+' crate-per-part/Cargo.toml
+sed -i 's|"src/|"crates/|g; s|^members = \[|members = ["crates/purba", |' crates-virtual/Cargo.toml
+sed -i 's|path = "src/command"|path = "../command"|' crates-virtual/crates/purba/Cargo.toml
+sed 's|^module-name = "purba"$|module-name = "purba"\nmanifest-path = "crates/purba/Cargo.toml"|' \
+  one-crate/pyproject.toml >crates-virtual/pyproject.toml
 echo generated
