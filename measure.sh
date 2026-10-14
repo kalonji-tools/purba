@@ -3,7 +3,7 @@
 #
 #   S=<scratch dir> PY312=<a 3.12 python> mise exec -- ./measure.sh [section...]
 #
-# Sections: arrow libpython repo fair wheel. With none, it runs all five. Every probe
+# Sections: arrow libpython repo fair clippy wheel. With none, it runs all six. Every probe
 # runs on a copy under $S, and the repo section on a detached worktree of
 # origin/main under $S, which it removes.
 set -uo pipefail
@@ -13,7 +13,7 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 LIBDIR=$("${PY312}" -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
 export PYO3_PYTHON=${PY312} CARGO_TARGET_DIR=${S}/target
 LAYOUTS=(one-crate cli-lib-core crate-per-part)
-SECTIONS=("${@:-arrow libpython repo fair wheel}")
+SECTIONS=("${@:-arrow libpython repo fair clippy wheel}")
 wants() { [[ " ${SECTIONS[*]} " == *" $1 "* ]]; }
 
 fresh() { # $1 layout, $2 copy name: a clean copy of the layout under $S
@@ -239,6 +239,15 @@ if wants fair; then
     )
     git -C "${ROOT}" worktree remove --force "${wt}"
   done
+  echo
+fi
+
+if wants clippy; then
+  echo "################ CLIPPY: a clippy.toml at the root of the workspace, and a member crate"
+  dir=$(fresh crates-virtual clippy-crates-virtual)
+  printf 'disallowed-methods = [{ path = "std::fs::read_to_string", reason = "probe" }]\n' >"${dir}/clippy.toml"
+  out=$(cargo clippy --offline --manifest-path "${dir}/Cargo.toml" 2>&1)
+  echo "    cargo clippy: exit $? $(grep -m1 -- '-->' <<<"${out}")"
   echo
 fi
 
