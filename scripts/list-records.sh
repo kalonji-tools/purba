@@ -202,16 +202,19 @@ for path in "${records[@]}"; do
   [[ -z "${edited[${path}]:-}" ]] || continue
   read -r first last <<<"${reach_at[${path}]:-0 -1}"
   lines=$(awk -v first="${first}" -v last="${last}" -v path="${path}" '
-    # A directory counts only where a path starts with it, after any `./` or
-    # `../`, so `scripts/` is not named by `.github/scripts/`.
+    # A name counts only where no name character comes before it, so
+    # `records.sh` is not named by `check-records.sh`. A directory counts only
+    # where a path starts with it, after any `./` or `../`, so `scripts/` is
+    # not named by `.github/scripts/`.
     function holds(line, name, rest, before, start, at) {
-      if (name !~ /\/$/) return index(line, name)
       rest = line
       while ((at = index(rest, name)) > 0) {
         before = before substr(rest, 1, at - 1)
         start = before
-        sub(/(\.\.?\/)+$/, "", start)
-        sub(/\/$/, "", start)
+        if (name ~ /\/$/) {
+          sub(/(\.\.?\/)+$/, "", start)
+          sub(/\/$/, "", start)
+        }
         if (start !~ /[[:alnum:]._-]$/) return 1
         before = before substr(rest, at, 1)
         rest = substr(rest, at + 1)
