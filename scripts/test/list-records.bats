@@ -671,6 +671,51 @@ link() {
   [[ "${got}" == *"- \`docs/decisions/github.md:9\` names \`tools/\`"* ]]
 }
 
+@test "a basename inside a longer name is not a stale sentence" {
+  record checks "\`nowhere\`" "\`check-a.sh\` runs the checks." \
+    "\`checka.sh\` runs one." "\`check.a.sh\` runs one." "\`check_a.sh\` runs one."
+  echo run >a.sh
+  land_base
+  echo more >>a.sh
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" != *"checks.md:"* ]]
+}
+
+@test "a basename counts wherever it stands whole on the line" {
+  record checks "\`nowhere\`" "Run \`check-a.sh\`, then \`a.sh\`." "Run [it](a.sh)."
+  echo run >a.sh
+  land_base
+  echo more >>a.sh
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" == *"- \`docs/decisions/checks.md:8\` names \`a.sh\`"* ]]
+  [[ "${got}" == *"- \`docs/decisions/checks.md:9\` names \`a.sh\`"* ]]
+}
+
+@test "a basename after its directory may hold a stale sentence" {
+  record tools "\`nowhere\`" "Run \`tools/a.sh\` first."
+  mkdir tools
+  echo run >tools/a.sh
+  land_base
+  echo more >>tools/a.sh
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" == *"- \`docs/decisions/tools.md:8\` names \`a.sh\`"* ]]
+}
+
 @test "--added prints the same lines whatever diff algorithm the user sets" {
   mkdir -p docs/decisions
   printf '%s\n' 3 1 0 1 3 3 3 3 0 2 3 1 >docs/decisions/x.md
