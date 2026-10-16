@@ -41,6 +41,7 @@ The manifest names them at the call site that first uses one, and not ahead of i
 A dependency nothing calls is reported, and that report has nowhere to be suppressed one dependency at a time.
 
 One module owns parsing and returns an AST, and everything else takes the AST.
+[Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 Holding that seam keeps even a late reversal a one-decision change.
 The prescan path parses and raises nothing on a syntax error, because a file that fails to parse is a diagnostic and not a crash.
 MSRV is the upgrade clock, not the API.
