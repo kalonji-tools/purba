@@ -54,13 +54,13 @@ flowchart LR
 
 ## The parts and their dependencies
 
-- **command.** Reads the command, starts a run, and sets the exit code.
-- **selection.** Reads test files as text, imports none of them, and answers which tests a query names.
-- **parsing.** Turns Python source into an AST, and reports a file that does not parse as a diagnostic.
+- **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and sets the exit code.
+- **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
+- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a diagnostic.
 - **dispatch.** Hands each selected test to a worker and returns its outcome, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input a test names by type, and tears it down after.
-- **assertion.** Rewrites each assert in a selected module as it is imported, so that a failure shows its values.
+- **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
 - **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
 
 An arrow points from a part to the part whose interface it uses.
@@ -70,6 +70,8 @@ flowchart TD
   command -- "a query" --> selection
   command -- "the selected tests" --> dispatch
   command -- "the outcomes" --> reporting
+  command -- "a module" --> parsing
+  command -- "a rewrite" --> assertion
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
@@ -80,10 +82,11 @@ flowchart TD
 ```
 
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
+[Command lends one parse to selection and assertion](docs/decisions/command-lends-one-parse-to-selection-and-assertion.md) holds why command hands each parsed module on.
 
 ## The invariants
 
-- **lazy work.** No part imports, rewrites, builds or runs anything outside the selection, in dispatch, execution, fixtures and assertion.
+- **lazy work.** No part imports, rewrites, builds or runs anything outside the selection, in command, dispatch, execution, fixtures and assertion.
 - **an outcome is data.** An outcome carries no live Python object, in execution, dispatch and reporting.
 - **an outcome is final.** No part changes an outcome once it is made, in dispatch and reporting.
 - **one identity.** No part names a test except by the identity that selection gives it, in dispatch, execution and reporting.
@@ -108,7 +111,7 @@ flowchart TD
 
 Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in depth reduces it.
 
-- **text selection disagrees with import.** Given a pinned suite, when selection reads it as text, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
+- **text selection disagrees with import.** Given a pinned suite, when selection reads the AST of its test files, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
 - **a fixture reaches a test that never named it.** Given two tests where only the first names a fixture, when both run, then the outcome of the second depends on that fixture. Lands on fixtures; probability high, impact high.
 - **an outcome depends on the worker.** Given a selection, when it runs on one worker and then on many, then the outcome of some test differs. Lands on dispatch; probability high, impact high.
 - **purba's own error shows as a test failure.** Given a defect inside purba during a test, when purba reports the run, then the test shows as failed, and not as an error inside purba. Lands on errors; probability medium, impact high.

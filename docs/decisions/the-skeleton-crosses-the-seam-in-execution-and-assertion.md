@@ -34,7 +34,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call counts that an assert ran, and records its index.
-- **After `AssertionError`, the last index names the failed assert.** The failed line quotes the source text that parsing holds for that assert.
+- **After `AssertionError`, the last index names the failed assert.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it.
 - **Reporting writes to Rust's stdout.**
 
 **Downside:**
