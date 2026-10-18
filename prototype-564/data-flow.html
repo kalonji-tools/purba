@@ -58,6 +58,7 @@ th{color:var(--muted);font-weight:600}
 <main>
 <span class="badge">PROTOTYPE · purba #564 · throwaway</span>
 <h1>What does each part hand the next when the walking skeleton runs <code>purba test_a.py</code>?</h1>
+<p class="lede"><strong>Updated after "Command lends one parse to selection and assertion" (#580).</strong> Command now asks parsing for each module, and lends the one parse to selection and then to assertion's rewrite, before the run. The two arrows marked ★ are new. test_a.py is read once, and no part holds an AST once dispatch starts.</p>
 <p class="lede">Step through one run of the skeleton. Each step names who hands what to whom, and which arrow of the landscape's parts diagram carries it. Switch the view to compare the two kinds of diagram the issue weighs. Switch the labels to compare naming the <em>value</em> with naming the <em>Rust type</em>. Purple boxes mark a question the trace exposes. The Rust types are a sketch: each slice decides its own.</p>
 
 <div class="bar">
@@ -103,12 +104,14 @@ th{color:var(--muted);font-weight:600}
 // The trace: a pure module, no DOM. It is the use case as data.
 // ---------------------------------------------------------------------------
 const Trace = (() => {
-  // The parts diagram of LANDSCAPE.md, verbatim: an arrow points from a part to
-  // the part whose interface it uses.
+  // The parts diagram of LANDSCAPE.md on main (1a62704), verbatim: an arrow
+  // points from a part to the part whose interface it uses.
   const ARROWS = [
     { id: 'cmd-sel', from: 'command', to: 'selection', label: 'a query' },
     { id: 'cmd-dis', from: 'command', to: 'dispatch', label: 'the selected tests' },
     { id: 'cmd-rep', from: 'command', to: 'reporting', label: 'the outcomes' },
+    { id: 'cmd-par', from: 'command', to: 'parsing', label: 'a module', fresh: true },
+    { id: 'cmd-ass', from: 'command', to: 'assertion', label: 'a rewrite', fresh: true },
     { id: 'sel-par', from: 'selection', to: 'parsing', label: 'an AST' },
     { id: 'ass-par', from: 'assertion', to: 'parsing', label: 'an AST' },
     { id: 'dis-sel', from: 'dispatch', to: 'selection', label: 'a selected test' },
@@ -119,38 +122,43 @@ const Trace = (() => {
   ];
   const PARTS = ['command', 'selection', 'parsing', 'dispatch', 'execution', 'fixtures', 'assertion', 'reporting'];
   // Lanes of the sequence view, left to right. The four outside the parts are dashed.
-  const ACTORS = ['tester', 'purba', 'command', 'selection', 'parsing', 'dispatch', 'execution', 'fixtures', 'assertion', 'reporting', 'files', 'Python'];
+  const ACTORS = ['tester', 'purba', 'files', 'parsing', 'command', 'selection', 'assertion', 'dispatch', 'execution', 'fixtures', 'reporting', 'Python'];
   const EXTERNAL = new Set(['tester', 'purba', 'files', 'Python']);
 
   const OPEN = {
     identity: 'One identity: execution and reporting must name a test by the identity selection gives it, but the diagram draws no arrow from either to selection. So neither can name selection\'s type. "How do execution and reporting name a test, when the diagram draws no arrow to selection?" (#563) decides this.',
-    once: 'Dispatch hands one test at a time. Does execution load the module once and keep it for the next test, or load it again for each test? Loading again runs the module\'s body three times. The prototype of #556 dodged this by handing all three names in one call.',
-    source: 'The file is read twice: by selection, and again by assertion. The landscape gives "reads test files as text" to selection. Who carries the source to assertion: a second read, or the identity? The prototype of #556 had command read the file, which no part description gives command.',
-    typeOnly: 'This arrow carries no call at run time. Dispatch only names selection\'s type. A sequence diagram draws no message for it, and a parts diagram draws it the same as an arrow that carries data.',
+    carry: 'Three selected tests share one module. Does each test carry its own copy of the rewritten text and the assert texts, or does command hand dispatch each module\'s text once, beside its tests? "Command lends one parse" says only that "each selected test, and the rewritten text of its module" cross as plain data.',
+    once: 'Dispatch hands one test at a time. Does execution load the module once and keep it for the next test, or load it again for each test? Loading again runs the module\'s body three times. "Command lends one parse" puts the load "when execution imports the module", and says no more.',
+    typeOnly: 'This arrow carries no call at run time. The part only names a type of the other part. A sequence diagram draws no message for it, and a parts diagram draws it the same as an arrow that carries data.',
     exit: 'Who turns the outcomes into the exit code? Command holds the outcomes already, so it can count them. The prototype of #556 had reporting return the counts instead, which the arrow "the outcomes" does not name.',
     against: 'Here the data flows against the arrow. The arrow points from the part that calls to the part that answers, and the answer comes back the other way.',
   };
 
   // kind: call (along an arrow or edge), return (against it), type (no run-time call), io (outside purba's parts)
+  // tags: walkthroughs the step belongs to. drops: what a part lets go of at this step.
   const STEPS = [
     { from: 'tester', to: 'purba', kind: 'io', value: 'the command line purba test_a.py', type: 'console script purba:_main', title: 'The tester runs purba', seam: '_main copies sys.argv into a list of strings, and keeps no Python object.', adds: { purba: ['argv: ["purba", "test_a.py"]'] } },
     { from: 'purba', to: 'command', kind: 'call', value: 'the arguments ["test_a.py"]', type: '&[String]', title: '_main hands the arguments to command', note: 'This edge is in the crate diagram (purba uses purba-command), and not in the parts diagram.', adds: { command: ['args: ["test_a.py"]'] } },
-    { from: 'command', to: 'selection', kind: 'call', arrow: 'cmd-sel', value: 'the query: the path test_a.py', type: '&Path', title: 'Command asks selection which tests the query names', adds: { selection: ['query: test_a.py'] } },
-    { from: 'selection', to: 'files', kind: 'io', value: 'read test_a.py as text', type: 'std::fs::read_to_string', title: 'Selection reads the module as text', note: 'test_b.py is never read. Nothing names it.', reads: 'test_a.py', open: 'source', adds: { selection: ['source of test_a.py'] } },
-    { from: 'selection', to: 'parsing', kind: 'call', arrow: 'sel-par', value: 'the source text of test_a.py', type: '&str', title: 'Selection hands the source to parsing', adds: { parsing: ['source of test_a.py'] } },
-    { from: 'parsing', to: 'selection', kind: 'return', arrow: 'sel-par', value: 'the AST: three top-level defs', type: 'ruff ModModule', title: 'Parsing answers with an AST', open: 'against', adds: { selection: ['AST of test_a.py'] } },
-    { from: 'selection', to: 'command', kind: 'return', arrow: 'cmd-sel', value: 'three tests: test_a.py::test_one, ::test_two, ::test_three', type: 'Vec<TestId>', title: 'Selection answers with three identities', note: 'Selection is the only part that makes an identity.', adds: { command: ['3 identities'] } },
-    { from: 'command', to: 'dispatch', kind: 'call', arrow: 'cmd-dis', value: 'the three selected tests', type: 'Vec<TestId>', title: 'Command hands the selected tests to dispatch', adds: { dispatch: ['3 identities'] } },
+
+    // one parse, lent twice
+    { from: 'command', to: 'parsing', kind: 'call', arrow: 'cmd-par', value: 'the module to parse: the path test_a.py', type: '&Path', title: 'Command asks parsing for the module', note: 'New since "Command lends one parse": command asks, and parsing is the only part that reads a test file.', adds: { parsing: ['path test_a.py'] }, tags: ['find', 'lend'] },
+    { from: 'parsing', to: 'files', kind: 'io', value: 'read test_a.py, once', type: 'std::fs::read_to_string', title: 'Parsing reads the module, the only read of the run', note: 'test_b.py is never read. Nothing names it.', reads: 'test_a.py', adds: { parsing: ['source of test_a.py'] }, drops: { parsing: ['path test_a.py'] }, tags: ['find', 'lend'] },
+    { from: 'parsing', to: 'command', kind: 'return', arrow: 'cmd-par', value: 'the parsed module: its source and its AST', type: 'ruff Parsed<ModModule>, and the source', title: 'Parsing answers with the parse', open: 'against', adds: { command: ['parse of test_a.py (source + AST)'] }, drops: { parsing: ['source of test_a.py'] }, tags: ['find', 'lend'] },
+    { from: 'command', to: 'selection', kind: 'call', arrow: 'cmd-sel', value: 'the query test_a.py, and the parse it lends', type: '(&Query, &ModModule)', title: 'Command lends the parse to selection', note: 'A lend: selection reads the tree, and keeps nothing of it.', adds: { selection: ['query', 'AST (lent)'] }, tags: ['find', 'lend'] },
+    { from: 'selection', to: 'parsing', kind: 'type', arrow: 'sel-par', value: '(no call) selection reads parsing\'s AST type', type: 'ruff_python_ast::ModModule', title: 'Selection uses parsing\'s type, and calls nothing', open: 'typeOnly', tags: ['find', 'lend'] },
+    { from: 'selection', to: 'command', kind: 'return', arrow: 'cmd-sel', value: 'three tests: test_a.py::test_one, ::test_two, ::test_three', type: 'Vec<TestId>', title: 'Selection answers with three identities', note: 'Selection is the only part that makes an identity. The lend to selection is over.', adds: { command: ['3 identities'] }, drops: { selection: ['query', 'AST (lent)'] }, tags: ['find', 'lend'] },
+    { from: 'command', to: 'assertion', kind: 'call', arrow: 'cmd-ass', value: 'the same parse, because selection selected a test in test_a.py', type: '&Parsed<ModModule>, &str', title: 'Command lends the parse to assertion\'s rewrite', note: 'Before the run. A module where selection selected no test is never rewritten.', adds: { assertion: ['AST + source (lent)'] }, tags: ['lend', 'quote'] },
+    { from: 'assertion', to: 'parsing', kind: 'type', arrow: 'ass-par', value: '(no call) assertion reads parsing\'s AST type', type: 'ruff_python_ast::StmtAssert', title: 'Assertion uses parsing\'s type, and calls nothing', open: 'typeOnly', tags: ['lend'] },
+    { from: 'assertion', to: 'command', kind: 'return', arrow: 'cmd-ass', value: 'the rewritten text (assert _purba_ran(0, 1 == 1) …), and the source text of each assert', type: 'Rewrite { text: String, asserts: Vec<String> }', title: 'The rewrite answers with text, and drops the tree', note: 'It splices the source at node ranges, and never changes the tree. Command lets the parse go here: the lend is over, and no part holds an AST again.', open: 'against', adds: { command: ['rewritten text of test_a.py', 'assert texts: ["assert 1 == 1", "assert 1 == 2"]'] }, drops: { assertion: ['AST + source (lent)'], command: ['parse of test_a.py (source + AST)'] }, tags: ['lend', 'quote'] },
+
+    { from: 'command', to: 'dispatch', kind: 'call', arrow: 'cmd-dis', value: 'three selected tests, each with the rewritten text of test_a.py', type: 'Vec<SelectedTest> ?', title: 'Command hands the selected tests to dispatch', open: 'carry', adds: { dispatch: ['3 selected tests (+ text)'] }, tags: ['quote'] },
     { from: 'dispatch', to: 'selection', kind: 'type', arrow: 'dis-sel', value: '(no call) dispatch names selection\'s type for a test', type: 'purba_selection::TestId', title: 'Dispatch uses selection\'s type, and calls nothing', open: 'typeOnly' },
 
     // test_one
-    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one test: test_a.py::test_one', type: '&TestId ?', title: 'Dispatch hands test_one to its one worker', open: 'identity', adds: { execution: ['test_one'] }, group: 'one' },
-    { from: 'execution', to: 'assertion', kind: 'call', arrow: 'exe-ass', value: 'the module to load: test_a.py', type: '&Path', title: 'Execution asks assertion for the rewritten module', open: 'once', adds: { assertion: ['path test_a.py'] }, group: 'one' },
-    { from: 'assertion', to: 'files', kind: 'io', value: 'read test_a.py as text, again', type: 'std::fs::read_to_string', title: 'Assertion reads the module a second time', reads: 'test_a.py', open: 'source', adds: { assertion: ['source of test_a.py'] }, group: 'one' },
-    { from: 'assertion', to: 'parsing', kind: 'call', arrow: 'ass-par', value: 'the source text of test_a.py', type: '&str', title: 'Assertion hands the source to parsing', adds: { parsing: ['source of test_a.py (2nd)'] }, group: 'one' },
-    { from: 'parsing', to: 'assertion', kind: 'return', arrow: 'ass-par', value: 'the AST, with each assert and its source text', type: 'ruff ModModule', title: 'Parsing answers with the same AST again', open: 'against', adds: { assertion: ['AST', 'assert texts: ["assert 1 == 1", "assert 1 == 2"]'] }, group: 'one' },
-    { from: 'assertion', to: 'Python', kind: 'io', value: 'compile() and exec() of the rewritten source: assert _purba_ran(0, 1 == 1) …', type: 'PyO3: builtins.compile, builtins.exec', title: 'Assertion runs the rewritten module in Python', seam: 'The rewritten source crosses into Python. The module body runs once here.', adds: { Python: ['module test_a (rewritten)'] }, group: 'one' },
-    { from: 'assertion', to: 'execution', kind: 'return', arrow: 'exe-ass', value: 'the loaded module, and the source text of each assert', type: '(Py<PyModule>, Vec<String>)', title: 'Assertion answers with the module', seam: 'The module is a Python object. It crosses into Rust here, and stays inside execution.', open: 'against', adds: { execution: ['module (Python object)', 'assert texts'] }, group: 'one' },
+    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one selected test: test_a.py::test_one, with its module\'s text', type: '&SelectedTest ?', title: 'Dispatch hands test_one to its one worker', open: 'identity', adds: { execution: ['test_one (+ text)'] }, group: 'one', tags: ['quote'] },
+    { from: 'execution', to: 'assertion', kind: 'call', arrow: 'exe-ass', value: 'the rewritten text of test_a.py, to load', type: '&str', title: 'Execution asks assertion to load the module', open: 'once', adds: { assertion: ['rewritten text'] }, group: 'one' },
+    { from: 'assertion', to: 'Python', kind: 'io', value: 'compile() and exec() of the rewritten text', type: 'PyO3: builtins.compile, builtins.exec', title: 'Assertion\'s load runs the module in Python', seam: 'The rewritten text crosses into Python. The module body runs once here. No file is read.', adds: { Python: ['module test_a (rewritten)'] }, drops: { assertion: ['rewritten text'] }, group: 'one' },
+    { from: 'assertion', to: 'execution', kind: 'return', arrow: 'exe-ass', value: 'the loaded module', type: 'Py<PyModule>', title: 'Assertion answers with the module', seam: 'The module is a Python object. It crosses into Rust here, and stays inside execution.', open: 'against', adds: { execution: ['module (Python object)'] }, group: 'one' },
     { from: 'execution', to: 'fixtures', kind: 'call', arrow: 'exe-fix', value: 'the inputs test_one names: none', type: '&TestId ?', title: 'Execution asks fixtures for the inputs', adds: {}, group: 'one' },
     { from: 'fixtures', to: 'execution', kind: 'return', arrow: 'exe-fix', value: 'no inputs', type: 'Vec<Input> (empty)', title: 'Fixtures builds nothing', adds: {}, group: 'one' },
     { from: 'execution', to: 'Python', kind: 'io', value: 'call test_one(); _purba_ran(0, True) runs', type: 'PyO3: module.getattr(name).call0()', title: 'Execution calls test_one', seam: 'Whether the call returned or raised AssertionError, and the last assert index, cross back into Rust.', adds: {}, group: 'one' },
@@ -158,14 +166,17 @@ const Trace = (() => {
     { from: 'execution', to: 'dispatch', kind: 'return', arrow: 'dis-exe', value: 'passed', type: 'Outcome::Passed', title: 'Execution answers with an outcome', note: 'An outcome is data: it carries no Python object.', open: 'against', adds: { dispatch: ['test_one → passed'] }, group: 'one' },
 
     // test_two
-    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one test: test_a.py::test_two', type: '&TestId ?', title: 'Dispatch hands test_two to the worker', open: 'once', adds: { execution: ['test_two'] }, group: 'two' },
+    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one selected test: test_a.py::test_two, with its module\'s text', type: '&SelectedTest ?', title: 'Dispatch hands test_two to the worker', open: 'once', adds: { execution: ['test_two (+ text)'] }, group: 'two', tags: ['quote'] },
     { from: 'execution', to: 'fixtures', kind: 'call', arrow: 'exe-fix', value: 'the inputs test_two names: none', type: '&TestId ?', title: 'Execution asks fixtures for the inputs', adds: {}, group: 'two' },
+    { from: 'fixtures', to: 'execution', kind: 'return', arrow: 'exe-fix', value: 'no inputs', type: 'Vec<Input> (empty)', title: 'Fixtures builds nothing', adds: {}, group: 'two' },
     { from: 'execution', to: 'Python', kind: 'io', value: 'call test_two(); _purba_ran(1, False) runs, then AssertionError', type: 'PyO3 call', title: 'Execution calls test_two', seam: 'The traceback stays in Python. Only "raised AssertionError" and index 1 cross.', adds: {}, group: 'two' },
-    { from: 'Python', to: 'execution', kind: 'return', value: 'raised AssertionError; the last assert was index 1', type: 'Err(PyAssertionError), last = 1', title: 'test_two raises', note: 'Index 1 picks "assert 1 == 2" from the texts assertion handed over.', adds: { execution: ['test_two: failed'] }, group: 'two' },
-    { from: 'execution', to: 'dispatch', kind: 'return', arrow: 'dis-exe', value: 'failed: assert 1 == 2', type: 'Outcome::Failed { reason: String }', title: 'Execution answers with a failed outcome', open: 'against', adds: { dispatch: ['test_two → failed: assert 1 == 2'] }, group: 'two' },
+    { from: 'Python', to: 'execution', kind: 'return', value: 'raised AssertionError; the last assert was index 1', type: 'Err(PyAssertionError), last = 1', title: 'test_two raises', note: 'Index 1 picks "assert 1 == 2" from the assert texts that the rewrite returned, and the selected test carried.', adds: { execution: ['test_two: failed'] }, group: 'two', tags: ['quote'] },
+    { from: 'execution', to: 'dispatch', kind: 'return', arrow: 'dis-exe', value: 'failed: assert 1 == 2', type: 'Outcome::Failed { reason: String }', title: 'Execution answers with a failed outcome', open: 'against', adds: { dispatch: ['test_two → failed: assert 1 == 2'] }, group: 'two', tags: ['quote'] },
 
     // test_three
-    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one test: test_a.py::test_three', type: '&TestId ?', title: 'Dispatch hands test_three to the worker', adds: { execution: ['test_three'] }, group: 'three' },
+    { from: 'dispatch', to: 'execution', kind: 'call', arrow: 'dis-exe', value: 'one selected test: test_a.py::test_three, with its module\'s text', type: '&SelectedTest ?', title: 'Dispatch hands test_three to the worker', adds: { execution: ['test_three (+ text)'] }, group: 'three' },
+    { from: 'execution', to: 'fixtures', kind: 'call', arrow: 'exe-fix', value: 'the inputs test_three names: none', type: '&TestId ?', title: 'Execution asks fixtures for the inputs', adds: {}, group: 'three' },
+    { from: 'fixtures', to: 'execution', kind: 'return', arrow: 'exe-fix', value: 'no inputs', type: 'Vec<Input> (empty)', title: 'Fixtures builds nothing', adds: {}, group: 'three' },
     { from: 'execution', to: 'Python', kind: 'io', value: 'call test_three(); no assert runs', type: 'PyO3 call', title: 'Execution calls test_three', adds: {}, group: 'three' },
     { from: 'Python', to: 'execution', kind: 'return', value: 'returned; 0 asserts ran', type: 'Ok(_), ran = 0', title: 'test_three returns, and no assert ran', note: 'purba is always strict: a test that checked nothing is unknown, never passed.', adds: { execution: ['test_three: unknown'] }, group: 'three' },
     { from: 'execution', to: 'dispatch', kind: 'return', arrow: 'dis-exe', value: 'unknown: no assert ran', type: 'Outcome::Unknown', title: 'Execution answers with unknown', open: 'against', adds: { dispatch: ['test_three → unknown'] }, group: 'three' },
@@ -174,7 +185,7 @@ const Trace = (() => {
     { from: 'dispatch', to: 'command', kind: 'return', arrow: 'cmd-dis', value: 'three outcomes, each beside its identity', type: 'Vec<(TestId, Outcome)>', title: 'Dispatch answers with the outcomes', open: 'against', adds: { command: ['3 outcomes'] }, group: 'end' },
     { from: 'command', to: 'reporting', kind: 'call', arrow: 'cmd-rep', value: 'the three outcomes, each beside its identity', type: '&[(TestId, Outcome)] ?', title: 'Command hands the outcomes to reporting', open: 'identity', adds: { reporting: ['3 outcomes'] }, group: 'end' },
     { from: 'reporting', to: 'execution', kind: 'type', arrow: 'rep-exe', value: '(no call) reporting matches on execution\'s Outcome', type: 'purba_execution::Outcome', title: 'Reporting uses execution\'s type, and calls nothing', open: 'typeOnly', group: 'end' },
-    { from: 'reporting', to: 'tester', kind: 'io', value: 'four lines on stdout', type: 'println! to Rust\'s stdout', title: 'Reporting prints one line for each test and a count', stdout: ['test_a.py::test_one passed', 'test_a.py::test_two failed: assert 1 == 2', 'test_a.py::test_three unknown: no assert ran', '3 tests: 1 passed, 1 failed, 1 unknown'], note: 'Each line starts with the identity: the path as the tester typed it, ::, and the function name.', open: 'identity', group: 'end' },
+    { from: 'reporting', to: 'tester', kind: 'io', value: 'four lines on stdout', type: 'println! to Rust\'s stdout', title: 'Reporting prints one line for each test and a count', stdout: ['test_a.py::test_one passed', 'test_a.py::test_two failed: assert 1 == 2', 'test_a.py::test_three unknown: no assert ran', '3 tests: 1 passed, 1 failed, 1 unknown'], note: 'Each line starts with the identity: the path as the tester typed it, ::, and the function name.', open: 'identity', group: 'end', tags: ['quote'] },
     { from: 'reporting', to: 'command', kind: 'return', arrow: 'cmd-rep', value: 'nothing', type: '()', title: 'Reporting returns', open: 'exit', group: 'end' },
     { from: 'command', to: 'purba', kind: 'return', value: 'exit code 1: a test failed', type: 'i32', title: 'Command answers with the exit code', adds: { purba: ['exit code 1'] }, group: 'end' },
     { from: 'purba', to: 'tester', kind: 'io', value: 'the process exits 1', type: 'console script return value', title: 'The run exits 1', exit: 1, group: 'end' },
@@ -183,19 +194,18 @@ const Trace = (() => {
   // The state after step i (0-based, inclusive). i = -1 is before the run.
   function stateAt(i) {
     const holds = Object.fromEntries(ACTORS.map(a => [a, []]));
-    holds.files = ['test_a.py: read 0×', 'test_b.py: read 0×'];
     const reads = { 'test_a.py': 0, 'test_b.py': 0 };
     const stdout = [];
     let exit = null;
     for (let k = 0; k <= i; k++) {
       const s = STEPS[k];
+      for (const [actor, items] of Object.entries(s.drops || {})) holds[actor] = holds[actor].filter(h => !items.includes(h.t));
       for (const [actor, items] of Object.entries(s.adds || {})) holds[actor].push(...items.map(t => ({ t, k })));
       if (s.reads) reads[s.reads]++;
       if (s.stdout) stdout.push(...s.stdout);
       if (s.exit != null) exit = s.exit;
     }
     holds.files = Object.entries(reads).map(([f, n]) => ({ t: `${f}: read ${n}×${n === 0 ? ' — never read' : ''}`, k: STEPS[i]?.reads === f ? i : -2 }));
-    for (const a of ACTORS) holds[a] = holds[a].map(h => (typeof h === 'string' ? { t: h, k: -2 } : h));
     return { step: STEPS[i] || null, holds, stdout, exit };
   }
 
@@ -226,9 +236,10 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 const POS = {
   tester: [110, 40], purba: [420, 40], command: [420, 130],
-  selection: [170, 250], dispatch: [420, 250], reporting: [690, 250],
-  execution: [420, 370], assertion: [290, 480], fixtures: [560, 480],
-  parsing: [140, 590], files: [70, 400], Python: [720, 400],
+  files: [60, 150], parsing: [215, 150],
+  selection: [170, 260], dispatch: [480, 250], reporting: [720, 250],
+  execution: [480, 370], assertion: [250, 480], fixtures: [620, 480],
+  Python: [750, 400],
 };
 const W = 120, H = 36;
 
@@ -241,7 +252,7 @@ function clip([x1, y1], [x2, y2]) {
 function partsSvg(state) {
   const s = state.step;
   const usedArrows = new Set(Trace.STEPS.slice(0, ui.i + 1).map(x => x.arrow).filter(Boolean));
-  let out = `<svg viewBox="0 0 820 630" width="100%" role="img" aria-label="parts diagram">
+  let out = `<svg viewBox="0 0 820 530" width="100%" role="img" aria-label="parts diagram">
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--done)"/></marker>
       <marker id="ahA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
@@ -252,7 +263,7 @@ function partsSvg(state) {
     const cls = active ? 'edge active' : usedArrows.has(a.id) ? 'edge used' : 'edge';
     out += `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#${active ? 'ahA' : 'ah'})"/>`;
     const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-    const text = active ? (ui.label === 'value' ? s.value : s.type) : a.label;
+    const text = active ? (ui.label === 'value' ? s.value : s.type) : (a.fresh ? `★ ${a.label}` : a.label);
     const dir = active ? (s.kind === 'return' ? '⟵ against the arrow' : s.kind === 'type' ? '· type only, no call' : 'along the arrow ⟶') : '';
     out += `<text x="${mx}" y="${my - 4}" text-anchor="middle" style="${active ? 'font-weight:700;fill:var(--accent)' : 'fill:var(--muted)'}">${esc(trim(text, 46))}</text>`;
     if (dir) out += `<text x="${mx}" y="${my + 11}" text-anchor="middle" style="fill:var(--accent);font-size:11px">${dir}</text>`;
@@ -268,7 +279,7 @@ function partsSvg(state) {
     const cls = `node${active ? ' active' : ''}${Trace.EXTERNAL.has(name) ? ' external' : ''}`;
     out += `<g class="${cls}"><rect x="${x - W / 2}" y="${y - H / 2}" width="${W}" height="${H}" rx="6"/><text x="${x}" y="${y + 4}" text-anchor="middle" style="font-weight:600">${name === 'purba' ? 'purba (_main)' : name}</text></g>`;
   }
-  out += `<text x="10" y="622" style="fill:var(--muted)">Dashed boxes sit outside the eight parts. Grey arrows have carried something already.</text>`;
+  out += `<text x="10" y="522" style="fill:var(--muted)">Dashed boxes sit outside the eight parts. Grey arrows have carried something already. ★ = new arrow since #580.</text>`;
   return out + '</svg>';
 }
 
@@ -332,12 +343,13 @@ function render() {
 const idx = pred => Trace.STEPS.map((s, k) => (pred(s) ? k : -1)).filter(k => k >= 0);
 const WALKS = [
   { name: 'The whole run', text: 'Every step, in time order. Watch the grey arrows fill in, and note which steps flow against their arrow.', steps: Trace.STEPS.map((_, k) => k) },
-  { name: 'Finding the tests', text: 'Command asks selection, which reads and parses test_a.py, and answers with three identities. test_b.py is never read.', steps: [2, 3, 4, 5, 6] },
-  { name: 'Where "assert 1 == 2" comes from', text: 'The failed line quotes the source text of the assert. Follow it from parsing, through assertion and execution, into the outcome and onto stdout.', steps: [13, 15, 24, 25, 30, 33] },
+  { name: 'One parse, lent twice', text: 'Command asks parsing for test_a.py, and lends the one parse to selection, then to assertion\'s rewrite. Watch "What each part holds": the AST appears in command, is lent, and is gone before dispatch starts. test_a.py is read once, and test_b.py never.', steps: idx(s => (s.tags || []).includes('lend')) },
+  { name: 'Finding the tests', text: 'Command asks parsing for the module, and lends it to selection, which answers with three identities. test_b.py is never read.', steps: idx(s => (s.tags || []).includes('find')) },
+  { name: 'Where "assert 1 == 2" comes from', text: 'The failed line quotes the source text of the assert. Follow it from the rewrite, with the selected test through dispatch and execution, into the outcome and onto stdout.', steps: idx(s => (s.tags || []).includes('quote')) },
   { name: 'Who names a test', text: 'One identity: only selection makes a test\'s identity. Watch the steps where execution and reporting need it, though no arrow reaches selection from either.', steps: idx(s => s.open === 'identity' || s.arrow === 'cmd-sel' && s.kind === 'return') },
-  { name: 'Arrows that carry only a type', text: 'Two arrows of the parts diagram carry no call at run time. A sequence diagram has nothing to draw for them.', steps: idx(s => s.kind === 'type') },
+  { name: 'Arrows that carry only a type', text: 'Four arrows of the parts diagram now carry no call at run time: since the lend, selection and assertion never call parsing either. A sequence diagram has nothing to draw for them.', steps: idx(s => s.kind === 'type') },
   { name: 'Crossing the seam', text: 'Where Rust hands something to Python, or takes something back.', steps: idx(s => s.seam) },
-  { name: 'Every open question', text: 'Each step that exposes a question a slice must answer before it builds its interface.', steps: idx(s => ['identity', 'once', 'source', 'exit'].includes(s.open)) },
+  { name: 'Every open question', text: 'Each step that exposes a question a slice must answer before it builds its interface.', steps: idx(s => ['identity', 'carry', 'once', 'exit'].includes(s.open)) },
 ];
 
 function renderWalk(w) {
