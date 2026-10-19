@@ -40,10 +40,12 @@ Selection and assertion both need the AST of a selected module, and no other par
 |---|---|
 | who reads a test file | parsing, when command asks for the module by its path |
 | who holds the tree, and how long | command, for one module, while selection and then assertion's rewrite read it |
-| what crosses from one part to another | facts only: each selected test, and the rewritten text of its module, as plain data |
+| what crosses from one part to another | facts only: each selected test, the rewritten text of its module, and the text of each assert, as plain data |
 | when assertion rewrites | before the run, and only a module where selection selected a test |
 | how assertion rewrites | it splices the source text at node ranges, and never changes the tree |
 | a worker in another process | it gets the rewritten text, so it needs no parser |
+
+[A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds how often a module crosses and loads.
 
 **Downside:**
 
