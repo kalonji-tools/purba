@@ -716,6 +716,50 @@ link() {
   [[ "${got}" == *"- \`docs/decisions/tools.md:8\` names \`a.sh\`"* ]]
 }
 
+@test "a basename with no extension that is also a word is not a stale sentence" {
+  record gates "\`nowhere\`" "The gates read the marks."
+  mkdir conf
+  echo build >conf/marks
+  land_base
+  echo more >>conf/marks
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" != *"gates.md:"* ]]
+}
+
+@test "a file in a directory with no extension is named by its path" {
+  record conf "\`nowhere\`" "\`conf/marks\` holds the marks."
+  mkdir conf
+  echo build >conf/marks
+  land_base
+  echo more >>conf/marks
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" == *"- \`docs/decisions/conf.md:8\` names \`conf/marks\`"* ]]
+}
+
+@test "a file at the root with no extension is named by its basename" {
+  record terms "\`nowhere\`" "\`NOTICE\` holds the terms."
+  echo terms >NOTICE
+  land_base
+  echo more >>NOTICE
+  land_change
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  section "${stale}"
+  [[ "${got}" == *"- \`docs/decisions/terms.md:8\` names \`NOTICE\`"* ]]
+}
+
 @test "--added prints the same lines whatever diff algorithm the user sets" {
   mkdir -p docs/decisions
   printf '%s\n' 3 1 0 1 3 3 3 3 0 2 3 1 >docs/decisions/x.md
