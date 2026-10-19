@@ -12,21 +12,28 @@
 #   attr_names <attributes>              prints each name after a pattern or a
 #                                        macro, once
 #
-# <scratch> is a directory the caller removes. <attributes> is an absolute path,
-# because git reads it from inside the empty repository. The caller sources
-# report.sh first, and a git that cannot match exits 2.
+# <scratch> is a directory the caller removes. A relative <attributes> is read
+# from the caller's directory, and a repository the caller's environment names
+# does not change a match. The caller sources report.sh first, and a git that
+# cannot match exits 2.
 
 # A template can carry an info/attributes file, so the empty repository takes
 # none.
-attr_states() {
-  local scratch=$1 attributes=$2 asked=(--all)
+attr_states() (
+  local scratch=$1 attributes=$2 asked=(--all) names
+  local -a handed
   [[ $# -le 2 ]] || asked=("${@:3}")
+  [[ "${attributes}" == /* ]] || attributes="${PWD}/${attributes}"
+  names=$(git rev-parse --local-env-vars) ||
+    cannot 'git cannot name the variables that point it at a repository.'
+  mapfile -t handed <<<"${names}"
+  unset "${handed[@]}"
   git init --quiet --template= "${scratch}/empty" ||
     cannot 'git cannot make the empty repository a pattern is matched in.'
   GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${attributes}" \
     check-attr -z --stdin "${asked[@]}" ||
     cannot "git cannot match the patterns in ${attributes}."
-}
+)
 
 attr_names() {
   local written

@@ -73,6 +73,49 @@ README.md build unset" ]]
 chorestart docs unspecified" ]]
 }
 
+@test "a GIT_DIR the caller exports does not change a match, and the caller keeps it" {
+  patterns 'chorestart  -build'
+  printf '* build\n' >.git/info/attributes
+  export GIT_DIR="${PWD}/.git"
+  paths chorestart
+
+  states build
+
+  [[ "${got}" == "chorestart build unset" ]]
+  [[ "${GIT_DIR}" == "${PWD}/.git" ]]
+}
+
+@test "a GIT_DIR and a GIT_WORK_TREE the caller exports do not change a match" {
+  patterns 'chorestart  -build'
+  printf '* build\n' >.gitattributes
+  paths chorestart
+
+  GIT_DIR="${PWD}/.git" GIT_WORK_TREE="${PWD}" states build
+
+  [[ "${got}" == "chorestart build unset" ]]
+}
+
+@test "a git config the caller's environment carries does not change a match" {
+  patterns 'chorestart  -build'
+  paths CHORESTART
+
+  GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.ignoreCase GIT_CONFIG_VALUE_0=true states build
+
+  [[ "${got}" == "CHORESTART build unspecified" ]]
+}
+
+@test "a relative attributes file is read from the caller's directory" {
+  local matched
+  patterns 'chorestart  build'
+  paths chorestart
+
+  attr_states "${scratch}" ../attributes build <"${BATS_TEST_TMPDIR}/paths" \
+    >"${BATS_TEST_TMPDIR}/states"
+  matched=$(tr '\0' ' ' <"${BATS_TEST_TMPDIR}/states")
+
+  [[ "${matched}" == "chorestart build set " ]]
+}
+
 @test "the attributes of a template do not change a match" {
   patterns 'chorestart  build'
   mkdir -p "${BATS_TEST_TMPDIR}/template/info"
@@ -110,6 +153,18 @@ scripts" ]]
 
   [[ "${status}" -eq 2 ]]
   [[ "${stderr}" == *"git cannot make the empty repository a pattern is matched in."* ]]
+}
+
+@test "a git that cannot name the variables that point it at a repository exits 2" {
+  patterns 'chorestart  build'
+  paths chorestart
+  git_fails_on --local-env-vars
+
+  run --separate-stderr attr_states "${scratch}" "${attributes}" build \
+    <"${BATS_TEST_TMPDIR}/paths"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${stderr}" == *"git cannot name the variables that point it at a repository."* ]]
 }
 
 @test "a git that cannot match exits 2, and names the file" {
