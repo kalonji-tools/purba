@@ -63,7 +63,7 @@ flowchart LR
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
 - **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
 
-An arrow points from a part to the part whose interface it uses.
+In the parts diagram, an arrow points from a part to the part whose interface it uses.
 
 ```mermaid
 flowchart TD
@@ -81,8 +81,49 @@ flowchart TD
   reporting -- "an outcome" --> execution
 ```
 
+```mermaid
+sequenceDiagram
+  actor tester
+  participant main as _main
+  participant command
+  participant parsing
+  participant selection
+  participant assertion
+  participant dispatch
+  participant execution
+  participant fixtures
+  participant reporting
+  tester ->> main: purba test_a.py
+  main ->> command: the arguments
+  command ->> parsing: the path test_a.py
+  Note over parsing: the only read of test_a.py
+  parsing -->> command: the parsed module
+  command ->> selection: the query, and the parse it lends
+  selection -->> command: three selected tests
+  command ->> assertion: the parse it lends
+  assertion -->> command: the rewritten text, and the text of each assert
+  command ->> dispatch: test_a.py once, with its texts and its three tests
+  loop each selected test
+    dispatch ->> execution: one test, and its module
+    opt the first test of a module
+      execution ->> assertion: the rewritten text
+      assertion -->> execution: the loaded module
+    end
+    execution ->> fixtures: the inputs the test names
+    fixtures -->> execution: no inputs
+    Note over execution: calls the test in Python
+    execution -->> dispatch: its outcome
+  end
+  dispatch -->> command: three outcomes, each beside its test
+  command ->> reporting: the outcomes
+  reporting ->> tester: one line for each test, and a count
+  command -->> main: exit code 1
+  main -->> tester: the process exits 1
+```
+
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
 [Command lends one parse to selection and assertion](docs/decisions/command-lends-one-parse-to-selection-and-assertion.md) holds why command hands each parsed module on.
+[A worker loads each module once, and command hands each module once](docs/decisions/a-worker-loads-each-module-once.md) holds why command hands dispatch each module once, and why a worker loads it once.
 
 ## The invariants
 
@@ -93,7 +134,7 @@ flowchart TD
 - **one parser.** No part but parsing turns Python source into an AST, in selection and assertion.
 - **an async fixture stays on its loop.** No async fixture leaves the event loop that built it, in execution and fixtures.
 - **an async fixture shares its test's task.** No async fixture built for one test runs outside that test's task, in execution and fixtures.
-- **the diagram is the only wiring.** No part uses an interface that the diagram does not draw, in every part.
+- **the diagram is the only wiring.** No part uses an interface that the parts diagram does not draw, in every part.
 
 [An invariant needs no design of its own](docs/decisions/an-invariant-needs-no-design-of-its-own.md) holds why.
 
