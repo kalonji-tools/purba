@@ -15,7 +15,8 @@
 #                              the base, or the change adds, edits or deletes it
 #   may hold a stale sentence  it links an issue a commit subject names, or a
 #                              line outside its reach names a changed file's
-#                              basename or parent directory, in a record the
+#                              basename, its path when the basename holds no
+#                              `.`, or its parent directory, in a record the
 #                              change does not edit
 #
 # With --added, it prints `<path>:<line>: <text>` for each line the change adds
@@ -182,7 +183,11 @@ done
 for path in "${changed[@]}"; do
   # A name that holds a newline cannot sit inside one line of a record.
   [[ "${path}" != *$'\n'* ]] || continue
-  printf '%s\n' "${path##*/}" >>"${scratch}/names"
+  # A basename that holds no `.` can be a word, such as `gates`, so the path
+  # names the file.
+  name=${path##*/}
+  [[ "${name}" == *.* ]] || name=${path}
+  printf '%s\n' "${name}" >>"${scratch}/names"
   while [[ "${path}" == */* ]]; do
     path=${path%/*}
     printf '%s/\n' "${path}" >>"${scratch}/names"
