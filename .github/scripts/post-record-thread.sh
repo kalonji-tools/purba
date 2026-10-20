@@ -6,7 +6,7 @@
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
 # Exits 0 when no comment is owed and when one is already present, and 2 when
-# the files of the pull request cannot be read.
+# the files or the comments of the pull request cannot be read.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
@@ -19,7 +19,8 @@ set -euo pipefail
 : "${GH_REPO:?set by the workflow env}"
 : "${PR:?set by the workflow env}"
 
-if ! files=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate --jq '.[].filename'); then
+if ! answer=$(gh api "repos/${GH_REPO}/pulls/${PR}/files" --paginate) ||
+  ! files=$(jq -r '.[].filename' <<<"${answer}"); then
   cannot "the files of pull request ${PR} could not be read, so no record was looked for."
 fi
 decisions=$(LC_ALL=C sort <<<"${files}" | while IFS= read -r path; do
@@ -36,7 +37,10 @@ fi
 marker='<!-- purba:thread:decisions -->'
 # `ready_for_review` fires again every time a draft is re-readied, so without
 # this check one comment would become several.
-existing=$(gh api "repos/${GH_REPO}/issues/${PR}/comments" --paginate --jq '.[].body')
+if ! answer=$(gh api "repos/${GH_REPO}/issues/${PR}/comments" --paginate) ||
+  ! existing=$(jq -r '.[].body' <<<"${answer}"); then
+  cannot "the comments of pull request ${PR} could not be read, so no comment was posted."
+fi
 case "${existing}" in
   *"${marker}"*)
     echo "${marker} is already present, skipping"

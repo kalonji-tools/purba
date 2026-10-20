@@ -129,12 +129,7 @@ setup() {
 
 @test "a verdict the API refuses to take exits 2, and then asks for Carry" {
   check_runs Quality=success
-  fake gh <<'FAKE'
-case "$*" in
-  *"--method POST"*) exit 4 ;;
-  *) cat "${BATS_TEST_TMPDIR}/check-runs" ;;
-esac
-FAKE
+  gh_refuses post-check-runs
 
   run "${script}" "${before}" "${after}" Quality
 
@@ -146,12 +141,7 @@ FAKE
 }
 
 @test "a read the API refuses reports a failed Carry on the rewritten head" {
-  fake gh <<'FAKE'
-case "$*" in
-  *"--method POST"*) echo "https://example.invalid/check-run" ;;
-  *) exit 4 ;;
-esac
-FAKE
+  gh_refuses check-runs
 
   run "${script}" "${before}" "${after}" Quality
 
