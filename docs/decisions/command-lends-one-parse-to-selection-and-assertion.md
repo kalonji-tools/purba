@@ -56,5 +56,6 @@ Selection and assertion both need the AST of a selected module, and no other par
 ## Confirmation
 
 `mise run test:rust` checks that parsing reads a module by its path.
+It also checks that selection names the tests of a parse.
 No command checks the rest yet.
-[Add purba-selection, which names the tests of a module by their identity](https://github.com/kalonji-tools/purba/issues/568), [Add assertion's rewrite, which marks each assert so that it records that it ran](https://github.com/kalonji-tools/purba/issues/569) and [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) build it.
+[Add assertion's rewrite, which marks each assert so that it records that it ran](https://github.com/kalonji-tools/purba/issues/569) and [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) build it.

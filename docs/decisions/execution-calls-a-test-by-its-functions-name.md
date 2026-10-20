@@ -51,8 +51,10 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 ## Confirmation
 
-No command checks it yet.
-[Add purba-selection, which names the tests of a module by their identity](https://github.com/kalonji-tools/purba/issues/568) builds the identity and its gate.
+`mise run test:rust` checks that an identity prints as `path::function`.
+The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.
+
+No command checks the rest yet.
 [Add purba-execution and purba-fixtures, which run a test and make its outcome](https://github.com/kalonji-tools/purba/issues/571) builds the worker.
 [Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) puts each outcome beside its test, and builds execution's module.
 [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds dispatch's input.
