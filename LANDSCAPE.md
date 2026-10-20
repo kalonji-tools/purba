@@ -104,7 +104,7 @@ sequenceDiagram
   assertion -->> command: the rewritten text, and the text of each assert
   command ->> dispatch: test_a.py once, with its texts and its three tests
   loop each selected test
-    dispatch ->> execution: one test, and its module
+    dispatch ->> execution: a function's name, and its module
     opt the first test of a module
       execution ->> assertion: the rewritten text
       assertion -->> execution: the loaded module
@@ -115,7 +115,7 @@ sequenceDiagram
     execution -->> dispatch: its outcome
   end
   dispatch -->> command: three outcomes, each beside its test
-  command ->> reporting: the outcomes
+  command ->> reporting: each outcome beside its test
   reporting ->> tester: one line for each test, and a count
   command -->> main: exit code 1
   main -->> tester: the process exits 1
@@ -124,6 +124,7 @@ sequenceDiagram
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
 [Command lends one parse to selection and assertion](docs/decisions/command-lends-one-parse-to-selection-and-assertion.md) holds why command hands each parsed module on.
 [A worker loads each module once, and command hands each module once](docs/decisions/a-worker-loads-each-module-once.md) holds why command hands dispatch each module once, and why a worker loads it once.
+[Execution calls a test by its function's name, and reporting prints the identity it is given](docs/decisions/execution-calls-a-test-by-its-functions-name.md) holds why execution and reporting never name the identity's type.
 
 ## The invariants
 
