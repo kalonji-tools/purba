@@ -1,10 +1,15 @@
 # shellcheck shell=bash
-# The three shapes every caller of the check-runs API repeats.
+# What every caller of the check-runs API reads and writes.
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #
 #   check_runs_of <head>           prints the API payload for that commit
 #   last_conclusion <context>      reads that payload on standard input
+#   verdicts <head> <context>...   prints `<context> <conclusion>` for each, in
+#                                  the order given, and `none` for no conclusion
+#   require_green <head> <context>...
+#                                  returns 0 when every context is green, and 1
+#                                  when one is not. With no context it exits 2
 #   post_check_run <name> <head> <conclusion> <title> <summary>
 #
 #   GH_REPO        the repository the check runs belong to. A caller that
@@ -34,6 +39,46 @@ last_conclusion() {
   jq -r --arg c "$1" '
     [.check_runs[] | select(.name == $c)]
     | sort_by(.completed_at) | last | .conclusion // empty'
+}
+
+# A caller behind `||` or `if` turns `set -e` off inside a function, so each
+# read that fails exits here, or the function would go on with no payload.
+verdicts() {
+  local runs context conclusion
+  runs=$(check_runs_of "$1") || exit 2
+  shift
+  for context in "$@"; do
+    conclusion=$(last_conclusion "${context}" <<<"${runs}")
+    echo "${context} ${conclusion:-none}"
+  done
+}
+
+require_green() {
+  local head=$1 lines context conclusion
+  # With no context the loop below reads one empty line and returns 1, as if a
+  # gate had failed. A list that names nothing is the caller's mistake.
+  if [[ $# -lt 2 ]]; then
+    echo "usage: require_green <head> <context>..." >&2
+    exit 2
+  fi
+  shift
+  lines=$(verdicts "${head}" "$@") || exit 2
+
+  while read -r context conclusion; do
+    case "${conclusion}" in
+      success) echo "${context} is green on ${head}" ;;
+      none)
+        echo "${context} has no verdict on ${head} yet"
+        return 1
+        ;;
+      *)
+        echo "${context} concluded ${conclusion} on ${head}"
+        return 1
+        ;;
+    esac
+  done <<<"${lines}"
+
+  echo "every gate named here is green on ${head}"
 }
 
 # `status` is always `completed`: purba writes a verdict or writes nothing.

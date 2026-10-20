@@ -55,7 +55,7 @@ No signature is available as a third place: GitHub does not sign what a rebase m
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/commits.yml` `.github/scripts/require-green.sh` `.github/scripts/standing-approver.sh` `.github/scripts/carry-verdicts.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/ask-for-sign-off.sh` `scripts/check-origin.sh` `scripts/check-replayable.sh` `scripts/sign-branch.sh` `/CONTRIBUTING.md` `/AGENTS.md` `.github/scripts/check-run.sh` `scripts/accept-one-commit.sh`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/commits.yml` `.github/scripts/standing-approver.sh` `.github/scripts/carry-verdicts.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/ask-for-sign-off.sh` `scripts/check-origin.sh` `scripts/check-replayable.sh` `scripts/sign-branch.sh` `/CONTRIBUTING.md` `/AGENTS.md` `.github/scripts/check-run.sh` `scripts/accept-one-commit.sh`
 
 Each liability is written from the act that makes it true.
 It is written where that act can still be read once the pull request is gone.
@@ -159,7 +159,7 @@ The two cases above, the trees matching and the trees differing, were the whole 
 This job rewrote the branch before `Quality` concluded.
 It read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
 This job now waits for every required context it does not post itself before it rewrites anything, so the third case cannot arise.
-`.github/scripts/require-green.sh` holds that rule, and a gate concluding is one of the events that starts this job.
+`.github/scripts/check-run.sh` holds that rule, and a gate concluding is one of the events that starts this job.
 
 `.github/scripts/carry-verdicts.sh` holds the rule, and it is given the contexts it may carry and does not decide which ones qualify.
 A gate that reads a commit message can never be carried, because the rewrite edits the thing that gate reads.

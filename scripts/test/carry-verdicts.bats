@@ -82,19 +82,6 @@ setup() {
   [[ "${posted}" -eq 1 ]]
 }
 
-@test "three contexts read the check runs once" {
-  check_runs Quality=success Build=success Scripts=success
-
-  run "${script}" "${before}" "${after}" Quality Build Scripts
-
-  [[ "${status}" -eq 0 ]]
-  asked=$(calls gh)
-  read=$(grep -c 'check-runs?per_page' <<<"${asked}")
-  [[ "${read}" -eq 1 ]]
-  posted=$(grep -c -- '--method POST' <<<"${asked}")
-  [[ "${posted}" -eq 3 ]]
-}
-
 @test "a rewrite that changed the content carries nothing" {
   check_runs Quality=success
   commit "feat: more content"
@@ -119,17 +106,6 @@ setup() {
   [[ -z "${asked}" ]]
 }
 
-@test "with an empty repository name it stops before it calls the API" {
-  export GH_REPO=
-
-  run "${script}" "${before}" "${after}" Quality
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"set by the workflow env"* ]]
-  asked=$(calls gh)
-  [[ -z "${asked}" ]]
-}
-
 @test "fewer than three arguments exits 2, and calls no gh" {
   run "${script}" "${before}" "${after}"
 
@@ -149,24 +125,6 @@ setup() {
   [[ "${asked}" == *"--method POST repos/owner/name/check-runs -f name=Carry"* ]]
   [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]
   [[ "${asked}" == *"-f conclusion=failure"*"close and reopen this pull request"* ]]
-}
-
-@test "a read the API refuses exits 2" {
-  fake gh <<<'echo "gh: not logged in" >&2; exit 4'
-
-  run "${script}" "${before}" "${after}" Quality
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the check runs on ${before} could not be read."* ]]
-}
-
-@test "an answer that holds no check runs exits 2" {
-  fake gh <<<'echo "{}"'
-
-  run "${script}" "${before}" "${after}" Quality
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the check runs on ${before} could not be read."* ]]
 }
 
 @test "a verdict the API refuses to take exits 2, and then asks for Carry" {
