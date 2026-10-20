@@ -1,0 +1,11 @@
+#   the decision:  docs/decisions/every-crate-lives-under-crates.md
+# https://doc.rust-lang.org/cargo/reference/config.html#buildwarnings
+
+[build]
+warnings = "deny"
+
+#   the decision:  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md
+# https://doc.rust-lang.org/clippy/configuration.html
+
+[env]
+CLIPPY_CONF_DIR = { value = ".cargo", relative = true, force = true }

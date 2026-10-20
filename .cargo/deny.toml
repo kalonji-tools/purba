@@ -13,4 +13,9 @@ unused-license-exception = "deny"
 exceptions = [
   { crate = "unicode-ident", allow = ["Unicode-3.0"] },
   { crate = "target-lexicon", allow = ["Apache-2.0 WITH LLVM-exception"] },
+  { crate = "is-macro", allow = ["Apache-2.0"] },
+  { crate = "ryu", allow = ["Apache-2.0"] },
+  { crate = "unicode-normalization", allow = ["Unicode-3.0"] },
+  { crate = "ar_archive_writer", allow = ["Apache-2.0 WITH LLVM-exception"] },
+  { crate = "ruff_unicode_names2", allow = ["Unicode-DFS-2016"] },
 ]

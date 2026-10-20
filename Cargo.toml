@@ -15,6 +15,9 @@ publish = false
 
 [workspace.dependencies]
 pyo3 = "0.29.2"
+#   the decision:  docs/decisions/purba-parses-python-with-ruff.md
+ruff_python_ast = "=0.0.17"
+ruff_python_parser = "=0.0.17"
 
 [workspace.lints.rust]
 warnings = "deny"

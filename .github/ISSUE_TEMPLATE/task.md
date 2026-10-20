@@ -18,7 +18,7 @@ labels: "wayfinder:task"
 
      Example. One issue runs through every section of this template.
 
-       **Write the licence gate.** File: `deny.toml` -->
+       **Write the licence gate.** File: `.cargo/deny.toml` -->
 
 **Done when**
 <!-- An observable event, proven by execution rather than by reading a setting.
