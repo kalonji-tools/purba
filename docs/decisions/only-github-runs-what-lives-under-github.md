@@ -60,7 +60,7 @@ A comment line naming a script it no longer runs counts for nothing, and neither
 ⚠️ **The table this section carried is deleted rather than corrected.**
 It was a second reading of what the command now derives on every run, and one of its rows went wrong.
 `require-green.sh` was filed under *"one workflow, or sourced by one"*.
-No workflow names it and nothing sources it, because a sibling under `.github/scripts/` executes it.
+No workflow named it and nothing sourced it, because a sibling under `.github/scripts/` executed it.
 That row is the case the clause above exists to admit, and it is also what a hand-written copy of a machine-readable fact becomes.
 
 `scripts/test/check-placement.bats` builds a tree for each control below and runs the command against it.

@@ -62,16 +62,17 @@ if [[ "${before_tree}" != "${after_tree}" ]]; then
   exit 0
 fi
 
-runs=$(check_runs_of "${before}")
+answered=$(verdicts "${before}" "$@")
+mapfile -t lines <<<"${answered}"
 
-for context in "$@"; do
-  conclusion=$(last_conclusion "${context}" <<<"${runs}")
+for line in "${lines[@]}"; do
+  read -r context conclusion <<<"${line}"
 
   # Absent reads the same as refused here, on purpose.
   case "${conclusion}" in
     # Never widen this list.
     success | failure) ;;
-    "")
+    none)
       echo "${context} has no verdict on ${before}, so there is nothing to carry"
       continue
       ;;

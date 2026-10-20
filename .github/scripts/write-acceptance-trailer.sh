@@ -39,21 +39,14 @@ if [[ -z "${approver}" ]]; then
 fi
 
 current_head=$(git rev-parse HEAD)
-status=0
-# `GATES` holds one context per word and this script takes one per argument, so
-# quoting it would ask for a single context named after all of them.
-# shellcheck disable=SC2086
-.github/scripts/require-green.sh "${current_head}" ${GATES} || status=$?
-case "${status}" in
-  0) ;;
-  1)
-    echo "a gate is not green on this head, so there is nothing to accept yet"
-    exit 0
-    ;;
-  *)
-    cannot "the gates on this head could not be read, so nothing was decided."
-    ;;
-esac
+# `GATES` holds one context per word and this function takes one per argument,
+# so quoting it would ask for a single context named after all of them. A read
+# that fails exits 2 inside `require_green`, so `set -e` need not reach it.
+# shellcheck disable=SC2086,SC2310
+if ! require_green "${current_head}" ${GATES}; then
+  echo "a gate is not green on this head, so there is nothing to accept yet"
+  exit 0
+fi
 
 # The numeric id survives a username change. A username-only address
 # does not.

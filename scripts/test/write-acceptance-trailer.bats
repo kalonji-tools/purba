@@ -9,12 +9,10 @@ setup() {
   script="${tree}/.github/scripts/write-acceptance-trailer.sh"
   make_repo
 
-  mkdir -p .github/scripts scripts
-  cp "${tree}/.github/scripts/require-green.sh" "${tree}/.github/scripts/check-run.sh" \
-    .github/scripts/
+  mkdir -p scripts
   cp "${tree}/scripts/check-origin.sh" "${tree}/scripts/check-replayable.sh" \
     "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" scripts/
-  git add .github scripts
+  git add scripts
   git commit --quiet --message "chore: hold the scripts the job calls"
   branched=$(git rev-parse HEAD)
 
@@ -195,20 +193,9 @@ origin_holds() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"the check runs on ${pushed} could not be read."* ]]
-  [[ "${output}" == *"the gates on this head could not be read, so nothing was decided."* ]]
   [[ "${output}" != *"nothing to accept yet"* ]]
   asked=$(calls gh)
   [[ "${asked}" != *"--method POST"* ]]
-  origin_holds "${pushed}"
-}
-
-@test "a gate read that fails in any other way exits 2 as well" {
-  printf '#!/usr/bin/env bash\nexit 5\n' >.github/scripts/require-green.sh
-
-  run "${script}"
-
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"the gates on this head could not be read, so nothing was decided."* ]]
   origin_holds "${pushed}"
 }
 
