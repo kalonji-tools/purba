@@ -37,6 +37,21 @@ callers_list=$(git ls-files '.github/workflows/*.yml' '*.sh' '.config/tasks.toml
 mapfile -t scripts <<<"${scripts_list}"
 mapfile -t callers <<<"${callers_list}"
 
+# Each caller is read once, whole, before any script is looked for in it. A
+# `grep -q` at the end of a pipe stops reading at its first match, so a
+# `grep -v` before it can fail on the rest: at random below 64 KiB, and always
+# above it. pipe(7), the section "Pipe capacity".
+#
+# `grep -v` exits 1 when every line is a comment, which is a caller with nothing
+# to name.
+declare -A uncommented
+for caller in "${callers[@]}"; do
+  status=0
+  uncommented[${caller}]=$(grep -vE '^[[:space:]]*#' "${caller}") || status=$?
+  [[ ${status} -le 1 ]] ||
+    cannot "${caller} cannot be read, so no placement can be decided."
+done
+
 stranded=()
 unreachable=()
 
@@ -52,7 +67,7 @@ for script in "${scripts[@]}"; do
     # A sibling is reached as `"$(dirname "$0")/report.sh"`, which carries no
     # directory, so the basename is what a caller is keyed on -- and the slash
     # is what stops a bare mention of the name from counting as one.
-    grep -vE '^[[:space:]]*#' "${caller}" | grep -qF "/${script##*/}" || continue
+    [[ "${uncommented[${caller}]}" == *"/${script##*/}"* ]] || continue
 
     theirs=person
     [[ "${caller}" != .github/* ]] || theirs=github
