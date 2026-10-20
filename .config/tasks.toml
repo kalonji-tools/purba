@@ -114,6 +114,10 @@ run = [
 description = "Refuse a line that breaks the style every editor reads"
 run = "ec"
 
+["lint:wiring"]
+description = "Refuse a use between two parts that the parts diagram does not draw"
+run = "scripts/check-wiring.sh"
+
 ["list:records"]
 description = "Name the records a change must satisfy, and refuse nothing"
 run = "scripts/list-records.sh"
