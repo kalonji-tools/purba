@@ -34,7 +34,7 @@ Each line links the file that states its rule, and the section of a record that 
 
 ## When you add a tool
 
-- Put its configuration in the first location the pinned tool reads with no flag and no environment variable: `.config/`, then `pyproject.toml`, then the root. ([configuration takes the first location its tool reads](docs/decisions/configuration-takes-the-first-location-its-tool-reads.md#decision-outcome))
+- Put its configuration in the first location the pinned tool reads with no flag and no environment variable: `.config/`, then `pyproject.toml`, then the root. Put the configuration of a Rust tool that reads `.cargo/` under `.cargo/`. ([configuration takes the first location its tool reads](docs/decisions/configuration-takes-the-first-location-its-tool-reads.md#decision-outcome))
 
 ## During the review
 

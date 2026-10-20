@@ -113,7 +113,8 @@ renders from its source:
 Configuration files crowd the project root, so purba places them by a
 hierarchy of three locations. A tool's configuration goes in the first one
 the tool reads with no flag and no environment variable: `.config/`, then
-`pyproject.toml`, then the root.
+`pyproject.toml`, then the root. A Rust tool that reads `.cargo/` keeps its
+configuration there.
 
 Nothing refuses a file in the wrong place, and a reviewer reads for it. The
 rule and its reasons are in

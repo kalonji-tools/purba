@@ -26,9 +26,10 @@ The evidence is in its issues and its README, not in repository metadata.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `crates/**`
+**Reach:** `/Cargo.toml` `crates/**` `/.cargo/deny.toml` `/.cargo/clippy.toml`
 
-purba parses with four ruff crates, pinned exactly at `=0.0.12`, behind a thin parsing seam.
+purba parses with four ruff crates behind a thin parsing seam.
+`[workspace.dependencies]` pins each crate it names exactly at `=0.0.17`.
 
 | crate | what the seam needs from it |
 |---|---|
@@ -38,7 +39,10 @@ purba parses with four ruff crates, pinned exactly at `=0.0.12`, behind a thin p
 | `ruff_source_file` | `LineIndex`, so that a byte offset becomes a line and a column |
 
 The manifest names them at the call site that first uses one, and not ahead of it.
-A dependency nothing calls is reported, and that report has nowhere to be suppressed one dependency at a time.
+Each ruff crate requires the others at its own version, so the pin also holds a crate that the manifest does not name yet.
+Cargo reports most dependencies that nothing calls.
+Nobody can suppress that report for one dependency alone.
+Cargo misses some ruff crates that nothing calls, so the reviewer checks each one.
 
 One module owns parsing and returns an AST, and everything else takes the AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
@@ -46,12 +50,27 @@ Holding that seam keeps even a late reversal a one-decision change.
 The prescan path parses and raises nothing on a syntax error, because a file that fails to parse is a diagnostic and not a crash.
 MSRV is the upgrade clock, not the API.
 
+**A person raises the pin, when one of three triggers fires.**
+
+- A supported CPython has syntax that the pinned parser refuses.
+- purba needs a fix in the parser.
+- The minimum Rust version requires it.
+
+Each raise moves the four crates together.
+It takes these steps:
+
+1. Compare the surface that purba calls between the two versions, as the [pin check](https://github.com/kalonji-tools/purba/issues/538#issuecomment-6146303766) did.
+2. Edit each licence exception in `.cargo/deny.toml` that `mise run lint:licences` names.
+3. List again in `.cargo/clippy.toml` each function of `ruff_python_parser` that parses.
+4. Add the new pin to the table below.
+
 The version mapping belongs here, because the patch number is a release counter and not a change signal:
 
 | pin | ruff release |
 |---|---|
 | `0.0.2` | 0.15.19 |
 | `0.0.12` | 0.16.6 |
+| `0.0.17` | 0.17.0 |
 
 There is no `0.0.1`, and the mapping is not arithmetic.
 
@@ -60,6 +79,7 @@ There is no `0.0.1`, and the mapping is not arithmetic.
 - **The publisher commits to nothing.** These crates first reached the registry eleven weeks before this decision, published so another project could consume them. No policy statement commits their publisher to a continuation. Confidence over the measured window is high and extrapolating is not.
 - **MSRV moves about every six weeks**, three times in ten weeks, and each move is a pin somebody has to raise.
 - **The dependency count is higher**, at 61 transitive against 45, and four direct crates to name against one.
+- **Nothing notices a new ruff release.** A trigger reaches the person only when they meet it.
 
 Being wrong here is survivable, and being wrong the other way is not:
 
@@ -77,14 +97,14 @@ The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
 `=` therefore states that intent and does not change it.
 
-This Confirmation is weak, and it is stated weakly on purpose.
-`Cargo.toml` names no ruff crate.
-Nothing in the tree exercises the choice.
-No pin exists to move.
-This record fixes the choice and the version.
+`/Cargo.toml` pins `ruff_python_parser` and `ruff_python_ast` at `=0.0.17`.
+`purba-parsing` names both.
+`mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through them.
+`mise run lint:licences` reads the exceptions in `.cargo/deny.toml`, and refuses one that no crate uses.
 
-The version mapping above is evidence, frozen at this decision.
-Whoever first raises a pin reads it against `cargo tree`.
-No issue owns that reading, because a check has nothing to run against until a pin exists.
-The commit that first names a ruff crate carries the declaration and that check together.
-A prescan turns this into a fitness function, and counts parse failures against a corpus.
+Cargo refused an unused `itoa` in `purba`.
+It passed `ruff_text_size` and `ruff_source_file` in `purba-parsing`, when nothing there called either.
+
+`.cargo_vcs_info.json` in the published crate gives the row for `0.0.17`, because it names the commit of ruff's tag `0.17.0`.
+The `.cargo_vcs_info.json` of `0.0.12` gives its row in the same way.
+A prescan turns the choice of parser into a fitness function, and counts parse failures against a corpus.
