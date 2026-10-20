@@ -26,9 +26,11 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 | question | answer |
 |---|---|
 | what command hands dispatch | each module once: its rewritten text, the text of each assert, and its selected tests |
-| what dispatch hands execution | one test, and its module |
+| what dispatch hands execution | a function's name, and its module |
 | how often execution loads a module | once in a worker. The first test of a module loads it, and the next tests use it |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
+
+[Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds why execution takes a function's name.
 
 **Downside:**
 
