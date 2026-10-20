@@ -5,10 +5,10 @@
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when the
-# reviews gh returns are not ones the rule can read, or when it cannot read or
-# write a check run. Any other command that fails exits with its own code, which
-# can be 1.
+# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when it
+# cannot read the pull request or its reviews, when the reviews are not ones the
+# rule can read, or when it cannot read or write a check run. Any other command
+# that fails exits with its own code, which can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
@@ -20,6 +20,8 @@ set -euo pipefail
 : "${RUNNER_TEMP:?set by the runner}"
 : "${GITHUB_OUTPUT:?set by the runner}"
 
+# shellcheck source=scripts/report.sh
+. "$(dirname "$0")/../../scripts/report.sh"
 # shellcheck source=.github/scripts/check-run.sh
 . "$(dirname "$0")/check-run.sh"
 # shellcheck source=.github/scripts/standing-approver.sh
@@ -27,7 +29,9 @@ set -euo pipefail
 
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
-reviews=$(gh api "repos/${GH_REPO}/pulls/${PR}/reviews" --paginate)
+if ! reviews=$(gh api "repos/${GH_REPO}/pulls/${PR}/reviews" --paginate); then
+  cannot "the reviews of pull request ${PR} could not be read, so no approval was read."
+fi
 stands=$(standing_approver <<<"${reviews}")
 read -r approver approver_id <<<"${stands}"
 
@@ -55,7 +59,10 @@ export TRAILER="Accepted-by: ${approver} <${approver_id}+${approver}@users.norep
 # The branch this pull request targets, not `main`. Measuring from
 # `main` would make the job rewrite commits it does not own. Read it
 # from the API: a gate finishing carries no base branch.
-base_ref=$(gh api "repos/${GH_REPO}/pulls/${PR}" --jq .base.ref)
+if ! pull=$(gh api "repos/${GH_REPO}/pulls/${PR}") ||
+  ! base_ref=$(jq -er .base.ref <<<"${pull}"); then
+  cannot "pull request ${PR} could not be read, so the branch it targets is unknown."
+fi
 git fetch --quiet origin "${base_ref}"
 base=$(git merge-base FETCH_HEAD HEAD)
 before=$(git rev-parse HEAD)

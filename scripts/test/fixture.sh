@@ -14,9 +14,16 @@
 #                                  joined by spaces, and nothing if it received none
 #   git_fails_on <word>            a fake git that exits 128 on a call with the
 #                                  argument <word>, and runs every other
-#   fake_gh                        a fake `gh` that answers the check-runs API
-#   check_runs [<run>...]          what that fake answers a read with, one run for
-#                                  each `<name>=<conclusion>[@<day>]`. An empty
+#   fake_gh                        a fake `gh` that answers each read <call> with
+#                                  the JSON of `gh_answers <call>`. <call> is
+#                                  `issue-list`, or the last segment of an API path
+#                                  that is not a number. A write is answered with a
+#                                  URL, and is `post-<call>`, `issue-create` or
+#                                  `issue-comment`
+#   gh_answers <call> <json>       what that fake answers <call> with
+#   gh_refuses <call>              that fake fails <call> with exit 1, as gh does
+#   check_runs [<run>...]          `gh_answers check-runs`, one run for each
+#                                  `<name>=<conclusion>[@<day>]`. An empty
 #                                  conclusion is a run still going
 : "${BATS_TEST_TMPDIR:?set by bats}"
 
@@ -96,11 +103,45 @@ FAKE
 
 fake_gh() {
   fake gh <<'FAKE'
-case "$*" in
-  *"--method POST"*) echo "https://example.invalid/check-run" ;;
-  *) cat "${BATS_TEST_TMPDIR}/check-runs" ;;
+call="$1-$2"
+if [[ "$1" == api ]]; then
+  write="" path=""
+  for argument in "$@"; do
+    case "${argument}" in
+      -f | --method) write=post- ;;
+      repos/*) path=${argument%%\?*} ;;
+      *) ;;
+    esac
+  done
+  [[ "${path##*/}" == *[!0-9]* ]] || path=${path%/*}
+  call=${write}${path##*/}
+fi
+answers="${BATS_TEST_TMPDIR}/gh"
+if [[ -e "${answers}/${call}.refused" ]]; then
+  echo "HTTP 502: ${call}" >&2
+  exit 1
+fi
+case "${call}" in
+  post-* | issue-create | issue-comment) echo "https://example.invalid/${call}" ;;
+  *)
+    if [[ ! -e "${answers}/${call}.json" ]]; then
+      echo "the fake does not answer ${call}: $*" >&2
+      exit 9
+    fi
+    cat "${answers}/${call}.json"
+    ;;
 esac
 FAKE
+}
+
+gh_answers() {
+  mkdir -p "${BATS_TEST_TMPDIR}/gh"
+  printf '%s\n' "$2" >"${BATS_TEST_TMPDIR}/gh/$1.json"
+}
+
+gh_refuses() {
+  mkdir -p "${BATS_TEST_TMPDIR}/gh"
+  touch "${BATS_TEST_TMPDIR}/gh/$1.refused"
 }
 
 check_runs() {
@@ -121,5 +162,5 @@ check_runs() {
     fi
     all+="${all:+,}${one}"
   done
-  printf '{"check_runs":[%s]}\n' "${all}" >"${BATS_TEST_TMPDIR}/check-runs"
+  gh_answers check-runs "{\"check_runs\":[${all}]}"
 }

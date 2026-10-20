@@ -31,9 +31,9 @@ setup() {
   touch "${GITHUB_OUTPUT}"
 
   reviews APPROVED:owner-1:42
-  echo main >"${BATS_TEST_TMPDIR}/base"
+  base main
   check_runs Quality=success Build=success
-  fake_signing_gh
+  fake_gh
 }
 
 # One review for each `<state>:<login>:<id>`, in the order given.
@@ -44,37 +44,12 @@ reviews() {
     printf -v one '{"state":"%s","user":{"login":"%s","id":%s}}' "${state}" "${login}" "${id}"
     all+="${all:+,}${one}"
   done
-  printf '[%s]\n' "${all}" >"${BATS_TEST_TMPDIR}/reviews"
+  gh_answers reviews "[${all}]"
 }
 
-# A file named `refuse-post`, `refuse-read`, `refuse-reviews` or `refuse-base`
-# makes that call fail.
-fake_signing_gh() {
-  fake gh <<'FAKE'
-refuse() { [[ ! -e "${BATS_TEST_TMPDIR}/refuse-$1" ]] || exit 1; }
-case "$*" in
-  *"--method POST"*)
-    refuse post
-    echo "https://example.invalid/check-run"
-    ;;
-  *"/check-runs?"*)
-    refuse read
-    cat "${BATS_TEST_TMPDIR}/check-runs"
-    ;;
-  *"/pulls/7/reviews --paginate")
-    refuse reviews
-    cat "${BATS_TEST_TMPDIR}/reviews"
-    ;;
-  *"/pulls/7 --jq .base.ref")
-    refuse base
-    cat "${BATS_TEST_TMPDIR}/base"
-    ;;
-  *)
-    echo "the fake does not answer: $*" >&2
-    exit 9
-    ;;
-esac
-FAKE
+# The pull request, as the API returns it, targets <branch>.
+base() {
+  gh_answers pulls "{\"number\":7,\"base\":{\"ref\":\"$1\"}}"
 }
 
 held() {
@@ -107,6 +82,7 @@ origin_holds() {
   written=$(cat "${GITHUB_OUTPUT}")
   [[ "${written}" == "before=${pushed}"$'\n'"after=${head}" ]]
   asked=$(calls gh)
+  [[ "${asked}" == *"api repos/owner/name/pulls/7/reviews --paginate"* ]]
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${head} -f status=completed"* ]]
   [[ "${asked}" == *"-f conclusion=success -f output[title]=Accepted by @owner-1"* ]]
 }
@@ -187,7 +163,7 @@ origin_holds() {
 }
 
 @test "check runs that cannot be read exit 2, and nothing is accepted" {
-  touch "${BATS_TEST_TMPDIR}/refuse-read"
+  gh_refuses check-runs
 
   run "${script}"
 
@@ -199,17 +175,29 @@ origin_holds() {
   origin_holds "${pushed}"
 }
 
-@test "a pull request that cannot be read exits 1, the code gh gives" {
-  for call in reviews base; do
-    rm -f "${BATS_TEST_TMPDIR}"/refuse-*
-    touch "${BATS_TEST_TMPDIR}/refuse-${call}"
+@test "a pull request that cannot be read exits 2, and nothing is accepted" {
+  for pair in "reviews=the reviews of pull request 7 could not be read, so no approval was read." \
+    "pulls=pull request 7 could not be read, so the branch it targets is unknown."; do
+    rm -f "${BATS_TEST_TMPDIR}"/gh/*.refused
+    gh_refuses "${pair%%=*}"
 
     run "${script}"
 
-    [[ "${status}" -eq 1 ]]
+    [[ "${status}" -eq 2 ]]
+    [[ "${output}" == *"${pair#*=}"* ]]
   done
   asked=$(calls gh)
   [[ "${asked}" != *"--method POST"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "a pull request with no base branch exits 2, and nothing is accepted" {
+  gh_answers pulls '{"number":7}'
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"pull request 7 could not be read"* ]]
   origin_holds "${pushed}"
 }
 
@@ -308,7 +296,7 @@ origin_holds() {
 @test "a refusal whose check run cannot be written exits 2" {
   commit "feat: unsigned"
   refused=$(git rev-parse HEAD)
-  touch "${BATS_TEST_TMPDIR}/refuse-post"
+  gh_refuses post-check-runs
 
   run "${script}"
 
@@ -317,7 +305,7 @@ origin_holds() {
 }
 
 @test "an acceptance whose check run cannot be written exits 2, after the push" {
-  touch "${BATS_TEST_TMPDIR}/refuse-post"
+  gh_refuses post-check-runs
 
   run "${script}"
 
@@ -360,7 +348,7 @@ origin_holds() {
   git switch --quiet work
   git rebase --quiet below
   git push --quiet --force origin work
-  echo below >"${BATS_TEST_TMPDIR}/base"
+  base below
 
   run "${script}"
 

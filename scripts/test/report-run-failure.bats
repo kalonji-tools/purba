@@ -6,7 +6,8 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../../.github/scripts/report-run-failure.sh"
   isolate
-  fake gh </dev/null
+  fake_gh
+  gh_answers issue-list "[]"
   export GH_REPO=owner/name
 }
 
@@ -34,23 +35,43 @@ runs=(
 }
 
 @test "for each run, an open issue with the same title gets a comment, and no second issue opens" {
-  fake gh <<'FAKE'
-[[ "$1 $2" != "issue list" ]] || echo 7
-FAKE
-
   for pair in "${runs[@]}"; do
     each=${pair%%=*}
+    gh_answers issue-list "[{\"number\":6,\"title\":\"Another\"},
+      {\"number\":7,\"title\":\"${pair#*=}\"}]"
     rm -f "${BATS_TEST_TMPDIR}/calls.gh"
 
     run "${script}" "${each}" https://example.invalid/run 43
 
     [[ "${status}" -eq 0 ]]
     asked=$(calls gh)
-    [[ "${asked}" == *"issue list"*"${pair#*=}"* ]]
     said="issue comment 7 --repo owner/name --body It failed again: https://example.invalid/run"
     [[ "${asked}" == *"${said}"* ]]
     [[ "${asked}" != *"issue create"* ]]
   done
+}
+
+@test "an open issue with another title gets no comment, and the failure opens its own issue" {
+  gh_answers issue-list '[{"number":7,"title":"The release run failed"}]'
+
+  run "${script}" bump https://example.invalid/run 43
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"issue create"*"--title The nightly bump failed"* ]]
+  [[ "${asked}" != *"issue comment"* ]]
+}
+
+@test "an answer that is not a list of issues exits 2, and says the failure was not recorded" {
+  gh_answers issue-list "<html>502</html>"
+
+  run "${script}" bump https://example.invalid/run 43
+
+  [[ "${status}" -eq 2 ]]
+  said="the open issues could not be read, so the failure of bump was not recorded."
+  [[ "${output}" == *"${said}"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"issue c"* ]]
 }
 
 @test "for each run, the wrong arguments exit 2 before it calls the API" {
@@ -87,9 +108,7 @@ FAKE
 }
 
 @test "a failed read of the open issues exits 2, and says the failure was not recorded" {
-  fake gh <<'FAKE'
-[[ "$1 $2" != "issue list" ]] || { echo "HTTP 502" >&2; exit 1; }
-FAKE
+  gh_refuses issue-list
 
   run "${script}" bump https://example.invalid/run 43
 
@@ -99,10 +118,8 @@ FAKE
 }
 
 @test "a failed comment on the open issue exits 2, and says the failure was not recorded" {
-  fake gh <<'FAKE'
-[[ "$1 $2" != "issue list" ]] || echo 7
-[[ "$1 $2" != "issue comment" ]] || { echo "HTTP 502" >&2; exit 1; }
-FAKE
+  gh_answers issue-list '[{"number":7,"title":"The nightly bump failed"}]'
+  gh_refuses issue-comment
 
   run "${script}" bump https://example.invalid/run 43
 
@@ -112,9 +129,7 @@ FAKE
 }
 
 @test "a failed issue create exits 2, and says the failure was not recorded" {
-  fake gh <<'FAKE'
-[[ "$1 $2" != "issue create" ]] || { echo "HTTP 502" >&2; exit 1; }
-FAKE
+  gh_refuses issue-create
 
   run "${script}" bump https://example.invalid/run 43
 

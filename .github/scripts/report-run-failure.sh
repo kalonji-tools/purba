@@ -127,9 +127,9 @@ BODY
 esac
 
 # ⚠️ Never use `--search` here.
-if ! existing=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 \
-  --json number,title \
-  --jq "[.[] | select(.title == \"${title}\")] | first | .number // empty"); then
+if ! issues=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 --json number,title) ||
+  ! existing=$(jq -r --arg title "${title}" \
+    '[.[] | select(.title == $title)] | first | .number // empty' <<<"${issues}"); then
   cannot "the open issues could not be read, so the failure of ${workflow} was not recorded."
 fi
 
