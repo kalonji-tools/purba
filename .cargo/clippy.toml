@@ -1,0 +1,45 @@
+# Each function of `ruff_python_parser` 0.0.17 that parses. Only purba-parsing
+# calls one.
+#
+#   the decision:  docs/decisions/a-gate-refuses-each-invariant-a-tool-can-see.md
+# https://doc.rust-lang.org/clippy/lint_configuration.html#disallowed-methods
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_cells_unchecked"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_expression"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_expression_range"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_module"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_parenthesized_expression_range"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_string_annotation"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_unchecked"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::parse_unchecked_source"
+reason = "only purba-parsing parses"
+
+[[disallowed-methods]]
+path = "ruff_python_parser::typing::parse_type_annotation"
+reason = "only purba-parsing parses"

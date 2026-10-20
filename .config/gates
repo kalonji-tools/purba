@@ -22,6 +22,8 @@
 .config/cliff.toml             -build  scripts
 /Cargo.toml                    build   -scripts
 /Cargo.lock                    build   -scripts
+/.cargo/config.toml            build   scripts
+/.cargo/clippy.toml            build   scripts
 crates/**                      build   -scripts
 /pyproject.toml                build   scripts
 /README.md                     build   -scripts
@@ -34,7 +36,7 @@ crates/**                      build   -scripts
 /CONTEXT.md                    -build  -scripts
 /CONTRIBUTING.md               -build  -scripts
 /LANDSCAPE.md                  -build  -scripts
-/deny.toml                     -build  -scripts
+/.cargo/deny.toml              -build  -scripts
 /prek.toml                     -build  -scripts
 /.editorconfig                 -build  -scripts
 /.shellcheckrc                 -build  -scripts
