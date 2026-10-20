@@ -39,5 +39,5 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 [Add purba-execution and purba-fixtures, which run a test and make its outcome](https://github.com/kalonji-tools/purba/issues/571), [Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) and [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) build it.

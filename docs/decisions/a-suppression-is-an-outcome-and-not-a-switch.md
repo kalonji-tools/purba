@@ -49,6 +49,6 @@ A way past one verdict must therefore show in the report.
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks the design in depth of strictness.
 That design names each check and the syntax of a suppression.

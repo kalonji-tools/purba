@@ -6,9 +6,9 @@ A Python test framework written in Rust.
 
 ## Status
 
-**This is a standing scaffold and holds no product code.** The repository
-carries tooling, working rules, dependencies, CI and a docs harness; the
-framework itself is a separate effort that begins where the scaffold ends.
+**purba runs no test yet.** Its walking skeleton is under construction.
+The repository also carries tooling, working rules, dependencies, CI and a docs
+harness.
 
 purba is the successor to [`oxitest`](https://github.com/kalonji-tools/oxitest),
 which is frozen and kept as reference material. Nothing is ported: tooling is

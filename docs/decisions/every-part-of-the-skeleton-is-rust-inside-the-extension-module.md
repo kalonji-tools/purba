@@ -45,7 +45,7 @@ A part needs its language before anyone writes it.
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.
 [The skeleton crosses the seam in execution and assertion](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) holds what crosses between Rust and Python.
 [Each part is a crate](each-part-is-a-crate.md#decision-outcome) says which crate holds each part's code.
