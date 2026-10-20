@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# PROTOTYPE (#602): the scratch graphify, with no model and no global write.
+exec env -i HOME=<scratch>/home \
+  PATH=<scratch>/venv/bin:/run/current-system/sw/bin \
+  LD_LIBRARY_PATH=/nix/store/0vqb1mcas5j8dv6bhbrshinlgsg6bvgi-gcc-15.3.0-lib/lib \
+  GRAPHIFY_BACKEND=none GRAPHIFY_NO_AUTO_REFRESH=1 \
+  <scratch>/venv/bin/graphify "$@"
