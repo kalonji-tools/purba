@@ -64,7 +64,7 @@ The landscape needs a test that keeps out what a concern already states.
 
 ## Confirmation
 
-No check refuses a breach yet.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) applies to the invariants that the landscape names.
 [A gate refuses each invariant a tool can see, from the first code it reads](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) says which of them a gate refuses, and when.
+Its [Confirmation](a-gate-refuses-each-invariant-a-tool-can-see.md#confirmation) names each gate, and where its probes live.
 The walking skeleton is the first to run code that each invariant binds.

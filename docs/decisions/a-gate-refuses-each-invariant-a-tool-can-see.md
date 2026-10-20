@@ -26,13 +26,13 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 - **A gate refuses every breach, and only breaches.** Rejected. Every invariant fails that bar, so the reviewer would keep each of them. A tool sees most breaches of each invariant in the table below.
 - **A gate refuses only breaches, and names what it misses.** Chosen. For each invariant that a gate refuses, the reviewer keeps what the table names as missed.
-- **Every gate at the walking skeleton.** Rejected. The skeleton may hold no second part and no outcome type.
+- **Every gate at the walking skeleton.** Rejected. The skeleton adds one part in each slice, so the code of an early slice would stand without its gate until the last slice merges.
 - **Each gate at the design in depth of its part.** Rejected. Code would stand without its gate until that design merges.
 - **Each gate in the pull request that adds the first code it reads.** Chosen. The gate runs red on real code, and not on an empty tree.
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/.cargo/config.toml` `clippy.toml` `crates/**` `*.py`
+**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/.cargo/config.toml` `/.config/tasks.toml` `clippy.toml` `crates/**` `scripts/check-wiring.sh` `*.py`
 
 **A gate refuses each invariant that a tool can see, from the first code the gate reads.**
 
@@ -45,9 +45,9 @@ purba holds no product code, so no gate over an invariant has anything to read y
 | one parser | cargo denies each warning, and `.cargo/config.toml` points clippy at its list | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, a `[lints]` table that allows `clippy::disallowed_methods`, and Python's `ast.parse` until the Python half is built |
 | an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
 | an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a field that changes through `&self`, such as a `Cell`, and a part that builds a replacement outcome |
-| one identity | only selection constructs a test's identity | the identity type | a part that formats its own name for a test |
+| one identity | only selection constructs a test's identity, and a `compile_fail` doc test refuses a public field | the identity type | a part that formats its own name for a test, and a public constructor that selection adds, such as a derived `Default` |
 | lazy work | selection and execution both exist | the walking skeleton, as a test that runs one of two modules and refuses any import of the other | a module that only a query leaves out, a rewrite that reads the other module and never imports it, and a path that the test does not take |
-| the diagram is the only wiring | each part has a boundary that a tool reads | the code of the second part | a `pub use` of another part's crate, and an import between parts in Python until the Python half is built |
+| the diagram is the only wiring | each part has a boundary that a tool reads | the code of the second part | a `pub use` of another part's crate, a use by the crate `purba`, a message of the sequence drawn with an arrow other than `->>` or `-->>` or with no space around its arrow, and an import between parts in Python until the Python half is built |
 
 **The async invariants have no gate.** Only a run shows which loop and which task hold a value.
 The design of fixtures reduces the [risk](../../LANDSCAPE.md#the-risks) that an async fixture leaves its loop or its task.
@@ -60,14 +60,20 @@ The design of fixtures reduces the [risk](../../LANDSCAPE.md#the-risks) that an 
 
 ## Confirmation
 
-One gate refuses a breach of an invariant: one parser.
-Each pull request that builds a gate adds its green and red runs to this section.
+Three gates refuse a breach of an invariant: one parser, one identity, and the diagram is the only wiring.
+Each pull request that builds a gate adds its row to the table.
+It adds a probe to the list below only when no test holds that probe.
 
-| invariant | the tree | `mise run lint:rust` |
-|---|---|---|
-| one parser | the pull request that added `purba-parsing` | exit 0 |
-| one parser | `purba` calls `parse_module` | exit 101: "use of a disallowed method `ruff_python_parser::parse_module`" |
-| one parser | `purba-parsing` calls `parse_unchecked_source` with no `#[expect]` | exit 101: "use of a disallowed method `ruff_python_parser::parse_unchecked_source`" |
-| one parser | `purba-parsing` names its own `[lints]` table, and calls `parse_unchecked_source` with no `#[expect]` | exit 101: "warnings are denied by `build.warnings` configuration" |
+| invariant | command | passed on | the test that holds its probes |
+|---|---|---|---|
+| one parser | `mise run lint:rust` | the pull request that added `purba-parsing` | none, so the list below holds them |
+| one identity | `mise run test:rust` | the pull request that added `purba-selection` | the three `compile_fail` doc tests on `TestId`, in `crates/selection/src/lib.rs` |
+| the diagram is the only wiring | `mise run lint:wiring` | the pull request that added `purba-selection` | `scripts/test/check-wiring.bats`, with one case for each shape it refuses |
+
+The probes that no test holds:
+
+- `purba` calls `parse_module`, and `mise run lint:rust` exits 101: "use of a disallowed method `ruff_python_parser::parse_module`".
+- `purba-parsing` calls `parse_unchecked_source` with no `#[expect]`, and `mise run lint:rust` exits 101: "use of a disallowed method `ruff_python_parser::parse_unchecked_source`".
+- `purba-parsing` names its own `[lints]` table and calls `parse_unchecked_source` with no `#[expect]`. `mise run lint:rust` exits 101: "warnings are denied by `build.warnings` configuration".
 
 Clippy kept its old result after `clippy.toml` changed, until a source file changed.

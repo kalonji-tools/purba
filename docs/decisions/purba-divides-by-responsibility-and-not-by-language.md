@@ -60,7 +60,7 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 
 ## Confirmation
 
-No check reads the diagram, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
+No check judges whether the parts divide by responsibility, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 The reviewable-core scenario in [the landscape](../../LANDSCAPE.md#the-driver-scenarios) checks the division once code exists.
 
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the parts each concern crosses.
