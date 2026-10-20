@@ -108,7 +108,7 @@ It resolves a relative link between records to a path it then checks.
 | blind spot | effect |
 |---|---|
 | reserved example domains are excluded by default | a placeholder address is not a checked address |
-| a root file cited with no directory, such as `deny.toml` | a rename of that file leaves the citation standing |
+| a root file cited with no directory, such as `prek.toml` | a rename of that file leaves the citation standing |
 | a path in a Markdown code span | a rename leaves the path standing |
 | a link to a heading of the README that names the README, such as `README.md#building` | PyPI resolves it to nothing, and the readme leg passes it, because the checker reads it as a heading of the same file |
 

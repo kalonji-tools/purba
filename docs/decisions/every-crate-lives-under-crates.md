@@ -29,7 +29,7 @@ Each predates any product code outside `src/`.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `crates/**` `/pyproject.toml` `/.config/gates` `/.config/readers` `/.config/tasks.toml` `scripts/check-links.sh` `.github/scripts/release.sh`
+**Reach:** `/Cargo.toml` `/.cargo/config.toml` `crates/**` `/pyproject.toml` `/.config/gates` `/.config/readers` `/.config/tasks.toml` `scripts/check-links.sh` `.github/scripts/release.sh`
 
 **Every crate lives under `crates/`, beside a root manifest that holds only the workspace.**
 
@@ -40,6 +40,7 @@ Each predates any product code outside `src/`.
 | `crates/<part>/Cargo.toml` | the `[package]` of a part, and `[lints] workspace = true` |
 
 - **The lint tables of today's `Cargo.toml` move to `[workspace.lints]`.** Each member takes them with `[lints] workspace = true`.
+- **`.cargo/config.toml` sets `warnings = "deny"` under `[build]`.** Cargo warns of a member that leaves out `[lints] workspace = true`, so each cargo command refuses that member.
 - **The slice that moves `src/lib.rs` into `crates/purba/` registers `crates/`.** In the same pull request, each change below lands.
   - `src/` leaves the tree, because no file stays in it.
   - Each reach that names `src/**` names `crates/**`.
@@ -52,7 +53,8 @@ Each predates any product code outside `src/`.
 
 **Downside:**
 
-- **A member that leaves out `[lints] workspace = true` takes only the default lint levels.** Cargo warns of it and exits 0, so no gate refuses it. The slice that adds the second crate decides whether a gate refuses it.
+- **A member with its own `[lints]` table takes only the levels it names.** Cargo does not warn of it, so no gate refuses it.
+- **Each new warning of cargo refuses each cargo command.** A newer nightly that warns of something new turns every cargo task red.
 - **The facts of the extension module leave the root manifest.** A reader of `/Cargo.toml` finds the version, `crate-type` and features in `crates/purba/Cargo.toml`.
 
 ## Confirmation
@@ -69,3 +71,12 @@ Three commands refused a crate at `tools/stray/`:
 `mise run lint:rust` and `mise run test:rust` exited 0, because neither builds a crate that is not a member.
 A person who marks its directory in `.config/gates` and `.config/readers` passes `lint:gates` and `lint:readers`.
 The reviewer then reads where the crate lives.
+
+Each cargo command refused a member of the workspace without `[lints] workspace = true`, and passed it once it had the table:
+
+| what | without the table | with it |
+|---|---|---|
+| `mise run lint:rust` | exit 101: "missing `[lints]` to inherit `[workspace.lints]`", then "warnings are denied by `build.warnings` configuration" | exit 0 |
+| `mise run test:rust` | exit 101: the same two lines | exit 0 |
+
+`missing_lints_inheritance = "deny"` under `[workspace.lints.cargo]` refused nothing, because cargo reads that level from the member's own `[lints]` table.

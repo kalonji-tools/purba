@@ -23,7 +23,7 @@ Three, weighed against the published configuration of eighteen projects and agai
 
 ## Decision Outcome
 
-**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `/Cargo.toml` `crates/*/Cargo.toml` `/pyproject.toml` `/deny.toml` `/prek.toml` `/.config/tasks.toml` `/.editorconfig` `/.shellcheckrc` `/.gitattributes` `.github/workflows/*.yml` `rustfmt.toml` `.rustfmt.toml` `clippy.toml` `.clippy.toml` `typos.toml` `_typos.toml` `.typos.toml` `/.config/mise.toml` `*.rs` `*.sh` `*.bats`
+**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `/Cargo.toml` `/.cargo/config.toml` `crates/*/Cargo.toml` `/pyproject.toml` `/.cargo/deny.toml` `/prek.toml` `/.config/tasks.toml` `/.editorconfig` `/.shellcheckrc` `/.gitattributes` `.github/workflows/*.yml` `rustfmt.toml` `.rustfmt.toml` `clippy.toml` `.clippy.toml` `typos.toml` `_typos.toml` `.typos.toml` `/.config/mise.toml` `*.rs` `*.sh` `*.bats`
 
 **A gate owns every standard a reviewer would otherwise state by hand.**
 The rule takes two clauses, because a formatter has no severity to set.
@@ -57,6 +57,8 @@ Where an owed file lives is a standard no gate holds, and [configuration takes t
 
 Every lint level of purba's crates lives in the root `Cargo.toml`, which a task, a bare `cargo clippy` and an editor all read.
 A cargo script carries its own, in the manifest inside it.
+`.cargo/config.toml` turns each warning into a refusal.
+A task, a bare `cargo clippy` and an editor read it too.
 A flag on a command line reaches only that command, so `.config/tasks.toml` carries a lint flag only where its tool reads no file for it.
 `lint:pins` passes `--verify-comment`, because pinact reads no setting for that check.
 

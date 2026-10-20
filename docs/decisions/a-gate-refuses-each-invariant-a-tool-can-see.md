@@ -12,7 +12,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 |---|---|
 | `src/` held one file, `src/lib.rs`, and it held no product code | [`src/`](https://github.com/kalonji-tools/purba/tree/4c57d5049d9782f114243868a3be8774ffb1810b/src), [`src/lib.rs`](https://github.com/kalonji-tools/purba/blob/4c57d5049d9782f114243868a3be8774ffb1810b/src/lib.rs#L3-L5) |
 | a check that passes on a clean tree and refuses nothing is a suggestion | [a gate owns the mechanical standard](a-gate-owns-the-mechanical.md#confirmation) |
-| the commit that first names a ruff crate carries the declaration and its check together | [purba parses Python with ruff](purba-parses-python-with-ruff.md#confirmation) |
+| the commit that first names a ruff crate carries the declaration and its check together | [purba parses Python with ruff](https://github.com/kalonji-tools/purba/blob/b6fd3a39b19578e9c4f2a3b7cc9dd75c675d71d5/docs/decisions/purba-parses-python-with-ruff.md#confirmation) |
 | clippy's `disallowed-methods` refused a call to `ruff_python_parser::parse_module` outside the parsing module, which carried the one `#[expect]` | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | the compiler refused a `Py<PyAny>` inside an outcome that derives `Serialize` and `Deserialize` | [Which of purba's invariants does a gate refuse?](https://github.com/kalonji-tools/purba/issues/512#issuecomment-6127311542) |
 | with pyo3's `serde` feature on, a `Py<T>` serialises when `T` is a `#[pyclass]` that serialises | [pyo3 v0.29.2](https://github.com/PyO3/pyo3/blob/v0.29.2/src/conversions/serde.rs#L18-L20) |
@@ -32,7 +32,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `clippy.toml` `crates/**` `*.py`
+**Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/.cargo/config.toml` `clippy.toml` `crates/**` `*.py`
 
 **A gate refuses each invariant that a tool can see, from the first code the gate reads.**
 
@@ -42,7 +42,7 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 | invariant | a gate can refuse it when | the code that first builds it | what it misses |
 |---|---|---|---|
-| one parser | the crate takes the workspace's lints | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, a call in a crate that leaves out `[lints] workspace = true`, and Python's `ast.parse` until the Python half is built |
+| one parser | cargo denies each warning, and `.cargo/config.toml` points clippy at its list | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, a `[lints]` table that allows `clippy::disallowed_methods`, and Python's `ast.parse` until the Python half is built |
 | an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
 | an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a field that changes through `&self`, such as a `Cell`, and a part that builds a replacement outcome |
 | one identity | only selection constructs a test's identity | the identity type | a part that formats its own name for a test |
@@ -60,5 +60,14 @@ The design of fixtures reduces the [risk](../../LANDSCAPE.md#the-risks) that an 
 
 ## Confirmation
 
-No gate refuses a breach of an invariant yet.
+One gate refuses a breach of an invariant: one parser.
 Each pull request that builds a gate adds its green and red runs to this section.
+
+| invariant | the tree | `mise run lint:rust` |
+|---|---|---|
+| one parser | the pull request that added `purba-parsing` | exit 0 |
+| one parser | `purba` calls `parse_module` | exit 101: "use of a disallowed method `ruff_python_parser::parse_module`" |
+| one parser | `purba-parsing` calls `parse_unchecked_source` with no `#[expect]` | exit 101: "use of a disallowed method `ruff_python_parser::parse_unchecked_source`" |
+| one parser | `purba-parsing` names its own `[lints]` table, and calls `parse_unchecked_source` with no `#[expect]` | exit 101: "warnings are denied by `build.warnings` configuration" |
+
+Clippy kept its old result after `clippy.toml` changed, until a source file changed.
