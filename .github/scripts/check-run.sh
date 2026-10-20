@@ -3,8 +3,6 @@
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #
-#   check_runs_of <head>           prints the API payload for that commit
-#   last_conclusion <context>      reads that payload on standard input
 #   verdicts <head> <context>...   prints `<context> <conclusion>` for each, in
 #                                  the order given, and `none` for no conclusion
 #   require_green <head> <context>...
