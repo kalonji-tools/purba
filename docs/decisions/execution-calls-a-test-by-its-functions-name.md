@@ -51,7 +51,7 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 [Add purba-selection, which names the tests of a module by their identity](https://github.com/kalonji-tools/purba/issues/568) builds the identity and its gate.
 [Add purba-execution and purba-fixtures, which run a test and make its outcome](https://github.com/kalonji-tools/purba/issues/571) builds the worker.
 [Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) puts each outcome beside its test, and builds execution's module.

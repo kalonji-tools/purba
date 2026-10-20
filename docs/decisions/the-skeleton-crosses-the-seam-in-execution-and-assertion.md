@@ -44,5 +44,5 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.

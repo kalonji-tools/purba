@@ -1,8 +1,7 @@
 //! purba — a Python test framework written in Rust.
 //!
-//! This crate is the standing scaffold and holds no product code. It exists so
-//! that the seam, the toolchain and the build are facts before any feature is
-//! designed.
+//! This crate holds no product code yet. It exists so that the seam, the
+//! toolchain and the build are facts.
 //!
 //! Rust examples in these docs are verified by `cargo test --doc`, which is
 //! only possible because `[lib] crate-type` carries `rlib` alongside `cdylib`.

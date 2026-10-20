@@ -71,6 +71,6 @@ flowchart TD
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the crates.
 The slice that adds the second part adds the check.

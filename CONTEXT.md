@@ -1,6 +1,6 @@
 # purba
 
-purba is a test framework for Python, written in Rust. It is a standing scaffold today and carries no product code.
+purba is a test framework for Python, written in Rust. purba runs no test yet. Its [walking skeleton](#walking-skeleton) is under construction.
 
 This file is the source of truth for what a word means here. A decision record states what purba decided and links to this file for the words it uses.
 
@@ -211,3 +211,7 @@ What an [issue](#issue) gets when it is filed: one label that says how it is res
 ### Unpublished comment
 
 A comment that stays in the tree, read only by somebody who opens the file. It is written only when the information belongs in no other [location](#location).
+
+### Walking skeleton
+
+purba's first working code: a small version of every [part](#part), joined so that one [run](#run) goes through each of them. The later design of each part grows from this code, and does not replace it.

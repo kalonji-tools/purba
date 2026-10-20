@@ -52,7 +52,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 ## Confirmation
 
-No command checks it, because purba holds no product code.
+No command checks it yet.
 The explicit scenario of [the landscape](../../LANDSCAPE.md#the-driver-scenarios) becomes its first test when the walking skeleton runs.
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks the design in depth of strictness.
 That design answers each cost above.
