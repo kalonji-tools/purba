@@ -219,3 +219,37 @@ placed() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"scripts/check/check.rs is named only by .github/workflows/w.yml"* ]]
 }
+
+# A pipe holds 64 KiB on Linux, so `grep -q` that stops reading at the first
+# match leaves the `grep -v` before it to fail on the rest: by SIGPIPE, or by a
+# write error where SIGPIPE is ignored. pipe(7), the section "Pipe capacity".
+@test "a script named on the first line of a caller longer than a pipe holds passes" {
+  placed
+  track .config/tasks.toml 'run = "true"'
+  track .github/workflows/w.yml 'run: .github/scripts/job.sh && scripts/tool.sh'
+  # The line is what a script holds, so nothing in it expands here.
+  # shellcheck disable=SC2016
+  track scripts/big.sh '. "$(dirname "$0")/tool.sh"'
+  for number in {1..10000}; do
+    printf 'echo a line long enough that ten thousand of them fill a pipe %s\n' "${number}"
+  done >>scripts/big.sh
+  git add scripts/big.sh
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a caller that cannot be read exits 2" {
+  placed
+  # The line is what a script holds, so nothing in it expands here.
+  # shellcheck disable=SC2016
+  track scripts/caller.sh '. "$(dirname "$0")/tool.sh"'
+  rm scripts/caller.sh
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"scripts/caller.sh cannot be read"* ]]
+}
