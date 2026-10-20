@@ -148,10 +148,12 @@ description = "Run the Rust tests"
 # The assignment is rendered on macOS alone, the one platform that needs it.
 #
 #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
+#   the decision:  docs/decisions/every-crate-lives-under-crates.md
 run = """
 {% if os() == "macos" %}export DYLD_FALLBACK_LIBRARY_PATH=$(python -c \
 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
-{% endif %}cargo test --all-targets && cargo test --doc -p purba
+{% endif %}cargo test --all-targets && cargo test --doc -p purba \
+&& cargo test --doc --workspace --exclude purba
 """
 
 ["test:shell"]
