@@ -43,8 +43,8 @@ purba holds no product code, so no gate over an invariant has anything to read y
 | invariant | a gate can refuse it when | the code that first builds it | what it misses |
 |---|---|---|---|
 | one parser | cargo denies each warning, and `.cargo/config.toml` points clippy at its list | the first ruff crate in `Cargo.toml`, and the first Python file of a part for the Python half | a function that parses and that `disallowed-methods` omits, a call under its own `#[allow]` or `#[expect]`, a `[lints]` table that allows `clippy::disallowed_methods`, and Python's `ast.parse` until the Python half is built |
-| an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
-| an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a field that changes through `&self`, such as a `Cell`, and a part that builds a replacement outcome |
+| an outcome is data | the outcome must encode to bytes | the outcome type | a field that `#[serde(skip)]` leaves out, a `Serialize` written by hand that does not encode, and a `Py<T>` of a `#[pyclass]` that serialises, if pyo3's `serde` feature is on |
+| an outcome is final | the outcome has private fields and no method that takes `&mut self` | the outcome type | a `Cell` or another field that changes through `&self`, code of execution that writes the field of an outcome, and a part that builds a replacement outcome, such as through `Deserialize` |
 | one identity | only selection constructs a test's identity, and a `compile_fail` doc test refuses a public field | the identity type | a part that formats its own name for a test, and a public constructor that selection adds, such as a derived `Default` |
 | lazy work | selection and execution both exist | the walking skeleton, as a test that runs one of two modules and refuses any import of the other | a module that only a query leaves out, a rewrite that reads the other module and never imports it, and a path that the test does not take |
 | the diagram is the only wiring | each part has a boundary that a tool reads | the code of the second part | a `pub use` of another part's crate, a use by the crate `purba`, a message of the sequence drawn with an arrow other than `->>` or `-->>` or with no space around its arrow, and an import between parts in Python until the Python half is built |
@@ -60,13 +60,15 @@ The design of fixtures reduces the [risk](../../LANDSCAPE.md#the-risks) that an 
 
 ## Confirmation
 
-Three gates refuse a breach of an invariant: one parser, one identity, and the diagram is the only wiring.
+Five gates refuse a breach of an invariant, one for each row of the table below.
 Each pull request that builds a gate adds its row to the table.
 It adds a probe to the list below only when no test holds that probe.
 
 | invariant | command | passed on | the test that holds its probes |
 |---|---|---|---|
 | one parser | `mise run lint:rust` | the pull request that added `purba-parsing` | none, so the list below holds them |
+| an outcome is data | `mise run test:rust` | the pull request that added `purba-execution` | `an_outcome_is_data`, in `crates/execution/tests/run.rs`. The list below holds one probe |
+| an outcome is final | `mise run test:rust` | the pull request that added `purba-execution` | the two `compile_fail` doc tests on `Outcome`, in `crates/execution/src/lib.rs` |
 | one identity | `mise run test:rust` | the pull request that added `purba-selection` | the three `compile_fail` doc tests on `TestId`, in `crates/selection/src/lib.rs` |
 | the diagram is the only wiring | `mise run lint:wiring` | the pull request that added `purba-selection` | `scripts/test/check-wiring.bats`, with one case for each shape it refuses |
 
@@ -75,5 +77,6 @@ The probes that no test holds:
 - `purba` calls `parse_module`, and `mise run lint:rust` exits 101: "use of a disallowed method `ruff_python_parser::parse_module`".
 - `purba-parsing` calls `parse_unchecked_source` with no `#[expect]`, and `mise run lint:rust` exits 101: "use of a disallowed method `ruff_python_parser::parse_unchecked_source`".
 - `purba-parsing` names its own `[lints]` table and calls `parse_unchecked_source` with no `#[expect]`. `mise run lint:rust` exits 101: "warnings are denied by `build.warnings` configuration".
+- `Outcome` gains a field `error: Option<Py<PyAny>>`, and `run` sets it to `None`. The file imports `Py` and `PyAny`. `mise run test:rust` exits 101: "the trait bound `Py<PyAny>: serde::Serialize` is not satisfied".
 
 Clippy kept its old result after `clippy.toml` changed, until a source file changed.

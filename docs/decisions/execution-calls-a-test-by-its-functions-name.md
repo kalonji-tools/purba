@@ -11,15 +11,15 @@ In the parts diagram, execution and reporting use no interface of selection.
 | reporting's use of `purba_selection::TestId`, with no selection in its manifest, stopped at `E0433` | [the probe](https://github.com/kalonji-tools/purba/issues/563#issuecomment-6291610911) |
 | command's `TestId { path, function }`, with private fields, stopped at `E0451` | [the probe](https://github.com/kalonji-tools/purba/issues/563#issuecomment-6291610911) |
 | reporting's test, with a `&str` in place of the identity, passed with no selection in its manifest | [the probe](https://github.com/kalonji-tools/purba/issues/563#issuecomment-6291610911) |
-| selection uses parsing, and parsing grows the build on Linux from 14 to 80 packages | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies), [the findings of How can purba depend on ruff's Python parser?](https://github.com/kalonji-tools/purba/issues/538#issuecomment-6145006439) |
+| selection uses parsing | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
 | dispatch hands command "three outcomes, each beside its test" | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
 | the gate for one identity misses "a part that formats its own name for a test" | [a gate refuses each invariant a tool can see](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) |
 
 ## Considered Options
 
-- **Execution and reporting use selection, as two new arrows of the parts diagram.** Rejected. Only selection constructs an identity, so a test of either part parses a real module to get one. Each of those tests then builds ruff.
+- **Execution and reporting use selection, as two new arrows of the parts diagram.** Rejected. Only selection constructs an identity, so a test of either part parses a real module to get one.
 - **The invariant binds dispatch alone.** Rejected. Reporting then builds `path::function` itself, the breach that the gate for one identity misses.
-- **Execution and reporting never name the identity's type.** Chosen. Each part then tests without a parser.
+- **Execution and reporting never name the identity's type.** Chosen. The tests of each part then parse no module.
 
 ## Decision Outcome
 
@@ -52,10 +52,10 @@ In the parts diagram, execution and reporting use no interface of selection.
 ## Confirmation
 
 `mise run test:rust` checks that an identity prints as `path::function`.
+It checks that a worker of execution calls a test by its function's name.
 The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.
 
 No command checks the rest yet.
-[Add purba-execution and purba-fixtures, which run a test and make its outcome](https://github.com/kalonji-tools/purba/issues/571) builds the worker.
 [Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) puts each outcome beside its test, and builds execution's module.
 [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds dispatch's input.
 [Add purba-reporting, which prints one line for each test and a count](https://github.com/kalonji-tools/purba/issues/573) builds the line.
