@@ -158,8 +158,15 @@ This script is given two heads and cannot know what produced them, so it reads t
 The two cases above, the trees matching and the trees differing, were the whole rule. A third case occurred twice: the verdict is not in yet.
 This job rewrote the branch before `Quality` concluded.
 It read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
-This job now waits for every required context it does not post itself before it rewrites anything, so the third case cannot arise.
+This job now waits for every required context it does not post itself before it rewrites anything, so it never carries a missing verdict.
 `.github/scripts/check-run.sh` holds that rule, and a gate concluding is one of the events that starts this job.
+
+The job can read a gate before GitHub reports its verdict.
+The job once read no verdict for `Build` 13 seconds after `Build` concluded.
+No later event started this job, and it reported `Sign-off` only when somebody ran it again by hand.
+The pull request stays blocked until something starts this job again.
+Closing the pull request and reopening it does that, with no write access.
+The measurement is recorded on [The sign job reads the last gate as having no verdict, and nothing starts it again](https://github.com/kalonji-tools/purba/issues/611).
 
 `.github/scripts/carry-verdicts.sh` holds the rule, and it is given the contexts it may carry and does not decide which ones qualify.
 A gate that reads a commit message can never be carried, because the rewrite edits the thing that gate reads.
