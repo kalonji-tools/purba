@@ -63,7 +63,9 @@ const WITH_CONSEQUENCES: [&str; 5] = [
     "Confirmation",
 ];
 
-const LIMIT: usize = 25;
+// The rule a long sentence breaks, and the most words it may hold.
+const LONG: (&str, usize) = ("long", 25);
+const STEP: (&str, usize) = ("step", 20);
 const PARAGRAPH: usize = 6;
 
 // A code span, a link or an image, which a reader reads as one thing.
@@ -273,15 +275,17 @@ struct Block {
     cell: bool,
     quoted: bool,
     top: bool,
+    limit: (&'static str, usize),
 }
 
 impl Block {
-    const fn new(cell: bool, quoted: bool, top: bool) -> Self {
+    const fn new(cell: bool, quoted: bool, top: bool, limit: (&'static str, usize)) -> Self {
         Self {
             chars: Vec::new(),
             cell,
             quoted,
             top,
+            limit,
         }
     }
 
@@ -476,11 +480,11 @@ impl<'a> Record<'a> {
                 if top {
                     self.count(range);
                 }
-                walk.current = Some(Block::new(false, walk.quoted > 0, top));
+                walk.current = Some(Block::new(false, walk.quoted > 0, top, walk.limit()));
             }
             Tag::TableCell => {
                 self.flush(walk.current.take());
-                walk.current = Some(Block::new(true, walk.quoted > 0, false));
+                walk.current = Some(Block::new(true, walk.quoted > 0, false, LONG));
             }
             Tag::BlockQuote(_) => {
                 self.flush(walk.current.take());
@@ -513,7 +517,11 @@ impl<'a> Record<'a> {
                 walk.mermaid = matches!(tag, Tag::CodeBlock(CodeBlockKind::Fenced(info))
                     if info.split_whitespace().next() == Some("mermaid"));
             }
-            Tag::List(_) | Tag::Table(_) | Tag::DefinitionList | Tag::HtmlBlock => {
+            Tag::List(start) => {
+                self.flush(walk.current.take());
+                walk.lists.push(start.is_some());
+            }
+            Tag::Table(_) | Tag::DefinitionList | Tag::HtmlBlock => {
                 self.flush(walk.current.take());
             }
             Tag::Strong if walk.hidden == 0 && walk.quoted == 0 => {
@@ -537,8 +545,12 @@ impl<'a> Record<'a> {
                 walk.hidden -= 1;
                 walk.reach = false;
             }
-            TagEnd::Paragraph | TagEnd::TableCell | TagEnd::List(_) | TagEnd::Table => {
+            TagEnd::Paragraph | TagEnd::TableCell | TagEnd::Table => {
                 self.flush(walk.current.take());
+            }
+            TagEnd::List(_) => {
+                self.flush(walk.current.take());
+                walk.lists.pop();
             }
             TagEnd::BlockQuote(_) => {
                 self.flush(walk.current.take());
@@ -635,8 +647,9 @@ impl<'a> Record<'a> {
             let text: String = sentence.iter().map(|c| c.c).collect();
 
             let length = length(&text);
-            if length > LIMIT {
-                self.find("long", line, &format!(": {length} words"));
+            let (rule, limit) = block.limit;
+            if length > limit {
+                self.find(rule, line, &format!(": {length} words"));
             }
             let (words, starts): (Vec<String>, Vec<usize>) = words(sentence).into_iter().unzip();
             // The line the gerund stands on, which a wrapped sentence moves.
@@ -700,6 +713,8 @@ struct Walk {
     current: Option<Block>,
     quoted: usize,
     nested: usize,
+    // Each open list, innermost last, and whether it is numbered.
+    lists: Vec<bool>,
     hidden: usize,
     linked: usize,
     link: usize,
@@ -711,9 +726,19 @@ struct Walk {
 impl Walk {
     // A tight list item holds its text with no paragraph around it.
     fn block(&mut self) -> &mut Block {
-        let quoted = self.quoted > 0;
+        let (quoted, limit) = (self.quoted > 0, self.limit());
         self.current
-            .get_or_insert_with(|| Block::new(false, quoted, false))
+            .get_or_insert_with(|| Block::new(false, quoted, false, limit))
+    }
+
+    // The innermost list sets the limit, so a bulleted list inside a step keeps
+    // the limit of descriptive text.
+    fn limit(&self) -> (&'static str, usize) {
+        if self.lists.last() == Some(&true) {
+            STEP
+        } else {
+            LONG
+        }
     }
 }
 
@@ -1091,6 +1116,44 @@ mod tests {
     fn a_sentence_in_a_list_item_is_prose() {
         let found = findings(&format!("- {}end.\n", filler(25)));
         assert_eq!(found, ["long\t1: 26 words"]);
+    }
+
+    #[test]
+    fn a_sentence_in_a_numbered_item_runs_to_twenty_words() {
+        assert_eq!(
+            findings(&format!("1. {}end.\n", filler(19))),
+            [] as [&str; 0]
+        );
+        assert_eq!(
+            findings(&format!("1. {}end.\n", filler(20))),
+            ["step\t1: 21 words"]
+        );
+    }
+
+    #[test]
+    fn a_sentence_past_both_limits_in_a_numbered_item_is_one_finding() {
+        let found = findings(&format!("1. {}end.\n", filler(25)));
+        assert_eq!(found, ["step\t1: 26 words"]);
+    }
+
+    #[test]
+    fn a_paragraph_in_a_loose_numbered_item_runs_to_twenty_words() {
+        let found = findings(&format!("1. Step.\n\n   {}end.\n\n2. Step.\n", filler(20)));
+        assert_eq!(found, ["step\t3: 21 words"]);
+    }
+
+    #[test]
+    fn the_innermost_list_sets_the_limit() {
+        let bulleted = findings(&format!("1. Step.\n   - {}end.\n", filler(24)));
+        assert_eq!(bulleted, [] as [&str; 0]);
+        let numbered = findings(&format!("- Item.\n  1. {}end.\n", filler(20)));
+        assert_eq!(numbered, ["step\t2: 21 words"]);
+    }
+
+    #[test]
+    fn a_paragraph_after_a_numbered_list_runs_to_twenty_five_words() {
+        let found = findings(&format!("1. Step.\n\n{}end.\n", filler(24)));
+        assert_eq!(found, [] as [&str; 0]);
     }
 
     #[test]

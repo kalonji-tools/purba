@@ -196,6 +196,26 @@ words() {
   [[ "${output}" == *"${record}:5: 26 words"* ]]
 }
 
+@test "a sentence of twenty-one words in a numbered list is refused" {
+  words 21
+  prose "1. ${filler}end."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A sentence in a numbered list runs to 20 words, a limit ${borrowed}"* ]]
+  [[ "${output}" == *"${record}:5: 21 words"* ]]
+}
+
+@test "a sentence of twenty-one words in a bulleted list passes" {
+  words 21
+  prose "- ${filler}end."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
 @test "a seventh sentence in a paragraph is refused once" {
   prose $'One.\nTwo.\nThree.\nFour.\nFive.\nSix.\nSeven.\nEight.'
 
