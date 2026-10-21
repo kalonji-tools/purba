@@ -1,3 +1,7 @@
+#   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
+# https://doc.rust-lang.org/clippy/lint_configuration.html#warn-on-all-wildcard-imports
+warn-on-all-wildcard-imports = true
+
 # Each function of `ruff_python_parser` 0.0.17 that parses. Only purba-parsing
 # calls one.
 #
