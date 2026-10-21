@@ -98,3 +98,30 @@ fn an_outcome_is_data() {
     fn data<T: serde::Serialize + serde::de::DeserializeOwned>() {}
     data::<Outcome>();
 }
+
+#[test]
+fn a_module_that_fails_to_load_runs_its_body_once() {
+    let loads = module(
+        "test_fails.py",
+        "import builtins\nbuiltins.purba_loads = getattr(builtins, 'purba_loads', 0) + 1\n\
+         raise ValueError(f'load {builtins.purba_loads}')\n\n\
+         def test_one():\n    pass\n\ndef test_two():\n    pass\n",
+        &[],
+    );
+    let errors: Vec<String> = purba_execution::attach(|worker| {
+        ["test_one", "test_two"]
+            .iter()
+            .map(|function| {
+                worker
+                    .run(&loads, function)
+                    .expect_err("the module does not load")
+                    .to_string()
+            })
+            .collect()
+    });
+    assert_eq!(
+        errors,
+        ["ValueError: load 1", "test_fails.py did not load"],
+        "the second test names the module, and the body runs once",
+    );
+}
