@@ -62,9 +62,12 @@ A task, a bare `cargo clippy` and an editor read it too.
 A flag on a command line reaches only that command, so `.config/tasks.toml` carries a lint flag only where its tool reads no file for it.
 `lint:pins` passes `--verify-comment`, because pinact reads no setting for that check.
 
+`.cargo/clippy.toml` sets `warn-on-all-wildcard-imports`, because clippy's `wildcard_imports` exempts a prelude without it.
+
 **Downside:**
 
 - **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
+- **No gate refuses a glob import in a test target.** Clippy's `wildcard_imports` skips a test crate, and no setting changes that. The reviewer checks it.
 - **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. To keep one, a writer adds an entry to `[tool.typos]` in `pyproject.toml`.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**

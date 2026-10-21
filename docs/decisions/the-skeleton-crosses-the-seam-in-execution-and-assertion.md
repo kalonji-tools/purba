@@ -27,13 +27,13 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that `compile()` and `exec()` make from the rewritten source | the module's namespace |
-| execution | whether the call returned or raised `AssertionError`, and the index of the last assert that ran | the traceback |
+| assertion | the module that assertion's load makes from the rewritten source | the module's namespace |
+| execution | whether the call returned or raised `AssertionError`, the index of the last assert that ran, and the type and message of each error that gives no outcome, as text | the traceback |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
-- **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call counts that an assert ran, and records its index.
+- **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call records the index of the assert that ran.
 - **After `AssertionError`, the last index names the failed assert.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it.
 - **Reporting writes to Rust's stdout.**
 
@@ -42,7 +42,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 **Downside:**
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
-- **The rewrite puts the name `_purba_ran` in each module.** A test module that defines `_purba_ran` itself breaks the rewrite.
+- **The load puts the name `_purba_ran` in each module.** A test module that defines `_purba_ran` itself breaks the rewrite.
 
 ## Confirmation
 
@@ -50,5 +50,8 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 It also checks that the rewrite gives the source text of each assert at its index.
 It checks that assertion's load runs the rewritten text as a module that holds `_purba_ran`.
 It checks that the index of the last marked assert that ran reaches Rust.
+It checks that execution makes a passed, failed or `unknown` outcome from the call and the last index.
+It checks that execution clears the index before each test.
+
 No command checks the rest yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.

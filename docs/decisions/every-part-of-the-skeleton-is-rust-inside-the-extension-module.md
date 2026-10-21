@@ -30,7 +30,7 @@ A part needs its language before anyone writes it.
 |---|---|
 | parsing | [purba parses Python with ruff](purba-parses-python-with-ruff.md#decision-outcome) chooses four Rust crates |
 | selection | it reads parsing's AST, and ruff's AST exists only in Rust |
-| assertion | it rewrites ruff's AST, and only its `compile()` and `exec()` reach Python |
+| assertion | it rewrites ruff's AST, and only its load reaches Python |
 | execution | PyO3 holds the module, the call and the exception, and `cargo test` runs it |
 | command, dispatch, fixtures and reporting | none of them holds Python state in the skeleton |
 
@@ -40,7 +40,7 @@ A part needs its language before anyone writes it.
 
 **Downside:**
 
-- **A Rust test that calls Python must find `libpython` when it runs.** On each platform, `test:rust` must give the test binary the library's path, or the binary does not load.
+- **A Rust test that calls Python must find `libpython` when it runs.** On Linux and macOS, `test:rust` must give the test binary the library's path, or the binary does not load.
 - **A part that moves to Python needs a second implementation.** Fixtures is the part most likely to move, because no oxitest code that builds a fixture ever lived in Rust, as [purba divides by responsibility and not by language](purba-divides-by-responsibility-and-not-by-language.md#context-and-problem-statement) shows.
 
 ## Confirmation
