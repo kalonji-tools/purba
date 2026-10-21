@@ -402,6 +402,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "purba-execution"
+version = "0.0.0"
+dependencies = [
+ "purba-assertion",
+ "purba-fixtures",
+ "pyo3",
+ "serde",
+]
+
+[[package]]
+name = "purba-fixtures"
+version = "0.0.0"
+
+[[package]]
 name = "purba-parsing"
 version = "0.0.0"
 dependencies = [
@@ -652,6 +666,16 @@ name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+
+[[package]]
+name = "serde"
+version = "1.0.229"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
+dependencies = [
+ "serde_core",
+ "serde_derive",
+]
 
 [[package]]
 name = "serde_core"

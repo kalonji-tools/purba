@@ -19,6 +19,7 @@ pyo3 = "0.29.2"
 ruff_python_ast = "=0.0.17"
 ruff_python_parser = "=0.0.17"
 ruff_text_size = "=0.0.17"
+serde = { version = "1", features = ["derive"] }
 
 [workspace.lints.rust]
 warnings = "deny"
