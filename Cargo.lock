@@ -392,6 +392,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "purba-assertion"
+version = "0.0.0"
+dependencies = [
+ "purba-parsing",
+ "ruff_python_ast",
+ "ruff_text_size",
+]
+
+[[package]]
 name = "purba-parsing"
 version = "0.0.0"
 dependencies = [
