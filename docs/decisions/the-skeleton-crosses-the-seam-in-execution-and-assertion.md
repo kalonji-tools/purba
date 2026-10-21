@@ -44,5 +44,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 ## Confirmation
 
-No command checks it yet.
+`mise run test:rust` checks that assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.
+It also checks that the rewrite gives the source text of each assert at its index.
+No command checks the rest yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.

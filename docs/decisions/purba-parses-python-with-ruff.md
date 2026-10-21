@@ -97,9 +97,16 @@ The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
 `=` therefore states that intent and does not change it.
 
-`/Cargo.toml` pins `ruff_python_parser` and `ruff_python_ast` at `=0.0.17`.
-`purba-parsing` names both.
-`mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through them.
+`/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast` and `ruff_text_size` at `=0.0.17`.
+
+| pinned crate | the crates that name it |
+|---|---|
+| `ruff_python_parser` | `purba-parsing` |
+| `ruff_python_ast` | `purba-parsing`, `purba-selection`, `purba-assertion` |
+| `ruff_text_size` | `purba-assertion` |
+
+`mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through `purba-parsing`.
+It also runs the tests in `crates/assertion/tests/rewrite.rs`, which rewrite a module at the ranges of its nodes.
 `mise run lint:licences` reads the exceptions in `.cargo/deny.toml`, and refuses one that no crate uses.
 
 Cargo refused an unused `itoa` in `purba`.
