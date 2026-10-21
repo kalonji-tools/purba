@@ -15,13 +15,16 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 | PyO3 turns a Rust panic into `PanicException`, which derives from `BaseException` and not from `Exception` | [PyO3's `PanicException`](https://github.com/PyO3/pyo3/blob/v0.29.2/src/panic.rs#L6-L16) |
 | clap exits 2 on a usage error | [clap's exit codes](https://github.com/clap-rs/clap/blob/v4.6.7/clap_builder/src/util/mod.rs#L26-L32) |
 | pytest exits 0 when its tests pass, 1 when a test fails, 2 when it is interrupted, 3 on an internal error, 4 on misuse, and 5 when it finds no test | [pytest's `ExitCode`](https://github.com/pytest-dev/pytest/blob/9.1.1/src/_pytest/config/__init__.py#L101-L120) |
+| pytest 9.0.3 reports a test that raises `ValueError` as failed, and exits 1 | [the probe](https://github.com/kalonji-tools/purba/issues/608#issuecomment-6318260548) |
 
 ## Considered Options
 
 - **`unknown` exits 1, as a failed test does.** Rejected. An integrator could not tell a test that found a defect from a test that checked nothing.
 - **A run with no test exits 0.** Rejected. It reads as clean, and the run checked nothing.
 - **An error that `_main` does not catch.** Rejected. It exits 1, so an error inside purba reads as a failed test. [The landscape](../../LANDSCAPE.md#the-risks) names that risk.
-- **Four codes, which keep `unknown` and a run with no test apart from a failure.** Chosen. Only a run that checked at least one behaviour, with no failed or `unknown` test, exits 0.
+- **An error in place of an outcome exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised an error.
+- **An error in place of an outcome exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the error.
+- **Five codes, which keep `unknown`, a run with no test, and an error apart from a failure.** Chosen. Only a run that checked at least one behaviour, with no failed or `unknown` test and no error, exits 0.
 
 ## Decision Outcome
 
@@ -33,18 +36,20 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 |---|---|
 | 0 | at least one test ran, and every test passed |
 | 1 | a test failed |
-| 2 | no test failed, and a test is `unknown` or no test ran |
+| 2 | no test failed or gave an error, and a test is `unknown` or no test ran |
 | 3 | the run did not finish: a usage error, a path that does not exist, or an error inside purba |
+| 4 | no test failed, and a test gave an error in place of an outcome |
 
 - **`_main` catches each error at its boundary, and returns 3.**
 - **`_main` reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **An interrupt is not an error here.** The design in depth of interrupt handling chooses its code.
-- **The design in depth of errors may divide 3.**
+- **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
 
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
-- **An integrator cannot tell a usage error, a path that does not exist and an error inside purba apart.** All three exit 3 until the design in depth of errors divides them.
+- **An integrator cannot tell a usage error, a path that does not exist and an error inside purba that stops the run apart.** All three exit 3 until the design in depth of errors divides them.
+- **An error inside purba that reaches dispatch exits 4, as an error of the tester's code does.** Dispatch has only the text of the error, so it cannot tell the two apart.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 
 ## Confirmation

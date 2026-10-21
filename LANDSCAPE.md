@@ -57,7 +57,7 @@ flowchart LR
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and sets the exit code.
 - **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a diagnostic.
-- **dispatch.** Hands each selected test to a worker and returns its outcome, whatever the worker is.
+- **dispatch.** Hands each selected test to a worker and returns its outcome, or the error it gave in place of one, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input a test names by type, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.

@@ -35,7 +35,7 @@ In the parts diagram, execution and reporting use no interface of selection.
 | what an in-process worker is | a value of execution, which dispatch holds |
 | what an outcome holds | no name of its test |
 | who puts each outcome beside its test | dispatch, which uses selection and execution |
-| what reporting takes | each outcome, beside a value that prints itself |
+| what reporting takes | each outcome or error, beside a value that prints itself |
 | how selection's identity prints | `path::function`, as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out a line |
 | who constructs an identity | selection alone, because its fields are private |
 | who builds a part's input | the part that uses it. Command builds dispatch's input, and dispatch builds execution's module |
@@ -45,6 +45,7 @@ In the parts diagram, execution and reporting use no interface of selection.
 **Downside:**
 
 - **Reporting prints any value that prints itself.** Command can hand it a name that command formatted. The gate for one identity misses it. The reviewer looks for it.
+- **Dispatch takes any value that implements its `Test`.** Command can hand dispatch a value of a type that command defines, in place of an identity. The gate for one identity misses it. The reviewer looks for it.
 - **Execution takes the name of one function.** A test method of a class needs more than one name. The design in depth of execution decides how such a test crosses.
 - **A module under two spellings of its path loads twice in one worker.** The design in depth of selection decides how an identity starts.
 - **A field of a module crosses from command to dispatch to execution.** A new field edits each of them.
@@ -53,9 +54,10 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 `mise run test:rust` checks that an identity prints as `path::function`.
 It checks that a worker of execution calls a test by its function's name.
+It checks that dispatch builds execution's module.
+It checks that dispatch puts each outcome or error beside its test.
 The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.
 
 No command checks the rest yet.
-[Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) puts each outcome beside its test, and builds execution's module.
 [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds dispatch's input.
 [Add purba-reporting, which prints one line for each test and a count](https://github.com/kalonji-tools/purba/issues/573) builds the line.

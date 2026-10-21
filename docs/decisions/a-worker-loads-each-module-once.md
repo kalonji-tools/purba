@@ -27,7 +27,7 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 |---|---|
 | what command hands dispatch | each module once: its rewritten text, the text of each assert, and its selected tests |
 | what dispatch hands execution | a function's name, and its module |
-| how often execution loads a module | once in a worker. The first test of a module loads it, and the next tests use it |
+| how often execution loads a module | once in a worker. The first test of a module loads it, and the next tests use it. The worker does not load again a module that failed to load. Each later test of that module gets an error that names the module |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
 
 [Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds why execution takes a function's name.
@@ -40,6 +40,9 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 ## Confirmation
 
 `mise run test:rust` checks that a worker of execution loads a module once for two of its tests.
+It checks that a module that fails to load runs its body once for two of its tests.
+It checks that the next test of such a module gets an error that names the module.
+It checks that dispatch hands the tests of one module to one worker.
 
 No command checks the rest yet.
-[Add purba-dispatch, which hands each test to one worker in-process](https://github.com/kalonji-tools/purba/issues/572) and [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) build it.
+[Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds it.
