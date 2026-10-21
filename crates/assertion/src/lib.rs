@@ -2,7 +2,8 @@
 //! It also loads the rewritten module.
 
 use purba_parsing::Module;
-use pyo3::prelude::*;
+use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
+use pyo3::{Bound, PyAny, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{Expr, Stmt, StmtAssert};
 use ruff_text_size::Ranged;
@@ -99,7 +100,7 @@ impl Ran {
     }
 }
 
-/// A module that `compile()` and `exec()` made from a rewritten text.
+/// A module that `load` made from a rewritten text.
 pub struct Loaded<'py> {
     module: Bound<'py, PyModule>,
     ran: Bound<'py, Ran>,

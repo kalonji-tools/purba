@@ -9,7 +9,8 @@
 //! bridge — `extension-module` omits libpython, so anything touching `Py*`
 //! needs that feature off.
 
-use pyo3::prelude::*;
+use pyo3::types::PyModule;
+use pyo3::{Bound, PyResult, pymodule};
 
 /// The extension module Python imports as `purba`.
 #[pymodule]
