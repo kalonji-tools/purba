@@ -396,6 +396,7 @@ name = "purba-assertion"
 version = "0.0.0"
 dependencies = [
  "purba-parsing",
+ "pyo3",
  "ruff_python_ast",
  "ruff_text_size",
 ]
