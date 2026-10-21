@@ -402,6 +402,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "purba-dispatch"
+version = "0.0.0"
+dependencies = [
+ "purba-execution",
+ "purba-selection",
+]
+
+[[package]]
 name = "purba-execution"
 version = "0.0.0"
 dependencies = [

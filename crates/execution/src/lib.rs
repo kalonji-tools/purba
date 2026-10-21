@@ -67,7 +67,8 @@ pub enum Kind {
     Unknown,
 }
 
-/// Why `run` made no outcome, as the text of Python's error.
+/// Why `run` made no outcome, as text: Python's error, or that the module did
+/// not load.
 #[derive(Debug)]
 pub struct Error(String);
 
@@ -83,11 +84,11 @@ fn error(err: &PyErr) -> Error {
     Error(err.to_string())
 }
 
-/// Runs tests in this process. It loads each module once, and keeps it under
-/// its path.
+/// Runs tests in this process. It loads each module once, and keeps it under its
+/// path, or keeps that its load failed.
 pub struct Worker<'py> {
     py: Python<'py>,
-    loaded: HashMap<PathBuf, Loaded<'py>>,
+    loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
 }
 
 /// Gives `work` a worker for as long as it runs.
@@ -111,11 +112,16 @@ impl Worker<'_> {
     /// any assert ran.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         if !self.loaded.contains_key(&module.path) {
-            let loaded = purba_assertion::load(self.py, &module.path, &module.text)
-                .map_err(|err| error(&err))?;
-            self.loaded.insert(module.path.clone(), loaded);
+            let loaded = purba_assertion::load(self.py, &module.path, &module.text);
+            let failed = loaded.as_ref().err().map(error);
+            self.loaded.insert(module.path.clone(), loaded.ok());
+            if let Some(failed) = failed {
+                return Err(failed);
+            }
         }
-        let loaded = &self.loaded[&module.path];
+        let loaded = self.loaded[&module.path]
+            .as_ref()
+            .ok_or_else(|| Error(format!("{} did not load", module.path.display())))?;
         let _ = loaded.take();
         let test = loaded
             .module()
