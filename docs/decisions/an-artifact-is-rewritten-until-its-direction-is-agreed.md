@@ -107,7 +107,7 @@ A record that reads as history is a record nobody can trust on one reading.
 
 **Superseding is a procedure, in this order.**
 
-1. Post the replacement. It stands alone even when only part changed, and it carries what the superseded text held and why that was wrong.
+1. Post the replacement. It stands alone even when only part changed. It carries what the superseded text held and why that was wrong.
 2. Copy its URL.
 3. Mark the superseded artifact with that URL, naming the span that died when only a span died.
 4. Minimize a wholly superseded comment as `outdated`. One superseded in part keeps its live text visible and carries the pointer alone.

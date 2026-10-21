@@ -46,7 +46,7 @@ No public source carries the rule numbers, so purba cites none.
 | no wordy or formal word | reports |
 | no part of a sentence left out | reports |
 | one idea in one sentence | reports |
-| no more than 20 words in a procedure | neither |
+| no more than 20 words in a procedure | refuses |
 
 [A part-of-speech tagger decides the tense rule](a-part-of-speech-tagger-decides-the-tense-rule.md) says which command refuses a tense.
 
@@ -63,11 +63,13 @@ A table holds numbers on purpose, and a length rule there would push them back i
 Record prose carries no issue number, so a link is titled with the question its issue asks.
 That title is owed rather than chosen, and charging its words to the sentence would refuse the sentence that obeys.
 
-**No record is a procedure, so the shorter limit reaches nothing.**
+**A record writes a procedure as a numbered list, so the shorter limit reaches each item of one.**
 
 **Downside:**
 
 - **The approved dictionary is excluded.** The list is not obtainable here, so the largest rule in the standard binds nothing.
+- **A numbered list that is not a procedure takes the shorter limit too.** A command cannot tell a procedure from a numbered list of names.
+- **A procedure written as bullets keeps the longer limit.** Nothing checks that a procedure is written as a numbered list.
 - **The rule numbers are absent.** A reader holding the specification matches these rules to it by their words.
 - **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` or a word in its list of prepositions and conjunctions, so a gerund elsewhere passes.
 - **A reported number binds nobody.** The passive voice is the largest deviation in the corpus and nothing refuses it.
@@ -80,6 +82,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 | what proves it | where |
 |---|---|
 | `mise run lint:records` refuses a sentence over 25 words | `scripts/check-prose/check-prose.rs` |
+| the same command refuses a sentence over 20 words in a numbered list | `scripts/check-prose/check-prose.rs` |
 | the same command refuses a paragraph over six sentences | `scripts/check-prose/check-prose.rs` |
 | the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-prose/check-prose.rs` |
 | the same command refuses `has`, `have` or `had` with a participle | `scripts/check-prose/check-prose.rs` |

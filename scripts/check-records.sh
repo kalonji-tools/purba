@@ -106,6 +106,13 @@ English. A link counts as one word and so does a code span, because a reader rea
 thing." \
   "${found[@]}"
 
+mapfile -t found < <(grep '^step' <<<"${prose}" | cut -f2- || true)
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A sentence in a numbered list runs to 20 words, a limit borrowed from Simplified Technical \
+English for a procedure. A record writes a procedure as a numbered list, so the limit reaches \
+each of its items." \
+  "${found[@]}"
+
 mapfile -t found < <(grep '^para' <<<"${prose}" | cut -f2- || true)
 [[ ${#found[@]} -eq 0 ]] || refuse \
   "A paragraph runs to six sentences, a limit borrowed from Simplified Technical English. The \
