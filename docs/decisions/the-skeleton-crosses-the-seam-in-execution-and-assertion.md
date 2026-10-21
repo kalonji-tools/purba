@@ -37,6 +37,8 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 - **After `AssertionError`, the last index names the failed assert.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it.
 - **Reporting writes to Rust's stdout.**
 
+[A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) holds where assertion's load puts the module.
+
 **Downside:**
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
@@ -46,5 +48,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 `mise run test:rust` checks that assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.
 It also checks that the rewrite gives the source text of each assert at its index.
+It checks that assertion's load runs the rewritten text as a module that holds `_purba_ran`.
+It checks that the index of the last marked assert that ran reaches Rust.
 No command checks the rest yet.
 The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.
