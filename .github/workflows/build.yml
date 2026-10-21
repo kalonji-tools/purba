@@ -56,8 +56,8 @@ jobs:
         id: changed
         run: .github/scripts/changed.sh build HEAD^1 HEAD >>"$GITHUB_OUTPUT"
 
-  # Only this job exercises the macOS workaround that `.config/tasks.toml`
-  # carries for this task.
+  # Only this job exercises the library path that `.config/tasks.toml` sets for
+  # this task on Linux and macOS.
   rust:
     name: rust ${{ matrix.os }}
     needs: changed

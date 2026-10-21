@@ -1,9 +1,13 @@
 //! Assertion: rewrites each assert of a module so that it records that it ran.
+//! It also loads the rewritten module.
 
 use purba_parsing::Module;
+use pyo3::prelude::*;
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{Expr, Stmt, StmtAssert};
 use ruff_text_size::Ranged;
+use std::path::Path;
+use std::sync::{Mutex, PoisonError};
 
 /// The name that each marked assert calls.
 const RAN: &str = "_purba_ran";
@@ -78,4 +82,77 @@ pub fn rewrite(module: &Module) -> Rewrite {
         text: rewritten,
         asserts,
     }
+}
+
+/// The index of the last marked assert that ran in one loaded module.
+#[pyclass(frozen)]
+struct Ran {
+    last: Mutex<Option<usize>>,
+}
+
+#[pymethods]
+impl Ran {
+    /// Records `index`. Gives `value` back unchanged, so that the assert tests it.
+    fn __call__<'py>(&self, index: usize, value: Bound<'py, PyAny>) -> Bound<'py, PyAny> {
+        *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some(index);
+        value
+    }
+}
+
+/// A module that `compile()` and `exec()` made from a rewritten text.
+pub struct Loaded<'py> {
+    module: Bound<'py, PyModule>,
+    ran: Bound<'py, Ran>,
+}
+
+impl<'py> Loaded<'py> {
+    /// The module, whose namespace stays in Python.
+    #[must_use]
+    pub const fn module(&self) -> &Bound<'py, PyModule> {
+        &self.module
+    }
+
+    /// The index of the last marked assert that ran, which this call clears.
+    #[must_use]
+    pub fn take(&self) -> Option<usize> {
+        self.ran
+            .get()
+            .last
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take()
+    }
+}
+
+/// Loads `text` as the module at `path`, in this order:
+///
+/// 1. names the module after the file of `path`, without `.py`, and sets its
+///    `__file__` to `path`;
+/// 2. gives it `_purba_ran`;
+/// 3. puts it in `sys.modules` under that name;
+/// 4. compiles `text`, and runs it in the module's namespace.
+///
+/// # Errors
+///
+/// The error that `compile()` or the module's body raises.
+pub fn load<'py>(py: Python<'py>, path: &Path, text: &str) -> PyResult<Loaded<'py>> {
+    let name = path.file_stem().unwrap_or_default().to_string_lossy();
+    let module = PyModule::new(py, &name)?;
+    module.setattr("__file__", path.as_os_str())?;
+    let ran = Bound::new(
+        py,
+        Ran {
+            last: Mutex::new(None),
+        },
+    )?;
+    module.setattr(RAN, &ran)?;
+    py.import("sys")?
+        .getattr("modules")?
+        .set_item(&*name, &module)?;
+    let builtins = py.import("builtins")?;
+    let code = builtins
+        .getattr("compile")?
+        .call1((text, path.as_os_str(), "exec"))?;
+    builtins.getattr("exec")?.call1((code, module.dict()))?;
+    Ok(Loaded { module, ran })
 }
