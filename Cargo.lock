@@ -432,6 +432,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "purba-reporting"
+version = "0.0.0"
+dependencies = [
+ "purba-execution",
+]
+
+[[package]]
 name = "purba-selection"
 version = "0.0.0"
 dependencies = [

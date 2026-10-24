@@ -1,0 +1,14 @@
+[package]
+name = "purba-reporting"
+version = "0.0.0"
+description = "Prints one line for each test and a count, and renders the exit code"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+purba-execution = { path = "../execution" }
+
+[lints]
+workspace = true

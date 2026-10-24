@@ -142,3 +142,25 @@ impl Worker<'_> {
         Ok(Outcome { kind })
     }
 }
+
+/// How many tests of a run passed, failed, are `unknown`, or gave an error in
+/// place of an outcome.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct Tally {
+    pub passed: usize,
+    pub failed: usize,
+    pub unknown: usize,
+    pub errors: usize,
+}
+
+impl Tally {
+    /// Counts one test by its kind, or as an error in place of an outcome.
+    pub const fn add<E>(&mut self, result: &Result<&Kind, E>) {
+        match result {
+            Ok(Kind::Passed) => self.passed += 1,
+            Ok(Kind::Failed { .. }) => self.failed += 1,
+            Ok(Kind::Unknown) => self.unknown += 1,
+            Err(_) => self.errors += 1,
+        }
+    }
+}
