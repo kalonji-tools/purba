@@ -3,11 +3,13 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::path::PathBuf;
+use std::sync::{Mutex, PoisonError};
 
 use purba_assertion::Loaded;
 use pyo3::exceptions::PyAssertionError;
+use pyo3::sync::PyOnceLock;
 use pyo3::types::PyAnyMethods;
-use pyo3::{PyErr, Python};
+use pyo3::{Bound, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use serde::{Deserialize, Serialize};
 
 /// A module that dispatch hands a worker.
@@ -89,15 +91,81 @@ fn error(err: &PyErr) -> Error {
 pub struct Worker<'py> {
     py: Python<'py>,
     loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
+    guard: &'static Py<Guard>,
 }
 
-/// Gives `work` a worker for as long as it runs.
+mod exit {
+    pyo3::create_exception!(purba, ExitInsideATest, pyo3::exceptions::PyBaseException);
+}
+
+use exit::ExitInsideATest;
+
+/// Takes the place of `os._exit`. In the process that installed it, it keeps its
+/// first call until a worker takes it, and raises `ExitInsideATest`. In a process
+/// that a test forks, it calls the real one.
+#[pyclass(frozen)]
+struct Guard {
+    exit: Py<PyAny>,
+    process: u32,
+    called: Mutex<Option<String>>,
+}
+
+#[pymethods]
+impl Guard {
+    fn __call__(&self, status: &Bound<'_, PyAny>) -> PyResult<()> {
+        if std::process::id() == self.process {
+            let call = format!("os._exit({status})");
+            self.called
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .get_or_insert_with(|| call.clone());
+            return Err(ExitInsideATest::new_err(call));
+        }
+        self.exit.call1(status.py(), (status,))?;
+        Ok(())
+    }
+}
+
+impl Guard {
+    fn take(&self) -> Option<String> {
+        self.called
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take()
+    }
+}
+
+static GUARD: PyOnceLock<Py<Guard>> = PyOnceLock::new();
+
+fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
+    GUARD.get_or_try_init(py, || {
+        let os = py.import("os")?;
+        let guard = Py::new(
+            py,
+            Guard {
+                exit: os.getattr("_exit")?.unbind(),
+                process: std::process::id(),
+                called: Mutex::new(None),
+            },
+        )?;
+        os.setattr("_exit", &guard)?;
+        Ok(guard)
+    })
+}
+
+/// Gives `work` a worker for as long as it runs. Before the first worker, it
+/// guards `os._exit` for the life of the process.
+///
+/// # Panics
+///
+/// The guard could not take the place of `os._exit`.
 pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
     Python::initialize();
     Python::attach(|py| {
         work(&mut Worker {
             py,
             loaded: HashMap::new(),
+            guard: guard(py).expect("the guard takes the place of os._exit"),
         })
     })
 }
@@ -109,8 +177,16 @@ impl Worker<'_> {
     ///
     /// The module did not load, it has no `function`, or the call raised an
     /// exception other than `AssertionError`, or raised `AssertionError` before
-    /// any assert ran.
+    /// any assert ran. Also, the guard recorded a call to `os._exit` since the
+    /// last test, whoever saw its error.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
+        let result = self.call(module, function);
+        self.guard.get().take().map_or(result, |call| {
+            Err(Error(format!("ExitInsideATest: {call}")))
+        })
+    }
+
+    fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         if !self.loaded.contains_key(&module.path) {
             let loaded = purba_assertion::load(self.py, &module.path, &module.text);
             let failed = loaded.as_ref().err().map(error);
