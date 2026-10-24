@@ -6,7 +6,7 @@ A Python test framework written in Rust.
 
 ## Status
 
-**purba runs no test yet.** Its walking skeleton is under construction.
+**purba runs the tests of one module.** Its walking skeleton runs on `main`.
 The repository also carries tooling, working rules, dependencies, CI and a docs
 harness.
 

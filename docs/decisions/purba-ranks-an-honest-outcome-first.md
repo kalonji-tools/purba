@@ -63,8 +63,7 @@ So a run can go green and check nothing, and its reader may not notice.
 
 No command checks the rank, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 Each scenario in [the landscape](../../LANDSCAPE.md#the-driver-scenarios) becomes a test when the parts it names exist.
-No test runs one yet.
-The walking skeleton is the first to run one.
+`mise run test:wheel` runs the explicit scenario, and no test runs another one yet.
 
 [The landscape](../../LANDSCAPE.md#the-invariants) states lazy work.
 [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) holds why.

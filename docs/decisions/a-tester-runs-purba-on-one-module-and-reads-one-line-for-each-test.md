@@ -67,8 +67,8 @@ tests/test_a.py::test_three unknown: no assert ran
 
 `mise run test:rust` checks each line and the count that reporting writes.
 It also checks the text of each error that command returns.
+`mise run test:wheel` runs the installed `purba` on `test_a.py`, and checks the lines it prints.
+It checks that `_main` writes the line of a usage error to stderr.
+[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
-No command checks the rest yet.
-The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its lines.
-[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.
-[Add the purba command, and the end-to-end test that runs it on test_a.py](https://github.com/kalonji-tools/purba/issues/575) writes the error line to stderr.
+No command checks the rest.

@@ -162,7 +162,8 @@ licence is not on the allowlist. A link in a file your branch changes is
 checked on the network, so a link that does not reach its target as written
 refuses your branch.
 `Build` refuses a failing Rust test, and a wheel that does not build or does
-not load, on every platform and Python purba supports. It reports on every
+not load, on every platform and Python purba supports. On Linux and macOS, it
+also refuses a failing end-to-end test. It reports on every
 pull request, and runs its jobs unless `.config/gates` on `main` marks every
 path your branch changes `-build`, so a new mark takes effect once it merges.
 `Sign-off` records that purba accepted the branch. Your branch must also be current with `main`

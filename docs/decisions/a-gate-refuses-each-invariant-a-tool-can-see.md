@@ -60,7 +60,7 @@ The design of fixtures reduces the [risk](../../LANDSCAPE.md#the-risks) that an 
 
 ## Confirmation
 
-Five gates refuse a breach of an invariant, one for each row of the table below.
+Six gates refuse a breach of an invariant, one for each row of the table below.
 Each pull request that builds a gate adds its row to the table.
 It adds a probe to the list below only when no test holds that probe.
 
@@ -70,6 +70,7 @@ It adds a probe to the list below only when no test holds that probe.
 | an outcome is data | `mise run test:rust` | the pull request that added `purba-execution` | `an_outcome_is_data`, in `crates/execution/tests/run.rs`. The list below holds one probe |
 | an outcome is final | `mise run test:rust` | the pull request that added `purba-execution` | the two `compile_fail` doc tests on `Outcome`, in `crates/execution/src/lib.rs` |
 | one identity | `mise run test:rust` | the pull request that added `purba-selection` | the three `compile_fail` doc tests on `TestId`, in `crates/selection/src/lib.rs` |
+| lazy work | `mise run test:wheel` | the pull request that added `_main` | `tests/skeleton.bats`, which runs `test_a.py` and refuses an import of `test_b.py` |
 | the diagram is the only wiring | `mise run lint:wiring` | the pull request that added `purba-selection` | `scripts/test/check-wiring.bats`, with one case for each shape it refuses |
 
 The probes that no test holds:
