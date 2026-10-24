@@ -45,7 +45,8 @@ Some part counts each outcome and each error, and some part turns that count int
 `mise run test:rust` checks that a tally adds each kind and each error.
 It checks that the exit code names the worst of the run.
 It checks that the count line matches the lines that reporting prints.
+It checks that command returns the code.
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
 No command checks the rest yet.
-[Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) returns the code to `_main`.
+[Add the purba command, and the end-to-end test that runs it on test_a.py](https://github.com/kalonji-tools/purba/issues/575) turns a refused write into 3.

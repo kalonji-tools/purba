@@ -37,6 +37,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
+- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
 - **A run prints to stdout, in source order, once the run ends.**
 
 ```
@@ -65,7 +66,9 @@ tests/test_a.py::test_three unknown: no assert ran
 ## Confirmation
 
 `mise run test:rust` checks each line and the count that reporting writes.
+It also checks the text of each error that command returns.
 
 No command checks the rest yet.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its lines.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.
+[Add the purba command, and the end-to-end test that runs it on test_a.py](https://github.com/kalonji-tools/purba/issues/575) writes the error line to stderr.
