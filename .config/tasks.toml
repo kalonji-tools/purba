@@ -169,3 +169,14 @@ description = "Run purba's own scripts against the shapes they refuse"
 # bats names the line that failed and never what the script wrote, so the flag
 # prints the script's output beside it.
 run = "bats --print-output-on-failure --recursive scripts/test"
+
+["test:wheel"]
+description = "Run the end-to-end test on the purba that the wheel installs"
+#   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+run = """
+maturin build --quiet
+python -m venv --clear target/wheel-venv
+target/wheel-venv/bin/python -m pip install --quiet --force-reinstall --no-index \
+  --find-links target/wheels purba
+PATH="$PWD/target/wheel-venv/bin:$PATH" bats --print-output-on-failure tests
+"""

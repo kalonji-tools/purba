@@ -40,3 +40,4 @@ scripts/**                        toolsmith
 docs/**                           technical-writer
 docs/decisions/**                 architect
 crates/**                         coder library-author tester
+tests/**                          coder reviewer

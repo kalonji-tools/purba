@@ -29,6 +29,11 @@ license-files = ["LICENSE"]
 # No `Programming Language :: Python :: 3.x` entries, ever. They would be a
 # second version-shaped set that nothing compares against `requires-python`.
 
+[project.scripts]
+# editorconfig-checker-disable-next-line
+#   the decision:  docs/decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md
+purba = "purba:_main"
+
 [tool.maturin]
 module-name = "purba"
 manifest-path = "crates/purba/Cargo.toml"

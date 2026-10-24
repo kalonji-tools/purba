@@ -25,6 +25,7 @@
 /.cargo/config.toml            build   scripts
 /.cargo/clippy.toml            build   scripts
 crates/**                      build   -scripts
+tests/**                       build   -scripts
 /pyproject.toml                build   scripts
 /README.md                     build   -scripts
 /LICENSE                       build   -scripts

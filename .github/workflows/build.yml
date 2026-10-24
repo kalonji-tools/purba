@@ -134,6 +134,11 @@ jobs:
               sys.exit(f"the submodule is not the extension: {path}")
           PY
 
+      #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+      - name: Run the end-to-end test on ${{ matrix.python }}
+        if: runner.os != 'Windows'
+        run: bats --print-output-on-failure tests
+
   Build:
     name: Build
     needs: [changed, rust, wheel]
