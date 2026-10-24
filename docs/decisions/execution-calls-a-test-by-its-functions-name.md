@@ -54,10 +54,10 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 `mise run test:rust` checks that an identity prints as `path::function`.
 It checks that a worker of execution calls a test by its function's name.
+It checks that reporting prints each identity as it is given.
 It checks that dispatch builds execution's module.
 It checks that dispatch puts each outcome or error beside its test.
 The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.
 
 No command checks the rest yet.
 [Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds dispatch's input.
-[Add purba-reporting, which prints one line for each test and a count](https://github.com/kalonji-tools/purba/issues/573) builds the line.
