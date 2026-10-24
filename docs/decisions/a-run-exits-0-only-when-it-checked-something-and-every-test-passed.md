@@ -16,6 +16,12 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 | clap exits 2 on a usage error | [clap's exit codes](https://github.com/clap-rs/clap/blob/v4.6.7/clap_builder/src/util/mod.rs#L26-L32) |
 | pytest exits 0 when its tests pass, 1 when a test fails, 2 when it is interrupted, 3 on an internal error, 4 on misuse, and 5 when it finds no test | [pytest's `ExitCode`](https://github.com/pytest-dev/pytest/blob/9.1.1/src/_pytest/config/__init__.py#L101-L120) |
 | pytest 9.0.3 reports a test that raises `ValueError` as failed, and exits 1 | [the probe](https://github.com/kalonji-tools/purba/issues/608#issuecomment-6318260548) |
+| `os._exit` exits at once, with no cleanup handler, and should normally be called only in the child of a fork | [CPython's `os.rst`](https://github.com/python/cpython/blob/v3.15.0/Doc/library/os.rst?plain=1#L4955-L4963) |
+| a child that `multiprocessing` forks ends with `os._exit` | [CPython's `popen_fork.py`](https://github.com/python/cpython/blob/v3.15.0/Lib/multiprocessing/popen_fork.py#L81-L90) |
+| a test that calls `os._exit(0)`, `std::process::exit(0)` or `process.exit(0)` after another test failed ends pytest, `unittest`, `cargo test` and Jest with 0 | [the research of exit codes](https://github.com/kalonji-tools/purba/blob/9b3fcc44897ffff09a876f00034adf6fe88a81dd/research/exit-codes.md?plain=1#L120-L123) |
+| Go panics when a test calls `os.Exit(0)`, and on no other code | [Go 1.16 notes](https://go.dev/doc/go1.16#go-test), [Go's `proc.go`](https://github.com/golang/go/blob/go1.27.3/src/os/proc.go#L62-L68) |
+| Vitest throws when a test calls `process.exit`, with any code | [Vitest's `base.ts`](https://github.com/vitest-dev/vitest/blob/v5.0.5/packages/vitest/src/runtime/workers/base.ts#L33-L38) |
+| `faulthandler` calls the C `_exit(1)` when its timer fires with `exit=True` | [its docstring](https://github.com/python/cpython/blob/v3.15.0/Modules/faulthandler.c#L798-L799), [the call](https://github.com/python/cpython/blob/v3.15.0/Modules/faulthandler.c#L713-L723) |
 
 ## Considered Options
 
@@ -25,6 +31,11 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **An error in place of an outcome exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised an error.
 - **An error in place of an outcome exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the error.
 - **Five codes, which keep `unknown`, a run with no test, and an error apart from a failure.** Chosen. Only a run that checked at least one behaviour, with no failed or `unknown` test and no error, exits 0.
+- **A test that calls `os._exit` ends the run with its code, and the Downside names it.** Rejected. With 0, the run reads as clean though an earlier test failed.
+- **Only `os._exit(0)` gives an error, as in Go.** Rejected. Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
+- **The guard raises and records nothing, and the Downside names a call whose error a thread or the test catches.** Rejected. A test that hides the call passes, and the run can exit 0. Before the guard, the run ended with the code of the call.
+- **Off the test's thread, a code other than 0 calls the real `os._exit`.** Rejected. `faulthandler` already ends a hung test, and the guard would need to know which thread runs the test.
+- **A guard takes the place of `os._exit` in purba's process.** Chosen. A test that calls it gives an error. A child that a test forks still exits.
 
 ## Decision Outcome
 
@@ -44,6 +55,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **An interrupt is not an error here.** The design in depth of interrupt handling chooses its code.
 - **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
+- **A test that calls `os._exit` gives an error in place of an outcome.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
 
@@ -53,10 +65,15 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **An integrator cannot tell a usage error, a path that does not exist and an error inside purba that stops the run apart.** All three exit 3 until the design in depth of errors divides them.
 - **An error inside purba that reaches dispatch exits 4, as an error of the tester's code does.** Dispatch has only the text of the error, so it cannot tell the two apart.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
+- **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
+- **A thread that calls `os._exit` after its test returned charges the test that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
+- **A thread that calls `os._exit` while its test hangs does not end the run.** The run waits on the test. `faulthandler` with `exit=True` still ends it, because it exits from C.
 
 ## Confirmation
 
 `mise run test:rust` checks that reporting renders 0, 1, 2 and 4 from a tally of the run.
+It also checks that a call to `os._exit` gives an error, from a thread or under `except BaseException` too.
+It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 
 No command checks the rest yet.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its exit code.
