@@ -57,7 +57,7 @@ fn a_module_level_assert_leaves_a_test_unknown() {
     assert_eq!(
         kinds(&test_level, &["test_none"]),
         [Kind::Unknown],
-        "execution clears the index of the module's assert before the test",
+        "the module-level assert ran before the test's call",
     );
 }
 
