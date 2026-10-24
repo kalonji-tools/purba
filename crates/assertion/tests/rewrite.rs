@@ -94,3 +94,17 @@ fn a_module_with_no_assert_is_unchanged() {
     assert_eq!(rewritten.text(), text, "the text as it was read");
     assert!(rewritten.asserts().is_empty(), "no assert to quote");
 }
+
+#[test]
+fn a_rewrite_gives_up_its_text_and_each_assert() {
+    let rewritten = rewrite("test_parts.py", "def test_one():\n    assert 1 == 1\n");
+
+    assert_eq!(
+        rewritten.into_parts(),
+        (
+            "def test_one():\n    assert _purba_ran(0, 1 == 1)\n".to_owned(),
+            vec!["assert 1 == 1".to_owned()]
+        ),
+        "the same text and asserts that text() and asserts() lend"
+    );
+}

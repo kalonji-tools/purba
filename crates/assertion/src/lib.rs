@@ -32,6 +32,12 @@ impl Rewrite {
     pub fn asserts(&self) -> &[String] {
         &self.asserts
     }
+
+    /// The rewritten text and the source text of each assert, moved out.
+    #[must_use]
+    pub fn into_parts(self) -> (String, Vec<String>) {
+        (self.text, self.asserts)
+    }
 }
 
 /// Each assert of a module, in source order, at any depth.
