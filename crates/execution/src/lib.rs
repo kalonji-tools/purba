@@ -188,7 +188,8 @@ impl Worker<'_> {
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         if !self.loaded.contains_key(&module.path) {
-            let loaded = purba_assertion::load(self.py, &module.path, &module.text);
+            let loaded =
+                purba_assertion::load(self.py, &module.path, &module.text, module.asserts.clone());
             let failed = loaded.as_ref().err().map(error);
             self.loaded.insert(module.path.clone(), loaded.ok());
             if let Some(failed) = failed {
@@ -198,19 +199,17 @@ impl Worker<'_> {
         let loaded = self.loaded[&module.path]
             .as_ref()
             .ok_or_else(|| Error(format!("{} did not load", module.path.display())))?;
-        let _ = loaded.take();
         let test = loaded
             .module()
             .getattr(function)
             .map_err(|err| error(&err))?;
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
-        let kind = match (test.call0(), loaded.take()) {
+        let kind = match loaded.watch(|| test.call0()) {
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
-            (Err(err), Some(index)) if err.is_instance_of::<PyAssertionError>(self.py) => {
-                let assert = module.asserts.get(index).ok_or_else(|| error(&err))?;
+            (Err(err), Some(assert)) if err.is_instance_of::<PyAssertionError>(self.py) => {
                 Kind::Failed {
-                    assert: assert.clone(),
+                    assert: assert.to_owned(),
                 }
             }
             (Err(err), _) => return Err(error(&err)),

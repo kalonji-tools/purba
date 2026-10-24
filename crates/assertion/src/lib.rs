@@ -2,6 +2,7 @@
 //! It also loads the rewritten module.
 
 use purba_parsing::Module;
+use pyo3::exceptions::PyIndexError;
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use pyo3::{Bound, PyAny, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
@@ -91,18 +92,39 @@ pub fn rewrite(module: &Module) -> Rewrite {
     }
 }
 
-/// The index of the last marked assert that ran in one loaded module.
+/// The source text of each assert of one loaded module, and the index of the
+/// last one that ran.
 #[pyclass(frozen)]
 struct Ran {
+    asserts: Vec<String>,
     last: Mutex<Option<usize>>,
 }
 
 #[pymethods]
 impl Ran {
     /// Records `index`. Gives `value` back unchanged, so that the assert tests it.
-    fn __call__<'py>(&self, index: usize, value: Bound<'py, PyAny>) -> Bound<'py, PyAny> {
+    ///
+    /// # Errors
+    ///
+    /// `IndexError`, and records nothing, when no assert has `index`.
+    fn __call__<'py>(&self, index: usize, value: Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        if index >= self.asserts.len() {
+            return Err(PyIndexError::new_err(format!(
+                "{RAN}({index}): the module has {} asserts",
+                self.asserts.len()
+            )));
+        }
         *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some(index);
-        value
+        Ok(value)
+    }
+}
+
+impl Ran {
+    fn take(&self) -> Option<usize> {
+        self.last
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take()
     }
 }
 
@@ -119,15 +141,17 @@ impl<'py> Loaded<'py> {
         &self.module
     }
 
-    /// The index of the last marked assert that ran, which this call clears.
-    #[must_use]
-    pub fn take(&self) -> Option<usize> {
-        self.ran
-            .get()
-            .last
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
+    /// Runs `call` with no assert recorded. Gives its result, and the source
+    /// text of the last marked assert that ran inside it.
+    pub fn watch<R>(&self, call: impl FnOnce() -> R) -> (R, Option<&str>) {
+        let ran = self.ran.get();
+        let _ = ran.take();
+        let result = call();
+        let last = ran
             .take()
+            .and_then(|index| ran.asserts.get(index))
+            .map(String::as_str);
+        (result, last)
     }
 }
 
@@ -135,20 +159,27 @@ impl<'py> Loaded<'py> {
 ///
 /// 1. names the module after the file of `path`, without `.py`, and sets its
 ///    `__file__` to `path`;
-/// 2. gives it `_purba_ran`;
+/// 2. gives it `_purba_ran`, which holds `asserts`, the source text of each
+///    assert at the index that its mark records;
 /// 3. puts it in `sys.modules` under that name;
 /// 4. compiles `text`, and runs it in the module's namespace.
 ///
 /// # Errors
 ///
 /// The error that `compile()` or the module's body raises.
-pub fn load<'py>(py: Python<'py>, path: &Path, text: &str) -> PyResult<Loaded<'py>> {
+pub fn load<'py>(
+    py: Python<'py>,
+    path: &Path,
+    text: &str,
+    asserts: Vec<String>,
+) -> PyResult<Loaded<'py>> {
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
     let module = PyModule::new(py, &name)?;
     module.setattr("__file__", path.as_os_str())?;
     let ran = Bound::new(
         py,
         Ran {
+            asserts,
             last: Mutex::new(None),
         },
     )?;
