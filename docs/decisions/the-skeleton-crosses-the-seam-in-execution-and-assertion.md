@@ -27,8 +27,8 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that assertion's load makes from the rewritten source | the module's namespace |
-| execution | whether the call returned or raised `AssertionError`, the index of the last assert that ran, and the type and message of each error that gives no outcome, as text | the traceback |
+| assertion | the module that assertion's load makes from the rewritten source, and the index of the last assert that ran | the module's namespace |
+| execution | whether the call returned or raised `AssertionError`, and the type and message of each error that gives no outcome, as text | the traceback |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
@@ -49,9 +49,9 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 `mise run test:rust` checks that assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.
 It also checks that the rewrite gives the source text of each assert at its index.
 It checks that assertion's load runs the rewritten text as a module that holds `_purba_ran`.
-It checks that the index of the last marked assert that ran reaches Rust.
-It checks that execution makes a passed, failed or `unknown` outcome from the call and the last index.
-It checks that execution clears the index before each test.
+It checks that assertion's loaded module gives the source text of the last assert that ran inside one call, if any ran.
+It checks that a call to `_purba_ran` with an index that names no assert raises `IndexError`.
+It checks that execution makes a passed, failed or `unknown` outcome from the call and the source text of the last assert that ran.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 

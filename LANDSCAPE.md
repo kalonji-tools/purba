@@ -106,7 +106,7 @@ sequenceDiagram
   loop each selected test
     dispatch ->> execution: a function's name, and its module
     opt the first test of a module
-      execution ->> assertion: the rewritten text
+      execution ->> assertion: the rewritten text, and the text of each assert
       assertion -->> execution: the loaded module
     end
     execution ->> fixtures: the inputs the test names
