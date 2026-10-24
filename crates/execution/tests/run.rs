@@ -125,3 +125,28 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
         "the second test names the module, and the body runs once",
     );
 }
+
+#[cfg(unix)]
+#[test]
+fn a_forked_child_exits_with_its_own_code() {
+    let test_fork = module(
+        "test_fork.py",
+        "import os\n\n\
+         def test_forks():\n    pid = os.fork()\n    if pid == 0:\n        os._exit(7)\n\
+         \x20   _, status = os.waitpid(pid, 0)\n\
+         \x20   assert _purba_ran(0, os.waitstatus_to_exitcode(status) == 7)\n\n\
+         def test_forks_with_a_keyword():\n    pid = os.fork()\n    if pid == 0:\n\
+         \x20       os._exit(status=7)\n\
+         \x20   _, status = os.waitpid(pid, 0)\n\
+         \x20   assert _purba_ran(1, os.waitstatus_to_exitcode(status) == 7)\n",
+        &[
+            "assert os.waitstatus_to_exitcode(status) == 7",
+            "assert os.waitstatus_to_exitcode(status) == 7",
+        ],
+    );
+    assert_eq!(
+        kinds(&test_fork, &["test_forks", "test_forks_with_a_keyword"]),
+        [Kind::Passed, Kind::Passed],
+        "the guard calls the real os._exit in a process that a test forks",
+    );
+}
