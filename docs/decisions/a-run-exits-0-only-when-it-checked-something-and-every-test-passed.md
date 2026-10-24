@@ -45,6 +45,8 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **An interrupt is not an error here.** The design in depth of interrupt handling chooses its code.
 - **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
 
+[Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
+
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
@@ -54,6 +56,8 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Confirmation
 
-No command checks it yet.
+`mise run test:rust` checks that reporting renders 0, 1, 2 and 4 from a tally of the run.
+
+No command checks the rest yet.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its exit code.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.

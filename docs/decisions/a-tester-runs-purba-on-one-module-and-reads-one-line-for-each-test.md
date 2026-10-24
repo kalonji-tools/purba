@@ -15,13 +15,18 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 | PyO3 appends each name that a module adds to its `__all__` | [PyO3's `PyModule::add`](https://github.com/PyO3/pyo3/blob/v0.29.2/src/types/module.rs#L487-L501) |
 | `python -m` on a package runs its `__main__` submodule, and refuses a package that has none | [CPython's `runpy`](https://github.com/python/cpython/blob/v3.15.0/Lib/runpy.py#L145-L156) |
 | command hands the outcomes to reporting, and the diagram draws no stream | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
+| dispatch hands command each test beside its outcome, or beside the error it gave in place of one | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
 
 ## Considered Options
 
 - **`python -m purba`, alone or beside the console script.** Rejected. It needs a `__main__.py` in purba's package, so command holds a Python file. [Every part of the skeleton is Rust, inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) keeps Python files out.
 - **A directory and a query as the input.** Rejected. The query language belongs to the design in depth of selection.
 - **A data format for an [integrator](../../CONTEXT.md#integrator) now, such as JSON Lines.** Rejected. Reporting decides a format in its design in depth, and a format chosen now joins the public surface first.
-- **A console script on one path to one module, which prints one line for each test.** Chosen. It adds one command and one private name, and the wheel keeps its layout.
+- **A test that gave an error prints as failed.** Rejected. The tester cannot tell a defect that an assert found from an error that stopped the test.
+- **A count that names a kind only above 0.** Rejected. The count changes its shape from run to run. A run with no `unknown` test does not name `unknown`.
+- **A reason over several lines prints each line break as `\n`.** Rejected. An escaped reason is hard to read.
+- **A reason over several lines prints only its first line.** Rejected. A cut reason hides the rest of the assert or the error.
+- **A console script on one path to one module, which prints one line for each test and a count of each kind and each error.** Chosen. It adds one command and one private name, and the wheel keeps its layout.
 
 ## Decision Outcome
 
@@ -38,18 +43,20 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 tests/test_a.py::test_one passed
 tests/test_a.py::test_two failed: assert 1 == 2
 tests/test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown
+3 tests: 1 passed, 1 failed, 1 unknown, 0 errors
 ```
 
-- **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome.**
-- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values.
-- **The count names `unknown`.** [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts it.
+- **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome or `error`.**
+- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. An `error` line gives the text of the error, such as `ValueError: boom`.
+- **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
+- **The count names all four, even at 0.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
 **Downside:**
 
 - **`python -m purba` fails.** CPython prints `No module named purba.__main__; 'purba' is a package and cannot be directly executed`.
 - **A failed line shows no values.** The tester reads them only after assertion shows them in its design in depth.
+- **A reason changes a string literal that spans several lines.** Each run of whitespace in it that holds a line break prints as one space.
 - **`from purba import *` imports `_main`.** PyO3 lists `_main` in `__all__`, and maturin's `__init__.py` imports each name on that list.
 - **The end-to-end test of the walking skeleton reads text.** Reporting rewrites the text in its design in depth, and that test with it.
 - **An integrator gets only the exit code until reporting decides a format.**
@@ -57,6 +64,8 @@ tests/test_a.py::test_three unknown: no assert ran
 
 ## Confirmation
 
-No command checks it yet.
+`mise run test:rust` checks each line and the count that reporting writes.
+
+No command checks the rest yet.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its lines.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.

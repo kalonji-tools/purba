@@ -54,7 +54,7 @@ flowchart LR
 
 ## The parts and their dependencies
 
-- **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and sets the exit code.
+- **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a diagnostic.
 - **dispatch.** Hands each selected test to a worker and returns its outcome, or the error it gave in place of one, whatever the worker is.
@@ -117,6 +117,7 @@ sequenceDiagram
   dispatch -->> command: three outcomes, each beside its test
   command ->> reporting: each outcome beside its test
   reporting ->> tester: one line for each test, and a count
+  reporting -->> command: exit code 1
   command -->> main: exit code 1
   main -->> tester: the process exits 1
 ```
@@ -125,6 +126,7 @@ sequenceDiagram
 [Command lends one parse to selection and assertion](docs/decisions/command-lends-one-parse-to-selection-and-assertion.md) holds why command hands each parsed module on.
 [A worker loads each module once, and command hands each module once](docs/decisions/a-worker-loads-each-module-once.md) holds why command hands dispatch each module once, and why a worker loads it once.
 [Execution calls a test by its function's name, and reporting prints the identity it is given](docs/decisions/execution-calls-a-test-by-its-functions-name.md) holds why execution and reporting never name the identity's type.
+[Reporting renders the exit code, and command returns it](docs/decisions/reporting-renders-the-exit-code-and-command-returns-it.md) says which part holds the rule that counts, and which part renders the exit code.
 
 ## The invariants
 
