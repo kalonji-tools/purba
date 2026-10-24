@@ -1,0 +1,18 @@
+[package]
+name = "purba-command"
+version = "0.0.0"
+description = "Reads the arguments, runs the module they name, and returns the exit code"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+purba-assertion = { path = "../assertion" }
+purba-dispatch = { path = "../dispatch" }
+purba-parsing = { path = "../parsing" }
+purba-reporting = { path = "../reporting" }
+purba-selection = { path = "../selection" }
+
+[lints]
+workspace = true

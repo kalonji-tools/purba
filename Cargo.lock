@@ -402,6 +402,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "purba-command"
+version = "0.0.0"
+dependencies = [
+ "purba-assertion",
+ "purba-dispatch",
+ "purba-parsing",
+ "purba-reporting",
+ "purba-selection",
+]
+
+[[package]]
 name = "purba-dispatch"
 version = "0.0.0"
 dependencies = [
