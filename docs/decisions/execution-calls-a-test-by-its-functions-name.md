@@ -57,7 +57,6 @@ It checks that a worker of execution calls a test by its function's name.
 It checks that reporting prints each identity as it is given.
 It checks that dispatch builds execution's module.
 It checks that dispatch puts each outcome or error beside its test.
-The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.
+It checks that command builds dispatch's input from selection's tests.
 
-No command checks the rest yet.
-[Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds dispatch's input.
+The `compile_fail` doc tests on `TestId` check that no crate but selection constructs an identity or reaches one of its fields.

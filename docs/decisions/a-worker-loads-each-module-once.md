@@ -44,5 +44,5 @@ It checks that a module that fails to load runs its body once for two of its tes
 It checks that the next test of such a module gets an error that names the module.
 It checks that dispatch hands the tests of one module to one worker.
 
-No command checks the rest yet.
-[Add purba-command, which turns the arguments into an exit code](https://github.com/kalonji-tools/purba/issues/574) builds it.
+`mise run test:rust` does not check that command hands each module once.
+A run takes one module, so command hands it at most once.

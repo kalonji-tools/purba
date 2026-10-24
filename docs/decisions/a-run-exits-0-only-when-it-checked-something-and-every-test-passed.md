@@ -48,11 +48,11 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 | 0 | at least one test ran, and every test passed |
 | 1 | a test failed |
 | 2 | no test failed or gave an error, and a test is `unknown` or no test ran |
-| 3 | the run did not finish: a usage error, a path that does not exist, or an error inside purba |
+| 3 | the run did not finish: a usage error, a module that purba cannot read, a refused write, or an error inside purba |
 | 4 | no test failed, and a test gave an error in place of an outcome |
 
 - **`_main` catches each error at its boundary, and returns 3.**
-- **`_main` reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
+- **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **An interrupt is not an error here.** The design in depth of interrupt handling chooses its code.
 - **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
 - **A test that calls `os._exit` gives an error in place of an outcome.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
@@ -62,7 +62,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
-- **An integrator cannot tell a usage error, a path that does not exist and an error inside purba that stops the run apart.** All three exit 3 until the design in depth of errors divides them.
+- **An integrator cannot tell the causes of 3 apart.** They are a usage error, a module that purba cannot read, a refused write and an error inside purba that stops the run. Each exits 3 until the design in depth of errors divides them.
 - **An error inside purba that reaches dispatch exits 4, as an error of the tester's code does.** Dispatch has only the text of the error, so it cannot tell the two apart.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
@@ -74,6 +74,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 `mise run test:rust` checks that reporting renders 0, 1, 2 and 4 from a tally of the run.
 It also checks that a call to `os._exit` gives an error, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
+It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
 
 No command checks the rest yet.
 The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its exit code.
