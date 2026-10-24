@@ -48,7 +48,7 @@ A runner that refuses plugins must say how an integration reaches a test.
 ## Confirmation
 
 No command checks it.
-A gate could check that the surface is empty today, and the first milestone would make that check false.
+A gate could check that the surface holds only the command name `purba`, and the first milestone would make that check false.
 No gate can decide whether an issue needs a name, so [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies.
 The review of each pull request that adds a name checks that its issue needs the name.
 [purba runs inside the tester's interpreter](purba-runs-inside-the-testers-interpreter.md#decision-outcome) keeps a plugin off the context diagram.

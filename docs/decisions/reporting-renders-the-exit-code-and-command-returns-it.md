@@ -48,5 +48,6 @@ It checks that the count line matches the lines that reporting prints.
 It checks that command returns the code.
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
-No command checks the rest yet.
-[Add the purba command, and the end-to-end test that runs it on test_a.py](https://github.com/kalonji-tools/purba/issues/575) turns a refused write into 3.
+No command checks that `_main` turns a refused write into 3.
+A test needs a stdout that refuses each write, such as `/dev/full`.
+macOS has no `/dev/full`, so the test would run on Linux alone.

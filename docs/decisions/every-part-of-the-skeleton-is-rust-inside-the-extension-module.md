@@ -34,7 +34,7 @@ A part needs its language before anyone writes it.
 | execution | PyO3 holds the module, the call and the exception, and `cargo test` runs it |
 | command, dispatch, fixtures and reporting | none of them holds Python state in the skeleton |
 
-- **purba's source holds no Python file.** The wheel's only Python file is the `__init__.py` that maturin writes, as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#context-and-problem-statement) states.
+- **No part holds a Python file.** The wheel's only Python file is the `__init__.py` that maturin writes, as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#context-and-problem-statement) states.
 - **Command runs inside the extension module, and never as a Rust executable.** The console script stays as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) declares it.
 - **The design in depth of a part may move that part to Python.**
 
@@ -45,7 +45,7 @@ A part needs its language before anyone writes it.
 
 ## Confirmation
 
-No command checks it yet.
-The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.
+`mise run test:wheel` checks that the installed `purba` runs a module through `_main`, inside the extension module.
+No command checks that each part is Rust.
 [The skeleton crosses the seam in execution and assertion](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) holds what crosses between Rust and Python.
 [Each part is a crate](each-part-is-a-crate.md#decision-outcome) says which crate holds each part's code.

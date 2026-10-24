@@ -74,4 +74,4 @@ flowchart TD
 
 `mise run lint:wiring` refuses a use between two parts that the parts diagram does not draw, in a manifest and in the sequence of one run.
 `mise run test:shell` runs the check on a fixture for each shape it refuses.
-The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the other crates.
+No command checks that `purba` uses no part but `purba-command`, because the check skips the crate `purba`.

@@ -75,7 +75,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 It also checks that a call to `os._exit` gives an error, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
+`mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, and exits 3 on a usage error.
+[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
-No command checks the rest yet.
-The end-to-end test of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) runs `purba` on one module and reads its exit code.
-[bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what runs that test.
+No command checks the rest.

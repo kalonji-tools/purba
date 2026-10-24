@@ -55,5 +55,5 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 
 ## Confirmation
 
-No command checks it, because the test does not exist yet.
-[Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) holds the slice that adds it.
+`mise run test:wheel` runs `bats` over `tests/`, against the `purba` that the wheel installs.
+Build's `wheel` job runs `tests/skeleton.bats` on each Linux and macOS arm.

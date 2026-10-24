@@ -53,5 +53,6 @@ It checks that the index of the last marked assert that ran reaches Rust.
 It checks that execution makes a passed, failed or `unknown` outcome from the call and the last index.
 It checks that execution clears the index before each test.
 
-No command checks the rest yet.
-The slices of [Wayfinder: purba's walking skeleton, running every part on main](https://github.com/kalonji-tools/purba/issues/533) add the parts.
+`mise run test:wheel` checks that `_main` hands command the arguments of the console script.
+
+No command checks the rest.
