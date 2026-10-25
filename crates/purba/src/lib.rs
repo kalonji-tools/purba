@@ -30,7 +30,7 @@ fn main(py: Python<'_>) -> u8 {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
-    match panic::catch_unwind(|| purba_command::run(&argv)) {
+    match panic::catch_unwind(|| purba_command::run(&argv, &mut io::stdout())) {
         Ok(Ok(code)) => code,
         Ok(Err(error)) => stop(&error),
         // The panic hook already wrote the panic's message to stderr.
