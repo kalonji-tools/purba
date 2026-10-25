@@ -150,3 +150,36 @@ fn a_forked_child_exits_with_its_own_code() {
         "the guard calls the real os._exit in a process that a test forks",
     );
 }
+
+#[test]
+fn an_assertion_error_after_an_assert_that_held_is_an_error() {
+    let test_helper = module(
+        "test_helper.py",
+        "def test_helper():\n    assert _purba_ran(0, 1 == 1)\n\
+         \x20   raise AssertionError('from a helper')\n",
+        &["assert 1 == 1"],
+    );
+    let error = purba_execution::attach(|worker| worker.run(&test_helper, "test_helper"))
+        .expect_err("no assert failed");
+    assert_eq!(
+        error.to_string(),
+        "AssertionError: from a helper",
+        "Python's error as text"
+    );
+}
+
+#[test]
+fn an_assertion_error_before_any_assert_is_an_error() {
+    let test_bare = module(
+        "test_bare.py",
+        "def test_bare():\n    raise AssertionError('no assert ran')\n",
+        &[],
+    );
+    let error = purba_execution::attach(|worker| worker.run(&test_bare, "test_bare"))
+        .expect_err("no assert ran");
+    assert_eq!(
+        error.to_string(),
+        "AssertionError: no assert ran",
+        "Python's error as text"
+    );
+}

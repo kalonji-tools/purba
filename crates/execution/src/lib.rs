@@ -62,8 +62,8 @@ impl Outcome {
 pub enum Kind {
     /// An assert ran, and the test returned.
     Passed,
-    /// The test raised `AssertionError` after an assert ran. `assert` is the
-    /// source text of the last assert that ran.
+    /// The last assert that ran did not hold, and the test raised
+    /// `AssertionError`. `assert` is the source text of that assert.
     Failed { assert: String },
     /// No assert ran, and the test returned.
     Unknown,
@@ -176,9 +176,9 @@ impl Worker<'_> {
     /// # Errors
     ///
     /// The module did not load, it has no `function`, or the call raised an
-    /// exception other than `AssertionError`, or raised `AssertionError` before
-    /// any assert ran. Also, the guard recorded a call to `os._exit` since the
-    /// last test, whoever saw its error.
+    /// exception other than `AssertionError`, or raised `AssertionError` when
+    /// no assert ran or the last one held. Also, the guard recorded a call to
+    /// `os._exit` since the last test, whoever saw its error.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         let result = self.call(module, function);
         self.guard.get().take().map_or(result, |call| {
@@ -207,7 +207,9 @@ impl Worker<'_> {
         let kind = match loaded.watch(|| test.call0()) {
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
-            (Err(err), Some(assert)) if err.is_instance_of::<PyAssertionError>(self.py) => {
+            (Err(err), Some((assert, false)))
+                if err.is_instance_of::<PyAssertionError>(self.py) =>
+            {
                 Kind::Failed {
                     assert: assert.to_owned(),
                 }
