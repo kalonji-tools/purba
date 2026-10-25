@@ -19,9 +19,8 @@ fi
 
 base=${1:-origin/main}
 
-if ! start=$(git merge-base "${base}" HEAD 2>&1); then
+if ! start=$(git merge-base "${base}" HEAD); then
   echo "sign-branch.sh cannot find where your branch leaves ${base}." >&2
-  echo "${start}" >&2
   exit 2
 fi
 

@@ -1,5 +1,6 @@
 # scripts/check-replayable.sh against the branches it refuses.
 : "${BATS_TEST_DIRNAME:?set by bats}"
+bats_require_minimum_version 1.5.0
 
 setup() {
   # shellcheck source=scripts/test/fixture.sh
@@ -220,6 +221,45 @@ refusing_hook() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"could not find where unrelated leaves main"* ]]
+}
+
+@test "with rebase.updateRefs set, a branch inside the range stays where it was" {
+  commit "feat: one"
+  git branch stack
+  commit "feat: two"
+  before=$(git rev-parse stack)
+  git config rebase.updateRefs true
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 0 ]]
+  after=$(git rev-parse stack)
+  [[ "${after}" == "${before}" ]]
+}
+
+@test "with commit.gpgSign set, the replay signs nothing" {
+  commit "feat: one"
+  fake gpg <<<'exit 1'
+  git config commit.gpgSign true
+  git config gpg.program "${BATS_TEST_TMPDIR}/bin/gpg"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 0 ]]
+  signed=$(calls gpg)
+  [[ -z "${signed}" ]]
+}
+
+@test "a base name git calls ambiguous replays, and git's warning reaches stderr" {
+  commit "feat: one"
+  git update-ref refs/remotes/origin/main main
+  git branch origin/main main
+
+  run --separate-stderr "${script}" origin/main work
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" =~ ^[0-9a-f]{40}$ ]]
+  [[ "${stderr}" == *"refname 'origin/main' is ambiguous"* ]]
 }
 
 @test "the wrong number of arguments exits 2" {

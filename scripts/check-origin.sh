@@ -16,8 +16,12 @@ set -euo pipefail
 
 [[ $# -eq 2 ]] || cannot "usage: check-origin.sh <base> <head>"
 
-commits=$(git rev-list "$1".."$2" 2>&1) ||
-  cannot "the origin check could not read the range $1..$2." "${commits}"
+stderr=$(mktemp)
+trap 'rm -f "${stderr}"' EXIT
+
+commits=$(git rev-list "$1".."$2" 2>"${stderr}") ||
+  cannot "the origin check could not read the range $1..$2." "$(<"${stderr}")"
+cat "${stderr}" >&2
 
 # Read the trailer, never the message. The decision above says why.
 #
