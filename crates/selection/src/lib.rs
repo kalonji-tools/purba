@@ -1,5 +1,6 @@
 //! Selection: names the tests of a parsed module, and imports nothing.
 
+use std::collections::HashSet;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -45,18 +46,24 @@ impl fmt::Display for TestId {
 }
 
 /// Each test of `module`, in source order. `path` is the module's path as the
-/// tester typed it.
+/// tester typed it. A name defined twice is one test, at its first definition:
+/// import binds the name there and keeps the last body.
 #[must_use]
 pub fn select(path: &Path, module: &Module) -> Vec<TestId> {
+    let mut seen = HashSet::new();
     module
         .syntax()
         .body
         .iter()
         .filter_map(|statement| match statement {
-            Stmt::FunctionDef(function) if function.name.starts_with("test") => Some(TestId {
-                path: path.to_path_buf(),
-                function: function.name.to_string(),
-            }),
+            Stmt::FunctionDef(function)
+                if function.name.starts_with("test") && seen.insert(function.name.as_str()) =>
+            {
+                Some(TestId {
+                    path: path.to_path_buf(),
+                    function: function.name.to_string(),
+                })
+            }
             _ => None,
         })
         .collect()

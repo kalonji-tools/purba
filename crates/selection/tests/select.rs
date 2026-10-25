@@ -42,3 +42,32 @@ fn an_identity_gives_its_path_and_function() {
     );
     assert_eq!(test.function(), "test_one", "the function's name");
 }
+
+#[test]
+fn a_name_defined_twice_is_one_test_at_its_first_definition() {
+    let file = write(
+        "test_twice.py",
+        concat!(
+            "def test_a():\n    pass\n\n",
+            "def test_dup():\n    assert False\n\n",
+            "def test_b():\n    pass\n\n",
+            "def test_dup():\n    assert True\n",
+        ),
+    );
+    let module = purba_parsing::parse(&file).expect("the module parses");
+
+    let names: Vec<String> = purba_selection::select(Path::new("test_a.py"), &module)
+        .iter()
+        .map(ToString::to_string)
+        .collect();
+
+    assert_eq!(
+        names,
+        [
+            "test_a.py::test_a",
+            "test_a.py::test_dup",
+            "test_a.py::test_b"
+        ],
+        "one test for each name, where import first binds it"
+    );
+}
