@@ -36,7 +36,11 @@ fn watch_gives_the_text_of_the_last_assert_that_ran() {
         let test_two = loaded.module().getattr("test_two").unwrap();
         let (result, last) = loaded.watch(|| test_two.call0());
         assert!(result.is_ok(), "the test returned");
-        assert_eq!(last, Some("assert 2 == 2"), "the last assert that ran");
+        assert_eq!(
+            last,
+            Some(("assert 2 == 2", true)),
+            "the last assert that ran, which held"
+        );
     });
 }
 
@@ -58,7 +62,7 @@ fn watch_starts_clear() {
         );
         assert_eq!(
             loaded.watch(|| marks.call0()).1,
-            Some("assert 1 == 1"),
+            Some(("assert 1 == 1", true)),
             "the test's own assert"
         );
         assert_eq!(
@@ -70,7 +74,7 @@ fn watch_starts_clear() {
 }
 
 #[test]
-fn the_mark_gives_its_value_back() {
+fn the_mark_gives_back_whether_its_value_held() {
     Python::initialize();
     Python::attach(|py| {
         let loaded = purba_assertion::load(
@@ -82,8 +86,48 @@ fn the_mark_gives_its_value_back() {
         .expect("the module loads");
         let kept = loaded.module().getattr("kept").unwrap();
         let (result, last) = loaded.watch(|| kept.call0());
-        assert_eq!(result.unwrap().to_string(), "[]", "the value, unchanged");
-        assert_eq!(last, Some("assert x"), "the text at its index");
+        assert_eq!(
+            result.unwrap().to_string(),
+            "False",
+            "an empty list does not hold"
+        );
+        assert_eq!(
+            last,
+            Some(("assert x", false)),
+            "the text at its index, which did not hold"
+        );
+    });
+}
+
+#[test]
+fn an_assert_tests_its_value_once() {
+    let (path, text, asserts) = rewritten(
+        "test_once.py",
+        concat!(
+            "class Counted:\n",
+            "    tests = 0\n",
+            "    def __bool__(self):\n",
+            "        Counted.tests += 1\n",
+            "        return True\n",
+            "def test_counted():\n",
+            "    assert Counted()\n",
+        ),
+    );
+    Python::initialize();
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(py, &path, &text, asserts).expect("the module loads");
+        let module = loaded.module();
+        let counted = module.getattr("test_counted").unwrap();
+        let (result, _) = loaded.watch(|| counted.call0());
+        assert!(result.is_ok(), "the test returned");
+        let tests: i64 = module
+            .getattr("Counted")
+            .unwrap()
+            .getattr("tests")
+            .unwrap()
+            .extract()
+            .unwrap();
+        assert_eq!(tests, 1, "__bool__ ran once");
     });
 }
 
@@ -105,7 +149,11 @@ fn a_mark_with_no_assert_raises() {
             err.is_instance_of::<PyIndexError>(py),
             "IndexError, not {err}"
         );
-        assert_eq!(last, Some("assert True"), "the bad mark recorded nothing");
+        assert_eq!(
+            last,
+            Some(("assert True", true)),
+            "the bad mark recorded nothing"
+        );
     });
 }
 

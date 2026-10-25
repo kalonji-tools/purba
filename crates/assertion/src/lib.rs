@@ -1,5 +1,5 @@
-//! Assertion: rewrites each assert of a module so that it records that it ran.
-//! It also loads the rewritten module.
+//! Assertion: rewrites each assert of a module so that it records that it ran,
+//! and whether it held. It also loads the rewritten module.
 
 use purba_parsing::Module;
 use pyo3::exceptions::PyIndexError;
@@ -92,35 +92,38 @@ pub fn rewrite(module: &Module) -> Rewrite {
     }
 }
 
-/// The source text of each assert of one loaded module, and the index of the
-/// last one that ran.
+/// The source text of each assert of one loaded module, the index of the last
+/// one that ran, and whether it held.
 #[pyclass(frozen)]
 struct Ran {
     asserts: Vec<String>,
-    last: Mutex<Option<usize>>,
+    last: Mutex<Option<(usize, bool)>>,
 }
 
 #[pymethods]
 impl Ran {
-    /// Records `index`. Gives `value` back unchanged, so that the assert tests it.
+    /// Tests `value` once, and records `index` and whether `value` held. Gives
+    /// that back, so that the assert tests a `bool`.
     ///
     /// # Errors
     ///
-    /// `IndexError`, and records nothing, when no assert has `index`.
-    fn __call__<'py>(&self, index: usize, value: Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+    /// `IndexError` when no assert has `index`, or the error that testing
+    /// `value` raised. Either records nothing.
+    fn __call__(&self, index: usize, value: &Bound<'_, PyAny>) -> PyResult<bool> {
         if index >= self.asserts.len() {
             return Err(PyIndexError::new_err(format!(
                 "{RAN}({index}): the module has {} asserts",
                 self.asserts.len()
             )));
         }
-        *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some(index);
-        Ok(value)
+        let held = value.is_truthy()?;
+        *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some((index, held));
+        Ok(held)
     }
 }
 
 impl Ran {
-    fn take(&self) -> Option<usize> {
+    fn take(&self) -> Option<(usize, bool)> {
         self.last
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -142,15 +145,14 @@ impl<'py> Loaded<'py> {
     }
 
     /// Runs `call` with no assert recorded. Gives its result, and the source
-    /// text of the last marked assert that ran inside it.
-    pub fn watch<R>(&self, call: impl FnOnce() -> R) -> (R, Option<&str>) {
+    /// text of the last marked assert that ran inside it, beside whether it held.
+    pub fn watch<R>(&self, call: impl FnOnce() -> R) -> (R, Option<(&str, bool)>) {
         let ran = self.ran.get();
         let _ = ran.take();
         let result = call();
         let last = ran
             .take()
-            .and_then(|index| ran.asserts.get(index))
-            .map(String::as_str);
+            .and_then(|(index, held)| Some((ran.asserts.get(index)?.as_str(), held)));
         (result, last)
     }
 }
