@@ -53,7 +53,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **`_main` catches each error at its boundary, and returns 3.**
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
-- **An interrupt is not an error here.** The design in depth of interrupt handling chooses its code.
+- **This record chooses no code for an interrupt.** The design in depth of interrupt handling chooses it.
 - **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
 - **A test that calls `os._exit` gives an error in place of an outcome.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
 
@@ -63,6 +63,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
 - **An integrator cannot tell the causes of 3 apart.** They are a usage error, a module that purba cannot read, a refused write and an error inside purba that stops the run. Each exits 3 until the design in depth of errors divides them.
+- **Ctrl-C ends only the test that runs, and that test gives an error.** Python raises `KeyboardInterrupt` inside the test, execution makes it an error in place of an outcome, and dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
 - **An error inside purba that reaches dispatch exits 4, as an error of the tester's code does.** Dispatch has only the text of the error, so it cannot tell the two apart.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
