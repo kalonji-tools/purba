@@ -26,9 +26,9 @@ warnings = "deny"
 
 [workspace.lints.rustdoc]
 # rustdoc reports a broken link as a warning and exits 0, so without this
-# `cargo doc` builds the documentation and refuses nothing. Only the crate-level
-# `//!` block is reached: rustdoc does not document a private item, so it never
-# lints one either.
+# `cargo doc` builds the documentation and refuses nothing. It lints the
+# crate-level `//!` block and each public item. rustdoc does not document a
+# private item, so it never lints one.
 # https://doc.rust-lang.org/rustdoc/lints.html
 all = "deny"
 

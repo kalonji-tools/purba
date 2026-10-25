@@ -37,7 +37,7 @@ Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 | dispatch | the worker protocol needs one owner, and the timeout of a test is designed inside it |
 | selection | discovery and the query are one design, and it owns what a selected test is |
 | parsing | selection and assertion both depend on its AST |
-| assertion | it hooks CPython's import, and no other part does |
+| assertion | it rewrites the source a test runs, and no other part does |
 | execution | it owns the outcome that reporting reads, so the text and the data come from one outcome |
 
 **What is not a part:**

@@ -87,6 +87,6 @@ That is the day the return to stable stops being one decision wide.
 rustup ranks the `+` form above `RUSTUP_TOOLCHAIN`, which mise sets.
 So this runs inside the ordinary environment and needs no second one.
 
-⚠️ **Nothing runs it today.**
-[Write the quality workflow](https://github.com/kalonji-tools/purba/issues/36) wires it, and that issue is blocked by this one.
-Until it lands, the hatch is open on the evidence of the table in the Context above and on nothing newer.
+⚠️ **Nothing runs it.**
+No workflow runs it, and no open issue wires it.
+Until one does, the hatch is open on the evidence of the table in the Context above and on nothing newer.
