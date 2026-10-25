@@ -60,6 +60,7 @@ A risk stays out of the landscape when it scores less than a high impact at a lo
 | purba's own error shows as a test failure | errors | honest outcome | high | medium | oxitest's shared errors drew 13 fixes and 10 bug issues |
 | an interrupt leaves a fixture built | interrupt handling | honest outcome, because the next run starts from what the stopped run left | high | medium | a judgment, because no oxitest fix names an interrupt |
 | an async fixture leaves its loop or its task | fixtures | honest outcome | high | medium | oxitest amended its async strategy twice for the task and the teardown |
+| a test imports another directory's module of the same name | execution | honest outcome | high | medium | a judgment. Under pytest 9.1.1, a test that imports `helper` fails or passes by which other directory ran first, as [Add the risk that a test imports another directory's module of the same name](https://github.com/kalonji-tools/purba/issues/636) shows. |
 | a change in one part edits another part | command | reviewable core | medium | high | oxitest's pipeline drew 59 fixes, and changed its internal shape three times in five weeks |
 | strictness refuses a test that checks | strictness | legible result | medium | medium | a judgment. oxitest's narrower strict checks drew 2 fixes, but purba's explicit scenario asks more. |
 | parsing refuses a file that CPython runs | parsing | honest outcome | high | low | a judgment. purba parses with ruff's parser, and RustPython moved onto a fork of it. |
