@@ -47,3 +47,12 @@ fn a_syntax_error_is_not_an_error_of_parse() {
 
     assert!(parsed.is_ok(), "a syntax error gives a module");
 }
+
+#[test]
+fn a_byte_order_mark_is_not_part_of_the_text() {
+    let text = "def test_one():\n    assert 1 == 1\n";
+    let module = purba_parsing::parse(&write("test_bom.py", &format!("\u{feff}{text}")))
+        .expect("the module parses");
+
+    assert_eq!(module.source(), text, "the text starts after the mark");
+}
