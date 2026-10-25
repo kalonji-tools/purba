@@ -32,7 +32,7 @@ Some part counts each outcome and each error, and some part turns that count int
 |---|---|
 | which part holds the rule that counts | execution: `Tally`, and `Tally::add` for each test |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
-| what `purba_reporting::print` returns | the exit code: 0, 1, 2 or 4. When stdout refuses a write, `print` returns the error in place of the code |
+| what `purba_reporting::print` returns | the exit code: 0, 1, 2 or 4. When its writer refuses a write, `print` returns the error in place of the code |
 | what command does with the code | it returns the code to `_main`. A refused write is an error, so `_main` returns 3 |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies), as `reporting -->> command: exit code 1` |
 
@@ -45,9 +45,12 @@ Some part counts each outcome and each error, and some part turns that count int
 `mise run test:rust` checks that a tally adds each kind and each error.
 It checks that the exit code names the worst of the run.
 It checks that the count line matches the lines that reporting prints.
+It checks that reporting prints the lines of a run to the writer that command takes.
 It checks that command returns the code.
+It checks that command returns the write error when its writer refuses each write.
+
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
 No command checks that `_main` turns a refused write into 3.
-A test needs a stdout that refuses each write, such as `/dev/full`.
+A test of `_main` needs a stdout that refuses each write, such as `/dev/full`.
 macOS has no `/dev/full`, so the test would run on Linux alone.
