@@ -98,7 +98,7 @@ sequenceDiagram
   command ->> parsing: the path test_a.py
   Note over parsing: the only read of test_a.py
   parsing -->> command: the parsed module
-  command ->> selection: the query, and the parse it lends
+  command ->> selection: the path, and the parse it lends
   selection -->> command: three selected tests
   command ->> assertion: the parse it lends
   assertion -->> command: the rewritten text, and the text of each assert
