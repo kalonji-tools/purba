@@ -21,12 +21,6 @@ set -euo pipefail
 
 [[ $# -eq 2 ]] || cannot "usage: check-replayable.sh <base> <head>"
 
-base=$(git merge-base "$1" "$2" 2>&1) ||
-  cannot "the replay check could not find where $2 leaves $1." "${base}"
-
-# Inside the worktree below, the name `HEAD` is the replayed commit, not this one.
-head=$(git rev-parse "$2^{commit}")
-
 scratch=$(mktemp -d)
 worktree="${scratch}/replay"
 # `trap cleanup EXIT` below is the caller, which shellcheck cannot see.
@@ -36,6 +30,13 @@ cleanup() {
   rm -rf "${scratch}"
 }
 trap cleanup EXIT
+
+base=$(git merge-base "$1" "$2" 2>"${scratch}/stderr") ||
+  cannot "the replay check could not find where $2 leaves $1." "$(<"${scratch}/stderr")"
+cat "${scratch}/stderr" >&2
+
+# Inside the worktree below, the name `HEAD` is the replayed commit, not this one.
+head=$(git rev-parse "$2^{commit}")
 
 out=$(git worktree add --detach --quiet "${worktree}" "${head}" 2>&1) ||
   cannot "the replay check could not make a worktree to replay $2 in." "${out}"
@@ -57,7 +58,8 @@ export TRAILER="${TRAILER:-${placeholder}}"
 # nothing: it compares trees, and a trailer lives in the message.
 accept_exec="${scratch}/accept-one-commit.sh"
 cp "$(dirname "$0")/accept-one-commit.sh" "${accept_exec}"
-if replay=$(git -C "${worktree}" rebase "${base}" --exec "${accept_exec}" 2>&1); then
+if replay=$(git -C "${worktree}" -c rebase.updateRefs=false -c commit.gpgSign=false \
+  rebase "${base}" --exec "${accept_exec}" 2>&1); then
   replayed_tree=$(git -C "${worktree}" rev-parse 'HEAD^{tree}') || exit 2
   head_tree=$(git rev-parse "${head}^{tree}") || exit 2
   if [[ "${replayed_tree}" = "${head_tree}" ]]; then

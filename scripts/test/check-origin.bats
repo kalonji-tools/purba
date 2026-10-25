@@ -1,5 +1,6 @@
 # scripts/check-origin.sh against the branches it refuses.
 : "${BATS_TEST_DIRNAME:?set by bats}"
+bats_require_minimum_version 1.5.0
 
 setup() {
   # shellcheck source=scripts/test/fixture.sh
@@ -129,6 +130,18 @@ setup() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"the origin check could not read the range main..no-such-branch"* ]]
+  [[ "${output}" == *"unknown revision"* ]]
+}
+
+@test "a base name git calls ambiguous is read, and git's warning reaches stderr" {
+  commit "feat: one" "${signed}"
+  git update-ref refs/remotes/origin/main main
+  git branch origin/main main
+
+  run --separate-stderr "${script}" origin/main work
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${stderr}" == *"refname 'origin/main' is ambiguous"* ]]
 }
 
 @test "the wrong number of arguments exits 2" {
