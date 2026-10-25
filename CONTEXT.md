@@ -8,7 +8,7 @@ This file is the source of truth for what a word means here. A decision record s
 
 ### Acceptance
 
-The statement that purba has taken a commit into `main`. A workflow derives it from the code owner's approval, so it cannot disagree with the approval it reports.
+The statement that purba has taken a commit into `main`. A workflow derives it from the approval of an account with write access, so it cannot disagree with the approval it reports.
 
 ### Actor
 

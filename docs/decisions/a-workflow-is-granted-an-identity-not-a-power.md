@@ -13,7 +13,7 @@ create or approve pull requests (createPullRequest)
 The repository setting that would permit the call is one switch over two powers.
 It permits Actions to create a pull request, and it permits Actions to approve one.
 
-[Acceptance](../../CONTEXT.md#acceptance) here is derived from the code owner's approval, so an approval is what makes a [liability](../../CONTEXT.md#liability) true.
+A workflow here derives [acceptance](../../CONTEXT.md#acceptance) from the approval of an account with write access, so an approval is what makes a [liability](../../CONTEXT.md#liability) true.
 A workflow that can approve makes every approval say less than it says, including the ones it does not write.
 [An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) already refused a mechanism on that reasoning.
 
