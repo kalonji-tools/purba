@@ -2,7 +2,7 @@
 //! selection and assertion, starts a run, and returns reporting's exit code.
 
 use std::fmt;
-use std::io;
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::Module;
@@ -15,7 +15,7 @@ pub enum Error {
     Usage,
     /// The module cannot be read.
     Read(PathBuf, io::Error),
-    /// stdout refused a write.
+    /// The writer refused a write.
     Write(io::Error),
 }
 
@@ -36,11 +36,11 @@ impl fmt::Display for Error {
 /// # Errors
 ///
 /// When the arguments are not one path to one `.py` file, when the module
-/// cannot be read, or when stdout refuses a write.
-pub fn run(arguments: &[String]) -> Result<u8, Error> {
+/// cannot be read, or when `out` refuses a write.
+pub fn run(arguments: &[String], out: &mut impl Write) -> Result<u8, Error> {
     let modules = modules(path(arguments)?)?;
     let results = purba_dispatch::hand(modules);
-    purba_reporting::print(&results).map_err(Error::Write)
+    purba_reporting::print(out, &results).map_err(Error::Write)
 }
 
 /// The one path that `arguments` names after the script's name.

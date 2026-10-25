@@ -7,20 +7,23 @@ use std::io::{self, BufWriter, Write};
 use purba_execution::{Error, Kind, Outcome, Tally};
 
 /// Prints each test beside its outcome or error, in the order given, then the
-/// count, to stdout. Returns the exit code of the run.
+/// count, to `out`. Returns the exit code of the run.
 ///
 /// # Errors
 ///
-/// When stdout refuses a write.
-pub fn print<T: Display>(results: &[(T, Result<Outcome, Error>)]) -> io::Result<u8> {
+/// When `out` refuses a write.
+pub fn print<T: Display>(
+    out: &mut impl Write,
+    results: &[(T, Result<Outcome, Error>)],
+) -> io::Result<u8> {
     let results = results
         .iter()
         .map(|(test, result)| (test, result.as_ref().map(Outcome::kind)));
-    report(&mut BufWriter::new(io::stdout().lock()), results)
+    report(&mut BufWriter::new(out), results)
 }
 
-/// It takes any writer, so a test reads its text from a `Vec`. A test passes a
-/// text for an error, because no crate but execution builds an `Error`.
+/// A test passes a text for an error, because no crate but execution builds an
+/// `Error`.
 fn report<'a, T: Display + 'a, E: Display>(
     out: &mut impl Write,
     results: impl IntoIterator<Item = (&'a T, Result<&'a Kind, E>)>,
