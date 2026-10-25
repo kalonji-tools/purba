@@ -45,6 +45,7 @@ reviews() {
     all+="${all:+,}${one}"
   done
   gh_answers reviews "[${all}]"
+  gh_answers permission '{"permission":"admin"}'
 }
 
 # The pull request, as the API returns it, targets <branch>.
