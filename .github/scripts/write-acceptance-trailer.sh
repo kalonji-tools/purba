@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# The acceptance a code owner's approval owes every commit on the branch.
+# The acceptance that an approval from an account with write access owes every
+# commit on the branch.
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Exits 1 when it refuses, 0 when there is nothing to accept yet, and 2 when it
-# cannot read the pull request or its reviews, when the reviews are not ones the
-# rule can read, or when it cannot read or write a check run. Any other command
-# that fails exits with its own code, which can be 1.
+# Exits 1 when it refuses, and 0 when there is nothing to accept yet. It exits 2
+# when it cannot read the pull request, its reviews or the permission of an
+# approver, or cannot read or write a check run. It also exits 2 when the reviews
+# are not ones the rule can read. Any other command that fails exits with its
+# own code, which can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
@@ -35,7 +37,7 @@ fi
 stands=$(standing_approver <<<"${reviews}")
 read -r approver approver_id <<<"${stands}"
 
-# With no approval, write no check at all. A missing check already
+# With no approval that stands, write no check at all. A missing check already
 # blocks the merge, so this job stops here and succeeds.
 if [[ -z "${approver}" ]]; then
   echo "no approval stands on this head, so there is nothing to accept"
