@@ -7,14 +7,17 @@ use std::path::Path;
 use ruff_python_ast::{ModModule, PySourceType};
 use ruff_python_parser::Parsed;
 
-/// One module: the text that was read, and ruff's tree of that text.
+const BYTE_ORDER_MARK: char = '\u{feff}';
+
+/// One module: its text, and ruff's tree of that text.
 pub struct Module {
     source: String,
     parsed: Parsed<ModModule>,
 }
 
 impl Module {
-    /// The text of the module, as it was read.
+    /// The text of the module, after a leading byte order mark, if the file
+    /// has one.
     #[must_use]
     pub fn source(&self) -> &str {
         &self.source
@@ -39,7 +42,12 @@ impl Module {
     reason = "purba-parsing is the one caller of ruff's parser"
 )]
 pub fn parse(path: &Path) -> io::Result<Module> {
-    let source = fs::read_to_string(path)?;
+    let mut source = fs::read_to_string(path)?;
+    // CPython ignores this mark at the start of a file that is UTF-8.
+    // https://docs.python.org/3.12/reference/lexical_analysis.html#encoding-declarations
+    if source.starts_with(BYTE_ORDER_MARK) {
+        source.remove(0);
+    }
     let parsed = ruff_python_parser::parse_unchecked_source(&source, PySourceType::Python);
     Ok(Module { source, parsed })
 }
