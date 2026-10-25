@@ -72,7 +72,7 @@ FAKE
   run "${script}" 7
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"warning: this contribution changes .github/"* ]]
+  [[ "${output}" == *"warning: this contribution changes .github/ or scripts/"* ]]
 }
 
 @test "a contribution that changes only a .github/ path outside ASCII is warned about" {
@@ -89,7 +89,7 @@ FAKE
   run "${script}" 7
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"warning: this contribution changes .github/"* ]]
+  [[ "${output}" == *"warning: this contribution changes .github/ or scripts/"* ]]
 }
 
 @test "a contribution whose diff cannot be read exits 2 and pushes nothing" {
@@ -261,6 +261,18 @@ FAKE
   [[ -z "${accepted}" ]]
 }
 
+@test "a commit of the contribution that cannot be read exits 2 and pushes nothing" {
+  echo "* @someone" >.github/CODEOWNERS
+  fail_git 'FETCH_HEAD^{commit}'
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the commit #7 points at could not be read, so nothing was pushed."* ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
+}
+
 @test "a .github/CODEOWNERS that cannot be read exits 2 and pushes nothing" {
   run "${script}" 7
 
@@ -279,4 +291,80 @@ FAKE
   [[ "${output}" == *".github/CODEOWNERS could not be read, so nothing was pushed."* ]]
   accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
   [[ -z "${accepted}" ]]
+}
+
+@test "a contribution that changes only scripts/report.sh is warned about by name" {
+  git switch --quiet work
+  mkdir -p scripts
+  echo "report() { :; }" >scripts/report.sh
+  git add scripts
+  commit "feat: report" "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet --force origin work:refs/pull/7/head
+  git switch --quiet main
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"warning: this contribution changes .github/ or scripts/"* ]]
+  [[ "${output}" == *$'\n  scripts/report.sh\n'* ]]
+}
+
+@test "a contribution that changes neither .github/ nor scripts/ is not warned about" {
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"warning:"* ]]
+}
+
+@test "a contribution whose commit carries no Signed-off-by is refused and pushes nothing" {
+  git switch --quiet work
+  commit "feat: unsigned"
+  git push --quiet --force origin work:refs/pull/7/head
+  git switch --quiet main
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 1 ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
+}
+
+@test "a contribution whose pull request is open already opens none, and posts no comment" {
+  echo "* @someone" >.github/CODEOWNERS
+  fake gh <<'FAKE'
+case "$*" in
+  "api user"*) echo me ;;
+  "pr list"*) echo "https://example.invalid/pull/8" ;;
+esac
+FAKE
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"pull request  https://example.invalid/pull/8"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"pr create"* ]]
+  [[ "${asked}" != *"pr comment"* ]]
+}
+
+@test "a fetch that moves FETCH_HEAD after the checks does not change what is pushed" {
+  echo "* @someone" >.github/CODEOWNERS
+  git=$(command -v git)
+  fake git <<FAKE
+for argument in "\$@"; do
+  [[ "\${argument}" != diff ]] || "${git}" fetch --quiet origin main
+done
+exec "${git}" "\$@"
+FAKE
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  work=$(git rev-parse work)
+  [[ "${accepted}" == "${work}"* ]]
 }

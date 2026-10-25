@@ -41,11 +41,16 @@ fi
 if ! git fetch --quiet origin "refs/pull/${pr}/head"; then
   cannot "#${pr} could not be fetched, so nothing was pushed."
 fi
-if ! base=$(git merge-base origin/main FETCH_HEAD); then
+# Read once. Another fetch in this clone moves FETCH_HEAD, and a push that read
+# it again would carry a commit that the checks below never read.
+if ! head=$(git rev-parse --verify --quiet 'FETCH_HEAD^{commit}'); then
+  cannot "the commit #${pr} points at could not be read, so nothing was pushed."
+fi
+if ! base=$(git merge-base origin/main "${head}"); then
   cannot "the merge base of #${pr} and main could not be found, so nothing was pushed."
 fi
 
-"$(dirname "$0")/check-origin.sh" "${base}" FETCH_HEAD
+"$(dirname "$0")/check-origin.sh" "${base}" "${head}"
 
 # The list is read into a variable first. Piped straight into `grep -q`, a
 # `git diff` that failed would read as a contribution that changes nothing, and
@@ -53,16 +58,21 @@ fi
 #
 # A path is printed as it is written, because git quotes one that holds a byte
 # outside ASCII, and the quote would hide the directory it starts with.
-if ! changed=$(git -c core.quotePath=false diff --name-only "${base}" FETCH_HEAD); then
+if ! changed=$(git -c core.quotePath=false diff --name-only "${base}" "${head}"); then
   echo "what the contribution changes could not be read, so nothing was pushed." >&2
   exit 2
 fi
-if grep -q '^\.github/' <<<"${changed}"; then
-  echo "warning: this contribution changes .github/, so its workflows run with this repository's \
-token once it is a branch here, before anyone approves it." >&2
+if runs=$(grep -E '^(\.github|scripts)/' <<<"${changed}"); then
+  {
+    echo "warning: this contribution changes .github/ or scripts/, where the jobs that hold this \
+repository's write token find the code they run. They run it from the head of accepted/pr-${pr} \
+once it is pushed, and some of it before anyone approves it:"
+    mapfile -t paths <<<"${runs}"
+    printf '  %s\n' "${paths[@]}"
+  } >&2
 fi
 
-if ! git push --quiet --force origin "FETCH_HEAD:refs/heads/accepted/pr-${pr}"; then
+if ! git push --quiet --force origin "${head}:refs/heads/accepted/pr-${pr}"; then
   cannot "accepted/pr-${pr} could not be pushed, so no pull request was opened."
 fi
 
