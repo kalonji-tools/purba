@@ -26,7 +26,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 - **A mode switch, as oxitest's `abort`, `enforce` and `off`.** Rejected. A switch makes a broken check survivable, so the broken check survives.
 - **Strict by default, with a silent opt-out for each test or each check.** Rejected. Each silent opt-out is the same switch at a smaller scale.
 - **Every strict check decides every test.** Rejected. A lint in rustc or clippy stays silent where it cannot see. Even a correctness lint carries an open false positive.
-- **Always strict, and a strict check exists only when its predicate guarantees each verdict it gives.** Chosen. The bar is a property of the predicate, and the design of the check sets it.
+- **Always strict, and a strict check blocks only when its predicate guarantees each verdict it gives.** Chosen. The bar is a property of the predicate, and the design of the check sets it.
 
 ## Decision Outcome
 
@@ -34,7 +34,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 **purba is always strict: no mode, flag or opt-out turns strictness off.**
 
-- **A [strict check](../../CONTEXT.md#strict-check) exists only when its predicate guarantees each violation or clean that it gives.** Where it cannot, it answers `unknown`.
+- **A [strict check](../../CONTEXT.md#strict-check) blocks only when its predicate guarantees each violation or clean that it gives.** A check that blocks answers `unknown` where its predicate cannot guarantee the verdict.
 - **purba shows and counts `unknown`, and never shows it as clean.**
 - **A value that names a fact about the project is not a switch.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds that rule for configuration.
 - **Selection is not a switch.** Strictness judges only the tests that a run selects, so a tester can migrate one path at a time.
