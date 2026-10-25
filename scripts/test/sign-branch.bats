@@ -56,3 +56,44 @@ answer() {
   carried=$(sign_offs)
   [[ "${carried}" == "${own}" ]]
 }
+
+@test "a commit with another person's sign-off gets the committer's own beside it" {
+  commit "feat: one" "Signed-off-by: Someone Else <else@example.invalid>"
+
+  run answer y
+
+  [[ "${status}" -eq 0 ]]
+  carried=$(sign_offs)
+  [[ "${carried}" == "Someone Else <else@example.invalid>"$'\n'"${own}" ]]
+}
+
+@test "a commit whose sign-off has no address gets the committer's own" {
+  commit "feat: one" "Signed-off-by: Someone Else"
+
+  run answer y
+
+  [[ "${status}" -eq 0 ]]
+  carried=$(sign_offs)
+  [[ "${carried}" == "Someone Else"$'\n'"${own}" ]]
+}
+
+@test "a commit whose own sign-off comes before another trailer gets no second one" {
+  commit "feat: one" "Signed-off-by: ${own}" \
+    "Accepted-by: owner-1 <42+owner-1@users.noreply.github.com>"
+
+  run answer y
+
+  [[ "${status}" -eq 0 ]]
+  carried=$(sign_offs)
+  [[ "${carried}" == "${own}" ]]
+}
+
+@test "a commit with no sign-off gets the committer's own" {
+  commit "feat: one"
+
+  run answer y
+
+  [[ "${status}" -eq 0 ]]
+  carried=$(sign_offs)
+  [[ "${carried}" == "${own}" ]]
+}

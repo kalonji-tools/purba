@@ -35,8 +35,13 @@ if [[ "${reply}" != "y" ]]; then
   exit 1
 fi
 
+me=$(git var GIT_COMMITTER_IDENT)
+export SIGN_OFF_AS="${me% * *}"
+
 # The value must hold no newline. git refuses an exec command that contains one,
 # and a single-quoted string cannot be wrapped without keeping the backslash.
+# The exec expands `SIGN_OFF_AS`, and this line must not.
+# shellcheck disable=SC2016
 # editorconfig-checker-disable-next-line
-sign_exec='git log -1 --format="%(trailers:key=Signed-off-by)" | grep -q . || git commit --amend --no-edit -s'
+sign_exec='git log -1 --format="%(trailers:key=Signed-off-by,valueonly)" | grep -qxF "${SIGN_OFF_AS}" || git commit --amend --no-edit -s'
 git rebase "${start}" --exec "${sign_exec}"
