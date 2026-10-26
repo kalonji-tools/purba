@@ -68,7 +68,7 @@ flowchart LR
 
 - **purba prints `error` for a test that raised.** Execution makes a raise and a failed load into one text, until [A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) closes.
 - **A test can call `_purba_ran` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
-- **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. [The landscape](../../LANDSCAPE.md#the-risks) names it as the risk that purba's own error shows as a test failure.
+- **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. The tests of each part guard it.
 - **A test that catches `BaseException` hides an internal error.** `PanicException` derives from `BaseException`, so the test sees the panic, and execution does not.
 - **A failure that no part sees has no kind.** A test that ends the process through `posix._exit` or a crash leaves no line for itself.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
