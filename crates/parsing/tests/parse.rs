@@ -1,6 +1,7 @@
 use std::fs;
 use std::io::ErrorKind;
 use std::path::PathBuf;
+use std::thread;
 
 use ruff_python_ast::Stmt;
 
@@ -55,4 +56,39 @@ fn a_byte_order_mark_is_not_part_of_the_text() {
         .expect("the module parses");
 
     assert_eq!(module.source(), text, "the text starts after the mark");
+}
+
+#[test]
+fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
+    const SMALL_STACK: usize = 256 * 1024;
+    for (name, text) in [
+        (
+            "test_deep_minus.py",
+            format!("x = {}1\n", "-".repeat(20_000)),
+        ),
+        (
+            "test_deep_pattern.py",
+            format!(
+                "match 1:\n    case {}1{}:\n        pass\n",
+                "[".repeat(20_000),
+                "]".repeat(20_000)
+            ),
+        ),
+        (
+            "test_deep_format_spec.py",
+            format!("x = f\"{}x{}\"\n", "{x:".repeat(3_000), "}".repeat(3_000)),
+        ),
+    ] {
+        let path = write(name, &text);
+        let freed = thread::Builder::new()
+            .name(name.to_owned())
+            .stack_size(SMALL_STACK)
+            .spawn(move || {
+                let module = purba_parsing::parse(&path).expect("the module parses");
+                drop(module);
+            })
+            .expect("the thread starts")
+            .join();
+        assert!(freed.is_ok(), "{name}: the tree is freed");
+    }
 }

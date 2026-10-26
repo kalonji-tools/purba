@@ -124,3 +124,26 @@ fn a_module_that_does_not_parse_shows_its_syntax_error() {
         assert_eq!(code, 4, "{name}: a test with an error exits 4");
     }
 }
+
+#[test]
+fn a_module_that_nests_too_deep_shows_cpythons_error() {
+    let path = module_at("test_command_deep.py");
+    let text = format!(
+        "def test_a():\n    x = {}1\n    assert x\n",
+        "-".repeat(200_000)
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), &mut out).expect("the run finishes");
+    assert_eq!(
+        String::from_utf8(out).expect("reporting writes UTF-8"),
+        format!(
+            "{}::test_a error: MemoryError: Parser stack overflowed - \
+             Python source too complex to parse\n\
+             1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+            path.display()
+        ),
+        "CPython's error, as for any module that does not compile"
+    );
+    assert_eq!(code, 4, "a test with an error exits 4");
+}

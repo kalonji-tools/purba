@@ -103,7 +103,7 @@ Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an upda
 |---|---|
 | `ruff_python_parser` | `purba-parsing` |
 | `ruff_python_ast` | `purba-parsing`, `purba-selection`, `purba-assertion` |
-| `ruff_text_size` | `purba-assertion` |
+| `ruff_text_size` | `purba-parsing`, `purba-assertion` |
 
 `mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through `purba-parsing`.
 It also runs the tests in `crates/assertion/tests/rewrite.rs`, which rewrite a module at the ranges of its nodes.
