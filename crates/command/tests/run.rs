@@ -92,3 +92,35 @@ fn a_module_with_no_test_exits_2() {
         "a run with no test exits 2"
     );
 }
+
+#[test]
+fn a_module_that_does_not_parse_shows_its_syntax_error() {
+    for (name, text, line) in [
+        ("test_command_bare.py", "def test_a():\n    assert\n", 2),
+        (
+            "test_command_star.py",
+            "def test_a():\n    x = [1]\n    assert *x\n",
+            3,
+        ),
+        (
+            "test_command_dstar.py",
+            "def test_a():\n    x = {\"value\": 1}\n    assert **x\n",
+            3,
+        ),
+    ] {
+        let path = module_at(name);
+        fs::write(&path, text).expect("the test writes its module");
+        let mut out = Vec::new();
+        let code = purba_command::run(&argv(&path), &mut out).expect("the run finishes");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            format!(
+                "{}::test_a error: SyntaxError: invalid syntax ({name}, line {line})\n\
+                 1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+                path.display()
+            ),
+            "{name}: CPython's syntax error, as for any module that does not parse"
+        );
+        assert_eq!(code, 4, "{name}: a test with an error exits 4");
+    }
+}

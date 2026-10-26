@@ -28,11 +28,18 @@ impl Module {
     pub fn syntax(&self) -> &ModModule {
         self.parsed.syntax()
     }
+
+    /// Whether ruff found a syntax error in the text.
+    #[must_use]
+    pub fn has_syntax_error(&self) -> bool {
+        !self.parsed.errors().is_empty()
+    }
 }
 
 /// Reads the file at `path` and parses it.
 ///
-/// A syntax error does not fail the parse: ruff still returns a tree.
+/// A syntax error does not fail the parse: ruff still returns a tree, and
+/// [`Module::has_syntax_error`] says so.
 ///
 /// # Errors
 ///
