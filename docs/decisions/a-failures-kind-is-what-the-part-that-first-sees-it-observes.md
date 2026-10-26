@@ -79,6 +79,6 @@ No command checks this record.
 [A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) and [A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) build part of what it decides.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 
-[Does purba refuse each error at the earliest part that can see it?](https://github.com/kalonji-tools/purba/issues/608) asks what each kind stops.
+[An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
 [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks which exit code each kind gets.
 [How does purba keep its assert mechanics out of the reach of the tester's code?](https://github.com/kalonji-tools/purba/issues/660) asks whether a forged pass stays possible.
