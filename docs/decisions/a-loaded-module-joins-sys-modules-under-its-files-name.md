@@ -30,12 +30,12 @@ It runs the text through `compile()` and `exec()`.
 **A loaded module joins `sys.modules` under its file's name, without `.py`, before its body runs.**
 
 That name is also the module's `__name__`, so `dir/test_a.py` loads as `test_a`.
+[A module whose load fails leaves sys.modules as it found it](a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md#decision-outcome) decides what a failed load leaves in `sys.modules`.
 
 **Downside:**
 
-- **A module that shares its name with a module already loaded replaces it in `sys.modules`.** A test module named `test.py` replaces the standard library's `test` package there. A later `import test` then gets the test module.
+- **A module that loads under the name of a module already loaded replaces it in `sys.modules`.** A test module named `test.py` replaces the standard library's `test` package there. A later `import test` then gets the test module.
 - **Two modules with one name share one key.** A run of the skeleton takes one module, so two never meet. The design in depth of execution decides the key for a worker that loads many.
-- **A module that raises while it loads stays in `sys.modules`.** [`importlib`](https://github.com/python/cpython/blob/v3.12.14/Lib/importlib/_bootstrap.py#L936-L941) removes it. The design in depth of errors decides what purba does.
 
 ## Confirmation
 
