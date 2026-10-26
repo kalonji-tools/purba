@@ -108,3 +108,23 @@ fn a_rewrite_gives_up_its_text_and_each_assert() {
         "the same text and asserts that text() and asserts() lend"
     );
 }
+
+#[test]
+fn a_module_with_a_syntax_error_keeps_its_text() {
+    for (name, text) in [
+        ("test_bare.py", "def test_a():\n    assert\n"),
+        (
+            "test_star.py",
+            "def test_a():\n    x = [1]\n    assert *x\n",
+        ),
+        (
+            "test_dstar.py",
+            "def test_a():\n    x = {\"value\": 1}\n    assert **x\n",
+        ),
+    ] {
+        let rewritten = rewrite(name, text);
+
+        assert_eq!(rewritten.text(), text, "{name}: the text as it was read");
+        assert!(rewritten.asserts().is_empty(), "{name}: no assert to quote");
+    }
+}
