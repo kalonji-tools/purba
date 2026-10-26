@@ -33,14 +33,20 @@ impl fmt::Display for Error {
 /// exit code that reporting renders. `arguments` is `sys.argv`, so it starts
 /// with the name of the script.
 ///
+/// `out` is the writer, or why there is none.
+///
 /// # Errors
 ///
-/// When the arguments are not one path to one `.py` file, when the module
-/// cannot be read, or when `out` refuses a write.
-pub fn run(arguments: &[String], out: &mut impl Write) -> Result<u8, Error> {
-    let modules = modules(path(arguments)?)?;
+/// In the order the run meets them: when the arguments are not one path to
+/// one `.py` file, when `out` is an error, when the module cannot be read,
+/// and when `out` refuses a write. Each stops the run, and only the last
+/// comes after the tests.
+pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
+    let path = path(arguments)?;
+    let mut out = out.map_err(Error::Write)?;
+    let modules = modules(path)?;
     let results = purba_dispatch::hand(modules);
-    purba_reporting::print(out, &results).map_err(Error::Write)
+    purba_reporting::print(&mut out, &results).map_err(Error::Write)
 }
 
 /// The one path that `arguments` names after the script's name.

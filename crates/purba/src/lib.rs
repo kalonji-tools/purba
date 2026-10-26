@@ -30,11 +30,40 @@ fn main(py: Python<'_>) -> u8 {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
-    match panic::catch_unwind(|| purba_command::run(&argv, &mut io::stdout())) {
+    match panic::catch_unwind(|| {
+        purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
+    }) {
         Ok(Ok(code)) => code,
         Ok(Err(error)) => stop(&error),
         // The panic hook already wrote the panic's message to stderr.
         Err(_) => 3,
+    }
+}
+
+/// Whether stdout takes a write. `io::stdout()` reports a write that fails
+/// with `EBADF` as done (`handle_ebadf` in `library/std/src/io/stdio.rs`), so
+/// on Unix a copy of fd 1 takes a write of zero bytes. `write_all` writes
+/// nothing for an empty buffer, and `write` does.
+#[cfg(unix)]
+fn writable_stdout() -> io::Result<()> {
+    use std::os::fd::AsFd;
+    let copy = std::fs::File::from(io::stdout().as_fd().try_clone_to_owned()?);
+    (&copy).write(&[]).map(drop)
+}
+
+/// Whether stdout takes a write. A process with no stdout has a null handle.
+/// Windows writes nothing, because a write of zero bytes reaches a pipe's
+/// reader as a read of zero bytes:
+/// <https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile#pipes>
+#[cfg(windows)]
+fn writable_stdout() -> io::Result<()> {
+    use std::os::windows::io::AsRawHandle;
+    // ERROR_INVALID_HANDLE
+    const INVALID_HANDLE: i32 = 6;
+    if io::stdout().as_raw_handle().is_null() {
+        Err(io::Error::from_raw_os_error(INVALID_HANDLE))
+    } else {
+        Ok(())
     }
 }
 
