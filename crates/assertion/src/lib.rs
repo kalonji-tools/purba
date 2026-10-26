@@ -164,11 +164,14 @@ impl<'py> Loaded<'py> {
 /// 2. gives it `_purba_ran`, which holds `asserts`, the source text of each
 ///    assert at the index that its mark records;
 /// 3. puts it in `sys.modules` under that name;
-/// 4. compiles `text`, and runs it in the module's namespace.
+/// 4. compiles `text`, and runs it in the module's namespace;
+/// 5. when step 4 raises, puts back what `sys.modules` held under that name,
+///    or takes the name out when it held nothing.
 ///
 /// # Errors
 ///
-/// The error that `compile()` or the module's body raises.
+/// The error that step 4 raises, such as one from `compile()` or the module's
+/// body.
 pub fn load<'py>(
     py: Python<'py>,
     path: &Path,
@@ -186,13 +189,25 @@ pub fn load<'py>(
         },
     )?;
     module.setattr(RAN, &ran)?;
-    py.import("sys")?
-        .getattr("modules")?
-        .set_item(&*name, &module)?;
+    let modules = py.import("sys")?.getattr("modules")?;
+    let before = modules.get_item(&*name).ok();
+    modules.set_item(&*name, &module)?;
+    if let Err(err) = run(py, path, text, &module) {
+        let _ = before.map_or_else(
+            || modules.del_item(&*name),
+            |before| modules.set_item(&*name, before),
+        );
+        return Err(err);
+    }
+    Ok(Loaded { module, ran })
+}
+
+/// Compiles `text`, and runs it in the namespace of `module`.
+fn run(py: Python<'_>, path: &Path, text: &str, module: &Bound<'_, PyModule>) -> PyResult<()> {
     let builtins = py.import("builtins")?;
     let code = builtins
         .getattr("compile")?
         .call1((text, path.as_os_str(), "exec"))?;
     builtins.getattr("exec")?.call1((code, module.dict()))?;
-    Ok(Loaded { module, ran })
+    Ok(())
 }

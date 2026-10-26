@@ -1,6 +1,6 @@
 use pyo3::Python;
-use pyo3::exceptions::PyIndexError;
-use pyo3::types::{PyAnyMethods, PyModuleMethods};
+use pyo3::exceptions::{PyIndexError, PySystemExit};
+use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -218,6 +218,75 @@ fn a_dataclass_under_postponed_annotations_loads() {
                 .is_truthy()
                 .unwrap(),
             "the dataclass loaded, and its instance pickled"
+        );
+    });
+}
+
+fn in_sys_modules(py: Python<'_>, name: &str) -> bool {
+    py.import("sys")
+        .unwrap()
+        .getattr("modules")
+        .unwrap()
+        .contains(name)
+        .unwrap()
+}
+
+#[test]
+fn a_new_name_leaves_sys_modules_when_its_body_raises() {
+    Python::initialize();
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(
+            py,
+            Path::new("test_raises_on_load.py"),
+            "raise ValueError('x')\n",
+            Vec::new(),
+        );
+        assert!(loaded.is_err(), "the body raised");
+        assert!(
+            !in_sys_modules(py, "test_raises_on_load"),
+            "the half-made module left sys.modules"
+        );
+    });
+}
+
+#[test]
+fn a_shadowed_name_gets_its_module_back_when_the_body_raises() {
+    Python::initialize();
+    Python::attach(|py| {
+        let modules = py.import("sys").unwrap().getattr("modules").unwrap();
+        let before = PyModule::new(py, "test_shadowed").unwrap();
+        modules.set_item("test_shadowed", &before).unwrap();
+        let loaded = purba_assertion::load(
+            py,
+            Path::new("test_shadowed.py"),
+            "raise ValueError('x')\n",
+            Vec::new(),
+        );
+        assert!(loaded.is_err(), "the body raised");
+        assert!(
+            modules.get_item("test_shadowed").unwrap().is(&before),
+            "the name holds the module it held before the load"
+        );
+    });
+}
+
+#[test]
+fn a_body_that_calls_sys_exit_leaves_no_entry() {
+    Python::initialize();
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(
+            py,
+            Path::new("test_exits_on_load.py"),
+            "import sys\nsys.exit(3)\n",
+            Vec::new(),
+        );
+        assert!(
+            loaded.is_err_and(|err| err.is_instance_of::<PySystemExit>(py)),
+            "the body raised SystemExit"
+        );
+        assert!(
+            !in_sys_modules(py, "test_exits_on_load"),
+            "a SystemExit took the module out too"
         );
     });
 }
