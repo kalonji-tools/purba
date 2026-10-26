@@ -186,13 +186,36 @@ pub fn load<'py>(
         },
     )?;
     module.setattr(RAN, &ran)?;
-    py.import("sys")?
-        .getattr("modules")?
-        .set_item(&*name, &module)?;
-    let builtins = py.import("builtins")?;
-    let code = builtins
-        .getattr("compile")?
-        .call1((text, path.as_os_str(), "exec"))?;
-    builtins.getattr("exec")?.call1((code, module.dict()))?;
+    let modules = py.import("sys")?.getattr("modules")?;
+    let before = modules.get_item(&*name).ok();
+    modules.set_item(&*name, &module)?;
+    let run = || -> PyResult<()> {
+        let builtins = py.import("builtins")?;
+        let code = builtins
+            .getattr("compile")?
+            .call1((text, path.as_os_str(), "exec"))?;
+        builtins.getattr("exec")?.call1((code, module.dict()))?;
+        Ok(())
+    };
+    if let Err(err) = run() {
+        // PROTOTYPE, never merge: PURBA_PROTO_658 picks what the entry holds
+        // after a load fails: keep (main), remove, restore or none.
+        match std::env::var("PURBA_PROTO_658").as_deref() {
+            Ok("remove") => {
+                let _ = modules.del_item(&*name);
+            }
+            Ok("restore") => {
+                let _ = match &before {
+                    Some(old) => modules.set_item(&*name, old),
+                    None => modules.del_item(&*name),
+                };
+            }
+            Ok("none") => {
+                let _ = modules.set_item(&*name, py.None());
+            }
+            _ => {}
+        }
+        return Err(err);
+    }
     Ok(Loaded { module, ran })
 }
