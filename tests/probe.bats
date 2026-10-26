@@ -1,14 +1,13 @@
 : "${BATS_TEST_DIRNAME:?set by bats}"
 bats_require_minimum_version 1.5.0
 
-@test "probe: what fd 1 is when stdout is closed" {
+@test "probe: who holds fd 1 when stdout is closed" {
   cd "${BATS_TEST_DIRNAME}/probe"
-  run bash -c 'python -VV >&2
-    python fd1.py >&-
-    python fd1.py import >&-
-    purba test_fd1.py >&-
-    echo "purba exit $?" >&2
-    head -1 "$(command -v purba)" >&2' 2>&1
+  run bash -c 'bash -c "lsof -a -p \$\$ -d 0-9 >&2" >&-
+    python -c "import sys; print(sys.executable, sys._base_executable, file=sys.stderr)"
+    python lsof.py >&-
+    PYTHON_GIL=1 python lsof.py >&-
+    python -X dev lsof.py >&-' 2>&1
   printf '%s\n' "${output}"
   false
 }
