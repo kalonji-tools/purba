@@ -117,6 +117,13 @@ impl Ran {
             )));
         }
         let held = value.is_truthy()?;
+        #[cfg(feature = "fault")]
+        let held = match std::env::var("PURBA_FAULT").as_deref() {
+            Ok("ran-panics") => panic!("PROTOTYPE fault: the hook panicked"),
+            Ok("ran-raises") => return Err(pyo3::exceptions::PyRuntimeError::new_err("PROTOTYPE fault: the hook raised")),
+            Ok("ran-lies") => false,
+            _ => held,
+        };
         *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some((index, held));
         Ok(held)
     }
@@ -176,6 +183,10 @@ pub fn load<'py>(
     asserts: Vec<String>,
 ) -> PyResult<Loaded<'py>> {
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
+    #[cfg(feature = "fault")]
+    if std::env::var("PURBA_FAULT").as_deref() == Ok("load-raises") {
+        return Err(pyo3::exceptions::PyRuntimeError::new_err("PROTOTYPE fault: load raised"));
+    }
     let module = PyModule::new(py, &name)?;
     module.setattr("__file__", path.as_os_str())?;
     let ran = Bound::new(

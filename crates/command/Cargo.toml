@@ -16,3 +16,7 @@ purba-selection = { path = "../selection" }
 
 [lints]
 workspace = true
+
+# PROTOTYPE (#657), never merge.
+[features]
+fault = ["purba-assertion/fault", "purba-reporting/fault"]

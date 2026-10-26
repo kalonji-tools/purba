@@ -19,6 +19,8 @@ purba-command = { path = "../command" }
 pyo3 = { workspace = true, features = ["abi3-py312"] }
 
 [features]
+# PROTOTYPE (#657), never merge.
+fault = ["purba-command/fault"]
 #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 extension-module = ["pyo3/extension-module"]
 

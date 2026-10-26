@@ -29,6 +29,8 @@ fn report<'a, T: Display + 'a, E: Display>(
     results: impl IntoIterator<Item = (&'a T, Result<&'a Kind, E>)>,
 ) -> io::Result<u8> {
     let mut tally = Tally::default();
+    #[cfg(feature = "fault")]
+    assert!(std::env::var("PURBA_FAULT").as_deref() != Ok("report-panics"), "PROTOTYPE fault: reporting panicked");
     for (test, result) in results {
         tally.add(&result);
         match result {

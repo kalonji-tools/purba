@@ -12,3 +12,7 @@ purba-execution = { path = "../execution" }
 
 [lints]
 workspace = true
+
+# PROTOTYPE (#657), never merge: the test-build switch.
+[features]
+fault = []

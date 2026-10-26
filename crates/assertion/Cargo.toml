@@ -15,3 +15,7 @@ ruff_text_size.workspace = true
 
 [lints]
 workspace = true
+
+# PROTOTYPE (#657), never merge: the test-build switch.
+[features]
+fault = []
