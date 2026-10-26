@@ -49,7 +49,11 @@ pub fn hand<T: Test>(modules: Vec<Module<T>>) -> Vec<(T, Result<Outcome, Error>)
         for module in modules {
             let executable = purba_execution::Module::new(module.path, module.text, module.asserts);
             for test in module.tests {
-                let result = worker.run(&executable, test.function());
+                // PROTOTYPE (#657), never merge: a panic in one test stays in that test.
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    worker.run(&executable, test.function())
+                }))
+                .unwrap_or_else(|_| Err(purba_execution::Error::internal("internal error: a panic during the test".to_owned())));
                 results.push((test, result));
             }
         }

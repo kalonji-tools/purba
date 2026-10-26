@@ -82,6 +82,14 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
+// PROTOTYPE (#657), never merge.
+impl Error {
+    #[must_use]
+    pub const fn internal(text: String) -> Self {
+        Self(text)
+    }
+}
+
 fn error(err: &PyErr) -> Error {
     Error(err.to_string())
 }
