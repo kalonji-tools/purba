@@ -5,7 +5,7 @@
 A [run](../../CONTEXT.md#run) ends in an exit code, and in a count line for the [tester](../../CONTEXT.md#tester).
 [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each code of a finished run.
 Each of those codes asks whether a kind of [outcome](../../CONTEXT.md#outcome) or an error is present, and never asks how many there are.
-So the code names the worst of the run: failed, then an error, then `unknown` or no test, then passed.
+So the code names the worst of the run: failed, then raised or no outcome, then `unknown` or no test, then passed.
 Some part counts each outcome and each error, and some part turns that count into the code.
 
 | fact | source |

@@ -66,9 +66,17 @@ What the author of a [pull request](#pull-request) writes to say how the change 
 
 The [actor](#actor) that wires purba's machine-readable output into another system.
 
+### Internal error
+
+An error that a [part](#part) sees in purba itself: a panic, or an error that purba never expects. A [tester](#tester) reports it as a bug in purba.
+
 ### Invariant
 
 A rule that two or more [parts](#part) follow, written as an absence. Unlike a [concern](#concern), it needs no design of its own.
+
+### Invocation error
+
+An error that a [part](#part) sees in how a [run](#run) was started or where it runs: an argument, a path the [tester](#tester) typed, an input purba cannot take, or a place purba cannot write. The tester fixes it in the command or where it runs.
 
 ### Issue
 
@@ -106,7 +114,7 @@ The statement that a contributor has the right to submit a contribution. Only a 
 
 ### Outcome
 
-What a [run](#run) says about one selected test, such as passed, failed or unknown. A test is unknown when purba cannot say that it checked a behaviour.
+What a [run](#run) says about one selected test, such as passed, failed, raised or unknown. A test is unknown when purba cannot say that it checked a behaviour.
 
 ### Outside contribution
 
@@ -123,6 +131,10 @@ A division of purba with one responsibility and one interface. Each part is desi
 ### Post pass
 
 A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).
+
+### Project error
+
+An error that a [part](#part) sees in the [tester's](#tester) code, other than a test's [outcome](#outcome). A module that does not parse or load, a test purba cannot call, and an exception that no test's call raised are each one.
 
 ### Prose
 

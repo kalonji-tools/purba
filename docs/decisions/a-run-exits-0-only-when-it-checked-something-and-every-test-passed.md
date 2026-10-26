@@ -27,15 +27,15 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **`unknown` exits 1, as a failed test does.** Rejected. An integrator could not tell a test that found a defect from a test that checked nothing.
 - **A run with no test exits 0.** Rejected. It reads as clean, and the run checked nothing.
-- **An error that `_main` does not catch.** Rejected. It exits 1, so an error inside purba reads as a failed test. [The landscape](../../LANDSCAPE.md#the-risks) names that risk.
-- **An error in place of an outcome exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised an error.
-- **An error in place of an outcome exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the error.
-- **Five codes, which keep `unknown`, a run with no test, and an error apart from a failure.** Chosen. Only a run that checked at least one behaviour, with no failed or `unknown` test and no error, exits 0.
+- **An error that `_main` does not catch.** Rejected. It exits 1, so an internal error reads as a failed test. [The landscape](../../LANDSCAPE.md#the-risks) names that risk.
+- **A test that raised exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised.
+- **A test that raised exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the test.
+- **Five codes, which keep `unknown`, a run with no test, and a test that raised or gave no outcome apart from a failure.** Chosen. Only a run that checked at least one behaviour, in which every test has an outcome and none failed, raised or is `unknown`, exits 0.
 - **A test that calls `os._exit` ends the run with its code, and the Downside names it.** Rejected. With 0, the run reads as clean though an earlier test failed.
-- **Only `os._exit(0)` gives an error, as in Go.** Rejected. Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
+- **Only `os._exit(0)` makes the test raise, as in Go.** Rejected. Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
 - **The guard raises and records nothing, and the Downside names a call whose error a thread or the test catches.** Rejected. A test that hides the call passes, and the run can exit 0. Before the guard, the run ended with the code of the call.
 - **Off the test's thread, a code other than 0 calls the real `os._exit`.** Rejected. `faulthandler` already ends a hung test, and the guard would need to know which thread runs the test.
-- **A guard takes the place of `os._exit` in purba's process.** Chosen. A test that calls it gives an error. A child that a test forks still exits.
+- **A guard takes the place of `os._exit` in purba's process.** Chosen. A test that calls it has the outcome `raised`. A child that a test forks still exits.
 
 ## Decision Outcome
 
@@ -47,24 +47,25 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 |---|---|
 | 0 | at least one test ran, and every test passed |
 | 1 | a test failed |
-| 2 | no test failed or gave an error, and a test is `unknown` or no test ran |
-| 3 | the run did not finish: a usage error, a module that purba cannot read, a refused write, or an error inside purba |
-| 4 | no test failed, and a test gave an error in place of an outcome |
+| 2 | no test failed, raised or gave no outcome, and a test is `unknown` or no test ran |
+| 3 | the run did not finish: an invocation error, or an internal error |
+| 4 | no test failed, and a test raised or gave no outcome |
 
 - **`_main` catches each error at its boundary, and returns 3.**
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **This record chooses no code for an interrupt.** The design in depth of interrupt handling chooses it.
 - **The design in depth of errors may divide each of 3 and 4.** [How does purba's exit code name the phase and the kind of what went wrong?](https://github.com/kalonji-tools/purba/issues/609) asks how.
-- **A test that calls `os._exit` gives an error in place of an outcome.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
+- **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
+[A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds each kind of failure.
 
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
-- **An integrator cannot tell the causes of 3 apart.** They are a usage error, a module that purba cannot read, a refused write and an error inside purba that stops the run. Each exits 3 until the design in depth of errors divides them.
-- **Ctrl-C ends only the test that runs, and that test gives an error.** Python raises `KeyboardInterrupt` inside the test, execution makes it an error in place of an outcome, and dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
-- **An error inside purba that reaches dispatch exits 4, as an error of the tester's code does.** Dispatch has only the text of the error, so it cannot tell the two apart.
+- **An integrator cannot tell the causes of 3 apart.** They are an invocation error and an internal error that stops the run. Each exits 3 until the design in depth of errors divides them.
+- **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
+- **An internal error that reaches dispatch exits 4, as a test that raised does.** Dispatch has only the text of the error, so it cannot tell the two apart.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
 - **A thread that calls `os._exit` after its test returned charges the test that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.

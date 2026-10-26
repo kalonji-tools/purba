@@ -22,7 +22,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`python -m purba`, alone or beside the console script.** Rejected. It needs a `__main__.py` in purba's package, so command holds a Python file. [Every part of the skeleton is Rust, inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) keeps Python files out.
 - **A directory and a query as the input.** Rejected. The query language belongs to the design in depth of selection.
 - **A data format for an [integrator](../../CONTEXT.md#integrator) now, such as JSON Lines.** Rejected. Reporting decides a format in its design in depth, and a format chosen now joins the public surface first.
-- **A test that gave an error prints as failed.** Rejected. The tester cannot tell a defect that an assert found from an error that stopped the test.
+- **A test that raised prints as failed.** Rejected. The tester cannot tell a defect that an assert found from an exception that stopped the test.
 - **A count that names a kind only above 0.** Rejected. The count changes its shape from run to run. A run with no `unknown` test does not name `unknown`.
 - **A reason over several lines prints each line break as `\n`.** Rejected. An escaped reason is hard to read.
 - **A reason over several lines prints only its first line.** Rejected. A cut reason hides the rest of the assert or the error.

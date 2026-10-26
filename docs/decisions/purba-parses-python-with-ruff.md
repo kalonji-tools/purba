@@ -47,7 +47,7 @@ Cargo misses some ruff crates that nothing calls, so the reviewer checks each on
 One module owns parsing and returns an AST, and everything else takes the AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 Holding that seam keeps even a late reversal a one-decision change.
-The prescan path parses and raises nothing on a syntax error, because a file that fails to parse is a diagnostic and not a crash.
+The prescan path parses and raises nothing on a syntax error, because a file that fails to parse is a project error, not a crash.
 MSRV is the upgrade clock, not the API.
 
 **A person raises the pin, when one of three triggers fires.**

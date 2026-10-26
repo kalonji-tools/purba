@@ -30,13 +30,13 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
 | assertion | the module that assertion's load makes from the rewritten source, the index of the last assert that ran, and whether it held | the module's namespace |
-| execution | whether the call returned or raised `AssertionError`, and the type and message of each error that gives no outcome, as text | the traceback |
+| execution | whether the call returned or raised `AssertionError`, and the type and message of each other exception, as text | the traceback |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
-- **A test fails only when the last assert that ran did not hold, and the test raised `AssertionError`.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it. An `AssertionError` gives an error in place of an outcome when no marked assert ran or the last one held.
+- **A test fails only when the last assert that ran did not hold, and the test raised `AssertionError`.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it. An `AssertionError` gives the outcome `raised` when no marked assert ran or the last one held.
 - **Reporting writes to Rust's stdout.**
 
 [A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) holds where assertion's load puts the module.
@@ -45,7 +45,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
 - **The load puts the name `_purba_ran` in each module.** A test module that defines `_purba_ran` itself breaks the rewrite.
-- **A call that raises `AssertionError` with no marked assert gives an error, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
+- **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
 - **A test that catches the `AssertionError` of an assert that did not hold, and then raises `AssertionError` with no assert, fails on the caught assert.** The call records the last assert that ran, and not the error that the test raised.
 
 ## Confirmation

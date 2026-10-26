@@ -56,7 +56,7 @@ flowchart LR
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
-- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a diagnostic.
+- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
 - **dispatch.** Hands each selected test to a worker and returns its outcome, or the error it gave in place of one, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input a test names by type, and tears it down after.
@@ -147,7 +147,7 @@ sequenceDiagram
 - **strictness.** Never shows as passed what was not checked, in selection, execution, fixtures and reporting. No switch turns it off.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on Ctrl-C and tears down what was built, in command, dispatch, execution, fixtures and reporting.
-- **errors.** Keeps a test's outcome, a diagnostic about the tester's project and an error inside purba apart, in every part.
+- **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part.
 
 [A concern is what no part can own](docs/decisions/a-concern-is-what-no-part-can-own.md) holds why.
 
@@ -158,13 +158,13 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 - **text selection disagrees with import.** Given a pinned suite, when selection reads the AST of its test files, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
 - **a fixture reaches a test that never named it.** Given two tests where only the first names a fixture, when both run, then the outcome of the second depends on that fixture. Lands on fixtures; probability high, impact high.
 - **an outcome depends on the worker.** Given a selection, when it runs on one worker and then on many, then the outcome of some test differs. Lands on dispatch; probability high, impact high.
-- **purba's own error shows as a test failure.** Given a defect inside purba during a test, when purba reports the run, then the test shows as failed, and not as an error inside purba. Lands on errors; probability medium, impact high.
+- **purba's own error shows as a test failure.** Given a defect inside purba during a test, when purba reports the run, then the test shows as failed, and not as an internal error. Lands on errors; probability medium, impact high.
 - **an interrupt leaves a fixture built.** Given a run stopped by Ctrl-C during a test, when purba exits, then a fixture built for that test is never torn down. Lands on interrupt handling; probability medium, impact high.
 - **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
 - **a test imports another directory's module of the same name.** Given two test directories that each hold `helper.py`, when both run, then a test reads the other directory's `helper`, and its outcome depends on which test ran first. Lands on execution; probability medium, impact high.
 - **a change in one part edits another part.** Given a change inside one part that leaves its interface unchanged, when the change is made, then a file of another part changes. Lands on command; probability high, impact medium.
 - **strictness refuses a test that checks.** Given a test that checks its result through a helper, when purba runs it, then purba does not report it as passed. Lands on strictness; probability medium, impact medium.
-- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing reports a diagnostic and selection finds no test in it. Lands on parsing; probability low, impact high.
+- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing reports a project error and selection finds no test in it. Lands on parsing; probability low, impact high.
 
 ## The order of design
 
