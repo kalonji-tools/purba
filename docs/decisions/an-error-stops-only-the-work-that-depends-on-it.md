@@ -49,8 +49,9 @@ A run that stops too little runs tests on a wrong input.
 
 ## Confirmation
 
-No command checks this record.
-[A run with stdout closed prints nothing and exits 0](https://github.com/kalonji-tools/purba/issues/651), [Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
+`mise run test:rust` checks that a stdout that takes no write stops the run before any test.
+No command checks the rest of this record.
+[Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 Its Destination promises what a panic inside a test stops.
 [Does a module that failed to load give one error, or one for each of its tests?](https://github.com/kalonji-tools/purba/issues/659) asks what each test of a module that does not load prints.

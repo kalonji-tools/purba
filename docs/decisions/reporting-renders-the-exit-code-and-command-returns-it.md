@@ -52,6 +52,4 @@ It checks that command returns the write error when its writer refuses each writ
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
 No command checks that an internal error or an invocation error comes first.
-No command checks that `_main` turns a refused write into 3.
-A test of `_main` needs a stdout that refuses each write, such as `/dev/full`.
-macOS has no `/dev/full`, so the test would run on Linux alone.
+`mise run test:wheel` checks that `_main` turns a refused write into 3, for a closed stdout and for a read-only one.
