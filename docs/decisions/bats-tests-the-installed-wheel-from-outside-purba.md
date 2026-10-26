@@ -43,6 +43,7 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 | the sentinel file is absent | an import of `test_b.py`, even when purba swallows its error |
 
 - **`mise run test:wheel` builds the wheel, installs it into a venv under `target/`, and runs `bats` over `tests/`.** `test` and `check` run it.
+- **The test that causes an internal error runs on a second wheel.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) says why.
 - **Build's `wheel` job runs the test after it loads the wheel.** Every arm runs it except the Windows arms.
 - **The test stays in bats after purba runs its own tests.** A broken purba could report its own test as passed.
 - **The slice of the skeleton that turns the test green adds it.** `main` cannot hold the test red.
