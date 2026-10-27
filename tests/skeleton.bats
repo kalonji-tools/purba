@@ -44,3 +44,16 @@ LINES
 
   [[ "${stderr}" == "purba: cannot write to stdout: Bad file descriptor (os error 9)" ]]
 }
+
+@test "a test that aborts purba leaves the line of each test before it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import os' \
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    os.abort()' \
+    'def test_three():' '    assert 1 == 1' >test_abort.py
+
+  run -134 --separate-stderr purba test_abort.py
+
+  [[ "${output}" == "test_abort.py::test_one passed" ]]
+}

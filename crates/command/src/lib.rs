@@ -3,6 +3,7 @@
 
 use std::fmt;
 use std::io::{self, Write};
+use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::Module;
@@ -37,14 +38,22 @@ impl fmt::Display for Error {
 ///
 /// In the order the run meets them: when the arguments are not one path to
 /// one `.py` file, when `out` is an error, when the module cannot be read,
-/// and when `out` refuses a write. Each stops the run, and only the last
-/// comes after the tests.
+/// and when `out` refuses a write. Each stops the run. Only a refused write
+/// comes once the tests start, and no test runs after it.
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
     let path = path(arguments)?;
-    let mut out = out.map_err(Error::Write)?;
+    let out = out.map_err(Error::Write)?;
     let modules = modules(path)?;
-    let results = purba_dispatch::hand(modules);
-    purba_reporting::print(&mut out, &results).map_err(Error::Write)
+    let mut report = purba_reporting::Report::new(out);
+    let flow = purba_dispatch::hand(modules, |test, result| {
+        report
+            .line(&test, &result)
+            .map_or_else(ControlFlow::Break, ControlFlow::Continue)
+    });
+    if let ControlFlow::Break(error) = flow {
+        return Err(Error::Write(error));
+    }
+    report.finish().map_err(Error::Write)
 }
 
 /// The one path that `arguments` names after the script's name.

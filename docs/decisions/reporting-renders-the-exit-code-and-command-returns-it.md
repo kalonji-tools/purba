@@ -32,7 +32,7 @@ Some part counts each outcome and each error, and some part turns that count int
 |---|---|
 | which part holds the rule that counts | execution: `Tally`, and `Tally::add` for each test |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
-| what `purba_reporting::print` returns | the exit code: 0, 1, 2 or 4. When its writer refuses a write, `print` returns the error in place of the code |
+| what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2 or 4. When the writer refuses a write, `line` or `finish` returns the error |
 | what command does with the code | it returns the code to `_main`. A refused write is an error, so `_main` returns 3 |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies), as `reporting -->> command: exit code 1` |
 
@@ -53,4 +53,4 @@ It checks that command returns the write error when its writer refuses each writ
 
 No command checks that an internal error or an invocation error comes first.
 `mise run test:wheel` checks that `_main` returns 3 when stdout is closed, and when it is open only to read.
-No command checks that `_main` turns the write error that `print` returns into 3.
+No command checks that `_main` turns the write error that `line` or `finish` returns into 3.

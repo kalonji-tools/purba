@@ -57,7 +57,7 @@ flowchart LR
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
-- **dispatch.** Hands each selected test to a worker and returns its outcome, or the error it gave in place of one, whatever the worker is.
+- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input a test names by type, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
@@ -113,10 +113,12 @@ sequenceDiagram
     fixtures -->> execution: no inputs
     Note over execution: calls the test in Python
     execution -->> dispatch: its outcome
+    dispatch -->> command: the test, and its outcome
+    command ->> reporting: the test, and its outcome
+    reporting ->> tester: its line
   end
-  dispatch -->> command: three outcomes, each beside its test
-  command ->> reporting: each outcome beside its test
-  reporting ->> tester: one line for each test, and a count
+  command ->> reporting: the end of the run
+  reporting ->> tester: the count
   reporting -->> command: exit code 1
   command -->> main: exit code 1
   main -->> tester: the process exits 1

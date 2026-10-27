@@ -1,3 +1,5 @@
+use std::fs;
+use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::{Module, Test};
@@ -21,17 +23,42 @@ fn module(name: &str, text: &str, asserts: &[&str], tests: &[&'static str]) -> M
 }
 
 fn seen(module: Module<Named>) -> Vec<(&'static str, Result<Kind, String>)> {
-    purba_dispatch::hand(vec![module])
-        .into_iter()
-        .map(|(test, result)| {
-            (
-                test.0,
-                result
-                    .map(|outcome| outcome.kind().clone())
-                    .map_err(|err| err.to_string()),
-            )
-        })
-        .collect()
+    let mut seen = Vec::new();
+    let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |test, result| {
+        seen.push((
+            test.0,
+            result
+                .map(|outcome| outcome.kind().clone())
+                .map_err(|err| err.to_string()),
+        ));
+        ControlFlow::Continue(())
+    });
+    assert_eq!(
+        flow,
+        ControlFlow::Continue(()),
+        "a function that never breaks lets every test run"
+    );
+    seen
+}
+
+fn ran_at(name: &str) -> PathBuf {
+    let ran = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
+    let _ = fs::remove_file(&ran);
+    ran
+}
+
+/// A module whose first test passes, and whose second test creates `ran`.
+fn two_tests(name: &str, ran: &std::path::Path) -> Module<Named> {
+    module(
+        name,
+        &format!(
+            "def test_one():\n    assert _purba_ran(0, True)\n\n\
+             def test_two():\n    open({:?}, \"w\").close()\n",
+            ran.to_str().expect("the path is UTF-8")
+        ),
+        &["assert True"],
+        &["test_one", "test_two"],
+    )
 }
 
 #[test]
@@ -116,4 +143,38 @@ fn an_error_stands_beside_its_test_and_the_run_goes_on() {
         ],
         "the error beside its test, and the next test runs",
     );
+}
+
+#[test]
+fn dispatch_hands_each_test_before_it_runs_the_next() {
+    let ran = ran_at("test_dispatch_before.ran");
+    let mut ran_before = Vec::new();
+    let flow: ControlFlow<()> =
+        purba_dispatch::hand(vec![two_tests("test_before.py", &ran)], |test, _| {
+            ran_before.push((test.0, ran.exists()));
+            ControlFlow::Continue(())
+        });
+    assert_eq!(flow, ControlFlow::Continue(()), "no test breaks");
+    assert_eq!(
+        ran_before,
+        [("test_one", false), ("test_two", true)],
+        "dispatch hands test_one before test_two runs"
+    );
+}
+
+#[test]
+fn dispatch_calls_no_test_after_a_break() {
+    let ran = ran_at("test_dispatch_break.ran");
+    let mut handed = Vec::new();
+    let flow = purba_dispatch::hand(vec![two_tests("test_break.py", &ran)], |test, _| {
+        handed.push(test.0);
+        ControlFlow::Break("stop")
+    });
+    assert_eq!(flow, ControlFlow::Break("stop"), "hand returns the break");
+    assert_eq!(
+        handed,
+        ["test_one"],
+        "dispatch hands no test after the break"
+    );
+    assert!(!ran.exists(), "test_two never ran");
 }

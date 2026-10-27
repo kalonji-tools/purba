@@ -89,6 +89,46 @@ fn a_writer_that_refuses_is_the_write_error() {
     );
 }
 
+/// Takes each write until it holds one whole line, then refuses.
+#[derive(Default)]
+struct RefusesSecondLine(Vec<u8>);
+
+impl Write for RefusesSecondLine {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        if self.0.contains(&b'\n') {
+            return Err(io::Error::other("refused"));
+        }
+        self.0.extend_from_slice(bytes);
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+#[test]
+fn a_write_refused_during_the_run_stops_the_tests_after_it() {
+    let path = module_at("test_command_refused_second.py");
+    let ran = module_at("test_command_refused_second.ran");
+    let _ = fs::remove_file(&ran);
+    let text = format!(
+        "def test_one():\n    assert 1 == 1\n\n\
+         def test_two():\n    assert 1 == 1\n\n\
+         def test_three():\n    open({:?}, \"w\").close()\n    assert 1 == 1\n",
+        ran.to_str().expect("the path is UTF-8")
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let error = purba_command::run(&argv(&path), Ok(RefusesSecondLine::default()))
+        .expect_err("a refused write is an error");
+    assert_eq!(
+        error.to_string(),
+        "cannot write to stdout: refused",
+        "the error names stdout"
+    );
+    assert!(!ran.exists(), "no test runs after the refused line");
+}
+
 #[test]
 fn a_stdout_that_takes_no_write_stops_the_run_before_any_test() {
     let path = module_at("test_command_closed.py");

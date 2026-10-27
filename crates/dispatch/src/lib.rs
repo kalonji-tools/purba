@@ -1,6 +1,7 @@
-//! Dispatch: hands each selected test to one worker in-process, and puts its
-//! outcome or error beside it.
+//! Dispatch: hands each selected test to one worker in-process, and hands
+//! the test on, beside its outcome or error, as the worker returns it.
 
+use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_execution::{Error, Outcome};
@@ -40,19 +41,24 @@ impl<T> Module<T> {
     }
 }
 
-/// Hands each test of `modules` to one worker, in order, and puts each outcome
-/// beside its test, or the error that it gave in place of an outcome.
-#[must_use]
-pub fn hand<T: Test>(modules: Vec<Module<T>>) -> Vec<(T, Result<Outcome, Error>)> {
+/// Hands each test of `modules` to one worker, in order, and calls `each` as
+/// the worker returns the test.
+///
+/// `each` takes the test and its outcome, or the error that it gave in place
+/// of one. Once `each` breaks, no further test runs, and `hand` returns the
+/// break.
+pub fn hand<T: Test, B>(
+    modules: Vec<Module<T>>,
+    mut each: impl FnMut(T, Result<Outcome, Error>) -> ControlFlow<B>,
+) -> ControlFlow<B> {
     purba_execution::attach(|worker| {
-        let mut results = Vec::new();
         for module in modules {
             let executable = purba_execution::Module::new(module.path, module.text, module.asserts);
             for test in module.tests {
                 let result = worker.run(&executable, test.function());
-                results.push((test, result));
+                each(test, result)?;
             }
         }
-        results
+        ControlFlow::Continue(())
     })
 }

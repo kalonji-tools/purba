@@ -38,7 +38,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
 - **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
-- **A run prints to stdout, in source order, once the run ends.**
+- **A run prints each test's line to stdout as the test ends, in source order, and the count once the run ends.**
 
 ```
 tests/test_a.py::test_one passed
@@ -69,6 +69,7 @@ tests/test_a.py::test_three unknown: no assert ran
 It also checks the text of each error that command returns.
 `mise run test:wheel` runs the installed `purba` on `test_a.py`, and checks the lines it prints.
 It checks that `_main` writes the line of a usage error to stderr.
+It checks that a test that aborts purba leaves the line of each test before it.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 No command checks the rest.
