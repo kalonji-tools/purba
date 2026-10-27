@@ -171,7 +171,7 @@ description = "Run purba's own scripts against the shapes they refuse"
 run = "bats --print-output-on-failure --recursive scripts/test"
 
 ["test:wheel"]
-description = "Run the end-to-end test on the purba that the wheel installs"
+description = "Run the end-to-end tests on the purba that the wheel installs"
 #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
 run = """
 maturin build --quiet

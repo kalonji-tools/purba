@@ -46,11 +46,13 @@ A run that stops too little runs tests on a wrong input.
 - **The work that goes on after a panic trusts that the panic broke no state that another part reads.** The `UnwindSafe` bound of `catch_unwind` checks some of it. `AssertUnwindSafe` opts out of that check.
 - **An invocation error that reporting finds discards every outcome of the run.** Each test ran, and the tester reads no outcome.
 - **A tester who knows pytest expects a module that raises at import to stop the run.** purba runs every other module.
+- **A runtime that puts a file that takes a write on fd 1 hides a closed stdout from purba.** macOS logs at each start of the free-threaded Python from python.org, because its `Python.app` lists an executable it does not hold. The log write opens a socket on the lowest free fd, which is then fd 1. purba writes its lines into that socket.
 
 ## Confirmation
 
-No command checks this record.
-[A run with stdout closed prints nothing and exits 0](https://github.com/kalonji-tools/purba/issues/651), [Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
+`mise run test:rust` checks that command stops the run before any test when it takes an error in place of stdout.
+No command checks the rest of this record.
+[Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 Its Destination promises what a panic inside a test stops.
 [Does a module that failed to load give one error, or one for each of its tests?](https://github.com/kalonji-tools/purba/issues/659) asks what each test of a module that does not load prints.

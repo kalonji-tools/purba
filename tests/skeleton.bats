@@ -28,3 +28,19 @@ LINES
   [[ "${stderr}" == "purba: usage: purba <path to one .py file>" ]] || false
   [[ -z "${output}" ]]
 }
+
+@test "purba with stdout closed exits 3, and says why on stderr" {
+  cd "${BATS_TEST_DIRNAME}/skeleton"
+
+  run -3 --separate-stderr bash -c 'purba test_a.py >&-'
+
+  [[ "${stderr}" == "purba: cannot write to stdout: Bad file descriptor (os error 9)" ]]
+}
+
+@test "purba with stdout open for reading exits 3, and says why on stderr" {
+  cd "${BATS_TEST_DIRNAME}/skeleton"
+
+  run -3 --separate-stderr bash -c 'purba test_a.py 1</dev/null'
+
+  [[ "${stderr}" == "purba: cannot write to stdout: Bad file descriptor (os error 9)" ]]
+}

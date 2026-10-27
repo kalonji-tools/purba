@@ -29,12 +29,12 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 
 | file | holds |
 |---|---|
-| `tests/skeleton.bats` | the test |
+| `tests/skeleton.bats` | the end-to-end tests |
 | `tests/skeleton/test_a.py` | `test_one` passes, `test_two` fails, and `test_three` is `unknown` |
 | `tests/skeleton/test_b.py` | a module that writes the file `$PURBA_SENTINEL` names, then raises |
 
 - **`tests/skeleton.bats` runs `purba test_a.py` inside `tests/skeleton/`.** Each line then starts `test_a.py::`.
-- **One test holds the run and every check.** A check of the sentinel in a test of its own passes when `purba` never ran.
+- **One test runs `test_a.py` with stdout open, and holds every check in the table below.** A check of the sentinel in a test of its own passes when `purba` never ran.
 
 | check | what it refuses |
 |---|---|
@@ -44,8 +44,8 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 
 - **`mise run test:wheel` builds the wheel, installs it into a venv under `target/`, and runs `bats` over `tests/`.** `test` and `check` run it.
 - **The test that causes an internal error runs on a second wheel.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) says why.
-- **Build's `wheel` job runs the test after it loads the wheel.** Every arm runs it except the Windows arms.
-- **The test stays in bats after purba runs its own tests.** A broken purba could report its own test as passed.
+- **Build's `wheel` job runs the end-to-end tests after it loads the wheel.** Every arm runs them except the Windows arms.
+- **The end-to-end tests stay in bats after purba runs its own tests.** A broken purba could report its own test as passed.
 - **The slice of the skeleton that turns the test green adds it.** `main` cannot hold the test red.
 
 **Downside:**
@@ -53,6 +53,7 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 - **Windows never runs the console script.** The Windows arms import the wheel's module, and never start the command that pip installs there.
 - **Every local `mise run check` builds and installs the wheel.**
 - **The sentinel sees an import, and nothing less.** A rewrite that reads `test_b.py` and never imports it passes the test.
+- **On the free-threaded Python from python.org on macOS, purba cannot see a closed stdout, and Build hides it.** That Python's `Python.app` lists the executable `Python`, and holds `PythonT`. So macOS logs at each start, through a socket on the lowest free fd. When the shell closed stdout, that fd is 1. Build links `Python` to `PythonT` before the end-to-end tests. A tester's Python keeps the missing executable.
 
 ## Confirmation
 
