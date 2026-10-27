@@ -1,36 +1,49 @@
-//! Reporting: prints one line for each test and a count, and renders the exit
-//! code.
+//! Reporting: prints one line for each test as it takes the test, then a
+//! count, and renders the exit code.
 
 use std::fmt::Display;
-use std::io::{self, BufWriter, Write};
+use std::io::{self, Write};
 
 use purba_execution::{Error, Kind, Outcome, Tally};
 
-/// Prints each test beside its outcome or error, in the order given, then the
-/// count, to `out`. Returns the exit code of the run.
-///
-/// # Errors
-///
-/// When `out` refuses a write.
-pub fn print<T: Display>(
-    out: &mut impl Write,
-    results: &[(T, Result<Outcome, Error>)],
-) -> io::Result<u8> {
-    let results = results
-        .iter()
-        .map(|(test, result)| (test, result.as_ref().map(Outcome::kind)));
-    report(&mut BufWriter::new(out), results)
+/// Prints each test beside its outcome or error to `out`, as it takes the
+/// test, then the count. Keeps only the tally of the tests it took.
+pub struct Report<W: Write> {
+    out: W,
+    tally: Tally,
 }
 
-/// A test passes a text for an error, because no crate but execution builds an
-/// `Error`.
-fn report<'a, T: Display + 'a, E: Display>(
-    out: &mut impl Write,
-    results: impl IntoIterator<Item = (&'a T, Result<&'a Kind, E>)>,
-) -> io::Result<u8> {
-    let mut tally = Tally::default();
-    for (test, result) in results {
-        tally.add(&result);
+impl<W: Write> Report<W> {
+    /// A report that prints to `out`.
+    pub fn new(out: W) -> Self {
+        Self {
+            out,
+            tally: Tally::default(),
+        }
+    }
+
+    /// Adds `test` to the tally, and writes its line and flushes it.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn line<T: Display>(
+        &mut self,
+        test: &T,
+        result: &Result<Outcome, Error>,
+    ) -> io::Result<()> {
+        self.add(test, result.as_ref().map(Outcome::kind))
+    }
+
+    /// A test passes a text for an error, because no crate but execution
+    /// builds an `Error`.
+    fn add<T: Display, E: Display>(
+        &mut self,
+        test: &T,
+        result: Result<&Kind, E>,
+    ) -> io::Result<()> {
+        self.tally.add(&result);
+        let out = &mut self.out;
         match result {
             Ok(Kind::Passed) => writeln!(out, "{test} passed")?,
             Ok(Kind::Failed { assert }) => {
@@ -44,10 +57,19 @@ fn report<'a, T: Display + 'a, E: Display>(
                 writeln!(out, "{test} error: {}", one_line(&error.to_string()))?;
             }
         }
+        out.flush()
     }
-    writeln!(out, "{}", count_line(&tally))?;
-    out.flush()?;
-    Ok(exit_code(&tally))
+
+    /// Writes the count and flushes it. Returns the exit code of the run.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn finish(mut self) -> io::Result<u8> {
+        writeln!(self.out, "{}", count_line(&self.tally))?;
+        self.out.flush()?;
+        Ok(exit_code(&self.tally))
+    }
 }
 
 fn count_line(tally: &Tally) -> String {
@@ -90,19 +112,107 @@ const fn plural(count: usize) -> &'static str {
 
 #[cfg(test)]
 mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
     use super::*;
 
     fn report_of<'a>(results: &[(&'a str, Result<&'a Kind, &'a str>)]) -> (String, u8) {
         let mut out = Vec::new();
-        let code = report(
-            &mut out,
-            results.iter().map(|(test, result)| (test, *result)),
-        )
-        .expect("a Vec takes every write");
+        let mut report = Report::new(&mut out);
+        for (test, result) in results {
+            report.add(test, *result).expect("a Vec takes every write");
+        }
+        let code = report.finish().expect("a Vec takes every write");
         (
             String::from_utf8(out).expect("reporting writes UTF-8"),
             code,
         )
+    }
+
+    /// Holds what it takes until a flush, and then shows it in `seen`.
+    struct Flushed {
+        pending: Vec<u8>,
+        seen: Rc<RefCell<String>>,
+    }
+
+    impl Write for Flushed {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            self.pending.extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            let text =
+                String::from_utf8(self.pending.split_off(0)).expect("reporting writes UTF-8");
+            self.seen.borrow_mut().push_str(&text);
+            Ok(())
+        }
+    }
+
+    /// Takes each write until it holds one whole line, then refuses.
+    #[derive(Default)]
+    struct RefusesSecondLine(Vec<u8>);
+
+    impl Write for RefusesSecondLine {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            if self.0.contains(&b'\n') {
+                return Err(io::Error::other("refused"));
+            }
+            self.0.extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn each_line_is_flushed_before_the_next_test() {
+        let seen = Rc::new(RefCell::new(String::new()));
+        let mut report = Report::new(Flushed {
+            pending: Vec::new(),
+            seen: Rc::clone(&seen),
+        });
+        report
+            .add(&"test_a.py::test_one", Ok::<_, &str>(&Kind::Passed))
+            .expect("the writer takes every write");
+        assert_eq!(
+            *seen.borrow(),
+            "test_a.py::test_one passed\n",
+            "the first line is flushed before the second test"
+        );
+        report
+            .add(&"test_a.py::test_two", Ok::<_, &str>(&Kind::Unknown))
+            .expect("the writer takes every write");
+        assert_eq!(
+            *seen.borrow(),
+            "test_a.py::test_one passed\n\
+             test_a.py::test_two unknown: no assert ran\n",
+            "the second line is flushed too, and no count yet"
+        );
+        let code = report.finish().expect("the writer takes every write");
+        assert_eq!(
+            *seen.borrow(),
+            "test_a.py::test_one passed\n\
+             test_a.py::test_two unknown: no assert ran\n\
+             2 tests: 1 passed, 0 failed, 0 raised, 1 unknown, 0 errors\n",
+            "the count is flushed when the run finishes"
+        );
+        assert_eq!(code, 2, "an unknown test exits 2");
+    }
+
+    #[test]
+    fn a_refused_write_is_the_error_of_its_line() {
+        let mut report = Report::new(RefusesSecondLine::default());
+        report
+            .add(&"test_a.py::test_one", Ok::<_, &str>(&Kind::Passed))
+            .expect("the writer takes the first line");
+        let error = report
+            .add(&"test_a.py::test_two", Ok::<_, &str>(&Kind::Passed))
+            .expect_err("the writer refuses the second line");
+        assert_eq!(error.to_string(), "refused", "the writer's own error");
     }
 
     #[test]
