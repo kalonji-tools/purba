@@ -30,8 +30,8 @@ impl Write for Refuses {
 #[test]
 fn a_module_that_cannot_be_read_is_the_read_error() {
     let path = module_at("test_command_missing.py");
-    let error = purba_command::run(&argv(&path), &mut Vec::new())
-        .expect_err("a missing module is an error");
+    let error =
+        purba_command::run(&argv(&path), Ok(Vec::new())).expect_err("a missing module is an error");
     assert!(
         error
             .to_string()
@@ -55,7 +55,7 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), &mut out).expect("the run finishes");
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
@@ -75,10 +75,43 @@ fn a_writer_that_refuses_is_the_write_error() {
     let path = module_at("test_command_refused.py");
     fs::write(&path, "x = 1\n").expect("the test writes its module");
     let error =
-        purba_command::run(&argv(&path), &mut Refuses).expect_err("a refused write is an error");
+        purba_command::run(&argv(&path), Ok(Refuses)).expect_err("a refused write is an error");
     assert!(
         matches!(error, Error::Write(_)),
         "a module that can be read gives the write error: {error}"
+    );
+}
+
+#[test]
+fn a_stdout_that_takes_no_write_stops_the_run_before_any_test() {
+    let path = module_at("test_command_closed.py");
+    let ran = module_at("test_command_closed.ran");
+    let _ = fs::remove_file(&ran);
+    let text = format!(
+        "def test_a():\n    open({:?}, \"w\").close()\n    assert 1 == 1\n",
+        ran.to_str().expect("the path is UTF-8")
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let error = purba_command::run(&argv(&path), Err::<Vec<u8>, _>(io::Error::other("closed")))
+        .expect_err("a stdout that takes no write is an error");
+    assert_eq!(
+        error.to_string(),
+        "cannot write to stdout: closed",
+        "the error names stdout"
+    );
+    assert!(!ran.exists(), "no test runs");
+}
+
+#[test]
+fn a_usage_error_comes_before_a_stdout_that_takes_no_write() {
+    let error = purba_command::run(
+        &["purba".to_owned()],
+        Err::<Vec<u8>, _>(io::Error::other("closed")),
+    )
+    .expect_err("no path is an error");
+    assert!(
+        matches!(error, Error::Usage),
+        "the usage error comes first: {error}"
     );
 }
 
@@ -87,7 +120,7 @@ fn a_module_with_no_test_exits_2() {
     let path = module_at("test_command_none.py");
     fs::write(&path, "x = 1\n").expect("the test writes its module");
     assert_eq!(
-        purba_command::run(&argv(&path), &mut Vec::new()).expect("the run finishes"),
+        purba_command::run(&argv(&path), Ok(Vec::new())).expect("the run finishes"),
         2,
         "a run with no test exits 2"
     );
@@ -111,7 +144,7 @@ fn a_module_that_does_not_parse_shows_its_syntax_error() {
         let path = module_at(name);
         fs::write(&path, text).expect("the test writes its module");
         let mut out = Vec::new();
-        let code = purba_command::run(&argv(&path), &mut out).expect("the run finishes");
+        let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
@@ -134,7 +167,7 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), &mut out).expect("the run finishes");
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
