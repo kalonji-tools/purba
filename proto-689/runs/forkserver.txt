@@ -1,0 +1,14 @@
+fork        first     27.8 ms   each later    0.87 ms   module body ran 1 times in 200 tests   exit codes [0]
+forkserver  first     53.0 ms   each later    3.74 ms   module body ran 1 times in 200 tests   exit codes [0]
+bare        first     55.0 ms   each later   31.91 ms   module body ran 100 times in 100 tests   exit codes [0]
+spawn       first     54.1 ms   each later   52.52 ms   module body ran 50 times in 50 tests   exit codes [0]
+fork        first     28.4 ms   each later    0.89 ms   module body ran 1 times in 200 tests   exit codes [0]
+forkserver  first     52.9 ms   each later    3.64 ms   module body ran 1 times in 200 tests   exit codes [0]
+bare        first     56.7 ms   each later   31.61 ms   module body ran 100 times in 100 tests   exit codes [0]
+spawn       first     56.6 ms   each later   53.02 ms   module body ran 50 times in 50 tests   exit codes [0]
+lab_broken         fork exits 1   stderr: 18 lines
+lab_broken         forkserver exits 1   stderr: 30 lines
+lab_broken         spawn       first     29.4 ms   each later   26.18 ms   module body ran 5 times in 5 tests   exit codes [1]   stderr: 105 lines
+lab_import_broken  fork exits 1   stderr: 19 lines
+lab_import_broken  forkserver  first     33.9 ms   each later    9.12 ms   module body ran 6 times in 5 tests   exit codes [1]   stderr: 110 lines
+lab_import_broken  spawn       first     31.0 ms   each later   26.87 ms   module body ran 5 times in 5 tests   exit codes [1]   stderr: 110 lines

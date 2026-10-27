@@ -98,10 +98,39 @@ The detector itself costs about 21 ms a snapshot, two a test, in Python: more th
  diff the state around every test         saw 6 of 7 planted leaks, costs more than a fork
 ```
 
+## A process for each test, with the module body run once per module
+
+`bench/forkserver.py`, `runs/forkserver.txt`. The module imports asyncio, json and 8
+more, and its body appends one `x` to a file each time it runs.
+
+```
+                           first test    each later    module body ran
+ fork from the parent       28 ms         0.9 ms       1 time in 200 tests
+ forkserver, preloaded      53 ms         3.7 ms       1 time in 200 tests
+ forkserver, no preload     55 ms          32 ms       100 times in 100 tests
+ spawn                      55 ms          53 ms       50 times in 50 tests
+```
+
+A module that fails to load, 5 tests:
+
+```
+                     raises RuntimeError                  raises ImportError
+ fork                the parent sees it once              the parent sees it once
+ forkserver          the server dies; the parent gets     the server ignores it, and each
+                     EOFError: unexpected EOF             child loads again: 6 runs in 5 tests
+ spawn               each child: 5 runs                   each child: 5 runs
+```
+
+[Python's documentation](https://docs.python.org/3/library/multiprocessing.html) says
+forkserver is "Available on POSIX platforms which support passing file descriptors over
+Unix pipes such as Linux", and that spawn is "Available on POSIX and Windows platforms".
+`set_forkserver_preload` ignores an `ImportError` by default, and takes `on_error` from
+3.15.
+
 ## Not measured
 
 - A second corpus. click's tests are unusually clean.
-- macOS, Windows, CPython 3.14 and 3.14t.
+- macOS, Windows, CPython 3.14 and 3.14t. Forkserver on macOS: the documentation does not name it.
 - A parent the size of a numpy or pandas project.
 - A failure re-run from a clean process, to tell an order-dependent failure apart.
 

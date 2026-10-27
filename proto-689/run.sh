@@ -34,6 +34,25 @@ site=$("${py}" -c 'import click, os; print(os.path.dirname(click.__file__))')
 echo "== bench: one test in each beaker"
 "${py}" -I "${here}/bench/bench.py" "${here}/bench/mods" | tee "${runs}/bench.txt"
 
+echo "== a process for each test, with the module body run once per module"
+count="${work}/lab_count.txt"
+{
+  for round in 1 2; do
+    for method in fork:200 forkserver:200 bare:100 spawn:50; do
+      LAB_COUNT=${count} "${py}" -I "${here}/bench/forkserver.py" "${here}/bench/mods" \
+        "${method%%:*}" "${method##*:}"
+    done
+  done
+  for module in lab_broken lab_import_broken; do
+    for method in fork forkserver spawn; do
+      line=$(LAB_MODULE=${module} LAB_COUNT=${count} "${py}" -I "${here}/bench/forkserver.py" \
+        "${here}/bench/mods" "${method}" 5 2>"${work}/stderr.txt" || echo "${method} exits $?")
+      lines=$(wc -l <"${work}/stderr.txt")
+      printf '%-18s %s   stderr: %s lines\n' "${module}" "${line}" "${lines}"
+    done
+  done
+} | tee "${runs}/forkserver.txt"
+
 judge() { # name, tests dir, watched roots, pytest args...
   local name=$1 tests=$2 roots=$3
   shift 3
