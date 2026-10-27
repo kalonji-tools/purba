@@ -3,6 +3,7 @@
 
 use std::fmt;
 use std::io::{self, Write};
+use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::Module;
@@ -43,8 +44,46 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     let path = path(arguments)?;
     let mut out = out.map_err(Error::Write)?;
     let modules = modules(path)?;
-    let results = purba_dispatch::hand(modules);
-    purba_reporting::print(&mut out, &results).map_err(Error::Write)
+    // PROTOTYPE #664: PURBA_PROTO_PRINT = vec (today) | buffered | flushed.
+    match std::env::var("PURBA_PROTO_PRINT").as_deref() {
+        Ok("vec") => {
+            let results = purba_dispatch::hand(modules);
+            purba_reporting::print(&mut out, &results).map_err(Error::Write)
+        }
+        Ok("buffered") => stream(
+            purba_reporting::Report::new(io::BufWriter::new(out), false),
+            modules,
+        ),
+        _ => stream(purba_reporting::Report::new(out, true), modules),
+    }
+}
+
+/// PROTOTYPE #664: PURBA_PROTO_REFUSED = stop | quiet | ignore, for a write
+/// that stdout refuses in the middle of a run.
+fn stream<W: Write>(
+    mut report: purba_reporting::Report<W>,
+    modules: Vec<Module<TestId>>,
+) -> Result<u8, Error> {
+    let refused = std::env::var("PURBA_PROTO_REFUSED").unwrap_or_default();
+    let mut first_refused = None;
+    let flow =
+        purba_dispatch::hand_each(modules, |test, result| match report.line(&test, &result) {
+            Ok(()) => ControlFlow::Continue(()),
+            Err(error) if refused == "quiet" || refused == "ignore" => {
+                first_refused.get_or_insert(error);
+                ControlFlow::Continue(())
+            }
+            Err(error) => ControlFlow::Break(error),
+        });
+    if let ControlFlow::Break(error) = flow {
+        return Err(Error::Write(error));
+    }
+    let code = report.finish();
+    match (first_refused, refused.as_str()) {
+        (Some(error), "quiet") => Err(Error::Write(error)),
+        (_, "ignore") => Ok(code.unwrap_or_else(|_| 0)),
+        _ => code.map_err(Error::Write),
+    }
 }
 
 /// The one path that `arguments` names after the script's name.

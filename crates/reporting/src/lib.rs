@@ -31,23 +31,87 @@ fn report<'a, T: Display + 'a, E: Display>(
     let mut tally = Tally::default();
     for (test, result) in results {
         tally.add(&result);
-        match result {
-            Ok(Kind::Passed) => writeln!(out, "{test} passed")?,
-            Ok(Kind::Failed { assert }) => {
-                writeln!(out, "{test} failed: {}", one_line(assert))?;
-            }
-            Ok(Kind::Raised { exception }) => {
-                writeln!(out, "{test} raised: {}", one_line(exception))?;
-            }
-            Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran")?,
-            Err(error) => {
-                writeln!(out, "{test} error: {}", one_line(&error.to_string()))?;
-            }
-        }
+        write_line(out, test, result)?;
     }
     writeln!(out, "{}", count_line(&tally))?;
     out.flush()?;
     Ok(exit_code(&tally))
+}
+
+fn write_line<T: Display, E: Display>(
+    out: &mut impl Write,
+    test: &T,
+    result: Result<&Kind, E>,
+) -> io::Result<()> {
+    match result {
+        Ok(Kind::Passed) => writeln!(out, "{test} passed"),
+        Ok(Kind::Failed { assert }) => writeln!(out, "{test} failed: {}", one_line(assert)),
+        Ok(Kind::Raised { exception }) => {
+            writeln!(out, "{test} raised: {}", one_line(exception))
+        }
+        Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran"),
+        Err(error) => writeln!(out, "{test} error: {}", one_line(&error.to_string())),
+    }
+}
+
+/// PROTOTYPE #664: prints each line as dispatch hands it, and keeps only the
+/// tally until the count. After a refused write it counts and writes nothing.
+pub struct Report<W: Write> {
+    out: W,
+    tally: Tally,
+    flush_each: bool,
+    muted: bool,
+}
+
+impl<W: Write> Report<W> {
+    /// `flush_each` flushes after each line. Off, the lines wait in `out`.
+    pub fn new(out: W, flush_each: bool) -> Self {
+        Self {
+            out,
+            tally: Tally::default(),
+            flush_each,
+            muted: false,
+        }
+    }
+
+    /// Counts the test, and writes its line unless an earlier write failed.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write. Every later line is then only counted.
+    pub fn line<T: Display>(
+        &mut self,
+        test: &T,
+        result: &Result<Outcome, Error>,
+    ) -> io::Result<()> {
+        let result = result.as_ref().map(Outcome::kind);
+        self.tally.add(&result);
+        if self.muted {
+            return Ok(());
+        }
+        let written = write_line(&mut self.out, test, result).and_then(|()| {
+            if self.flush_each {
+                self.out.flush()
+            } else {
+                Ok(())
+            }
+        });
+        self.muted = written.is_err();
+        written
+    }
+
+    /// Writes the count, unless a write failed, and returns the exit code.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the count or its flush.
+    pub fn finish(mut self) -> io::Result<u8> {
+        if !self.muted {
+            writeln!(self.out, "{}", count_line(&self.tally))?;
+            self.out.flush()?;
+        }
+        Ok(exit_code(&self.tally))
+    }
 }
 
 fn count_line(tally: &Tally) -> String {
