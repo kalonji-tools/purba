@@ -52,6 +52,9 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
         "\n",
         "def test_three():\n",
         "    pass\n",
+        "\n",
+        "def test_four():\n",
+        "    raise ValueError(\"boom\")\n",
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();
@@ -62,12 +65,16 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
             "{0}::test_one passed\n\
              {0}::test_two failed: assert 1 == 2\n\
              {0}::test_three unknown: no assert ran\n\
-             3 tests: 1 passed, 1 failed, 1 unknown, 0 errors\n",
+             {0}::test_four raised: ValueError: boom\n\
+             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 0 errors\n",
             path.display()
         ),
         "one line for each test, in order, then the count, to the writer"
     );
-    assert_eq!(code, 1, "a passed, a failed and an unknown test exit 1");
+    assert_eq!(
+        code, 1,
+        "a passed, a failed, an unknown and a raised test exit 1"
+    );
 }
 
 #[test]
@@ -149,7 +156,7 @@ fn a_module_that_does_not_parse_shows_its_syntax_error() {
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
                 "{}::test_a error: SyntaxError: invalid syntax ({name}, line {line})\n\
-                 1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
                 path.display()
             ),
             "{name}: CPython's syntax error, as for any module that does not parse"
@@ -173,7 +180,7 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
         format!(
             "{}::test_a error: MemoryError: Parser stack overflowed - \
              Python source too complex to parse\n\
-             1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
             path.display()
         ),
         "CPython's error, as for any module that does not compile"
@@ -199,7 +206,7 @@ fn a_module_that_defines_the_hooks_name_fails_to_load() {
             format!(
                 "{0}::test_shadow error: NameError: {0} binds _purba_ran, \
                  the name of purba's assert hook\n\
-                 1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
                 path.display()
             ),
             "{name}: the load names the clash"

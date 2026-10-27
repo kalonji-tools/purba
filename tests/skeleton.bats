@@ -17,7 +17,7 @@ bats_require_minimum_version 1.5.0
 test_a.py::test_one passed
 test_a.py::test_two failed: assert 1 == 2
 test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown, 0 errors
+3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 errors
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
 }

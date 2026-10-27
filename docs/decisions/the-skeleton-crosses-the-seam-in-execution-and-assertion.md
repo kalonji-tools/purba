@@ -57,7 +57,7 @@ It checks that an assert tests its value once.
 It checks that a call to `_purba_ran` with an index that names no assert raises `IndexError`.
 
 `mise run test:rust` also checks that execution makes a passed, failed or `unknown` outcome from the call and the last assert that ran.
-It checks that `AssertionError` gives an error when no assert ran or the last one held.
+It checks that `AssertionError` gives the outcome `raised` when no assert ran or the last one held.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 

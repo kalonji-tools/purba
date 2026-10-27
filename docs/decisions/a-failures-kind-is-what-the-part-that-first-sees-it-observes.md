@@ -41,7 +41,7 @@ purba prints `error` for a test that raised, for a module that does not load, an
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
 - **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. A `PanicException` is an internal error.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
-- **A test that purba cannot call is a project error for that test alone.** Selection sees an `async` test, a generator test, and a test with a parameter that nothing fills. Execution sees a name that is not a function.
+- **A test that purba cannot call is a project error for that test alone.** Selection sees an `async` test, a generator test, and a test with a parameter that nothing fills. Execution sees a name that is not callable.
 - **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
@@ -58,7 +58,7 @@ flowchart LR
   parsing -- "a syntax error" --> project["<b>project error</b>"]
   selection["selection"] -- "an async test, a generator test, a parameter that nothing fills" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not a function, a thread's exception" --> project
+  execution["execution"] -- "a name that is not callable, a thread's exception" --> project
   execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]
   execution -- "a PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
@@ -66,7 +66,6 @@ flowchart LR
 
 **Downside:**
 
-- **purba prints `error` for a test that raised.** Execution makes a raise and a failed load into one text, until [A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) closes.
 - **A test can call `_purba_ran` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
 - **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. The tests of each part guard it.
 - **A test that catches `BaseException` hides an internal error.** `PanicException` derives from `BaseException`, so the test sees the panic, and execution does not.
@@ -76,7 +75,7 @@ flowchart LR
 ## Confirmation
 
 No command checks this record.
-[A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) and [A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) build part of what it decides.
+[A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) builds part of what it decides.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.

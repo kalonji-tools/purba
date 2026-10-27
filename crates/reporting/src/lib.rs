@@ -36,6 +36,9 @@ fn report<'a, T: Display + 'a, E: Display>(
             Ok(Kind::Failed { assert }) => {
                 writeln!(out, "{test} failed: {}", one_line(assert))?;
             }
+            Ok(Kind::Raised { exception }) => {
+                writeln!(out, "{test} raised: {}", one_line(exception))?;
+            }
             Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran")?,
             Err(error) => {
                 writeln!(out, "{test} error: {}", one_line(&error.to_string()))?;
@@ -48,12 +51,13 @@ fn report<'a, T: Display + 'a, E: Display>(
 }
 
 fn count_line(tally: &Tally) -> String {
-    let tests = tally.passed + tally.failed + tally.unknown + tally.errors;
+    let tests = tally.passed + tally.failed + tally.raised + tally.unknown + tally.errors;
     format!(
-        "{tests} test{}: {} passed, {} failed, {} unknown, {} error{}",
+        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} error{}",
         plural(tests),
         tally.passed,
         tally.failed,
+        tally.raised,
         tally.unknown,
         tally.errors,
         plural(tally.errors),
@@ -63,7 +67,7 @@ fn count_line(tally: &Tally) -> String {
 const fn exit_code(tally: &Tally) -> u8 {
     if tally.failed > 0 {
         1
-    } else if tally.errors > 0 {
+    } else if tally.raised > 0 || tally.errors > 0 {
         4
     } else if tally.unknown > 0 || tally.passed == 0 {
         2
@@ -106,10 +110,14 @@ mod tests {
         let failed = Kind::Failed {
             assert: "assert 1 == 2".to_owned(),
         };
+        let raised = Kind::Raised {
+            exception: "KeyError: 'k'".to_owned(),
+        };
         let (text, code) = report_of(&[
             ("test_a.py::test_one", Ok(&Kind::Passed)),
             ("test_a.py::test_two", Ok(&failed)),
             ("test_a.py::test_three", Ok(&Kind::Unknown)),
+            ("test_a.py::test_four", Ok(&raised)),
             ("test_c.py::test_x", Err("ValueError: boom")),
         ]);
         assert_eq!(
@@ -117,8 +125,9 @@ mod tests {
             "test_a.py::test_one passed\n\
              test_a.py::test_two failed: assert 1 == 2\n\
              test_a.py::test_three unknown: no assert ran\n\
+             test_a.py::test_four raised: KeyError: 'k'\n\
              test_c.py::test_x error: ValueError: boom\n\
-             4 tests: 1 passed, 1 failed, 1 unknown, 1 error\n",
+             5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 error\n",
             "one line for each test, in order, then the count"
         );
         assert_eq!(code, 1, "a failed test makes the run exit 1");
@@ -126,21 +135,31 @@ mod tests {
 
     #[test]
     fn the_exit_code_names_the_worst_of_the_run() {
-        let tally = |passed, failed, unknown, errors| Tally {
+        let tally = |passed, failed, raised, unknown, errors| Tally {
             passed,
             failed,
+            raised,
             unknown,
             errors,
         };
         assert_eq!(
-            exit_code(&tally(1, 1, 1, 1)),
+            exit_code(&tally(1, 1, 1, 1, 1)),
             1,
             "a failed test comes first"
         );
-        assert_eq!(exit_code(&tally(1, 0, 1, 1)), 4, "then an error");
-        assert_eq!(exit_code(&tally(1, 0, 1, 0)), 2, "then an unknown test");
-        assert_eq!(exit_code(&tally(0, 0, 0, 0)), 2, "then a run with no test");
-        assert_eq!(exit_code(&tally(2, 0, 0, 0)), 0, "every test passed");
+        assert_eq!(
+            exit_code(&tally(1, 0, 1, 1, 0)),
+            4,
+            "then a test that raised"
+        );
+        assert_eq!(exit_code(&tally(1, 0, 0, 1, 1)), 4, "or an error");
+        assert_eq!(exit_code(&tally(1, 0, 0, 1, 0)), 2, "then an unknown test");
+        assert_eq!(
+            exit_code(&tally(0, 0, 0, 0, 0)),
+            2,
+            "then a run with no test"
+        );
+        assert_eq!(exit_code(&tally(2, 0, 0, 0, 0)), 0, "every test passed");
     }
 
     #[test]
@@ -148,35 +167,41 @@ mod tests {
         let failed = Kind::Failed {
             assert: "assert (\n    total  ==  3\n)".to_owned(),
         };
+        let raised = Kind::Raised {
+            exception: "ValueError: a\n  b".to_owned(),
+        };
         let (text, _) = report_of(&[
             ("test_a.py::test_one", Ok(&failed)),
             ("test_a.py::test_two", Err("ValueError: a \r\n\n  b")),
             ("test_a.py::test_three", Err("ValueError: a\rb")),
             ("test_a.py::test_four", Err("ValueError: boom\n")),
+            ("test_a.py::test_five", Ok(&raised)),
         ]);
         assert_eq!(
-            text.lines().take(4).collect::<Vec<_>>(),
+            text.lines().take(5).collect::<Vec<_>>(),
             [
                 "test_a.py::test_one failed: assert ( total  ==  3 )",
                 "test_a.py::test_two error: ValueError: a b",
                 "test_a.py::test_three error: ValueError: a b",
                 "test_a.py::test_four error: ValueError: boom",
+                "test_a.py::test_five raised: ValueError: a b",
             ],
             "a lone \\r breaks a line too, and the ends of a reason lose their whitespace"
         );
     }
 
     #[test]
-    fn the_count_names_all_four_and_one_in_the_singular() {
+    fn the_count_names_all_five_and_one_in_the_singular() {
         assert_eq!(
             report_of(&[("test_a.py::test_one", Ok(&Kind::Passed))]).0,
-            "test_a.py::test_one passed\n1 test: 1 passed, 0 failed, 0 unknown, 0 errors\n",
+            "test_a.py::test_one passed\n\
+             1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 errors\n",
             "one test, and no error"
         );
         assert_eq!(
             report_of(&[]),
             (
-                "0 tests: 0 passed, 0 failed, 0 unknown, 0 errors\n".to_owned(),
+                "0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 errors\n".to_owned(),
                 2
             ),
             "a run with no test exits 2"
