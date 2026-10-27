@@ -44,7 +44,6 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 **Downside:**
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
-- **The load puts the name `_purba_ran` in each module.** A test module that defines `_purba_ran` itself breaks the rewrite.
 - **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
 - **A test that catches the `AssertionError` of an assert that did not hold, and then raises `AssertionError` with no assert, fails on the caught assert.** The call records the last assert that ran, and not the error that the test raised.
 

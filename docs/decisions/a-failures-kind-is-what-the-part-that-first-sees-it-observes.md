@@ -81,4 +81,4 @@ No command checks this record.
 
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
 [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
-[How does purba keep its assert mechanics out of the reach of the tester's code?](https://github.com/kalonji-tools/purba/issues/660) asks whether a forged pass stays possible.
+[A module that binds a name purba adds is a project error](a-module-that-binds-a-name-purba-adds-is-a-project-error.md#decision-outcome) says what purba does with a module that binds the name of its hook.

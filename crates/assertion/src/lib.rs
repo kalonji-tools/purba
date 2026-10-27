@@ -2,13 +2,13 @@
 //! and whether it held. It also loads the rewritten module.
 
 use purba_parsing::Module;
-use pyo3::exceptions::PyIndexError;
-use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
-use pyo3::{Bound, PyAny, PyResult, Python, pyclass, pymethods};
+use pyo3::exceptions::{PyIndexError, PyNameError};
+use pyo3::types::{PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods};
+use pyo3::{Bound, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{Expr, Stmt, StmtAssert};
 use ruff_text_size::Ranged;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Mutex, PoisonError};
 
 /// The name that each marked assert calls.
@@ -141,6 +141,7 @@ impl Ran {
 
 /// A module that `load` made from a rewritten text.
 pub struct Loaded<'py> {
+    path: PathBuf,
     module: Bound<'py, PyModule>,
     ran: Bound<'py, Ran>,
 }
@@ -154,10 +155,19 @@ impl<'py> Loaded<'py> {
 
     /// Runs `call` with no assert recorded. Gives its result, and the source
     /// text of the last marked assert that ran inside it, beside whether it held.
-    pub fn watch<R>(&self, call: impl FnOnce() -> R) -> (R, Option<(&str, bool)>) {
+    ///
+    /// When `call` bound `_purba_ran` to anything but the hook, the result is
+    /// the error that [`load`] gives such a module, and the hook is back.
+    pub fn watch<T>(
+        &self,
+        call: impl FnOnce() -> PyResult<T>,
+    ) -> (PyResult<T>, Option<(&str, bool)>) {
         let ran = self.ran.get();
         let _ = ran.take();
-        let result = call();
+        let result = match (call(), check(&self.module, &self.ran, &self.path)) {
+            (result, Ok(())) => result,
+            (_, Err(err)) => self.module.dict().set_item(RAN, &self.ran).and(Err(err)),
+        };
         let last = ran
             .take()
             .and_then(|(index, held)| Some((ran.asserts.get(index)?.as_str(), held)));
@@ -172,14 +182,16 @@ impl<'py> Loaded<'py> {
 /// 2. gives it `_purba_ran`, which holds `asserts`, the source text of each
 ///    assert at the index that its mark records;
 /// 3. puts it in `sys.modules` under that name;
-/// 4. compiles `text`, and runs it in the module's namespace;
-/// 5. when step 4 raises, puts back what `sys.modules` held under that name,
-///    or takes the name out when it held nothing.
+/// 4. compiles `text`, checks that no function holds `_purba_ran` as a local
+///    name, and runs it in the module's namespace;
+/// 5. checks that `_purba_ran` still holds the hook;
+/// 6. when step 4 or 5 raises, puts back what `sys.modules` held under that
+///    name, or takes the name out when it held nothing.
 ///
 /// # Errors
 ///
 /// The error that step 4 raises, such as one from `compile()` or the module's
-/// body.
+/// body. `NameError` when the body bound `_purba_ran` to anything but the hook.
 pub fn load<'py>(
     py: Python<'py>,
     path: &Path,
@@ -200,14 +212,18 @@ pub fn load<'py>(
     let modules = py.import("sys")?.getattr("modules")?;
     let before = modules.get_item(&*name).ok();
     modules.set_item(&*name, &module)?;
-    if let Err(err) = run(py, path, text, &module) {
+    if let Err(err) = run(py, path, text, &module).and_then(|()| check(&module, &ran, path)) {
         let _ = before.map_or_else(
             || modules.del_item(&*name),
             |before| modules.set_item(&*name, before),
         );
         return Err(err);
     }
-    Ok(Loaded { module, ran })
+    Ok(Loaded {
+        path: path.to_owned(),
+        module,
+        ran,
+    })
 }
 
 /// Compiles `text`, and runs it in the namespace of `module`.
@@ -216,6 +232,57 @@ fn run(py: Python<'_>, path: &Path, text: &str, module: &Bound<'_, PyModule>) ->
     let code = builtins
         .getattr("compile")?
         .call1((text, path.as_os_str(), "exec"))?;
+    check_locals(&code, path)?;
     builtins.getattr("exec")?.call1((code, module.dict()))?;
     Ok(())
+}
+
+/// Checks that `_purba_ran` in the namespace of `module` is `ran`.
+///
+/// # Errors
+///
+/// `NameError` that names the file at `path` when it is not.
+fn check(module: &Bound<'_, PyModule>, ran: &Bound<'_, Ran>, path: &Path) -> PyResult<()> {
+    if module
+        .dict()
+        .get_item(RAN)?
+        .is_some_and(|held| held.is(ran))
+    {
+        return Ok(());
+    }
+    Err(bound(path))
+}
+
+/// Checks that no code object in `code`, at any depth, holds `_purba_ran` among
+/// the local names of its function. Such a name hides the hook from each
+/// assert of that function.
+///
+/// # Errors
+///
+/// `NameError` that names the file at `path` when one does.
+fn check_locals(code: &Bound<'_, PyAny>, path: &Path) -> PyResult<()> {
+    let code_type = code.get_type();
+    let mut waiting = vec![code.clone()];
+    while let Some(current) = waiting.pop() {
+        for names in ["co_varnames", "co_cellvars", "co_freevars"] {
+            if current.getattr(names)?.contains(RAN)? {
+                return Err(bound(path));
+            }
+        }
+        for constant in current.getattr("co_consts")?.try_iter()? {
+            let constant = constant?;
+            if constant.is_instance(&code_type)? {
+                waiting.push(constant);
+            }
+        }
+    }
+    Ok(())
+}
+
+/// The error of a module at `path` that binds `_purba_ran`.
+fn bound(path: &Path) -> PyErr {
+    PyNameError::new_err(format!(
+        "{} binds {RAN}, the name of purba's assert hook",
+        path.display()
+    ))
 }

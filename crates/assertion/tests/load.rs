@@ -1,5 +1,5 @@
 use pyo3::Python;
-use pyo3::exceptions::{PyIndexError, PySystemExit};
+use pyo3::exceptions::{PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -287,6 +287,179 @@ fn a_body_that_calls_sys_exit_leaves_no_entry() {
         assert!(
             !in_sys_modules(py, "test_exits_on_load"),
             "a SystemExit took the module out too"
+        );
+    });
+}
+
+#[test]
+fn a_module_that_binds_the_hook_fails_to_load() {
+    Python::initialize();
+    Python::attach(|py| {
+        let helpers = PyModule::new(py, "helpers_that_bind_the_hook").unwrap();
+        helpers.setattr("__all__", vec!["_purba_ran"]).unwrap();
+        helpers.setattr("_purba_ran", 0).unwrap();
+        py.import("sys")
+            .unwrap()
+            .getattr("modules")
+            .unwrap()
+            .set_item("helpers_that_bind_the_hook", helpers)
+            .unwrap();
+        for (file, body) in [
+            (
+                "test_bind_def.py",
+                "def _purba_ran(i, x):\n    return True\n",
+            ),
+            (
+                "test_bind_full_width.py",
+                "def _\u{ff50}urba_ran(i, x):\n    return True\n",
+            ),
+            ("test_bind_del.py", "del _purba_ran\n"),
+            (
+                "test_bind_star.py",
+                "from helpers_that_bind_the_hook import *\n",
+            ),
+            (
+                "test_bind_update.py",
+                "globals().update({'_purba_ran': None})\n",
+            ),
+        ] {
+            let loaded = purba_assertion::load(py, Path::new(file), body, Vec::new());
+            let err = loaded
+                .err()
+                .unwrap_or_else(|| panic!("{file}: the load fails"));
+            assert!(
+                err.is_instance_of::<PyNameError>(py),
+                "{file}: NameError, not {err}"
+            );
+            assert_eq!(
+                err.value(py).to_string(),
+                format!("{file} binds _purba_ran, the name of purba's assert hook"),
+                "{file}: the error names the file and the hook"
+            );
+            assert!(
+                !in_sys_modules(py, file.trim_end_matches(".py")),
+                "{file}: the module left sys.modules, as a failed body does"
+            );
+        }
+        py.import("sys")
+            .unwrap()
+            .getattr("modules")
+            .unwrap()
+            .del_item("helpers_that_bind_the_hook")
+            .unwrap();
+    });
+}
+
+#[test]
+fn a_call_that_rebinds_the_hook_gives_a_name_error() {
+    Python::initialize();
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(
+            py,
+            Path::new("test_rebinds.py"),
+            concat!(
+                "def test_swap():\n",
+                "    global _purba_ran\n",
+                "    _purba_ran = lambda i, x: True\n",
+                "\n",
+                "def test_after():\n",
+                "    assert _purba_ran(0, 1 == 1)\n",
+            ),
+            vec!["assert 1 == 1".to_owned()],
+        )
+        .expect("the module loads");
+        let swap = loaded.module().getattr("test_swap").unwrap();
+        let after = loaded.module().getattr("test_after").unwrap();
+
+        let err = loaded
+            .watch(|| swap.call0())
+            .0
+            .expect_err("the call that rebinds the hook gives an error");
+        assert!(
+            err.is_instance_of::<PyNameError>(py),
+            "NameError, not {err}"
+        );
+        assert_eq!(
+            err.value(py).to_string(),
+            "test_rebinds.py binds _purba_ran, the name of purba's assert hook",
+            "the error names the file and the hook"
+        );
+        assert_eq!(
+            loaded.watch(|| after.call0()).1,
+            Some(("assert 1 == 1", true)),
+            "the next call finds the hook back"
+        );
+    });
+}
+
+#[test]
+fn a_function_that_binds_the_hook_as_a_local_name_fails_to_load() {
+    Python::initialize();
+    Python::attach(|py| {
+        for (file, body) in [
+            (
+                "test_local_assign.py",
+                "def test_x():\n    _purba_ran = None\n",
+            ),
+            (
+                "test_local_parameter.py",
+                "def helper(_purba_ran):\n    pass\n",
+            ),
+            (
+                "test_local_loop.py",
+                "def test_x():\n    for _purba_ran in []:\n        pass\n",
+            ),
+            (
+                "test_local_full_width.py",
+                "def test_x():\n    _\u{ff50}urba_ran = None\n",
+            ),
+            (
+                "test_local_closure.py",
+                concat!(
+                    "def test_x():\n",
+                    "    _purba_ran = None\n",
+                    "    def inner():\n",
+                    "        return _purba_ran\n",
+                ),
+            ),
+        ] {
+            let loaded = purba_assertion::load(py, Path::new(file), body, Vec::new());
+            let err = loaded
+                .err()
+                .unwrap_or_else(|| panic!("{file}: the load fails"));
+            assert_eq!(
+                err.value(py).to_string(),
+                format!("{file} binds _purba_ran, the name of purba's assert hook"),
+                "{file}: the error names the file and the hook"
+            );
+        }
+    });
+}
+
+#[test]
+fn a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error() {
+    Python::initialize();
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(
+            py,
+            Path::new("test_rebinds_and_fails.py"),
+            concat!(
+                "def test_swap():\n",
+                "    global _purba_ran\n",
+                "    _purba_ran = lambda i, x: False\n",
+                "    assert _purba_ran(0, 1 == 1)\n",
+            ),
+            vec!["assert 1 == 1".to_owned()],
+        )
+        .expect("the module loads");
+        let swap = loaded.module().getattr("test_swap").unwrap();
+        let err = loaded
+            .watch(|| swap.call0())
+            .0
+            .expect_err("the call gives an error");
+        assert!(
+            err.is_instance_of::<PyNameError>(py),
+            "the NameError, and not the AssertionError of the call: {err}"
         );
     });
 }

@@ -180,3 +180,30 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
     );
     assert_eq!(code, 4, "a test with an error exits 4");
 }
+
+#[test]
+fn a_module_that_defines_the_hooks_name_fails_to_load() {
+    for (name, hook) in [
+        ("test_command_shadow.py", "_purba_ran"),
+        ("test_command_shadow_full_width.py", "_\u{ff50}urba_ran"),
+    ] {
+        let path = module_at(name);
+        let text = format!(
+            "def {hook}(i, x):\n    return True\n\ndef test_shadow():\n    assert 1 == 2\n"
+        );
+        fs::write(&path, text).expect("the test writes its module");
+        let mut out = Vec::new();
+        let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            format!(
+                "{0}::test_shadow error: NameError: {0} binds _purba_ran, \
+                 the name of purba's assert hook\n\
+                 1 test: 0 passed, 0 failed, 0 unknown, 1 error\n",
+                path.display()
+            ),
+            "{name}: the load names the clash"
+        );
+        assert_eq!(code, 4, "{name}: a test with an error exits 4");
+    }
+}
