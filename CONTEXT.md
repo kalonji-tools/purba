@@ -114,7 +114,7 @@ The statement that a contributor has the right to submit a contribution. Only a 
 
 ### Outcome
 
-What a [run](#run) says about one selected test, such as passed, failed, raised or unknown. A test is unknown when purba cannot say that it checked a behaviour.
+What a [run](#run) says about one selected test that no error stopped, such as passed, failed, raised or unknown. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
 
 ### Outside contribution
 
@@ -195,6 +195,10 @@ The property that routes a change to the code owner. A change is architecturally
 ### Stem
 
 The [actor](#actor) that arrives at a [location](#location) it does not know yet. An actor returns to the stem at every location it does not know.
+
+### Stopped test
+
+A selected test that an error stopped before it had an [outcome](#outcome).
 
 ### Strict check
 
