@@ -1,0 +1,3 @@
+# A run's raw output is data, and its lines are as long as the tool wrote them.
+[runs/*]
+max_line_length = off

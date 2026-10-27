@@ -1,0 +1,12 @@
+round 1  none               forkbeaker: 0 forked, 1978 bundled forkbeaker ms/forked test: fork 0.00, child_run 0.00, wait_total 0.00 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.34s
+round 1  all                forkbeaker: 1978 forked, 0 bundled forkbeaker ms/forked test: fork 1.81, child_run 3.38, wait_total 6.93 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 15.96s
+round 1  fork-L1_body.txt   forkbeaker: 2 forked, 1976 bundled forkbeaker ms/forked test: fork 3.06, child_run 2.54, wait_total 7.64 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.40s
+round 1  fork-L2_calls.txt  forkbeaker: 1752 forked, 226 bundled forkbeaker ms/forked test: fork 1.78, child_run 3.10, wait_total 6.54 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 13.83s
+round 2  none               forkbeaker: 0 forked, 1978 bundled forkbeaker ms/forked test: fork 0.00, child_run 0.00, wait_total 0.00 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.38s
+round 2  all                forkbeaker: 1978 forked, 0 bundled forkbeaker ms/forked test: fork 1.88, child_run 3.34, wait_total 6.92 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 16.02s
+round 2  fork-L1_body.txt   forkbeaker: 2 forked, 1976 bundled forkbeaker ms/forked test: fork 2.61, child_run 2.08, wait_total 6.84 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.38s
+round 2  fork-L2_calls.txt  forkbeaker: 1752 forked, 226 bundled forkbeaker ms/forked test: fork 1.82, child_run 3.10, wait_total 6.59 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 13.92s
+round 3  none               forkbeaker: 0 forked, 1978 bundled forkbeaker ms/forked test: fork 0.00, child_run 0.00, wait_total 0.00 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.38s
+round 3  all                forkbeaker: 1978 forked, 0 bundled forkbeaker ms/forked test: fork 1.83, child_run 3.37, wait_total 6.90 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 15.94s
+round 3  fork-L1_body.txt   forkbeaker: 2 forked, 1976 bundled forkbeaker ms/forked test: fork 3.44, child_run 3.39, wait_total 9.25 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.41s
+round 3  fork-L2_calls.txt  forkbeaker: 1752 forked, 226 bundled forkbeaker ms/forked test: fork 1.78, child_run 3.11, wait_total 6.56 1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 13.86s

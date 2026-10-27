@@ -1,0 +1,5 @@
+forward  1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 3.02s
+reverse  1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 3.33s
+1        1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 4.66s
+2        1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 3.26s
+3        1953 passed, 24 skipped, 31000 deselected, 1 xfailed in 2.77s

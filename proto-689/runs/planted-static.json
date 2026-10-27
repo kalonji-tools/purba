@@ -1,0 +1,96 @@
+{
+ "autouse": [],
+ "tests": {
+  "test_zz_planted.py::test_p_clean": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_zz_planted.py::test_p_global_dict": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": false,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [
+    "writes CONFIG"
+   ],
+   "outside_calls": 0
+  },
+  "test_zz_planted.py::test_p_env": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": false,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [
+    "writes os.environ"
+   ],
+   "outside_calls": 0
+  },
+  "test_zz_planted.py::test_p_cwd": {
+   "params": [
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": false,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [
+    "calls os.chdir"
+   ],
+   "outside_calls": 2
+  },
+  "test_zz_planted.py::test_p_helper": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_zz_planted.py::test_p_env_via_call": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_zz_planted.py::test_p_click_context": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_zz_planted.py::test_p_lru_cache": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_zz_planted.py::test_p_monkeypatch": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  }
+ }
+}

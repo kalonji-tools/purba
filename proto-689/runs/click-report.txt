@@ -1,0 +1,13 @@
+functions: 490 judged and run · items run: 1978
+snapshot cost: 21.27 ms per snapshot, 2 per test
+
+level           says isolated  of those leak  says not  of those clean
+L0_signature              490              3         0               0
+L1_body                   488              3         2               2
+L2_calls                    7              0       483             480
+
+what leaked (functions): [('click.globals._local', 1), ('random state', 1), ('test_info_dict.HELLO_GROUP', 1), ('test_info_dict.HELLO_COMMAND', 1)]
+
+  LEAKS  test_arguments.py::test_nargs_star                         L1=True  ['click.globals._local']
+  LEAKS  test_arguments.py::test_file_atomics                       L1=True  ['random state']
+  LEAKS  test_info_dict.py::test_command                            L1=True  ['test_info_dict.HELLO_COMMAND', 'test_info_dict.HELLO_GROUP']

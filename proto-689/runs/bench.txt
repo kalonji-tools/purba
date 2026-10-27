@@ -1,0 +1,18 @@
+3.12.14 22 cpus
+--- lab_light
+in process: call the test                                     0.1 us/test   n=20000
+module beaker: drop from sys.modules, re-import              47.2 us/test   n=2000
+process beaker: os.fork() from the warm parent             1380.0 us/test   n=1000
+process beaker: mp forkserver Process()                   12647.0 us/test   n=200
+process beaker: mp spawn Process()                        47867.6 us/test   n=50
+process beaker: fresh interpreter, import, call           17874.5 us/test   n=100
+--- lab_heavy
+in process: call the test                                     1.1 us/test   n=20000
+module beaker: drop from sys.modules, re-import              55.8 us/test   n=2000
+process beaker: os.fork() from the warm parent             1915.5 us/test   n=1000
+process beaker: mp forkserver Process()                   63269.9 us/test   n=200
+process beaker: mp spawn Process()                       102822.4 us/test   n=50
+process beaker: fresh interpreter, import, call           95719.9 us/test   n=100
+--- reference
+fresh interpreter: python -c pass                         18071.7 us/test   n=100
+fresh interpreter: python -I -S -c pass                   15143.3 us/test   n=100

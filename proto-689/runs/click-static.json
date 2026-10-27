@@ -1,0 +1,5538 @@
+{
+ "autouse": [],
+ "tests": {
+  "test_arguments.py::test_nargs_star": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_nargs_tup": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_nargs_tup_composite": {
+   "params": [
+    "runner",
+    "opts"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_arguments.py::test_nargs_mismatch_with_tuple_type": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_arguments.py::test_nargs_err": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_bytes_args": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_arguments.py::test_file_args": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_path_allow_dash": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_file_atomics": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_stdout_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_nargs_envvar": {
+   "params": [
+    "runner",
+    "nargs",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_nargs_envvar_only_if_values_empty": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_arguments.py::test_empty_nargs": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_missing_arg": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_required_argument": {
+   "params": [
+    "value",
+    "expect_missing",
+    "processed_value"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_implicit_non_required": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_argument_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_argument_help_options_only_no_arguments_section": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_arguments.py::test_argument_help_optional_metavar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_arguments.py::test_deprecated_usage": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_argument_metavar_marks_optional": {
+   "params": [
+    "runner",
+    "kwargs",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_deprecated_usage_help_record": {
+   "params": [
+    "runner",
+    "deprecated",
+    "expected_label"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_deprecated_usage_help_record_without_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_deprecated_empty_help_no_leading_space": {
+   "params": [
+    "help_text",
+    "deprecated",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_deprecated_warning": {
+   "params": [
+    "runner",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_deprecated_required": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_arguments.py::test_eat_options": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_nargs_star_ordering": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_nargs_specified_plus_star_ordering": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_arguments.py::test_good_defaults_for_nargs": {
+   "params": [
+    "runner",
+    "argument_params",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_bad_defaults_for_nargs": {
+   "params": [
+    "runner",
+    "default",
+    "message"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_multiple_param_decls_not_allowed": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_multiple_not_allowed": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_arguments.py::test_subcommand_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_nested_subcommand_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_when_argument_decorator_is_used_multiple_times_cls_is_preserved": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_arguments.py::test_duplicate_names_warning": {
+   "params": [
+    "runner",
+    "args_one",
+    "args_two"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_arguments.py::test_argument_custom_class_can_override_type_cast_value_and_never_sees_unset": {
+   "params": [
+    "runner",
+    "argument_kwargs",
+    "pass_argv"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_basic_functionality": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_basic.py::test_param_named_help": {
+   "params": [
+    "runner",
+    "help_names",
+    "params",
+    "args",
+    "expected_output"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 7
+  },
+  "test_basic.py::test_param_squatting_help_option_name": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_option_reusing_help_flag": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_repr": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_basic.py::test_return_values": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_basic.py::test_basic_group": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_basic.py::test_group_commands_dict": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_group_from_list": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_string_option": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_basic.py::test_int_option": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_basic.py::test_uuid_option": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_basic.py::test_float_option": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_basic.py::test_boolean_switch": {
+   "params": [
+    "runner",
+    "args",
+    "default",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_boolean_flag": {
+   "params": [
+    "runner",
+    "default",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_boolean_conversion": {
+   "params": [
+    "runner",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_basic.py::test_flag_value_dual_options": {
+   "params": [
+    "runner",
+    "default",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_file_option": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_file_lazy_mode": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_path_option": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 9
+  },
+  "test_basic.py::test_choice_option": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_choice_argument": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_choice_argument_enum": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_choice_argument_custom_type": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_choice_argument_none": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_choice_argument_optional_metavar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_datetime_argument_optional_metavar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_datetime_option_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_datetime_option_custom": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_basic.py::test_required_option": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_evaluation_order": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_basic.py::test_hidden_option": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_hidden_command": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_basic.py::test_hidden_group": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_basic.py::test_summary_line": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_basic.py::test_help_invalid_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_version_option_resolves_import_name_to_distribution": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_version_option_ambiguous_import_name_errors": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_version_option_unknown_package_errors": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_custom_version_option": {
+   "params": [
+    "runner",
+    "args"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_basic.py::test_custom_version_option_receives_context": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_chain.py::test_basic_chaining": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_chain.py::test_chaining_help": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_chain.py::test_chaining_with_options": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_chain.py::test_no_command_result_callback": {
+   "params": [
+    "runner",
+    "chain",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_chain.py::test_chaining_with_arguments": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_chain.py::test_pipeline": {
+   "params": [
+    "runner",
+    "args",
+    "input",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_chain.py::test_args_and_chain": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_chain.py::test_group_arg_behavior": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_chain.py::test_group_chaining": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_command_decorators.py::test_command_no_parens": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_command_decorators.py::test_custom_command_no_parens": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_command_decorators.py::test_group_no_parens": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_command_decorators.py::test_params_argument": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_command_decorators.py::test_generate_name": {
+   "params": [
+    "name"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_commands.py::test_other_command_invoke": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_other_command_forward": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_forwarded_params_consistency": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_auto_shorthelp": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_command_no_args_is_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_commands.py::test_default_maps": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_group_with_args": {
+   "params": [
+    "runner",
+    "args",
+    "exit_code",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_commands.py::test_custom_parser": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_object_propagation": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_other_command_invoke_with_defaults": {
+   "params": [
+    "runner",
+    "opt_params",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_commands.py::test_invoked_subcommand": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_subcommand_metavar_marks_optional": {
+   "params": [
+    "runner",
+    "chain",
+    "invoke_without_command",
+    "metavar"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_aliased_command_canonical_name": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_commands.py::test_group_add_command_name": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_iter_params_for_processing": {
+   "params": [
+    "invocation_order",
+    "declaration_order",
+    "expected_order"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_get_help_option_names": {
+   "params": [
+    "help_option_names",
+    "params",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_help_param_priority": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_unprocessed_options": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_commands.py::test_deprecated_in_help_messages": {
+   "params": [
+    "runner",
+    "doc",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_deprecated_empty_help_no_leading_space": {
+   "params": [
+    "runner",
+    "doc",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_deprecated_in_invocation": {
+   "params": [
+    "runner",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_command_parse_args_collects_option_prefixes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_group_parse_args_collects_base_option_prefixes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_group_invoke_collects_used_option_prefixes": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_commands.py::test_abort_exceptions_with_disabled_standalone_mode": {
+   "params": [
+    "runner",
+    "exc"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_commands.py::test_unknown_command": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_commands.py::test_suggest_possible_commands": {
+   "params": [
+    "runner",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_is_jupyter_kernel_output": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_compat.py::test_should_strip_ansi": {
+   "params": [
+    "monkeypatch",
+    "stream",
+    "color",
+    "expected_override",
+    "isatty",
+    "is_jupyter",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_strip_ansi_removes_full_sequence": {
+   "params": [
+    "seq"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_strip_ansi_is_superset_of_legacy": {
+   "params": [
+    "params",
+    "final"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_strip_ansi_mixed_content": {
+   "params": [
+    "text",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_strip_ansi_stops_at_final_byte": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_compat.py::test_strip_ansi_leaves_plain_text": {
+   "params": [
+    "text"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_compat.py::test_strip_ansi_leaves_incomplete_sequences": {
+   "params": [
+    "text"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_compat.py::test_strip_ansi_is_idempotent": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_compat.py::test_term_len": {
+   "params": [
+    "text",
+    "visible"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_compat.py::test_ansi_re_matches_whole_sequence": {
+   "params": [
+    "seq"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_compat.py::test_truncate_visible": {
+   "params": [
+    "text",
+    "n",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_ensure_context_objects": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_get_context_objects": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_get_context_objects_no_ensuring": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_get_context_objects_missing": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_multi_enter": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_context.py::test_global_context_object": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_context_meta": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": false,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [
+    "writes click.get_current_context"
+   ],
+   "outside_calls": 3
+  },
+  "test_context.py::test_make_pass_meta_decorator": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_make_pass_meta_decorator_doc": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_context.py::test_hiding_of_unset_sentinel_in_callbacks": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_context.py::test_context_pushing": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_context.py::test_pass_obj": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_close_before_pop": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_close_before_exit": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_multiple_eager_callbacks": {
+   "params": [
+    "runner",
+    "cli_args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_context.py::test_no_state_leaks": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_context.py::test_with_resource": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_context.py::test_with_resource_exception": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_with_resource_nested_exception": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_context.py::test_make_pass_decorator_args": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_propagate_show_default_setting": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_context.py::test_exit_not_standalone": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_context.py::test_parameter_source": {
+   "params": [
+    "runner",
+    "option_args",
+    "invoke_args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_context.py::test_propagate_opt_prefixes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_custom_classes.py::test_command_context_class": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_custom_classes.py::test_context_invoke_type": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_custom_classes.py::test_context_formatter_class": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_custom_classes.py::test_group_command_class": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_custom_classes.py::test_group_group_class": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_custom_classes.py::test_group_group_class_self": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_defaults.py::test_basic_defaults": {
+   "params": [
+    "runner",
+    "default",
+    "type",
+    "expected_output",
+    "expected_type"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_defaults.py::test_multiple_defaults": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_nargs_plus_multiple": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_multiple_flag_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_defaults.py::test_flag_default_map": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_shared_param_prefers_first_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_defaults.py::test_lookup_default_returns_hides_sentinel": {
+   "params": [
+    "default_map",
+    "key",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_defaults.py::test_lookup_default_callable_in_default_map": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_defaults.py::test_default_map_source": {
+   "params": [
+    "runner",
+    "args",
+    "default_map",
+    "expected_value",
+    "expected_source"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_defaults.py::test_parameter_source_during_paramtype_convert": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_parameter_source_during_eager_callback": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_defaults.py::test_flask_debug_env_not_stomped_by_default_flag": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": false,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [
+    "writes os.environ"
+   ],
+   "outside_calls": 7
+  },
+  "test_defaults.py::test_parameter_source_on_parse_result_bypass": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_lookup_default_override_respected": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_defaults.py::test_default_map_with_callable_flag_value": {
+   "params": [
+    "runner",
+    "default_map",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_defaults.py::test_default_map_nargs": {
+   "params": [
+    "runner",
+    "default_map",
+    "option_kwargs",
+    "cli_args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_defaults.py::test_unset_in_default_map": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_deprecations.py::test_attr_deprecated": {
+   "params": [
+    "module",
+    "name",
+    "target"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_deprecations.py::test_unknown_attribute_raises": {
+   "params": [
+    "module"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_deprecations.py::test_context_protected_args_deprecated": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_deprecations.py::test_isolated_filesystem_deprecated": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_basic_functionality": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_wrapping_long_options_strings": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_wrapping_long_command_name": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_formatting_empty_help_lines": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_formatting_usage_error": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_formatting_usage_error_metavar_missing_arg": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_formatting_usage_error_metavar_bad_arg": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_formatting_usage_error_nested": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_formatting_usage_error_no_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_formatting_usage_custom_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_formatting_usage_error_help_hint": {
+   "params": [
+    "runner",
+    "help_names",
+    "extra_options",
+    "expected_hint"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_formatting.py::test_formatting_custom_type_metavar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_truncating_docstring": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_truncating_docstring_no_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_removing_multiline_marker": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_global_show_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_formatting_with_options_metavar_empty": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_help_formatter_write_text": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_formatting.py::test_wrap_text_visible_width": {
+   "params": [
+    "body",
+    "width",
+    "initial_indent"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_formatting.py::test_write_usage_styled_prefix_keeps_options_on_one_line": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_help_formatter_write_usage": {
+   "params": [
+    "formatter_kwargs",
+    "current_indent",
+    "prog",
+    "args",
+    "prefix",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_formatting.py::test_help_formatter_write_usage_without_args_styled_prefix": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_formatting.py::test_command_write_usage_no_args": {
+   "params": [
+    "runner",
+    "command_kwargs",
+    "expected_usage_line"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_imports.py::test_light_imports": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_info_dict.py::test_parameter": {
+   "params": [
+    "obj",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 12
+  },
+  "test_info_dict.py::test_command": {
+   "params": [
+    "obj",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_info_dict.py::test_context": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_info_dict.py::test_paramtype_no_name": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_info_dict.py::test_argument_to_info_dict_help": {
+   "params": [
+    "help_in",
+    "help_out"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_info_dict.py::test_argument_to_info_dict_nargs": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_info_dict.py::test_command_to_info_dict_multiple_arguments": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_normalization.py::test_option_normalization": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_normalization.py::test_choice_normalization": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_normalization.py::test_command_normalization": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_prefixes": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_invalid_option": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_options.py::test_deprecated_usage": {
+   "params": [
+    "runner",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_deprecated_empty_help_no_leading_space": {
+   "params": [
+    "help_text",
+    "deprecated",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_deprecated_warning": {
+   "params": [
+    "runner",
+    "deprecated"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_deprecated_required": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_options.py::test_deprecated_prompt": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_options.py::test_invalid_nargs": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_nargs_tup_composite_mult": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_counting": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_unknown_options": {
+   "params": [
+    "runner",
+    "unknown_flag"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_suggest_possible_options": {
+   "params": [
+    "runner",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_multiple_required": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_good_defaults_for_multiple": {
+   "params": [
+    "runner",
+    "multiple",
+    "nargs",
+    "default",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_bad_defaults_for_multiple": {
+   "params": [
+    "runner",
+    "multiple",
+    "nargs",
+    "default",
+    "exception",
+    "message"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 8
+  },
+  "test_options.py::test_empty_envvar": {
+   "params": [
+    "runner",
+    "env_key"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_multiple_envvar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_boolean_flag_envvar": {
+   "params": [
+    "runner",
+    "envvar_name",
+    "envvar_value",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_boolean_envvar_bad_values": {
+   "params": [
+    "runner",
+    "value"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_multiple_default_help": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_show_default_default_map": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_multiple_default_type": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_multiple_default_composite_type": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_parse_multiple_default_composite_type": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_dynamic_default_help_unset": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_dynamic_default_help_text": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_dynamic_default_help_special_method": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_intrange_default_help_text": {
+   "params": [
+    "type",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_count_default_type_help": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_file_type_help_default": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_toupper_envvar_prefix": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_nargs_envvar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_show_envvar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_show_envvar_auto_prefix": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_show_envvar_auto_prefix_dash_in_command": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_custom_validation": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_callback_validates_prompt": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_winstyle_options": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_legacy_options": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_required_option": {
+   "params": [
+    "value",
+    "expect_missing",
+    "processed_value"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_missing_required_flag": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_missing_choice": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_missing_envvar": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_case_insensitive_choice": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_case_insensitive_choice_returned_exactly": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_option_help_preserve_paragraphs": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_argument_custom_class": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_option_custom_class": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_option_custom_class_can_override_type_cast_value_and_never_sees_unset": {
+   "params": [
+    "runner",
+    "param_decl",
+    "option_kwargs",
+    "pass_argv"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_option_custom_class_reusable": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_help_option_custom_names_and_class": {
+   "params": [
+    "runner",
+    "custom_class",
+    "name_specs",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_bool_flag_with_type": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_aliases_for_flags": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_option_names": {
+   "params": [
+    "runner",
+    "option_args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_flag_duplicate_names": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_options.py::test_show_default_boolean_flag_name": {
+   "params": [
+    "runner",
+    "default",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_show_true_default_boolean_flag_value": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_hide_false_default_boolean_flag_value": {
+   "params": [
+    "runner",
+    "default"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_show_default_string": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_string_show_default_shows_custom_string_in_prompt": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_show_default_with_empty_string": {
+   "params": [
+    "runner",
+    "default",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_do_not_show_no_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_do_not_show_default_empty_multiple": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_show_default_precedence": {
+   "params": [
+    "ctx_value",
+    "opt_value",
+    "extra_value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_option_with_optional_value": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_multiple_option_with_optional_value": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_type_from_flag_value": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_options.py::test_flag_value_and_default": {
+   "params": [
+    "runner",
+    "opt_params",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_invalid_flag_definition": {
+   "params": [
+    "runner",
+    "args",
+    "opts"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_default_dual_option_callback": {
+   "params": [
+    "runner",
+    "default",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_envvar_string_flag_value": {
+   "params": [
+    "runner",
+    "flag_value",
+    "envvar_value",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_flag_auto_detection": {
+   "params": [
+    "opt_decls",
+    "opt_params",
+    "expect_is_flag",
+    "expect_is_bool_flag"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_options.py::test_invalid_flag_combinations": {
+   "params": [
+    "runner",
+    "kwargs",
+    "message"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_non_flag_with_non_negatable_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_choice_usage_rendering": {
+   "params": [
+    "runner",
+    "choices",
+    "metavar"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_choice_default_rendering": {
+   "params": [
+    "runner",
+    "choices",
+    "default",
+    "default_string"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_duplicate_names_warning": {
+   "params": [
+    "runner",
+    "opts_one",
+    "opts_two"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_dual_options_custom_type_sentinel_flag_value": {
+   "params": [
+    "runner",
+    "sentinel",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 10
+  },
+  "test_options.py::test_custom_type_flag_value_standalone_option": {
+   "params": [
+    "runner",
+    "opt_params",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 8
+  },
+  "test_options.py::test_custom_type_flag_value_dual_options": {
+   "params": [
+    "runner",
+    "opt1_params",
+    "opt2_params",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 7
+  },
+  "test_options.py::test_callable_flag_value_not_instantiated": {
+   "params": [
+    "runner",
+    "opt_params",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 7
+  },
+  "test_options.py::test_callable_flag_value_default_map": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_callable_flag_value_show_default": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_options.py::test_callable_flag_value_get_default_override": {
+   "params": [
+    "runner",
+    "opt_params",
+    "expected_default_attr",
+    "expected_get_default"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_flag_value_not_stringified_for_custom_types": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_custom_type_frozenset_flag_value": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_bool_flag_pair_default": {
+   "params": [
+    "runner",
+    "default",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_bool_flag_group_competition": {
+   "params": [
+    "runner",
+    "opts",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_bool_flag_group_competition_with_envvar": {
+   "params": [
+    "runner",
+    "monkeypatch",
+    "envvar_value",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_bool_flag_group_competition_with_default_map": {
+   "params": [
+    "runner",
+    "default_map",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_bool_flag_group_parameter_source": {
+   "params": [
+    "runner",
+    "opts",
+    "args",
+    "invoke_kwargs",
+    "expected_value",
+    "expected_source"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_flag_group_competition_non_boolean": {
+   "params": [
+    "runner",
+    "opts",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_flag_group_unset_vs_none_vs_explicit": {
+   "params": [
+    "runner",
+    "default_a",
+    "default_b",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_flag_group_competition_duplicate_option_name": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_argument_sharing_param_name_warning": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_options_sharing_name_no_warning": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_options.py::test_flag_group_competition_repeated_cmdline": {
+   "params": [
+    "runner",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_options.py::test_flag_group_competition_four_flags": {
+   "params": [
+    "runner",
+    "opts",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_options.py::test_flag_group_competition_envvar_prefix_and_unset_default_map": {
+   "params": [
+    "runner",
+    "monkeypatch",
+    "env",
+    "default_map",
+    "args",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 8
+  },
+  "test_options.py::test_flag_value_on_option_with_zero_or_one_args": {
+   "params": [
+    "flag_type",
+    "args",
+    "expect_output"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_parser.py::test_split_arg_string": {
+   "params": [
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_parser.py::test_parser_default_prefixes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_parser.py::test_parser_collects_prefixes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_command": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_group": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_nested_group": {
+   "params": [
+    "args",
+    "word",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_group_command_same_option": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_chained": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_help_option": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_argument_order": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_argument_default": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_type_choice": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_choice_special_characters": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_choice_conflicting_prefix": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_option_count": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_option_optional": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_path_types": {
+   "params": [
+    "type",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_shell_completion.py::test_absolute_path": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_option_flag": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_flag_option_with_nargs_option": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_option_custom": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_option_multiple": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_option_nargs": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_argument_nargs": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_double_dash": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_hidden": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_add_different_name": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_completion_item_data": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_shell_completion.py::test_full_source": {
+   "params": [
+    "runner",
+    "shell"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_full_source_powershell": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_full_complete": {
+   "params": [
+    "runner",
+    "shell",
+    "env",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_source_uses_lf_line_endings": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_shell_completion.py::test_zsh_full_complete_with_colons": {
+   "params": [
+    "runner",
+    "env",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_shell_completion.py::test_context_settings": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_shell_completion.py::test_choice_case_sensitive": {
+   "params": [
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_shell_completion.py::test_add_completion_class": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_shell_completion.py::test_add_completion_class_with_name": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_shell_completion.py::test_add_completion_class_decorator": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_shell_completion.py::test_files_closed": {
+   "params": [
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_shell_completion.py::test_fish_format_completion_escapes_help": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_shell_completion.py::test_powershell_format_completion_escapes_help": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_wrapper_close_does_not_close_underlying_buffer": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_wrapper_del_does_not_close_underlying_buffer": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_multiple_wrappers_same_buffer": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_wrapper_preserves_name_and_mode": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_mixer_buffers_survive_wrapper_gc": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_getvalue_after_isolation_exit": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_no_streammixer_del": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  },
+  "test_stream_lifecycle.py::test_bytesiocopy_writes_to_both": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_bytesiocopy_flush_propagates": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_invoke_with_logger_warning": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_stream_lifecycle.py::test_invoke_with_logger_and_prompt": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_sequential_invokes_with_logging": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_invoke_with_stream_handler_on_stderr": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_logging_with_cli_log_level": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_stream_lifecycle.py::test_invoke_with_thread_pool": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_stream_lifecycle.py::test_invoke_with_threads_writing_to_streams": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_invoke_with_thread_pool_and_exit": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_stream_lifecycle.py::test_sequential_threaded_invokes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_output_isolation_across_invokes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_stream_lifecycle.py::test_stderr_isolation_across_invokes": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_stream_lifecycle.py::test_mixed_output_order_preserved": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_exception_does_not_corrupt_next_invoke": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_sys_streams_restored_after_invoke": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_stream_lifecycle.py::test_sys_streams_restored_after_exception": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_stream_lifecycle.py::test_stress_thread_pool_with_exit": {
+   "params": [
+    "_"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_stress_logging_sequential_invocations": {
+   "params": [
+    "_"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_stream_lifecycle.py::test_stress_gc_between_invocations": {
+   "params": [
+    "_"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_progressbar_strip_regression": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_progressbar_length_hint": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_progressbar_no_tty": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_progressbar_hidden_manual": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_progressbar_time_per_iteration": {
+   "params": [
+    "runner",
+    "avg",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_eta": {
+   "params": [
+    "runner",
+    "finished",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_format_eta": {
+   "params": [
+    "runner",
+    "eta",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_format_pos": {
+   "params": [
+    "runner",
+    "pos",
+    "length"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_format_bar": {
+   "params": [
+    "runner",
+    "length",
+    "finished",
+    "pos",
+    "avg",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_format_progress_line": {
+   "params": [
+    "runner",
+    "length",
+    "show_percent",
+    "show_pos",
+    "pos",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_format_progress_line_with_show_func": {
+   "params": [
+    "runner",
+    "test_item"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_init_exceptions": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_iter_outside_with_exceptions": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_progressbar_is_iterator": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_choices_list_in_prompt": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_file_prompt_default_format": {
+   "params": [
+    "runner",
+    "file_kwargs"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_termui.py::test_secho": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_secho_non_text": {
+   "params": [
+    "runner",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_progressbar_yields_all_items": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_termui.py::test_progressbar_update": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_progressbar_item_show_func": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_progressbar_update_with_item_show_func": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_progress_bar_update_min_steps": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_termui.py::test_getchar_windows": {
+   "params": [
+    "runner",
+    "monkeypatch",
+    "key_char",
+    "echo"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_getchar_special_key_windows": {
+   "params": [
+    "runner",
+    "monkeypatch",
+    "special_key_char",
+    "key_char"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_getchar_windows_exceptions": {
+   "params": [
+    "runner",
+    "monkeypatch",
+    "key_char",
+    "exc"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_fast_edit": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_edit": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_editor_path_normalization": {
+   "params": [
+    "editor_cmd",
+    "filenames",
+    "expected_args"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_editor_windows_path_normalization": {
+   "params": [
+    "editor_cmd",
+    "expected_cmd"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_editor_env_passed_through": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_editor_failure_exception": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_editor_nonexistent_exception": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_pager_shlex_split": {
+   "params": [
+    "pager_env",
+    "expected_parts"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_get_pager_file_with_real_pager_binary_stream": {
+   "params": [
+    "monkeypatch",
+    "capfd",
+    "writer",
+    "color",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_echo_via_pager_real_pager_handles_ansi": {
+   "params": [
+    "monkeypatch",
+    "capfd",
+    "color",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 9
+  },
+  "test_termui.py::test_echo_via_pager_streams_each_write": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_get_pager_file_pager_missing_binary_falls_back": {
+   "params": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_get_pager_file_pager_unset_falls_back_when_no_default": {
+   "params": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_get_pager_file_missing_pager_keeps_borrowed_stream_open": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_termui.py::test_echo_via_pager_tty_pager_missing": {
+   "params": [
+    "runner",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_get_pager_file_nullpager_wraps_textio_stream": {
+   "params": [
+    "monkeypatch",
+    "tmp_path",
+    "color",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_get_pager_file_nullpager_keeps_stringio_stream": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_get_pager_file_flushes_stream_on_exception": {
+   "params": [
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_editor_unclosed_quote": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_termui.py::test_prompt_required_with_required": {
+   "params": [
+    "runner",
+    "prompt_required",
+    "required",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_prompt_required_false": {
+   "params": [
+    "runner",
+    "args",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_confirmation_prompt": {
+   "params": [
+    "runner",
+    "prompt",
+    "input",
+    "default",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_prompt_and_confirm_ansi_respects_color": {
+   "params": [
+    "runner",
+    "call",
+    "user_input",
+    "color",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 8
+  },
+  "test_termui.py::test_false_show_default_cause_no_default_display_in_prompt": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_termui.py::test_string_show_default_in_prompt": {
+   "params": [
+    "runner",
+    "show_default",
+    "default",
+    "user_input",
+    "in_prompt",
+    "not_in_prompt"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_flag_value_prompt": {
+   "params": [
+    "runner",
+    "opt_decls",
+    "opt_params",
+    "args",
+    "prompt",
+    "input",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_termui.py::test_hide_input_error_message": {
+   "params": [
+    "runner",
+    "type",
+    "user_input",
+    "expected_fragment",
+    "unexpected_fragment"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 16
+  },
+  "test_termui.py::test_hide_input_confirmation_prompt_mismatch_unaffected": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_termui.py::test_hide_input_value_never_leaks_when_err_true": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_testing.py::test_runner": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_echo_stdin_stream": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_echo_stdin_prompts": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_runner_with_stream": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_prompts": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_getchar": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_catch_exceptions": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_catch_exceptions_cli_runner": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_with_color": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_with_color_errors": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_with_color_but_pause_not_blocking": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_with_echo_via_pager": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_exit_code_and_output_from_sys_exit": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_env": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_stderr": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_args": {
+   "params": [
+    "args",
+    "expected_output"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_testing.py::test_setting_prog_name_in_extra": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_command_standalone_mode_returns_value": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_file_stdin_attrs": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_testing.py::test_isolated_runner": {
+   "params": [
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_isolated_runner_custom_tempdir": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_tempdir_replacement_pattern": {
+   "params": [
+    "runner",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_tempdir_isolation_is_thread_safe": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_isolation_stderr_errors": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_testing.py::test_isolation_flushes_unflushed_stderr": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_pdb_uses_real_streams": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_pdb_explicit_streams_honored": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_pdb_init_restored_after_invoke": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_testing.py::test_capture_invalid_mode": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_testing.py::test_capture_fd_windows_error": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_capture_fd_os_write": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_capture_fd_stale_reference": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_capture_fd_logging_handler": {
+   "params": [
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_testing.py::test_capture_fd_faulthandler": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_capture_sys_fileno_raises": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_testing.py::test_capture_fd_stderr_separation": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_capture_fd_nesting": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_testing.py::test_capture_pytest_matrix": {
+   "params": [
+    "request",
+    "runner_capture",
+    "pytest_fixture"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_types.py::test_range": {
+   "params": [
+    "type",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_types.py::test_range_fail": {
+   "params": [
+    "type",
+    "value",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_types.py::test_func_param_type_uses_value_error_message": {
+   "params": [
+    "error_message",
+    "expected"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 3
+  },
+  "test_types.py::test_float_range_no_clamp_open": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 2
+  },
+  "test_types.py::test_cast_multi_default": {
+   "params": [
+    "runner",
+    "nargs",
+    "multiple",
+    "default",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_types.py::test_path_type": {
+   "params": [
+    "runner",
+    "cls",
+    "expect"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 6
+  },
+  "test_types.py::test_path_dash_no_byteswarning": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_types.py::test_path_resolve_symlink": {
+   "params": [
+    "tmp_path",
+    "runner"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 8
+  },
+  "test_types.py::test_path_surrogates": {
+   "params": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 7
+  },
+  "test_types.py::test_file_surrogates": {
+   "params": [
+    "type",
+    "tmp_path"
+   ],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 4
+  },
+  "test_types.py::test_file_error_surrogates": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_types.py::test_invalid_path_with_esc_sequence": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 5
+  },
+  "test_types.py::test_choice_get_invalid_choice_message": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_types.py::test_param_type_input_parameter_defaults_at_runtime": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": false,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 1
+  },
+  "test_types.py::test_param_type_subclass_omitting_input_parameter": {
+   "params": [],
+   "L0_signature": true,
+   "L1_body": true,
+   "L2_calls": true,
+   "wider_inputs": [],
+   "writes": [],
+   "outside_calls": 0
+  }
+ }
+}

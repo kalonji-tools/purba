@@ -1,0 +1,19 @@
+functions: 9 judged and run · items run: 9
+snapshot cost: 19.42 ms per snapshot, 2 per test
+
+level           says isolated  of those leak  says not  of those clean
+L0_signature                9              6         0               0
+L1_body                     6              3         3               0
+L2_calls                    1              0         8               2
+
+what leaked (functions): [('os.environ', 2), ('test_zz_planted.CONFIG', 1), ('cwd', 1), ('test_zz_planted.SEEN', 1), ('click.globals._local', 1)]
+
+test_zz_planted.py::test_p_clean                 L0=True  L1=True  L2=True  leaks=[]
+test_zz_planted.py::test_p_global_dict           L0=True  L1=False L2=False leaks=['test_zz_planted.CONFIG']
+test_zz_planted.py::test_p_env                   L0=True  L1=False L2=False leaks=["os.environ ['PLANTED']"]
+test_zz_planted.py::test_p_cwd                   L0=True  L1=False L2=False leaks=['cwd']
+test_zz_planted.py::test_p_helper                L0=True  L1=True  L2=False leaks=['test_zz_planted.SEEN']
+test_zz_planted.py::test_p_env_via_call          L0=True  L1=True  L2=False leaks=["os.environ ['PLANTED_VIA_CALL']"]
+test_zz_planted.py::test_p_click_context         L0=True  L1=True  L2=False leaks=['click.globals._local']
+test_zz_planted.py::test_p_lru_cache             L0=True  L1=True  L2=False leaks=[]
+test_zz_planted.py::test_p_monkeypatch           L0=True  L1=True  L2=False leaks=[]
