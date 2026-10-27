@@ -55,4 +55,4 @@ No command checks the rest of this record.
 [Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 Its Destination promises what a panic inside a test stops.
-[Does a module that failed to load give one error, or one for each of its tests?](https://github.com/kalonji-tools/purba/issues/659) asks what each test of a module that does not load prints.
+[A stopped test has no outcome](a-stopped-test-has-no-outcome.md#decision-outcome) says what each test that an error stops prints.
