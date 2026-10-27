@@ -39,7 +39,7 @@ Reporting chooses the words of this shape:
 test_b.py error: ValueError: x
 test_b.py::test_one stopped: test_b.py did not load
 test_b.py::test_two stopped: test_b.py did not load
-2 tests: 0 passed, 0 failed, 0 unknown, 2 stopped; 1 error
+2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 stopped; 1 error
 ```
 
 **Downside:**

@@ -50,14 +50,14 @@ pub struct Outcome {
 }
 
 impl Outcome {
-    /// Whether the test passed, failed or is `unknown`.
+    /// Whether the test passed, failed, raised or is `unknown`.
     #[must_use]
     pub const fn kind(&self) -> &Kind {
         &self.kind
     }
 }
 
-/// Passed, failed or unknown.
+/// Passed, failed, raised or unknown.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Kind {
     /// An assert ran, and the test returned.
@@ -65,12 +65,17 @@ pub enum Kind {
     /// The last assert that ran did not hold, and the test raised
     /// `AssertionError`. `assert` is the source text of that assert.
     Failed { assert: String },
+    /// The test's call raised, and the outcome is not `Failed`. A call to
+    /// `os._exit` during the call gives `Raised` too, even when the test caught
+    /// its error. `exception` is the type and the message of the exception, as
+    /// text.
+    Raised { exception: String },
     /// No assert ran, and the test returned.
     Unknown,
 }
 
-/// Why `run` made no outcome, as text: Python's error, or that the module did
-/// not load.
+/// Why `run` made no outcome, as text: Python's error, that the module did not
+/// load, or that the test is not callable.
 #[derive(Debug)]
 pub struct Error(String);
 
@@ -171,19 +176,25 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
 }
 
 impl Worker<'_> {
-    /// Calls `function` of `module`, and makes its outcome.
+    /// Calls `function` of `module`, and makes its outcome. When the guard
+    /// recorded a call to `os._exit` since the last test, the outcome is
+    /// `Raised`, and names that call to `os._exit`. An error before the test's
+    /// call stays as it is.
     ///
     /// # Errors
     ///
-    /// The module did not load, it has no `function`, or the call raised an
-    /// exception other than `AssertionError`, or raised `AssertionError` when
-    /// no assert ran or the last one held. Also, the guard recorded a call to
-    /// `os._exit` since the last test, whoever saw its error.
+    /// The module did not load, it has no `function`, or `function` is not
+    /// callable.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         let result = self.call(module, function);
-        self.guard.get().take().map_or(result, |call| {
-            Err(Error(format!("ExitInsideATest: {call}")))
-        })
+        match (self.guard.get().take(), result) {
+            (Some(call), Ok(_)) => Ok(Outcome {
+                kind: Kind::Raised {
+                    exception: format!("ExitInsideATest: {call}"),
+                },
+            }),
+            (_, result) => result,
+        }
     }
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
@@ -203,6 +214,13 @@ impl Worker<'_> {
             .module()
             .getattr(function)
             .map_err(|err| error(&err))?;
+        // A call of an object that is not callable runs no code, and gives
+        // CPython's own `TypeError`.
+        if !test.is_callable()
+            && let Err(err) = test.call0()
+        {
+            return Err(error(&err));
+        }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
         let kind = match loaded.watch(|| test.call0()) {
             (Ok(_), Some(_)) => Kind::Passed,
@@ -214,18 +232,21 @@ impl Worker<'_> {
                     assert: assert.to_owned(),
                 }
             }
-            (Err(err), _) => return Err(error(&err)),
+            (Err(err), _) => Kind::Raised {
+                exception: err.to_string(),
+            },
         };
         Ok(Outcome { kind })
     }
 }
 
-/// How many tests of a run passed, failed, are `unknown`, or gave an error in
-/// place of an outcome.
+/// How many tests of a run passed, failed, raised, are `unknown`, or gave an
+/// error in place of an outcome.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
     pub failed: usize,
+    pub raised: usize,
     pub unknown: usize,
     pub errors: usize,
 }
@@ -236,6 +257,7 @@ impl Tally {
         match result {
             Ok(Kind::Passed) => self.passed += 1,
             Ok(Kind::Failed { .. }) => self.failed += 1,
+            Ok(Kind::Raised { .. }) => self.raised += 1,
             Ok(Kind::Unknown) => self.unknown += 1,
             Err(_) => self.errors += 1,
         }

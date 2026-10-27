@@ -78,18 +78,48 @@ fn a_worker_loads_each_module_once() {
 }
 
 #[test]
-fn another_exception_is_an_error() {
+fn another_exception_gives_raised() {
     let test_raises = module(
         "test_raises.py",
         "def test_raises():\n    raise ValueError('no')\n",
         &[],
     );
-    let error = purba_execution::attach(|worker| worker.run(&test_raises, "test_raises"))
-        .expect_err("ValueError is no outcome");
     assert_eq!(
-        error.to_string(),
-        "ValueError: no",
-        "Python's error as text"
+        kinds(&test_raises, &["test_raises"]),
+        [Kind::Raised {
+            exception: "ValueError: no".to_owned()
+        }],
+        "Python's exception as text"
+    );
+}
+
+#[test]
+fn a_name_that_is_not_callable_is_an_error() {
+    let test_bound = module(
+        "test_bound.py",
+        "import collections\n\n\
+         def test_bound():\n    pass\n\ntest_bound = 5\n\n\
+         def test_deque():\n    pass\n\ntest_deque = collections.deque()\n",
+        &[],
+    );
+    let errors: Vec<String> = purba_execution::attach(|worker| {
+        ["test_bound", "test_deque"]
+            .iter()
+            .map(|function| {
+                worker
+                    .run(&test_bound, function)
+                    .expect_err("an object that is not callable is not a test")
+                    .to_string()
+            })
+            .collect()
+    });
+    assert_eq!(
+        errors,
+        [
+            "TypeError: 'int' object is not callable",
+            "TypeError: 'collections.deque' object is not callable",
+        ],
+        "CPython's own text, which names a type by its full name, and no test's call ran"
     );
 }
 
@@ -152,34 +182,34 @@ fn a_forked_child_exits_with_its_own_code() {
 }
 
 #[test]
-fn an_assertion_error_after_an_assert_that_held_is_an_error() {
+fn an_assertion_error_after_an_assert_that_held_gives_raised() {
     let test_helper = module(
         "test_helper.py",
         "def test_helper():\n    assert _purba_ran(0, 1 == 1)\n\
          \x20   raise AssertionError('from a helper')\n",
         &["assert 1 == 1"],
     );
-    let error = purba_execution::attach(|worker| worker.run(&test_helper, "test_helper"))
-        .expect_err("no assert failed");
     assert_eq!(
-        error.to_string(),
-        "AssertionError: from a helper",
-        "Python's error as text"
+        kinds(&test_helper, &["test_helper"]),
+        [Kind::Raised {
+            exception: "AssertionError: from a helper".to_owned()
+        }],
+        "no assert failed, so the test raised"
     );
 }
 
 #[test]
-fn an_assertion_error_before_any_assert_is_an_error() {
+fn an_assertion_error_before_any_assert_gives_raised() {
     let test_bare = module(
         "test_bare.py",
         "def test_bare():\n    raise AssertionError('no assert ran')\n",
         &[],
     );
-    let error = purba_execution::attach(|worker| worker.run(&test_bare, "test_bare"))
-        .expect_err("no assert ran");
     assert_eq!(
-        error.to_string(),
-        "AssertionError: no assert ran",
-        "Python's error as text"
+        kinds(&test_bare, &["test_bare"]),
+        [Kind::Raised {
+            exception: "AssertionError: no assert ran".to_owned()
+        }],
+        "no assert ran, so the test raised"
     );
 }

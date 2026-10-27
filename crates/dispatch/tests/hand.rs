@@ -100,7 +100,7 @@ fn the_tests_of_a_module_share_one_worker() {
 fn an_error_stands_beside_its_test_and_the_run_goes_on() {
     let test_err = module(
         "test_err.py",
-        "def test_one():\n    raise ValueError('boom')\n\n\
+        "def test_one():\n    pass\n\ntest_one = 5\n\n\
          def test_two():\n    assert _purba_ran(0, True)\n",
         &["assert True"],
         &["test_one", "test_two"],
@@ -108,7 +108,10 @@ fn an_error_stands_beside_its_test_and_the_run_goes_on() {
     assert_eq!(
         seen(test_err),
         [
-            ("test_one", Err("ValueError: boom".to_owned())),
+            (
+                "test_one",
+                Err("TypeError: 'int' object is not callable".to_owned())
+            ),
             ("test_two", Ok(Kind::Passed)),
         ],
         "the error beside its test, and the next test runs",

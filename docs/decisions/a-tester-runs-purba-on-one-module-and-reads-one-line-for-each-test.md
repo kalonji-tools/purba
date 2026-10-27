@@ -44,13 +44,13 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 tests/test_a.py::test_one passed
 tests/test_a.py::test_two failed: assert 1 == 2
 tests/test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown, 0 errors
+3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 errors
 ```
 
 - **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome or `error`.**
-- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. An `error` line gives the text of the error, such as `ValueError: boom`.
+- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. An `error` line gives the text of the error.
 - **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
-- **The count names all four, even at 0.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
+- **The count names all five, even at 0.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
 **Downside:**

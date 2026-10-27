@@ -32,7 +32,7 @@ The hook shares the module's namespace with the tester's own names, so a name of
 - **Before the body of the module runs, the load checks that no function holds such a name as a local name.**
 - **After the body runs, the load checks that each such name still holds what purba put there.**
 - **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`.
-- **After each test, assertion checks the hook again.** When the hook changes, that test gives the error. Assertion then puts the hook back for the next test.
+- **After each test, assertion checks the hook again.** When the hook changes, that test has the outcome `raised`, with that `NameError`. Assertion then puts the hook back for the next test.
 
 **Downside:**
 
@@ -40,7 +40,7 @@ The hook shares the module's namespace with the tester's own names, so a name of
 - **A binding at the level of the module shows after the body ran.** The effects of the body stay.
 - **A test that calls the hook on purpose can still forge a pass.** [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names that limit.
 - **A class body that binds `_purba_ran`, and asserts in that body, still forges a pass.** The name is an attribute of the class, and neither check reads it.
-- **A test that rebinds the hook gives its error as the result of its call.** It prints as a raise once [A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) closes, and not as a project error.
+- **A test that rebinds the hook gives its error as the result of its call.** It prints as `raised`, and not as a project error.
 
 ## Confirmation
 

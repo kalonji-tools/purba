@@ -79,7 +79,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
 - **purba does not exit 125 yet.** Today `_main` returns 3 for a panic too, until [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) closes.
-- **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart once [A test that raised prints as error, as a module that did not load does](https://github.com/kalonji-tools/purba/issues/661) closes.
+- **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
 - **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
@@ -92,7 +92,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 ## Confirmation
 
 `mise run test:rust` checks that reporting renders 0, 1, 2 and 4 from a tally of the run.
-It also checks that a call to `os._exit` gives an error, from a thread or under `except BaseException` too.
+It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
 `mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, and exits 3 on a usage error.

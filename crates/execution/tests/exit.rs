@@ -7,7 +7,7 @@ use purba_execution::{Kind, Module};
 // the record of a call made here. So each call to `os._exit` in this process
 // lives in this one test, alone in its binary.
 #[test]
-fn a_call_to_os_exit_gives_an_error_however_the_test_makes_it() {
+fn a_call_to_os_exit_gives_raised_however_the_test_makes_it() {
     let test_exit = Module::new(
         PathBuf::from("test_exit.py"),
         "import os\nimport threading\n\n\
@@ -29,18 +29,30 @@ fn a_call_to_os_exit_gives_an_error_however_the_test_makes_it() {
         .map(str::to_owned)
         .to_vec(),
     );
+    let test_load_exit = Module::new(
+        PathBuf::from("test_load_exit.py"),
+        "import os\nos._exit(0)\n\ndef test_one():\n    pass\n".to_owned(),
+        Vec::new(),
+    );
+    let raised = |call: &str| {
+        Ok(Kind::Raised {
+            exception: format!("ExitInsideATest: {call}"),
+        })
+    };
     let results: Vec<Result<Kind, String>> = purba_execution::attach(|worker| {
         [
-            "test_fails",
-            "test_catches_exception",
-            "test_starts_a_thread",
-            "test_catches_base_exception",
-            "test_passes",
+            (&test_exit, "test_fails"),
+            (&test_exit, "test_catches_exception"),
+            (&test_exit, "test_starts_a_thread"),
+            (&test_exit, "test_catches_base_exception"),
+            (&test_exit, "test_passes"),
+            (&test_load_exit, "test_one"),
+            (&test_exit, "test_passes"),
         ]
         .iter()
-        .map(|function| {
+        .map(|(module, function)| {
             worker
-                .run(&test_exit, function)
+                .run(module, function)
                 .map(|outcome| outcome.kind().clone())
                 .map_err(|error| error.to_string())
         })
@@ -52,11 +64,15 @@ fn a_call_to_os_exit_gives_an_error_however_the_test_makes_it() {
             Ok(Kind::Failed {
                 assert: "assert 1 == 2".to_owned()
             }),
-            Err("ExitInsideATest: os._exit(3)".to_owned()),
-            Err("ExitInsideATest: os._exit(1)".to_owned()),
-            Err("ExitInsideATest: os._exit(2)".to_owned()),
+            raised("os._exit(3)"),
+            raised("os._exit(1)"),
+            raised("os._exit(2)"),
+            Ok(Kind::Passed),
+            Err("ExitInsideATest: os._exit(0)".to_owned()),
             Ok(Kind::Passed),
         ],
-        "each call is an error, whoever sees it, and the next test runs",
+        "each call in a test gives raised, whoever sees it, and the next test runs. \
+         A call while the module loads fails the load, so no test's call runs and it gives \
+         an error, and the next test does not get the call",
     );
 }
