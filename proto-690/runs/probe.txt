@@ -1,0 +1,22 @@
+3.12.14  NewType: two of one name are one key                           False
+3.12.14  NewType: the value's type at runtime                           Database
+3.12.14  NewType: isinstance(x, SourceDb)                               TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union
+3.12.14  Annotated: two spellings of one marker are one key             True
+3.12.14  Annotated: nested markers flatten                              True
+3.12.14  Annotated: get_type_hints() WITHOUT include_extras             {'src': <class 'subject.Database'>, 'dst': <class 'subject.Database'>, 'return': <class 'NoneType'>}
+3.12.14  plain alias `Db = Database` is the type itself                 True
+3.12.14  `type` alias: S == Database                                    False
+3.12.14  `type` alias: two aliases of one value are one key             False
+3.12.14  subclass: sqlite3.Connection, through factory=                 SourceConn
+3.12.14  subclass: a final type (bool)                                  TypeError: type 'bool' is not an acceptable base type
+3.14.4   NewType: two of one name are one key                           False
+3.14.4   NewType: the value's type at runtime                           Database
+3.14.4   NewType: isinstance(x, SourceDb)                               TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union
+3.14.4   Annotated: two spellings of one marker are one key             True
+3.14.4   Annotated: nested markers flatten                              True
+3.14.4   Annotated: get_type_hints() WITHOUT include_extras             {'src': <class 'subject.Database'>, 'dst': <class 'subject.Database'>, 'return': <class 'NoneType'>}
+3.14.4   plain alias `Db = Database` is the type itself                 True
+3.14.4   `type` alias: S == Database                                    False
+3.14.4   `type` alias: two aliases of one value are one key             False
+3.14.4   subclass: sqlite3.Connection, through factory=                 SourceConn
+3.14.4   subclass: a final type (bool)                                  TypeError: type 'bool' is not an acceptable base type

@@ -1,0 +1,124 @@
+## 3.12.14 ways
+3.12.14  one_value          refused (#689)     copy=refused (two inputs of one type: <class 'subject.Database'>) bug=refused (two inputs of one type: <class 'subject.Data
+3.12.14  one_value          allowed, one value copy=passed   bug=passed   objects=same builder=yes
+         one_value          keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.12.14  by_name            by name            copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  by_name            by name, strict    copy=passed   bug=failed   objects=two  builder=yes
+         by_name            keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.12.14  newtype            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  newtype            strict             copy=passed   bug=failed   objects=two  builder=yes
+         newtype            keys: newtype.SourceDb, newtype.TargetDb, <class 'common.Seeded'>
+3.12.14  subclass           refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.12.14  subclass           strict             copy=passed   bug=failed   objects=two  builder=NO 
+         subclass           keys: <class 'subclass.SourceDb'>, <class 'subclass.TargetDb'>, <class 'common.Seeded'>
+3.12.14  annotated          refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  annotated          strict             copy=passed   bug=failed   objects=two  builder=yes
+         annotated          keys: typing.Annotated[subject.Database, Role(name='source')], typing.Annotated[subject.Database, Role(name='target')], <class 'common.Seeded'
+3.12.14  type_alias         refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  type_alias         strict             copy=passed   bug=failed   objects=two  builder=yes
+         type_alias         keys: SourceDb, TargetDb, <class 'common.Seeded'>
+3.12.14  factory            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  factory            strict             copy=passed   bug=failed   objects=two  builder=yes
+         factory            keys: collections.abc.Callable[[], subject.Database]
+3.12.14  pair               refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  pair               strict             copy=passed   bug=failed   objects=two  builder=yes
+         pair               keys: tuple[subject.Database, subject.Database], <class 'common.Seeded'>
+3.12.14  holder             refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.12.14  holder             strict             copy=passed   bug=failed   objects=two  builder=NO 
+         holder             keys: <class 'holder.CopyBench'>, <class 'common.Seeded'>
+3.12.14  holder_via_builder refuse             copy=passed   bug=passed   objects=same builder=yes
+3.12.14  holder_via_builder strict             copy=refused (builder bench names two inputs of one type) bug=refused (builder bench names two inputs of one type) objects=
+         holder_via_builder keys: <class 'holder_via_builder.CopyBench'>, <class 'common.Seeded'>
+## 3.12.14 future
+3.12.14  one_value          refused (#689)     copy=refused (two inputs of one type: <class 'subject.Database'>) bug=refused (two inputs of one type: <class 'subject.Data
+3.12.14  one_value          allowed, one value copy=passed   bug=passed   objects=same builder=yes
+         one_value          keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.12.14  by_name            by name            copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  by_name            by name, strict    copy=passed   bug=failed   objects=two  builder=yes
+         by_name            keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.12.14  newtype            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  newtype            strict             copy=passed   bug=failed   objects=two  builder=yes
+         newtype            keys: newtype.SourceDb, newtype.TargetDb, <class 'common.Seeded'>
+3.12.14  subclass           refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.12.14  subclass           strict             copy=passed   bug=failed   objects=two  builder=NO 
+         subclass           keys: <class 'subclass.SourceDb'>, <class 'subclass.TargetDb'>, <class 'common.Seeded'>
+3.12.14  annotated          refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  annotated          strict             copy=passed   bug=failed   objects=two  builder=yes
+         annotated          keys: typing.Annotated[subject.Database, Role(name='source')], typing.Annotated[subject.Database, Role(name='target')], <class 'common.Seeded'
+3.12.14  type_alias         refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  type_alias         strict             copy=passed   bug=failed   objects=two  builder=yes
+         type_alias         keys: SourceDb, TargetDb, <class 'common.Seeded'>
+3.12.14  factory            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  factory            strict             copy=passed   bug=failed   objects=two  builder=yes
+         factory            keys: collections.abc.Callable[[], subject.Database]
+3.12.14  pair               refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.12.14  pair               strict             copy=passed   bug=failed   objects=two  builder=yes
+         pair               keys: tuple[subject.Database, subject.Database], <class 'common.Seeded'>
+3.12.14  holder             refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.12.14  holder             strict             copy=passed   bug=failed   objects=two  builder=NO 
+         holder             keys: <class 'holder.CopyBench'>, <class 'common.Seeded'>
+3.12.14  holder_via_builder refuse             copy=passed   bug=passed   objects=same builder=yes
+3.12.14  holder_via_builder strict             copy=refused (builder bench names two inputs of one type) bug=refused (builder bench names two inputs of one type) objects=
+         holder_via_builder keys: <class 'holder_via_builder.CopyBench'>, <class 'common.Seeded'>
+## 3.14.4 ways
+3.14.4   one_value          refused (#689)     copy=refused (two inputs of one type: <class 'subject.Database'>) bug=refused (two inputs of one type: <class 'subject.Data
+3.14.4   one_value          allowed, one value copy=passed   bug=passed   objects=same builder=yes
+         one_value          keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.14.4   by_name            by name            copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   by_name            by name, strict    copy=passed   bug=failed   objects=two  builder=yes
+         by_name            keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.14.4   newtype            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   newtype            strict             copy=passed   bug=failed   objects=two  builder=yes
+         newtype            keys: newtype.SourceDb, newtype.TargetDb, <class 'common.Seeded'>
+3.14.4   subclass           refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.14.4   subclass           strict             copy=passed   bug=failed   objects=two  builder=NO 
+         subclass           keys: <class 'subclass.SourceDb'>, <class 'subclass.TargetDb'>, <class 'common.Seeded'>
+3.14.4   annotated          refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   annotated          strict             copy=passed   bug=failed   objects=two  builder=yes
+         annotated          keys: typing.Annotated[subject.Database, Role(name='source')], typing.Annotated[subject.Database, Role(name='target')], <class 'common.Seeded'
+3.14.4   type_alias         refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   type_alias         strict             copy=passed   bug=failed   objects=two  builder=yes
+         type_alias         keys: SourceDb, TargetDb, <class 'common.Seeded'>
+3.14.4   factory            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   factory            strict             copy=passed   bug=failed   objects=two  builder=yes
+         factory            keys: collections.abc.Callable[[], subject.Database]
+3.14.4   pair               refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   pair               strict             copy=passed   bug=failed   objects=two  builder=yes
+         pair               keys: tuple[subject.Database, subject.Database], <class 'common.Seeded'>
+3.14.4   holder             refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.14.4   holder             strict             copy=passed   bug=failed   objects=two  builder=NO 
+         holder             keys: <class 'holder.CopyBench'>, <class 'common.Seeded'>
+3.14.4   holder_via_builder refuse             copy=passed   bug=passed   objects=same builder=yes
+3.14.4   holder_via_builder strict             copy=refused (builder bench names two inputs of one type) bug=refused (builder bench names two inputs of one type) objects=
+         holder_via_builder keys: <class 'holder_via_builder.CopyBench'>, <class 'common.Seeded'>
+## 3.14.4 future
+3.14.4   one_value          refused (#689)     copy=refused (two inputs of one type: <class 'subject.Database'>) bug=refused (two inputs of one type: <class 'subject.Data
+3.14.4   one_value          allowed, one value copy=passed   bug=passed   objects=same builder=yes
+         one_value          keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.14.4   by_name            by name            copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   by_name            by name, strict    copy=passed   bug=failed   objects=two  builder=yes
+         by_name            keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.14.4   newtype            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   newtype            strict             copy=passed   bug=failed   objects=two  builder=yes
+         newtype            keys: newtype.SourceDb, newtype.TargetDb, <class 'common.Seeded'>
+3.14.4   subclass           refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.14.4   subclass           strict             copy=passed   bug=failed   objects=two  builder=NO 
+         subclass           keys: <class 'subclass.SourceDb'>, <class 'subclass.TargetDb'>, <class 'common.Seeded'>
+3.14.4   annotated          refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   annotated          strict             copy=passed   bug=failed   objects=two  builder=yes
+         annotated          keys: typing.Annotated[subject.Database, Role(name='source')], typing.Annotated[subject.Database, Role(name='target')], <class 'common.Seeded'
+3.14.4   type_alias         refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   type_alias         strict             copy=passed   bug=failed   objects=two  builder=yes
+         type_alias         keys: SourceDb, TargetDb, <class 'common.Seeded'>
+3.14.4   factory            refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   factory            strict             copy=passed   bug=failed   objects=two  builder=yes
+         factory            keys: collections.abc.Callable[[], subject.Database]
+3.14.4   pair               refuse             copy=passed   bug=failed   objects=two  builder=yes
+3.14.4   pair               strict             copy=passed   bug=failed   objects=two  builder=yes
+         pair               keys: tuple[subject.Database, subject.Database], <class 'common.Seeded'>
+3.14.4   holder             refuse             copy=passed   bug=failed   objects=two  builder=NO 
+3.14.4   holder             strict             copy=passed   bug=failed   objects=two  builder=NO 
+         holder             keys: <class 'holder.CopyBench'>, <class 'common.Seeded'>
+3.14.4   holder_via_builder refuse             copy=passed   bug=passed   objects=same builder=yes
+3.14.4   holder_via_builder strict             copy=refused (builder bench names two inputs of one type) bug=refused (builder bench names two inputs of one type) objects=
+         holder_via_builder keys: <class 'holder_via_builder.CopyBench'>, <class 'common.Seeded'>

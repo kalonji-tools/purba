@@ -1,0 +1,24 @@
+3.12.14  by_name            by name            copy=passed   bug=passed   objects=two  builder=yes
+3.12.14  by_name            by name, strict    copy=refused (builder seeded names <class 'subject.Database'> as 'db', the test as ['dst', 'src']) bug=refused (builder see
+         by_name            keys: <class 'subject.Database'>, <class 'subject.Database'>, <class 'common.Seeded'>
+3.12.14  newtype            refuse             copy=passed   bug=passed   objects=two  builder=yes
+3.12.14  newtype            strict             copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) bug=refused (builde
+         newtype            keys: newtype.SourceDb, newtype.TargetDb, <class 'common.Seeded'>
+3.12.14  subclass           refuse             copy=passed   bug=passed   objects=two  builder=NO 
+3.12.14  subclass           strict             copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) bug=refused (builde
+         subclass           keys: <class 'subclass.SourceDb'>, <class 'subclass.TargetDb'>, <class 'common.Seeded'>
+3.12.14  annotated          refuse             copy=passed   bug=passed   objects=two  builder=yes
+3.12.14  annotated          strict             copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) bug=refused (builde
+         annotated          keys: typing.Annotated[subject.Database, Role(name='source')], typing.Annotated[subject.Database, Role(name='target')], <class 'common.Seeded'
+3.12.14  type_alias         refuse             copy=passed   bug=passed   objects=two  builder=yes
+3.12.14  type_alias         strict             copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) bug=refused (builde
+         type_alias         keys: SourceDb, TargetDb, <class 'common.Seeded'>
+3.12.14  pair               refuse             copy=passed   bug=passed   objects=two  builder=yes
+3.12.14  pair               strict             copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) bug=refused (builde
+         pair               keys: tuple[subject.Database, subject.Database], <class 'common.Seeded'>
+3.12.14  holder             refuse             copy=passed   bug=passed   objects=two  builder=NO 
+3.12.14  holder             strict             copy=passed   bug=passed   objects=two  builder=NO 
+         holder             keys: <class 'holder.CopyBench'>, <class 'common.Seeded'>
+3.12.14  holder_via_builder refuse             copy=passed   bug=passed   objects=same builder=yes
+3.12.14  holder_via_builder strict             copy=refused (builder bench names two inputs of one type) bug=refused (builder bench names two inputs of one type) objects=
+         holder_via_builder keys: <class 'holder_via_builder.CopyBench'>, <class 'common.Seeded'>
