@@ -196,6 +196,10 @@ The [actor](#actor) that reads and approves work it did not write.
 
 A failure scenario a test can check. It lands on one [part](#part) or [concern](#concern), and is weighed by how likely it is and by the quality it breaks.
 
+### Role
+
+A `NewType` of a type, with a fixture of its own, so that a [test](#test) can name two values of that type.
+
 ### Run
 
 One start of purba, from the command it reads to the exit code it sets.
