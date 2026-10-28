@@ -26,6 +26,10 @@ Anything purba writes for a [reader](#reader), and never a file that a workflow 
 
 A third-party Python project, pinned to a commit, whose tests decide when a [milestone](#milestone) is done.
 
+### Catalyst
+
+An [input](#input) that outlives one [test](#test), and whose type proves that no test can change it.
+
 ### Coder
 
 The [actor](#actor) that implements a settled decision in code.
@@ -62,6 +66,10 @@ The [actor](#actor) that writes the instructions an agent acts on.
 
 What the author of a [pull request](#pull-request) writes to say how the change is built. The [reviewer](#reviewer) reads it.
 
+### Input
+
+A value that a [test](#test) or a fixture names by the type of a parameter with no default.
+
 ### Integrator
 
 The [actor](#actor) that wires purba's machine-readable output into another system.
@@ -76,7 +84,7 @@ A rule that two or more [parts](#part) follow, written as an absence. Unlike a [
 
 ### Invocation error
 
-An error that a [part](#part) sees in how a [run](#run) was started or where it runs: an argument, a path the [tester](#tester) typed, an input purba cannot take, or a place purba cannot write. The tester fixes it in the command or where it runs.
+An error that a [part](#part) sees in how a [run](#run) was started or where it runs: an argument, a path the [tester](#tester) typed, data purba cannot take, or a place purba cannot write. The tester fixes it in the command or where it runs.
 
 ### Issue
 
@@ -134,7 +142,7 @@ A read of a branch, after the implementation, for what can be removed or improve
 
 ### Project error
 
-An error that a [part](#part) sees in the [tester's](#tester) code, other than a test's [outcome](#outcome). A module that does not parse or load, a test purba cannot call, and an exception that no test's call raised are each one.
+An error that a [part](#part) sees in the [tester's](#tester) code, other than a test's [outcome](#outcome). A module that does not parse or load, a test purba refuses to call, and an exception that no test's call raised are each one.
 
 ### Prose
 
@@ -159,6 +167,10 @@ The [locations](#location) a [record](#record) applies to. It names every locati
 ### Reader
 
 An [actor](#actor) that a [location](#location) serves. A location inherits its readers from the path tree.
+
+### Reagent
+
+An [input](#input) that fixtures builds for one [test](#test), and tears down after it.
 
 ### Record
 
@@ -196,6 +208,10 @@ The property that routes a change to the code owner. A change is architecturally
 
 The [actor](#actor) that arrives at a [location](#location) it does not know yet. An actor returns to the stem at every location it does not know.
 
+### Stock
+
+An [input](#input) that outlives one [test](#test), and whose content can change. Only a fixture takes it, and that fixture hands each test a [reagent](#reagent) that it draws from the stock.
+
 ### Stopped test
 
 A selected test that an error stopped before it had an [outcome](#outcome).
@@ -211,6 +227,10 @@ A [tester's](#tester) statement, at a site, that names one [strict check](#stric
 ### Technical writer
 
 The [actor](#actor) that writes purba's documentation for a [reader](#reader) outside the work.
+
+### Test
+
+A function, as import binds it in a test module, that names its [inputs](#input) by type, returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
 
 ### Tester
 
