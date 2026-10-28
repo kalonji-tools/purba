@@ -38,6 +38,7 @@ A run that stops too little runs tests on a wrong input.
 
 - **An error shows in the earliest part that can see it.** No part does work outside the selection only to see an error sooner.
 - **Before a part stops, it names every error that it finds.** Parsing decides in its design in depth how many syntax errors it reports for one file.
+- **An async generator names only that it is async.** [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says so.
 - **The error of a file that does not parse shows, though the query selects no test in it.** Selection cannot know whether the file holds a selected test.
 - **An error that no part sees before a write shows at the write that fails.** A full disk is one.
 
@@ -51,8 +52,10 @@ A run that stops too little runs tests on a wrong input.
 ## Confirmation
 
 `mise run test:rust` checks that command stops the run before any test when it takes an error in place of stdout.
+`mise run test:rust` checks that the other tests run when selection refuses a test.
 No command checks the rest of this record.
-[Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) and [A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) build some of it.
+[A file that does not parse shows when assertion loads it, and not when parsing reads it](https://github.com/kalonji-tools/purba/issues/671) builds some of it.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 Its Destination promises what a panic inside a test stops.
+
 [A stopped test has no outcome](a-stopped-test-has-no-outcome.md#decision-outcome) says what each test that an error stops prints.

@@ -7,7 +7,7 @@ use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::Module;
-use purba_selection::TestId;
+use purba_selection::{Refused, TestId};
 
 /// Why a run did not finish.
 #[derive(Debug)]
@@ -34,6 +34,8 @@ impl fmt::Display for Error {
 /// exit code that reporting renders. `arguments` is `sys.argv`, so it starts
 /// with the name of the script.
 ///
+/// The line of each test that selection refuses prints before any test runs.
+///
 /// # Errors
 ///
 /// In the order the run meets them: when the arguments are not one path to
@@ -43,8 +45,13 @@ impl fmt::Display for Error {
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
-    let modules = modules(path)?;
+    let (modules, refused_tests) = modules(path)?;
     let mut report = purba_reporting::Report::new(out);
+    for refused in &refused_tests {
+        report
+            .error(refused.test(), refused)
+            .map_err(Error::Write)?;
+    }
     let flow = purba_dispatch::hand(modules, |test, result| {
         report
             .line(&test, &result)
@@ -70,19 +77,20 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
     }
 }
 
-/// The module at `path`, with its selected tests. The parse ends here, before
-/// the run.
-fn modules(path: PathBuf) -> Result<Vec<Module<TestId>>, Error> {
+/// The module at `path` with the tests that selection hands on, and each test
+/// that it refuses. The parse ends here, before the run. A module with no test
+/// to hand on is neither rewritten nor loaded.
+fn modules(path: PathBuf) -> Result<(Vec<Module<TestId>>, Vec<Refused>), Error> {
     let module = match purba_parsing::parse(&path) {
         Ok(module) => module,
         Err(error) => return Err(Error::Read(path, error)),
     };
-    let tests = purba_selection::select(&path, &module);
+    let (tests, refused) = purba_selection::select(&path, &module);
     if tests.is_empty() {
-        return Ok(Vec::new());
+        return Ok((Vec::new(), refused));
     }
     let (text, asserts) = purba_assertion::rewrite(&module).into_parts();
-    Ok(vec![Module::new(path, text, asserts, tests)])
+    Ok((vec![Module::new(path, text, asserts, tests)], refused))
 }
 
 #[cfg(test)]

@@ -174,6 +174,50 @@ fn a_module_with_no_test_exits_2() {
 }
 
 #[test]
+fn a_test_that_selection_refuses_prints_before_any_test_runs() {
+    let path = module_at("test_command_selection_refuses.py");
+    let text = concat!(
+        "def test_d():\n    assert True\n\n",
+        "async def test_a():\n    ...\n\n",
+        "def test_b():\n    yield\n\n",
+        "def test_c(x):\n    ...\n\n",
+        "def test_e():\n    assert True\n    return False\n",
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    assert_eq!(
+        String::from_utf8(out).expect("reporting writes UTF-8"),
+        format!(
+            "{0}::test_a error: purba cannot run an async test yet\n\
+             {0}::test_b error: the test is a generator, and purba does not iterate it\n\
+             {0}::test_c error: the parameter x has no type\n\
+             {0}::test_e error: the test returns a value, and purba does not read it\n\
+             {0}::test_d passed\n\
+             5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 errors\n",
+            path.display()
+        ),
+        "each refused line first, then the line of the test that runs"
+    );
+    assert_eq!(code, 4, "a test with an error exits 4");
+}
+
+#[test]
+fn a_module_whose_every_test_is_refused_does_not_load() {
+    let path = module_at("test_command_all_refused.py");
+    let sentinel = module_at("test_command_all_refused.loaded");
+    let _ = fs::remove_file(&sentinel);
+    let text = format!(
+        "open({:?}, \"w\").close()\n\nasync def test_a():\n    ...\n",
+        sentinel.to_str().expect("the path is UTF-8")
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let code = purba_command::run(&argv(&path), Ok(Vec::new())).expect("the run finishes");
+    assert!(!sentinel.exists(), "the module's body never ran");
+    assert_eq!(code, 4, "a test with an error exits 4");
+}
+
+#[test]
 fn a_module_that_does_not_parse_shows_its_syntax_error() {
     for (name, text, line) in [
         ("test_command_bare.py", "def test_a():\n    assert\n", 2),

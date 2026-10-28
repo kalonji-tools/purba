@@ -35,6 +35,16 @@ impl<W: Write> Report<W> {
         self.add(test, result.as_ref().map(Outcome::kind))
     }
 
+    /// Adds `test` to the tally as an error that a part before execution
+    /// found, and writes its line and flushes it.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn error<T: Display, E: Display>(&mut self, test: &T, error: &E) -> io::Result<()> {
+        self.add(test, Err::<&Kind, _>(error))
+    }
+
     /// A test passes a text for an error, because no crate but execution
     /// builds an `Error`.
     fn add<T: Display, E: Display>(
@@ -213,6 +223,23 @@ mod tests {
             .add(&"test_a.py::test_two", Ok::<_, &str>(&Kind::Passed))
             .expect_err("the writer refuses the second line");
         assert_eq!(error.to_string(), "refused", "the writer's own error");
+    }
+
+    #[test]
+    fn an_error_that_another_part_finds_prints_as_an_error() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .error(&"test_a.py::test_one", &"the parameter x has no type")
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "test_a.py::test_one error: the parameter x has no type\n\
+             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
+            "the line and the count of one error"
+        );
+        assert_eq!(code, 4, "an error makes the run exit 4");
     }
 
     #[test]

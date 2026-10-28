@@ -59,8 +59,9 @@ Selection takes each `def test…`, and execution calls it.
 
 ## Confirmation
 
-No command checks this record yet.
-[Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) builds what selection refuses.
+`mise run test:rust` checks each breach that this record gives selection.
+No command checks the rest of this record.
+[A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when its line prints.
 [A decorated test whose call returns a value prints passed](https://github.com/kalonji-tools/purba/issues/696) and [A test with a typed input prints raised](https://github.com/kalonji-tools/purba/issues/697) build what execution sees.
 [A test names two values of one type by two roles](a-test-names-two-values-of-one-type-by-two-roles.md#decision-outcome) says how a test names two values of one type.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.
