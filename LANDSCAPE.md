@@ -55,7 +55,7 @@ flowchart LR
 ## The parts and their dependencies
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
-- **selection.** Reads the AST of each test file, imports none of them, and answers which tests a query names.
+- **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
@@ -99,9 +99,13 @@ sequenceDiagram
   Note over parsing: the only read of test_a.py
   parsing -->> command: the parsed module
   command ->> selection: the path, and the parse it lends
-  selection -->> command: three selected tests
+  selection -->> command: three selected tests, and none that it refuses
   command ->> assertion: the parse it lends
   assertion -->> command: the rewritten text, and the text of each assert
+  loop each test that selection refuses
+    command ->> reporting: the test, and why selection refuses it
+    reporting ->> tester: its line
+  end
   command ->> dispatch: test_a.py once, with its texts and its three tests
   loop each selected test
     dispatch ->> execution: a function's name, and its module
