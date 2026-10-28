@@ -33,15 +33,15 @@ purba prints `error` for a test that raised, for a module that does not load, an
 
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
-| [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, an input purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba cannot call, an exception that no test's call raised | the tester's code |
+| [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
+| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised | the tester's code |
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned or raised | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, a `PanicException` that crosses a test's call | a bug report to purba |
 
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
 - **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. A `PanicException` is an internal error.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
-- **A test that purba cannot call is a project error for that test alone.** Selection sees an `async` test, a generator test, and a test with a parameter that nothing fills. Execution sees a name that is not callable.
+- **A test that purba refuses to call is a project error for that test alone.** In a test with no decorator, selection sees an `async def`, a `yield`, an untyped parameter with no default, and a `return` of a value. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs of one type. It also sees a stock that a test names.
 - **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
@@ -56,9 +56,9 @@ flowchart LR
   parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
   parsing -- "a syntax error" --> project["<b>project error</b>"]
-  selection["selection"] -- "an async test, a generator test, a parameter that nothing fills" --> project
+  selection["selection"] -- "an async def, a yield, an untyped parameter, a returned value" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not callable, a thread's exception" --> project
+  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs of one type, a stock, a thread's exception" --> project
   execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]
   execution -- "a PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
@@ -81,3 +81,4 @@ No command checks this record.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
 [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
 [A module that binds a name purba adds is a project error](a-module-that-binds-a-name-purba-adds-is-a-project-error.md#decision-outcome) says what purba does with a module that binds the name of its hook.
+[A test names its inputs by type and returns nothing](a-test-names-its-inputs-by-type-and-returns-nothing.md#decision-outcome) says what a test is, and which part refuses a test that breaks it.

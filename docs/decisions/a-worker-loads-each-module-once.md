@@ -46,3 +46,4 @@ It checks that dispatch hands the tests of one module to one worker.
 
 `mise run test:rust` does not check that command hands each module once.
 A run takes one module, so command hands it at most once.
+[Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says what changes once purba has its zygote.

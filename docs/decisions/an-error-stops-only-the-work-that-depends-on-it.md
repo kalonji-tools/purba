@@ -32,7 +32,7 @@ A run that stops too little runs tests on a wrong input.
 | kind | it stops | for example |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | the run | a missing path, or a closed stdout that command sees at start |
-| [project error](../../CONTEXT.md#project-error) | the tests that depend on it | a module that does not load stops its tests, and a test that purba cannot call stops itself |
+| [project error](../../CONTEXT.md#project-error) | the tests that depend on it | a module that does not load stops its tests, and a test that purba refuses to call stops itself |
 | [internal error](../../CONTEXT.md#internal-error) | the work that depends on what failed | a panic inside a test stops that test, a panic in selection while it reads `test_b.py` stops the tests of `test_b.py`, and a panic in command or reporting stops the run |
 | [outcome](../../CONTEXT.md#outcome) | nothing | |
 
