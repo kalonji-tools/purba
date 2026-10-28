@@ -1,0 +1,144 @@
+## Python 3.12.15, ways
+w01_record_690               src: Tx[SourceDb]
+w01_record_690               dst: Tx[TargetDb]
+w02_named_after_role         source: Tx[SourceDb]
+w02_named_after_role         target: Tx[TargetDb]
+w03_alias_of_reagent         src: Tx[SourceDb]
+w03_alias_of_reagent         dst: Tx[TargetDb]
+w04_type_alias_of_reagent    src: SourceTx
+w04_type_alias_of_reagent    dst: TargetTx
+w05_newtype_of_reagent       src: SourceTx
+w05_newtype_of_reagent       dst: TargetTx
+w06_parameter_name           source: Tx[Database]
+w06_parameter_name           target: Tx[Database]
+w07_unannotated_name         source_tx: '<none>'
+w07_unannotated_name         target_tx: '<none>'
+w08_decorator_map            @using {'src': 'source', 'dst': 'target'}
+w08_decorator_map            src: Tx[Database]
+w08_decorator_map            dst: Tx[Database]
+w09_default_bare             src: Tx[Database] = source
+w09_default_bare             dst: Tx[Database] = target
+w10_default_untyped_marker   src: Tx[Database] = Marker(provider=source, arg=None)
+w10_default_untyped_marker   dst: Tx[Database] = Marker(provider=target, arg=None)
+w11_default_typed_marker     src: Tx[Database] = Marker(provider=tx, arg=source)
+w11_default_typed_marker     dst: Tx[Database] = Marker(provider=tx, arg=target)
+w12_annotated_provider       src: Annotated[Tx[Database], From(provider=source)]
+w12_annotated_provider       dst: Annotated[Tx[Database], From(provider=target)]
+w13_alias_hiding_provider    src: Annotated[Tx[Database], From(provider=source)]
+w13_alias_hiding_provider    dst: Annotated[Tx[Database], From(provider=target)]
+w14_container_attribute      src: Tx[Database] = Marker(provider=Stocks.source, arg=None)
+w14_container_attribute      dst: Tx[Database] = Marker(provider=Stocks.target, arg=None)
+w15_annotated_string         src: Annotated[Tx[Database], 'source']
+w15_annotated_string         dst: Annotated[Tx[Database], 'target']
+w16_annotated_role_object    src: Annotated[Tx[Database], Role(name='source')]
+w16_annotated_role_object    dst: Annotated[Tx[Database], Role(name='target')]
+w17_tuple_position           pair: tuple[Tx[Database], Tx[Database]]
+w18_locator                  fx: Fixtures
+## Python 3.12.15, future
+w01_record_690               src: Tx[SourceDb]
+w01_record_690               dst: Tx[TargetDb]
+w02_named_after_role         source: Tx[SourceDb]
+w02_named_after_role         target: Tx[TargetDb]
+w03_alias_of_reagent         src: Tx[SourceDb]
+w03_alias_of_reagent         dst: Tx[TargetDb]
+w04_type_alias_of_reagent    src: SourceTx
+w04_type_alias_of_reagent    dst: TargetTx
+w05_newtype_of_reagent       src: SourceTx
+w05_newtype_of_reagent       dst: TargetTx
+w06_parameter_name           source: Tx[Database]
+w06_parameter_name           target: Tx[Database]
+w07_unannotated_name         source_tx: '<none>'
+w07_unannotated_name         target_tx: '<none>'
+w08_decorator_map            @using {'src': 'source', 'dst': 'target'}
+w08_decorator_map            src: Tx[Database]
+w08_decorator_map            dst: Tx[Database]
+w09_default_bare             src: Tx[Database] = source
+w09_default_bare             dst: Tx[Database] = target
+w10_default_untyped_marker   src: Tx[Database] = Marker(provider=source, arg=None)
+w10_default_untyped_marker   dst: Tx[Database] = Marker(provider=target, arg=None)
+w11_default_typed_marker     src: Tx[Database] = Marker(provider=tx, arg=source)
+w11_default_typed_marker     dst: Tx[Database] = Marker(provider=tx, arg=target)
+w12_annotated_provider       src: Annotated[Tx[Database], From(provider=source)]
+w12_annotated_provider       dst: Annotated[Tx[Database], From(provider=target)]
+w13_alias_hiding_provider    src: Annotated[Tx[Database], From(provider=source)]
+w13_alias_hiding_provider    dst: Annotated[Tx[Database], From(provider=target)]
+w14_container_attribute      src: Tx[Database] = Marker(provider=Stocks.source, arg=None)
+w14_container_attribute      dst: Tx[Database] = Marker(provider=Stocks.target, arg=None)
+w15_annotated_string         src: Annotated[Tx[Database], 'source']
+w15_annotated_string         dst: Annotated[Tx[Database], 'target']
+w16_annotated_role_object    src: Annotated[Tx[Database], Role(name='source')]
+w16_annotated_role_object    dst: Annotated[Tx[Database], Role(name='target')]
+w17_tuple_position           pair: tuple[Tx[Database], Tx[Database]]
+w18_locator                  fx: Fixtures
+## Python 3.14.4, ways
+w01_record_690               src: Tx[SourceDb]
+w01_record_690               dst: Tx[TargetDb]
+w02_named_after_role         source: Tx[SourceDb]
+w02_named_after_role         target: Tx[TargetDb]
+w03_alias_of_reagent         src: Tx[SourceDb]
+w03_alias_of_reagent         dst: Tx[TargetDb]
+w04_type_alias_of_reagent    src: SourceTx
+w04_type_alias_of_reagent    dst: TargetTx
+w05_newtype_of_reagent       src: SourceTx
+w05_newtype_of_reagent       dst: TargetTx
+w06_parameter_name           source: Tx[Database]
+w06_parameter_name           target: Tx[Database]
+w07_unannotated_name         source_tx: '<none>'
+w07_unannotated_name         target_tx: '<none>'
+w08_decorator_map            @using {'src': 'source', 'dst': 'target'}
+w08_decorator_map            src: Tx[Database]
+w08_decorator_map            dst: Tx[Database]
+w09_default_bare             src: Tx[Database] = source
+w09_default_bare             dst: Tx[Database] = target
+w10_default_untyped_marker   src: Tx[Database] = Marker(provider=source, arg=None)
+w10_default_untyped_marker   dst: Tx[Database] = Marker(provider=target, arg=None)
+w11_default_typed_marker     src: Tx[Database] = Marker(provider=tx, arg=source)
+w11_default_typed_marker     dst: Tx[Database] = Marker(provider=tx, arg=target)
+w12_annotated_provider       src: Annotated[Tx[Database], From(provider=source)]
+w12_annotated_provider       dst: Annotated[Tx[Database], From(provider=target)]
+w13_alias_hiding_provider    src: Annotated[Tx[Database], From(provider=source)]
+w13_alias_hiding_provider    dst: Annotated[Tx[Database], From(provider=target)]
+w14_container_attribute      src: Tx[Database] = Marker(provider=Stocks.source, arg=None)
+w14_container_attribute      dst: Tx[Database] = Marker(provider=Stocks.target, arg=None)
+w15_annotated_string         src: Annotated[Tx[Database], 'source']
+w15_annotated_string         dst: Annotated[Tx[Database], 'target']
+w16_annotated_role_object    src: Annotated[Tx[Database], Role(name='source')]
+w16_annotated_role_object    dst: Annotated[Tx[Database], Role(name='target')]
+w17_tuple_position           pair: tuple[Tx[Database], Tx[Database]]
+w18_locator                  fx: Fixtures
+## Python 3.14.4, future
+w01_record_690               src: Tx[SourceDb]
+w01_record_690               dst: Tx[TargetDb]
+w02_named_after_role         source: Tx[SourceDb]
+w02_named_after_role         target: Tx[TargetDb]
+w03_alias_of_reagent         src: Tx[SourceDb]
+w03_alias_of_reagent         dst: Tx[TargetDb]
+w04_type_alias_of_reagent    src: SourceTx
+w04_type_alias_of_reagent    dst: TargetTx
+w05_newtype_of_reagent       src: SourceTx
+w05_newtype_of_reagent       dst: TargetTx
+w06_parameter_name           source: Tx[Database]
+w06_parameter_name           target: Tx[Database]
+w07_unannotated_name         source_tx: '<none>'
+w07_unannotated_name         target_tx: '<none>'
+w08_decorator_map            @using {'src': 'source', 'dst': 'target'}
+w08_decorator_map            src: Tx[Database]
+w08_decorator_map            dst: Tx[Database]
+w09_default_bare             src: Tx[Database] = source
+w09_default_bare             dst: Tx[Database] = target
+w10_default_untyped_marker   src: Tx[Database] = Marker(provider=source, arg=None)
+w10_default_untyped_marker   dst: Tx[Database] = Marker(provider=target, arg=None)
+w11_default_typed_marker     src: Tx[Database] = Marker(provider=tx, arg=source)
+w11_default_typed_marker     dst: Tx[Database] = Marker(provider=tx, arg=target)
+w12_annotated_provider       src: Annotated[Tx[Database], From(provider=source)]
+w12_annotated_provider       dst: Annotated[Tx[Database], From(provider=target)]
+w13_alias_hiding_provider    src: Annotated[Tx[Database], From(provider=source)]
+w13_alias_hiding_provider    dst: Annotated[Tx[Database], From(provider=target)]
+w14_container_attribute      src: Tx[Database] = Marker(provider=Stocks.source, arg=None)
+w14_container_attribute      dst: Tx[Database] = Marker(provider=Stocks.target, arg=None)
+w15_annotated_string         src: Annotated[Tx[Database], 'source']
+w15_annotated_string         dst: Annotated[Tx[Database], 'target']
+w16_annotated_role_object    src: Annotated[Tx[Database], Role(name='source')]
+w16_annotated_role_object    dst: Annotated[Tx[Database], Role(name='target')]
+w17_tuple_position           pair: tuple[Tx[Database], Tx[Database]]
+w18_locator                  fx: Fixtures

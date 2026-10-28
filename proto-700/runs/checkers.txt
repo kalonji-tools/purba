@@ -1,0 +1,33 @@
+### ways
+--- mypy 2.4.0 (compiled: yes) --strict
+w09_default_bare.py:22: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+w09_default_bare.py:22: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+w07_unannotated_name.py:27: error: Function is missing a type annotation for one or more parameters  [no-untyped-def]
+Found 3 errors in 2 files (checked 20 source files)
+--- pyright pyright 1.1.414
+  /home/snregales/Projects/kalonji-tools/purba.proto-700-a-signature-that-reads-at-a-glance/proto-700/ways/w09_default_bare.py:22:35 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  /home/snregales/Projects/kalonji-tools/purba.proto-700-a-signature-that-reads-at-a-glance/proto-700/ways/w09_default_bare.py:22:63 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+2 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+sketch.py:20:9: error[unresolved-attribute] Unresolved attribute `__purba_using__` on type `F@using`
+w09_default_bare.py:22:15: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+w09_default_bare.py:22:43: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+Found 3 diagnostics
+### lie
+--- mypy 2.4.0 (compiled: yes) --strict
+w11_default_typed_marker.py:22: error: Cannot infer value of type parameter "A" of "use"  [misc]
+w09_default_bare.py:22: error: Incompatible default for parameter "src" (default has type "Callable[[], int]", parameter has type "Tx[Database]")  [assignment]
+w09_default_bare.py:22: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+w07_unannotated_name.py:27: error: Function is missing a type annotation for one or more parameters  [no-untyped-def]
+Found 4 errors in 3 files (checked 11 source files)
+--- pyright pyright 1.1.414
+  /home/snregales/.claude/jobs/f70fe198/tmp/r700/lie/w09_default_bare.py:22:35 - error: Expression of type "() -> int" cannot be assigned to parameter of type "Tx[Database]"
+  /home/snregales/.claude/jobs/f70fe198/tmp/r700/lie/w09_default_bare.py:22:62 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  /home/snregales/.claude/jobs/f70fe198/tmp/r700/lie/w11_default_typed_marker.py:22:43 - error: Argument of type "() -> int" cannot be assigned to parameter "stock" of type "() -> A@use" in function "use"
+3 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+sketch.py:20:9: error[unresolved-attribute] Unresolved attribute `__purba_using__` on type `F@using`
+w09_default_bare.py:22:15: error[invalid-parameter-default] Default value of type `def count() -> int` is not assignable to annotated parameter type `Tx[Database]`
+w09_default_bare.py:22:42: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+w11_default_typed_marker.py:22:15: error[invalid-parameter-default] Default value of type `Tx[int]` is not assignable to annotated parameter type `Tx[Database]`
+Found 4 diagnostics
