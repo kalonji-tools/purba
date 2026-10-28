@@ -1,0 +1,9 @@
+way                          R(rule)  R(readers)  U     C     total(rule)  total(readers-only R)
+w09_default_bare              4.15   4.75   3.33   3.16   3.71   4.01
+w11_default_typed_marker      3.07   4.21   3.96   3.16   3.38   3.95
+w10_default_untyped_marker    2.99   3.91   3.16   3.16   3.07   3.54
+w08_decorator_map             2.99   3.56   2.99   3.16   3.02   3.30
+w12_annotated_provider        1.92   2.85   2.88   3.16   2.45   2.91
+w01_record_690                2.87   1.71   3.91   3.57   3.33   2.75
+w06_pytest                    3.00   1.98   3.73   2.27   3.12   2.61
+w03_alias                     3.01   1.03   4.03   3.57   3.45   2.45

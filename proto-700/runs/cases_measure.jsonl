@@ -1,0 +1,64 @@
+{"way": "w01_record_690", "case": "c1", "chars": 36.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 6}
+{"way": "w01_record_690", "case": "c2", "chars": 16.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 4}
+{"way": "w01_record_690", "case": "c3", "chars": 32.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 4}
+{"way": "w01_record_690", "case": "c4", "chars": 82.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 12}
+{"way": "w01_record_690", "case": "c5", "chars": 34.5, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 11}
+{"way": "w01_record_690", "case": "c6", "chars": 20.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 5}
+{"way": "w01_record_690", "case": "c7", "chars": 22.2, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 17}
+{"way": "w01_record_690", "lines_written_total": 97, "goto_from_src": "fixtures.py:7 SourceDb = NewType(\"SourceDb\", Database)"}
+{"way": "w03_alias", "case": "c1", "chars": 28.0, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 6}
+{"way": "w03_alias", "case": "c2", "chars": 8.0, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 4}
+{"way": "w03_alias", "case": "c3", "chars": 24.0, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 5}
+{"way": "w03_alias", "case": "c4", "chars": 74.0, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 7}
+{"way": "w03_alias", "case": "c5", "chars": 28.5, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 11}
+{"way": "w03_alias", "case": "c6", "chars": 16.0, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 4}
+{"way": "w03_alias", "case": "c7", "chars": 17.2, "depth": 0, "framework_tokens": 0, "fixture_refs_on_line": 0, "lines": 17}
+{"way": "w03_alias", "lines_written_total": 96, "goto_from_src": "fixtures.py:13 type SourceTx = Tx[SourceDb]"}
+{"way": "w06_pytest", "case": "c1", "chars": 36.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 2, "lines": 5}
+{"way": "w06_pytest", "case": "c2", "chars": 16.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 1, "lines": 4}
+{"way": "w06_pytest", "case": "c3", "chars": 32.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 2, "lines": 4}
+{"way": "w06_pytest", "case": "c4", "chars": 82.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 5, "lines": 12}
+{"way": "w06_pytest", "case": "c5", "chars": 34.5, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 4, "lines": 10}
+{"way": "w06_pytest", "case": "c6", "chars": 20.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 1, "lines": 4}
+{"way": "w06_pytest", "case": "c7", "chars": 22.2, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 5, "lines": 16}
+{"way": "w06_pytest", "lines_written_total": 95, "goto_from_src": "real pytest: conftest.py:5 def src() -> list[str]:"}
+{"way": "w08_decorator_map", "case": "c1", "chars": 68.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 2, "lines": 8}
+{"way": "w08_decorator_map", "case": "c2", "chars": 37.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 1, "lines": 7}
+{"way": "w08_decorator_map", "case": "c3", "chars": 68.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 2, "lines": 7}
+{"way": "w08_decorator_map", "case": "c4", "chars": 165.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 5, "lines": 15}
+{"way": "w08_decorator_map", "case": "c5", "chars": 68.0, "depth": 1, "framework_tokens": 2, "fixture_refs_on_line": 4, "lines": 13}
+{"way": "w08_decorator_map", "case": "c6", "chars": 59.0, "depth": 2, "framework_tokens": 2, "fixture_refs_on_line": 2, "lines": 7}
+{"way": "w08_decorator_map", "case": "c7", "chars": 61.7, "depth": 1, "framework_tokens": 3, "fixture_refs_on_line": 5, "lines": 15}
+{"way": "w08_decorator_map", "lines_written_total": 110, "goto_from_src": "fixtures.py:11 def source() -> Database:"}
+{"way": "w09_default_bare", "case": "c1", "chars": 54.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w09_default_bare", "case": "c2", "chars": 27.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 1, "lines": 5}
+{"way": "w09_default_bare", "case": "c3", "chars": 52.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 2, "lines": 5}
+{"way": "w09_default_bare", "case": "c4", "chars": 130.0, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 5, "lines": 13}
+{"way": "w09_default_bare", "case": "c5", "chars": 52.5, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 4, "lines": 15}
+{"way": "w09_default_bare", "case": "c6", "chars": 45.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w09_default_bare", "case": "c7", "chars": 48.7, "depth": 1, "framework_tokens": 0, "fixture_refs_on_line": 5, "lines": 11}
+{"way": "w09_default_bare", "lines_written_total": 98, "goto_from_src": "fixtures.py:11 def source() -> Database:"}
+{"way": "w10_default_untyped_marker", "case": "c1", "chars": 72.0, "depth": 1, "framework_tokens": 2, "fixture_refs_on_line": 2, "lines": 7}
+{"way": "w10_default_untyped_marker", "case": "c2", "chars": 36.0, "depth": 1, "framework_tokens": 1, "fixture_refs_on_line": 1, "lines": 6}
+{"way": "w10_default_untyped_marker", "case": "c3", "chars": 70.0, "depth": 1, "framework_tokens": 2, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w10_default_untyped_marker", "case": "c4", "chars": 175.0, "depth": 1, "framework_tokens": 5, "fixture_refs_on_line": 5, "lines": 14}
+{"way": "w10_default_untyped_marker", "case": "c5", "chars": 70.5, "depth": 1, "framework_tokens": 4, "fixture_refs_on_line": 4, "lines": 15}
+{"way": "w10_default_untyped_marker", "case": "c6", "chars": 54.0, "depth": 2, "framework_tokens": 2, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w10_default_untyped_marker", "case": "c7", "chars": 63.7, "depth": 1, "framework_tokens": 5, "fixture_refs_on_line": 5, "lines": 18}
+{"way": "w10_default_untyped_marker", "lines_written_total": 109, "goto_from_src": "fixtures.py:11 def source() -> Database:"}
+{"way": "w11_default_typed_marker", "case": "c1", "chars": 72.0, "depth": 1, "framework_tokens": 4, "fixture_refs_on_line": 2, "lines": 7}
+{"way": "w11_default_typed_marker", "case": "c2", "chars": 36.0, "depth": 1, "framework_tokens": 2, "fixture_refs_on_line": 1, "lines": 6}
+{"way": "w11_default_typed_marker", "case": "c3", "chars": 66.0, "depth": 1, "framework_tokens": 3, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w11_default_typed_marker", "case": "c4", "chars": 159.0, "depth": 1, "framework_tokens": 6, "fixture_refs_on_line": 5, "lines": 14}
+{"way": "w11_default_typed_marker", "case": "c5", "chars": 68.5, "depth": 1, "framework_tokens": 7, "fixture_refs_on_line": 4, "lines": 15}
+{"way": "w11_default_typed_marker", "case": "c6", "chars": 54.0, "depth": 2, "framework_tokens": 3, "fixture_refs_on_line": 2, "lines": 6}
+{"way": "w11_default_typed_marker", "case": "c7", "chars": 63.7, "depth": 1, "framework_tokens": 10, "fixture_refs_on_line": 5, "lines": 18}
+{"way": "w11_default_typed_marker", "lines_written_total": 109, "goto_from_src": "fixtures.py:11 def source() -> Database:"}
+{"way": "w12_annotated_provider", "case": "c1", "chars": 86.0, "depth": 2, "framework_tokens": 4, "fixture_refs_on_line": 2, "lines": 11}
+{"way": "w12_annotated_provider", "case": "c2", "chars": 43.0, "depth": 2, "framework_tokens": 2, "fixture_refs_on_line": 1, "lines": 7}
+{"way": "w12_annotated_provider", "case": "c3", "chars": 84.0, "depth": 2, "framework_tokens": 4, "fixture_refs_on_line": 2, "lines": 10}
+{"way": "w12_annotated_provider", "case": "c4", "chars": 210.0, "depth": 2, "framework_tokens": 10, "fixture_refs_on_line": 5, "lines": 15}
+{"way": "w12_annotated_provider", "case": "c5", "chars": 84.5, "depth": 2, "framework_tokens": 8, "fixture_refs_on_line": 4, "lines": 16}
+{"way": "w12_annotated_provider", "case": "c6", "chars": 61.0, "depth": 3, "framework_tokens": 3, "fixture_refs_on_line": 2, "lines": 7}
+{"way": "w12_annotated_provider", "case": "c7", "chars": 75.3, "depth": 2, "framework_tokens": 10, "fixture_refs_on_line": 5, "lines": 19}
+{"way": "w12_annotated_provider", "lines_written_total": 123, "goto_from_src": "fixtures.py:13 def source() -> Database:"}

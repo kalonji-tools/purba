@@ -1,0 +1,103 @@
+{
+  "answers": {
+    "A": {
+      "Q1": {"answer": "fixtures.py:source (the only fixture that returns SourceDb), wrapped by fixtures.py:tx. The by-type matching rule is inferred, never stated: the parameter is named src, not source.", "from_line_alone": false, "looked_at": ["fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "fixtures.py:database (the only @fixture that returns a plain Database; sqlite and postgres also return Database but are not marked @fixture), wrapped by fixtures.py:tx", "from_line_alone": false, "looked_at": ["fixtures.py:database", "fixtures.py:sqlite", "fixtures.py:postgres", "fixtures.py:tx"], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "tx over database"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:database", "fixtures.py:tx"], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "tx over database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:database", "fixtures.py:tx", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer"], "confidence": 4},
+      "Q5a": {"answer": "fixtures.py:source (via the SourceDb type), wrapped by fixtures.py:tx", "from_line_alone": false, "looked_at": ["fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q5b": {"answer": "unclear. No file says whether a fixture value is shared within one test. The assert (len(dst.rows()) == seeded.rows) passes only if the answer is yes, so the author seems to intend yes.", "from_line_alone": false, "looked_at": ["fixtures.py:tx", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "2 runs: one on sqlite, one on postgres (Tx[EngineDb] -> fixtures.py:engine, which is @fixture_each(sqlite, postgres))", "from_line_alone": false, "looked_at": ["fixtures.py:EngineDb", "fixtures.py:engine", "sketch.py:fixture_each", "fixtures.py:tx"], "confidence": 4},
+      "Q7": {"answer": "Probably test_c7_override.py:source, the module-local override, so 3 rows (a, b, c). The precedence is unclear: fixtures.py:source also returns SourceDb (0 rows), and no file says the local one wins. The test signature gives no sign of the override.", "from_line_alone": false, "looked_at": ["test_c7_override.py:source", "fixtures.py:source", "fixtures.py:tx"], "confidence": 3}
+    },
+    "B": {
+      "Q1": {"answer": "source (use_any(source)); the Tx wrapping is implicit, presumably via fixtures.py:tx", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear. Both name use_any(source), but no file states that a fixture value is cached per test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["sketch.py:use_any", "sketch.py:Marker"], "confidence": 2},
+      "Q6": {"answer": "2 runs: sqlite and postgres", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q7": {"answer": "big_source; 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "C": {
+      "Q1": {"answer": "source (From(source)); the Tx wrapping is implicit, presumably via fixtures.py:tx", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear. Both name From(source), but no file states that a fixture value is cached per test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["sketch.py:From"], "confidence": 2},
+      "Q6": {"answer": "2 runs: sqlite and postgres", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q7": {"answer": "big_source; 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "D": {
+      "Q1": {"answer": "fixtures.py:source, reached through fixtures.py:src, which takes `source` by name. The match by parameter name is inferred, never stated.", "from_line_alone": false, "looked_at": ["fixtures.py:src", "fixtures.py:source"], "confidence": 4},
+      "Q2": {"answer": "fixtures.py:database, reached through fixtures.py:db", "from_line_alone": false, "looked_at": ["fixtures.py:db", "fixtures.py:database"], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "db fixture over database"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:db", "fixtures.py:database"], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "db fixture over database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:db", "fixtures.py:database", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer"], "confidence": 4},
+      "Q5a": {"answer": "fixtures.py:source, reached through fixtures.py:src", "from_line_alone": false, "looked_at": ["fixtures.py:src", "fixtures.py:source"], "confidence": 4},
+      "Q5b": {"answer": "unclear. Both resolve to the fixture named src, but no file states per-test caching (pytest would say yes). The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["fixtures.py:src", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "2 runs: one on sqlite, one on postgres (fixtures.py:engine is @fixture_each(sqlite, postgres))", "from_line_alone": false, "looked_at": ["fixtures.py:engine", "sketch.py:fixture_each"], "confidence": 4},
+      "Q7": {"answer": "Probably test_c7_override.py:source, the module-local override that fixtures.py:src picks up by name, so 3 rows (a, b, c). Unclear: no file states that a module-local fixture shadows the one that fixtures.py:src sees. With the pytest convention, it does.", "from_line_alone": false, "looked_at": ["fixtures.py:src", "test_c7_override.py:source", "fixtures.py:source"], "confidence": 3}
+    },
+    "E": {
+      "Q1": {"answer": "fixtures.py:source (SourceTx = Tx[SourceDb]; source is the only fixture that returns SourceDb), wrapped by fixtures.py:tx", "from_line_alone": false, "looked_at": ["fixtures.py:SourceTx", "fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "fixtures.py:database (DbTx = Tx[Database]; the only @fixture that returns a plain Database), wrapped by fixtures.py:tx", "from_line_alone": false, "looked_at": ["fixtures.py:DbTx", "fixtures.py:database", "fixtures.py:sqlite", "fixtures.py:postgres", "fixtures.py:tx"], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "tx over database"}, "from_line_alone": false, "looked_at": ["fixtures.py:DbTx", "fixtures.py:client", "fixtures.py:database", "fixtures.py:tx"], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "tx over database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:DbTx", "fixtures.py:client", "fixtures.py:database", "fixtures.py:tx", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer"], "confidence": 4},
+      "Q5a": {"answer": "fixtures.py:source (via SourceTx -> SourceDb), wrapped by fixtures.py:tx", "from_line_alone": false, "looked_at": ["fixtures.py:SourceTx", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q5b": {"answer": "unclear. No file says whether a fixture value is shared within one test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["fixtures.py:tx", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "2 runs: one on sqlite, one on postgres (EngineTx -> EngineDb -> fixtures.py:engine, which is @fixture_each(sqlite, postgres))", "from_line_alone": false, "looked_at": ["fixtures.py:EngineTx", "fixtures.py:EngineDb", "fixtures.py:engine", "sketch.py:fixture_each", "fixtures.py:tx"], "confidence": 4},
+      "Q7": {"answer": "Probably test_c7_override.py:source, the module-local override, so 3 rows (a, b, c). The precedence is unclear: fixtures.py:source also returns SourceDb (0 rows), and no file says the local one wins. The test signature gives no sign of the override.", "from_line_alone": false, "looked_at": ["fixtures.py:SourceTx", "test_c7_override.py:source", "fixtures.py:source", "fixtures.py:tx"], "confidence": 3}
+    },
+    "F": {
+      "Q1": {"answer": "source (use(tx, source): tx builds the transaction on the database that source builds)", "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q2": {"answer": "database (use(tx, database))", "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q3": {"answer": {"client": "client", "db": "tx over database"}, "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q4": {"answer": {"client": "client", "db": "tx over database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q5a": {"answer": "source (use(tx, source))", "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q5b": {"answer": "unclear. Both write use(tx, source), but no file states that a fixture value is cached per test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["sketch.py:use", "sketch.py:Marker"], "confidence": 2},
+      "Q6": {"answer": "2 runs: sqlite and postgres, each wrapped by tx", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q7": {"answer": "big_source; 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "G": {
+      "Q1": {"answer": "source (the default value of the parameter); the Tx wrapping is implicit, presumably via fixtures.py:tx", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear. Both default to source, but no file states that a fixture value is cached per test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "2 runs: sqlite and postgres", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q7": {"answer": "big_source; 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "H": {
+      "Q1": {"answer": "source (@using(src=source)); the Tx wrapping is implicit, presumably via fixtures.py:tx", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database (implicitly wrapped in a Tx)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source (@using(src=source) on seeded)", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear. Both map src=source, but no file states that a fixture value is cached per test. The assert passes only if the answer is yes.", "from_line_alone": false, "looked_at": ["sketch.py:using"], "confidence": 2},
+      "Q6": {"answer": "2 runs: sqlite and postgres", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q7": {"answer": "big_source; 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    }
+  },
+  "ranking": {
+    "c1": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c2": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c3": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c4": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c5": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c6": ["G", "H", "B", "F", "C", "D", "A", "E"],
+    "c7": ["G", "H", "B", "F", "C", "D", "A", "E"]
+  },
+  "notes": {
+    "A": "The NewType names (SourceDb) hint at the fixture, but I had to scan fixtures.py for which fixture returns that type, and an override in c7 is invisible from the test because two fixtures return the same type.",
+    "B": "The fixture is named right at the parameter; use_any is a little noise, and a Tx[Database] parameter filled from a fixture that returns a Database leaves the Tx wrapping implicit.",
+    "C": "The fixture is named at the parameter, but the Annotated[..., From(...)] wrapper makes each parameter long, so the fixture name is the last thing my eye reaches.",
+    "D": "pytest-style matching by name is familiar, but every answer needed a hop into fixtures.py (src -> source), and the c7 override shadows silently, so the signature looks identical to the default case.",
+    "E": "This was the slowest: each alias (SourceTx) hides two hops (alias -> NewType -> fixture), so even c2's DbTx made me open fixtures.py.",
+    "F": "This was the most precise: use(tx, source) spells out both the transaction and its database, so I was most certain. The extra tx argument on every parameter costs a little scan speed.",
+    "G": "This was the fastest to read: the fixture is the bare default value at the parameter. A cold reader might first mistake `= source` for a real default argument, and the Tx wrapping stays implicit.",
+    "H": "@using(name=fixture) puts every mapping in one line above the def, which is clear, but I had to match keyword names against the parameters below instead of reading each one in place."
+  }
+}

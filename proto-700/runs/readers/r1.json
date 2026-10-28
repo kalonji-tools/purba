@@ -1,0 +1,103 @@
+{
+  "answers": {
+    "A": {
+      "Q1": {"answer": "source (named in @using(src=source)); how its Database becomes the Tx[Database] that src is typed as is never stated - presumably the generic `tx` fixture is applied implicitly", "from_line_alone": false, "looked_at": ["sketch.py:using", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear - nothing in sketch.py or fixtures.py says a fixture value is shared within one test run; the test's assertion only passes if the answer is yes, so yes is the intent", "from_line_alone": false, "looked_at": ["sketch.py:using", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: once on the sqlite database, once on the postgres database", "from_line_alone": false, "looked_at": ["sketch.py:each"], "confidence": 4},
+      "Q7": {"answer": "big_source; it holds 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "B": {
+      "Q1": {"answer": "source (use(tx, source): the tx fixture is built from source's value)", "from_line_alone": false, "looked_at": ["sketch.py:use", "fixtures.py:tx"], "confidence": 5},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q3": {"answer": {"client": "client", "db": "database (via tx)"}, "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q4": {"answer": {"client": "client", "db": "database (via tx)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 5},
+      "Q5b": {"answer": "unclear - seeded and the test each write their own use(tx, source); nothing says the framework builds that pair once per run and shares it; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:use", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: once on the sqlite database, once on the postgres database", "from_line_alone": false, "looked_at": ["sketch.py:each"], "confidence": 5},
+      "Q7": {"answer": "big_source; it holds 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "C": {
+      "Q1": {"answer": "source (SourceTx = Tx[SourceDb]; source is the fixture that returns SourceDb; tx wraps it). The rule 'resolve a parameter by its type' is inferred, not documented", "from_line_alone": false, "looked_at": ["fixtures.py:SourceTx", "fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:target", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database, probably (DbTx = Tx[Database]; database is the only @fixture returning plain Database, since sqlite/postgres are not @fixture). Unclear whether SourceDb/TargetDb/EngineDb fixtures, which are subtypes of Database, could also match", "from_line_alone": false, "looked_at": ["fixtures.py:DbTx", "fixtures.py:database", "fixtures.py:source", "fixtures.py:target", "fixtures.py:engine", "fixtures.py:sqlite", "fixtures.py:postgres", "fixtures.py:tx"], "confidence": 3},
+      "Q3": {"answer": {"client": "client", "db": "database (via tx; same subtype doubt as Q2)"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:DbTx", "fixtures.py:database", "fixtures.py:tx"], "confidence": 3},
+      "Q4": {"answer": {"client": "client", "db": "database (via tx; same subtype doubt as Q2)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:DbTx", "fixtures.py:database", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer", "fixtures.py:tx"], "confidence": 3},
+      "Q5a": {"answer": "source", "from_line_alone": false, "looked_at": ["fixtures.py:SourceTx", "fixtures.py:source"], "confidence": 4},
+      "Q5b": {"answer": "unclear - type-based lookup suggests one SourceTx per run, but nothing states it; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: engine is a fixture_each over sqlite and postgres, so once on the sqlite database and once on the postgres database", "from_line_alone": false, "looked_at": ["fixtures.py:EngineTx", "fixtures.py:EngineDb", "fixtures.py:engine", "fixtures.py:sqlite", "fixtures.py:postgres", "sketch.py:fixture_each"], "confidence": 4},
+      "Q7": {"answer": "the local source() in test_c7_override.py (overriding fixtures.py:source); it holds 3 rows. Override precedence is not documented, and fixtures.py:source is not even imported into the module", "from_line_alone": false, "looked_at": ["test_c7_override.py:source", "fixtures.py:SourceTx", "fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4}
+    },
+    "D": {
+      "Q1": {"answer": "source (use_any(source)); the Database-to-Tx step is implicit, and use_any returns Any so the type gives no check", "from_line_alone": false, "looked_at": ["sketch.py:use_any", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear - no sharing rule is stated; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:use_any", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: once on the sqlite database, once on the postgres database", "from_line_alone": false, "looked_at": ["sketch.py:each"], "confidence": 4},
+      "Q7": {"answer": "big_source; it holds 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "E": {
+      "Q1": {"answer": "source (From(source)); the Database-to-Tx step is implicit", "from_line_alone": false, "looked_at": ["sketch.py:From", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear - no sharing rule is stated; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:From", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: once on the sqlite database, once on the postgres database", "from_line_alone": false, "looked_at": ["sketch.py:each"], "confidence": 4},
+      "Q7": {"answer": "big_source; it holds 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "F": {
+      "Q1": {"answer": "source (the fixture returning SourceDb; tx wraps it). Type-based resolution is inferred, not documented", "from_line_alone": false, "looked_at": ["fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:target", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database, probably (only @fixture returning plain Database). Unclear whether the SourceDb/TargetDb/EngineDb fixtures, subtypes of Database, could also match Tx[Database]", "from_line_alone": false, "looked_at": ["fixtures.py:database", "fixtures.py:source", "fixtures.py:target", "fixtures.py:engine", "fixtures.py:sqlite", "fixtures.py:postgres", "fixtures.py:tx"], "confidence": 3},
+      "Q3": {"answer": {"client": "client", "db": "database (via tx; same subtype doubt as Q2)"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:database", "fixtures.py:tx"], "confidence": 3},
+      "Q4": {"answer": {"client": "client", "db": "database (via tx; same subtype doubt as Q2)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:database", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer", "fixtures.py:tx"], "confidence": 3},
+      "Q5a": {"answer": "source", "from_line_alone": false, "looked_at": ["fixtures.py:source"], "confidence": 4},
+      "Q5b": {"answer": "unclear - no sharing rule is stated; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: engine is a fixture_each over sqlite and postgres, so once on the sqlite database and once on the postgres database", "from_line_alone": false, "looked_at": ["fixtures.py:EngineDb", "fixtures.py:engine", "fixtures.py:sqlite", "fixtures.py:postgres", "sketch.py:fixture_each"], "confidence": 4},
+      "Q7": {"answer": "the local source() in test_c7_override.py (overriding fixtures.py:source); it holds 3 rows. Two fixtures now return SourceDb and the precedence rule is not documented", "from_line_alone": false, "looked_at": ["test_c7_override.py:source", "fixtures.py:SourceDb", "fixtures.py:source", "fixtures.py:tx"], "confidence": 4}
+    },
+    "G": {
+      "Q1": {"answer": "source (default value = source); the Database-to-Tx step is implicit, and the default looks like an ordinary Python default argument", "from_line_alone": false, "looked_at": ["fixtures.py:source", "fixtures.py:tx"], "confidence": 4},
+      "Q2": {"answer": "database", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5a": {"answer": "source", "from_line_alone": true, "looked_at": [], "confidence": 4},
+      "Q5b": {"answer": "unclear - no sharing rule is stated; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: once on the sqlite database, once on the postgres database", "from_line_alone": false, "looked_at": ["sketch.py:each"], "confidence": 4},
+      "Q7": {"answer": "big_source; it holds 3 rows (a, b, c)", "from_line_alone": false, "looked_at": ["fixtures.py:big_source"], "confidence": 5}
+    },
+    "H": {
+      "Q1": {"answer": "source (parameter name src matches fixture src, which takes source by name). Name-based resolution is inferred, not documented", "from_line_alone": false, "looked_at": ["fixtures.py:src", "fixtures.py:source", "fixtures.py:dst"], "confidence": 4},
+      "Q2": {"answer": "database (via fixture db)", "from_line_alone": false, "looked_at": ["fixtures.py:db", "fixtures.py:database"], "confidence": 4},
+      "Q3": {"answer": {"client": "client", "db": "database (via fixture db)"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:db", "fixtures.py:database"], "confidence": 4},
+      "Q4": {"answer": {"client": "client", "db": "database (via fixture db)", "settings": "settings", "clock": "clock", "mailer": "mailer"}, "from_line_alone": false, "looked_at": ["fixtures.py:client", "fixtures.py:db", "fixtures.py:database", "fixtures.py:settings", "fixtures.py:clock", "fixtures.py:mailer"], "confidence": 4},
+      "Q5a": {"answer": "source (via fixture src)", "from_line_alone": false, "looked_at": ["fixtures.py:src", "fixtures.py:source"], "confidence": 4},
+      "Q5b": {"answer": "unclear - one fixture named src suggests one value per run (as in pytest), but nothing states it; the assertion implies yes is intended", "from_line_alone": false, "looked_at": ["fixtures.py:src", "sketch.py:fixture"], "confidence": 2},
+      "Q6": {"answer": "twice: engine is a fixture_each over sqlite and postgres, so once on the sqlite database and once on the postgres database", "from_line_alone": false, "looked_at": ["fixtures.py:engine", "fixtures.py:sqlite", "fixtures.py:postgres", "sketch.py:fixture_each"], "confidence": 4},
+      "Q7": {"answer": "the local source() in test_c7_override.py, which fixtures.py:src picks up by name in place of fixtures.py:source; it holds 3 rows. Override precedence is not documented", "from_line_alone": false, "looked_at": ["test_c7_override.py:source", "fixtures.py:src", "fixtures.py:source", "fixtures.py:dst"], "confidence": 4}
+    }
+  },
+  "ranking": {
+    "c1": ["B", "G", "D", "E", "A", "F", "H", "C"],
+    "c2": ["B", "G", "D", "E", "A", "H", "F", "C"],
+    "c3": ["B", "G", "D", "E", "A", "H", "F", "C"],
+    "c4": ["G", "B", "D", "A", "E", "H", "F", "C"],
+    "c5": ["B", "G", "D", "E", "A", "F", "H", "C"],
+    "c6": ["G", "B", "D", "A", "E", "F", "H", "C"],
+    "c7": ["B", "G", "D", "A", "E", "H", "F", "C"]
+  },
+  "notes": {
+    "A": "The decorator names every fixture, but I had to match each key back to a parameter in a different line, and the step from a Database fixture to a Tx parameter is never shown.",
+    "B": "The only style where the line tells the whole story, use(tx, source) shows both the database and the wrapper, after one look at sketch.py:use's two-argument form.",
+    "C": "Slowest: an alias (SourceTx) hides a NewType, which hides a fixture found only by scanning return types, and plain DbTx leaves the subtype match ambiguous.",
+    "D": "Inline use_any(source) reads quickly per parameter, but the Database-to-Tx step is hidden and Any throws away the type check.",
+    "E": "Every fixture is named on its parameter, but Annotated[..., From(...)] triples the line length and the Tx step is still implicit.",
+    "F": "Tx[SourceDb] names the role right in the type, which helps for c1/c5/c6, but plain Tx[Database] in c2-c4 says nothing and its match to a fixture is ambiguous.",
+    "G": "Shortest explicit form, = source reads at a glance, though it looks like an ordinary default argument and hides the Tx step.",
+    "H": "Familiar pytest-style name matching, but the line says nothing, so every parameter needs a trip to fixtures.py, and the c7 override changes the meaning silently."
+  }
+}

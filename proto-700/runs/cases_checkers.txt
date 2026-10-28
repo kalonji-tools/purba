@@ -1,0 +1,229 @@
+### w01_record_690
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w01_record_690 lie: cannot be written
+### w03_alias
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w03_alias lie: cannot be written
+### w06_pytest
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w06_pytest lie
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w08_decorator_map
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w08_decorator_map lie
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w09_default_bare
+--- mypy 2.4.0 (compiled: yes) --strict
+fixtures.py:48: error: Incompatible default for parameter "settings" (default has type "Callable[[], Settings]", parameter has type "Settings")  [assignment]
+test_c7_override.py:5: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:5: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:10: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:14: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:14: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c6_many_providers.py:6: error: Incompatible default for parameter "engine" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:7: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:14: error: Incompatible default for parameter "seeded" (default has type "Callable[[Tx[Database]], Seeded]", parameter has type "Seeded")  [assignment]
+test_c5_fixture_chain.py:15: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:16: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c4_five_inputs.py:6: error: Incompatible default for parameter "client" (default has type "Callable[[Settings], Client]", parameter has type "Client")  [assignment]
+test_c4_five_inputs.py:7: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c4_five_inputs.py:8: error: Incompatible default for parameter "settings" (default has type "Callable[[], Settings]", parameter has type "Settings")  [assignment]
+test_c4_five_inputs.py:9: error: Incompatible default for parameter "clock" (default has type "Callable[[], Clock]", parameter has type "Clock")  [assignment]
+test_c4_five_inputs.py:10: error: Incompatible default for parameter "mailer" (default has type "Callable[[], Mailer]", parameter has type "Mailer")  [assignment]
+test_c3_two_types.py:5: error: Incompatible default for parameter "client" (default has type "Callable[[Settings], Client]", parameter has type "Client")  [assignment]
+test_c3_two_types.py:5: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c2_one_input.py:5: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c1_copy.py:5: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c1_copy.py:5: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+Found 21 errors in 8 files (checked 10 source files)
+--- pyright pyright 1.1.414
+  fixtures.py:48:33 - error: Expression of type "() -> Settings" cannot be assigned to parameter of type "Settings"
+  test_c1_copy.py:5:35 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c1_copy.py:5:63 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c2_one_input.py:5:36 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c3_two_types.py:5:33 - error: Expression of type "(settings: Settings = settings) -> Client" cannot be assigned to parameter of type "Client"
+  test_c3_two_types.py:5:60 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c4_five_inputs.py:6:22 - error: Expression of type "(settings: Settings = settings) -> Client" cannot be assigned to parameter of type "Client"
+  test_c4_five_inputs.py:7:24 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c4_five_inputs.py:8:26 - error: Expression of type "() -> Settings" cannot be assigned to parameter of type "Settings"
+  test_c4_five_inputs.py:9:20 - error: Expression of type "() -> Clock" cannot be assigned to parameter of type "Clock"
+  test_c4_five_inputs.py:10:22 - error: Expression of type "() -> Mailer" cannot be assigned to parameter of type "Mailer"
+  test_c5_fixture_chain.py:7:32 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c5_fixture_chain.py:14:22 - error: Expression of type "(src: Tx[Database] = source) -> Seeded" cannot be assigned to parameter of type "Seeded"
+  test_c5_fixture_chain.py:15:25 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c5_fixture_chain.py:16:25 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c6_many_providers.py:6:43 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:5:39 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:5:71 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:10:44 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:14:41 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:14:73 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+21 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+fixtures.py:48:12: error[invalid-parameter-default] Default value of type `def settings() -> Settings` is not assignable to annotated parameter type `Settings`
+test_c1_copy.py:5:15: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c1_copy.py:5:43: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c2_one_input.py:5:17: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c3_two_types.py:5:16: error[invalid-parameter-default] Default value of type `def client(settings: Settings = ...) -> Client` is not assignable to annotated parameter type `Client`
+test_c3_two_types.py:5:41: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c4_five_inputs.py:6:5: error[invalid-parameter-default] Default value of type `def client(settings: Settings = ...) -> Client` is not assignable to annotated parameter type `Client`
+test_c4_five_inputs.py:7:5: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c4_five_inputs.py:8:5: error[invalid-parameter-default] Default value of type `def settings() -> Settings` is not assignable to annotated parameter type `Settings`
+test_c4_five_inputs.py:9:5: error[invalid-parameter-default] Default value of type `def clock() -> Clock` is not assignable to annotated parameter type `Clock`
+test_c4_five_inputs.py:10:5: error[invalid-parameter-default] Default value of type `def mailer() -> Mailer` is not assignable to annotated parameter type `Mailer`
+test_c5_fixture_chain.py:7:12: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c5_fixture_chain.py:14:5: error[invalid-parameter-default] Default value of type `def seeded(src: Tx[Database] = ...) -> Seeded` is not assignable to annotated parameter type `Seeded`
+test_c5_fixture_chain.py:15:5: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c5_fixture_chain.py:16:5: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c6_many_providers.py:6:20: error[invalid-parameter-default] Default value of type `() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:5:19: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:5:51: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:10:24: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:14:21: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:14:53: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+Found 21 diagnostics
+### w09_default_bare lie
+--- mypy 2.4.0 (compiled: yes) --strict
+fixtures.py:48: error: Incompatible default for parameter "settings" (default has type "Callable[[], Settings]", parameter has type "Settings")  [assignment]
+test_c7_override.py:5: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:5: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:10: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:14: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c7_override.py:14: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c6_many_providers.py:6: error: Incompatible default for parameter "engine" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:7: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:14: error: Incompatible default for parameter "seeded" (default has type "Callable[[Tx[Database]], Seeded]", parameter has type "Seeded")  [assignment]
+test_c5_fixture_chain.py:15: error: Incompatible default for parameter "src" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c5_fixture_chain.py:16: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c4_five_inputs.py:6: error: Incompatible default for parameter "client" (default has type "Callable[[Settings], Client]", parameter has type "Client")  [assignment]
+test_c4_five_inputs.py:7: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c4_five_inputs.py:8: error: Incompatible default for parameter "settings" (default has type "Callable[[], Settings]", parameter has type "Settings")  [assignment]
+test_c4_five_inputs.py:9: error: Incompatible default for parameter "clock" (default has type "Callable[[], Clock]", parameter has type "Clock")  [assignment]
+test_c4_five_inputs.py:10: error: Incompatible default for parameter "mailer" (default has type "Callable[[], Mailer]", parameter has type "Mailer")  [assignment]
+test_c3_two_types.py:5: error: Incompatible default for parameter "client" (default has type "Callable[[Settings], Client]", parameter has type "Client")  [assignment]
+test_c3_two_types.py:5: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c2_one_input.py:5: error: Incompatible default for parameter "db" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+test_c1_copy.py:5: error: Incompatible default for parameter "src" (default has type "Callable[[], int]", parameter has type "Tx[Database]")  [assignment]
+test_c1_copy.py:5: error: Incompatible default for parameter "dst" (default has type "Callable[[], Database]", parameter has type "Tx[Database]")  [assignment]
+Found 21 errors in 8 files (checked 10 source files)
+--- pyright pyright 1.1.414
+  fixtures.py:48:33 - error: Expression of type "() -> Settings" cannot be assigned to parameter of type "Settings"
+  test_c1_copy.py:5:35 - error: Expression of type "() -> int" cannot be assigned to parameter of type "Tx[Database]"
+  test_c1_copy.py:5:62 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c2_one_input.py:5:36 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c3_two_types.py:5:33 - error: Expression of type "(settings: Settings = settings) -> Client" cannot be assigned to parameter of type "Client"
+  test_c3_two_types.py:5:60 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c4_five_inputs.py:6:22 - error: Expression of type "(settings: Settings = settings) -> Client" cannot be assigned to parameter of type "Client"
+  test_c4_five_inputs.py:7:24 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c4_five_inputs.py:8:26 - error: Expression of type "() -> Settings" cannot be assigned to parameter of type "Settings"
+  test_c4_five_inputs.py:9:20 - error: Expression of type "() -> Clock" cannot be assigned to parameter of type "Clock"
+  test_c4_five_inputs.py:10:22 - error: Expression of type "() -> Mailer" cannot be assigned to parameter of type "Mailer"
+  test_c5_fixture_chain.py:7:32 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c5_fixture_chain.py:14:22 - error: Expression of type "(src: Tx[Database] = source) -> Seeded" cannot be assigned to parameter of type "Seeded"
+  test_c5_fixture_chain.py:15:25 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c5_fixture_chain.py:16:25 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c6_many_providers.py:6:43 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:5:39 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:5:71 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:10:44 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:14:41 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+  test_c7_override.py:14:73 - error: Expression of type "() -> Database" cannot be assigned to parameter of type "Tx[Database]"
+21 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+fixtures.py:48:12: error[invalid-parameter-default] Default value of type `def settings() -> Settings` is not assignable to annotated parameter type `Settings`
+test_c1_copy.py:5:15: error[invalid-parameter-default] Default value of type `def count() -> int` is not assignable to annotated parameter type `Tx[Database]`
+test_c1_copy.py:5:42: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c2_one_input.py:5:17: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c3_two_types.py:5:16: error[invalid-parameter-default] Default value of type `def client(settings: Settings = ...) -> Client` is not assignable to annotated parameter type `Client`
+test_c3_two_types.py:5:41: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c4_five_inputs.py:6:5: error[invalid-parameter-default] Default value of type `def client(settings: Settings = ...) -> Client` is not assignable to annotated parameter type `Client`
+test_c4_five_inputs.py:7:5: error[invalid-parameter-default] Default value of type `def database() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c4_five_inputs.py:8:5: error[invalid-parameter-default] Default value of type `def settings() -> Settings` is not assignable to annotated parameter type `Settings`
+test_c4_five_inputs.py:9:5: error[invalid-parameter-default] Default value of type `def clock() -> Clock` is not assignable to annotated parameter type `Clock`
+test_c4_five_inputs.py:10:5: error[invalid-parameter-default] Default value of type `def mailer() -> Mailer` is not assignable to annotated parameter type `Mailer`
+test_c5_fixture_chain.py:7:12: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c5_fixture_chain.py:14:5: error[invalid-parameter-default] Default value of type `def seeded(src: Tx[Database] = ...) -> Seeded` is not assignable to annotated parameter type `Seeded`
+test_c5_fixture_chain.py:15:5: error[invalid-parameter-default] Default value of type `def source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c5_fixture_chain.py:16:5: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c6_many_providers.py:6:20: error[invalid-parameter-default] Default value of type `() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:5:19: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:5:51: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:10:24: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:14:21: error[invalid-parameter-default] Default value of type `def big_source() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+test_c7_override.py:14:53: error[invalid-parameter-default] Default value of type `def target() -> Database` is not assignable to annotated parameter type `Tx[Database]`
+Found 21 diagnostics
+### w10_default_untyped_marker
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w10_default_untyped_marker lie
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w11_default_typed_marker
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w11_default_typed_marker lie
+--- mypy 2.4.0 (compiled: yes) --strict
+test_c1_copy.py:6: error: Cannot infer value of type parameter "A" of "use"  [misc]
+Found 1 error in 1 file (checked 10 source files)
+--- pyright pyright 1.1.414
+  test_c1_copy.py:6:43 - error: Argument of type "() -> int" cannot be assigned to parameter "stock" of type "() -> A@use" in function "use"
+1 error, 0 warnings, 0 informations
+--- ty 0.0.93
+test_c1_copy.py:6:15: error[invalid-parameter-default] Default value of type `Tx[int]` is not assignable to annotated parameter type `Tx[Database]`
+Found 1 diagnostic
+### w12_annotated_provider
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### w12_annotated_provider lie
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 10 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!

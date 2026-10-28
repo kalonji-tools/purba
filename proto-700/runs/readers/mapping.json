@@ -1,0 +1,32 @@
+{
+ "r1": {
+  "A": "w08_decorator_map",
+  "B": "w11_default_typed_marker",
+  "C": "w03_alias",
+  "D": "w10_default_untyped_marker",
+  "E": "w12_annotated_provider",
+  "F": "w01_record_690",
+  "G": "w09_default_bare",
+  "H": "w06_pytest"
+ },
+ "r2": {
+  "A": "w10_default_untyped_marker",
+  "B": "w08_decorator_map",
+  "C": "w09_default_bare",
+  "D": "w03_alias",
+  "E": "w06_pytest",
+  "F": "w11_default_typed_marker",
+  "G": "w12_annotated_provider",
+  "H": "w01_record_690"
+ },
+ "r3": {
+  "A": "w01_record_690",
+  "B": "w10_default_untyped_marker",
+  "C": "w12_annotated_provider",
+  "D": "w06_pytest",
+  "E": "w03_alias",
+  "F": "w11_default_typed_marker",
+  "G": "w09_default_bare",
+  "H": "w08_decorator_map"
+ }
+}
