@@ -68,7 +68,7 @@ What the author of a [pull request](#pull-request) writes to say how the change 
 
 ### Input
 
-A value that a [test](#test) or a fixture names by the type of a parameter with no default.
+A value that a [test](#test) or a fixture names by the fixture in the default of a parameter. A fixture that draws a [reagent](#reagent) takes its [stock](#stock) as its one parameter with no default.
 
 ### Integrator
 
@@ -196,10 +196,6 @@ The [actor](#actor) that reads and approves work it did not write.
 
 A failure scenario a test can check. It lands on one [part](#part) or [concern](#concern), and is weighed by how likely it is and by the quality it breaks.
 
-### Role
-
-A `NewType` of a type, with a fixture of its own, so that a [test](#test) can name two values of that type.
-
 ### Run
 
 One start of purba, from the command it reads to the exit code it sets.
@@ -234,7 +230,7 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 
 ### Test
 
-A function, as import binds it in a test module, that names its [inputs](#input) by type, returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
+A function, as import binds it in a test module, that names the fixture of each of its [inputs](#input), returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
 
 ### Tester
 

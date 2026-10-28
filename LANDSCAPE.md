@@ -16,7 +16,7 @@ So a run can go green while checking nothing, and the reader may not notice.
 Each quality wins over every quality below it.
 
 1. **Honest outcome.** Green means a behaviour was checked, `unknown` is never shown as clean, and no outcome depends on the worker that ran the test.
-2. **Explicit.** Nothing affects a test, or its outcome, unless the test names it, and a test names its inputs by type.
+2. **Explicit.** Nothing affects a test, or its outcome, unless the test names it, and a test names the fixture of each input.
 3. **Legible result.** A person and an agent both read what failed and why, with no re-run.
 4. **Reviewable core.** A change inside one part can be reviewed without reading another part.
 5. **Fast feedback.** Selecting a subset does no work for the tests outside it.
@@ -59,7 +59,7 @@ flowchart LR
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
-- **fixtures.** Builds each input a test names by type, and tears it down after.
+- **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
 - **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
 

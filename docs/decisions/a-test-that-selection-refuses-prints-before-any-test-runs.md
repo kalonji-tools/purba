@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-[A test names its inputs by type and returns nothing](a-test-names-its-inputs-by-type-and-returns-nothing.md#decision-outcome) says which tests selection refuses.
+[A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says which tests selection refuses.
 [Reporting writes each line as dispatch hands it the test](reporting-writes-each-line-as-dispatch-hands-it-the-test.md#decision-outcome), and dispatch never takes a test that selection refuses.
 
 | fact | source |
