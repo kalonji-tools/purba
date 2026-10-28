@@ -1,0 +1,12 @@
+3.12.14  Tx[SourceDb] == Tx[TargetDb]                               False
+3.12.14  Tx[SourceDb], spelled twice, is one key                    True
+3.12.14  get_type_hints(tx)['return']                               adapter.Tx[D]
+3.12.14  the bound of tx's type parameter                           <class 'subject.Database'>
+3.12.14  isinstance(value, Tx[SourceDb])                            TypeError: Subscripted generics cannot be used with class and instance checks
+3.12.14  a value built by Tx(db) records its role                   False
+3.14.4   Tx[SourceDb] == Tx[TargetDb]                               False
+3.14.4   Tx[SourceDb], spelled twice, is one key                    True
+3.14.4   get_type_hints(tx)['return']                               adapter.Tx[D]
+3.14.4   the bound of tx's type parameter                           <class 'subject.Database'>
+3.14.4   isinstance(value, Tx[SourceDb])                            TypeError: Subscripted generics cannot be used with class and instance checks
+3.14.4   a value built by Tx(db) records its role                   False

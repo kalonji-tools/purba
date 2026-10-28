@@ -1,0 +1,17 @@
+### generic
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 7 source files
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
+### variants
+--- mypy 2.4.0 (compiled: yes) --strict
+not_a_database__generic_derived.py:32: error: Type argument "Seeded" of "Tx" must be a subtype of "Database"  [type-var]
+Found 1 error in 1 file (checked 12 source files)
+--- pyright pyright 1.1.414
+  /home/snregales/.claude/jobs/aae7df98/tmp/p690g/gcheck/variants/not_a_database__generic_derived.py:32:44 - error: Type "Seeded" cannot be assigned to type variable "D@Tx"
+1 error, 0 warnings, 0 informations
+--- ty 0.0.93
+not_a_database__generic_derived.py:32:44: error[invalid-type-arguments] Type `Seeded` is not assignable to upper bound `Database` of type variable `D@Tx`
+Found 1 diagnostic

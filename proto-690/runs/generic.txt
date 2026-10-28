@@ -1,0 +1,133 @@
+## 3.12.14 ways
+3.12.14  generic_derived          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+## 3.12.14 gfuture
+3.12.14  generic_derived          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_derived          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_per_role         strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  generic_typevar          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+## 3.14.4 ways
+3.14.4   generic_derived          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+## 3.14.4 gfuture
+3.14.4   generic_derived          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_derived          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_per_role         strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          refuse  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  copy rollback=off test_copy=passed    test_starts_clean=failed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.14.4   generic_typevar          strict  bug  rollback=off test_copy=failed    test_starts_clean=failed    objects=two shared=yes builds=2
+## variants
+3.12.14  plain_db__generic_derived refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=3
+3.12.14  plain_db__generic_derived strict  copy rollback=on  test_copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) test_starts_clean=passed   
+3.12.14  plain_db__generic_derived refuse  bug  rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=3
+3.12.14  plain_db__generic_derived strict  bug  rollback=on  test_copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) test_starts_clean=passed   
+3.12.14  plain_db__generic_per_role refuse  copy rollback=on  test_copy=refused (no builder for <class 'subject.Database'>) test_starts_clean=passed   
+3.12.14  plain_db__generic_per_role strict  copy rollback=on  test_copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) test_starts_clean=passed   
+3.12.14  plain_db__generic_per_role refuse  bug  rollback=on  test_copy=refused (no builder for <class 'subject.Database'>) test_starts_clean=passed   
+3.12.14  plain_db__generic_per_role strict  bug  rollback=on  test_copy=refused (builder seeded names <class 'subject.Database'>, which the test names only through roles) test_starts_clean=passed   
+3.12.14  tx_of_plain_db__generic_derived refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=3
+3.12.14  tx_of_plain_db__generic_derived strict  copy rollback=on  test_copy=refused (builder seeded names adapter.Tx[subject.Database], which the test names only through roles) test_starts_clean=passed   
+3.12.14  tx_of_plain_db__generic_derived refuse  bug  rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=3
+3.12.14  tx_of_plain_db__generic_derived strict  bug  rollback=on  test_copy=refused (builder seeded names adapter.Tx[subject.Database], which the test names only through roles) test_starts_clean=passed   
+3.12.14  resource_direct__generic_derived refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  resource_direct__generic_derived strict  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  resource_direct__generic_derived refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  resource_direct__generic_derived strict  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  builder_twice__generic_derived refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  builder_twice__generic_derived strict  copy rollback=on  test_copy=refused (builder seeded names two inputs of one type) test_starts_clean=passed   
+3.12.14  builder_twice__generic_derived refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  builder_twice__generic_derived strict  bug  rollback=on  test_copy=refused (builder seeded names two inputs of one type) test_starts_clean=passed   
+3.12.14  test_twice__generic_derived refuse  copy rollback=on  test_copy=refused (two inputs of one type: adapter.Tx[test_twice__generic_derived.SourceDb]) test_starts_clean=passed   
+3.12.14  test_twice__generic_derived strict  copy rollback=on  test_copy=refused (two inputs of one type: adapter.Tx[test_twice__generic_derived.SourceDb]) test_starts_clean=passed   
+3.12.14  test_twice__generic_derived refuse  bug  rollback=on  test_copy=refused (two inputs of one type: adapter.Tx[test_twice__generic_derived.SourceDb]) test_starts_clean=passed   
+3.12.14  test_twice__generic_derived strict  bug  rollback=on  test_copy=refused (two inputs of one type: adapter.Tx[test_twice__generic_derived.SourceDb]) test_starts_clean=passed   
+3.12.14  test_names_resource__generic_derived refuse  copy rollback=on  test_copy=passed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  test_names_resource__generic_derived strict  copy rollback=on  test_copy=refused (the test names test_names_resource__generic_derived.SourceDb, a resource that only a builder takes) test_starts_clean=passed   
+3.12.14  test_names_resource__generic_derived refuse  bug  rollback=on  test_copy=failed    test_starts_clean=passed    objects=two shared=yes builds=2
+3.12.14  test_names_resource__generic_derived strict  bug  rollback=on  test_copy=refused (the test names test_names_resource__generic_derived.SourceDb, a resource that only a builder takes) test_starts_clean=passed   
+3.12.14  not_a_database__generic_derived refuse  copy rollback=on  test_copy=refused (<class 'common.Seeded'> is not a <class 'subject.Database'>) test_starts_clean=passed   
+3.12.14  not_a_database__generic_derived strict  copy rollback=on  test_copy=refused (<class 'common.Seeded'> is not a <class 'subject.Database'>) test_starts_clean=passed   
+3.12.14  not_a_database__generic_derived refuse  bug  rollback=on  test_copy=refused (<class 'common.Seeded'> is not a <class 'subject.Database'>) test_starts_clean=passed   
+3.12.14  not_a_database__generic_derived strict  bug  rollback=on  test_copy=refused (<class 'common.Seeded'> is not a <class 'subject.Database'>) test_starts_clean=passed   
