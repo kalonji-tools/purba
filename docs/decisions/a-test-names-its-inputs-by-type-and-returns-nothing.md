@@ -56,14 +56,13 @@ Selection takes each `def test…`, and execution calls it.
 - **A decorated test reaches execution unjudged.** A decorator that hides an `async def` leaves the test `unknown`.
 - **purba cannot check what a fixture does with a stock.** A fixture that undoes nothing lets a test change what the next test sees.
 - **A value whose type does not prove it immutable is a stock.** click's `Command` is one, though no outcome of click depends on what a test leaves in it.
-- **A test that needs two values of one type has no way to name them yet.**
 
 ## Confirmation
 
 No command checks this record yet.
 [Selection takes an async test, a generator test and a test with an unfilled parameter as tests it can call](https://github.com/kalonji-tools/purba/issues/670) builds what selection refuses.
 [A decorated test whose call returns a value prints passed](https://github.com/kalonji-tools/purba/issues/696) and [A test with a typed input prints raised](https://github.com/kalonji-tools/purba/issues/697) build what execution sees.
-[How does a test name two inputs of one type?](https://github.com/kalonji-tools/purba/issues/690) decides how a test names two values of one type.
+[A test names two values of one type by two roles](a-test-names-two-values-of-one-type-by-two-roles.md#decision-outcome) says how a test names two values of one type.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names the kind of each breach.
