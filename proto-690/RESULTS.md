@@ -138,3 +138,7 @@ $PY -I -B -c "import sys; sys.path.insert(0, '.'); exec(open('probe.py').read())
 ./check_generic.sh <scratch> > runs/checkers_generic.txt   # after generic.sh
 $PY -I -B -c "import sys; sys.path.insert(0, '.'); exec(open('probe_generic.py').read())" > runs/probe_generic.txt
 ```
+
+## A `type` alias, to the type checkers
+
+`alias_check.py` passes a `TargetDb`, and a plain `Database`, where a `SourceDb` is asked, with `type SourceDb = Database` and `type TargetDb = Database`. mypy, pyright and ty passed both (`runs/checkers_alias.txt`). To the type checkers, a `type` alias is the type itself, while at runtime it is a new key.

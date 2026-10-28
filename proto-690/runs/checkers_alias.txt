@@ -1,0 +1,6 @@
+--- mypy 2.4.0 (compiled: yes) --strict
+Success: no issues found in 1 source file
+--- pyright pyright 1.1.414
+0 errors, 0 warnings, 0 informations
+--- ty 0.0.93
+All checks passed!
