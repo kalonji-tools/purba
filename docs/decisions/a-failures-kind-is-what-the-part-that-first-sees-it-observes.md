@@ -41,7 +41,7 @@ purba prints `error` for a test that raised, for a module that does not load, an
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
 - **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. A `PanicException` is an internal error.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
-- **A test that purba refuses to call is a project error for that test alone.** In a test with no decorator, selection sees an `async def`, a `yield`, an untyped parameter with no default, and a `return` of a value. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs of one type. It also sees a stock that a test names. In a fixture, it sees one reagent twice, and a type in place of its role.
+- **A test that purba refuses to call is a project error for that test alone.** In a test with no decorator, selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
 - **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
@@ -56,9 +56,9 @@ flowchart LR
   parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
   parsing -- "a syntax error" --> project["<b>project error</b>"]
-  selection["selection"] -- "an async def, a yield, an untyped parameter, a returned value" --> project
+  selection["selection"] -- "an async def, a yield, a parameter with no default, a returned value" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs of one type, a stock, a reagent twice in a fixture, a type in place of its role, a thread's exception" --> project
+  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception" --> project
   execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]
   execution -- "a PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
@@ -82,5 +82,6 @@ No command checks the rest of this record.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
 [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
 [A module that binds a name purba adds is a project error](a-module-that-binds-a-name-purba-adds-is-a-project-error.md#decision-outcome) says what purba does with a module that binds the name of its hook.
-[A test names its inputs by type and returns nothing](a-test-names-its-inputs-by-type-and-returns-nothing.md#decision-outcome) says what a test is, and which part refuses a test that breaks it.
-[A test names two values of one type by two roles](a-test-names-two-values-of-one-type-by-two-roles.md#decision-outcome) says which fixture execution refuses.
+[A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
+[A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what a test returns, and which part refuses a test that breaks it.
+[A test names two values of one type by two fixtures](a-test-names-two-values-of-one-type-by-two-fixtures.md#decision-outcome) says which fixture execution refuses.

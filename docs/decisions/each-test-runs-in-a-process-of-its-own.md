@@ -48,4 +48,4 @@ No command checks this record yet.
 [What does purba do with a task that a test started and did not await?](https://github.com/kalonji-tools/purba/issues/693) decides what purba does with a task that a test leaves.
 
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds how often a module loads until purba has its zygote.
-[A test names its inputs by type and returns nothing](a-test-names-its-inputs-by-type-and-returns-nothing.md#decision-outcome) says what a test is.
+[A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) and [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) say what a test is.
