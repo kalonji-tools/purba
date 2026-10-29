@@ -17,8 +17,8 @@ Selection takes each `def test…`, and execution calls it.
 - **A test takes no input until fixtures has its design in depth.** Rejected. It contradicts the design of fixtures on the day that the design merges.
 - **Two inputs that name one fixture share one object, and purba allows it.** Rejected. A test that compares two inputs then compares one object with itself.
 - **Execution refuses a test with two inputs that name one fixture.** Chosen. No test then gets one object under two names.
-- **Execution gives `unknown` to a test that returns a value.** Rejected for a test with no decorator. Selection sees the `return` first.
-- **Selection refuses a `return` of a value in a test with no decorator.** Chosen. The text shows it before any test runs.
+- **Execution gives `unknown` to a test that returns a value.** Rejected. Selection sees the `return` first.
+- **Selection refuses a `return` of a value in a test.** Chosen. The text shows it before any test runs.
 - **A test names a shared value whose content can change.** Rejected. Each test that names it then carries the risk.
 - **A test reaches a shared value whose content can change only through a fixture.** Chosen. The risk then sits in one fixture.
 
@@ -35,11 +35,10 @@ Selection takes each `def test…`, and execution calls it.
 | | two inputs that name one fixture | execution |
 | | an input whose fixture builds a [stock](../../CONTEXT.md#stock), which only a fixture takes | execution |
 | returns nothing | a `return` of a value in the test's own body | selection |
-| | a decorated test whose call returns a value, which gives `unknown` | execution |
 | is not a generator | a `yield` in the test's own body | selection |
 | can be `async`, and purba cannot run one yet | an `async def` | selection |
 
-- **Selection judges only a `def` with no decorator.** A decorator can change what the call returns.
+- **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
 - **Selection leaves two inputs that name one fixture to execution.** Only execution resolves the names in `use(…)`.
 - **The type of a [catalyst](../../CONTEXT.md#catalyst) proves it immutable.** Fixtures reads the type before it builds the value.
@@ -48,7 +47,6 @@ Selection takes each `def test…`, and execution calls it.
 **Downside:**
 
 - **Selection refuses a `return` of a value in a branch that never runs.** The call would return nothing.
-- **A decorated test reaches execution unjudged.** A decorator that hides an `async def` leaves the test `unknown`.
 - **purba cannot check what a fixture does with a stock.** A fixture that undoes nothing lets a test change what the next test sees.
 - **A value whose type does not prove it immutable is a stock.** click's `Command` is one, though no outcome of click depends on what a test leaves in it.
 
@@ -56,7 +54,6 @@ Selection takes each `def test…`, and execution calls it.
 
 `mise run test:rust` checks that selection refuses an `async def`, a `yield` and a `return` of a value.
 [Selection passes a test with a typed parameter and no default](https://github.com/kalonji-tools/purba/issues/703) builds the refusal of a parameter with no default.
-[A decorated test whose call returns a value prints passed](https://github.com/kalonji-tools/purba/issues/696) builds what execution sees of a decorated test.
 The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.

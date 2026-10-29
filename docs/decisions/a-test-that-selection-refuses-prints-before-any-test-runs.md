@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-[A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says which tests selection refuses.
+[A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) and [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) say which tests selection refuses.
 [Reporting writes each line as dispatch hands it the test](reporting-writes-each-line-as-dispatch-hands-it-the-test.md#decision-outcome), and dispatch never takes a test that selection refuses.
 
 | fact | source |
@@ -21,7 +21,7 @@
 **A test that selection refuses prints before any test runs.**
 The refused lines keep source order, and the lines of the selected tests follow them.
 
-- **Selection judges the last `def` of a name, because import binds that one.** The line keeps the place of the first `def`, as for a selected test.
+- **Selection judges the last `def` of a name, because import binds that one.** The line keeps the place of the first `def`, as for a selected test. Selection refuses a test whose name the module binds again after that `def`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A refused line names every reason that selection sees.** A part names every error it finds, as [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says. An `async def` with a `yield` names only that the test is async, because purba cannot call it either way.
 - **A module does not load when selection refuses every test of it.**
 
@@ -29,7 +29,6 @@ The refused lines keep source order, and the lines of the selected tests follow 
 
 - **The lines do not follow the order of the file.** The line of a refused test prints above the line of a test that comes before it.
 - **When selection refuses every test of a module, an error in its body does not show.** The module never loads.
-- **Selection does not see a statement other than `def` that binds the name after its last `def`.** It judges the `def`, and execution calls what import bound.
 - **Selection can refuse a test on a tree that ruff recovered from a module that does not parse.** [Does parsing ever hand a later part a tree that ruff recovered?](https://github.com/kalonji-tools/purba/issues/675) asks whether that can happen.
 
 ## Confirmation
