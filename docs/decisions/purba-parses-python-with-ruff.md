@@ -47,7 +47,8 @@ Cargo misses some ruff crates that nothing calls, so the reviewer checks each on
 One module owns parsing and returns an AST, and everything else takes the AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 Holding that seam keeps even a late reversal a one-decision change.
-The prescan path parses and raises nothing on a syntax error, because a file that fails to parse is a project error, not a crash.
+Parsing returns a syntax error as an error, and never panics, because a file that fails to parse is a project error, not a crash.
+[Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) says what that error holds.
 MSRV is the upgrade clock, not the API.
 
 **A person raises the pin, when one of three triggers fires.**
@@ -97,15 +98,16 @@ The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
 `=` therefore states that intent and does not change it.
 
-`/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast` and `ruff_text_size` at `=0.0.17`.
+`/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast`, `ruff_text_size` and `ruff_source_file` at `=0.0.17`.
 
 | pinned crate | the crates that name it |
 |---|---|
 | `ruff_python_parser` | `purba-parsing` |
 | `ruff_python_ast` | `purba-parsing`, `purba-selection`, `purba-assertion` |
 | `ruff_text_size` | `purba-parsing`, `purba-assertion` |
+| `ruff_source_file` | `purba-parsing` |
 
-`mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through `purba-parsing`.
+`mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through `purba-parsing`, and check that parsing refuses a module with a syntax error.
 It also runs the tests in `crates/assertion/tests/rewrite.rs`, which rewrite a module at the ranges of its nodes.
 `mise run lint:licences` reads the exceptions in `.cargo/deny.toml`, and refuses one that no crate uses.
 

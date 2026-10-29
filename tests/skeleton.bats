@@ -97,3 +97,19 @@ test_load.py::test_two blocked: test_load.py did not load
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a module that does not parse prints its error once, and no test of it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def test_ok():' '    assert True' \
+    'def test_bad1(:' '    pass' \
+    'def test_bad2():' '    assert 1 == 1' >test_paren.py
+
+  run -4 --separate-stderr purba test_paren.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_paren.py error: SyntaxError: Expected a parameter or the end of the parameter list
+0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error
+LINES
+  [[ -z "${stderr}" ]]
+}

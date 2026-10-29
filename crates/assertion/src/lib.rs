@@ -57,17 +57,9 @@ impl<'a> StatementVisitor<'a> for Asserts<'a> {
 
 /// Marks each assert of `module`: `assert x` becomes `assert _purba_ran(i, x)`,
 /// where `i` counts the asserts of the module in source order, from 0.
-///
-/// A module with a syntax error keeps its text, and has no assert to quote.
 #[must_use]
 pub fn rewrite(module: &Module) -> Rewrite {
     let source = module.source();
-    if module.has_syntax_error() {
-        return Rewrite {
-            text: source.to_owned(),
-            asserts: Vec::new(),
-        };
-    }
     let mut visitor = Asserts { found: Vec::new() };
     visitor.visit_body(&module.syntax().body);
 

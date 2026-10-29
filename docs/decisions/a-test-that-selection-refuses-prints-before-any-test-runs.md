@@ -29,7 +29,6 @@ The refused lines keep source order, and the lines of the selected tests follow 
 
 - **The lines do not follow the order of the file.** The line of a refused test prints above the line of a test that comes before it.
 - **When selection refuses every test of a module, an error in its body does not show.** The module never loads.
-- **Selection can refuse a test on a tree that ruff recovered from a module that does not parse.** [Does parsing ever hand a later part a tree that ruff recovered?](https://github.com/kalonji-tools/purba/issues/675) asks whether that can happen.
 
 ## Confirmation
 
