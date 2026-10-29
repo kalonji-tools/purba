@@ -52,8 +52,7 @@ Selection takes each `def test…`, and execution calls it.
 
 ## Confirmation
 
-`mise run test:rust` checks that selection refuses an `async def`, a `yield` and a `return` of a value.
-[Selection passes a test with a typed parameter and no default](https://github.com/kalonji-tools/purba/issues/703) builds the refusal of a parameter with no default.
+`mise run test:rust` checks that selection refuses an `async def`, a `yield`, a `return` of a value and a parameter with no default.
 The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.

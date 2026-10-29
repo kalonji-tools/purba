@@ -180,7 +180,7 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
         "def test_d():\n    assert True\n\n",
         "async def test_a():\n    ...\n\n",
         "def test_b():\n    yield\n\n",
-        "def test_c(x):\n    ...\n\n",
+        "def test_c(db: int):\n    ...\n\n",
         "def test_e():\n    assert True\n    return False\n",
     );
     fs::write(&path, text).expect("the test writes its module");
@@ -191,7 +191,8 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
         format!(
             "{0}::test_a error: purba cannot run an async test yet\n\
              {0}::test_b error: the test is a generator, and purba does not iterate it\n\
-             {0}::test_c error: the parameter x has no type\n\
+             {0}::test_c error: the parameter db has no default, \
+             and purba cannot see which fixture builds it\n\
              {0}::test_e error: the test returns a value, and purba does not read it\n\
              {0}::test_d passed\n\
              5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 blocked; 4 errors\n",
