@@ -109,7 +109,8 @@ fn a_test_that_purba_cannot_call_is_refused_with_its_reason() {
         [
             "test_m.py::test_a purba cannot run an async test yet",
             "test_m.py::test_b the test is a generator, and purba does not iterate it",
-            "test_m.py::test_c the parameter x has no type",
+            "test_m.py::test_c the parameter x has no default, \
+             and purba cannot see which fixture builds it",
             "test_m.py::test_e the test returns a value, and purba does not read it",
         ],
         "each refused test, in source order, with its reason"
@@ -190,12 +191,14 @@ fn a_return_of_a_value_in_the_tests_own_body_is_refused() {
 }
 
 #[test]
-fn a_parameter_with_no_default_and_no_type_is_refused() {
+fn a_parameter_with_no_default_is_refused() {
     let (tests, refused) = judged(
         "test_parameters.py",
         concat!(
             "def test_default(x=1):\n    assert True\n\n",
-            "def test_typed(x: int):\n    assert True\n\n",
+            "def test_typed_default(x: int = 1):\n    assert True\n\n",
+            "def test_typed(db: Database):\n    assert True\n\n",
+            "def test_typed_two(src: Database, dst: Database):\n    assert True\n\n",
             "def test_typed_keyword(*, k: int):\n    assert True\n\n",
             "def test_star(*args, **kwargs):\n    assert True\n\n",
             "def test_positional(a, /):\n    assert True\n\n",
@@ -209,21 +212,30 @@ fn a_parameter_with_no_default_and_no_type_is_refused() {
         tests,
         [
             "test_m.py::test_default",
-            "test_m.py::test_typed",
-            "test_m.py::test_typed_keyword",
+            "test_m.py::test_typed_default",
             "test_m.py::test_star",
         ],
-        "a default, a type, *args and **kwargs pass"
+        "a default, *args and **kwargs pass"
     );
     assert_eq!(
         refused,
         [
-            "test_m.py::test_positional the parameter a has no type",
-            "test_m.py::test_keyword the parameter k has no type",
-            "test_m.py::test_two the parameters x, y have no type",
-            "test_m.py::test_async purba cannot run an async test yet; the parameter x has no type",
+            "test_m.py::test_typed the parameter db has no default, \
+             and purba cannot see which fixture builds it",
+            "test_m.py::test_typed_two the parameters src, dst have no default, \
+             and purba cannot see which fixtures build them",
+            "test_m.py::test_typed_keyword the parameter k has no default, \
+             and purba cannot see which fixture builds it",
+            "test_m.py::test_positional the parameter a has no default, \
+             and purba cannot see which fixture builds it",
+            "test_m.py::test_keyword the parameter k has no default, \
+             and purba cannot see which fixture builds it",
+            "test_m.py::test_two the parameters x, y have no default, \
+             and purba cannot see which fixtures build them",
+            "test_m.py::test_async purba cannot run an async test yet; \
+             the parameter x has no default, and purba cannot see which fixture builds it",
         ],
-        "every reason, on one line"
+        "a parameter with no default is refused whatever its type, with every reason on one line"
     );
 }
 
@@ -269,7 +281,8 @@ fn selection_judges_the_last_def_of_a_name_at_the_place_of_the_first() {
     );
     assert_eq!(
         refused,
-        ["test_m.py::test_broken the parameter x has no type"],
+        ["test_m.py::test_broken the parameter x has no default, \
+         and purba cannot see which fixture builds it"],
         "the last def of test_broken takes x"
     );
 }

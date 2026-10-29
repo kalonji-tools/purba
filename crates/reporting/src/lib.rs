@@ -255,12 +255,16 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .error(&"test_a.py::test_one", &"the parameter x has no type")
+            .error(
+                &"test_a.py::test_one",
+                &"the parameter x has no default, and purba cannot see which fixture builds it",
+            )
             .expect("a Vec takes every write");
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
-            "test_a.py::test_one error: the parameter x has no type\n\
+            "test_a.py::test_one error: the parameter x has no default, \
+             and purba cannot see which fixture builds it\n\
              1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
             "the line of a test whose own error blocks it, and the count of both"
         );

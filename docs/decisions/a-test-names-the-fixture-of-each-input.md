@@ -46,7 +46,7 @@ purba has no public surface for it yet.
 
 ## Confirmation
 
-No command checks this record yet.
-The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build it.
+`mise run test:rust` checks that selection refuses a parameter with no default.
+The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says which part refuses a test that breaks this record.
 [A test names two values of one type by two fixtures](a-test-names-two-values-of-one-type-by-two-fixtures.md#decision-outcome) says how a test names two values of one type.

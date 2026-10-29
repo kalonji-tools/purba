@@ -89,7 +89,7 @@ enum Reason {
     Async,
     Generator,
     ReturnsValue,
-    Untyped(Vec<String>),
+    NoDefault(Vec<String>),
 }
 
 impl fmt::Display for Reason {
@@ -102,16 +102,16 @@ impl fmt::Display for Reason {
             Self::ReturnsValue => {
                 formatter.write_str("the test returns a value, and purba does not read it")
             }
-            Self::Untyped(names) if names.len() == 1 => {
-                write!(formatter, "the parameter {} has no type", names[0])
-            }
-            Self::Untyped(names) => {
-                write!(
-                    formatter,
-                    "the parameters {} have no type",
-                    names.join(", ")
-                )
-            }
+            Self::NoDefault(names) if names.len() == 1 => write!(
+                formatter,
+                "the parameter {} has no default, and purba cannot see which fixture builds it",
+                names[0]
+            ),
+            Self::NoDefault(names) => write!(
+                formatter,
+                "the parameters {} have no default, and purba cannot see which fixtures build them",
+                names.join(", ")
+            ),
         }
     }
 }
@@ -172,22 +172,22 @@ fn reasons(function: &StmtFunctionDef) -> Vec<Reason> {
     if body.returns_value {
         reasons.push(Reason::ReturnsValue);
     }
-    let untyped = untyped(&function.parameters);
-    if !untyped.is_empty() {
-        reasons.push(Reason::Untyped(untyped));
+    let without_default = without_default(&function.parameters);
+    if !without_default.is_empty() {
+        reasons.push(Reason::NoDefault(without_default));
     }
     reasons
 }
 
-/// Each parameter with no default and no type. `*args` and `**kwargs` take
-/// nothing that purba must pass.
-fn untyped(parameters: &Parameters) -> Vec<String> {
+/// Each parameter with no default. `*args` and `**kwargs` take nothing that
+/// purba must pass.
+fn without_default(parameters: &Parameters) -> Vec<String> {
     parameters
         .posonlyargs
         .iter()
         .chain(&parameters.args)
         .chain(&parameters.kwonlyargs)
-        .filter(|parameter| parameter.default.is_none() && parameter.parameter.annotation.is_none())
+        .filter(|parameter| parameter.default.is_none())
         .map(|parameter| parameter.parameter.name.to_string())
         .collect()
 }
