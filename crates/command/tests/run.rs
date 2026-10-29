@@ -218,18 +218,27 @@ fn a_module_whose_every_test_is_refused_does_not_load() {
 }
 
 #[test]
-fn a_module_that_does_not_parse_shows_its_syntax_error() {
-    for (name, text, line) in [
-        ("test_command_bare.py", "def test_a():\n    assert\n", 2),
+fn a_module_that_does_not_parse_shows_ruffs_first_syntax_error() {
+    for (name, text, message) in [
+        (
+            "test_command_bare.py",
+            "def test_a():\n    assert\n",
+            "Expected an expression",
+        ),
         (
             "test_command_star.py",
             "def test_a():\n    x = [1]\n    assert *x\n",
-            3,
+            "Starred expression cannot be used here",
         ),
         (
             "test_command_dstar.py",
             "def test_a():\n    x = {\"value\": 1}\n    assert **x\n",
-            3,
+            "Expected an expression",
+        ),
+        (
+            "test_command_eof.py",
+            "x = (\n",
+            "unexpected EOF while parsing",
         ),
     ] {
         let path = module_at(name);
@@ -239,15 +248,34 @@ fn a_module_that_does_not_parse_shows_its_syntax_error() {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
-                "{0} error: SyntaxError: invalid syntax ({name}, line {line})\n\
-                 {0}::test_a blocked: {0} did not load\n\
-                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+                "{} error: SyntaxError: {message}\n\
+                 0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error\n",
                 path.display()
             ),
-            "{name}: CPython's syntax error, as for any module that does not parse"
+            "{name}: the module's line, and no test of it"
         );
-        assert_eq!(code, 4, "{name}: a module that did not load exits 4");
+        assert_eq!(code, 4, "{name}: a module that does not parse exits 4");
     }
+}
+
+#[test]
+fn a_syntax_error_that_ruff_passes_shows_cpythons_error_at_load() {
+    let path = module_at("test_command_return.py");
+    let text = "def test_a():\n    assert True\n\nreturn 5\n";
+    fs::write(&path, text).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    assert_eq!(
+        String::from_utf8(out).expect("reporting writes UTF-8"),
+        format!(
+            "{0} error: SyntaxError: 'return' outside function (test_command_return.py, line 4)\n\
+             {0}::test_a blocked: {0} did not load\n\
+             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+            path.display()
+        ),
+        "CPython names the error when assertion loads the module"
+    );
+    assert_eq!(code, 4, "a module that did not load exits 4");
 }
 
 #[test]

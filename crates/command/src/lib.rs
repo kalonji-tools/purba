@@ -45,8 +45,19 @@ impl fmt::Display for Error {
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
-    let (modules, refused_tests) = modules(path)?;
     let mut report = purba_reporting::Report::new(out);
+    let parsed = match purba_parsing::parse(&path) {
+        Ok(module) => module,
+        Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
+        Err(purba_parsing::Error::Syntax(error)) => {
+            report
+                .not_loaded(&path.display(), &error)
+                .map_err(Error::Write)?;
+            return report.finish().map_err(Error::Write);
+        }
+    };
+    let (modules, refused_tests) = modules(path, &parsed);
+    drop(parsed);
     for refused in &refused_tests {
         report
             .error(refused.test(), refused)
@@ -81,19 +92,15 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
 }
 
 /// The module at `path` with the tests that selection hands on, and each test
-/// that it refuses. The parse ends here, before the run. A module with no test
-/// to hand on is neither rewritten nor loaded.
-fn modules(path: PathBuf) -> Result<(Vec<Module<TestId>>, Vec<Refused>), Error> {
-    let module = match purba_parsing::parse(&path) {
-        Ok(module) => module,
-        Err(error) => return Err(Error::Read(path, error)),
-    };
-    let (tests, refused) = purba_selection::select(&path, &module);
+/// that it refuses. A module with no test to hand on is neither rewritten nor
+/// loaded.
+fn modules(path: PathBuf, module: &purba_parsing::Module) -> (Vec<Module<TestId>>, Vec<Refused>) {
+    let (tests, refused) = purba_selection::select(&path, module);
     if tests.is_empty() {
-        return Ok((Vec::new(), refused));
+        return (Vec::new(), refused);
     }
-    let (text, asserts) = purba_assertion::rewrite(&module).into_parts();
-    Ok((vec![Module::new(path, text, asserts, tests)], refused))
+    let (text, asserts) = purba_assertion::rewrite(module).into_parts();
+    (vec![Module::new(path, text, asserts, tests)], refused)
 }
 
 #[cfg(test)]

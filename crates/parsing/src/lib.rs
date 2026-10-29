@@ -1,6 +1,7 @@
 //! Parsing: reads a test module and turns its text into ruff's AST.
 
 use std::cell::RefCell;
+use std::fmt;
 use std::fs;
 use std::io;
 use std::mem;
@@ -14,7 +15,8 @@ use ruff_python_ast::{
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
     StmtPass,
 };
-use ruff_text_size::TextRange;
+use ruff_source_file::LineIndex;
+use ruff_text_size::{TextRange, TextSize};
 
 const BYTE_ORDER_MARK: char = '\u{feff}';
 
@@ -22,7 +24,6 @@ const BYTE_ORDER_MARK: char = '\u{feff}';
 pub struct Module {
     source: String,
     syntax: ModModule,
-    has_syntax_error: bool,
 }
 
 impl Module {
@@ -37,12 +38,6 @@ impl Module {
     #[must_use]
     pub const fn syntax(&self) -> &ModModule {
         &self.syntax
-    }
-
-    /// Whether ruff found a syntax error in the text.
-    #[must_use]
-    pub const fn has_syntax_error(&self) -> bool {
-        self.has_syntax_error
     }
 }
 
@@ -120,30 +115,115 @@ impl Transformer for Detached {
     }
 }
 
+/// Why a module gives no tree.
+#[derive(Debug)]
+pub enum Error {
+    /// The file cannot be read.
+    Read(io::Error),
+    /// ruff found a syntax error in the text.
+    Syntax(SyntaxError),
+}
+
+/// The first syntax error that ruff lists for a module.
+#[derive(Debug)]
+pub struct SyntaxError {
+    message: String,
+    start: Position,
+    end: Position,
+}
+
+impl SyntaxError {
+    /// ruff's words for the error.
+    #[must_use]
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
+    /// Where the error starts.
+    #[must_use]
+    pub const fn start(&self) -> Position {
+        self.start
+    }
+
+    /// Where the error ends: the first position after it.
+    #[must_use]
+    pub const fn end(&self) -> Position {
+        self.end
+    }
+}
+
+impl fmt::Display for SyntaxError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "SyntaxError: {}", self.message)
+    }
+}
+
+/// A place in the text of a module, after a leading byte order mark.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Position {
+    line: usize,
+    column: usize,
+}
+
+impl Position {
+    /// The line, from 1.
+    #[must_use]
+    pub const fn line(self) -> usize {
+        self.line
+    }
+
+    /// The column, from 1. It counts Unicode scalars.
+    #[must_use]
+    pub const fn column(self) -> usize {
+        self.column
+    }
+}
+
 /// Reads the file at `path` and parses it.
-///
-/// A syntax error does not fail the parse: ruff still returns a tree, and
-/// [`Module::has_syntax_error`] says so.
 ///
 /// # Errors
 ///
-/// When the file cannot be read.
+/// When the file cannot be read, and when ruff finds a syntax error in it.
+/// The error then holds the first syntax error that ruff lists.
 #[expect(
     clippy::disallowed_methods,
     reason = "purba-parsing is the one caller of ruff's parser"
 )]
-pub fn parse(path: &Path) -> io::Result<Module> {
-    let mut source = fs::read_to_string(path)?;
+pub fn parse(path: &Path) -> Result<Module, Error> {
+    let mut source = fs::read_to_string(path).map_err(Error::Read)?;
     // CPython ignores this mark at the start of a file that is UTF-8.
     // https://docs.python.org/3.12/reference/lexical_analysis.html#encoding-declarations
     if source.starts_with(BYTE_ORDER_MARK) {
         source.remove(0);
     }
+    // `parse_module` drops the tree it recovered inside ruff, and that drop
+    // recurses once for each level of nesting. `Module`'s drop does not.
+    // https://github.com/astral-sh/ruff/blob/0.17.0/crates/ruff_python_parser/src/lib.rs#L477-L483
     let parsed = ruff_python_parser::parse_unchecked_source(&source, PySourceType::Python);
-    let has_syntax_error = !parsed.errors().is_empty();
-    Ok(Module {
-        source,
+    let first = parsed
+        .errors()
+        .first()
+        .map(|error| (error.error.to_string(), error.location));
+    let module = Module {
         syntax: parsed.into_syntax(),
-        has_syntax_error,
-    })
+        source,
+    };
+    match first {
+        None => Ok(module),
+        Some((message, location)) => {
+            let lines = LineIndex::from_source_text(module.source());
+            let at = |offset: TextSize| {
+                let place = lines.line_column(offset, module.source());
+                Position {
+                    line: place.line.get(),
+                    column: place.column.get(),
+                }
+            };
+            Err(Error::Syntax(SyntaxError {
+                message,
+                start: at(location.start()),
+                end: at(location.end()),
+            }))
+        }
+    }
 }
