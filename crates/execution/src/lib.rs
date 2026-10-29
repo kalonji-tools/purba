@@ -1,4 +1,4 @@
-//! Execution: runs a test, and makes its outcome.
+//! Execution: loads a module, runs a test, and makes its outcome.
 
 use std::collections::HashMap;
 use std::fmt;
@@ -175,7 +175,7 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
     })
 }
 
-impl Worker<'_> {
+impl<'py> Worker<'py> {
     /// Calls `function` of `module`, and makes its outcome. When the guard
     /// recorded a call to `os._exit` since the last test, the outcome is
     /// `Raised`, and names that call to `os._exit`. An error before the test's
@@ -197,7 +197,16 @@ impl Worker<'_> {
         }
     }
 
-    fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
+    /// Loads `module` once, and keeps it, or keeps that its load failed.
+    ///
+    /// # Errors
+    ///
+    /// The load raised. A later call names the module that did not load.
+    pub fn load(&mut self, module: &Module) -> Result<(), Error> {
+        self.loaded(module).map(|_| ())
+    }
+
+    fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
             let loaded =
                 purba_assertion::load(self.py, &module.path, &module.text, module.asserts.clone());
@@ -207,9 +216,14 @@ impl Worker<'_> {
                 return Err(failed);
             }
         }
-        let loaded = self.loaded[&module.path]
+        self.loaded[&module.path]
             .as_ref()
-            .ok_or_else(|| Error(format!("{} did not load", module.path.display())))?;
+            .ok_or_else(|| Error(format!("{} did not load", module.path.display())))
+    }
+
+    fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
+        let py = self.py;
+        let loaded = self.loaded(module)?;
         let test = loaded
             .module()
             .getattr(function)
@@ -225,9 +239,7 @@ impl Worker<'_> {
         let kind = match loaded.watch(|| test.call0()) {
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
-            (Err(err), Some((assert, false)))
-                if err.is_instance_of::<PyAssertionError>(self.py) =>
-            {
+            (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
                 Kind::Failed {
                     assert: assert.to_owned(),
                 }
@@ -240,26 +252,42 @@ impl Worker<'_> {
     }
 }
 
-/// How many tests of a run passed, failed, raised, are `unknown`, or gave an
-/// error in place of an outcome.
+/// How many tests of a run passed, failed, raised, are `unknown`, or are
+/// blocked, and how many errors the run met. Each test counts once, and each
+/// error once.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
     pub failed: usize,
     pub raised: usize,
     pub unknown: usize,
+    pub blocked: usize,
     pub errors: usize,
 }
 
 impl Tally {
-    /// Counts one test by its kind, or as an error in place of an outcome.
+    /// Counts one test by its kind. An error in place of an outcome blocked
+    /// that test, so it counts one blocked test and one error.
     pub const fn add<E>(&mut self, result: &Result<&Kind, E>) {
         match result {
             Ok(Kind::Passed) => self.passed += 1,
             Ok(Kind::Failed { .. }) => self.failed += 1,
             Ok(Kind::Raised { .. }) => self.raised += 1,
             Ok(Kind::Unknown) => self.unknown += 1,
-            Err(_) => self.errors += 1,
+            Err(_) => {
+                self.blocked += 1;
+                self.errors += 1;
+            }
         }
+    }
+
+    /// Counts one test that an error outside the test blocked.
+    pub const fn add_blocked(&mut self) {
+        self.blocked += 1;
+    }
+
+    /// Counts one error that belongs to no test.
+    pub const fn add_error(&mut self) {
+        self.errors += 1;
     }
 }

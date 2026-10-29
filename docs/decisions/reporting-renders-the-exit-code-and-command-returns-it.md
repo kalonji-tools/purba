@@ -30,7 +30,7 @@ Some part counts each outcome and each error, and some part turns that count int
 
 | question | answer |
 |---|---|
-| which part holds the rule that counts | execution: `Tally`, and `Tally::add` for each test |
+| which part holds the rule that counts | execution: `Tally`. It counts each test once, by its outcome or as blocked, and each error once |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
 | what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2 or 4. When the writer refuses a write, `line` or `finish` returns the error |
 | what command does with the code | it returns the code to `_main`. A refused write is an error, so `_main` returns 3 |
@@ -42,7 +42,7 @@ Some part counts each outcome and each error, and some part turns that count int
 
 ## Confirmation
 
-`mise run test:rust` checks that a tally adds each kind and each error.
+`mise run test:rust` checks that a tally adds each kind, each blocked test and each error.
 It checks that the exit code names the worst of the run.
 It checks that the count line matches the lines that reporting prints.
 It checks that reporting prints the lines of a run to the writer that command takes.

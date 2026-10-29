@@ -32,8 +32,8 @@ A run that stops too little runs tests on a wrong input.
 | kind | it stops | for example |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | the run | a missing path, or a closed stdout that command sees at start |
-| [project error](../../CONTEXT.md#project-error) | the tests that depend on it | a module that does not load stops its tests, and a test that purba refuses to call stops itself |
-| [internal error](../../CONTEXT.md#internal-error) | the work that depends on what failed | a panic inside a test stops that test, a panic in selection while it reads `test_b.py` stops the tests of `test_b.py`, and a panic in command or reporting stops the run |
+| [project error](../../CONTEXT.md#project-error) | the tests that depend on it | a module that does not load blocks its tests, and a test that purba refuses to call blocks only itself |
+| [internal error](../../CONTEXT.md#internal-error) | the work that depends on what failed | a panic inside a test stops that test, a panic in selection while it reads `test_b.py` blocks the tests of `test_b.py`, and a panic in command or reporting stops the run |
 | [outcome](../../CONTEXT.md#outcome) | nothing | |
 
 - **An error shows in the earliest part that can see it.** No part does work outside the selection only to see an error sooner.
@@ -58,4 +58,4 @@ No command checks the rest of this record.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 Its Destination promises what a panic inside a test stops.
 
-[A stopped test has no outcome](a-stopped-test-has-no-outcome.md#decision-outcome) says what each test that an error stops prints.
+[A blocked test has no outcome](a-blocked-test-has-no-outcome.md#decision-outcome) says what each test that an error blocks prints.

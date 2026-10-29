@@ -57,7 +57,7 @@ flowchart LR
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
-- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is.
+- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It loads each module on the worker before its tests. For a module that does not load, it hands on the error once, and each of its tests as blocked.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
@@ -75,7 +75,7 @@ flowchart TD
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
-  dispatch -- "one test, and its outcome" --> execution
+  dispatch -- "a module to load, then each test, and its outcome" --> execution
   execution -- "the inputs a test names" --> fixtures
   execution -- "a rewritten module" --> assertion
   reporting -- "an outcome" --> execution
@@ -107,12 +107,12 @@ sequenceDiagram
     reporting ->> tester: its line
   end
   command ->> dispatch: test_a.py once, with its texts and its three tests
+  dispatch ->> execution: load test_a.py, with its texts
+  execution ->> assertion: the rewritten text, and the text of each assert
+  assertion -->> execution: the loaded module
+  execution -->> dispatch: it loaded
   loop each selected test
     dispatch ->> execution: a function's name, and its module
-    opt the first test of a module
-      execution ->> assertion: the rewritten text, and the text of each assert
-      assertion -->> execution: the loaded module
-    end
     execution ->> fixtures: the inputs the test names
     fixtures -->> execution: no inputs
     Note over execution: calls the test in Python

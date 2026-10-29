@@ -66,7 +66,7 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
              {0}::test_two failed: assert 1 == 2\n\
              {0}::test_three unknown: no assert ran\n\
              {0}::test_four raised: ValueError: boom\n\
-             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 0 errors\n",
+             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 0 blocked; 0 errors\n",
             path.display()
         ),
         "one line for each test, in order, then the count, to the writer"
@@ -194,7 +194,7 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
              {0}::test_c error: the parameter x has no type\n\
              {0}::test_e error: the test returns a value, and purba does not read it\n\
              {0}::test_d passed\n\
-             5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 errors\n",
+             5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 blocked; 4 errors\n",
             path.display()
         ),
         "each refused line first, then the line of the test that runs"
@@ -239,13 +239,14 @@ fn a_module_that_does_not_parse_shows_its_syntax_error() {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
-                "{}::test_a error: SyntaxError: invalid syntax ({name}, line {line})\n\
-                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
+                "{0} error: SyntaxError: invalid syntax ({name}, line {line})\n\
+                 {0}::test_a blocked: {0} did not load\n\
+                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
                 path.display()
             ),
             "{name}: CPython's syntax error, as for any module that does not parse"
         );
-        assert_eq!(code, 4, "{name}: a test with an error exits 4");
+        assert_eq!(code, 4, "{name}: a module that did not load exits 4");
     }
 }
 
@@ -262,14 +263,15 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{}::test_a error: MemoryError: Parser stack overflowed - \
+            "{0} error: MemoryError: Parser stack overflowed - \
              Python source too complex to parse\n\
-             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
+             {0}::test_a blocked: {0} did not load\n\
+             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
             path.display()
         ),
         "CPython's error, as for any module that does not compile"
     );
-    assert_eq!(code, 4, "a test with an error exits 4");
+    assert_eq!(code, 4, "a module that did not load exits 4");
 }
 
 #[test]
@@ -288,13 +290,65 @@ fn a_module_that_defines_the_hooks_name_fails_to_load() {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
-                "{0}::test_shadow error: NameError: {0} binds _purba_ran, \
+                "{0} error: NameError: {0} binds _purba_ran, \
                  the name of purba's assert hook\n\
-                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
+                 {0}::test_shadow blocked: {0} did not load\n\
+                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
                 path.display()
             ),
             "{name}: the load names the clash"
         );
-        assert_eq!(code, 4, "{name}: a test with an error exits 4");
+        assert_eq!(code, 4, "{name}: a module that did not load exits 4");
     }
+}
+
+#[test]
+fn a_module_that_did_not_load_prints_its_error_once() {
+    let path = module_at("test_command_load.py");
+    let text = concat!(
+        "raise ValueError(\"x\")\n\n",
+        "def test_one():\n    assert 1 == 1\n\n",
+        "def test_two():\n    assert 1 == 2\n",
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    assert_eq!(
+        String::from_utf8(out).expect("reporting writes UTF-8"),
+        format!(
+            "{0} error: ValueError: x\n\
+             {0}::test_one blocked: {0} did not load\n\
+             {0}::test_two blocked: {0} did not load\n\
+             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
+            path.display()
+        ),
+        "the module's error once, then each of its tests as blocked"
+    );
+    assert_eq!(code, 4, "an error exits 4");
+}
+
+#[test]
+fn a_test_whose_own_error_blocks_it_keeps_its_error_line() {
+    let path = module_at("test_command_mix.py");
+    let text = concat!(
+        "def test_ok():\n    assert True\n\n",
+        "async def test_async():\n    ...\n\n",
+        "def test_five():\n    pass\n\n",
+        "test_five = 5\n",
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    assert_eq!(
+        String::from_utf8(out).expect("reporting writes UTF-8"),
+        format!(
+            "{0}::test_async error: purba cannot run an async test yet\n\
+             {0}::test_ok passed\n\
+             {0}::test_five error: TypeError: 'int' object is not callable\n\
+             3 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
+            path.display()
+        ),
+        "each line keeps error, and each of the two counts as blocked and as an error"
+    );
+    assert_eq!(code, 4, "an error exits 4");
 }
