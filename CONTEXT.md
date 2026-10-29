@@ -230,7 +230,7 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 
 ### Test
 
-A function, as import binds it in a test module, that names the fixture of each of its [inputs](#input), returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
+A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, names the fixture of each of its [inputs](#input), returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
 
 ### Tester
 
