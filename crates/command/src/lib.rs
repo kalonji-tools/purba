@@ -6,7 +6,7 @@ use std::io::{self, Write};
 use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
-use purba_dispatch::Module;
+use purba_dispatch::{Handed, Module};
 use purba_selection::{Refused, TestId};
 
 /// Why a run did not finish.
@@ -52,10 +52,13 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
             .error(refused.test(), refused)
             .map_err(Error::Write)?;
     }
-    let flow = purba_dispatch::hand(modules, |test, result| {
-        report
-            .line(&test, &result)
-            .map_or_else(ControlFlow::Break, ControlFlow::Continue)
+    let flow = purba_dispatch::hand(modules, |handed| {
+        match handed {
+            Handed::Test(test, result) => report.line(&test, &result),
+            Handed::NotLoaded(path, error) => report.not_loaded(&path.display(), &error),
+            Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
+        }
+        .map_or_else(ControlFlow::Break, ControlFlow::Continue)
     });
     if let ControlFlow::Break(error) = flow {
         return Err(Error::Write(error));

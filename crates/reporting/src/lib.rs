@@ -1,13 +1,13 @@
-//! Reporting: prints one line for each test as it takes the test, then a
-//! count, and renders the exit code.
+//! Reporting: prints one line for each test, and for each module that did not
+//! load, as it takes them, then a count, and renders the exit code.
 
 use std::fmt::Display;
 use std::io::{self, Write};
 
 use purba_execution::{Error, Kind, Outcome, Tally};
 
-/// Prints each test beside its outcome or error to `out`, as it takes the
-/// test, then the count. Keeps only the tally of the tests it took.
+/// Prints each test beside its outcome or error to `out`, and each module that
+/// did not load, as it takes them, then the count. Keeps only the tally.
 pub struct Report<W: Write> {
     out: W,
     tally: Tally,
@@ -35,14 +35,38 @@ impl<W: Write> Report<W> {
         self.add(test, result.as_ref().map(Outcome::kind))
     }
 
-    /// Adds `test` to the tally as an error that a part before execution
-    /// found, and writes its line and flushes it.
+    /// Adds `test` to the tally as blocked by its own error, which a part
+    /// before execution found, and writes its line and flushes it.
     ///
     /// # Errors
     ///
     /// When `out` refuses the write or the flush.
     pub fn error<T: Display, E: Display>(&mut self, test: &T, error: &E) -> io::Result<()> {
         self.add(test, Err::<&Kind, _>(error))
+    }
+
+    /// Adds the error of a module that did not load to the tally, and writes
+    /// its line and flushes it.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn not_loaded<M: Display, E: Display>(&mut self, module: &M, error: &E) -> io::Result<()> {
+        self.tally.add_error();
+        writeln!(self.out, "{module} error: {}", one_line(&error.to_string()))?;
+        self.out.flush()
+    }
+
+    /// Adds `test` to the tally as blocked, because `module` did not load, and
+    /// writes its line and flushes it.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> io::Result<()> {
+        self.tally.add_blocked();
+        writeln!(self.out, "{test} blocked: {module} did not load")?;
+        self.out.flush()
     }
 
     /// A test passes a text for an error, because no crate but execution
@@ -83,14 +107,15 @@ impl<W: Write> Report<W> {
 }
 
 fn count_line(tally: &Tally) -> String {
-    let tests = tally.passed + tally.failed + tally.raised + tally.unknown + tally.errors;
+    let tests = tally.passed + tally.failed + tally.raised + tally.unknown + tally.blocked;
     format!(
-        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} error{}",
+        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} blocked; {} error{}",
         plural(tests),
         tally.passed,
         tally.failed,
         tally.raised,
         tally.unknown,
+        tally.blocked,
         tally.errors,
         plural(tally.errors),
     )
@@ -207,7 +232,7 @@ mod tests {
             *seen.borrow(),
             "test_a.py::test_one passed\n\
              test_a.py::test_two unknown: no assert ran\n\
-             2 tests: 1 passed, 0 failed, 0 raised, 1 unknown, 0 errors\n",
+             2 tests: 1 passed, 0 failed, 0 raised, 1 unknown, 0 blocked; 0 errors\n",
             "the count is flushed when the run finishes"
         );
         assert_eq!(code, 2, "an unknown test exits 2");
@@ -236,10 +261,64 @@ mod tests {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             "test_a.py::test_one error: the parameter x has no type\n\
-             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 error\n",
-            "the line and the count of one error"
+             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+            "the line of a test whose own error blocks it, and the count of both"
         );
         assert_eq!(code, 4, "an error makes the run exit 4");
+    }
+
+    #[test]
+    fn a_module_that_did_not_load_prints_once_and_each_test_as_blocked() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .not_loaded(&"test_b.py", &"ValueError: x")
+            .expect("a Vec takes every write");
+        for test in ["test_b.py::test_one", "test_b.py::test_two"] {
+            report
+                .blocked(&test, &"test_b.py")
+                .expect("a Vec takes every write");
+        }
+        let code = report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "test_b.py error: ValueError: x\n\
+             test_b.py::test_one blocked: test_b.py did not load\n\
+             test_b.py::test_two blocked: test_b.py did not load\n\
+             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
+            "the error once, then each test that it blocked"
+        );
+        assert_eq!(
+            code, 4,
+            "the error sets the code, and a blocked test changes nothing"
+        );
+    }
+
+    #[test]
+    fn a_test_whose_own_error_blocks_it_prints_error_and_counts_as_blocked() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .error(
+                &"test_a.py::test_async",
+                &"purba cannot run an async test yet",
+            )
+            .expect("a Vec takes every write");
+        report
+            .add(
+                &"test_a.py::test_five",
+                Err::<&Kind, _>("TypeError: 'int' object is not callable"),
+            )
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "test_a.py::test_async error: purba cannot run an async test yet\n\
+             test_a.py::test_five error: TypeError: 'int' object is not callable\n\
+             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
+            "each line keeps error, and each test counts as blocked and as an error"
+        );
+        assert_eq!(code, 4, "an error exits 4");
     }
 
     #[test]
@@ -264,7 +343,7 @@ mod tests {
              test_a.py::test_three unknown: no assert ran\n\
              test_a.py::test_four raised: KeyError: 'k'\n\
              test_c.py::test_x error: ValueError: boom\n\
-             5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 error\n",
+             5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 blocked; 1 error\n",
             "one line for each test, in order, then the count"
         );
         assert_eq!(code, 1, "a failed test makes the run exit 1");
@@ -277,6 +356,7 @@ mod tests {
             failed,
             raised,
             unknown,
+            blocked: 0,
             errors,
         };
         assert_eq!(
@@ -328,17 +408,18 @@ mod tests {
     }
 
     #[test]
-    fn the_count_names_all_five_and_one_in_the_singular() {
+    fn the_count_names_each_column_and_one_in_the_singular() {
         assert_eq!(
             report_of(&[("test_a.py::test_one", Ok(&Kind::Passed))]).0,
             "test_a.py::test_one passed\n\
-             1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 errors\n",
+             1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors\n",
             "one test, and no error"
         );
         assert_eq!(
             report_of(&[]),
             (
-                "0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 errors\n".to_owned(),
+                "0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors\n"
+                    .to_owned(),
                 2
             ),
             "a run with no test exits 2"

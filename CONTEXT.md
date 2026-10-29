@@ -22,6 +22,10 @@ The [actor](#actor) that chooses purba's direction and is answerable for what th
 
 Anything purba writes for a [reader](#reader), and never a file that a workflow uploads from a job. It is rewritten in place until its direction is agreed, and frozen after.
 
+### Blocked test
+
+A selected test that an error kept from running, so it has no [outcome](#outcome).
+
 ### Candidate
 
 A third-party Python project, pinned to a commit, whose tests decide when a [milestone](#milestone) is done.
@@ -122,7 +126,7 @@ The statement that a contributor has the right to submit a contribution. Only a 
 
 ### Outcome
 
-What a [run](#run) says about one selected test that no error stopped, such as passed, failed, raised or unknown. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
+What a [run](#run) says about one selected test that no error blocked, such as passed, failed, raised or unknown. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
 
 ### Outside contribution
 
@@ -211,10 +215,6 @@ The [actor](#actor) that arrives at a [location](#location) it does not know yet
 ### Stock
 
 An [input](#input) that outlives one [test](#test), and whose content can change. Only a fixture takes it, and that fixture hands each test a [reagent](#reagent) that it draws from the stock.
-
-### Stopped test
-
-A selected test that an error stopped before it had an [outcome](#outcome).
 
 ### Strict check
 

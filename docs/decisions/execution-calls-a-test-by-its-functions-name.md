@@ -12,7 +12,7 @@ In the parts diagram, execution and reporting use no interface of selection.
 | command's `TestId { path, function }`, with private fields, stopped at `E0451` | [the probe](https://github.com/kalonji-tools/purba/issues/563#issuecomment-6291610911) |
 | reporting's test, with a `&str` in place of the identity, passed with no selection in its manifest | [the probe](https://github.com/kalonji-tools/purba/issues/563#issuecomment-6291610911) |
 | selection uses parsing | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
-| dispatch hands command "three outcomes, each beside its test" | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
+| dispatch hands command "three outcomes, each beside its test" | [the landscape](https://github.com/kalonji-tools/purba/blob/d369fee/LANDSCAPE.md#the-parts-and-their-dependencies) |
 | the gate for one identity misses "a part that formats its own name for a test" | [a gate refuses each invariant a tool can see](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) |
 
 ## Considered Options

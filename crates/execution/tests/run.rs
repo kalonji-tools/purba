@@ -156,6 +156,70 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
     );
 }
 
+#[test]
+fn a_load_that_fails_gives_its_error_once() {
+    let fails = module(
+        "test_load_fails.py",
+        "import builtins\n\
+         builtins.purba_load_fails = getattr(builtins, 'purba_load_fails', 0) + 1\n\
+         raise ValueError(f'load {builtins.purba_load_fails}')\n\n\
+         def test_one():\n    pass\n",
+        &[],
+    );
+    let errors: Vec<String> = purba_execution::attach(|worker| {
+        vec![
+            worker
+                .load(&fails)
+                .expect_err("the module raises")
+                .to_string(),
+            worker
+                .load(&fails)
+                .expect_err("the module did not load")
+                .to_string(),
+            worker
+                .run(&fails, "test_one")
+                .expect_err("the module did not load")
+                .to_string(),
+        ]
+    });
+    assert_eq!(
+        errors,
+        [
+            "ValueError: load 1",
+            "test_load_fails.py did not load",
+            "test_load_fails.py did not load",
+        ],
+        "the load's error once, then the module's name, and the body runs once",
+    );
+}
+
+#[test]
+fn a_test_runs_on_the_module_that_load_loaded() {
+    let loads = module(
+        "test_load_once.py",
+        "import builtins\n\
+         builtins.purba_load_once = getattr(builtins, 'purba_load_once', 0) + 1\n\n\
+         def test_one():\n    assert _purba_ran(0, builtins.purba_load_once == 1)\n",
+        &["assert builtins.purba_load_once == 1"],
+    );
+    let kind = purba_execution::attach(|worker| {
+        worker.load(&loads).expect("the module loads");
+        worker
+            .load(&loads)
+            .expect("a second load keeps the first module");
+        worker
+            .run(&loads, "test_one")
+            .expect("the test runs")
+            .kind()
+            .clone()
+    });
+    assert_eq!(
+        kind,
+        Kind::Passed,
+        "the body ran once, for both loads and the test"
+    );
+}
+
 #[cfg(unix)]
 #[test]
 fn a_forked_child_exits_with_its_own_code() {

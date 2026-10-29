@@ -17,7 +17,7 @@ bats_require_minimum_version 1.5.0
 test_a.py::test_one passed
 test_a.py::test_two failed: assert 1 == 2
 test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 errors
+3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 blocked; 0 errors
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
 }
@@ -75,7 +75,25 @@ test_refused.py::test_b error: the test is a generator, and purba does not itera
 test_refused.py::test_c error: the parameter x has no type
 test_refused.py::test_e error: the test returns a value, and purba does not read it
 test_refused.py::test_d passed
-5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 errors
+5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 blocked; 4 errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module that did not load prints its error once, and each of its tests as blocked" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'raise ValueError("x")' \
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 2' >test_load.py
+
+  run -4 --separate-stderr purba test_load.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_load.py error: ValueError: x
+test_load.py::test_one blocked: test_load.py did not load
+test_load.py::test_two blocked: test_load.py did not load
+2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error
 LINES
   [[ -z "${stderr}" ]]
 }

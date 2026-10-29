@@ -38,19 +38,19 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
 - **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
-- **A run prints to stdout the line of each test that selection refuses, then each other test's line as the test ends, and the count.** Each group of lines keeps source order.
+- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.** Each other test's line prints as dispatch hands the test on. Each group of lines keeps source order. A module that does not load prints its line, then the line of each of its tests.
 
 ```
 tests/test_a.py::test_one passed
 tests/test_a.py::test_two failed: assert 1 == 2
 tests/test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 errors
+3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 blocked; 0 errors
 ```
 
-- **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome or `error`.**
-- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. An `error` line gives the text of the error.
+- **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome, or `error`, or `blocked`.** The line of a module that does not load holds its path, then `error`.
+- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. An `error` line gives the text of the error. A `blocked` line names the module that did not load.
 - **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
-- **The count names all five, even at 0.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
+- **The count names each outcome and `blocked`, even at 0, then the errors.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
 **Downside:**
@@ -70,6 +70,7 @@ It also checks the text of each error that command returns.
 `mise run test:wheel` runs the installed `purba` on `test_a.py`, and checks the lines it prints.
 It checks that `_main` writes the line of a usage error to stderr.
 It checks that a test that aborts purba leaves the line of each test before it.
+It checks the lines of a module that does not load.
 
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when a refused test's line prints.

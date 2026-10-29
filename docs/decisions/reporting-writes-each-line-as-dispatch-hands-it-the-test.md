@@ -26,7 +26,7 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reporting writes each line as dispatch hands it the test.**
 
-- **Dispatch calls a function that command gives it, once for each test, as the worker returns the test's outcome or error.** The function returns `ControlFlow`, and no test runs after a `Break`.
+- **Dispatch calls a function that command gives it, once for each test and once for each module that does not load.** The function returns `ControlFlow`, and no test runs after a `Break`. For a test that runs, dispatch calls the function as the worker returns the outcome or error of the test. For a module that does not load, dispatch calls the function with the error of the module, then for each of its tests as blocked. Dispatch runs none of those tests.
 - **Parsing and selection keep returning what they find, and command hands it on at once.**
 - **A test that selection refuses never reaches dispatch.** [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when its line prints.
 - **Reporting writes and flushes each line as it takes it, and keeps only the tally until the count.**
@@ -40,9 +40,8 @@ A crash inside a test then left the tester no line, though the tests before it r
 ## Confirmation
 
 `mise run test:rust` checks that dispatch hands each test on before it runs the next, and calls no test after a `Break`.
+It checks that, for a module that does not load, dispatch hands on its error once, then each of its tests as blocked.
 It checks that reporting flushes each line before the next test, and returns the error of a refused write.
 It checks that command runs no test after a refused write.
 `mise run test:wheel` checks that a test that aborts purba leaves the line of each test before it.
 `mise run lint:wiring` checks that each call of the hand-off that the sequence of one run draws goes along an arrow.
-
-[A module that did not load prints its error once for each of its tests](https://github.com/kalonji-tools/purba/issues/681) builds the lines of its stopped tests on this hand-off.
