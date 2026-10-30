@@ -109,7 +109,16 @@ impl Ran {
     ///
     /// `IndexError` when no assert has `index`, or the error that testing
     /// `value` raised. Either records nothing.
+    ///
+    /// # Panics
+    ///
+    /// In a build with the feature `fault`, when `PURBA_FAULT` is `assert`.
     fn __call__(&self, index: usize, value: &Bound<'_, PyAny>) -> PyResult<bool> {
+        if cfg!(feature = "fault")
+            && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "assert")
+        {
+            panic!("PURBA_FAULT=assert");
+        }
         if index >= self.asserts.len() {
             return Err(PyIndexError::new_err(format!(
                 "{RAN}({index}): the module has {} asserts",

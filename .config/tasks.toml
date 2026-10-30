@@ -173,10 +173,21 @@ run = "bats --print-output-on-failure --recursive scripts/test"
 ["test:wheel"]
 description = "Run the end-to-end tests on the purba that the wheel installs"
 #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+#   the decision:
+# docs/decisions/a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md
+#
+# Both wheels have one file name, so the `fault` wheel goes to its own folder.
+# `--features` replaces the features of pyproject.toml, so it names `extension-module` too.
+# https://github.com/PyO3/maturin/blob/v1.15.0/src/cargo_options.rs#L261-L267
 run = """
 maturin build --quiet
+maturin build --quiet --features extension-module,fault --out target/wheels-fault
 python -m venv --clear target/wheel-venv
 target/wheel-venv/bin/python -m pip install --quiet --force-reinstall --no-index \
   --find-links target/wheels purba
-PATH="$PWD/target/wheel-venv/bin:$PATH" bats --print-output-on-failure tests
+python -m venv --clear target/fault-venv
+target/fault-venv/bin/python -m pip install --quiet --force-reinstall --no-index \
+  --find-links target/wheels-fault purba
+PATH="$PWD/target/wheel-venv/bin:$PATH" FAULT_PURBA="$PWD/target/fault-venv/bin/purba" \
+  bats --print-output-on-failure tests
 """

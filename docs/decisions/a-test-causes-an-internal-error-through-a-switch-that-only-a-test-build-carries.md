@@ -37,5 +37,5 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 
 ## Confirmation
 
-No command checks this record yet.
-The slices of [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) add the feature, the second wheel and the test.
+`mise run test:wheel`, and the `wheel` job of Build on each Linux and macOS cell, run `tests/fault.bats`.
+It checks that the `fault` wheel panics under `PURBA_FAULT=assert`, that it passes without the variable, and that the wheel without `fault` does not panic.
