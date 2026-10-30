@@ -65,18 +65,25 @@ LINES
     'async def test_a():' '    ...' \
     'def test_b():' '    yield' \
     'def test_c(db: int):' '    ...' \
-    'def test_e():' '    assert True' '    return False' >test_refused.py
+    'def test_e():' '    assert True' '    return False' \
+    'def keep(function):' '    return function' \
+    '@keep' 'def test_f():' '    assert False' \
+    'def test_g():' '    assert False' \
+    'test_g = keep(test_g)' >test_refused.py
 
   run -4 --separate-stderr purba test_refused.py
 
   local no_default='the parameter db has no default, and purba cannot see which fixture builds it'
+  local rebound='line 19 binds test_g again, and purba cannot see what the name then holds'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_refused.py::test_a error: purba cannot run an async test yet
 test_refused.py::test_b error: the test is a generator, and purba does not iterate it
 test_refused.py::test_c error: ${no_default}
 test_refused.py::test_e error: the test returns a value, and purba does not read it
+test_refused.py::test_f error: the decorator keep is not purba's, and purba cannot see what it does
+test_refused.py::test_g error: ${rebound}
 test_refused.py::test_d passed
-5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 blocked; 4 errors
+7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors
 LINES
   [[ -z "${stderr}" ]]
 }
