@@ -14,5 +14,8 @@ purba-parsing = { path = "../parsing" }
 purba-reporting = { path = "../reporting" }
 purba-selection = { path = "../selection" }
 
+[features]
+fault = ["purba-assertion/fault"]
+
 [lints]
 workspace = true

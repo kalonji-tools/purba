@@ -157,9 +157,24 @@ jobs:
               sys.exit(f"the submodule is not the extension: {path}")
           PY
 
+      # Its own folder and venv keep the wheel above as the one a tester installs.
+      # `test:wheel` in .config/tasks.toml says why `--features` names both.
+      - name: Build the fault wheel on ${{ matrix.python }}
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mise run build --interpreter "$(command -v python)" \
+            --features extension-module,fault --out target/wheels-fault
+          python -m venv target/fault-venv
+          target/fault-venv/bin/python -m pip install --quiet --no-index \
+            --find-links target/wheels-fault purba
+
       #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
       - name: Run the end-to-end tests on ${{ matrix.python }}
         if: runner.os != 'Windows'
+        env:
+          FAULT_PURBA: ${{ github.workspace }}/target/fault-venv/bin/purba
         run: bats --print-output-on-failure tests
 
   Build:

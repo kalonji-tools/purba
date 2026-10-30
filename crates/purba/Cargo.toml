@@ -22,5 +22,7 @@ pyo3 = { workspace = true, features = ["abi3-py312"] }
 #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 extension-module = ["pyo3/extension-module"]
 
+fault = ["purba-command/fault"]
+
 [lints]
 workspace = true
