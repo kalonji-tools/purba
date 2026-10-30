@@ -39,16 +39,16 @@ A module that does not load blocks each of its tests, so one cause can count onc
 Reporting chooses the words of this shape:
 
 ```
-test_b.py error: ValueError: x
+test_b.py project error: ValueError: x
 test_b.py::test_one blocked: test_b.py did not load
 test_b.py::test_two blocked: test_b.py did not load
-2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error
+2 tests: 2 blocked; 1 project error
 ```
 
 **Downside:**
 
 - **A test that a panic stops prints no line yet.** [`_main`](https://github.com/kalonji-tools/purba/blob/e2e3c70/crates/purba/src/lib.rs#L33-L38) catches a panic for the whole run.
-- **The blocked column can count more tests than the `blocked` lines show.** It also counts each test whose line says `error`.
+- **The blocked column can count more tests than the `blocked` lines show.** It also counts each test whose line names the kind of an error.
 - **A module of many tests prints a blocked line for each.** The surveyed runners print one line.
 
 ## Confirmation
