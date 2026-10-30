@@ -13,6 +13,7 @@ purba prints `error` for a test that raised, for a module that does not load, an
 | six of seven surveyed runners print a test that raised as failed, and only `unittest` sets it apart | [the research of test-runner failures](https://github.com/kalonji-tools/purba/blob/56d78a28c577c265e926eceb9ef510cfcb04ef55/research/test-runner-failures.md?plain=1#L138) |
 | pytest names the helpers of its rewrite with a character that no identifier holds, "to avoid clashing" | [pytest's `rewrite.py`](https://github.com/pytest-dev/pytest/blob/9.1.1/src/_pytest/assertion/rewrite.py#L768) |
 | PyO3's `PanicException` derives from `BaseException` | [PyO3's `panic.rs`](https://github.com/PyO3/pyo3/blob/v0.29.2/src/panic.rs#L6-L16) |
+| each PyO3 extension builds its own `PanicException`, and PyO3 resumes a panic only for the exact type of its own | [PyO3's `exceptions.rs`](https://github.com/PyO3/pyo3/blob/v0.29.2/src/exceptions.rs#L190), [PyO3's `err/mod.rs`](https://github.com/PyO3/pyo3/blob/v0.29.2/src/err/mod.rs#L279-L314) |
 | `load` puts a test module in `sys.modules` under its file's name, then looks up `compile` | [`load`](https://github.com/kalonji-tools/purba/blob/efb4c9c/crates/assertion/src/lib.rs#L189-L195) |
 
 ## Considered Options
@@ -36,10 +37,11 @@ purba prints `error` for a test that raised, for a module that does not load, an
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
 | [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised | the tester's code |
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned or raised | the code under test, or the test |
-| [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, a `PanicException` that crosses a test's call | a bug report to purba |
+| [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
-- **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. A `PanicException` is an internal error.
+- **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
+- **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
 - **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`.
@@ -60,7 +62,7 @@ flowchart LR
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception" --> project
   execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]
-  execution -- "a PanicException" --> internal["<b>internal error</b>"]
+  execution -- "purba's own PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
 ```
 
@@ -68,7 +70,6 @@ flowchart LR
 
 - **A test can call `_purba_ran` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
 - **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. The tests of each part guard it.
-- **A test that catches `BaseException` hides an internal error.** `PanicException` derives from `BaseException`, so the test sees the panic, and execution does not.
 - **A failure that no part sees has no kind.** A test that ends the process through `posix._exit` or a crash leaves no line for itself.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
 
@@ -80,6 +81,7 @@ No command checks the rest of this record.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
+[A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) says how execution sees a panic that a test catches.
 [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
 [A module that binds a name purba adds is a project error](a-module-that-binds-a-name-purba-adds-is-a-project-error.md#decision-outcome) says what purba does with a module that binds the name of its hook.
 

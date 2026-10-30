@@ -27,7 +27,7 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 - **The line of an internal error names the part and the message.** Chosen. The tester learns the kind and the test, and the hook gives the rest.
 - **purba names nowhere to report, as on `main`.** Rejected. The tester must find out where a bug in purba goes.
 - **purba asks for a report once, on stderr.** Chosen. stdout keeps only the lines and the count.
-- **purba keeps Rust's own panic hook.** Chosen. It writes the location and the way to a backtrace, and purba writes no code for it.
+- **purba keeps Rust's own panic hook.** Chosen. It writes the location and the way to a backtrace, and purba writes none of its text.
 
 ## Decision Outcome
 
@@ -48,7 +48,7 @@ purba: internal error: <part>: <message>
 
 - **The line of an internal error names the part that found it, and the message.** It names no place in purba's source.
 - **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The second links the defect template. They follow the count, or the line that stopped the run.
-- **purba keeps Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr.
+- **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps it.
 - **The count always names the tests, and names each other column only above 0.** The columns keep their order: passed, failed, raised, unknown and blocked, then a semicolon, project errors and internal errors. An invocation error stops the run before the count.
 
 ```
