@@ -76,19 +76,60 @@ pub enum Kind {
 
 /// Why `run` made no outcome, as text: Python's error, that the module did not
 /// load, or that the test is not callable.
-#[derive(Debug)]
-pub struct Error(String);
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Error {
+    /// PROTOTYPE (#715): a project error, as text.
+    Project(String),
+    /// PROTOTYPE (#715): an internal error, and the part that found it.
+    Internal { part: String, message: String },
+}
+
+impl Error {
+    /// PROTOTYPE (#715): an internal error that `part` found.
+    #[must_use]
+    pub fn internal(part: &str, message: String) -> Self {
+        Self::Internal {
+            part: part.to_owned(),
+            message,
+        }
+    }
+}
 
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(&self.0)
+        match self {
+            Self::Project(text) => formatter.write_str(text),
+            Self::Internal { part, message } => write!(formatter, "{part}: {message}"),
+        }
     }
 }
 
 impl std::error::Error for Error {}
 
 fn error(err: &PyErr) -> Error {
-    Error(err.to_string())
+    Error::Project(err.to_string())
+}
+
+/// PROTOTYPE (#715): record mode's panic hook writes each panic's message here.
+static RECORDED: Mutex<Option<String>> = Mutex::new(None);
+
+fn install_record_hook() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        let previous = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |info| {
+            *RECORDED.lock().unwrap_or_else(PoisonError::into_inner) =
+                Some(purba_assertion::panic_message(info.payload()));
+            previous(info);
+        }));
+    });
+}
+
+fn take_recorded() -> Option<String> {
+    RECORDED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .take()
 }
 
 /// Runs tests in this process. It loads each module once, and keeps it under its
@@ -166,6 +207,9 @@ fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
 /// The guard could not take the place of `os._exit`.
 pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
     Python::initialize();
+    if purba_assertion::mode() == "record" {
+        install_record_hook();
+    }
     Python::attach(|py| {
         work(&mut Worker {
             py,
@@ -210,15 +254,23 @@ impl<'py> Worker<'py> {
         if !self.loaded.contains_key(&module.path) {
             let loaded =
                 purba_assertion::load(self.py, &module.path, &module.text, module.asserts.clone());
-            let failed = loaded.as_ref().err().map(error);
+            let failed = loaded.as_ref().err().map(|failed| match failed {
+                purba_assertion::LoadError::Project(err) => error(err),
+                purba_assertion::LoadError::Internal(err) => {
+                    Error::internal("assertion", err.to_string())
+                }
+            });
             self.loaded.insert(module.path.clone(), loaded.ok());
             if let Some(failed) = failed {
                 return Err(failed);
             }
         }
-        self.loaded[&module.path]
-            .as_ref()
-            .ok_or_else(|| Error(format!("{} did not load", module.path.display())))
+        self.loaded[&module.path].as_ref().ok_or_else(|| {
+            Error::internal(
+                "execution",
+                format!("{} did not load", module.path.display()),
+            )
+        })
     }
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
@@ -236,7 +288,37 @@ impl<'py> Worker<'py> {
             return Err(error(&err));
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
-        let kind = match loaded.watch(|| test.call0()) {
+        // PROTOTYPE (#715): a test named *_panics_before_call panics in execution,
+        // before its call, which only dispatch's catch can stop.
+        assert!(
+            !function.ends_with("_panics_before_call"),
+            "PROTOTYPE fault: execution panicked before the test's call"
+        );
+        let mode = purba_assertion::mode();
+        let catches = mode == "execution" || mode == "record";
+        let _ = take_recorded();
+        let (called, last, internal) = loaded.watch(|| {
+            if catches {
+                match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| test.call0())) {
+                    Ok(result) => result.map(|_| None),
+                    Err(payload) => Ok(Some(purba_assertion::panic_message(&*payload))),
+                }
+            } else {
+                test.call0().map(|_| None)
+            }
+        });
+        if let Some((part, message)) = internal {
+            return Err(Error::internal(part, message));
+        }
+        if let Ok(Some(message)) = called {
+            return Err(Error::internal("execution", message));
+        }
+        if mode == "record"
+            && let Some(message) = take_recorded()
+        {
+            return Err(Error::internal("execution", message));
+        }
+        let kind = match (called, last) {
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
             (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
@@ -263,6 +345,8 @@ pub struct Tally {
     pub unknown: usize,
     pub blocked: usize,
     pub errors: usize,
+    /// PROTOTYPE (#715): internal errors.
+    pub internal: usize,
 }
 
 impl Tally {
@@ -284,6 +368,11 @@ impl Tally {
     /// Counts one test that an error outside the test blocked.
     pub const fn add_blocked(&mut self) {
         self.blocked += 1;
+    }
+
+    /// PROTOTYPE (#715): counts one internal error.
+    pub const fn add_internal(&mut self) {
+        self.internal += 1;
     }
 
     /// Counts one error that belongs to no test.

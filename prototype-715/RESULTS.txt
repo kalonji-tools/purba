@@ -1,0 +1,143 @@
+### main
+test_q1.py::test_a raised: ExitInsideATest: os._exit(0)
+test_q1.py::test_b passed
+test_q1.py::test_c_panics_before_call passed
+test_q1.py::test_d_catches passed
+test_q1.py::test_e passed
+5 tests: 4 passed, 0 failed, 1 raised, 0 unknown, 0 blocked; 0 errors
+exit=4
+### PURBA_CATCH=dispatch
+test_q1.py::test_a internal error: dispatch: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_b raised: ExitInsideATest: os._exit(0)
+test_q1.py::test_c_panics_before_call internal error: dispatch: PROTOTYPE fault: execution panicked before the test's call
+test_q1.py::test_d_catches passed
+test_q1.py::test_e passed
+5 tests: 2 passed, 0 failed, 1 raised, 0 unknown, 2 blocked; 0 project errors, 2 internal errors
+exit=125
+  stderr|
+  stderr| thread '<unnamed>' (3444436) panicked at crates/assertion/src/lib.rs:185:13:
+  stderr| PROTOTYPE fault: the assert hook panicked
+  stderr| note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  stderr| --- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+  stderr| Python stack trace below:
+### PURBA_CATCH=execution
+test_q1.py::test_a internal error: execution: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_b passed
+test_q1.py::test_c_panics_before_call internal error: dispatch: PROTOTYPE fault: execution panicked before the test's call
+test_q1.py::test_d_catches passed
+test_q1.py::test_e passed
+5 tests: 3 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 0 project errors, 2 internal errors
+exit=125
+  stderr|
+  stderr| thread '<unnamed>' (3444439) panicked at crates/assertion/src/lib.rs:185:13:
+  stderr| PROTOTYPE fault: the assert hook panicked
+  stderr| note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  stderr| --- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+  stderr| Python stack trace below:
+### PURBA_CATCH=hook
+test_q1.py::test_a internal error: assertion: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_b passed
+test_q1.py::test_c_panics_before_call internal error: dispatch: PROTOTYPE fault: execution panicked before the test's call
+test_q1.py::test_d_catches internal error: assertion: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_e passed
+5 tests: 2 passed, 0 failed, 0 raised, 0 unknown, 3 blocked; 0 project errors, 3 internal errors
+exit=125
+  stderr|
+  stderr| thread '<unnamed>' (3444442) panicked at crates/assertion/src/lib.rs:185:13:
+  stderr| PROTOTYPE fault: the assert hook panicked
+  stderr| note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  stderr|
+  stderr| thread '<unnamed>' (3444442) panicked at crates/execution/src/lib.rs:290:9:
+### PURBA_CATCH=record
+test_q1.py::test_a internal error: execution: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_b passed
+test_q1.py::test_c_panics_before_call internal error: dispatch: PROTOTYPE fault: execution panicked before the test's call
+test_q1.py::test_d_catches internal error: execution: PROTOTYPE fault: the assert hook panicked
+test_q1.py::test_e passed
+5 tests: 2 passed, 0 failed, 0 raised, 0 unknown, 3 blocked; 0 project errors, 3 internal errors
+exit=125
+  stderr|
+  stderr| thread '<unnamed>' (3444445) panicked at crates/assertion/src/lib.rs:185:13:
+  stderr| PROTOTYPE fault: the assert hook panicked
+  stderr| note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  stderr| --- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+  stderr| Python stack trace below:
+### main test_body_raises.py
+test_body_raises.py error: ValueError: boom
+test_body_raises.py::test_x blocked: test_body_raises.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error
+exit=4
+### proto test_body_raises.py
+test_body_raises.py project error: ValueError: boom
+test_body_raises.py::test_x blocked: test_body_raises.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 project error, 0 internal errors
+exit=4
+### main test_return_outside.py
+test_return_outside.py error: SyntaxError: 'return' outside function (test_return_outside.py, line 1)
+test_return_outside.py::test_x blocked: test_return_outside.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error
+exit=4
+### proto test_return_outside.py
+test_return_outside.py project error: SyntaxError: 'return' outside function (test_return_outside.py, line 1)
+test_return_outside.py::test_x blocked: test_return_outside.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 project error, 0 internal errors
+exit=4
+### main test_binds_hook.py
+test_binds_hook.py error: NameError: test_binds_hook.py binds _purba_ran, the name of purba's assert hook
+test_binds_hook.py::test_x blocked: test_binds_hook.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error
+exit=4
+### proto test_binds_hook.py
+test_binds_hook.py project error: NameError: test_binds_hook.py binds _purba_ran, the name of purba's assert hook
+test_binds_hook.py::test_x blocked: test_binds_hook.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 project error, 0 internal errors
+exit=4
+### main test_pops_name.py
+test_pops_name.py::test_x error: AttributeError: module 'test_pops_name' has no attribute 'test_x'
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error
+exit=4
+### proto test_pops_name.py
+test_pops_name.py::test_x project error: AttributeError: module 'test_pops_name' has no attribute 'test_x'
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 project error, 0 internal errors
+exit=4
+### main test_forged_index.py
+test_forged_index.py::test_x raised: IndexError: _purba_ran(99): the module has 1 asserts
+1 test: 0 passed, 0 failed, 1 raised, 0 unknown, 0 blocked; 0 errors
+exit=4
+### proto test_forged_index.py
+test_forged_index.py::test_x raised: IndexError: _purba_ran(99): the module has 1 asserts
+1 test: 0 passed, 0 failed, 1 raised, 0 unknown, 0 blocked; 0 project errors, 0 internal errors
+exit=4
+### main test_rebinds_in_test.py
+test_rebinds_in_test.py::test_x raised: NameError: test_rebinds_in_test.py binds _purba_ran, the name of purba's assert hook
+test_rebinds_in_test.py::test_y passed
+2 tests: 1 passed, 0 failed, 1 raised, 0 unknown, 0 blocked; 0 errors
+exit=4
+### proto test_rebinds_in_test.py
+test_rebinds_in_test.py::test_x raised: NameError: test_rebinds_in_test.py binds _purba_ran, the name of purba's assert hook
+test_rebinds_in_test.py::test_y passed
+2 tests: 1 passed, 0 failed, 1 raised, 0 unknown, 0 blocked; 0 project errors, 0 internal errors
+exit=4
+### proto test_rebinds_in_test.py PURBA_FAULT=hook-back
+test_rebinds_in_test.py::test_x internal error: execution: RuntimeError: PROTOTYPE fault: the hook could not be put back
+test_rebinds_in_test.py::test_y internal error: execution: RuntimeError: PROTOTYPE fault: the hook could not be put back
+2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 0 project errors, 2 internal errors
+exit=125
+### proto test_plain.py PURBA_FAULT=load-own-call
+test_plain.py internal error: assertion: RuntimeError: PROTOTYPE fault: PyModule::new failed
+test_plain.py::test_x blocked: test_plain.py did not load
+1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 0 project errors, 1 internal error
+exit=125
+### proto test_q1.py PURBA_CATCH=none (today's catch)
+
+thread '<unnamed>' (3444672) panicked at crates/assertion/src/lib.rs:185:13:
+PROTOTYPE fault: the assert hook panicked
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+--- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+Python stack trace below:
+Traceback (most recent call last):
+  File "test_q1.py", line 9, in test_a
+    assert "purba:panic"
+           ^^^^^^^^^^^^^^
+pyo3_runtime.PanicException: PROTOTYPE fault: the assert hook panicked
+exit=125

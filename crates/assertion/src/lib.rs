@@ -14,6 +14,62 @@ use std::sync::{Mutex, PoisonError};
 /// The name that each marked assert calls.
 const RAN: &str = "_purba_ran";
 
+// PROTOTYPE (#715), never merge. PURBA_CATCH picks where a panic stops:
+// none (today), dispatch, execution, hook, record. PURBA_FAULT injects a fault.
+/// PROTOTYPE (#715): the catch mode.
+#[must_use]
+pub fn mode() -> String {
+    std::env::var("PURBA_CATCH").unwrap_or_else(|_| "none".to_owned())
+}
+
+/// PROTOTYPE (#715): the fault switch.
+#[must_use]
+pub fn fault() -> String {
+    std::env::var("PURBA_FAULT").unwrap_or_default()
+}
+
+/// PROTOTYPE (#715): the text of a panic's payload.
+#[must_use]
+pub fn panic_message(payload: &(dyn std::any::Any + Send)) -> String {
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| {
+            payload
+                .downcast_ref::<&str>()
+                .map(|text| (*text).to_owned())
+        })
+        .unwrap_or_else(|| "a panic with no message".to_owned())
+}
+
+mod internal {
+    pyo3::create_exception!(
+        purba,
+        InternalErrorInsideATest,
+        pyo3::exceptions::PyBaseException
+    );
+}
+
+/// PROTOTYPE (#715): the message of purba's own exception, when `err` is one.
+#[must_use]
+pub fn internal_message(py: Python<'_>, err: &PyErr) -> Option<String> {
+    err.is_instance_of::<internal::InternalErrorInsideATest>(py)
+        .then(|| err.value(py).to_string())
+}
+
+/// PROTOTYPE (#715): why `load` failed, sorted by Q3's line.
+#[derive(Debug)]
+pub enum LoadError {
+    /// The tester's text did not compile or run.
+    Project(PyErr),
+    /// A call that purba makes on its own objects failed.
+    Internal(PyErr),
+}
+
+fn own<T>(result: PyResult<T>) -> Result<T, LoadError> {
+    result.map_err(LoadError::Internal)
+}
+
 /// The rewritten text of one module, and the source text of each of its asserts.
 pub struct Rewrite {
     text: String,
@@ -98,6 +154,9 @@ pub fn rewrite(module: &Module) -> Rewrite {
 struct Ran {
     asserts: Vec<String>,
     last: Mutex<Option<(usize, bool)>>,
+    // PROTOTYPE (#715): hook mode records its own panic, so that a test that
+    // catches BaseException cannot hide it.
+    panicked: Mutex<Option<String>>,
 }
 
 #[pymethods]
@@ -110,6 +169,32 @@ impl Ran {
     /// `IndexError` when no assert has `index`, or the error that testing
     /// `value` raised. Either records nothing.
     fn __call__(&self, index: usize, value: &Bound<'_, PyAny>) -> PyResult<bool> {
+        if mode() == "hook" {
+            return match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                self.call(index, value)
+            })) {
+                Ok(result) => result,
+                Err(payload) => {
+                    let message = panic_message(&*payload);
+                    *self.panicked.lock().unwrap_or_else(PoisonError::into_inner) =
+                        Some(message.clone());
+                    Err(internal::InternalErrorInsideATest::new_err(message))
+                }
+            };
+        }
+        self.call(index, value)
+    }
+}
+
+impl Ran {
+    fn call(&self, index: usize, value: &Bound<'_, PyAny>) -> PyResult<bool> {
+        // PROTOTYPE (#715): `assert "purba:panic"` makes the hook panic.
+        if value
+            .extract::<String>()
+            .is_ok_and(|text| text == "purba:panic")
+        {
+            panic!("PROTOTYPE fault: the assert hook panicked");
+        }
         if index >= self.asserts.len() {
             return Err(PyIndexError::new_err(format!(
                 "{RAN}({index}): the module has {} asserts",
@@ -153,17 +238,47 @@ impl<'py> Loaded<'py> {
     pub fn watch<T>(
         &self,
         call: impl FnOnce() -> PyResult<T>,
-    ) -> (PyResult<T>, Option<(&str, bool)>) {
+    ) -> (
+        PyResult<T>,
+        Option<(&str, bool)>,
+        Option<(&'static str, String)>,
+    ) {
         let ran = self.ran.get();
         let _ = ran.take();
+        let mut internal = None;
         let result = match (call(), check(&self.module, &self.ran, &self.path)) {
             (result, Ok(())) => result,
-            (_, Err(err)) => self.module.dict().set_item(RAN, &self.ran).and(Err(err)),
+            (_, Err(err)) => {
+                // PROTOTYPE (#715): PURBA_FAULT=hook-back makes the put-back fail.
+                let back = if fault() == "hook-back" {
+                    Err(pyo3::exceptions::PyRuntimeError::new_err(
+                        "PROTOTYPE fault: the hook could not be put back",
+                    ))
+                } else {
+                    self.module.dict().set_item(RAN, &self.ran)
+                };
+                match back {
+                    Ok(()) => Err(err),
+                    Err(back) => {
+                        internal = Some(("execution", back.to_string()));
+                        Err(err)
+                    }
+                }
+            }
         };
         let last = ran
             .take()
             .and_then(|(index, held)| Some((ran.asserts.get(index)?.as_str(), held)));
-        (result, last)
+        // PROTOTYPE (#715): hook mode sees its own panic, though the test caught it.
+        if let Some(message) = ran
+            .panicked
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take()
+        {
+            internal.get_or_insert(("assertion", message));
+        }
+        (result, last, internal)
     }
 }
 
@@ -189,27 +304,34 @@ pub fn load<'py>(
     path: &Path,
     text: &str,
     asserts: Vec<String>,
-) -> PyResult<Loaded<'py>> {
+) -> Result<Loaded<'py>, LoadError> {
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
-    let module = PyModule::new(py, &name)?;
-    module.setattr("__file__", path.as_os_str())?;
-    let ran = Bound::new(
+    // PROTOTYPE (#715): PURBA_FAULT=load-own-call makes purba's own first call fail.
+    if fault() == "load-own-call" {
+        return Err(LoadError::Internal(
+            pyo3::exceptions::PyRuntimeError::new_err("PROTOTYPE fault: PyModule::new failed"),
+        ));
+    }
+    let module = own(PyModule::new(py, &name))?;
+    own(module.setattr("__file__", path.as_os_str()))?;
+    let ran = own(Bound::new(
         py,
         Ran {
             asserts,
             last: Mutex::new(None),
+            panicked: Mutex::new(None),
         },
-    )?;
-    module.setattr(RAN, &ran)?;
-    let modules = py.import("sys")?.getattr("modules")?;
+    ))?;
+    own(module.setattr(RAN, &ran))?;
+    let modules = own(py.import("sys").and_then(|sys| sys.getattr("modules")))?;
     let before = modules.get_item(&*name).ok();
-    modules.set_item(&*name, &module)?;
+    own(modules.set_item(&*name, &module))?;
     if let Err(err) = run(py, path, text, &module).and_then(|()| check(&module, &ran, path)) {
         let _ = before.map_or_else(
             || modules.del_item(&*name),
             |before| modules.set_item(&*name, before),
         );
-        return Err(err);
+        return Err(LoadError::Project(err));
     }
     Ok(Loaded {
         path: path.to_owned(),

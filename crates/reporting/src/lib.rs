@@ -32,7 +32,36 @@ impl<W: Write> Report<W> {
         test: &T,
         result: &Result<Outcome, Error>,
     ) -> io::Result<()> {
+        // PROTOTYPE (#715): an internal error gets a line and a column of its own.
+        if let Err(error @ Error::Internal { .. }) = result {
+            self.tally.add_blocked();
+            self.tally.add_internal();
+            writeln!(
+                self.out,
+                "{test} internal error: {}",
+                one_line(&error.to_string())
+            )?;
+            return self.out.flush();
+        }
         self.add(test, result.as_ref().map(Outcome::kind))
+    }
+
+    /// PROTOTYPE (#715): a module that did not load, by its execution error.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn not_loaded_by<M: Display>(&mut self, module: &M, error: &Error) -> io::Result<()> {
+        if matches!(error, Error::Internal { .. }) {
+            self.tally.add_internal();
+            writeln!(
+                self.out,
+                "{module} internal error: {}",
+                one_line(&error.to_string())
+            )?;
+            return self.out.flush();
+        }
+        self.not_loaded(module, error)
     }
 
     /// Adds `test` to the tally as blocked by its own error, which a part
@@ -53,7 +82,11 @@ impl<W: Write> Report<W> {
     /// When `out` refuses the write or the flush.
     pub fn not_loaded<M: Display, E: Display>(&mut self, module: &M, error: &E) -> io::Result<()> {
         self.tally.add_error();
-        writeln!(self.out, "{module} error: {}", one_line(&error.to_string()))?;
+        writeln!(
+            self.out,
+            "{module} project error: {}",
+            one_line(&error.to_string())
+        )?;
         self.out.flush()
     }
 
@@ -88,7 +121,11 @@ impl<W: Write> Report<W> {
             }
             Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran")?,
             Err(error) => {
-                writeln!(out, "{test} error: {}", one_line(&error.to_string()))?;
+                writeln!(
+                    out,
+                    "{test} project error: {}",
+                    one_line(&error.to_string())
+                )?;
             }
         }
         out.flush()
@@ -109,7 +146,7 @@ impl<W: Write> Report<W> {
 fn count_line(tally: &Tally) -> String {
     let tests = tally.passed + tally.failed + tally.raised + tally.unknown + tally.blocked;
     format!(
-        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} blocked; {} error{}",
+        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} blocked; {} project error{}, {} internal error{}",
         plural(tests),
         tally.passed,
         tally.failed,
@@ -118,11 +155,15 @@ fn count_line(tally: &Tally) -> String {
         tally.blocked,
         tally.errors,
         plural(tally.errors),
+        tally.internal,
+        plural(tally.internal),
     )
 }
 
 const fn exit_code(tally: &Tally) -> u8 {
-    if tally.failed > 0 {
+    if tally.internal > 0 {
+        125
+    } else if tally.failed > 0 {
         1
     } else if tally.raised > 0 || tally.errors > 0 {
         4

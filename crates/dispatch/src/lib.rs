@@ -3,6 +3,7 @@
 //! module that did not load.
 
 use std::ops::ControlFlow;
+use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::PathBuf;
 
 use purba_execution::{Error, Outcome};
@@ -72,7 +73,13 @@ pub fn hand<T: Test, B>(
             }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.text, module.asserts);
-            if let Err(error) = worker.load(&executable) {
+            let loaded = if catches() {
+                catch_unwind(AssertUnwindSafe(|| worker.load(&executable)))
+                    .unwrap_or_else(|payload| Err(Error::internal("dispatch", message(&*payload))))
+            } else {
+                worker.load(&executable)
+            };
+            if let Err(error) = loaded {
                 each(Handed::NotLoaded(path.clone(), error))?;
                 for test in module.tests {
                     each(Handed::Blocked(test, path.clone()))?;
@@ -80,10 +87,34 @@ pub fn hand<T: Test, B>(
                 continue;
             }
             for test in module.tests {
-                let result = worker.run(&executable, test.function());
+                let result = if catches() {
+                    catch_unwind(AssertUnwindSafe(|| {
+                        worker.run(&executable, test.function())
+                    }))
+                    .unwrap_or_else(|payload| Err(Error::internal("dispatch", message(&*payload))))
+                } else {
+                    worker.run(&executable, test.function())
+                };
                 each(Handed::Test(test, result))?;
             }
         }
         ControlFlow::Continue(())
     })
+}
+
+// PROTOTYPE (#715), never merge: every mode but `none` catches here too.
+fn catches() -> bool {
+    std::env::var("PURBA_CATCH").is_ok_and(|mode| mode != "none")
+}
+
+fn message(payload: &(dyn std::any::Any + Send)) -> String {
+    payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| {
+            payload
+                .downcast_ref::<&str>()
+                .map(|text| (*text).to_owned())
+        })
+        .unwrap_or_else(|| "a panic with no message".to_owned())
 }

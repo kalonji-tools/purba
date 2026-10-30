@@ -36,7 +36,8 @@ fn main(py: Python<'_>) -> u8 {
         Ok(Ok(code)) => code,
         Ok(Err(error)) => stop(&error),
         // The panic hook already wrote the panic's message to stderr.
-        Err(_) => 3,
+        // PROTOTYPE (#715): 125, as the exit-code record says.
+        Err(_) => 125,
     }
 }
 

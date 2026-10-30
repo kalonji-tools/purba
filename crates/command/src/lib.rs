@@ -66,7 +66,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result) => report.line(&test, &result),
-            Handed::NotLoaded(path, error) => report.not_loaded(&path.display(), &error),
+            Handed::NotLoaded(path, error) => report.not_loaded_by(&path.display(), &error),
             Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
         }
         .map_or_else(ControlFlow::Break, ControlFlow::Continue)
