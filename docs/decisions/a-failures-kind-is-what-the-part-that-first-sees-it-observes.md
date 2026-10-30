@@ -5,7 +5,7 @@
 The concern [errors](../../LANDSCAPE.md#the-cross-cutting-concerns) keeps apart what a [run](../../CONTEXT.md#run) says about a test and what goes wrong around it.
 A kind that no part can tell from another kind cannot travel along the parts diagram.
 No check can apply such a kind.
-purba prints `error` for a test that raised, for a module that does not load, and for a defect of its own.
+On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module that does not load, and a defect of its own.
 
 | fact | source |
 |---|---|
@@ -75,7 +75,8 @@ flowchart LR
 
 ## Confirmation
 
-`mise run test:rust` checks that a test that selection refuses is a project error.
+`mise run test:rust` checks that a test that selection refuses, and a module that does not parse or load, prints a project error.
+`mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error.
 No command checks the rest of this record.
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names the gate of the kinds.
 [A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) builds part of what it decides.

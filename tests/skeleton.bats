@@ -25,7 +25,7 @@ LINES
 @test "purba with no path exits 3, and says why on stderr" {
   run -3 --separate-stderr purba
 
-  [[ "${stderr}" == "purba: usage: purba <path to one .py file>" ]] || false
+  [[ "${stderr}" == "purba: invocation error: usage: purba <path to one .py file>" ]] || false
   [[ -z "${output}" ]]
 }
 
@@ -34,7 +34,8 @@ LINES
 
   run -3 --separate-stderr bash -c 'purba test_a.py >&-'
 
-  [[ "${stderr}" == "purba: cannot write to stdout: Bad file descriptor (os error 9)" ]]
+  local refused='purba: invocation error: cannot write to stdout: Bad file descriptor (os error 9)'
+  [[ "${stderr}" == "${refused}" ]]
 }
 
 @test "purba with stdout open for reading exits 3, and says why on stderr" {
@@ -42,7 +43,8 @@ LINES
 
   run -3 --separate-stderr bash -c 'purba test_a.py 1</dev/null'
 
-  [[ "${stderr}" == "purba: cannot write to stdout: Bad file descriptor (os error 9)" ]]
+  local refused='purba: invocation error: cannot write to stdout: Bad file descriptor (os error 9)'
+  [[ "${stderr}" == "${refused}" ]]
 }
 
 @test "a test that aborts purba leaves the line of each test before it" {
@@ -75,13 +77,14 @@ LINES
 
   local no_default='the parameter db has no default, and purba cannot see which fixture builds it'
   local rebound='line 19 binds test_g again, and purba cannot see what the name then holds'
+  local foreign="the decorator keep is not purba's, and purba cannot see what it does"
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_refused.py::test_a error: purba cannot run an async test yet
-test_refused.py::test_b error: the test is a generator, and purba does not iterate it
-test_refused.py::test_c error: ${no_default}
-test_refused.py::test_e error: the test returns a value, and purba does not read it
-test_refused.py::test_f error: the decorator keep is not purba's, and purba cannot see what it does
-test_refused.py::test_g error: ${rebound}
+test_refused.py::test_a project error: purba cannot run an async test yet
+test_refused.py::test_b project error: the test is a generator, and purba does not iterate it
+test_refused.py::test_c project error: ${no_default}
+test_refused.py::test_e project error: the test returns a value, and purba does not read it
+test_refused.py::test_f project error: ${foreign}
+test_refused.py::test_g project error: ${rebound}
 test_refused.py::test_d passed
 7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors
 LINES
@@ -98,7 +101,7 @@ LINES
   run -4 --separate-stderr purba test_load.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_load.py error: ValueError: x
+test_load.py project error: ValueError: x
 test_load.py::test_one blocked: test_load.py did not load
 test_load.py::test_two blocked: test_load.py did not load
 2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error
@@ -116,7 +119,7 @@ LINES
   run -4 --separate-stderr purba test_paren.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_paren.py error: SyntaxError: Expected a parameter or the end of the parameter list
+test_paren.py project error: SyntaxError: Expected a parameter or the end of the parameter list
 0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error
 LINES
   [[ -z "${stderr}" ]]
