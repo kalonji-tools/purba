@@ -23,7 +23,6 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **A directory and a query as the input.** Rejected. The query language belongs to the design in depth of selection.
 - **A data format for an [integrator](../../CONTEXT.md#integrator) now, such as JSON Lines.** Rejected. Reporting decides a format in its design in depth, and a format chosen now joins the public surface first.
 - **A test that raised prints as failed.** Rejected. The tester cannot tell a defect that an assert found from an exception that stopped the test.
-- **A count that names a kind only above 0.** Rejected. The count changes its shape from run to run. A run with no `unknown` test does not name `unknown`.
 - **A reason over several lines prints each line break as `\n`.** Rejected. An escaped reason is hard to read.
 - **A reason over several lines prints only its first line.** Rejected. A cut reason hides the rest of the assert or the error.
 - **A console script on one path to one module, which prints one line for each test and a count of each kind and each error.** Chosen. It adds one command and one private name, and the wheel keeps its layout.
@@ -37,20 +36,20 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
-- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
+- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
 - **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.** Each other test's line prints as dispatch hands the test on. Each group of lines keeps source order. A module that does not load prints its line, then the line of each of its tests. A module that does not parse prints its line and the count, and no line for a test.
 
 ```
 tests/test_a.py::test_one passed
 tests/test_a.py::test_two failed: assert 1 == 2
 tests/test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 blocked; 0 errors
+3 tests: 1 passed, 1 failed, 1 unknown
 ```
 
-- **Each line holds the path as the tester typed it, then `::`, the name of the test function, and its outcome, or `error`, or `blocked`.** The line of a module that does not parse or load holds its path, then `error`.
-- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. An `error` line gives the text of the error. A `blocked` line names the module that did not load.
+- **Each line holds the path as the tester typed it, then `::` and the name of the test function.** Then it names the test's outcome, `blocked`, or the kind of its error. The line of a module that does not parse or load holds its path, then `project error`.
+- **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
 - **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
-- **The count names each outcome and `blocked`, even at 0, then the errors.** `test` and `error` take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`.
+- **The count names the tests, then each outcome, `blocked` and each kind of error above 0.** `test` and each kind of error take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
 **Downside:**
