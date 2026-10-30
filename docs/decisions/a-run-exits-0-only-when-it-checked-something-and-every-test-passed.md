@@ -78,12 +78,12 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
-- **purba does not exit 125 yet.** Today `_main` returns 3 for a panic too, until [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) closes.
+- **purba does not exit 125 yet.** Today `_main` returns 3 for a panic too, until the issue [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) closes.
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
 - **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
-- **An internal error that reaches dispatch exits 4, as a test that raised does.** [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) tells the two apart, and [Which slices build the test of the errors map's destination, and in what order?](https://github.com/kalonji-tools/purba/issues/717) builds it.
+- **An internal error that reaches dispatch exits 4, as a test that raised does.** [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) tells the two apart, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds what it decides.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
 - **A thread that calls `os._exit` after its test returned charges the test that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
@@ -99,4 +99,5 @@ It checks that command returns 1 for a module with a failed test, and returns 2 
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 No command checks the rest.
-[Which slices build the test of the errors map's destination, and in what order?](https://github.com/kalonji-tools/purba/issues/717) chooses the slices that build exit 125 and its check.
+[A panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) builds exit 125 for a panic that stops the run, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds it for a panic inside a test.
+Each adds its check.

@@ -50,7 +50,7 @@ It can also change into another kind in the line that reporting writes, or in th
 ## Confirmation
 
 No command checks this record yet.
-[Which slices build the test of the errors map's destination, and in what order?](https://github.com/kalonji-tools/purba/issues/717) chooses the slices that build `tests/kinds.bats` and its step in the `wheel` job.
+[A test build carries a switch that panics inside purba's assert hook](https://github.com/kalonji-tools/purba/issues/725) builds the `fault` wheel in the `wheel` job, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds `tests/kinds.bats`.
 The pull request that builds `tests/kinds.bats` adds the mutant's command and its output here.
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
