@@ -67,7 +67,8 @@ purba: internal error: <part>: <message>
 ## Confirmation
 
 No command checks this record yet.
-[Which gate refuses a change that prints one kind of failure as another?](https://github.com/kalonji-tools/purba/issues/716) chooses its gate.
+[A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names its gate.
+[Which slices build the test of the errors map's destination, and in what order?](https://github.com/kalonji-tools/purba/issues/717) chooses the slices that build it.
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.

@@ -77,6 +77,7 @@ flowchart LR
 
 `mise run test:rust` checks that a test that selection refuses is a project error.
 No command checks the rest of this record.
+[A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names the gate of the kinds.
 [A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) builds part of what it decides.
 [Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
 

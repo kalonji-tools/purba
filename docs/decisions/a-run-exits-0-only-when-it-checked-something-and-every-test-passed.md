@@ -99,3 +99,4 @@ It checks that command returns 1 for a module with a failed test, and returns 2 
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 No command checks the rest.
+[Which slices build the test of the errors map's destination, and in what order?](https://github.com/kalonji-tools/purba/issues/717) chooses the slices that build exit 125 and its check.
