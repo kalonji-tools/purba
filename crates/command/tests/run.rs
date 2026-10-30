@@ -181,7 +181,11 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
         "async def test_a():\n    ...\n\n",
         "def test_b():\n    yield\n\n",
         "def test_c(db: int):\n    ...\n\n",
-        "def test_e():\n    assert True\n    return False\n",
+        "def test_e():\n    assert True\n    return False\n\n",
+        "def keep(function):\n    return function\n\n",
+        "@keep\ndef test_f():\n    assert False\n\n",
+        "def test_g():\n    assert False\n\n",
+        "test_g = keep(test_g)\n",
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();
@@ -194,8 +198,12 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
              {0}::test_c error: the parameter db has no default, \
              and purba cannot see which fixture builds it\n\
              {0}::test_e error: the test returns a value, and purba does not read it\n\
+             {0}::test_f error: the decorator keep is not purba's, \
+             and purba cannot see what it does\n\
+             {0}::test_g error: line 27 binds test_g again, \
+             and purba cannot see what the name then holds\n\
              {0}::test_d passed\n\
-             5 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 4 blocked; 4 errors\n",
+             7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors\n",
             path.display()
         ),
         "each refused line first, then the line of the test that runs"
@@ -363,7 +371,7 @@ fn a_test_whose_own_error_blocks_it_keeps_its_error_line() {
         "def test_ok():\n    assert True\n\n",
         "async def test_async():\n    ...\n\n",
         "def test_five():\n    pass\n\n",
-        "test_five = 5\n",
+        "globals()[\"test_five\"] = 5\n",
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();

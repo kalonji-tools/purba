@@ -20,6 +20,8 @@ A person who reads one test then cannot see what runs in its place.
 - **A decorator of purba on a class that holds the tests.** Rejected. A person who reads one method does not see the decorator on its class.
 - **A mark for the whole module, such as pytest's `pytestmark`.** Rejected. A person who reads one test does not see the mark. A run that picks its files by platform leaves out a module that cannot load there.
 - **Selection refuses a test when the module binds its name again after its last `def`, or its decorator's name after its import.** Chosen. A test's name bound again is a decorator in another form. A decorator's name bound again does not say what purba does.
+- **Selection refuses a test whose name a function binds under `global`, wherever the function stands.** Chosen. Selection already refuses a `yield` in a branch that never runs, so a binding that may never run counts too.
+- **Selection leaves a name bound under `global` in a function unseen, as it leaves `globals()`.** Rejected. Execution then calls what the function bound, and a person who reads the test cannot see it.
 
 ## Decision Outcome
 
@@ -33,7 +35,7 @@ A person who reads one test then cannot see what runs in its place.
 - **Selection refuses a test whose decorator uses a name that the module binds again after its import.** After `from purba import skip`, `skip = keep` is one such binding.
 - **A decorator of purba returns the function that it takes.** The body that selection judges is then the body that runs.
 - **Selection judges each `def`, under any decorator.** A refused line names the decorator, then each reason in the body.
-- **Selection refuses a test whose name the module binds again after its last `def`.** The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a `del` as a binding.
+- **Selection refuses a test whose name the module binds again after its last `def`, or under `global` in a function wherever it stands.** The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a `del` as a binding.
 - **purba has no decorator for a class and no mark for a module.** A module that cannot load on one platform waits for a run that picks its files by platform.
 
 **Downside:**
@@ -46,8 +48,7 @@ A person who reads one test then cannot see what runs in its place.
 
 ## Confirmation
 
-No command checks this record yet.
-[Selection hands on a decorated test unjudged](https://github.com/kalonji-tools/purba/issues/708) builds what selection refuses here.
+`mise run test:rust` checks that selection refuses a test that carries a decorator that is not purba's, and a test whose name the module binds again.
 The milestone that adds purba's first decorator builds the two forms of its name, and the refusal of that name bound again.
 The designs in depth of configuration and selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decide how a run picks its files by platform.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what selection judges in the body.

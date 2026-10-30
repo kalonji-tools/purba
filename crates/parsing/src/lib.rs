@@ -39,6 +39,16 @@ impl Module {
     pub const fn syntax(&self) -> &ModModule {
         &self.syntax
     }
+
+    /// The place of `offset`, a byte offset into the text.
+    #[must_use]
+    pub fn position(&self, offset: TextSize) -> Position {
+        let place = LineIndex::from_source_text(&self.source).line_column(offset, &self.source);
+        Position {
+            line: place.line.get(),
+            column: place.column.get(),
+        }
+    }
 }
 
 impl Drop for Module {
@@ -210,20 +220,10 @@ pub fn parse(path: &Path) -> Result<Module, Error> {
     };
     match first {
         None => Ok(module),
-        Some((message, location)) => {
-            let lines = LineIndex::from_source_text(module.source());
-            let at = |offset: TextSize| {
-                let place = lines.line_column(offset, module.source());
-                Position {
-                    line: place.line.get(),
-                    column: place.column.get(),
-                }
-            };
-            Err(Error::Syntax(SyntaxError {
-                message,
-                start: at(location.start()),
-                end: at(location.end()),
-            }))
-        }
+        Some((message, location)) => Err(Error::Syntax(SyntaxError {
+            message,
+            start: module.position(location.start()),
+            end: module.position(location.end()),
+        })),
     }
 }
