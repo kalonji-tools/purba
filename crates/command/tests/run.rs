@@ -193,14 +193,14 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{0}::test_a error: purba cannot run an async test yet\n\
-             {0}::test_b error: the test is a generator, and purba does not iterate it\n\
-             {0}::test_c error: the parameter db has no default, \
+            "{0}::test_a project error: purba cannot run an async test yet\n\
+             {0}::test_b project error: the test is a generator, and purba does not iterate it\n\
+             {0}::test_c project error: the parameter db has no default, \
              and purba cannot see which fixture builds it\n\
-             {0}::test_e error: the test returns a value, and purba does not read it\n\
-             {0}::test_f error: the decorator keep is not purba's, \
+             {0}::test_e project error: the test returns a value, and purba does not read it\n\
+             {0}::test_f project error: the decorator keep is not purba's, \
              and purba cannot see what it does\n\
-             {0}::test_g error: line 27 binds test_g again, \
+             {0}::test_g project error: line 27 binds test_g again, \
              and purba cannot see what the name then holds\n\
              {0}::test_d passed\n\
              7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors\n",
@@ -257,7 +257,7 @@ fn a_module_that_does_not_parse_shows_ruffs_first_syntax_error() {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
-                "{} error: SyntaxError: {message}\n\
+                "{} project error: SyntaxError: {message}\n\
                  0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error\n",
                 path.display()
             ),
@@ -277,7 +277,8 @@ fn a_syntax_error_that_ruff_passes_shows_cpythons_error_at_load() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{0} error: SyntaxError: 'return' outside function (test_command_return.py, line 4)\n\
+            "{0} project error: SyntaxError: 'return' outside function \
+             (test_command_return.py, line 4)\n\
              {0}::test_a blocked: {0} did not load\n\
              1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
             path.display()
@@ -300,7 +301,7 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{0} error: MemoryError: Parser stack overflowed - \
+            "{0} project error: MemoryError: Parser stack overflowed - \
              Python source too complex to parse\n\
              {0}::test_a blocked: {0} did not load\n\
              1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
@@ -327,7 +328,7 @@ fn a_module_that_defines_the_hooks_name_fails_to_load() {
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
-                "{0} error: NameError: {0} binds _purba_ran, \
+                "{0} project error: NameError: {0} binds _purba_ran, \
                  the name of purba's assert hook\n\
                  {0}::test_shadow blocked: {0} did not load\n\
                  1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
@@ -353,7 +354,7 @@ fn a_module_that_did_not_load_prints_its_error_once() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{0} error: ValueError: x\n\
+            "{0} project error: ValueError: x\n\
              {0}::test_one blocked: {0} did not load\n\
              {0}::test_two blocked: {0} did not load\n\
              2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
@@ -365,7 +366,7 @@ fn a_module_that_did_not_load_prints_its_error_once() {
 }
 
 #[test]
-fn a_test_whose_own_error_blocks_it_keeps_its_error_line() {
+fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
     let path = module_at("test_command_mix.py");
     let text = concat!(
         "def test_ok():\n    assert True\n\n",
@@ -379,13 +380,13 @@ fn a_test_whose_own_error_blocks_it_keeps_its_error_line() {
     assert_eq!(
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
-            "{0}::test_async error: purba cannot run an async test yet\n\
+            "{0}::test_async project error: purba cannot run an async test yet\n\
              {0}::test_ok passed\n\
-             {0}::test_five error: TypeError: 'int' object is not callable\n\
+             {0}::test_five project error: TypeError: 'int' object is not callable\n\
              3 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
             path.display()
         ),
-        "each line keeps error, and each of the two counts as blocked and as an error"
+        "each line keeps project error, and each of the two counts as blocked and as an error"
     );
     assert_eq!(code, 4, "an error exits 4");
 }

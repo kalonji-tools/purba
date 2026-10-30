@@ -59,16 +59,18 @@ purba: internal error: <part>: <message>
 
 **Downside:**
 
-- **purba prints none of this yet.** Four slices build it: [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726), [a line names a project error and an invocation error in the glossary's words](https://github.com/kalonji-tools/purba/issues/727), [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729).
+- **Of the lines this record adds, purba prints only those of a project error and of an invocation error.**
+- **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729), every error that execution hands prints as a project error.** So does an error from a defect of purba, as when dispatch hands a worker a test whose module did not load.
 - **The count changes its shape from run to run.** A script that reads a column by its place breaks. An integrator reads the exit code until reporting decides a format.
 - **Rust's panic hook speaks Rust.** A tester sees `thread '<unnamed>' panicked at` and a path in purba's source.
 - **The defect template is written for a contributor.** A tester who reports a bug fills in a task.
 
 ## Confirmation
 
-No command checks this record yet.
+`mise run test:rust` checks the line of a project error.
+`mise run test:wheel` checks the line of a project error and the line of an invocation error on the installed `purba`.
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names its gate.
-Four slices build what this record decides, and each adds its check: [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726), [a line names a project error and an invocation error in the glossary's words](https://github.com/kalonji-tools/purba/issues/727), [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729).
+Each slice that builds the rest of what this record decides adds its check: [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726), [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729).
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.

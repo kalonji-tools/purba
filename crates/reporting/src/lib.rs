@@ -53,7 +53,11 @@ impl<W: Write> Report<W> {
     /// When `out` refuses the write or the flush.
     pub fn not_loaded<M: Display, E: Display>(&mut self, module: &M, error: &E) -> io::Result<()> {
         self.tally.add_error();
-        writeln!(self.out, "{module} error: {}", one_line(&error.to_string()))?;
+        writeln!(
+            self.out,
+            "{module} project error: {}",
+            one_line(&error.to_string())
+        )?;
         self.out.flush()
     }
 
@@ -88,7 +92,11 @@ impl<W: Write> Report<W> {
             }
             Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran")?,
             Err(error) => {
-                writeln!(out, "{test} error: {}", one_line(&error.to_string()))?;
+                writeln!(
+                    out,
+                    "{test} project error: {}",
+                    one_line(&error.to_string())
+                )?;
             }
         }
         out.flush()
@@ -251,7 +259,7 @@ mod tests {
     }
 
     #[test]
-    fn an_error_that_another_part_finds_prints_as_an_error() {
+    fn an_error_that_another_part_finds_prints_as_a_project_error() {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
@@ -263,7 +271,7 @@ mod tests {
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
-            "test_a.py::test_one error: the parameter x has no default, \
+            "test_a.py::test_one project error: the parameter x has no default, \
              and purba cannot see which fixture builds it\n\
              1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
             "the line of a test whose own error blocks it, and the count of both"
@@ -286,7 +294,7 @@ mod tests {
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
-            "test_b.py error: ValueError: x\n\
+            "test_b.py project error: ValueError: x\n\
              test_b.py::test_one blocked: test_b.py did not load\n\
              test_b.py::test_two blocked: test_b.py did not load\n\
              2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
@@ -299,7 +307,7 @@ mod tests {
     }
 
     #[test]
-    fn a_test_whose_own_error_blocks_it_prints_error_and_counts_as_blocked() {
+    fn a_test_whose_own_error_blocks_it_prints_a_project_error_and_counts_as_blocked() {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
@@ -317,10 +325,10 @@ mod tests {
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
-            "test_a.py::test_async error: purba cannot run an async test yet\n\
-             test_a.py::test_five error: TypeError: 'int' object is not callable\n\
+            "test_a.py::test_async project error: purba cannot run an async test yet\n\
+             test_a.py::test_five project error: TypeError: 'int' object is not callable\n\
              2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
-            "each line keeps error, and each test counts as blocked and as an error"
+            "each line keeps project error, and each test counts as blocked and as an error"
         );
         assert_eq!(code, 4, "an error exits 4");
     }
@@ -346,7 +354,7 @@ mod tests {
              test_a.py::test_two failed: assert 1 == 2\n\
              test_a.py::test_three unknown: no assert ran\n\
              test_a.py::test_four raised: KeyError: 'k'\n\
-             test_c.py::test_x error: ValueError: boom\n\
+             test_c.py::test_x project error: ValueError: boom\n\
              5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 blocked; 1 error\n",
             "one line for each test, in order, then the count"
         );
@@ -402,9 +410,9 @@ mod tests {
             text.lines().take(5).collect::<Vec<_>>(),
             [
                 "test_a.py::test_one failed: assert ( total  ==  3 )",
-                "test_a.py::test_two error: ValueError: a b",
-                "test_a.py::test_three error: ValueError: a b",
-                "test_a.py::test_four error: ValueError: boom",
+                "test_a.py::test_two project error: ValueError: a b",
+                "test_a.py::test_three project error: ValueError: a b",
+                "test_a.py::test_four project error: ValueError: boom",
                 "test_a.py::test_five raised: ValueError: a b",
             ],
             "a lone \\r breaks a line too, and the ends of a reason lose their whitespace"

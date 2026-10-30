@@ -68,7 +68,7 @@ fn writable_stdout() -> io::Result<()> {
 
 fn stop(error: &impl Display) -> u8 {
     // stderr may refuse the write too. The run exits 3 either way.
-    let _ = writeln!(io::stderr(), "purba: {error}");
+    let _ = writeln!(io::stderr(), "purba: invocation error: {error}");
     3
 }
 
