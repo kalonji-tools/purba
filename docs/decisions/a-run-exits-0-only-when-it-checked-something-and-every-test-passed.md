@@ -78,7 +78,6 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 **Downside:**
 
 - **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
-- **purba does not exit 125 yet.** Today `_main` returns 3 for a panic too, until the issue [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) closes.
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
@@ -95,9 +94,9 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
-`mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, and exits 3 on a usage error.
+`mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, 3 on an invocation error, and 125 when the `fault` wheel panics.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 No command checks the rest.
-[A panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) builds exit 125 for a panic that stops the run, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds it for a panic inside a test.
-Each adds its check.
+[A panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds exit 125 for a run in which a panic inside a test stops only that test.
+It adds its check.

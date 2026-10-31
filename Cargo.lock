@@ -389,6 +389,7 @@ name = "purba"
 version = "0.0.0"
 dependencies = [
  "purba-command",
+ "purba-execution",
  "pyo3",
 ]
 

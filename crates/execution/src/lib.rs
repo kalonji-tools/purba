@@ -1,5 +1,7 @@
 //! Execution: loads a module, runs a test, and makes its outcome.
 
+pub mod panic;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::path::PathBuf;

@@ -18,16 +18,18 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 
 ## Considered Options
 
-- **A project error prints `error`, as on `main`.** Rejected. A line of an internal error holds ` error:` too, so a search for ` error:` finds both kinds.
+- **A project error prints `error`, as on `main` at `09618c5`.** Rejected. A line of an internal error holds ` error:` too, so a search for ` error:` finds both kinds.
 - **The line of an error names its kind in the glossary's words.** Chosen. The name says where the tester fixes the error.
 - **An internal error prints only to stderr, as a panic does on `main`.** Rejected. Its test loses its line, and the columns of the count no longer match the lines.
 - **A line goes where its error stops.** Chosen. A test that an internal error stops keeps its line among the others.
 - **The count names every column even at 0, and one column for every error, as on `main`.** Rejected. A column at 0 tells the tester nothing. A count that keeps its shape helps only a parser. One column cannot tell a bug in purba from an error in the tester's code.
 - **The count names each column only above 0.** Chosen. When nothing follows `blocked`, no error happened.
 - **The line of an internal error names the part and the message.** Chosen. The tester learns the kind and the test, and the hook gives the rest.
-- **purba names nowhere to report, as on `main`.** Rejected. The tester must find out where a bug in purba goes.
+- **purba names nowhere to report, as on `main` at `09618c5`.** Rejected. The tester must find out where a bug in purba goes.
 - **purba asks for a report once, on stderr.** Chosen. stdout keeps only the lines and the count.
 - **purba keeps Rust's own panic hook.** Chosen. It writes the location and the way to a backtrace, and purba writes none of its text.
+- **purba names the Python by its version alone.** Rejected. A free-threaded build then reads as the build with a GIL.
+- **purba names the Python by its version and its ABI flags.** Chosen. A tester's report then names the build that met the error.
 
 ## Decision Outcome
 
@@ -47,7 +49,7 @@ purba: internal error: <part>: <message>
 ```
 
 - **The line of an internal error names the part that found it, and the message.** It names no place in purba's source.
-- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The second links the defect template. They follow the count, or the line that stopped the run.
+- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. On Unix, the Python carries its ABI flags, so a free-threaded 3.14.0 reads `3.14.0t`. The second links the defect template. They follow the count, or the line that stopped the run.
 - **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps it.
 - **The count always names the tests, and names each other column only above 0.** The columns keep their order: passed, failed, raised, unknown and blocked, then a semicolon, project errors and internal errors. An invocation error stops the run before the count.
 
@@ -59,18 +61,23 @@ purba: internal error: <part>: <message>
 
 **Downside:**
 
-- **Of the lines this record adds, purba prints only those of a project error and of an invocation error.**
+- **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) lands, a panic that crosses a test's call stops the run.** The run prints no count, and no line for the test.
+- **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) lands, a test that catches a panic hides it.** The run goes on, prints its count, and asks for no report.
+- **Until [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726) lands, the count names every column even at 0.** A column at 0 tells the tester nothing.
+- **Until [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726) lands, one column of the count holds every error.** A tester cannot tell a bug in purba from an error in their own code by the count.
 - **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729), every error that execution hands prints as a project error.** So does an error from a defect of purba, as when dispatch hands a worker a test whose module did not load.
 - **The count changes its shape from run to run.** A script that reads a column by its place breaks. An integrator reads the exit code until reporting decides a format.
 - **Rust's panic hook speaks Rust.** A tester sees `thread '<unnamed>' panicked at` and a path in purba's source.
 - **The defect template is written for a contributor.** A tester who reports a bug fills in a task.
+- **On Windows, a free-threaded build reads as the build with a GIL.** CPython gives `sys.abiflags` on Unix alone.
 
 ## Confirmation
 
 `mise run test:rust` checks the line of a project error.
 `mise run test:wheel` checks the line of a project error and the line of an invocation error on the installed `purba`.
+On the `fault` wheel, `mise run test:wheel` checks the line of an internal error that stops the run, and the two lines after that line.
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names its gate.
-Each slice that builds the rest of what this record decides adds its check: [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726), [a panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729).
+Each slice that builds the rest of what this record decides adds its check: [the count names each column only above 0, with project and internal errors apart](https://github.com/kalonji-tools/purba/issues/726) and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729).
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
