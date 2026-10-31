@@ -62,6 +62,7 @@ flowchart LR
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
 - **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
+- **panic.** Records the part and the message of each panic, for the part that catches it.
 
 In the parts diagram, an arrow points from a part to the part whose interface it uses.
 
@@ -79,6 +80,8 @@ flowchart TD
   execution -- "the inputs a test names" --> fixtures
   execution -- "a rewritten module" --> assertion
   reporting -- "an outcome" --> execution
+  execution -- "the last panic" --> panic
+  dispatch -- "the last panic" --> panic
 ```
 
 ```mermaid
@@ -184,11 +187,12 @@ Each part or concern waits for the parts it uses and the concerns that cross it,
 6. **selection.**
 7. **the Rust/Python seam.**
 8. **fixtures.**
-9. **assertion.**
-10. **execution.**
-11. **dispatch.**
-12. **reporting.**
-13. **command.**
+9. **panic.**
+10. **assertion.**
+11. **execution.**
+12. **dispatch.**
+13. **reporting.**
+14. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 
