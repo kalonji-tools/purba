@@ -30,13 +30,14 @@ fn main(py: Python<'_>) -> u8 {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
+    purba_execution::panic::wrap_hook();
     match panic::catch_unwind(|| {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
         Ok(Ok(code)) => code,
         Ok(Err(error)) => stop(&error),
         // The panic hook already wrote the panic's message to stderr.
-        Err(_) => 3,
+        Err(_) => internal(py),
     }
 }
 
@@ -76,4 +77,45 @@ fn stop(error: &impl Display) -> u8 {
 #[pymodule]
 fn purba(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(main, module)?)
+}
+
+fn internal(py: Python<'_>) -> u8 {
+    let (part, message) = purba_execution::panic::take().map_or_else(
+        || {
+            (
+                "command".to_owned(),
+                "a panic that the hook did not see".to_owned(),
+            )
+        },
+        |panic| {
+            (
+                panic.part.unwrap_or_else(|| "command".to_owned()),
+                panic.message,
+            )
+        },
+    );
+    let version = py.version_info();
+    let python = py
+        .import("platform")
+        .and_then(|platform| platform.call_method0("python_implementation"))
+        .and_then(|name| name.extract::<String>())
+        .unwrap_or_else(|_| "Python".to_owned());
+    let mut stderr = io::stderr();
+    let _ = writeln!(stderr, "purba: internal error: {part}: {message}");
+    let _ = writeln!(
+        stderr,
+        "purba: an internal error is a bug in purba {}, on {python} {}.{}.{}{}, {} {}.",
+        env!("CARGO_PKG_VERSION"),
+        version.major,
+        version.minor,
+        version.patch,
+        version.suffix.unwrap_or(""),
+        std::env::consts::OS,
+        std::env::consts::ARCH,
+    );
+    let _ = writeln!(
+        stderr,
+        "purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md"
+    );
+    125
 }

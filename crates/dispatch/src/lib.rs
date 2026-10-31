@@ -81,6 +81,8 @@ pub fn hand<T: Test, B>(
             }
             for test in module.tests {
                 let result = worker.run(&executable, test.function());
+                // PROTOTYPE: #729 reads the note here, when it catches a panic.
+                let _caught = purba_execution::panic::take();
                 each(Handed::Test(test, result))?;
             }
         }

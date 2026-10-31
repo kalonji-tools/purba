@@ -1,5 +1,7 @@
 //! Execution: loads a module, runs a test, and makes its outcome.
 
+pub mod panic;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::path::PathBuf;
@@ -187,6 +189,8 @@ impl<'py> Worker<'py> {
     /// callable.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         let result = self.call(module, function);
+        // PROTOTYPE: #729 reads the note here, after the test's call.
+        let _noted = crate::panic::take();
         match (self.guard.get().take(), result) {
             (Some(call), Ok(_)) => Ok(Outcome {
                 kind: Kind::Raised {
