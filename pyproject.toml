@@ -93,4 +93,7 @@ exclude = [
   # A test writes these into a fixture, and no repository holds them. Written
   # with no scheme, because lychee reads this file too.
   '//github\.com/(o|owner)/',
+  # GitHub sends a reader with no session to its login, and a redirect is
+  # refused. purba's line asks a tester to open this form.
+  '/purba/issues/new\?template=',
 ]

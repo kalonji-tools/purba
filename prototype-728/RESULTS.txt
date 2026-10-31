@@ -36,3 +36,6 @@ panic locations (cargo test, Location::file):
   std capacity overflow              /rustc/<hash>/library/alloc/src/raw_vec/mod.rs
   ruff TextRange::new                the caller's file (#[track_caller])
   panic_any(5)                       payload_as_str is None
+
+lint:links passes once pyproject.toml excludes /purba/issues/new\?template= (commit after 9660836).
+lint:records passes on the spec's record edits, replayed on 53387a2 by records728.pl.
