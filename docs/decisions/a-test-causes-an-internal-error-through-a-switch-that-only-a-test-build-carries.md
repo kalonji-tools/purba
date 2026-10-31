@@ -16,7 +16,7 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 ## Considered Options
 
 - **A file of a tester that breaks purba.** Rejected. `builtins.py` gives a project error, and the `latin-1` module gives `failed`. The fix of either defect turns the test red.
-- **A test of a part that hands the next part a broken value.** Rejected. It never starts the console script, so it misses the exit 3 of a panic.
+- **A test of a part that hands the next part a broken value.** Rejected. It never starts the console script, so it misses the exit code of a panic.
 - **A switch in the wheel that a tester installs.** Rejected. The switch then adds to the public surface.
 - **A switch that only a test build carries.** Chosen. It causes an internal error at a chosen point, through the console script that the wheel installs.
 
@@ -38,4 +38,6 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 ## Confirmation
 
 `mise run test:wheel`, and the `wheel` job of Build on each Linux and macOS cell, run `tests/fault.bats`.
-It checks that the `fault` wheel panics under `PURBA_FAULT=assert`, that it passes without the variable, and that the wheel without `fault` does not panic.
+`tests/fault.bats` checks that the `fault` wheel panics under `PURBA_FAULT=assert` and under `PURBA_FAULT=command`.
+It checks that a test passes on the `fault` wheel without the variable.
+It checks that the wheel without `fault` panics under neither.

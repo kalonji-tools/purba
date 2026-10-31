@@ -20,6 +20,8 @@ So reporting cannot tell an [internal error](../../CONTEXT.md#internal-error) fr
 - **A wrap of Rust's panic hook records each panic, execution catches around the call, and dispatch catches the rest.** Chosen. The next test keeps its line, and a test that catches the panic cannot hide it.
 - **A variant of the value that dispatch hands carries an internal error.** Rejected. Execution then needs a second type of error to reach dispatch.
 - **One error carries a project error or an internal error.** Chosen. What dispatch hands keeps its shape.
+- **A part of its own holds the wrap and its note.** Rejected. The landscape then gains a part, two arrows and a line in the order of design, for one note.
+- **Execution holds the wrap and its note.** Chosen. Dispatch reads the note through an arrow that the parts diagram already draws.
 
 ## Decision Outcome
 
@@ -41,20 +43,29 @@ flowchart LR
 ```
 
 - **The error that execution hands is a project error or an internal error.** An internal error carries the part that found it, and its message. Both are data.
+- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** `_main` installs the wrap.
+- **A panic in the source of a part names that part.** Any other panic names the part that catches it.
 
 **Downside:**
 
-- **A panic on another thread during a test charges that test.** The record belongs to the process.
+- **A panic on another thread during a test charges that test.** The note belongs to the process.
 - **A test that catches the panic runs on after it.** Its later code runs before it has its internal error.
 - **A hook that cannot be put back gives each later test of its module an internal error.** Each of those tests calls the hook.
 - **purba writes code around Rust's panic hook.** The wrap must call the hook it replaces, or the tester loses the text that [a line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) keeps.
 - **stderr holds PyO3's banner and a Python traceback beside Rust's hook.** A panic that crosses a test's call prints both.
+- **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) lands, a panic outside the source of a part names `command`.** Only `_main` reads the note of a panic yet.
+- **Until [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) lands, the note of a caught panic can name the part of a later panic.** It does so when the two panics carry one text.
 
 ## Confirmation
 
-No command checks this record yet.
-[A panic that stops the run exits 125 and asks for a report](https://github.com/kalonji-tools/purba/issues/728) builds the wrap of Rust's panic hook, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds the rest.
-Both use the switch that [a test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides.
+`mise run test:rust` checks that the wrap records the part and the message of a panic.
+It also checks that the wrap calls the hook that the wrap replaces.
+`mise run test:wheel` checks that Rust's hook still prints on the `fault` wheel.
+On the `fault` wheel, it checks that purba names `command` when a test raises purba's own `PanicException`.
+It checks that purba names the panic that stops the run, and not one that a test caught.
+
+[A panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds the rest of what this record decides.
+It uses the switch that [a test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides.
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds which errors are internal.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what an internal error stops.

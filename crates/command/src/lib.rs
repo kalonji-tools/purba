@@ -42,7 +42,16 @@ impl fmt::Display for Error {
 /// one `.py` file, when `out` is an error, when the module cannot be read,
 /// and when `out` refuses a write. Each stops the run. Only a refused write
 /// comes once the tests start, and no test runs after it.
+///
+/// # Panics
+///
+/// In a build with the feature `fault`, when `PURBA_FAULT` is `command`.
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "command")
+    {
+        panic!("PURBA_FAULT=command");
+    }
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);

@@ -37,11 +37,12 @@ One of its invariants is "the diagram is the only wiring".
 | its interface | the `pub` items of the crate's `src/lib.rs` |
 | the parts it uses | the `purba-*` entries of each table of dependencies in its `Cargo.toml`, dev and build included |
 | PyO3 | a dependency of each part that [crosses the seam](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) |
-| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`, and uses `purba-command` alone |
+| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`, and uses `purba-command` and `purba-execution`, the second for the wrap of Rust's panic hook |
 
 ```mermaid
 flowchart TD
   purba --> purba-command
+  purba --> purba-execution
   purba-command --> purba-selection
   purba-command --> purba-dispatch
   purba-command --> purba-reporting
@@ -74,4 +75,4 @@ flowchart TD
 
 `mise run lint:wiring` refuses a use between two parts that the parts diagram does not draw, in a manifest and in the sequence of one run.
 `mise run test:shell` runs the check on a fixture for each shape it refuses.
-No command checks that `purba` uses no part but `purba-command`, because the check skips the crate `purba`.
+No command checks which parts `purba` uses, because the check skips the crate `purba`.

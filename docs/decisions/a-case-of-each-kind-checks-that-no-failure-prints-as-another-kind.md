@@ -32,7 +32,7 @@ It can also change into another kind in the line that reporting writes, or in th
 
 - **No case of a kind prints a line, uses a stream or sets an exit code that the records do not give its kind.** A project error and a test that raised still share one exit code.
 - **`tests/kinds.bats` runs one case of each kind on an installed wheel, in one run for each case.** It matches the exit code and the whole stdout. It matches the whole stderr of each case except the panic case.
-- **`tests/kinds.bats` matches only the last two lines of the panic case's stderr.** It builds them from purba's version, the Python version, the OS and the architecture of the run. Rust's hook and the Python traceback above them change with each edit and each Python version.
+- **`tests/kinds.bats` matches only the last two lines of the panic case's stderr.** It builds them from purba's version, the Python's version and ABI flags, the OS and the architecture of the run. Rust's hook and the Python traceback above them change with each edit and each Python version.
 - **The module of the panic case also holds a test that passes, one that fails and one that raises.** purba prints the line of each of them. The run exits 125.
 - **The `wheel` job of Build builds the `fault` wheel and runs `tests/kinds.bats`, on each OS where bats runs and each Python version.** The ruleset requires Build.
 - **The panic case runs on the `fault` wheel, and every other case runs on the wheel without `fault`.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides each wheel.
