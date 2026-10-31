@@ -1,0 +1,11 @@
+[package]
+name = "purba-panic"
+version = "0.0.0"
+description = "PROTOTYPE: records the part and the message of each panic"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

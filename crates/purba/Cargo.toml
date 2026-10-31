@@ -16,7 +16,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 purba-command = { path = "../command" }
-purba-execution = { path = "../execution" }
+purba-panic = { path = "../panic" }
 pyo3 = { workspace = true, features = ["abi3-py312"] }
 
 [features]

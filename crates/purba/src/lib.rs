@@ -30,7 +30,7 @@ fn main(py: Python<'_>) -> u8 {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
-    purba_execution::panic::wrap_hook();
+    purba_panic::wrap_hook();
     match panic::catch_unwind(|| {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
@@ -80,7 +80,7 @@ fn purba(module: &Bound<'_, PyModule>) -> PyResult<()> {
 }
 
 fn internal(py: Python<'_>) -> u8 {
-    let (part, message) = purba_execution::panic::take().map_or_else(
+    let (part, message) = purba_panic::take().map_or_else(
         || {
             (
                 "command".to_owned(),

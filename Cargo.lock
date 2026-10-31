@@ -389,7 +389,7 @@ name = "purba"
 version = "0.0.0"
 dependencies = [
  "purba-command",
- "purba-execution",
+ "purba-panic",
  "pyo3",
 ]
 
@@ -419,6 +419,7 @@ name = "purba-dispatch"
 version = "0.0.0"
 dependencies = [
  "purba-execution",
+ "purba-panic",
  "purba-selection",
 ]
 
@@ -428,12 +429,17 @@ version = "0.0.0"
 dependencies = [
  "purba-assertion",
  "purba-fixtures",
+ "purba-panic",
  "pyo3",
  "serde",
 ]
 
 [[package]]
 name = "purba-fixtures"
+version = "0.0.0"
+
+[[package]]
+name = "purba-panic"
 version = "0.0.0"
 
 [[package]]

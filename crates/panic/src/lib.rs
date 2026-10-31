@@ -1,4 +1,4 @@
-//! PROTOTYPE: the wrap of Rust's panic hook, and its record.
+//! PROTOTYPE: the wrap of Rust's panic hook, and its record, as a part of its own.
 use std::panic;
 use std::sync::{Mutex, Once, PoisonError};
 
