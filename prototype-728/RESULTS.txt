@@ -1,0 +1,38 @@
+PROTOTYPE, throwaway. #728 Q1: which crate keeps the record of Rust's panic hook.
+Base: main at 53387a2. Each variant also wires #729's two readers as stubs:
+execution after a test's call, and dispatch around worker.run.
+
+commit d7b1bba  IN EXECUTION      crates/execution/src/panic.rs; `purba` depends on purba-execution
+commit 5fe834e  A PART OF ITS OWN crates/panic (purba-panic); execution, dispatch, `purba` depend on it
+commit a8a4317  + LANDSCAPE.md    the part, its two arrows, and the order of design
+
+gate             in execution   own part (no landscape)            own part + landscape
+lint:wiring      pass           REFUSED: purba-panic names no      pass
+                                part; execution and dispatch use
+                                a part the diagram does not draw
+lint:order       pass           pass                               REFUSED until the order of design
+                                                                   gains "9. panic", before assertion
+lint:placement   pass           pass                               pass
+lint:manifests   pass           pass                               pass
+lint:records     pass           pass                               pass
+lint:readers     pass           pass                               pass
+lint:gates       pass           pass                               pass
+lint:rust        pass           pass                               pass
+test:rust        95 passed      -                                  95 passed
+lint:links       REFUSED in every variant: issues/new?template=defect.md answers 302 to /login
+
+wheel run (in execution), tests/fault on the fault wheel:
+  PURBA_FAULT=command  exit 125; hook "panicked at crates/command/src/lib.rs:49:9";
+                       purba: internal error: command: PURBA_FAULT=command
+                       purba: an internal error is a bug in purba 0.0.0, on CPython 3.12.14, linux x86_64.
+                       purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md
+  PURBA_FAULT=assert   exit 125; hook, PyO3 banner, traceback; part `assertion`
+  plain wheel          PURBA_FAULT=command passes, exit 0
+  bats: 10 of 11 pass; fault.bats case 1 expects exit 3.
+
+panic locations (cargo test, Location::file):
+  purba's own panic!, unwrap, index  crates/<part>/...            (relative)
+  ruff_source_file line_start        ~/.cargo/registry/src/.../ruff_source_file-0.0.17/src/line_index.rs
+  std capacity overflow              /rustc/<hash>/library/alloc/src/raw_vec/mod.rs
+  ruff TextRange::new                the caller's file (#[track_caller])
+  panic_any(5)                       payload_as_str is None
