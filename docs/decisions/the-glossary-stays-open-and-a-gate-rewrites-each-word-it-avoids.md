@@ -31,7 +31,8 @@ No command holds a word on it to one sense.
 
 **A gate rewrites each word an `_Avoid_` line names.**
 `[tool.typos]` in `pyproject.toml` names each form of the word and the word that replaces it.
-`typos --write-changes` then rewrites it in every tracked text file.
+`typos --write-changes` then rewrites it in every tracked text file except a generated one.
+It never checks a `Cargo.toml` or `pyproject.toml`.
 `typos` matches a whole word, so a plural is a form of its own.
 Two patterns spare a mention: the `_Avoid_` line, and a code span that quotes the word.
 
