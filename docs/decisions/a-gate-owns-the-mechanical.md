@@ -38,7 +38,9 @@ A tool that normalises has one location for its style, and tolerates no deviatio
 Line length is that standard, because no formatter wraps a line.
 Where a fixer exists it writes, and a checker is not put in its place.
 `shellcheck` only checks, because one of its fixes changes behaviour.
+
 `typos` writes in every text file except a generated one.
+It never checks a `Cargo.toml` or `pyproject.toml`.
 The Downside below names what that costs.
 
 [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) holds the converse.
@@ -69,6 +71,7 @@ A flag on a command line reaches only that command, so `.config/tasks.toml` carr
 - **The strictest setting of a tool purba does not use is not derivable from this record.** Every adoption costs its own measurement.
 - **No gate refuses a glob import in a test target.** Clippy's `wildcard_imports` skips a test crate, and no setting changes that. The reviewer checks it.
 - **`typos` rewrites a misspelling made on purpose, in code as well as in Markdown.** A test that misspells a name to prove the refusal holds one. The commit stops, so the writer sees each rewrite in the diff. To keep one, a writer adds an entry to `[tool.typos]` in `pyproject.toml`.
+- **`typos` never checks a `Cargo.toml` or `pyproject.toml`.** It skips each file named like its own configuration, because such a file may hold the words it rewrites. A misspelling in their comments stays, and a reviewer reads for it.
 - **An exclusion is somewhere a later contributor can widen quietly.** The reason above it is the only thing that makes widening visible.
 - **An exclusion is not always as narrow as its line.**
   Inside a YAML block scalar none can be. An indented one is posted as part of whatever the block writes, and one at the first column ends the block.
@@ -109,6 +112,8 @@ A guard on an issue number would then stop refusing one.
 `Cargo.lock` and `.config/mise.lock` need no exclusion.
 By default `typos` sets `check-file = false` for its `lock` file type.
 A misspelling in either stayed as written.
+A file named like the configuration of `typos` needs no exclusion either.
+A misspelling planted in `Cargo.toml` stayed as written, and `typos` found it in the same bytes saved as `other.toml`, in [typos never reads a Cargo.toml or pyproject.toml, and the record says it writes in every file but a generated one](https://github.com/kalonji-tools/purba/issues/738).
 
 Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
 ⚠️ **Some of its fixes in code change behaviour.**
