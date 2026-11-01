@@ -84,6 +84,8 @@ args = ["-m", "\\A[^\\n]*[.!?]\\s*\\(#\\d+\\)\\s*$"]
 repo = "local"
 
 # `CHANGELOG.md` is generated, and only its generator writes to it.
+# typos reads a binary file as text when prek names it, so prek names only text files.
+# https://github.com/crate-ci/typos/blob/v1.50.2/crates/typos-cli/src/file.rs#L953
 #
 #   the decision:  docs/decisions/a-gate-owns-the-mechanical.md
 [[repos.hooks]]
@@ -92,6 +94,7 @@ name = "typos --write-changes"
 language = "system"
 entry = "mise x -- typos --write-changes"
 exclude = '^CHANGELOG\.md$'
+types = ["text"]
 stages = ["pre-commit"]
 
 [[repos.hooks]]

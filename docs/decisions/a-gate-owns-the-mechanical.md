@@ -38,7 +38,7 @@ A tool that normalises has one location for its style, and tolerates no deviatio
 Line length is that standard, because no formatter wraps a line.
 Where a fixer exists it writes, and a checker is not put in its place.
 `shellcheck` only checks, because one of its fixes changes behaviour.
-`typos` writes in every file except a generated one.
+`typos` writes in every text file except a generated one.
 The Downside below names what that costs.
 
 [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) holds the converse.
@@ -98,12 +98,13 @@ The normalising clause was exercised on purba's shell against the pinned tools, 
 `[[ ]]` evaluates `5+5` arithmetically where `[` refuses a value that is not an integer.
 A guard on an issue number would then stop refusing one.
 
-`typos` ran green and red through purba's own hooks, in [Let typos write its fix in every file except a generated one](https://github.com/kalonji-tools/purba/issues/251).
+`typos` ran green and red through purba's own hooks, in [Let typos write its fix in every file except a generated one](https://github.com/kalonji-tools/purba/issues/251), and its `types = ["text"]` in [The typos hook corrupts a binary file, and the record names no such cost](https://github.com/kalonji-tools/purba/issues/737).
 
 | gate | green | red |
 |---|---|---|
 | `typos --write-changes` | the tree needs no rewrite | it rewrites a misspelling in a `.md` or a `.sh` file and stops the commit |
 | its exclusion of `CHANGELOG.md` | a misspelling in `CHANGELOG.md` stays as written | with the exclusion removed, `typos` rewrites it |
+| its `types = ["text"]` | a staged tar holding a misspelling stays byte for byte as staged | with the line removed, `typos` writes its fix into the tar |
 
 `Cargo.lock` and `.config/mise.lock` need no exclusion.
 By default `typos` sets `check-file = false` for its `lock` file type.
