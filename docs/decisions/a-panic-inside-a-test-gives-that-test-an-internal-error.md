@@ -38,9 +38,12 @@ flowchart LR
   hook["purba's assert hook"] -- "panics: Rust's panic hook prints, and purba's hook notes it" --> testcall["the test's call"]
   testcall -- "the panic crosses the call" --> execution["execution catches it"]
   testcall -- "the test catches the panic" --> note["execution reads the note after the call"]
+  hook -- "panics while a module loads" --> moduleload["the load of a module"]
+  moduleload -- "the load catches the panic" --> loadnote["execution reads the note after the load"]
   other["execution outside the call, or the load of a module"] -- "a panic" --> dispatch["dispatch catches it"]
   execution --> test["<b>internal error</b> for that test"]
   note --> test
+  loadnote --> loaderror["<b>internal error</b> for that module and its tests"]
   dispatch --> either["<b>internal error</b> for that test, or for that module and its tests"]
   selection["selection, while it reads a module"] -- "a panic" --> command["command catches it"]
   command --> module["<b>internal error</b> for that module, and no test of it runs"]
@@ -71,6 +74,8 @@ It checks that the next test, which raises purba's own `PanicException`, gets it
 
 `mise run test:rust` checks that dispatch gives an internal error to a module whose load panics, and to a test whose run panics outside the test's call.
 On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module an internal error that names `selection`.
+It also checks that a module that catches the assert hook's panic while it loads gets an internal error that names `assertion`.
+It checks that each test of that module is blocked.
 
 `tests/kinds.bats` causes its panic through the switch that [a test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides.
 
