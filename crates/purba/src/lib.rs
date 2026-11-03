@@ -84,27 +84,15 @@ fn stop(error: &impl Display) -> u8 {
 /// Writes the line of the panic that stopped the run, and returns 125. A
 /// panic outside the source of a part names `command`, the part `_main` runs.
 fn internal(payload: &(dyn Any + Send)) -> u8 {
-    let message = text(payload);
-    // A panic that `resume_unwind` starts never reaches the hook, so the note
-    // can be that of a panic that a test caught:
-    // https://doc.rust-lang.org/1.99.1/std/panic/fn.resume_unwind.html
-    let part = purba_execution::panic::take()
-        .filter(|panic| panic.message == message)
-        .and_then(|panic| panic.part);
-    let part = part.as_deref().unwrap_or("command");
+    let caught = purba_execution::panic::caught(payload, "command");
     // stderr may refuse the write. The run exits 125 either way.
-    let _ = writeln!(io::stderr(), "purba: internal error: {part}: {message}");
+    let _ = writeln!(
+        io::stderr(),
+        "purba: internal error: {}: {}",
+        caught.part,
+        caught.message
+    );
     125
-}
-
-/// The text of a panic's payload, or what Rust's hook writes for one that is
-/// not text.
-fn text(payload: &(dyn Any + Send)) -> String {
-    payload
-        .downcast_ref::<&str>()
-        .map(|text| (*text).to_owned())
-        .or_else(|| payload.downcast_ref::<String>().cloned())
-        .unwrap_or_else(|| "Box<dyn Any>".to_owned())
 }
 
 /// Writes the two lines that ask for a report of an internal error.

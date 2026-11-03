@@ -47,7 +47,6 @@ test_b.py::test_two blocked: test_b.py did not load
 
 **Downside:**
 
-- **A test that a panic stops prints no line yet.** [`_main`](https://github.com/kalonji-tools/purba/blob/e2e3c70/crates/purba/src/lib.rs#L33-L38) catches a panic for the whole run. [A panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds that test's line.
 - **The blocked column can count more tests than the `blocked` lines show.** It also counts each test whose line names the kind of an error.
 - **A module of many tests prints a blocked line for each.** The surveyed runners print one line.
 
@@ -55,4 +54,4 @@ test_b.py::test_two blocked: test_b.py did not load
 
 `mise run test:rust` checks the lines and the count when a module does not load, and when a test's own error blocks it.
 `mise run test:wheel` checks them on the installed `purba`.
-[Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
+On the `fault` wheel, `mise run test:wheel` checks that a test that a panic stops counts as blocked.

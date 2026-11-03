@@ -3,7 +3,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::Kind;
+use purba_execution::{Error, Kind};
 
 struct Named(&'static str);
 
@@ -30,6 +30,14 @@ enum Seen {
     Blocked(&'static str, PathBuf),
 }
 
+/// The text of a project error, or `internal error: <part>: <message>`.
+fn reason(error: &Error) -> String {
+    error.part().map_or_else(
+        || error.to_string(),
+        |part| format!("internal error: {part}: {error}"),
+    )
+}
+
 fn test(name: &'static str, result: Result<Kind, &str>) -> Seen {
     Seen::Test(name, result.map_err(str::to_owned))
 }
@@ -42,9 +50,9 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())
-                    .map_err(|err| err.to_string()),
+                    .map_err(|err| reason(&err)),
             ),
-            Handed::NotLoaded(path, err) => Seen::NotLoaded(path, err.to_string()),
+            Handed::NotLoaded(path, err) => Seen::NotLoaded(path, reason(&err)),
             Handed::Blocked(test, path) => Seen::Blocked(test.0, path),
         });
         ControlFlow::Continue(())
@@ -249,4 +257,68 @@ fn dispatch_loads_no_module_that_has_no_test() {
     );
     assert_eq!(seen(test_none), [], "dispatch hands on nothing");
     assert!(!ran.exists(), "the module's body never ran");
+}
+
+/// Python that finds `PyO3`'s `PanicException`, which no module exports.
+const PANIC_EXCEPTION: &str = "def panic_exception():\n\
+    \x20   pending = [BaseException]\n\
+    \x20   while pending:\n\
+    \x20       kind = pending.pop()\n\
+    \x20       if kind.__module__ == 'pyo3_runtime' and kind.__name__ == 'PanicException':\n\
+    \x20           return kind\n\
+    \x20       pending.extend(kind.__subclasses__())\n\
+    \x20   raise LookupError('no PanicException')\n\n";
+
+#[test]
+fn a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blocked() {
+    let test_panics = module(
+        "test_load_panics.py",
+        &format!(
+            "{PANIC_EXCEPTION}\
+             raise panic_exception()('raised while it loads')\n\n\
+             def test_one():\n    pass\n\n\
+             def test_two():\n    pass\n"
+        ),
+        &[],
+        &["test_one", "test_two"],
+    );
+    let path = PathBuf::from("test_load_panics.py");
+    assert_eq!(
+        seen(test_panics),
+        [
+            Seen::NotLoaded(
+                path.clone(),
+                "internal error: dispatch: raised while it loads".to_owned()
+            ),
+            Seen::Blocked("test_one", path.clone()),
+            Seen::Blocked("test_two", path),
+        ],
+        "dispatch catches the panic of the load, and names itself",
+    );
+}
+
+#[test]
+fn a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_test_runs() {
+    let test_getattr = module(
+        "test_getattr_panics.py",
+        &format!(
+            "{PANIC_EXCEPTION}\
+             def __getattr__(name):\n    raise panic_exception()('raised by __getattr__')\n\n\
+             def test_two():\n    assert _purba_ran(0, True)\n"
+        ),
+        &["assert True"],
+        &["test_gone", "test_two"],
+    );
+    assert_eq!(
+        seen(test_getattr),
+        [
+            test(
+                "test_gone",
+                Err("internal error: dispatch: raised by __getattr__")
+            ),
+            test("test_two", Ok(Kind::Passed)),
+        ],
+        "the lookup of test_gone panics before its call, dispatch names itself, and \
+         test_two runs",
+    );
 }

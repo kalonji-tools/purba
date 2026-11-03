@@ -2,8 +2,10 @@
 
 pub mod panic;
 
+use std::any::Any;
 use std::collections::HashMap;
 use std::fmt;
+use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
@@ -76,21 +78,61 @@ pub enum Kind {
     Unknown,
 }
 
-/// Why `run` made no outcome, as text: Python's error, that the module did not
-/// load, or that the test is not callable.
+/// Why `run` made no outcome: a project error or an internal error.
+///
+/// A project error is text: Python's error, that the module did not load, or
+/// that the test is not callable. An internal error is a panic, with the part
+/// that found it and its message. Only execution makes an error.
 #[derive(Debug)]
-pub struct Error(String);
+pub struct Error(Reason);
 
+#[derive(Debug)]
+enum Reason {
+    Project(String),
+    Internal(panic::Caught),
+}
+
+impl Error {
+    /// The part that found an internal error. None for a project error.
+    #[must_use]
+    pub fn part(&self) -> Option<&str> {
+        match &self.0 {
+            Reason::Project(_) => None,
+            Reason::Internal(caught) => Some(&caught.part),
+        }
+    }
+
+    fn caught(payload: &(dyn Any + Send), catcher: &str) -> Self {
+        Self(Reason::Internal(panic::caught(payload, catcher)))
+    }
+}
+
+/// The text of a project error, or the message of an internal error.
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(&self.0)
+        match &self.0 {
+            Reason::Project(text) => formatter.write_str(text),
+            Reason::Internal(caught) => formatter.write_str(&caught.message),
+        }
     }
 }
 
 impl std::error::Error for Error {}
 
 fn error(err: &PyErr) -> Error {
-    Error(err.to_string())
+    Error(Reason::Project(err.to_string()))
+}
+
+/// Runs `work`, and gives an internal error for a panic that crosses it. The
+/// part comes from the note of the panic hook when the note holds the
+/// panic's message, and is `catcher` otherwise.
+///
+/// # Errors
+///
+/// The error of `work`, or the internal error of its panic.
+pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Result<R, Error> {
+    std::panic::catch_unwind(AssertUnwindSafe(work))
+        .unwrap_or_else(|payload| Err(Error::caught(payload.as_ref(), catcher)))
 }
 
 /// Runs tests in this process. It loads each module once, and keeps it under its
@@ -186,10 +228,15 @@ impl<'py> Worker<'py> {
     /// # Errors
     ///
     /// The module did not load, it has no `function`, or `function` is not
-    /// callable.
+    /// callable. An internal error when a panic crossed the test's call, or
+    /// when the test caught a panic and the panic hook noted it.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
         let result = self.call(module, function);
-        match (self.guard.get().take(), result) {
+        let exit = self.guard.get().take();
+        if let Some(noted) = panic::take() {
+            return Err(Error(Reason::Internal(noted.caught_by("execution"))));
+        }
+        match (exit, result) {
             (Some(call), Ok(_)) => Ok(Outcome {
                 kind: Kind::Raised {
                     exception: format!("ExitInsideATest: {call}"),
@@ -218,9 +265,12 @@ impl<'py> Worker<'py> {
                 return Err(failed);
             }
         }
-        self.loaded[&module.path]
-            .as_ref()
-            .ok_or_else(|| Error(format!("{} did not load", module.path.display())))
+        self.loaded[&module.path].as_ref().ok_or_else(|| {
+            Error(Reason::Project(format!(
+                "{} did not load",
+                module.path.display()
+            )))
+        })
     }
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
@@ -238,7 +288,14 @@ impl<'py> Worker<'py> {
             return Err(error(&err));
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
-        let kind = match loaded.watch(|| test.call0()) {
+        let (result, last) =
+            loaded.watch(|| Ok(std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))));
+        let result = match result {
+            Ok(Ok(called)) => called,
+            Ok(Err(payload)) => return Err(Error::caught(payload.as_ref(), "execution")),
+            Err(err) => Err(err),
+        };
+        let kind = match (result, last) {
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
             (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
@@ -292,5 +349,10 @@ impl Tally {
     /// Counts one project error that belongs to no test.
     pub const fn add_project_error(&mut self) {
         self.project_errors += 1;
+    }
+
+    /// Counts one internal error.
+    pub const fn add_internal_error(&mut self) {
+        self.internal_errors += 1;
     }
 }

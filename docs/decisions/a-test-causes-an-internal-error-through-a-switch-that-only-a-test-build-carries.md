@@ -38,6 +38,6 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 ## Confirmation
 
 `mise run test:wheel`, and the `wheel` job of Build on each Linux and macOS cell, run `tests/fault.bats`.
-`tests/fault.bats` checks that the `fault` wheel panics under `PURBA_FAULT=assert` and under `PURBA_FAULT=command`.
+`tests/fault.bats` checks that the `fault` wheel panics under `PURBA_FAULT=assert`, `PURBA_FAULT=command` and `PURBA_FAULT=selection`.
 It checks that a test passes on the `fault` wheel without the variable.
-It checks that the wheel without `fault` panics under neither.
+It checks that the wheel without `fault` panics under none of them.

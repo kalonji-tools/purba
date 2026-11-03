@@ -48,7 +48,8 @@ pub enum Handed<T> {
     /// A test that ran, beside its outcome, or the error that it gave in
     /// place of one.
     Test(T, Result<Outcome, Error>),
-    /// A module that did not load, by its path, and the load's error.
+    /// A module that did not load, by its path, and the load's error, or the
+    /// internal error of a panic during the load.
     NotLoaded(PathBuf, Error),
     /// A test that no call reached, because its module, by its path, did not
     /// load.
@@ -61,6 +62,9 @@ pub enum Handed<T> {
 /// When a module does not load, `each` takes its error once, then each of its
 /// tests as blocked, and no test of it runs. Once `each` breaks, nothing
 /// further runs, and `hand` returns the break.
+///
+/// A panic that crosses the load of a module or the run of a test gives that
+/// module or that test an internal error.
 pub fn hand<T: Test, B>(
     modules: Vec<Module<T>>,
     mut each: impl FnMut(Handed<T>) -> ControlFlow<B>,
@@ -72,7 +76,7 @@ pub fn hand<T: Test, B>(
             }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.text, module.asserts);
-            if let Err(error) = worker.load(&executable) {
+            if let Err(error) = purba_execution::catch("dispatch", || worker.load(&executable)) {
                 each(Handed::NotLoaded(path.clone(), error))?;
                 for test in module.tests {
                     each(Handed::Blocked(test, path.clone()))?;
@@ -80,7 +84,8 @@ pub fn hand<T: Test, B>(
                 continue;
             }
             for test in module.tests {
-                let result = worker.run(&executable, test.function());
+                let result =
+                    purba_execution::catch("dispatch", || worker.run(&executable, test.function()));
                 each(Handed::Test(test, result))?;
             }
         }

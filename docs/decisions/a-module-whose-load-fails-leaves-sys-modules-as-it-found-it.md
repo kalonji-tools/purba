@@ -47,6 +47,7 @@ purba printed the same lines and the same exit code under each choice.
 `mise run test:rust` checks that a body that raises leaves no entry under a new name.
 It checks that a shadowed name holds its old module after the body raises.
 It checks that a body that calls `sys.exit()` leaves no entry.
+It checks that a body that raises purba's own `PanicException` leaves no entry.
 
 [How does a test module import a module beside it, or the package it belongs to?](https://github.com/kalonji-tools/purba/issues/637) decides when a test's folder is on `sys.path`.
 [Once a worker loads many modules, which part puts back what sys.modules held after a load fails?](https://github.com/kalonji-tools/purba/issues/669) holds that decision.

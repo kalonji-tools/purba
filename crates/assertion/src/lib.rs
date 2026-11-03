@@ -8,6 +8,7 @@ use pyo3::{Bound, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{Expr, Stmt, StmtAssert};
 use ruff_text_size::Ranged;
+use std::panic::{self, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, PoisonError};
 
@@ -186,13 +187,17 @@ impl<'py> Loaded<'py> {
 /// 4. compiles `text`, checks that no function holds `_purba_ran` as a local
 ///    name, and runs it in the module's namespace;
 /// 5. checks that `_purba_ran` still holds the hook;
-/// 6. when step 4 or 5 raises, puts back what `sys.modules` held under that
-///    name, or takes the name out when it held nothing.
+/// 6. when step 4 or 5 raises or panics, puts back what `sys.modules` held
+///    under that name, or takes the name out when it held nothing.
 ///
 /// # Errors
 ///
 /// The error that step 4 raises, such as one from `compile()` or the module's
 /// body. `NameError` when the body bound `_purba_ran` to anything but the hook.
+///
+/// # Panics
+///
+/// A panic of step 4 or 5 goes on after step 6.
 pub fn load<'py>(
     py: Python<'py>,
     path: &Path,
@@ -213,12 +218,19 @@ pub fn load<'py>(
     let modules = py.import("sys")?.getattr("modules")?;
     let before = modules.get_item(&*name).ok();
     modules.set_item(&*name, &module)?;
-    if let Err(err) = run(py, path, text, &module).and_then(|()| check(&module, &ran, path)) {
+    let ran_body = panic::catch_unwind(AssertUnwindSafe(|| {
+        run(py, path, text, &module).and_then(|()| check(&module, &ran, path))
+    }));
+    if !matches!(ran_body, Ok(Ok(()))) {
         let _ = before.map_or_else(
             || modules.del_item(&*name),
             |before| modules.set_item(&*name, before),
         );
-        return Err(err);
+    }
+    match ran_body {
+        Ok(Ok(())) => {}
+        Ok(Err(err)) => return Err(err),
+        Err(payload) => panic::resume_unwind(payload),
     }
     Ok(Loaded {
         path: path.to_owned(),

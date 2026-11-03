@@ -151,8 +151,17 @@ impl fmt::Display for Reason {
 /// typed it. A name defined twice is one test, at its first definition: import
 /// binds the name there and binds it again at each later `def`, so selection
 /// judges the last body.
+///
+/// # Panics
+///
+/// In a build with the feature `fault`, when `PURBA_FAULT` is `selection`.
 #[must_use]
 pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "selection")
+    {
+        panic!("PURBA_FAULT=selection");
+    }
     let mut last = Vec::new();
     let mut places = HashMap::new();
     for statement in &module.syntax().body {

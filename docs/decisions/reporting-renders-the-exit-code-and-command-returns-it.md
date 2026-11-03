@@ -12,7 +12,7 @@ Some part counts each outcome and each error, and some part turns that count int
 |---|---|
 | command starts a run, and reporting renders each outcome as data for an [integrator](../../CONTEXT.md#integrator) | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
 | purba hands the integrator an exit code and data | [the landscape](../../LANDSCAPE.md#the-context) |
-| the parts diagram draws no arrow from command to execution, or from reporting to dispatch | [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
+| the parts diagram draws no arrow from command to execution, or from reporting to dispatch | [the landscape on `main` at `b58af6f`](https://github.com/kalonji-tools/purba/blob/b58af6f/LANDSCAPE.md#the-parts-and-their-dependencies) |
 | a crate that names `purba_execution::Kind`, with only dispatch in its manifest, does not compile: `E0433` | [the spec of dispatch](https://github.com/kalonji-tools/purba/issues/572#issuecomment-6316969184) |
 
 ## Considered Options
@@ -20,7 +20,7 @@ Some part counts each outcome and each error, and some part turns that count int
 - **Reporting returns the tally, and command maps it to the code.** Rejected. Command then renders the outcomes for an integrator. The landscape says that reporting renders each outcome for an integrator.
 - **The parts diagram gains an arrow from command to execution, and command counts.** Rejected. Command then names the kind of an outcome.
 - **Dispatch counts while it hands each test.** Rejected. Reporting cannot name a type of dispatch, so it would count again for its count line.
-- **Execution holds the rule that counts, reporting renders the code, and command returns it.** Chosen. Execution defines each kind, so a new kind and the rule that counts it change in one crate. Command names no type of execution.
+- **Execution holds the rule that counts, reporting renders the code, and command returns it.** Chosen. Execution defines each kind, so a new kind and the rule that counts it change in one crate. Command names no type of an outcome.
 
 ## Decision Outcome
 
@@ -32,7 +32,7 @@ Some part counts each outcome and each error, and some part turns that count int
 |---|---|
 | which part holds the rule that counts | execution: `Tally`. It counts each test once, by its outcome or as blocked, and each error once |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
-| what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2 or 4. When the writer refuses a write, `line` or `finish` returns the error |
+| what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2, 4 or 125. When the writer refuses a write, `line` or `finish` returns the error |
 | what command does with the code | it returns the code to `_main`. A refused write is an error, so `_main` returns 3 |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies), as `reporting -->> command: exit code 1` |
 
@@ -51,6 +51,7 @@ It checks that command returns the write error when its writer refuses each writ
 
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
-No command checks that an internal error or an invocation error comes first.
+`mise run test:rust` checks that an internal error comes first.
+No command checks that an invocation error comes first.
 `mise run test:wheel` checks that `_main` returns 3 when stdout is closed, and when it is open only to read.
 No command checks that `_main` turns the write error that `line` or `finish` returns into 3.
