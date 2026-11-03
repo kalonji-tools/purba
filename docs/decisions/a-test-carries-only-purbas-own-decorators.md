@@ -36,6 +36,7 @@ A person who reads one test then cannot see what runs in its place.
 - **A decorator of purba returns the function that it takes.** The body that selection judges is then the body that runs.
 - **Selection judges each `def`, under any decorator.** A refused line names the decorator, then each reason in the body.
 - **Selection refuses a test whose name the module binds again after its last `def`, or under `global` in a function wherever it stands.** The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a `del` as a binding.
+- **Selection refuses a test whose `def` sits under a statement at the module's level, unless a `def` at the top binds the name.** The refused line names the statement, and says that purba cannot see whether import binds the test.
 - **purba has no decorator for a class and no mark for a module.** A module that cannot load on one platform waits for a run that picks its files by platform.
 
 **Downside:**
@@ -49,6 +50,9 @@ A person who reads one test then cannot see what runs in its place.
 ## Confirmation
 
 `mise run test:rust` checks that selection refuses a test that carries a decorator that is not purba's, and a test whose name the module binds again.
+`mise run test:rust` checks that selection refuses a test whose `def` sits under `if`, `try`, `with`, `for`, `while` or `match`.
+`mise run test:wheel` checks the line of such a test on the installed `purba`.
+
 The milestone that adds purba's first decorator builds the two forms of its name, and the refusal of that name bound again.
 The designs in depth of configuration and selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decide how a run picks its files by platform.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what selection judges in the body.

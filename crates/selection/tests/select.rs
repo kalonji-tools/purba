@@ -507,3 +507,171 @@ fn a_body_that_nests_deeper_than_the_stack_does_not_crash_selection() {
         assert!(refused.is_empty(), "{name}: nothing refused: {refused:?}");
     }
 }
+
+/// The words of the reason for a test whose `def` sits under `keyword`.
+fn under(name: &str, keyword: &str) -> String {
+    format!(
+        "test_m.py::{name} the def sits under `{keyword}`, \
+         and purba cannot see whether import binds it"
+    )
+}
+
+#[test]
+fn a_test_under_a_statement_at_the_modules_level_is_refused() {
+    let (tests, refused) = judged(
+        "test_under.py",
+        concat!(
+            "async def test_first():\n    ...\n\n",
+            "if c:\n    def test_if(): assert True\n",
+            "elif d:\n    def test_elif(): assert True\n",
+            "else:\n    def test_else(): assert True\n",
+            "try:\n    def test_try(): assert True\n",
+            "except E:\n    def test_except(): assert True\n",
+            "else:\n    def test_try_else(): assert True\n",
+            "finally:\n    def test_finally(): assert True\n",
+            "with m:\n    def test_with(): assert True\n",
+            "async with m:\n    def test_async_with(): assert True\n",
+            "for _ in []:\n    def test_for(): assert True\n",
+            "else:\n    def test_for_else(): assert True\n",
+            "async for _ in []:\n    def test_async_for(): assert True\n",
+            "while w:\n    def test_while(): assert True\n",
+            "else:\n    def test_while_else(): assert True\n",
+            "match v:\n    case 1:\n        def test_case(): assert True\n",
+            "if c:\n    for _ in []:\n        with m:\n",
+            "            def test_deeper(): assert True\n",
+            "if c:\n    def helper(): pass\n",
+            "    async def test_body(x):\n        return 1\n\n",
+            "def test_last():\n    assert True\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_last"],
+        "no def under a statement is handed on"
+    );
+    assert_eq!(
+        refused,
+        [
+            "test_m.py::test_first purba cannot run an async test yet".to_owned(),
+            under("test_if", "if"),
+            under("test_elif", "if"),
+            under("test_else", "if"),
+            under("test_try", "try"),
+            under("test_except", "try"),
+            under("test_try_else", "try"),
+            under("test_finally", "try"),
+            under("test_with", "with"),
+            under("test_async_with", "with"),
+            under("test_for", "for"),
+            under("test_for_else", "for"),
+            under("test_async_for", "for"),
+            under("test_while", "while"),
+            under("test_while_else", "while"),
+            under("test_case", "match"),
+            under("test_deeper", "if"),
+            format!(
+                "{}; purba cannot run an async test yet; \
+                 the test returns a value, and purba does not read it; \
+                 the parameter x has no default, and purba cannot see which fixture builds it",
+                under("test_body", "if")
+            ),
+        ],
+        "each def named test under a statement, in source order with the other refused tests, \
+         naming the statement at the module's level, then each reason in the body"
+    );
+}
+
+#[test]
+fn a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test() {
+    let (tests, refused) = judged(
+        "test_own_body.py",
+        concat!(
+            "if c:\n    class C:\n        def test_method(self): assert True\n",
+            "    def outer():\n        def test_inner(): assert True\n",
+            "    f = lambda: 1\n",
+            "try:\n    class D:\n        def test_other(self): assert True\n",
+            "finally:\n    pass\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert!(
+        refused.is_empty(),
+        "the body of a class or a def is not the module's: {refused:?}"
+    );
+}
+
+#[test]
+fn a_def_at_the_top_decides_the_name_of_a_def_under_a_statement() {
+    let (tests, refused) = judged(
+        "test_top_decides.py",
+        concat!(
+            "if c:\n    def test_later(): assert False\n\n",
+            "def test_later():\n    assert True\n\n",
+            "def test_earlier():\n    assert True\n\n",
+            "if c:\n    def test_earlier(): assert False\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_later"],
+        "the later def at the top binds the name last"
+    );
+    assert_eq!(
+        refused,
+        ["test_m.py::test_earlier line 11 binds test_earlier again, \
+         and purba cannot see what the name then holds"],
+        "the def under the statement binds the earlier test's name again, \
+         and gives no line of its own"
+    );
+}
+
+#[test]
+fn two_defs_of_one_name_under_statements_are_one_refused_test_at_the_first() {
+    let (tests, refused) = judged(
+        "test_under_twice.py",
+        concat!(
+            "if c:\n    def test_twice(): assert True\n",
+            "if c:\n    def test_between(): assert True\n",
+            "try:\n    def test_twice(): assert True\n",
+            "finally:\n    pass\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [under("test_twice", "if"), under("test_between", "if")],
+        "one refused test for each name, where import first binds it"
+    );
+}
+
+#[test]
+fn a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selection() {
+    const SMALL_STACK: usize = 256 * 1024;
+    const DEPTH: usize = 3_000;
+    let mut text = String::new();
+    for level in 0..DEPTH {
+        text.push_str(&" ".repeat(level));
+        text.push_str("if c:\n");
+    }
+    text.push_str(&" ".repeat(DEPTH));
+    text.push_str("def test_deep(): assert True\n");
+    let name = "test_deep_statements.py";
+    let judged = thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(SMALL_STACK)
+        .spawn(move || judged(name, &text))
+        .expect("the thread starts")
+        .join();
+    let (tests, refused) = judged.expect("selection returns");
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [under("test_deep", "if")],
+        "the def under the deepest statement is refused"
+    );
+}
