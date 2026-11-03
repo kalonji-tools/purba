@@ -338,7 +338,7 @@ FAKE
   fake gh <<'FAKE'
 case "$*" in
   "api user"*) echo me ;;
-  "pr list"*) echo "https://example.invalid/pull/8" ;;
+  "pr list"*) echo '[{"url":"https://example.invalid/pull/8","isCrossRepository":false}]' ;;
 esac
 FAKE
 
@@ -349,6 +349,25 @@ FAKE
   asked=$(calls gh)
   [[ "${asked}" != *"pr create"* ]]
   [[ "${asked}" != *"pr comment"* ]]
+}
+
+@test "a pull request from a fork on accepted/pr-7 is not the one that merges" {
+  echo "* @someone" >.github/CODEOWNERS
+  fake gh <<'FAKE'
+case "$*" in
+  "api user"*) echo me ;;
+  "pr list"*) echo '[{"url":"https://example.invalid/pull/6","isCrossRepository":true}]' ;;
+  "pr view"*) echo "feat: one" ;;
+  "pr create"*) echo "https://example.invalid/pull/8" ;;
+esac
+FAKE
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"pull request  https://example.invalid/pull/8"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"pr create"* ]]
 }
 
 @test "a fetch that moves FETCH_HEAD after the checks does not change what is pushed" {

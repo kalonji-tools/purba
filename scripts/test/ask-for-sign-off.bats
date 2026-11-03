@@ -71,7 +71,7 @@ pushed() {
 }
 
 @test "an open pull request makes the run stand down, and says until when" {
-  printf '41\n' >"${BATS_TEST_TMPDIR}/open"
+  printf '%s\n' '[{"number":41,"isCrossRepository":false}]' >"${BATS_TEST_TMPDIR}/open"
 
   run propose propose/next 7
 
@@ -81,6 +81,19 @@ pushed() {
   [[ "${output}" == *"nothing is proposed until a person signs that one or closes it"* ]]
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
+}
+
+@test "a pull request from a fork on the branch does not make the run stand down" {
+  printf '%s\n' '[{"number":40,"isCrossRepository":true}]' >"${BATS_TEST_TMPDIR}/open"
+
+  run propose propose/next 7
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"stands down"* ]]
+  landed=$(pushed %s)
+  [[ "${landed}" == "chore: a change (#7)" ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"pr create"* ]]
 }
 
 @test "a run that changes a third file is refused, pushes nothing, and keeps the tree" {

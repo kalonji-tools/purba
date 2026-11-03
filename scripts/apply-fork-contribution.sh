@@ -76,8 +76,10 @@ if ! git push --quiet --force origin "${head}:refs/heads/accepted/pr-${pr}"; the
   cannot "accepted/pr-${pr} could not be pushed, so no pull request was opened."
 fi
 
-if ! url=$(gh pr list --head "accepted/pr-${pr}" --state open --json url \
-  --jq '.[0].url // empty'); then
+# `--head` matches a branch of that name in any fork, so a pull request from a
+# fork is dropped here. `gh pr list --help`, the flag `--head`.
+if ! listed=$(gh pr list --head "accepted/pr-${pr}" --state open --json url,isCrossRepository) ||
+  ! url=$(jq -r 'map(select(.isCrossRepository | not)) | .[0].url // empty' <<<"${listed}"); then
   cannot "accepted/pr-${pr} is pushed, and its open pull requests could not be read."
 fi
 if [[ -z "${url}" ]]; then

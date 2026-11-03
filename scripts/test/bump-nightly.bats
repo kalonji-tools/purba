@@ -109,7 +109,7 @@ as_writer() {
 }
 
 @test "an open proposal makes the run stand down before it upgrades" {
-  printf '41\n' >"${BATS_TEST_TMPDIR}/open"
+  printf '%s\n' '[{"number":41,"isCrossRepository":false}]' >"${BATS_TEST_TMPDIR}/open"
   week "${moved}"
 
   run "${script}" bump/nightly 65

@@ -220,7 +220,7 @@ released() {
 }
 
 @test "an open release pull request makes the run stand down" {
-  printf '41\n' >"${BATS_TEST_TMPDIR}/open"
+  printf '%s\n' '[{"number":41,"isCrossRepository":false}]' >"${BATS_TEST_TMPDIR}/open"
 
   run "${script}" release/next 43
 
