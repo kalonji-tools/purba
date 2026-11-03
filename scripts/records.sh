@@ -1,14 +1,10 @@
 # shellcheck shell=bash
-# What a record is, where its reach is, the paths a reach matches, and the line
-# outside a fence that a pattern finds.
+# What a record is, where its reach is, and the paths a reach matches.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
 #                  docs/decisions/a-record-names-every-location-where-it-applies.md
 #
 #   is_record <path>                     prints <path> when it is a record
-#   record_line <record> <ERE>           prints the number of the first line
-#               [<after>]                below <after> that matches <ERE> outside
-#                                        a fence. <after> defaults to 0
 #   reach_lines <record>                 prints `<first> <last> reach`, the lines
 #                                        the Decision Outcome opens with, or
 #                                        `<first> <last> other` when they are not
@@ -34,7 +30,7 @@ is_record() {
 }
 
 # Sets <found> in the caller to the number of the first line of the array
-# <lines> below <after> that matches <ERE> outside a fence, or to nothing.
+# <lines> that matches <ERE> outside a fence, or to nothing.
 #
 # A fence of three or more backticks or tildes hides each line until a run of
 # the same character, at least as long, closes it. A fence that no run closes
@@ -43,8 +39,8 @@ is_record() {
 #   the fence:     https://spec.commonmark.org/0.31.2/#fenced-code-blocks
 unfenced_find() {
   local -n from_lines=$1
-  local pattern=$2 after=$3 line fence="" number=0 tick=$'\x60'
-  printf -v "$4" '%s' ""
+  local pattern=$2 line fence="" number=0 tick=$'\x60'
+  printf -v "$3" '%s' ""
   for line in "${from_lines[@]}"; do
     number=$((number + 1))
     if [[ -n "${fence}" ]]; then
@@ -52,19 +48,11 @@ unfenced_find() {
         ${#BASH_REMATCH[1]} -lt ${#fence} ]] || fence=""
     elif [[ "${line}" =~ ^\ {0,3}(${tick}{3,}|~{3,}) ]]; then
       fence=${BASH_REMATCH[1]}
-    elif [[ "${number}" -gt "${after}" && "${line}" =~ ${pattern} ]]; then
-      printf -v "$4" '%s' "${number}"
+    elif [[ "${line}" =~ ${pattern} ]]; then
+      printf -v "$3" '%s' "${number}"
       return 0
     fi
   done
-}
-
-record_line() {
-  local found
-  local -a content
-  mapfile -t content <"$1"
-  unfenced_find content "$2" "${3:-0}" found
-  [[ -z "${found}" ]] || printf '%s\n' "${found}"
 }
 
 # Sets <span> to `<first> <last> reach` or `<first> <last> other`, and <reach>
@@ -81,7 +69,7 @@ reach_read() {
   printf -v "$2" '%s' ""
   printf -v "$3" '%s' ""
   mapfile -t content <"$1"
-  unfenced_find content '^## Decision Outcome$' 0 at
+  unfenced_find content '^## Decision Outcome$' at
   [[ -n "${at}" ]] || return 0
   for ((number = at + 1; number <= ${#content[@]}; number++)); do
     line=${content[number - 1]}

@@ -26,10 +26,10 @@ records=("${dir}"/*.md)
 
 [[ ${#records[@]} -gt 0 ]] || cannot "no record found in ${dir}."
 
-# The prose rules, the section order, and the comment, issue-number and
-# citation rules, read through CommonMark by a cargo script, so a fenced line
-# is not read as prose. It prints one tagged line for each finding, and each
-# tag below gives its refusal.
+# A cargo script reads the prose rules, the section order, the Downside, the
+# Confirmation, and the comment, issue-number and citation rules. It reads
+# through CommonMark, so a line in a code block is not prose. It prints one
+# tagged line for each finding, and the table below gives each tag its summary.
 #
 #   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
 here=$(cd "$(dirname "$0")" && pwd)
@@ -39,19 +39,94 @@ prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Ca
   "${here}/check-prose/participles.txt" "${records[@]}") ||
   cannot 'the prose of a record cannot be read.'
 
-# The last alternative matches a table cell answering `no`, which is how a
-# record states an unwired gate without writing a sentence.
-admits='not wired|not written yet|does not exist yet|by hand|\| *no *\|'
+# Each tag the cargo script prints, whether it refuses or is reported, and its
+# summary. The output follows the order of the rows. The summary of a refusal
+# stays here, where report.sh refuses one that names a record.
+rules=(
+  sections refuse "A record carries four sections, in order: Context and Problem Statement, \
+Considered Options, Decision Outcome, Confirmation. They are a public Markdown convention cut to \
+its minimum, and Confirmation keeps a record from going stale. Consequences is optional and sits \
+between the outcome and the confirmation."
 
-mapfile -t found < <(grep '^sections' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record carries four sections, in order: Context and Problem Statement, Considered Options, \
-Decision Outcome, Confirmation. They are a public Markdown convention cut to its minimum, and \
-Confirmation keeps a record from going stale. Consequences is optional and sits between the \
-outcome and the confirmation." \
-  "${found[@]}"
+  comment refuse "A record reads as current state, so it carries no comment addressed to a \
+reviewer. The template carries the drafting instructions, and a leading dot keeps it out of this \
+glob."
 
-# A record with no Decision Outcome heading is refused above.
+  issue refuse "A record states what is true and an issue states what happened, so record prose \
+carries no issue number. Title the link with the question its issue asks."
+
+  emdash refuse "A record carries no em-dash, because an em-dash joins two ideas in one sentence. \
+Use a full stop, a colon, a comma or a list. A code span and a fenced block are exempt, because \
+quoting one is quoting an artifact."
+
+  bold refuse "Bold opens a sentence and never sits inside one. A lead-in is what bold is for, and \
+whether a bolded phrase is one is read by a reviewer rather than decided here."
+
+  wrap refuse "A sentence stays on one line. A record is rewritten in place, and a wrapped \
+paragraph reflows on a one word edit and buries the change in the diff. The line named is where \
+the sentence breaks."
+
+  long refuse "A sentence in descriptive text runs to 25 words, a limit borrowed from Simplified \
+Technical English. A link counts as one word and so does a code span, because a reader reads each \
+as one thing."
+
+  step refuse "A sentence in a numbered list runs to 20 words, a limit borrowed from Simplified \
+Technical English for a procedure. A record writes a procedure as a numbered list, so the limit \
+reaches each of its items."
+
+  para refuse "A paragraph runs to six sentences, a limit borrowed from Simplified Technical \
+English. The line named is where the seventh lands, and a blank line splits the paragraph."
+
+  ing refuse "An -ing form is a technical noun here and never a verb, a rule borrowed from \
+Simplified Technical English. A gerund after a form of be, a preposition or a conjunction becomes \
+a finite clause."
+
+  # Harper's tagger decides the tense rule.
+  #
+  #   the decision:  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
+  tense refuse "A record uses the simple tenses, a rule borrowed from Simplified Technical \
+English. A modal with the bare verb is one of them, so must be run stands and has run does not."
+
+  # The figure rules a command can decide.
+  #
+  #   the decision:  docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
+  math refuse "A formula in a record is a math fence, so \$ math is refused outside one. A record \
+writes each kind of figure in one form."
+
+  icon refuse "A mermaid fence in a record draws no icon. GitHub registers no icon pack and loads \
+no FontAwesome, so an icon draws nothing and raises no error. The built-in icons of an \
+architecture diagram are the exception: cloud, database, disk, internet and server."
+
+  preamble refuse "A Downside label stands on its own line. Its costs are the list beneath it, so \
+a preamble is a sentence the reader carries while reading them."
+
+  counted refuse "A Downside label never counts its costs. A count is one more thing to keep true, \
+and one record counted four costs where three rendered."
+
+  listless refuse "A record states its costs as a list under a Downside label, because a decision \
+without its cost is advocacy, not a record. A record with no label has no list either, so a \
+missing Downside is refused here."
+
+  leadins refuse "Bold marks every Downside lead-in, one for each cost. Fewer lead-ins than costs \
+leaves a cost unmarked, and more means a cost opens mid-line and does not render."
+
+  adr refuse "A number cannot be checked against the record it names, so a record cites another \
+by its proposition."
+
+  unwired report "a Confirmation that admits an unwired gate and names no issue"
+)
+
+# A tag with no rule would be dropped, and the record that breaks it would pass.
+declare -A known=([tally]=1 [density]=1)
+for ((i = 0; i < ${#rules[@]}; i += 3)); do
+  known[${rules[i]}]=1
+done
+while IFS=$'\t' read -r tag _; do
+  [[ -z "${tag}" || -n "${known[${tag}]:-}" ]] ||
+    cannot "the prose check printed the tag ${tag}, and no rule here holds it."
+done <<<"${prose}"
+
+# A record with no Decision Outcome heading is refused for its sections.
 #
 #   the decision:  docs/decisions/a-record-names-every-location-where-it-applies.md
 found=()
@@ -67,177 +142,16 @@ path as a gitattributes pattern in a code span, and a location with no path as i
 word, linked to its CONTEXT.md entry." \
   "${found[@]}"
 
-mapfile -t found < <(grep '^comment' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record reads as current state, so it carries no comment addressed to a reviewer. The \
-template carries the drafting instructions, and a leading dot keeps it out of this glob." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^issue' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record states what is true and an issue states what happened, so record prose carries no \
-issue number. Title the link with the question its issue asks." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^emdash' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record carries no em-dash, because an em-dash joins two ideas in one sentence. Use a full \
-stop, a colon, a comma or a list. A code span and a fenced block are exempt, because quoting one \
-is quoting an artifact." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^bold' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "Bold opens a sentence and never sits inside one. A lead-in is what bold is for, and whether a \
-bolded phrase is one is read by a reviewer rather than decided here." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^wrap' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A sentence stays on one line. A record is rewritten in place, and a wrapped paragraph reflows \
-on a one word edit and buries the change in the diff. The line named is where the sentence \
-breaks." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^long' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A sentence in descriptive text runs to 25 words, a limit borrowed from Simplified Technical \
-English. A link counts as one word and so does a code span, because a reader reads each as one \
-thing." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^step' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A sentence in a numbered list runs to 20 words, a limit borrowed from Simplified Technical \
-English for a procedure. A record writes a procedure as a numbered list, so the limit reaches \
-each of its items." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^para' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A paragraph runs to six sentences, a limit borrowed from Simplified Technical English. The \
-line named is where the seventh lands, and a blank line splits the paragraph." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^ing' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "An -ing form is a technical noun here and never a verb, a rule borrowed from Simplified \
-Technical English. A gerund after a form of be, a preposition or a conjunction becomes a \
-finite clause." \
-  "${found[@]}"
-
-# Harper's tagger decides the tense rule.
-#
-#   the decision:  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
-mapfile -t found < <(grep '^tense' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A record uses the simple tenses, a rule borrowed from Simplified Technical English. A modal \
-with the bare verb is one of them, so must be run stands and has run does not." \
-  "${found[@]}"
-
-# The figure rules a command can decide, read in the same pass.
-#
-#   the decision:  docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
-mapfile -t found < <(grep '^math' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A formula in a record is a math fence, so \$ math is refused outside one. A record writes \
-each kind of figure in one form." \
-  "${found[@]}"
-
-mapfile -t found < <(grep '^icon' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A mermaid fence in a record draws no icon. GitHub registers no icon pack and loads no \
-FontAwesome, so an icon draws nothing and raises no error. The built-in icons of an \
-architecture diagram are the exception: cloud, database, disk, internet and server." \
-  "${found[@]}"
-
-# The four Downside rules `docs/decisions/.template.md` states: the label stands
-# on its own line, it never counts the costs, the costs are a list, and bold
-# marks every lead-in.
-#
-# One pass reads each record and fills four lists, so a writer fixing one
-# refusal sees the rest in the same run.
-#
-# A record carrying no label has no list of costs either, so the list rule is
-# what an absent Downside breaks. Without that arm the other three pass a record
-# that simply deletes the label.
-preamble=()
-counted=()
-listless=()
-unsignalled=()
-for f in "${records[@]}"; do
-  # Anchored: a record naming the label inside a table would otherwise locate
-  # the label at that row, and a preamble on the real label would go unseen.
-  at=$(record_line "${f}" '^\*\*Downside:\*\*')
-  if [[ -z "${at}" ]]; then
-    listless+=("${f}: no Downside label")
-    continue
-  fi
-
-  rest=$(sed -n "${at}s/^\*\*Downside:\*\*//p" "${f}")
-  if [[ -n "${rest// /}" ]]; then
-    preamble+=("${f}:${at}")
-    # A count opens the preamble. Written as a word or a digit, because both
-    # forms are in the corpus this rule was measured against.
-    if grep -qiE '^ *(one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b' <<<"${rest}"; then
-      counted+=("${f}:${at}")
-    fi
-  fi
-
-  # To the next section heading. The Downside is the last thing in the outcome.
-  end=$(record_line "${f}" '^## ' "${at}")
-  costs=$(awk -v from="${at}" -v to="${end:-0}" 'NR > from && (!to || NR < to)' "${f}")
-  items=$(grep -cE '^[[:space:]]*- ' <<<"${costs}" || true)
-  # Occurrences rather than lines: two lead-ins on one line is the shape that
-  # renders three costs where four are written.
-  leadins=$({ grep -oE -- '- [^A-Za-z0-9`]*\*\*' <<<"${costs}" || true; } | wc -l)
-
-  if [[ "${items}" -eq 0 ]]; then
-    listless+=("${f}:${at}")
-  elif [[ "${leadins}" -ne "${items}" ]]; then
-    unsignalled+=("${f}:${at}: ${leadins} lead-ins over ${items} costs")
+for ((i = 0; i < ${#rules[@]}; i += 3)); do
+  mapfile -t found < <(grep "^${rules[i]}"$'\t' <<<"${prose}" | cut -f2- || true)
+  [[ ${#found[@]} -gt 0 ]] || continue
+  if [[ "${rules[i + 1]}" == refuse ]]; then
+    refuse "${rules[i + 2]}" "${found[@]}"
+  else
+    printf '\n%s\n\n' "${rules[i + 2]}"
+    printf '  %s\n' "${found[@]}"
   fi
 done
-
-[[ ${#preamble[@]} -eq 0 ]] || refuse \
-  "A Downside label stands on its own line. Its costs are the list beneath it, so a preamble is \
-a sentence the reader carries while reading them." \
-  "${preamble[@]}"
-
-[[ ${#counted[@]} -eq 0 ]] || refuse \
-  "A Downside label never counts its costs. A count is one more thing to keep true, and one \
-record counted four costs where three rendered." \
-  "${counted[@]}"
-
-[[ ${#listless[@]} -eq 0 ]] || refuse \
-  "A record states its costs as a list under a Downside label, because a decision without its \
-cost is advocacy, not a record. A record with no label has no list either, so a missing Downside \
-is refused here." \
-  "${listless[@]}"
-
-[[ ${#unsignalled[@]} -eq 0 ]] || refuse \
-  "Bold marks every Downside lead-in, one for each cost. Fewer lead-ins than costs leaves a cost \
-unmarked, and more means a cost opens mid-line and does not render." \
-  "${unsignalled[@]}"
-
-mapfile -t found < <(grep '^adr' <<<"${prose}" | cut -f2- || true)
-[[ ${#found[@]} -eq 0 ]] || refuse \
-  "A number cannot be checked against the record it names, so a record cites another by its \
-proposition." \
-  "${found[@]}"
-
-found=()
-for f in "${records[@]}"; do
-  start=$(record_line "${f}" '^## Confirmation')
-  [[ -n "${start}" ]] || continue
-  confirmation=$(sed -n "${start},\$p" "${f}")
-  printf '%s\n' "${confirmation}" | grep -qE "${admits}" || continue
-  printf '%s\n' "${confirmation}" | grep -q 'purba/issues/[0-9]' || found+=("${f}")
-done
-if [[ ${#found[@]} -gt 0 ]]; then
-  printf '\na Confirmation that admits an unwired gate and names no issue\n\n'
-  printf '  %s\n' "${found[@]}"
-fi
 
 # Each pattern a reach writes in a code span is matched against the tracked
 # files. Outside a git repository no file is tracked, and nothing is

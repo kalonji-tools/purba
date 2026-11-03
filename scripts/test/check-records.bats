@@ -288,41 +288,6 @@ words() {
   [[ "${output}" == *"${record}: no Downside label"* ]]
 }
 
-@test "a Downside label named inside a table is not the label" {
-  swap $'**Downside:**\n\n' $'| the label |\n|---|\n| **Downside:** |\n\n'
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}: no Downside label"* ]]
-}
-
-@test "a fenced Downside label before the real one is not the label" {
-  prose $'Something needs a decision.\n\n```markdown\n**Downside:** a quoted label.\n```'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a fenced ## line under the Downside label does not end its costs" {
-  swap $'**Downside:**\n\n' $'**Downside:**\n\n```sh\n## a shell comment\n```\n\n'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a Downside with no list is refused" {
-  swap "- **It costs something.** The cost is named." "It costs something."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record states its costs as a list under a Downside label"* ]]
-  [[ "${output}" == *"${record}:17"* ]]
-}
-
 @test "a cost with no bold lead-in is refused" {
   swap "- **It costs something.** The cost is named." "- It costs something."
 
@@ -331,15 +296,6 @@ words() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"Bold marks every Downside lead-in"* ]]
   [[ "${output}" == *"${record}:17: 0 lead-ins over 1 costs"* ]]
-}
-
-@test "two costs on one line are refused" {
-  swap "The cost is named." "The cost is named. - **A second cost.** It does not render."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${record}:17: 2 lead-ins over 1 costs"* ]]
 }
 
 @test "a numbered citation is refused in a record and passes outside one" {
@@ -366,15 +322,6 @@ words() {
   [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
 }
 
-@test "a Confirmation whose table answers no is reported the same way" {
-  swap "\`mise run lint:records\` reads this." $'| rule | checked |\n|---|---|\n| one | no |'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
-}
-
 @test "on a runner an unwired gate writes no annotation" {
   swap "\`mise run lint:records\` reads this." "The gate is not wired."
 
@@ -383,26 +330,6 @@ words() {
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"::error::"* ]]
   [[ "${output}" == *"${unwired}"* ]]
-}
-
-@test "a Confirmation that names the issue passes" {
-  swap "\`mise run lint:records\` reads this." \
-    "The gate is not wired. [Wire it](https://github.com/o/purba/issues/9) owns it."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"${unwired}"* ]]
-}
-
-@test "a fenced Confirmation line is not the Confirmation" {
-  fenced=$'```markdown\n## Confirmation\n\nThe old gate ran by hand.\n```'
-  prose "Something needs a decision."$'\n\n'"${fenced}"
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"${unwired}"* ]]
 }
 
 @test "every rule a record breaks is reported in one run" {
@@ -464,6 +391,17 @@ words() {
   [[ "${output}" == *"no record found in docs/nowhere."* ]]
 }
 
+@test "a tag that check-records.sh does not know exits 2" {
+  fake cargo <<'FAKE'
+printf 'unheard\tdocs/decisions/a-record-holds.md:1\n'
+FAKE
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"unheard"* ]]
+}
+
 @test "outside a git repository it reads the records" {
   swap "${reach}" "${reach} \`nowhere/**\`"
   mkdir -p "${BATS_TEST_TMPDIR}/bare/docs/decisions"
@@ -474,60 +412,6 @@ words() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"${unmatched}"* ]]
-}
-
-@test "each phrase that admits an unwired gate is reported when no issue is named" {
-  for admission in "It is run by hand." "The check is not written yet." "It does not exist yet."; do
-    compliant >"${record}"
-    swap "\`mise run lint:records\` reads this." "${admission}"
-
-    run "${script}"
-
-    [[ "${status}" -eq 0 ]]
-    [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
-  done
-}
-
-@test "an admission outside the Confirmation needs no issue" {
-  prose "The gate is not wired."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" != *"${unwired}"* ]]
-}
-
-@test "a Downside label that counts its costs in digits is refused" {
-  swap "**Downside:**" "**Downside:** 3 costs."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside label never counts its costs"* ]]
-}
-
-@test "spaces after the Downside label are not a preamble" {
-  swap "**Downside:**" "**Downside:**  "
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a list under a later heading is not a Downside cost" {
-  swap "\`mise run lint:records\` reads this." "- \`mise run lint:records\` reads this."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-}
-
-@test "a nested cost is a cost, and a warning sign may precede its lead-in" {
-  swap "The cost is named." $'The cost is named.\n  - ⚠️ **A nested cost.** It counts.'
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
 }
 
 @test "evidence density lists the barest record first" {
@@ -558,25 +442,6 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"record prose carries no issue number"* ]]
-}
-
-@test "a Downside label that counts its costs in a word is refused" {
-  swap "**Downside:**" "**Downside:** two costs."
-
-  run "${script}"
-
-  [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside label never counts its costs"* ]]
-}
-
-@test "an admission is reported unless it links an issue of this repository" {
-  swap "\`mise run lint:records\` reads this." \
-    "The gate is not wired. [Wire it](https://github.com/o/other/issues/9) owns it."
-
-  run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"${unwired}"$'\n\n  '"${record}"* ]]
 }
 
 @test "the report counts the articles and the words it read" {
