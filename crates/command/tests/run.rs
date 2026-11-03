@@ -174,18 +174,11 @@ fn a_module_with_no_test_exits_2() {
 }
 
 #[test]
-fn a_test_that_selection_refuses_prints_before_any_test_runs() {
+fn a_test_that_selection_refuses_prints_above_the_tests_that_run() {
     let path = module_at("test_command_selection_refuses.py");
     let text = concat!(
         "def test_d():\n    assert True\n\n",
-        "async def test_a():\n    ...\n\n",
-        "def test_b():\n    yield\n\n",
-        "def test_c(db: int):\n    ...\n\n",
-        "def test_e():\n    assert True\n    return False\n\n",
-        "def keep(function):\n    return function\n\n",
-        "@keep\ndef test_f():\n    assert False\n\n",
-        "def test_g():\n    assert False\n\n",
-        "test_g = keep(test_g)\n",
+        "async def test_a():\n    ...\n",
     );
     fs::write(&path, text).expect("the test writes its module");
     let mut out = Vec::new();
@@ -194,21 +187,34 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
         String::from_utf8(out).expect("reporting writes UTF-8"),
         format!(
             "{0}::test_a project error: purba cannot run an async test yet\n\
-             {0}::test_b project error: the test is a generator, and purba does not iterate it\n\
-             {0}::test_c project error: the parameter db has no default, \
-             and purba cannot see which fixture builds it\n\
-             {0}::test_e project error: the test returns a value, and purba does not read it\n\
-             {0}::test_f project error: the decorator keep is not purba's, \
-             and purba cannot see what it does\n\
-             {0}::test_g project error: line 27 binds test_g again, \
-             and purba cannot see what the name then holds\n\
              {0}::test_d passed\n\
-             7 tests: 1 passed, 6 blocked; 6 project errors\n",
+             2 tests: 1 passed, 1 blocked; 1 project error\n",
             path.display()
         ),
-        "each refused line first, then the line of the test that runs"
+        "the refused line first, then the line of the test that runs"
     );
     assert_eq!(code, 4, "a test with an error exits 4");
+}
+
+#[test]
+fn a_refused_line_is_written_before_any_test_runs() {
+    let path = module_at("test_command_refused_first.py");
+    let ran = module_at("test_command_refused_first.ran");
+    let _ = fs::remove_file(&ran);
+    let text = format!(
+        "def test_d():\n    open({:?}, \"w\").close()\n    assert True\n\n\
+         async def test_a():\n    ...\n",
+        ran.to_str().expect("the path is UTF-8")
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let error =
+        purba_command::run(&argv(&path), Ok(Refuses)).expect_err("a refused write is an error");
+    assert_eq!(
+        error.to_string(),
+        "cannot write to stdout: refused",
+        "the run stops at a refused write"
+    );
+    assert!(!ran.exists(), "no test runs before the refused line");
 }
 
 #[test]
