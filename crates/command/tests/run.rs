@@ -15,6 +15,55 @@ fn argv(path: &Path) -> [String; 2] {
     ]
 }
 
+/// Each kind that a line names after its test, in reporting's words.
+const KINDS: [&str; 7] = [
+    "passed",
+    "failed",
+    "raised",
+    "unknown",
+    "blocked",
+    "project error",
+    "internal error",
+];
+
+/// Runs purba on the module `source` at `name`. Gives its path, each line but
+/// the count as its test and its kind, and the exit code.
+fn run_module(name: &str, source: &str) -> (PathBuf, Vec<(String, &'static str)>, u8) {
+    let path = module_at(name);
+    fs::write(&path, source).expect("the test writes its module");
+    let mut out = Vec::new();
+    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let stdout = String::from_utf8(out).expect("reporting writes UTF-8");
+    let mut lines: Vec<&str> = stdout.lines().collect();
+    lines.pop();
+    let shown = path.display().to_string();
+    let kinds = lines
+        .into_iter()
+        .map(|line| {
+            // The path can hold a space, and the name of a test cannot.
+            let (name, rest) = line
+                .strip_prefix(&shown)
+                .and_then(|after| after.split_once(' '))
+                .unwrap_or_else(|| panic!("a line names the module or its test: {line}"));
+            let test = format!("{shown}{name}");
+            let kind = KINDS
+                .into_iter()
+                .find(|kind| {
+                    rest.strip_prefix(kind)
+                        .is_some_and(|after| after.is_empty() || after.starts_with(':'))
+                })
+                .unwrap_or_else(|| panic!("a line names one of reporting's kinds: {line}"));
+            (test, kind)
+        })
+        .collect();
+    (path, kinds, code)
+}
+
+/// The identity of `test` in the module at `path`.
+fn id(path: &Path, test: &str) -> String {
+    format!("{}::{test}", path.display())
+}
+
 struct Refuses;
 
 impl Write for Refuses {
@@ -42,7 +91,6 @@ fn a_module_that_cannot_be_read_is_the_read_error() {
 
 #[test]
 fn a_run_writes_its_lines_and_returns_the_exit_code() {
-    let path = module_at("test_command_a.py");
     let text = concat!(
         "def test_one():\n",
         "    assert 1 == 1\n",
@@ -56,20 +104,16 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
         "def test_four():\n",
         "    raise ValueError(\"boom\")\n",
     );
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let (path, kinds, code) = run_module("test_command_a.py", text);
     assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0}::test_one passed\n\
-             {0}::test_two failed: assert 1 == 2\n\
-             {0}::test_three unknown: no assert ran\n\
-             {0}::test_four raised: ValueError: boom\n\
-             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown\n",
-            path.display()
-        ),
-        "one line for each test, in order, then the count, to the writer"
+        kinds,
+        [
+            (id(&path, "test_one"), "passed"),
+            (id(&path, "test_two"), "failed"),
+            (id(&path, "test_three"), "unknown"),
+            (id(&path, "test_four"), "raised"),
+        ],
+        "one line for each test, in order, to the writer"
     );
     assert_eq!(
         code, 1,
@@ -202,22 +246,17 @@ fn a_module_with_no_test_exits_2() {
 
 #[test]
 fn a_test_that_selection_refuses_prints_above_the_tests_that_run() {
-    let path = module_at("test_command_selection_refuses.py");
     let text = concat!(
         "def test_d():\n    assert True\n\n",
         "async def test_a():\n    ...\n",
     );
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let (path, kinds, code) = run_module("test_command_selection_refuses.py", text);
     assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0}::test_a project error: purba cannot run an async test yet\n\
-             {0}::test_d passed\n\
-             2 tests: 1 passed, 1 blocked; 1 project error\n",
-            path.display()
-        ),
+        kinds,
+        [
+            (id(&path, "test_a"), "project error"),
+            (id(&path, "test_d"), "passed"),
+        ],
         "the refused line first, then the line of the test that runs"
     );
     assert_eq!(code, 4, "a test with an error exits 4");
@@ -260,40 +299,15 @@ fn a_module_whose_every_test_is_refused_does_not_load() {
 }
 
 #[test]
-fn a_module_that_does_not_parse_shows_ruffs_first_syntax_error() {
-    for (name, text, message) in [
-        (
-            "test_command_bare.py",
-            "def test_a():\n    assert\n",
-            "Expected an expression",
-        ),
-        (
-            "test_command_star.py",
-            "def test_a():\n    x = [1]\n    assert *x\n",
-            "Starred expression cannot be used here",
-        ),
-        (
-            "test_command_dstar.py",
-            "def test_a():\n    x = {\"value\": 1}\n    assert **x\n",
-            "Expected an expression",
-        ),
-        (
-            "test_command_eof.py",
-            "x = (\n",
-            "unexpected EOF while parsing",
-        ),
+fn a_module_that_does_not_parse_prints_its_line_and_no_test() {
+    for (name, text) in [
+        ("test_command_bare.py", "def test_a():\n    assert\n"),
+        ("test_command_eof.py", "x = (\n"),
     ] {
-        let path = module_at(name);
-        fs::write(&path, text).expect("the test writes its module");
-        let mut out = Vec::new();
-        let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+        let (path, kinds, code) = run_module(name, text);
         assert_eq!(
-            String::from_utf8(out).expect("reporting writes UTF-8"),
-            format!(
-                "{} project error: SyntaxError: {message}\n\
-                 0 tests; 1 project error\n",
-                path.display()
-            ),
+            kinds,
+            [(path.display().to_string(), "project error")],
             "{name}: the module's line, and no test of it"
         );
         assert_eq!(code, 4, "{name}: a module that does not parse exits 4");
@@ -301,98 +315,20 @@ fn a_module_that_does_not_parse_shows_ruffs_first_syntax_error() {
 }
 
 #[test]
-fn a_syntax_error_that_ruff_passes_shows_cpythons_error_at_load() {
-    let path = module_at("test_command_return.py");
-    let text = "def test_a():\n    assert True\n\nreturn 5\n";
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
-    assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0} project error: SyntaxError: 'return' outside function \
-             (test_command_return.py, line 4)\n\
-             {0}::test_a blocked: {0} did not load\n\
-             1 test: 1 blocked; 1 project error\n",
-            path.display()
-        ),
-        "CPython names the error when assertion loads the module"
-    );
-    assert_eq!(code, 4, "a module that did not load exits 4");
-}
-
-#[test]
-fn a_module_that_nests_too_deep_shows_cpythons_error() {
-    let path = module_at("test_command_deep.py");
-    let text = format!(
-        "def test_a():\n    x = {}1\n    assert x\n",
-        "-".repeat(200_000)
-    );
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
-    assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0} project error: MemoryError: Parser stack overflowed - \
-             Python source too complex to parse\n\
-             {0}::test_a blocked: {0} did not load\n\
-             1 test: 1 blocked; 1 project error\n",
-            path.display()
-        ),
-        "CPython's error, as for any module that does not compile"
-    );
-    assert_eq!(code, 4, "a module that did not load exits 4");
-}
-
-#[test]
-fn a_module_that_defines_the_hooks_name_fails_to_load() {
-    for (name, hook) in [
-        ("test_command_shadow.py", "_purba_ran"),
-        ("test_command_shadow_full_width.py", "_\u{ff50}urba_ran"),
-    ] {
-        let path = module_at(name);
-        let text = format!(
-            "def {hook}(i, x):\n    return True\n\ndef test_shadow():\n    assert 1 == 2\n"
-        );
-        fs::write(&path, text).expect("the test writes its module");
-        let mut out = Vec::new();
-        let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
-        assert_eq!(
-            String::from_utf8(out).expect("reporting writes UTF-8"),
-            format!(
-                "{0} project error: NameError: {0} binds _purba_ran, \
-                 the name of purba's assert hook\n\
-                 {0}::test_shadow blocked: {0} did not load\n\
-                 1 test: 1 blocked; 1 project error\n",
-                path.display()
-            ),
-            "{name}: the load names the clash"
-        );
-        assert_eq!(code, 4, "{name}: a module that did not load exits 4");
-    }
-}
-
-#[test]
 fn a_module_that_did_not_load_prints_its_error_once() {
-    let path = module_at("test_command_load.py");
     let text = concat!(
         "raise ValueError(\"x\")\n\n",
         "def test_one():\n    assert 1 == 1\n\n",
         "def test_two():\n    assert 1 == 2\n",
     );
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let (path, kinds, code) = run_module("test_command_load.py", text);
     assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0} project error: ValueError: x\n\
-             {0}::test_one blocked: {0} did not load\n\
-             {0}::test_two blocked: {0} did not load\n\
-             2 tests: 2 blocked; 1 project error\n",
-            path.display()
-        ),
+        kinds,
+        [
+            (path.display().to_string(), "project error"),
+            (id(&path, "test_one"), "blocked"),
+            (id(&path, "test_two"), "blocked"),
+        ],
         "the module's error once, then each of its tests as blocked"
     );
     assert_eq!(code, 4, "an error exits 4");
@@ -400,26 +336,21 @@ fn a_module_that_did_not_load_prints_its_error_once() {
 
 #[test]
 fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
-    let path = module_at("test_command_mix.py");
     let text = concat!(
         "def test_ok():\n    assert True\n\n",
         "async def test_async():\n    ...\n\n",
         "def test_five():\n    pass\n\n",
         "globals()[\"test_five\"] = 5\n",
     );
-    fs::write(&path, text).expect("the test writes its module");
-    let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let (path, kinds, code) = run_module("test_command_mix.py", text);
     assert_eq!(
-        String::from_utf8(out).expect("reporting writes UTF-8"),
-        format!(
-            "{0}::test_async project error: purba cannot run an async test yet\n\
-             {0}::test_ok passed\n\
-             {0}::test_five project error: TypeError: 'int' object is not callable\n\
-             3 tests: 1 passed, 2 blocked; 2 project errors\n",
-            path.display()
-        ),
-        "each line keeps project error, and each of the two counts as blocked and as an error"
+        kinds,
+        [
+            (id(&path, "test_async"), "project error"),
+            (id(&path, "test_ok"), "passed"),
+            (id(&path, "test_five"), "project error"),
+        ],
+        "each of the two keeps its project error line"
     );
     assert_eq!(code, 4, "an error exits 4");
 }

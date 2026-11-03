@@ -159,3 +159,31 @@ fn a_module_that_nests_deeper_than_its_stack_and_does_not_parse_frees_its_tree()
         "{name}: the parse gives the syntax error, and frees the tree"
     );
 }
+
+#[test]
+fn an_assert_with_no_value_or_a_starred_value_gives_ruffs_message() {
+    for (name, text, message) in [
+        (
+            "test_bare.py",
+            "def test_a():\n    assert\n",
+            "Expected an expression",
+        ),
+        (
+            "test_star.py",
+            "def test_a():\n    x = [1]\n    assert *x\n",
+            "Starred expression cannot be used here",
+        ),
+        (
+            "test_dstar.py",
+            "def test_a():\n    x = {\"value\": 1}\n    assert **x\n",
+            "Expected an expression",
+        ),
+        ("test_eof.py", "x = (\n", "unexpected EOF while parsing"),
+    ] {
+        assert_eq!(
+            syntax_error(name, text).message(),
+            message,
+            "{name}: ruff's words for its first error"
+        );
+    }
+}
