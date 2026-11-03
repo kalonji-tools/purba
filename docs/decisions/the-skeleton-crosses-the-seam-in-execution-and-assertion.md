@@ -46,6 +46,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
 - **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
 - **A test that catches the `AssertionError` of an assert that did not hold, and then raises `AssertionError` with no assert, fails on the caught assert.** The call records the last assert that ran, and not the error that the test raised.
+- **A test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.** A test that hides its own failure on purpose reads as clean.
 
 ## Confirmation
 
@@ -58,6 +59,8 @@ It checks that a call to `_purba_ran` with an index that names no assert raises 
 
 `mise run test:rust` also checks that execution makes a passed, failed or `unknown` outcome from the call and the last assert that ran.
 It checks that `AssertionError` gives the outcome `raised` when no assert ran or the last one held.
+It checks that another exception gives `raised` after an assert that did not hold, from the assert's message or after the test caught the assert.
+It checks that a test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 
