@@ -124,11 +124,8 @@ fn modules(
     if tests.is_empty() {
         return Ok((Vec::new(), refused));
     }
-    let (text, asserts) = purba_assertion::rewrite(module).into_parts();
-    Ok((
-        vec![Module::new(path.to_owned(), text, asserts, tests)],
-        refused,
-    ))
+    let rewrite = purba_assertion::rewrite(module);
+    Ok((vec![Module::new(path.to_owned(), rewrite, tests)], refused))
 }
 
 #[cfg(test)]

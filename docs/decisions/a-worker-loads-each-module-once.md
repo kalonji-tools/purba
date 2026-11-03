@@ -9,7 +9,7 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 | fact | source |
 |---|---|
 | pytest 9.0.3 runs the body of a test module once for its three tests | [the probe](https://github.com/kalonji-tools/purba/issues/564#issuecomment-6252106214) |
-| a selected test, the rewritten text of its module and the text of each assert cross as plain data | [command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md#decision-outcome) |
+| a selected test, the rewritten text of its module and the text of each assert cross as plain data | [command lends one parse to selection and assertion](https://github.com/kalonji-tools/purba/blob/f40c283/docs/decisions/command-lends-one-parse-to-selection-and-assertion.md#decision-outcome) |
 
 ## Considered Options
 
@@ -25,7 +25,7 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 | question | answer |
 |---|---|
-| what command hands dispatch | each module once: its rewritten text, the text of each assert, and its selected tests |
+| what command hands dispatch | each module once: assertion's rewrite of it, and its selected tests |
 | what dispatch hands execution | each module once, to load it, then a function's name and its module for each test |
 | how often execution loads a module | once in a worker, when dispatch asks it to load the module before the first test of the module. The worker does not load again a module that failed to load, and dispatch runs none of its tests |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |

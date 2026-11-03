@@ -10,6 +10,8 @@ use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
 use purba_assertion::Loaded;
+/// Assertion's rewrite of a module, which a [`Module`] holds.
+pub use purba_assertion::Rewrite;
 use pyo3::exceptions::PyAssertionError;
 use pyo3::sync::PyOnceLock;
 use pyo3::types::PyAnyMethods;
@@ -19,20 +21,14 @@ use serde::{Deserialize, Serialize};
 /// A module that dispatch hands a worker.
 pub struct Module {
     path: PathBuf,
-    text: String,
-    asserts: Vec<String>,
+    rewrite: Rewrite,
 }
 
 impl Module {
-    /// Makes a module from `path` as the tester typed it, the rewritten text,
-    /// and the source text of each assert at its index.
+    /// Makes a module from `path` as the tester typed it, and its rewrite.
     #[must_use]
-    pub const fn new(path: PathBuf, text: String, asserts: Vec<String>) -> Self {
-        Self {
-            path,
-            text,
-            asserts,
-        }
+    pub const fn new(path: PathBuf, rewrite: Rewrite) -> Self {
+        Self { path, rewrite }
     }
 }
 
@@ -257,8 +253,7 @@ impl<'py> Worker<'py> {
 
     fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
-            let loaded =
-                purba_assertion::load(self.py, &module.path, &module.text, module.asserts.clone());
+            let loaded = purba_assertion::load(self.py, &module.path, &module.rewrite);
             let failed = loaded.as_ref().err().map(error);
             self.loaded.insert(module.path.clone(), loaded.ok());
             if let Some(failed) = failed {

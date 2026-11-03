@@ -3,7 +3,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Error, Kind};
+use purba_execution::{Error, Kind, Rewrite};
 
 struct Named(&'static str);
 
@@ -13,11 +13,10 @@ impl Test for Named {
     }
 }
 
-fn module(name: &str, text: &str, asserts: &[&str], tests: &[&'static str]) -> Module<Named> {
+fn module(name: &str, source: &str, tests: &[&'static str]) -> Module<Named> {
     Module::new(
         PathBuf::from(name),
-        text.to_owned(),
-        asserts.iter().map(|&assert| assert.to_owned()).collect(),
+        Rewrite::of_source(source).expect("the source parses"),
         tests.iter().map(|&test| Named(test)).collect(),
     )
 }
@@ -76,11 +75,10 @@ fn two_tests(name: &str, ran: &std::path::Path) -> Module<Named> {
     module(
         name,
         &format!(
-            "def test_one():\n    assert _purba_ran(0, True)\n\n\
+            "def test_one():\n    assert True\n\n\
              def test_two():\n    open({:?}, \"w\").close()\n",
             ran.to_str().expect("the path is UTF-8")
         ),
-        &["assert True"],
         &["test_one", "test_two"],
     )
 }
@@ -89,10 +87,9 @@ fn two_tests(name: &str, ran: &std::path::Path) -> Module<Named> {
 fn each_outcome_stands_beside_its_test() {
     let test_a = module(
         "test_a.py",
-        "def test_one():\n    assert _purba_ran(0, 1 == 1)\n\n\
-         def test_two():\n    assert _purba_ran(1, 1 == 2)\n\n\
+        "def test_one():\n    assert 1 == 1\n\n\
+         def test_two():\n    assert 1 == 2\n\n\
          def test_three():\n    pass\n",
-        &["assert 1 == 1", "assert 1 == 2"],
         &["test_one", "test_two", "test_three"],
     );
     assert_eq!(
@@ -116,8 +113,7 @@ fn dispatch_calls_only_the_tests_it_is_handed() {
     let test_only = module(
         "test_only.py",
         "ran = []\n\ndef test_left_out():\n    ran.append(1)\n\n\
-         def test_check():\n    assert _purba_ran(0, ran == [])\n",
-        &["assert ran == []"],
+         def test_check():\n    assert ran == []\n",
         &["test_check"],
     );
     assert_eq!(
@@ -132,9 +128,8 @@ fn the_tests_of_a_module_share_one_worker() {
     let test_shared = module(
         "test_shared.py",
         "seen = []\n\n\
-         def test_first():\n    seen.append(1)\n    assert _purba_ran(0, seen == [1])\n\n\
-         def test_second():\n    seen.append(2)\n    assert _purba_ran(1, seen == [1, 2])\n",
-        &["assert seen == [1]", "assert seen == [1, 2]"],
+         def test_first():\n    seen.append(1)\n    assert seen == [1]\n\n\
+         def test_second():\n    seen.append(2)\n    assert seen == [1, 2]\n",
         &["test_first", "test_second"],
     );
     assert_eq!(
@@ -152,8 +147,7 @@ fn an_error_stands_beside_its_test_and_the_run_goes_on() {
     let test_err = module(
         "test_err.py",
         "def test_one():\n    pass\n\ntest_one = 5\n\n\
-         def test_two():\n    assert _purba_ran(0, True)\n",
-        &["assert True"],
+         def test_two():\n    assert True\n",
         &["test_one", "test_two"],
     );
     assert_eq!(
@@ -211,7 +205,6 @@ fn a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked() 
         "raise ValueError('x')\n\n\
          def test_one():\n    pass\n\n\
          def test_two():\n    pass\n",
-        &[],
         &["test_one", "test_two"],
     );
     let path = PathBuf::from("test_not_loaded.py");
@@ -231,7 +224,6 @@ fn a_break_at_a_module_that_does_not_load_hands_no_blocked_test() {
     let test_fails = module(
         "test_not_loaded_break.py",
         "raise ValueError('x')\n\ndef test_one():\n    pass\n",
-        &[],
         &["test_one"],
     );
     let mut handed = 0;
@@ -252,7 +244,6 @@ fn dispatch_loads_no_module_that_has_no_test() {
             "open({:?}, \"w\").close()\n",
             ran.to_str().expect("the path is UTF-8")
         ),
-        &[],
         &[],
     );
     assert_eq!(seen(test_none), [], "dispatch hands on nothing");
@@ -279,7 +270,6 @@ fn a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blo
              def test_one():\n    pass\n\n\
              def test_two():\n    pass\n"
         ),
-        &[],
         &["test_one", "test_two"],
     );
     let path = PathBuf::from("test_load_panics.py");
@@ -304,9 +294,8 @@ fn a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_t
         &format!(
             "{PANIC_EXCEPTION}\
              def __getattr__(name):\n    raise panic_exception()('raised by __getattr__')\n\n\
-             def test_two():\n    assert _purba_ran(0, True)\n"
+             def test_two():\n    assert True\n"
         ),
-        &["assert True"],
         &["test_gone", "test_two"],
     );
     assert_eq!(

@@ -35,10 +35,14 @@ impl Rewrite {
         &self.asserts
     }
 
-    /// The rewritten text and the source text of each assert, moved out.
-    #[must_use]
-    pub fn into_parts(self) -> (String, Vec<String>) {
-        (self.text, self.asserts)
+    /// Parses `source`, the text of a module that no file holds, and rewrites
+    /// it.
+    ///
+    /// # Errors
+    ///
+    /// When `source` does not parse.
+    pub fn of_source(source: &str) -> Result<Self, purba_parsing::Error> {
+        Ok(rewrite(&purba_parsing::parse_source(source.to_owned())?))
     }
 }
 
@@ -177,14 +181,14 @@ impl<'py> Loaded<'py> {
     }
 }
 
-/// Loads `text` as the module at `path`, in this order:
+/// Loads the text of `rewrite` as the module at `path`, in this order:
 ///
 /// 1. names the module after the file of `path`, without `.py`, and sets its
 ///    `__file__` to `path`;
-/// 2. gives it `_purba_ran`, which holds `asserts`, the source text of each
-///    assert at the index that its mark records;
+/// 2. gives it `_purba_ran`, which holds the source text of each assert of
+///    `rewrite` at the index that its mark records;
 /// 3. puts it in `sys.modules` under that name;
-/// 4. compiles `text`, checks that no function holds `_purba_ran` as a local
+/// 4. compiles the text, checks that no function holds `_purba_ran` as a local
 ///    name, and runs it in the module's namespace;
 /// 5. checks that `_purba_ran` still holds the hook;
 /// 6. when step 4 or 5 raises or panics, puts back what `sys.modules` held
@@ -198,12 +202,8 @@ impl<'py> Loaded<'py> {
 /// # Panics
 ///
 /// A panic of step 4 or 5 goes on after step 6.
-pub fn load<'py>(
-    py: Python<'py>,
-    path: &Path,
-    text: &str,
-    asserts: Vec<String>,
-) -> PyResult<Loaded<'py>> {
+pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Loaded<'py>> {
+    let (text, asserts) = (rewrite.text.as_str(), rewrite.asserts.clone());
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
     let module = PyModule::new(py, &name)?;
     module.setattr("__file__", path.as_os_str())?;
