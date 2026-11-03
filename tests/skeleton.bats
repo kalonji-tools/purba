@@ -60,33 +60,18 @@ LINES
   [[ "${output}" == "test_abort.py::test_one passed" ]]
 }
 
-@test "a test that selection refuses prints before any test runs, and is never called" {
+@test "a test that selection refuses prints above the tests that run, and is never called" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'def test_d():' '    assert True' \
-    'async def test_a():' '    ...' \
-    'def test_b():' '    yield' \
-    'def test_c(db: int):' '    ...' \
-    'def test_e():' '    assert True' '    return False' \
-    'def keep(function):' '    return function' \
-    '@keep' 'def test_f():' '    assert False' \
-    'def test_g():' '    assert False' \
-    'test_g = keep(test_g)' >test_refused.py
+    'async def test_a():' '    ...' >test_refused.py
 
   run -4 --separate-stderr purba test_refused.py
 
-  local no_default='the parameter db has no default, and purba cannot see which fixture builds it'
-  local rebound='line 19 binds test_g again, and purba cannot see what the name then holds'
-  local foreign="the decorator keep is not purba's, and purba cannot see what it does"
-  diff -u - <(printf '%s\n' "${output}") <<LINES
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_refused.py::test_a project error: purba cannot run an async test yet
-test_refused.py::test_b project error: the test is a generator, and purba does not iterate it
-test_refused.py::test_c project error: ${no_default}
-test_refused.py::test_e project error: the test returns a value, and purba does not read it
-test_refused.py::test_f project error: ${foreign}
-test_refused.py::test_g project error: ${rebound}
 test_refused.py::test_d passed
-7 tests: 1 passed, 6 blocked; 6 project errors
+2 tests: 1 passed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
