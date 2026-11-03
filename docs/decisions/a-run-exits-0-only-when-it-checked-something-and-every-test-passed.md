@@ -67,7 +67,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **When a run meets more than one row, its code is the first of 125, 3, 1, 4, 2 and 0.**
 - **An internal error has a code of its own, 125.** The line that purba prints names each kind.
-- **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic.
+- **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **This record chooses no code for an interrupt.** The design in depth of interrupt handling chooses it.
 - **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
@@ -89,7 +89,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Confirmation
 
-`mise run test:rust` checks that reporting renders the first of 125, 1, 4, 2 and 0 that a tally of the run meets.
+`mise run test:rust` checks that reporting renders the first of 125, 3, 1, 4, 2 and 0 that a tally of the run meets.
 It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.

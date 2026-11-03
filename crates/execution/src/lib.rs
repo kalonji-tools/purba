@@ -76,9 +76,10 @@ pub enum Kind {
 
 /// Why `run` made no outcome: a project error or an internal error.
 ///
-/// A project error is text: Python's error, that the module did not load, or
-/// that the test is not callable. An internal error is a panic, with the part
-/// that found it and its message. Only execution makes an error.
+/// A project error is text, such as Python's error or a test that selection
+/// refuses. Any part builds one with [`Error::project`].
+/// An internal error is a panic, with the part that found it and its message.
+/// Only execution makes an internal error.
 #[derive(Debug)]
 pub struct Error(Reason);
 
@@ -88,13 +89,29 @@ enum Reason {
     Internal(panic::Caught),
 }
 
+/// Whether an error is a project error or an internal error, and the part
+/// that found an internal error.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorKind<'a> {
+    /// An error in the tester's code.
+    Project,
+    /// An error in purba itself, found by `part`.
+    Internal { part: &'a str },
+}
+
 impl Error {
-    /// The part that found an internal error. None for a project error.
+    /// A project error of `text`.
     #[must_use]
-    pub fn part(&self) -> Option<&str> {
+    pub const fn project(text: String) -> Self {
+        Self(Reason::Project(text))
+    }
+
+    /// Whether this is a project error or an internal error.
+    #[must_use]
+    pub fn kind(&self) -> ErrorKind<'_> {
         match &self.0 {
-            Reason::Project(_) => None,
-            Reason::Internal(caught) => Some(&caught.part),
+            Reason::Project(_) => ErrorKind::Project,
+            Reason::Internal(caught) => ErrorKind::Internal { part: &caught.part },
         }
     }
 
@@ -116,7 +133,7 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {}
 
 fn error(err: &PyErr) -> Error {
-    Error(Reason::Project(err.to_string()))
+    Error::project(err.to_string())
 }
 
 /// Runs `work`, and gives an internal error for a panic that crosses it. The
@@ -260,12 +277,9 @@ impl<'py> Worker<'py> {
                 return Err(failed);
             }
         }
-        self.loaded[&module.path].as_ref().ok_or_else(|| {
-            Error(Reason::Project(format!(
-                "{} did not load",
-                module.path.display()
-            )))
-        })
+        self.loaded[&module.path]
+            .as_ref()
+            .ok_or_else(|| Error::project(format!("{} did not load", module.path.display())))
     }
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
@@ -307,8 +321,8 @@ impl<'py> Worker<'py> {
 }
 
 /// How many tests of a run passed, failed, raised, are `unknown`, or are
-/// blocked, and how many project errors and internal errors the run met. Each
-/// test counts once, and each error once.
+/// blocked, and how many errors of each kind the run met. Each test counts
+/// once, and each error once, by its kind.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
@@ -318,36 +332,42 @@ pub struct Tally {
     pub blocked: usize,
     pub project_errors: usize,
     pub internal_errors: usize,
+    /// Writes that stdout refused. The run stops at the first.
+    pub invocation_errors: usize,
 }
 
 impl Tally {
     /// Counts one test by its kind. An error in place of an outcome blocked
-    /// that test, so it counts one blocked test and one project error.
-    pub const fn add<E>(&mut self, result: &Result<&Kind, E>) {
+    /// that test, so it counts one blocked test and one error of its kind.
+    pub fn add(&mut self, result: Result<&Kind, &Error>) {
         match result {
             Ok(Kind::Passed) => self.passed += 1,
             Ok(Kind::Failed { .. }) => self.failed += 1,
             Ok(Kind::Raised { .. }) => self.raised += 1,
             Ok(Kind::Unknown) => self.unknown += 1,
-            Err(_) => {
+            Err(error) => {
                 self.blocked += 1;
-                self.project_errors += 1;
+                self.add_module(error);
             }
         }
     }
 
-    /// Counts one test that an error outside the test blocked.
+    /// Counts one test that the error of its module blocked.
     pub const fn add_blocked(&mut self) {
         self.blocked += 1;
     }
 
-    /// Counts one project error that belongs to no test.
-    pub const fn add_project_error(&mut self) {
-        self.project_errors += 1;
+    /// Counts one write that stdout refused.
+    pub const fn add_invocation_error(&mut self) {
+        self.invocation_errors += 1;
     }
 
-    /// Counts one internal error.
-    pub const fn add_internal_error(&mut self) {
-        self.internal_errors += 1;
+    /// Counts one error by its kind. A module's error counts through it, and
+    /// each test that the error blocked through [`Tally::add_blocked`].
+    pub fn add_module(&mut self, error: &Error) {
+        match error.kind() {
+            ErrorKind::Project => self.project_errors += 1,
+            ErrorKind::Internal { .. } => self.internal_errors += 1,
+        }
     }
 }

@@ -16,8 +16,17 @@ pub enum Error {
     Usage,
     /// The module cannot be read.
     Read(PathBuf, io::Error),
-    /// stdout refused a write, or takes none.
+    /// stdout takes no write, so no report exists.
     Write(io::Error),
+    /// stdout refused a write of the report. `code` is the exit code of what
+    /// the run met by then: 125 after an internal error, and 3 otherwise.
+    Refused { error: io::Error, code: u8 },
+}
+
+impl From<purba_reporting::Refused> for Error {
+    fn from(purba_reporting::Refused { error, code }: purba_reporting::Refused) -> Self {
+        Self::Refused { error, code }
+    }
 }
 
 impl fmt::Display for Error {
@@ -25,7 +34,9 @@ impl fmt::Display for Error {
         match self {
             Self::Usage => write!(formatter, "usage: purba <path to one .py file>"),
             Self::Read(path, error) => write!(formatter, "cannot read {}: {error}", path.display()),
-            Self::Write(error) => write!(formatter, "cannot write to stdout: {error}"),
+            Self::Write(error) | Self::Refused { error, .. } => {
+                write!(formatter, "cannot write to stdout: {error}")
+            }
         }
     }
 }
@@ -59,39 +70,39 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         Ok(module) => module,
         Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
         Err(purba_parsing::Error::Syntax(error)) => {
-            report
-                .not_parsed(&path.display(), &error)
-                .map_err(Error::Write)?;
-            return report.finish().map_err(Error::Write);
+            report.module(
+                &path.display(),
+                &purba_execution::Error::project(error.to_string()),
+            )?;
+            return Ok(report.finish()?);
         }
     };
     let (modules, refused_tests) = match modules(&path, &parsed) {
         Ok(found) => found,
         Err(error) => {
-            report
-                .not_loaded(&path.display(), &error)
-                .map_err(Error::Write)?;
-            return report.finish().map_err(Error::Write);
+            report.module(&path.display(), &error)?;
+            return Ok(report.finish()?);
         }
     };
     drop(parsed);
     for refused in &refused_tests {
-        report
-            .error(refused.test(), refused)
-            .map_err(Error::Write)?;
+        report.line(
+            refused.test(),
+            &Err(purba_execution::Error::project(refused.to_string())),
+        )?;
     }
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result) => report.line(&test, &result),
-            Handed::NotLoaded(path, error) => report.not_loaded(&path.display(), &error),
+            Handed::NotLoaded(path, error) => report.module(&path.display(), &error),
             Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
         }
         .map_or_else(ControlFlow::Break, ControlFlow::Continue)
     });
-    if let ControlFlow::Break(error) = flow {
-        return Err(Error::Write(error));
+    if let ControlFlow::Break(refused) = flow {
+        return Err(refused.into());
     }
-    report.finish().map_err(Error::Write)
+    Ok(report.finish()?)
 }
 
 /// The one path that `arguments` names after the script's name.

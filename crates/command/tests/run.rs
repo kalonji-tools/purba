@@ -84,8 +84,8 @@ fn a_writer_that_refuses_is_the_write_error() {
     let error =
         purba_command::run(&argv(&path), Ok(Refuses)).expect_err("a refused write is an error");
     assert!(
-        matches!(error, Error::Write(_)),
-        "a module that can be read gives the write error: {error}"
+        matches!(error, Error::Refused { code: 3, .. }),
+        "a module that can be read gives the refused write, with the code 3: {error}"
     );
 }
 
@@ -127,6 +127,33 @@ fn a_write_refused_during_the_run_stops_the_tests_after_it() {
         "the error names stdout"
     );
     assert!(!ran.exists(), "no test runs after the refused line");
+}
+
+/// Python that finds `PyO3`'s `PanicException`, which no module exports.
+const PANIC_EXCEPTION: &str = "def panic_exception():\n\
+    \x20   pending = [BaseException]\n\
+    \x20   while pending:\n\
+    \x20       kind = pending.pop()\n\
+    \x20       if kind.__module__ == 'pyo3_runtime' and kind.__name__ == 'PanicException':\n\
+    \x20           return kind\n\
+    \x20       pending.extend(kind.__subclasses__())\n\
+    \x20   raise LookupError('no PanicException')\n\n";
+
+#[test]
+fn a_write_refused_after_an_internal_error_returns_125() {
+    let path = module_at("test_command_refused_after_internal.py");
+    let text = format!(
+        "{PANIC_EXCEPTION}\
+         def test_one():\n    raise panic_exception()('raised by the test')\n\n\
+         def test_two():\n    assert True\n"
+    );
+    fs::write(&path, text).expect("the test writes its module");
+    let error = purba_command::run(&argv(&path), Ok(RefusesSecondLine::default()))
+        .expect_err("a refused write is an error");
+    assert!(
+        matches!(error, Error::Refused { code: 125, .. }),
+        "the internal error of the first line comes before the refused write: {error}"
+    );
 }
 
 #[test]

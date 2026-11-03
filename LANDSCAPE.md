@@ -72,7 +72,7 @@ flowchart TD
   command -- "the outcomes" --> reporting
   command -- "a module" --> parsing
   command -- "a rewrite" --> assertion
-  command -- "a call to catch" --> execution
+  command -- "a call to catch, and a project error" --> execution
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection

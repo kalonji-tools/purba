@@ -2,8 +2,8 @@ use std::hint::black_box;
 use std::panic;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use purba_execution::Error;
 use purba_execution::panic::{Panic, take, wrap_hook};
+use purba_execution::{Error, ErrorKind};
 
 // A panic hook belongs to the process, and cargo runs the tests of one binary
 // on several threads. A panic in another test could take the place of a panic
@@ -50,8 +50,11 @@ fn the_wrap_records_each_panic_and_calls_the_hook_it_replaced() {
     })
     .expect_err("a panic gives an error");
     assert_eq!(
-        (error.part(), error.to_string()),
-        (Some("execution"), "a panic that the note holds".to_owned()),
+        (error.kind(), error.to_string()),
+        (
+            ErrorKind::Internal { part: "execution" },
+            "a panic that the note holds".to_owned()
+        ),
         "the note names the part of a panic that it holds"
     );
 
@@ -61,8 +64,11 @@ fn the_wrap_records_each_panic_and_calls_the_hook_it_replaced() {
     })
     .expect_err("a panic gives an error");
     assert_eq!(
-        (error.part(), error.to_string()),
-        (Some("dispatch"), "resumed".to_owned()),
+        (error.kind(), error.to_string()),
+        (
+            ErrorKind::Internal { part: "dispatch" },
+            "resumed".to_owned()
+        ),
         "a note that holds another message leaves the part to the catcher"
     );
     assert_eq!(take(), None, "catch takes the note");

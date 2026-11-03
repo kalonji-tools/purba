@@ -21,7 +21,9 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 /// The console script `purba`. It copies `sys.argv` into a list of strings,
 /// runs command on it, and returns the exit code. For the error that stops
 /// the run, it writes one line to stderr, and returns 3, or 125 for a panic.
-/// A run that exits 125 then asks for a report, in two lines on stderr.
+/// A write that stdout refused once the report exists returns the code that
+/// reporting gives with it: 125 after an internal error, and 3 otherwise. A
+/// run that exits 125 then asks for a report, in two lines on stderr.
 #[pyfunction]
 #[pyo3(name = "_main")]
 fn main(py: Python<'_>) -> u8 {
@@ -38,6 +40,10 @@ fn main(py: Python<'_>) -> u8 {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
         Ok(Ok(code)) => code,
+        Ok(Err(error @ purba_command::Error::Refused { code, .. })) => {
+            stop(&error);
+            code
+        }
         Ok(Err(error)) => stop(&error),
         // Rust's panic hook already wrote the panic's text to stderr, unless
         // `resume_unwind` started the panic.
@@ -76,7 +82,8 @@ fn writable_stdout() -> io::Result<()> {
 }
 
 fn stop(error: &impl Display) -> u8 {
-    // stderr may refuse the write too. The run exits 3 either way.
+    // stderr may refuse the write too. `stop` returns 3 either way, and `_main`
+    // keeps the code of a refused write over it.
     let _ = writeln!(io::stderr(), "purba: invocation error: {error}");
     3
 }

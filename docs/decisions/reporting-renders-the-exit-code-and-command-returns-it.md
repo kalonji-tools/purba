@@ -30,10 +30,10 @@ Some part counts each outcome and each error, and some part turns that count int
 
 | question | answer |
 |---|---|
-| which part holds the rule that counts | execution: `Tally`. It counts each test once, by its outcome or as blocked, and each error once |
+| which part holds the rule that counts | execution: `Tally`. It counts each test once, by its outcome or as blocked, and each error once, by its kind |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
-| what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2, 4 or 125. When the writer refuses a write, `line` or `finish` returns the error |
-| what command does with the code | it returns the code to `_main`. A refused write is an error, so `_main` returns 3 |
+| what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2, 4 or 125. When the writer refuses a write, each way in and `finish` return the error with the code of the run so far: 125 after an internal error, and 3 otherwise |
+| what command does with the code | it returns the code to `_main`. For a refused write, it returns the error with that code, and `_main` returns the code |
 | where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies), as `reporting -->> command: exit code 1` |
 
 **Downside:**
@@ -51,7 +51,7 @@ It checks that command returns the write error when its writer refuses each writ
 
 `mise run lint:wiring` checks that reporting answers command back along the arrow from command to reporting.
 
-`mise run test:rust` checks that an internal error comes first.
-No command checks that an invocation error comes first.
+`mise run test:rust` checks that an internal error comes first, then an invocation error.
 `mise run test:wheel` checks that `_main` returns 3 when stdout is closed, and when it is open only to read.
-No command checks that `_main` turns the write error that `line` or `finish` returns into 3.
+`mise run test:wheel` checks that `_main` returns 125 when stdout refuses a write after an internal error.
+No command checks that `_main` returns 3 for a write that stdout refuses during a run with no internal error.
