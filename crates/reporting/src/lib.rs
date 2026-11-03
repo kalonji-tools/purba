@@ -52,7 +52,7 @@ impl<W: Write> Report<W> {
     ///
     /// When `out` refuses the write or the flush.
     pub fn not_loaded<M: Display, E: Display>(&mut self, module: &M, error: &E) -> io::Result<()> {
-        self.tally.add_error();
+        self.tally.add_project_error();
         writeln!(
             self.out,
             "{module} project error: {}",
@@ -116,23 +116,40 @@ impl<W: Write> Report<W> {
 
 fn count_line(tally: &Tally) -> String {
     let tests = tally.passed + tally.failed + tally.raised + tally.unknown + tally.blocked;
-    format!(
-        "{tests} test{}: {} passed, {} failed, {} raised, {} unknown, {} blocked; {} error{}",
-        plural(tests),
-        tally.passed,
-        tally.failed,
-        tally.raised,
-        tally.unknown,
-        tally.blocked,
-        tally.errors,
-        plural(tally.errors),
-    )
+    let outcomes: Vec<String> = [
+        (tally.passed, "passed"),
+        (tally.failed, "failed"),
+        (tally.raised, "raised"),
+        (tally.unknown, "unknown"),
+        (tally.blocked, "blocked"),
+    ]
+    .into_iter()
+    .filter(|&(count, _)| count > 0)
+    .map(|(count, outcome)| format!("{count} {outcome}"))
+    .collect();
+    let errors: Vec<String> = [
+        (tally.project_errors, "project error"),
+        (tally.internal_errors, "internal error"),
+    ]
+    .into_iter()
+    .filter(|&(count, _)| count > 0)
+    .map(|(count, error)| format!("{count} {error}{}", plural(count)))
+    .collect();
+    let mut line = format!("{tests} test{}", plural(tests));
+    for (mark, columns) in [(':', outcomes), (';', errors)] {
+        if !columns.is_empty() {
+            line.push(mark);
+            line.push(' ');
+            line.push_str(&columns.join(", "));
+        }
+    }
+    line
 }
 
 const fn exit_code(tally: &Tally) -> u8 {
     if tally.failed > 0 {
         1
-    } else if tally.raised > 0 || tally.errors > 0 {
+    } else if tally.raised > 0 || tally.project_errors > 0 {
         4
     } else if tally.unknown > 0 || tally.passed == 0 {
         2
@@ -240,7 +257,7 @@ mod tests {
             *seen.borrow(),
             "test_a.py::test_one passed\n\
              test_a.py::test_two unknown: no assert ran\n\
-             2 tests: 1 passed, 0 failed, 0 raised, 1 unknown, 0 blocked; 0 errors\n",
+             2 tests: 1 passed, 1 unknown\n",
             "the count is flushed when the run finishes"
         );
         assert_eq!(code, 2, "an unknown test exits 2");
@@ -273,7 +290,7 @@ mod tests {
             String::from_utf8(out).expect("reporting writes UTF-8"),
             "test_a.py::test_one project error: the parameter x has no default, \
              and purba cannot see which fixture builds it\n\
-             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+             1 test: 1 blocked; 1 project error\n",
             "the line of a test whose own error blocks it, and the count of both"
         );
         assert_eq!(code, 4, "an error makes the run exit 4");
@@ -297,7 +314,7 @@ mod tests {
             "test_b.py project error: ValueError: x\n\
              test_b.py::test_one blocked: test_b.py did not load\n\
              test_b.py::test_two blocked: test_b.py did not load\n\
-             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
+             2 tests: 2 blocked; 1 project error\n",
             "the error once, then each test that it blocked"
         );
         assert_eq!(
@@ -327,7 +344,7 @@ mod tests {
             String::from_utf8(out).expect("reporting writes UTF-8"),
             "test_a.py::test_async project error: purba cannot run an async test yet\n\
              test_a.py::test_five project error: TypeError: 'int' object is not callable\n\
-             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
+             2 tests: 2 blocked; 2 project errors\n",
             "each line keeps project error, and each test counts as blocked and as an error"
         );
         assert_eq!(code, 4, "an error exits 4");
@@ -355,7 +372,7 @@ mod tests {
              test_a.py::test_three unknown: no assert ran\n\
              test_a.py::test_four raised: KeyError: 'k'\n\
              test_c.py::test_x project error: ValueError: boom\n\
-             5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 blocked; 1 error\n",
+             5 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 1 blocked; 1 project error\n",
             "one line for each test, in order, then the count"
         );
         assert_eq!(code, 1, "a failed test makes the run exit 1");
@@ -363,13 +380,14 @@ mod tests {
 
     #[test]
     fn the_exit_code_names_the_worst_of_the_run() {
-        let tally = |passed, failed, raised, unknown, errors| Tally {
+        let tally = |passed, failed, raised, unknown, project_errors| Tally {
             passed,
             failed,
             raised,
             unknown,
             blocked: 0,
-            errors,
+            project_errors,
+            internal_errors: 0,
         };
         assert_eq!(
             exit_code(&tally(1, 1, 1, 1, 1)),
@@ -420,21 +438,61 @@ mod tests {
     }
 
     #[test]
-    fn the_count_names_each_column_and_one_in_the_singular() {
+    fn the_count_names_each_column_only_above_0() {
         assert_eq!(
-            report_of(&[("test_a.py::test_one", Ok(&Kind::Passed))]).0,
-            "test_a.py::test_one passed\n\
-             1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors\n",
-            "one test, and no error"
+            count_line(&Tally::default()),
+            "0 tests",
+            "no column is above 0"
         );
         assert_eq!(
-            report_of(&[]),
-            (
-                "0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors\n"
-                    .to_owned(),
-                2
-            ),
-            "a run with no test exits 2"
+            count_line(&Tally {
+                passed: 3,
+                ..Tally::default()
+            }),
+            "3 tests: 3 passed",
+            "one column"
+        );
+        assert_eq!(
+            count_line(&Tally {
+                passed: 1,
+                failed: 1,
+                unknown: 1,
+                ..Tally::default()
+            }),
+            "3 tests: 1 passed, 1 failed, 1 unknown",
+            "a column at 0 between two others"
+        );
+    }
+
+    #[test]
+    fn the_count_names_project_errors_apart_from_internal_errors() {
+        assert_eq!(
+            count_line(&Tally {
+                project_errors: 1,
+                ..Tally::default()
+            }),
+            "0 tests; 1 project error",
+            "an error, and no test"
+        );
+        assert_eq!(
+            count_line(&Tally {
+                passed: 1,
+                blocked: 2,
+                project_errors: 1,
+                internal_errors: 1,
+                ..Tally::default()
+            }),
+            "3 tests: 1 passed, 2 blocked; 1 project error, 1 internal error",
+            "both kinds of error, after the tests"
+        );
+        assert_eq!(
+            count_line(&Tally {
+                blocked: 2,
+                project_errors: 2,
+                ..Tally::default()
+            }),
+            "2 tests: 2 blocked; 2 project errors",
+            "a kind of error takes an s above 1"
         );
     }
 }

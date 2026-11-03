@@ -66,7 +66,7 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
              {0}::test_two failed: assert 1 == 2\n\
              {0}::test_three unknown: no assert ran\n\
              {0}::test_four raised: ValueError: boom\n\
-             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown, 0 blocked; 0 errors\n",
+             4 tests: 1 passed, 1 failed, 1 raised, 1 unknown\n",
             path.display()
         ),
         "one line for each test, in order, then the count, to the writer"
@@ -203,7 +203,7 @@ fn a_test_that_selection_refuses_prints_before_any_test_runs() {
              {0}::test_g project error: line 27 binds test_g again, \
              and purba cannot see what the name then holds\n\
              {0}::test_d passed\n\
-             7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors\n",
+             7 tests: 1 passed, 6 blocked; 6 project errors\n",
             path.display()
         ),
         "each refused line first, then the line of the test that runs"
@@ -258,7 +258,7 @@ fn a_module_that_does_not_parse_shows_ruffs_first_syntax_error() {
             String::from_utf8(out).expect("reporting writes UTF-8"),
             format!(
                 "{} project error: SyntaxError: {message}\n\
-                 0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error\n",
+                 0 tests; 1 project error\n",
                 path.display()
             ),
             "{name}: the module's line, and no test of it"
@@ -280,7 +280,7 @@ fn a_syntax_error_that_ruff_passes_shows_cpythons_error_at_load() {
             "{0} project error: SyntaxError: 'return' outside function \
              (test_command_return.py, line 4)\n\
              {0}::test_a blocked: {0} did not load\n\
-             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+             1 test: 1 blocked; 1 project error\n",
             path.display()
         ),
         "CPython names the error when assertion loads the module"
@@ -304,7 +304,7 @@ fn a_module_that_nests_too_deep_shows_cpythons_error() {
             "{0} project error: MemoryError: Parser stack overflowed - \
              Python source too complex to parse\n\
              {0}::test_a blocked: {0} did not load\n\
-             1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+             1 test: 1 blocked; 1 project error\n",
             path.display()
         ),
         "CPython's error, as for any module that does not compile"
@@ -331,7 +331,7 @@ fn a_module_that_defines_the_hooks_name_fails_to_load() {
                 "{0} project error: NameError: {0} binds _purba_ran, \
                  the name of purba's assert hook\n\
                  {0}::test_shadow blocked: {0} did not load\n\
-                 1 test: 0 passed, 0 failed, 0 raised, 0 unknown, 1 blocked; 1 error\n",
+                 1 test: 1 blocked; 1 project error\n",
                 path.display()
             ),
             "{name}: the load names the clash"
@@ -357,7 +357,7 @@ fn a_module_that_did_not_load_prints_its_error_once() {
             "{0} project error: ValueError: x\n\
              {0}::test_one blocked: {0} did not load\n\
              {0}::test_two blocked: {0} did not load\n\
-             2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error\n",
+             2 tests: 2 blocked; 1 project error\n",
             path.display()
         ),
         "the module's error once, then each of its tests as blocked"
@@ -383,7 +383,7 @@ fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
             "{0}::test_async project error: purba cannot run an async test yet\n\
              {0}::test_ok passed\n\
              {0}::test_five project error: TypeError: 'int' object is not callable\n\
-             3 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 2 errors\n",
+             3 tests: 1 passed, 2 blocked; 2 project errors\n",
             path.display()
         ),
         "each line keeps project error, and each of the two counts as blocked and as an error"
