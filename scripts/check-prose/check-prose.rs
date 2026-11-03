@@ -147,6 +147,9 @@ fn main() {
         for finding in &record.findings {
             println!("{finding}");
         }
+        for finding in record.parts() {
+            println!("{finding}");
+        }
         if record.sections != SECTIONS && record.sections != WITH_CONSEQUENCES {
             println!("sections\t{path}");
         }
@@ -342,6 +345,66 @@ fn icon(line: &str) -> bool {
     architecture || shape || label
 }
 
+const LABEL: &str = "**Downside:**";
+
+// A count opens a preamble. The corpus writes it as a word or as a digit.
+const COUNTS: [&str; 10] = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+];
+
+// A phrase that admits an unwired gate.
+const ADMITS: [&str; 4] = [
+    "not wired",
+    "not written yet",
+    "does not exist yet",
+    "by hand",
+];
+
+fn counts(text: &str) -> bool {
+    let word: String = text
+        .trim_start_matches(' ')
+        .chars()
+        .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+        .collect::<String>()
+        .to_ascii_lowercase();
+    (!word.is_empty() && word.bytes().all(|b| b.is_ascii_digit()))
+        || COUNTS.contains(&word.as_str())
+}
+
+// Counts each `- ` that only punctuation and spaces separate from a `**`. Two on
+// one line render three costs where four are written, so each one counts.
+fn lead_ins(line: &str) -> usize {
+    let (mut count, mut from) = (0, 0);
+    while let Some(dash) = line[from..].find("- ").map(|at| from + at) {
+        let start = dash + 2;
+        let end = line[start..]
+            .find(|c: char| c.is_ascii_alphanumeric() || c == '`')
+            .map_or(line.len(), |at| start + at);
+        if let Some(bold) = line[start..end].rfind("**") {
+            count += 1;
+            from = start + bold + 2;
+        } else {
+            from = dash + 1;
+        }
+    }
+    count
+}
+
+// A table cell that answers `no` states an unwired gate without a sentence.
+fn answers_no(line: &str) -> bool {
+    let cells: Vec<&str> = line.split('|').collect();
+    cells.len() > 2
+        && cells[1..cells.len() - 1]
+            .iter()
+            .any(|cell| cell.trim_matches(' ') == "no")
+}
+
+// `mark` followed by a digit.
+fn numbered(line: &str, mark: &str) -> bool {
+    line.match_indices(mark)
+        .any(|(at, _)| line[at + mark.len()..].starts_with(|c: char| c.is_ascii_digit()))
+}
+
 // Whether a line closes at a boundary, which bold or a quotation mark may follow.
 fn ends(line: &str) -> bool {
     line.trim_end_matches(|c: char| c.is_ascii_whitespace())
@@ -387,6 +450,88 @@ impl<'a> Record<'a> {
         record.walk();
         record.outside_code();
         record
+    }
+
+    // The four Downside rules `docs/decisions/.template.md` states, and a
+    // Confirmation that admits an unwired gate and names no issue.
+    fn parts(&self) -> Vec<String> {
+        let path = self.path;
+        let lines = self.lines_outside_code();
+        // Anchored: a label named inside a table is not the label.
+        let mut found = lines
+            .iter()
+            .position(|(_, line)| line.starts_with(LABEL))
+            .map_or_else(
+                || vec![format!("listless\t{path}: no Downside label")],
+                |at| self.downside(&lines[at..]),
+            );
+        if let Some(at) = lines
+            .iter()
+            .position(|(_, line)| line.starts_with("## Confirmation"))
+        {
+            let confirmation = &lines[at..];
+            let admits = confirmation.iter().any(|(_, line)| {
+                ADMITS.iter().any(|phrase| line.contains(phrase)) || answers_no(line)
+            });
+            let names = confirmation
+                .iter()
+                .any(|(_, line)| numbered(line, "purba/issues/"));
+            if admits && !names {
+                found.push(format!("unwired\t{path}"));
+            }
+        }
+        found
+    }
+
+    // `lines` opens on the label. The costs run to the next section heading,
+    // because the Downside is the last thing in the outcome.
+    fn downside(&self, lines: &[(usize, &str)]) -> Vec<String> {
+        let path = self.path;
+        let (at, label) = lines[0];
+        let mut found = Vec::new();
+        let rest = &label[LABEL.len()..];
+        if rest.contains(|c| c != ' ') {
+            found.push(format!("preamble\t{path}:{at}"));
+            if counts(rest) {
+                found.push(format!("counted\t{path}:{at}"));
+            }
+        }
+        let (mut items, mut leads) = (0, 0);
+        for (_, line) in lines[1..]
+            .iter()
+            .take_while(|(_, line)| !line.starts_with("## "))
+        {
+            if line.trim_start().starts_with("- ") {
+                items += 1;
+            }
+            leads += lead_ins(line);
+        }
+        if items == 0 {
+            found.push(format!("listless\t{path}:{at}"));
+        } else if leads != items {
+            found.push(format!(
+                "leadins\t{path}:{at}: {leads} lead-ins over {items} costs"
+            ));
+        }
+        found
+    }
+
+    // A line inside a code block quotes an artifact, so the rules that read a
+    // record line by line skip it. Each line comes with its number.
+    fn lines_outside_code(&self) -> Vec<(usize, &'a str)> {
+        self.lines
+            .iter()
+            .enumerate()
+            .filter(|(i, line)| {
+                let start = self.starts[*i];
+                let end = start + line.len();
+                !self
+                    .code
+                    .iter()
+                    .any(|code| code.start < end && start < code.end)
+            })
+            .map(|(i, line)| (i + 1, *line))
+            .collect()
     }
 
     fn line(&self, at: usize) -> usize {
@@ -581,28 +726,15 @@ impl<'a> Record<'a> {
         }
     }
 
-    // A line inside a code block quotes an artifact, so the rules that read a
-    // record line by line skip it.
     fn outside_code(&mut self) {
-        for (i, line) in self.lines.clone().into_iter().enumerate() {
-            let start = self.starts[i];
-            let end = start + line.len();
-            if self
-                .code
-                .iter()
-                .any(|code| code.start < end && start < code.end)
-            {
-                continue;
-            }
-            for (rule, mark, numbered) in [
+        for (number, line) in self.lines_outside_code() {
+            for (rule, mark, digit) in [
                 ("comment", "<!--", false),
                 ("issue", "#", true),
                 ("adr", "ADR-", true),
             ] {
-                if line.match_indices(mark).any(|(at, _)| {
-                    !numbered || line[at + mark.len()..].starts_with(|c: char| c.is_ascii_digit())
-                }) {
-                    self.find(rule, i + 1, &format!(":{line}"));
+                if (digit && numbered(line, mark)) || (!digit && line.contains(mark)) {
+                    self.find(rule, number, &format!(":{line}"));
                 }
             }
         }
@@ -987,6 +1119,148 @@ mod tests {
     fn sections(text: &str) -> Vec<String> {
         let dictionary = dictionary("");
         Record::read("r.md", text, &dictionary).sections
+    }
+
+    // The findings on the Downside and the Confirmation of a record holding `text`.
+    fn parts(text: &str) -> Vec<String> {
+        let dictionary = dictionary("");
+        Record::read("r.md", text, &dictionary).parts()
+    }
+
+    // A Downside that breaks no rule, above `text`.
+    fn costed(text: &str) -> String {
+        format!("**Downside:**\n\n- **It costs.** The cost is named.\n\n{text}")
+    }
+
+    #[test]
+    fn a_downside_label_followed_by_a_sentence_has_a_preamble() {
+        let found = parts("**Downside:** It costs.\n\n- **A.** B.\n");
+        assert_eq!(found, ["preamble\tr.md:1"]);
+    }
+
+    #[test]
+    fn a_count_in_a_word_or_in_digits_opens_a_counted_preamble() {
+        for rest in [" Three costs.", " two costs.", " 3 costs.", "   ten"] {
+            let found = parts(&format!("**Downside:**{rest}\n\n- **A.** B.\n"));
+            assert_eq!(found, ["preamble\tr.md:1", "counted\tr.md:1"], "{rest}");
+        }
+        for rest in [" Tenth cost.", " 3costs."] {
+            let found = parts(&format!("**Downside:**{rest}\n\n- **A.** B.\n"));
+            assert_eq!(found, ["preamble\tr.md:1"], "{rest}");
+        }
+    }
+
+    #[test]
+    fn spaces_after_the_label_are_not_a_preamble() {
+        assert_eq!(parts("**Downside:**  \n\n- **A.** B.\n"), [] as [&str; 0]);
+    }
+
+    #[test]
+    fn a_record_with_no_downside_label_has_no_list_of_costs() {
+        assert_eq!(parts("It costs.\n"), ["listless\tr.md: no Downside label"]);
+    }
+
+    #[test]
+    fn a_downside_label_named_inside_a_table_is_not_the_label() {
+        let found = parts("| the label |\n|---|\n| **Downside:** |\n");
+        assert_eq!(found, ["listless\tr.md: no Downside label"]);
+    }
+
+    #[test]
+    fn a_fenced_downside_label_before_the_real_one_is_not_the_label() {
+        let found = parts("```markdown\n**Downside:** a quote.\n```\n\n**Downside:**\n\n- A.\n");
+        assert_eq!(found, ["leadins\tr.md:5: 0 lead-ins over 1 costs"]);
+    }
+
+    #[test]
+    fn a_downside_with_no_list_has_no_costs() {
+        assert_eq!(parts("**Downside:**\n\nIt costs.\n"), ["listless\tr.md:1"]);
+    }
+
+    #[test]
+    fn a_list_under_a_later_heading_is_not_a_cost() {
+        let found = parts("**Downside:**\n\nIt costs.\n\n## Next\n\n- **A.** B.\n");
+        assert_eq!(found, ["listless\tr.md:1"]);
+    }
+
+    #[test]
+    fn a_cost_with_no_bold_lead_in_is_found() {
+        let found = parts("**Downside:**\n\n- It costs.\n");
+        assert_eq!(found, ["leadins\tr.md:1: 0 lead-ins over 1 costs"]);
+    }
+
+    #[test]
+    fn two_lead_ins_on_one_line_are_two_lead_ins() {
+        let found = parts("**Downside:**\n\n- **A.** B. - **C.** D.\n");
+        assert_eq!(found, ["leadins\tr.md:1: 2 lead-ins over 1 costs"]);
+    }
+
+    #[test]
+    fn a_nested_cost_is_a_cost_and_a_warning_sign_may_precede_its_lead_in() {
+        let found = parts("**Downside:**\n\n- **A.** B.\n  - ⚠️ **C.** D.\n- E.\n");
+        assert_eq!(found, ["leadins\tr.md:1: 2 lead-ins over 3 costs"]);
+    }
+
+    #[test]
+    fn a_fenced_heading_under_the_label_does_not_end_its_costs() {
+        let found = parts("**Downside:**\n\n```sh\n## a shell comment\n```\n\n- It costs.\n");
+        assert_eq!(found, ["leadins\tr.md:1: 0 lead-ins over 1 costs"]);
+    }
+
+    #[test]
+    fn a_fenced_list_line_under_the_label_is_not_a_cost() {
+        let found = parts("**Downside:**\n\n- **A.** B.\n\n```sh\n- a shell line\n```\n");
+        assert_eq!(found, [] as [&str; 0]);
+    }
+
+    #[test]
+    fn each_phrase_that_admits_an_unwired_gate_is_found_when_no_issue_is_named() {
+        for admission in [
+            "The gate is not wired.",
+            "It is run by hand.",
+            "The check is not written yet.",
+            "It does not exist yet.",
+            "| rule | checked |\n|---|---|\n| one | no |",
+        ] {
+            let found = parts(&costed(&format!("## Confirmation\n\n{admission}\n")));
+            assert_eq!(found, ["unwired\tr.md"], "{admission}");
+        }
+    }
+
+    #[test]
+    fn an_admission_names_its_issue_only_with_a_link_to_this_repository() {
+        let named =
+            "The gate is not wired. [Wire it](https://github.com/o/purba/issues/9) owns it.";
+        assert_eq!(
+            parts(&costed(&format!("## Confirmation\n\n{named}\n"))),
+            [] as [&str; 0]
+        );
+        let other = named.replace("/purba/", "/other/");
+        assert_eq!(
+            parts(&costed(&format!("## Confirmation\n\n{other}\n"))),
+            ["unwired\tr.md"]
+        );
+    }
+
+    #[test]
+    fn an_admission_outside_the_confirmation_needs_no_issue() {
+        let text = format!(
+            "The gate is not wired.\n\n{}",
+            costed("## Confirmation\n\nIt holds.\n")
+        );
+        assert_eq!(parts(&text), [] as [&str; 0]);
+    }
+
+    #[test]
+    fn a_fenced_confirmation_heading_is_not_the_confirmation() {
+        let text = "```markdown\n## Confirmation\n\nThe old gate ran by hand.\n```\n\n";
+        assert_eq!(parts(&costed(text)), [] as [&str; 0]);
+    }
+
+    #[test]
+    fn a_fenced_admission_in_the_confirmation_is_not_found() {
+        let text = "## Confirmation\n\nIt holds.\n\n```text\nThe old gate ran by hand.\n```\n";
+        assert_eq!(parts(&costed(text)), [] as [&str; 0]);
     }
 
     #[test]
