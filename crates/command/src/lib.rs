@@ -60,12 +60,20 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
         Err(purba_parsing::Error::Syntax(error)) => {
             report
+                .not_parsed(&path.display(), &error)
+                .map_err(Error::Write)?;
+            return report.finish().map_err(Error::Write);
+        }
+    };
+    let (modules, refused_tests) = match modules(&path, &parsed) {
+        Ok(found) => found,
+        Err(error) => {
+            report
                 .not_loaded(&path.display(), &error)
                 .map_err(Error::Write)?;
             return report.finish().map_err(Error::Write);
         }
     };
-    let (modules, refused_tests) = modules(path, &parsed);
     drop(parsed);
     for refused in &refused_tests {
         report
@@ -103,13 +111,24 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
 /// The module at `path` with the tests that selection hands on, and each test
 /// that it refuses. A module with no test to hand on is neither rewritten nor
 /// loaded.
-fn modules(path: PathBuf, module: &purba_parsing::Module) -> (Vec<Module<TestId>>, Vec<Refused>) {
-    let (tests, refused) = purba_selection::select(&path, module);
+///
+/// # Errors
+///
+/// The internal error of a panic in selection.
+fn modules(
+    path: &Path,
+    module: &purba_parsing::Module,
+) -> Result<(Vec<Module<TestId>>, Vec<Refused>), purba_execution::Error> {
+    let (tests, refused) =
+        purba_execution::catch("command", || Ok(purba_selection::select(path, module)))?;
     if tests.is_empty() {
-        return (Vec::new(), refused);
+        return Ok((Vec::new(), refused));
     }
     let (text, asserts) = purba_assertion::rewrite(module).into_parts();
-    (vec![Module::new(path, text, asserts, tests)], refused)
+    Ok((
+        vec![Module::new(path.to_owned(), text, asserts, tests)],
+        refused,
+    ))
 }
 
 #[cfg(test)]

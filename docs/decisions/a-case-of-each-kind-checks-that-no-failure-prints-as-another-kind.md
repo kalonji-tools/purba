@@ -23,6 +23,7 @@ It can also change into another kind in the line that reporting writes, or in th
 - **A type that reporting must match in full.** Rejected. The compiler refuses a match that misses an arm, and passes an arm that prints the wrong word. Clippy passes an `Err(error)` arm that takes every error.
 - **A check over the source.** Rejected. The word that names a kind also stands in code that prints nothing.
 - **`tests/kinds.bats` runs one case of each kind on an installed wheel, and matches the exit code, stdout and stderr of each run.** Chosen. It reads what a tester reads, on each stream, with the exit code.
+- **The panic case's test sets `PURBA_FAULT=assert` around its own assert.** Chosen. The switch needs no new code. Each other test of the module runs with no fault.
 
 ## Decision Outcome
 
@@ -34,9 +35,9 @@ It can also change into another kind in the line that reporting writes, or in th
 - **`tests/kinds.bats` runs one case of each kind on an installed wheel, in one run for each case.** It matches the exit code and the whole stdout. It matches the whole stderr of each case except the panic case.
 - **`tests/kinds.bats` matches only the last two lines of the panic case's stderr.** It builds them from purba's version, the Python's version and ABI flags, the OS and the architecture of the run. Rust's hook and the Python traceback above them change with each edit and each Python version.
 - **The module of the panic case also holds a test that passes, one that fails and one that raises.** purba prints the line of each of them. The run exits 125.
+- **The panic case's test sets `PURBA_FAULT=assert` around its own assert, and takes it away after.** It runs second, so two tests run after it.
 - **The `wheel` job of Build builds the `fault` wheel and runs `tests/kinds.bats`, on each OS where bats runs and each Python version.** The ruleset requires Build.
 - **The panic case runs on the `fault` wheel, and every other case runs on the wheel without `fault`.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides each wheel.
-- **The pull request that builds `tests/kinds.bats` runs it red twice.** `tests/kinds.bats` runs red at its own commit, on the code before the change. After the change turns it green, a mutant files purba's own `PanicException` as `raised`, and `tests/kinds.bats` runs red again.
 
 **Downside:**
 
@@ -49,9 +50,25 @@ It can also change into another kind in the line that reporting writes, or in th
 
 ## Confirmation
 
-No command checks this record yet.
-The `wheel` job builds the `fault` wheel on Linux and macOS, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds `tests/kinds.bats`.
-The pull request that builds `tests/kinds.bats` adds the mutant's command and its output here.
+`mise run test:wheel` and the `wheel` job of Build run `tests/kinds.bats` on Linux and macOS.
+A mutant files purba's own `PanicException` as `raised`.
+`tests/kinds.bats` runs red under it.
+
+```
+sed -i 's/Ok(Err(payload)) => return Err(Error::caught(payload.as_ref(), "execution")),/Ok(Err(payload)) => return Ok(Outcome { kind: Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string() } }),/' crates/execution/src/lib.rs
+mise run test:wheel
+```
+
+```
+not ok 14 a panic stops only its test, each other test keeps its line, and the run exits 125
+# (in test file tests/kinds.bats, line 76)
+#   `run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_panic.py' failed, expected exit code 125, got 1
+# test_panic.py::test_passes passed
+# test_panic.py::test_panics raised: PURBA_FAULT=assert
+# test_panic.py::test_fails failed: assert 1 == 2
+# test_panic.py::test_raises raised: KeyError: 'k'
+# 4 tests: 1 passed, 1 failed, 2 raised
+```
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
 [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) holds the `fault` wheel.

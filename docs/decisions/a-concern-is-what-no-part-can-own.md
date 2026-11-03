@@ -68,5 +68,5 @@ Dispatch and reporting pass data, so neither crosses it.
 
 No check reads the concerns, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 
-[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks these concerns.
+[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each of these concerns whose line does not link its design.
 [A design in depth waits for what it assumes](a-design-in-depth-waits-for-what-it-assumes.md#decision-outcome) holds why.

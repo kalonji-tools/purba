@@ -33,7 +33,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 - **`unknown` exits 1, as a failed test does.** Rejected. An integrator could not tell a test that found a defect from a test that checked nothing.
 - **A run with no test exits 0.** Rejected. It reads as clean, and the run checked nothing.
-- **An error that `_main` does not catch.** Rejected. It exits 1, so an internal error reads as a failed test. [The landscape](../../LANDSCAPE.md#the-risks) names that risk.
+- **An error that `_main` does not catch.** Rejected. It exits 1, so an internal error reads as a failed test.
 - **A test that raised exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised.
 - **A test that raised exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the test.
 - **Codes that keep `unknown`, a run with no test, and a test that raised or gave no outcome apart from a failure.** Chosen. Only a run that checked at least one behaviour, in which every test has an outcome and none failed, raised or is `unknown`, exits 0.
@@ -82,7 +82,6 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
 - **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
-- **An internal error that reaches dispatch exits 4, as a test that raised does.** [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) tells the two apart, and [a panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds what it decides.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
 - **A thread that calls `os._exit` after its test returned charges the test that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
@@ -90,13 +89,11 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Confirmation
 
-`mise run test:rust` checks that reporting renders 0, 1, 2 and 4 from a tally of the run.
+`mise run test:rust` checks that reporting renders the first of 125, 1, 4, 2 and 0 that a tally of the run meets.
 It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
 `mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, 3 on an invocation error, and 125 when the `fault` wheel panics.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
-No command checks the rest.
-[A panic inside a test prints that test's internal error, and tests/kinds.bats checks each kind](https://github.com/kalonji-tools/purba/issues/729) builds exit 125 for a run in which a panic inside a test stops only that test.
-It adds its check.
+`tests/kinds.bats` checks 1, 3, 4 and 125 on the installed wheel, with one case of each kind.

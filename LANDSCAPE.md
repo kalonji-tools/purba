@@ -72,6 +72,7 @@ flowchart TD
   command -- "the outcomes" --> reporting
   command -- "a module" --> parsing
   command -- "a rewrite" --> assertion
+  command -- "a call to catch" --> execution
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
@@ -153,7 +154,7 @@ sequenceDiagram
 - **strictness.** Never shows as passed what was not checked, in selection, execution, fixtures and reporting. No switch turns it off.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on Ctrl-C and tears down what was built, in command, dispatch, execution, fixtures and reporting.
-- **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part.
+- **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.
 
 [A concern is what no part can own](docs/decisions/a-concern-is-what-no-part-can-own.md) holds why.
 
@@ -164,7 +165,6 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 - **text selection disagrees with import.** Given a pinned suite, when selection reads the AST of its test files, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
 - **a fixture reaches a test that never named it.** Given two tests where only the first names a fixture, when both run, then the outcome of the second depends on that fixture. Lands on fixtures; probability high, impact high.
 - **an outcome depends on the worker.** Given a selection, when it runs on one worker and then on many, then the outcome of some test differs. Lands on dispatch; probability high, impact high.
-- **purba's own error shows as a test failure.** Given an internal error inside a test, when purba reports the run, then that test shows an outcome, or another test loses its line. Lands on errors; probability medium, impact high.
 - **an interrupt leaves a fixture built.** Given a run stopped by Ctrl-C during a test, when purba exits, then a fixture built for that test is never torn down. Lands on interrupt handling; probability medium, impact high.
 - **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
 - **a test imports another directory's module of the same name.** Given two test directories that each hold `helper.py`, when both run, then a test reads the other directory's `helper`, and its outcome depends on which test ran first. Lands on execution; probability medium, impact high.
@@ -176,19 +176,18 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 
 Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
 
-1. **errors.**
-2. **interrupt handling.**
-3. **strictness.**
-4. **parsing.**
-5. **configuration.**
-6. **selection.**
-7. **the Rust/Python seam.**
-8. **fixtures.**
-9. **assertion.**
-10. **execution.**
-11. **dispatch.**
-12. **reporting.**
-13. **command.**
+1. **interrupt handling.**
+2. **strictness.**
+3. **parsing.**
+4. **configuration.**
+5. **selection.**
+6. **the Rust/Python seam.**
+7. **fixtures.**
+8. **assertion.**
+9. **execution.**
+10. **dispatch.**
+11. **reporting.**
+12. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 

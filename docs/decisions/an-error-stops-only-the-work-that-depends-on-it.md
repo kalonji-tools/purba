@@ -33,7 +33,7 @@ A run that stops too little runs tests on a wrong input.
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | the run | a missing path, or a closed stdout that command sees at start |
 | [project error](../../CONTEXT.md#project-error) | the tests that depend on it | a module that does not load blocks its tests, and a test that purba refuses to call blocks only itself |
-| [internal error](../../CONTEXT.md#internal-error) | the work that depends on what failed | a panic inside a test stops that test, a panic in selection while it reads `test_b.py` blocks the tests of `test_b.py`, and a panic in command or reporting stops the run |
+| [internal error](../../CONTEXT.md#internal-error) | the work that depends on what failed | a panic inside a test stops that test, a panic in selection while it reads `test_b.py` stops the selection of `test_b.py`, so no test of it runs, and a panic in command or reporting stops the run |
 | [outcome](../../CONTEXT.md#outcome) | nothing | |
 
 - **An error shows in the earliest part that can see it.** No part does work outside the selection only to see an error sooner.
@@ -54,8 +54,10 @@ A run that stops too little runs tests on a wrong input.
 `mise run test:rust` checks that command stops the run before any test when it takes an error in place of stdout.
 `mise run test:rust` checks that the other tests run when selection refuses a test.
 `mise run test:rust` checks that the error of a module that does not parse shows, though the module holds no test.
+
+`mise run test:rust` checks that a panic while a module loads blocks the tests of that module.
+`mise run test:wheel` checks that a panic inside a test stops only that test, on the installed `purba`.
+On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module that selection reads an internal error, and runs no test.
 No command checks the rest of this record.
-[Wayfinder: purba's errors, telling each kind of failure apart from the first part that sees it](https://github.com/kalonji-tools/purba/issues/652) holds the rest.
-Its Destination promises what a panic inside a test stops.
 
 [A blocked test has no outcome](a-blocked-test-has-no-outcome.md#decision-outcome) says what each test that an error blocks prints.

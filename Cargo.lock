@@ -409,6 +409,7 @@ version = "0.0.0"
 dependencies = [
  "purba-assertion",
  "purba-dispatch",
+ "purba-execution",
  "purba-parsing",
  "purba-reporting",
  "purba-selection",

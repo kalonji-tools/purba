@@ -463,3 +463,35 @@ fn a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error() {
         );
     });
 }
+
+/// Python that finds `PyO3`'s `PanicException`, which no module exports.
+const PANIC_EXCEPTION: &str = "def panic_exception():\n\
+    \x20   pending = [BaseException]\n\
+    \x20   while pending:\n\
+    \x20       kind = pending.pop()\n\
+    \x20       if kind.__module__ == 'pyo3_runtime' and kind.__name__ == 'PanicException':\n\
+    \x20           return kind\n\
+    \x20       pending.extend(kind.__subclasses__())\n\
+    \x20   raise LookupError('no PanicException')\n\n";
+
+#[test]
+fn a_body_that_raises_purbas_panic_exception_leaves_no_entry() {
+    Python::initialize();
+    Python::attach(|py| {
+        // PyO3 resumes its own `PanicException` as a Rust panic.
+        let crossed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            purba_assertion::load(
+                py,
+                Path::new("test_panics_on_load.py"),
+                &format!("{PANIC_EXCEPTION}raise panic_exception()('raised while it loads')\n"),
+                Vec::new(),
+            )
+            .is_ok()
+        }));
+        assert!(crossed.is_err(), "the panic crossed the load");
+        assert!(
+            !in_sys_modules(py, "test_panics_on_load"),
+            "a panic took the module out too"
+        );
+    });
+}

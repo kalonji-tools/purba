@@ -277,3 +277,51 @@ fn an_assertion_error_before_any_assert_gives_raised() {
         "no assert ran, so the test raised"
     );
 }
+
+/// Python that finds `PyO3`'s `PanicException`, which no module exports.
+const PANIC_EXCEPTION: &str = "def panic_exception():\n\
+    \x20   pending = [BaseException]\n\
+    \x20   while pending:\n\
+    \x20       kind = pending.pop()\n\
+    \x20       if kind.__module__ == 'pyo3_runtime' and kind.__name__ == 'PanicException':\n\
+    \x20           return kind\n\
+    \x20       pending.extend(kind.__subclasses__())\n\
+    \x20   raise LookupError('no PanicException')\n\n";
+
+#[test]
+fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
+    let test_panic = module(
+        "test_panic_exception.py",
+        &format!(
+            "{PANIC_EXCEPTION}\
+             def test_one():\n    raise panic_exception()('raised by the test')\n\n\
+             def test_two():\n    assert _purba_ran(0, True)\n\n\
+             test_three = 5\n"
+        ),
+        &["assert True"],
+    );
+    let results: Vec<Result<Kind, (Option<String>, String)>> = purba_execution::attach(|worker| {
+        ["test_one", "test_two", "test_three"]
+            .iter()
+            .map(|function| {
+                worker
+                    .run(&test_panic, function)
+                    .map(|outcome| outcome.kind().clone())
+                    .map_err(|error| (error.part().map(str::to_owned), error.to_string()))
+            })
+            .collect()
+    });
+    assert_eq!(
+        results,
+        [
+            Err((
+                Some("execution".to_owned()),
+                "raised by the test".to_owned()
+            )),
+            Ok(Kind::Passed),
+            Err((None, "TypeError: 'int' object is not callable".to_owned())),
+        ],
+        "the panic that crosses the call is an internal error of execution, the next test \
+         passes, and a project error names no part"
+    );
+}

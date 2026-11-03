@@ -48,6 +48,7 @@ flowchart TD
   purba-command --> purba-reporting
   purba-command --> purba-parsing
   purba-command --> purba-assertion
+  purba-command --> purba-execution
   purba-selection --> purba-parsing
   purba-assertion --> purba-parsing
   purba-dispatch --> purba-selection
