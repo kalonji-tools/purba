@@ -195,12 +195,21 @@ impl Position {
 ///
 /// When the file cannot be read, and when ruff finds a syntax error in it.
 /// The error then holds the first syntax error that ruff lists.
+pub fn parse(path: &Path) -> Result<Module, Error> {
+    parse_source(fs::read_to_string(path).map_err(Error::Read)?)
+}
+
+/// Parses `source`, the text of a module, as [`parse`] parses the text of a
+/// file.
+///
+/// # Errors
+///
+/// When ruff finds a syntax error in it.
 #[expect(
     clippy::disallowed_methods,
     reason = "purba-parsing is the one caller of ruff's parser"
 )]
-pub fn parse(path: &Path) -> Result<Module, Error> {
-    let mut source = fs::read_to_string(path).map_err(Error::Read)?;
+pub fn parse_source(mut source: String) -> Result<Module, Error> {
     // CPython ignores this mark at the start of a file that is UTF-8.
     // https://docs.python.org/3.12/reference/lexical_analysis.html#encoding-declarations
     if source.starts_with(BYTE_ORDER_MARK) {

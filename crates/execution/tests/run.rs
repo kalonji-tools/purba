@@ -1,12 +1,11 @@
 use std::path::PathBuf;
 
-use purba_execution::{Kind, Module, Outcome};
+use purba_execution::{Kind, Module, Outcome, Rewrite};
 
-fn module(name: &str, text: &str, asserts: &[&str]) -> Module {
+fn module(name: &str, source: &str) -> Module {
     Module::new(
         PathBuf::from(name),
-        text.to_owned(),
-        asserts.iter().map(|&assert| assert.to_owned()).collect(),
+        Rewrite::of_source(source).expect("the source parses"),
     )
 }
 
@@ -29,10 +28,9 @@ fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
 fn the_three_tests_of_test_a_pass_fail_and_are_unknown() {
     let test_a = module(
         "test_a.py",
-        "def test_one():\n    assert _purba_ran(0, 1 == 1)\n\n\
-         def test_two():\n    assert _purba_ran(1, 1 == 2)\n\n\
+        "def test_one():\n    assert 1 == 1\n\n\
+         def test_two():\n    assert 1 == 2\n\n\
          def test_three():\n    pass\n",
-        &["assert 1 == 1", "assert 1 == 2"],
     );
     assert_eq!(
         kinds(&test_a, &["test_one", "test_two", "test_three"]),
@@ -51,8 +49,7 @@ fn the_three_tests_of_test_a_pass_fail_and_are_unknown() {
 fn a_module_level_assert_leaves_a_test_unknown() {
     let test_level = module(
         "test_level.py",
-        "assert _purba_ran(0, True)\n\ndef test_none():\n    pass\n",
-        &["assert True"],
+        "assert True\n\ndef test_none():\n    pass\n",
     );
     assert_eq!(
         kinds(&test_level, &["test_none"]),
@@ -66,9 +63,8 @@ fn a_worker_loads_each_module_once() {
     let test_once = module(
         "test_once.py",
         "calls = []\n\n\
-         def test_first():\n    calls.append(1)\n    assert _purba_ran(0, calls == [1])\n\n\
-         def test_second():\n    calls.append(2)\n    assert _purba_ran(1, calls == [1, 2])\n",
-        &["assert calls == [1]", "assert calls == [1, 2]"],
+         def test_first():\n    calls.append(1)\n    assert calls == [1]\n\n\
+         def test_second():\n    calls.append(2)\n    assert calls == [1, 2]\n",
     );
     assert_eq!(
         kinds(&test_once, &["test_first", "test_second"]),
@@ -82,7 +78,6 @@ fn another_exception_gives_raised() {
     let test_raises = module(
         "test_raises.py",
         "def test_raises():\n    raise ValueError('no')\n",
-        &[],
     );
     assert_eq!(
         kinds(&test_raises, &["test_raises"]),
@@ -100,7 +95,6 @@ fn a_name_that_is_not_callable_is_an_error() {
         "import collections\n\n\
          def test_bound():\n    pass\n\ntest_bound = 5\n\n\
          def test_deque():\n    pass\n\ntest_deque = collections.deque()\n",
-        &[],
     );
     let errors: Vec<String> = purba_execution::attach(|worker| {
         ["test_bound", "test_deque"]
@@ -136,7 +130,6 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
         "import builtins\nbuiltins.purba_loads = getattr(builtins, 'purba_loads', 0) + 1\n\
          raise ValueError(f'load {builtins.purba_loads}')\n\n\
          def test_one():\n    pass\n\ndef test_two():\n    pass\n",
-        &[],
     );
     let errors: Vec<String> = purba_execution::attach(|worker| {
         ["test_one", "test_two"]
@@ -164,7 +157,6 @@ fn a_load_that_fails_gives_its_error_once() {
          builtins.purba_load_fails = getattr(builtins, 'purba_load_fails', 0) + 1\n\
          raise ValueError(f'load {builtins.purba_load_fails}')\n\n\
          def test_one():\n    pass\n",
-        &[],
     );
     let errors: Vec<String> = purba_execution::attach(|worker| {
         vec![
@@ -199,8 +191,7 @@ fn a_test_runs_on_the_module_that_load_loaded() {
         "test_load_once.py",
         "import builtins\n\
          builtins.purba_load_once = getattr(builtins, 'purba_load_once', 0) + 1\n\n\
-         def test_one():\n    assert _purba_ran(0, builtins.purba_load_once == 1)\n",
-        &["assert builtins.purba_load_once == 1"],
+         def test_one():\n    assert builtins.purba_load_once == 1\n",
     );
     let kind = purba_execution::attach(|worker| {
         worker.load(&loads).expect("the module loads");
@@ -228,15 +219,11 @@ fn a_forked_child_exits_with_its_own_code() {
         "import os\n\n\
          def test_forks():\n    pid = os.fork()\n    if pid == 0:\n        os._exit(7)\n\
          \x20   _, status = os.waitpid(pid, 0)\n\
-         \x20   assert _purba_ran(0, os.waitstatus_to_exitcode(status) == 7)\n\n\
+         \x20   assert os.waitstatus_to_exitcode(status) == 7\n\n\
          def test_forks_with_a_keyword():\n    pid = os.fork()\n    if pid == 0:\n\
          \x20       os._exit(status=7)\n\
          \x20   _, status = os.waitpid(pid, 0)\n\
-         \x20   assert _purba_ran(1, os.waitstatus_to_exitcode(status) == 7)\n",
-        &[
-            "assert os.waitstatus_to_exitcode(status) == 7",
-            "assert os.waitstatus_to_exitcode(status) == 7",
-        ],
+         \x20   assert os.waitstatus_to_exitcode(status) == 7\n",
     );
     assert_eq!(
         kinds(&test_fork, &["test_forks", "test_forks_with_a_keyword"]),
@@ -249,9 +236,8 @@ fn a_forked_child_exits_with_its_own_code() {
 fn an_assertion_error_after_an_assert_that_held_gives_raised() {
     let test_helper = module(
         "test_helper.py",
-        "def test_helper():\n    assert _purba_ran(0, 1 == 1)\n\
+        "def test_helper():\n    assert 1 == 1\n\
          \x20   raise AssertionError('from a helper')\n",
-        &["assert 1 == 1"],
     );
     assert_eq!(
         kinds(&test_helper, &["test_helper"]),
@@ -267,7 +253,6 @@ fn an_assertion_error_before_any_assert_gives_raised() {
     let test_bare = module(
         "test_bare.py",
         "def test_bare():\n    raise AssertionError('no assert ran')\n",
-        &[],
     );
     assert_eq!(
         kinds(&test_bare, &["test_bare"]),
@@ -295,10 +280,9 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
         &format!(
             "{PANIC_EXCEPTION}\
              def test_one():\n    raise panic_exception()('raised by the test')\n\n\
-             def test_two():\n    assert _purba_ran(0, True)\n\n\
+             def test_two():\n    assert True\n\n\
              test_three = 5\n"
         ),
-        &["assert True"],
     );
     let results: Vec<Result<Kind, (Option<String>, String)>> = purba_execution::attach(|worker| {
         ["test_one", "test_two", "test_three"]

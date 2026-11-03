@@ -1,24 +1,27 @@
+use purba_assertion::Rewrite;
 use pyo3::Python;
 use pyo3::exceptions::{PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-fn rewritten(name: &str, text: &str) -> (PathBuf, String, Vec<String>) {
+fn source(text: &str) -> Rewrite {
+    Rewrite::of_source(text).expect("the source parses")
+}
+
+fn rewritten(name: &str, text: &str) -> (PathBuf, Rewrite) {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
     fs::write(&path, text).expect("the test writes its module");
     let module = purba_parsing::parse(&path).expect("the module parses");
-    let (text, asserts) = purba_assertion::rewrite(&module).into_parts();
-    (path, text, asserts)
+    (path, purba_assertion::rewrite(&module))
 }
 
 #[test]
 fn loading_runs_the_body_of_the_module() {
     Python::initialize();
     Python::attach(|py| {
-        let loaded =
-            purba_assertion::load(py, Path::new("test_body.py"), "value = 1\n", Vec::new())
-                .expect("the module loads");
+        let loaded = purba_assertion::load(py, Path::new("test_body.py"), &source("value = 1\n"))
+            .expect("the module loads");
         let value: i64 = loaded.module().getattr("value").unwrap().extract().unwrap();
         assert_eq!(value, 1, "the body ran");
     });
@@ -26,13 +29,13 @@ fn loading_runs_the_body_of_the_module() {
 
 #[test]
 fn watch_gives_the_text_of_the_last_assert_that_ran() {
-    let (path, text, asserts) = rewritten(
+    let (path, rewrite) = rewritten(
         "test_marks.py",
         "def test_two():\n    assert 1 == 1\n    assert 2 == 2\n",
     );
     Python::initialize();
     Python::attach(|py| {
-        let loaded = purba_assertion::load(py, &path, &text, asserts).expect("the module loads");
+        let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
         let test_two = loaded.module().getattr("test_two").unwrap();
         let (result, last) = loaded.watch(|| test_two.call0());
         assert!(result.is_ok(), "the test returned");
@@ -46,13 +49,13 @@ fn watch_gives_the_text_of_the_last_assert_that_ran() {
 
 #[test]
 fn watch_starts_clear() {
-    let (path, text, asserts) = rewritten(
+    let (path, rewrite) = rewritten(
         "test_clear.py",
         "assert 0 == 0\n\ndef test_marks():\n    assert 1 == 1\n\ndef test_none():\n    pass\n",
     );
     Python::initialize();
     Python::attach(|py| {
-        let loaded = purba_assertion::load(py, &path, &text, asserts).expect("the module loads");
+        let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
         let marks = loaded.module().getattr("test_marks").unwrap();
         let none = loaded.module().getattr("test_none").unwrap();
         assert_eq!(
@@ -75,15 +78,11 @@ fn watch_starts_clear() {
 
 #[test]
 fn the_mark_gives_back_whether_its_value_held() {
+    let rewrite = source("if False:\n    assert x\n\ndef kept():\n    return _purba_ran(0, [])\n");
     Python::initialize();
     Python::attach(|py| {
-        let loaded = purba_assertion::load(
-            py,
-            Path::new("test_value.py"),
-            "def kept():\n    return _purba_ran(0, [])\n",
-            vec!["assert x".to_owned()],
-        )
-        .expect("the module loads");
+        let loaded = purba_assertion::load(py, Path::new("test_value.py"), &rewrite)
+            .expect("the module loads");
         let kept = loaded.module().getattr("kept").unwrap();
         let (result, last) = loaded.watch(|| kept.call0());
         assert_eq!(
@@ -101,7 +100,7 @@ fn the_mark_gives_back_whether_its_value_held() {
 
 #[test]
 fn an_assert_tests_its_value_once() {
-    let (path, text, asserts) = rewritten(
+    let (path, rewrite) = rewritten(
         "test_once.py",
         concat!(
             "class Counted:\n",
@@ -115,7 +114,7 @@ fn an_assert_tests_its_value_once() {
     );
     Python::initialize();
     Python::attach(|py| {
-        let loaded = purba_assertion::load(py, &path, &text, asserts).expect("the module loads");
+        let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
         let module = loaded.module();
         let counted = module.getattr("test_counted").unwrap();
         let (result, _) = loaded.watch(|| counted.call0());
@@ -133,15 +132,11 @@ fn an_assert_tests_its_value_once() {
 
 #[test]
 fn a_mark_with_no_assert_raises() {
+    let rewrite = source("def test_beyond():\n    assert True\n    _purba_ran(1, True)\n");
     Python::initialize();
     Python::attach(|py| {
-        let loaded = purba_assertion::load(
-            py,
-            Path::new("test_beyond.py"),
-            "def test_beyond():\n    assert _purba_ran(0, True)\n    assert _purba_ran(1, True)\n",
-            vec!["assert True".to_owned()],
-        )
-        .expect("the module loads");
+        let loaded = purba_assertion::load(py, Path::new("test_beyond.py"), &rewrite)
+            .expect("the module loads");
         let test = loaded.module().getattr("test_beyond").unwrap();
         let (result, last) = loaded.watch(|| test.call0());
         let err = result.expect_err("the mark raises");
@@ -164,8 +159,7 @@ fn the_module_is_named_by_its_file() {
         let loaded = purba_assertion::load(
             py,
             Path::new("dir/test_named.py"),
-            "import sys\nhere = __name__ in sys.modules\ndef f():\n    raise ValueError\n",
-            Vec::new(),
+            &source("import sys\nhere = __name__ in sys.modules\ndef f():\n    raise ValueError\n"),
         )
         .expect("the module loads");
         let module = loaded.module();
@@ -199,15 +193,14 @@ fn a_dataclass_under_postponed_annotations_loads() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_dataclass.py"),
-            concat!(
+            &source(concat!(
                 "from __future__ import annotations\n",
                 "import dataclasses, pickle\n",
                 "@dataclasses.dataclass\n",
                 "class Point:\n",
                 "    x: int\n",
                 "kept = pickle.loads(pickle.dumps(Point(1))) == Point(1)\n",
-            ),
-            Vec::new(),
+            )),
         );
         let loaded = loaded.expect("the module loads");
         assert!(
@@ -238,8 +231,7 @@ fn a_new_name_leaves_sys_modules_when_its_body_raises() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_raises_on_load.py"),
-            "raise ValueError('x')\n",
-            Vec::new(),
+            &source("raise ValueError('x')\n"),
         );
         assert!(loaded.is_err(), "the body raised");
         assert!(
@@ -259,8 +251,7 @@ fn a_shadowed_name_gets_its_module_back_when_the_body_raises() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_shadowed.py"),
-            "raise ValueError('x')\n",
-            Vec::new(),
+            &source("raise ValueError('x')\n"),
         );
         assert!(loaded.is_err(), "the body raised");
         assert!(
@@ -277,8 +268,7 @@ fn a_body_that_calls_sys_exit_leaves_no_entry() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_exits_on_load.py"),
-            "import sys\nsys.exit(3)\n",
-            Vec::new(),
+            &source("import sys\nsys.exit(3)\n"),
         );
         assert!(
             loaded.is_err_and(|err| err.is_instance_of::<PySystemExit>(py)),
@@ -323,7 +313,7 @@ fn a_module_that_binds_the_hook_fails_to_load() {
                 "globals().update({'_purba_ran': None})\n",
             ),
         ] {
-            let loaded = purba_assertion::load(py, Path::new(file), body, Vec::new());
+            let loaded = purba_assertion::load(py, Path::new(file), &source(body));
             let err = loaded
                 .err()
                 .unwrap_or_else(|| panic!("{file}: the load fails"));
@@ -357,15 +347,14 @@ fn a_call_that_rebinds_the_hook_gives_a_name_error() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_rebinds.py"),
-            concat!(
+            &source(concat!(
                 "def test_swap():\n",
                 "    global _purba_ran\n",
                 "    _purba_ran = lambda i, x: True\n",
                 "\n",
                 "def test_after():\n",
-                "    assert _purba_ran(0, 1 == 1)\n",
-            ),
-            vec!["assert 1 == 1".to_owned()],
+                "    assert 1 == 1\n",
+            )),
         )
         .expect("the module loads");
         let swap = loaded.module().getattr("test_swap").unwrap();
@@ -423,7 +412,7 @@ fn a_function_that_binds_the_hook_as_a_local_name_fails_to_load() {
                 ),
             ),
         ] {
-            let loaded = purba_assertion::load(py, Path::new(file), body, Vec::new());
+            let loaded = purba_assertion::load(py, Path::new(file), &source(body));
             let err = loaded
                 .err()
                 .unwrap_or_else(|| panic!("{file}: the load fails"));
@@ -443,13 +432,12 @@ fn a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error() {
         let loaded = purba_assertion::load(
             py,
             Path::new("test_rebinds_and_fails.py"),
-            concat!(
+            &source(concat!(
                 "def test_swap():\n",
                 "    global _purba_ran\n",
                 "    _purba_ran = lambda i, x: False\n",
-                "    assert _purba_ran(0, 1 == 1)\n",
-            ),
-            vec!["assert 1 == 1".to_owned()],
+                "    assert 1 == 1\n",
+            )),
         )
         .expect("the module loads");
         let swap = loaded.module().getattr("test_swap").unwrap();
@@ -483,8 +471,9 @@ fn a_body_that_raises_purbas_panic_exception_leaves_no_entry() {
             purba_assertion::load(
                 py,
                 Path::new("test_panics_on_load.py"),
-                &format!("{PANIC_EXCEPTION}raise panic_exception()('raised while it loads')\n"),
-                Vec::new(),
+                &source(&format!(
+                    "{PANIC_EXCEPTION}raise panic_exception()('raised while it loads')\n"
+                )),
             )
             .is_ok()
         }));

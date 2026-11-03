@@ -67,7 +67,7 @@ flowchart TD
 
 **Downside:**
 
-- **A part that re-exports another part's crate with `pub use` carries an arrow that no check sees.** The reviewer looks for it.
+- **A part that re-exports another part's crate, or a type of it, with `pub use` carries an arrow that no check sees.** The reviewer looks for it. Execution re-exports assertion's `Rewrite`, as [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) decides.
 - **A type that moves from one part to another edits two manifests.**
 - **No check reads the words of a message in the sequence.** A slice that changes what crosses an arrow edits the message by hand.
 - **The check refuses two shapes that do not breach the invariant.** It refuses a drawn arrow that no manifest uses, because that arrow leaves the diagram false. It refuses an end of a message that is not a part, an actor or `_main`, for the same reason.

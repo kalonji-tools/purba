@@ -96,15 +96,22 @@ fn a_module_with_no_assert_is_unchanged() {
 }
 
 #[test]
-fn a_rewrite_gives_up_its_text_and_each_assert() {
-    let rewritten = rewrite("test_parts.py", "def test_one():\n    assert 1 == 1\n");
+fn a_text_that_no_file_holds_gives_the_rewrite_of_a_file_that_holds_it() {
+    let text = "def test_one():\n    assert 1 == 1\n";
+    let read = rewrite("test_of_source.py", text);
 
-    assert_eq!(
-        rewritten.into_parts(),
-        (
-            "def test_one():\n    assert _purba_ran(0, 1 == 1)\n".to_owned(),
-            vec!["assert 1 == 1".to_owned()]
-        ),
-        "the same text and asserts that text() and asserts() lend"
+    let rewritten = purba_assertion::Rewrite::of_source(text).expect("the text parses");
+
+    assert_eq!(rewritten.text(), read.text(), "the same rewritten text");
+    assert_eq!(rewritten.asserts(), read.asserts(), "the same asserts");
+}
+
+#[test]
+fn a_text_that_does_not_parse_gives_the_syntax_error() {
+    let error = purba_assertion::Rewrite::of_source("def test_one(:\n    pass\n").err();
+
+    assert!(
+        matches!(error, Some(purba_parsing::Error::Syntax(_))),
+        "a syntax error, not {error:?}"
     );
 }

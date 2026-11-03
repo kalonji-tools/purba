@@ -5,7 +5,7 @@
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{Error, Outcome};
+use purba_execution::{Error, Outcome, Rewrite};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -23,20 +23,18 @@ impl Test for TestId {
 /// A module that command hands dispatch, with its selected tests.
 pub struct Module<T> {
     path: PathBuf,
-    text: String,
-    asserts: Vec<String>,
+    rewrite: Rewrite,
     tests: Vec<T>,
 }
 
 impl<T> Module<T> {
-    /// Makes a module from `path` as the tester typed it, the rewritten text,
-    /// the source text of each assert at its index, and its selected tests.
+    /// Makes a module from `path` as the tester typed it, its rewrite, and its
+    /// selected tests.
     #[must_use]
-    pub const fn new(path: PathBuf, text: String, asserts: Vec<String>, tests: Vec<T>) -> Self {
+    pub const fn new(path: PathBuf, rewrite: Rewrite, tests: Vec<T>) -> Self {
         Self {
             path,
-            text,
-            asserts,
+            rewrite,
             tests,
         }
     }
@@ -75,7 +73,7 @@ pub fn hand<T: Test, B>(
                 continue;
             }
             let path = module.path.clone();
-            let executable = purba_execution::Module::new(module.path, module.text, module.asserts);
+            let executable = purba_execution::Module::new(module.path, module.rewrite);
             if let Err(error) = purba_execution::catch("dispatch", || worker.load(&executable)) {
                 each(Handed::NotLoaded(path.clone(), error))?;
                 for test in module.tests {

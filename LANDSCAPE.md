@@ -102,14 +102,14 @@ sequenceDiagram
   command ->> selection: the path, and the parse it lends
   selection -->> command: three selected tests, and none that it refuses
   command ->> assertion: the parse it lends
-  assertion -->> command: the rewritten text, and the text of each assert
+  assertion -->> command: its rewrite
   loop each test that selection refuses
     command ->> reporting: the test, and why selection refuses it
     reporting ->> tester: its line
   end
-  command ->> dispatch: test_a.py once, with its texts and its three tests
-  dispatch ->> execution: load test_a.py, with its texts
-  execution ->> assertion: the rewritten text, and the text of each assert
+  command ->> dispatch: test_a.py once, with its rewrite and its three tests
+  dispatch ->> execution: load test_a.py, with its rewrite
+  execution ->> assertion: its rewrite
   assertion -->> execution: the loaded module
   execution -->> dispatch: it loaded
   loop each selected test
