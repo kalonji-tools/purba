@@ -263,6 +263,52 @@ fn an_assertion_error_before_any_assert_gives_raised() {
     );
 }
 
+#[test]
+fn an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised() {
+    let test_message = module(
+        "test_message.py",
+        "def test_message():\n    assert 1 == 2, undefined_name\n",
+    );
+    assert_eq!(
+        kinds(&test_message, &["test_message"]),
+        [Kind::Raised {
+            exception: "NameError: name 'undefined_name' is not defined".to_owned()
+        }],
+        "the message raised NameError, so the test raised"
+    );
+}
+
+#[test]
+fn an_exception_after_a_caught_assert_that_did_not_hold_gives_raised() {
+    let test_caught = module(
+        "test_caught_then_raise.py",
+        "def test_caught_then_raise():\n    try:\n        assert 1 == 2\n\
+         \x20   except AssertionError:\n        pass\n\
+         \x20   raise ValueError('boom')\n",
+    );
+    assert_eq!(
+        kinds(&test_caught, &["test_caught_then_raise"]),
+        [Kind::Raised {
+            exception: "ValueError: boom".to_owned()
+        }],
+        "the test raised ValueError after it caught its assert, so the test raised"
+    );
+}
+
+#[test]
+fn a_caught_assert_that_did_not_hold_and_a_return_give_passed() {
+    let test_caught = module(
+        "test_caught_then_return.py",
+        "def test_caught_then_return():\n    try:\n        assert 1 == 2\n\
+         \x20   except AssertionError:\n        pass\n",
+    );
+    assert_eq!(
+        kinds(&test_caught, &["test_caught_then_return"]),
+        [Kind::Passed],
+        "an assert ran, and the test returned"
+    );
+}
+
 /// The text of a project error, or `internal error: <part>: <message>`.
 fn reason(error: &Error) -> String {
     match error.kind() {
