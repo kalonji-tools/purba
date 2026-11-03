@@ -1,38 +1,28 @@
 //! Reporting: prints one line for each test, and for each module that did not
 //! load, as it takes them, then a count, and renders the exit code.
 
-use std::fmt::Display;
+use std::fmt::{self, Display};
 use std::io::{self, Write};
 
-use purba_execution::{Error, Kind, Outcome, Tally};
+use purba_execution::{Error, ErrorKind, Kind, Outcome, Tally};
 
-/// Why a test or a module has no outcome: a project error, or an internal
-/// error with the part that found it. A test builds either, because no crate
-/// but execution builds an `Error`.
-enum Reason<'a> {
-    Project(String),
-    Internal { part: &'a str, message: String },
+/// A write that the writer refused, and the exit code of what the run met by
+/// then: 125 after an internal error, and 3 otherwise.
+#[derive(Debug)]
+pub struct Refused {
+    pub error: io::Error,
+    pub code: u8,
 }
 
-impl<'a> Reason<'a> {
-    fn of(error: &'a Error) -> Self {
-        error.part().map_or_else(
-            || Self::Project(error.to_string()),
-            |part| Self::Internal {
-                part,
-                message: error.to_string(),
-            },
-        )
-    }
-}
+/// The line of an error: its kind, and its text on one line.
+struct Reason<'a>(&'a Error);
 
 impl Display for Reason<'_> {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Project(text) => write!(formatter, "project error: {}", one_line(text)),
-            Self::Internal { part, message } => {
-                write!(formatter, "internal error: {part}: {}", one_line(message))
-            }
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let text = one_line(&self.0.to_string());
+        match self.0.kind() {
+            ErrorKind::Project => write!(formatter, "project error: {text}"),
+            ErrorKind::Internal { part } => write!(formatter, "internal error: {part}: {text}"),
         }
     }
 }
@@ -53,7 +43,8 @@ impl<W: Write> Report<W> {
         }
     }
 
-    /// Adds `test` to the tally, and writes its line and flushes it.
+    /// Adds `test` to the tally, beside its outcome or its own error, and
+    /// writes its line and flushes it.
     ///
     /// # Errors
     ///
@@ -62,47 +53,20 @@ impl<W: Write> Report<W> {
         &mut self,
         test: &T,
         result: &Result<Outcome, Error>,
-    ) -> io::Result<()> {
-        self.add(test, result.as_ref().map(Outcome::kind).map_err(Reason::of))
+    ) -> Result<(), Refused> {
+        self.add(test, result.as_ref().map(Outcome::kind))
     }
 
-    /// Adds `test` to the tally as blocked by its own error, which a part
-    /// before execution found, and writes its line and flushes it.
-    ///
-    /// # Errors
-    ///
-    /// When `out` refuses the write or the flush.
-    pub fn error<T: Display, E: Display>(&mut self, test: &T, error: &E) -> io::Result<()> {
-        self.add(test, Err(Reason::Project(error.to_string())))
-    }
-
-    /// Adds the project error of a module that does not parse to the tally,
+    /// Adds the error of a module that did not load or parse to the tally,
     /// and writes its line and flushes it.
     ///
     /// # Errors
     ///
     /// When `out` refuses the write or the flush.
-    pub fn not_parsed<M: Display, E: Display>(&mut self, module: &M, error: &E) -> io::Result<()> {
-        self.module(module, &Reason::Project(error.to_string()))
-    }
-
-    /// Adds the error of a module that did not load to the tally, and writes
-    /// its line and flushes it.
-    ///
-    /// # Errors
-    ///
-    /// When `out` refuses the write or the flush.
-    pub fn not_loaded<M: Display>(&mut self, module: &M, error: &Error) -> io::Result<()> {
-        self.module(module, &Reason::of(error))
-    }
-
-    fn module<M: Display>(&mut self, module: &M, reason: &Reason<'_>) -> io::Result<()> {
-        match reason {
-            Reason::Project(_) => self.tally.add_project_error(),
-            Reason::Internal { .. } => self.tally.add_internal_error(),
-        }
-        writeln!(self.out, "{module} {reason}")?;
-        self.out.flush()
+    pub fn module<M: Display>(&mut self, module: &M, error: &Error) -> Result<(), Refused> {
+        self.tally.add_module(error);
+        let written = writeln!(self.out, "{module} {}", Reason(error));
+        self.flushed(written)
     }
 
     /// Adds `test` to the tally as blocked, because `module` did not load, and
@@ -111,32 +75,37 @@ impl<W: Write> Report<W> {
     /// # Errors
     ///
     /// When `out` refuses the write or the flush.
-    pub fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> io::Result<()> {
+    pub fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> Result<(), Refused> {
         self.tally.add_blocked();
-        writeln!(self.out, "{test} blocked: {module} did not load")?;
-        self.out.flush()
+        let written = writeln!(self.out, "{test} blocked: {module} did not load");
+        self.flushed(written)
     }
 
-    fn add<T: Display>(&mut self, test: &T, result: Result<&Kind, Reason<'_>>) -> io::Result<()> {
-        if let Err(Reason::Internal { .. }) = result {
-            self.tally.add_blocked();
-            self.tally.add_internal_error();
-        } else {
-            self.tally.add(&result);
-        }
+    fn add<T: Display>(&mut self, test: &T, result: Result<&Kind, &Error>) -> Result<(), Refused> {
+        self.tally.add(result);
         let out = &mut self.out;
-        match result {
-            Ok(Kind::Passed) => writeln!(out, "{test} passed")?,
-            Ok(Kind::Failed { assert }) => {
-                writeln!(out, "{test} failed: {}", one_line(assert))?;
-            }
+        let written = match result {
+            Ok(Kind::Passed) => writeln!(out, "{test} passed"),
+            Ok(Kind::Failed { assert }) => writeln!(out, "{test} failed: {}", one_line(assert)),
             Ok(Kind::Raised { exception }) => {
-                writeln!(out, "{test} raised: {}", one_line(exception))?;
+                writeln!(out, "{test} raised: {}", one_line(exception))
             }
-            Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran")?,
-            Err(reason) => writeln!(out, "{test} {reason}")?,
-        }
-        out.flush()
+            Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran"),
+            Err(error) => writeln!(out, "{test} {}", Reason(error)),
+        };
+        self.flushed(written)
+    }
+
+    /// Flushes `out` after a write. A refused write or flush counts as an
+    /// invocation error, and carries the exit code of the run so far.
+    fn flushed(&mut self, written: io::Result<()>) -> Result<(), Refused> {
+        written.and_then(|()| self.out.flush()).map_err(|error| {
+            self.tally.add_invocation_error();
+            Refused {
+                error,
+                code: exit_code(&self.tally),
+            }
+        })
     }
 
     /// Writes the count and flushes it. Returns the exit code of the run.
@@ -144,9 +113,9 @@ impl<W: Write> Report<W> {
     /// # Errors
     ///
     /// When `out` refuses the write or the flush.
-    pub fn finish(mut self) -> io::Result<u8> {
-        writeln!(self.out, "{}", count_line(&self.tally))?;
-        self.out.flush()?;
+    pub fn finish(mut self) -> Result<u8, Refused> {
+        let written = writeln!(self.out, "{}", count_line(&self.tally));
+        self.flushed(written)?;
         Ok(exit_code(&self.tally))
     }
 }
@@ -186,6 +155,8 @@ fn count_line(tally: &Tally) -> String {
 const fn exit_code(tally: &Tally) -> u8 {
     if tally.internal_errors > 0 {
         125
+    } else if tally.invocation_errors > 0 {
+        3
     } else if tally.failed > 0 {
         1
     } else if tally.raised > 0 || tally.project_errors > 0 {
@@ -216,16 +187,29 @@ mod tests {
 
     use super::*;
 
+    fn project(text: &str) -> Error {
+        Error::project(text.to_owned())
+    }
+
+    /// The internal error that `catch` gives for a panic of `message`, which
+    /// names `part`.
+    fn internal(part: &str, message: &str) -> Error {
+        purba_execution::catch(part, || -> Result<(), Error> { panic!("{message}") })
+            .expect_err("a panic gives an error")
+    }
+
+    /// Reports each test beside its outcome, or beside a project error of that
+    /// text. An outcome goes through `add`, which takes its kind, and an error
+    /// through `line`.
     fn report_of<'a>(results: &[(&'a str, Result<&'a Kind, &'a str>)]) -> (String, u8) {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         for (test, result) in results {
-            report
-                .add(
-                    test,
-                    result.map_err(|text| Reason::Project(text.to_owned())),
-                )
-                .expect("a Vec takes every write");
+            match result {
+                Ok(kind) => report.add(test, Ok(*kind)),
+                Err(text) => report.line(test, &Err(project(text))),
+            }
+            .expect("a Vec takes every write");
         }
         let code = report.finish().expect("a Vec takes every write");
         (
@@ -308,15 +292,51 @@ mod tests {
     }
 
     #[test]
-    fn a_refused_write_is_the_error_of_its_line() {
+    fn a_refused_write_is_the_error_of_its_line_with_the_code_3() {
         let mut report = Report::new(RefusesSecondLine::default());
         report
             .add(&"test_a.py::test_one", Ok(&Kind::Passed))
             .expect("the writer takes the first line");
-        let error = report
+        let refused = report
             .add(&"test_a.py::test_two", Ok(&Kind::Passed))
             .expect_err("the writer refuses the second line");
-        assert_eq!(error.to_string(), "refused", "the writer's own error");
+        assert_eq!(
+            (refused.error.to_string(), refused.code),
+            ("refused".to_owned(), 3),
+            "the writer's own error, and 3 for a run that met no internal error"
+        );
+    }
+
+    #[test]
+    fn a_refused_count_is_the_error_of_finish() {
+        let mut report = Report::new(RefusesSecondLine::default());
+        report
+            .add(&"test_a.py::test_one", Ok(&Kind::Passed))
+            .expect("the writer takes the first line");
+        let refused = report.finish().expect_err("the writer refuses the count");
+        assert_eq!(
+            (refused.error.to_string(), refused.code),
+            ("refused".to_owned(), 3),
+            "the writer's own error, and 3"
+        );
+    }
+
+    #[test]
+    fn a_write_refused_after_an_internal_error_keeps_125() {
+        let mut report = Report::new(RefusesSecondLine::default());
+        report
+            .line(
+                &"test_a.py::test_one",
+                &Err(internal("assertion", "PURBA_FAULT=assert")),
+            )
+            .expect("the writer takes the first line");
+        let refused = report
+            .add(&"test_a.py::test_two", Ok(&Kind::Passed))
+            .expect_err("the writer refuses the second line");
+        assert_eq!(
+            refused.code, 125,
+            "an internal error comes before the invocation error of a refused write"
+        );
     }
 
     #[test]
@@ -324,9 +344,11 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .error(
+            .line(
                 &"test_a.py::test_one",
-                &"the parameter x has no default, and purba cannot see which fixture builds it",
+                &Err(project(
+                    "the parameter x has no default, and purba cannot see which fixture builds it",
+                )),
             )
             .expect("a Vec takes every write");
         let code = report.finish().expect("a Vec takes every write");
@@ -345,7 +367,7 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .module(&"test_b.py", &Reason::Project("ValueError: x".to_owned()))
+            .module(&"test_b.py", &project("ValueError: x"))
             .expect("a Vec takes every write");
         for test in ["test_b.py::test_one", "test_b.py::test_two"] {
             report
@@ -374,20 +396,18 @@ mod tests {
         let failed = Kind::Failed {
             assert: "assert 1 == 2".to_owned(),
         };
-        let results = [
-            ("test_a.py::test_one", Ok(&Kind::Passed)),
-            (
-                "test_a.py::test_two",
-                Err(Reason::Internal {
-                    part: "assertion",
-                    message: "PURBA_FAULT=assert".to_owned(),
-                }),
-            ),
-            ("test_a.py::test_three", Ok(&failed)),
-        ];
-        for (test, result) in results {
-            report.add(&test, result).expect("a Vec takes every write");
-        }
+        report
+            .add(&"test_a.py::test_one", Ok(&Kind::Passed))
+            .expect("a Vec takes every write");
+        report
+            .line(
+                &"test_a.py::test_two",
+                &Err(internal("assertion", "PURBA_FAULT=assert")),
+            )
+            .expect("a Vec takes every write");
+        report
+            .add(&"test_a.py::test_three", Ok(&failed))
+            .expect("a Vec takes every write");
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
@@ -405,13 +425,7 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .module(
-                &"test_m.py",
-                &Reason::Internal {
-                    part: "dispatch",
-                    message: "boom\n  at the load".to_owned(),
-                },
-            )
+            .module(&"test_m.py", &internal("dispatch", "boom\n  at the load"))
             .expect("a Vec takes every write");
         for test in ["test_m.py::test_one", "test_m.py::test_two"] {
             report
@@ -434,20 +448,20 @@ mod tests {
     fn a_test_whose_own_error_blocks_it_prints_a_project_error_and_counts_as_blocked() {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
-        report
-            .error(
-                &"test_a.py::test_async",
-                &"purba cannot run an async test yet",
-            )
-            .expect("a Vec takes every write");
-        report
-            .add(
-                &"test_a.py::test_five",
-                Err(Reason::Project(
-                    "TypeError: 'int' object is not callable".to_owned(),
-                )),
-            )
-            .expect("a Vec takes every write");
+        for (test, text) in [
+            (
+                "test_a.py::test_async",
+                "purba cannot run an async test yet",
+            ),
+            (
+                "test_a.py::test_five",
+                "TypeError: 'int' object is not callable",
+            ),
+        ] {
+            report
+                .line(&test, &Err(project(text)))
+                .expect("a Vec takes every write");
+        }
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
@@ -497,14 +511,24 @@ mod tests {
             blocked: 0,
             project_errors,
             internal_errors: 0,
+            invocation_errors: 0,
         };
         assert_eq!(
             exit_code(&Tally {
                 internal_errors: 1,
+                invocation_errors: 1,
                 ..tally(1, 1, 1, 1, 1)
             }),
             125,
             "an internal error comes first"
+        );
+        assert_eq!(
+            exit_code(&Tally {
+                invocation_errors: 1,
+                ..tally(1, 1, 1, 1, 1)
+            }),
+            3,
+            "then an invocation error"
         );
         assert_eq!(exit_code(&tally(1, 1, 1, 1, 1)), 1, "then a failed test");
         assert_eq!(

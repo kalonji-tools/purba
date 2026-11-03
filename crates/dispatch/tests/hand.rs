@@ -3,7 +3,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Error, Kind, Rewrite};
+use purba_execution::{Error, ErrorKind, Kind, Rewrite};
 
 struct Named(&'static str);
 
@@ -31,10 +31,10 @@ enum Seen {
 
 /// The text of a project error, or `internal error: <part>: <message>`.
 fn reason(error: &Error) -> String {
-    error.part().map_or_else(
-        || error.to_string(),
-        |part| format!("internal error: {part}: {error}"),
-    )
+    match error.kind() {
+        ErrorKind::Project => error.to_string(),
+        ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
+    }
 }
 
 fn test(name: &'static str, result: Result<Kind, &str>) -> Seen {

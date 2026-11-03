@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use purba_execution::{Kind, Module, Outcome, Rewrite};
+use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Rewrite};
 
 fn module(name: &str, source: &str) -> Module {
     Module::new(
@@ -263,6 +263,14 @@ fn an_assertion_error_before_any_assert_gives_raised() {
     );
 }
 
+/// The text of a project error, or `internal error: <part>: <message>`.
+fn reason(error: &Error) -> String {
+    match error.kind() {
+        ErrorKind::Project => error.to_string(),
+        ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
+    }
+}
+
 /// Python that finds `PyO3`'s `PanicException`, which no module exports.
 const PANIC_EXCEPTION: &str = "def panic_exception():\n\
     \x20   pending = [BaseException]\n\
@@ -284,26 +292,23 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
              test_three = 5\n"
         ),
     );
-    let results: Vec<Result<Kind, (Option<String>, String)>> = purba_execution::attach(|worker| {
+    let results: Vec<Result<Kind, String>> = purba_execution::attach(|worker| {
         ["test_one", "test_two", "test_three"]
             .iter()
             .map(|function| {
                 worker
                     .run(&test_panic, function)
                     .map(|outcome| outcome.kind().clone())
-                    .map_err(|error| (error.part().map(str::to_owned), error.to_string()))
+                    .map_err(|error| reason(&error))
             })
             .collect()
     });
     assert_eq!(
         results,
         [
-            Err((
-                Some("execution".to_owned()),
-                "raised by the test".to_owned()
-            )),
+            Err("internal error: execution: raised by the test".to_owned()),
             Ok(Kind::Passed),
-            Err((None, "TypeError: 'int' object is not callable".to_owned())),
+            Err("TypeError: 'int' object is not callable".to_owned()),
         ],
         "the panic that crosses the call is an internal error of execution, the next test \
          passes, and a project error names no part"

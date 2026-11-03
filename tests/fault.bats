@@ -137,3 +137,21 @@ test_pass.py::test_one passed
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a run that met an internal error exits 125 when stdout then refuses a write" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  # shellcheck disable=SC2016 # $1 is the inner shell's.
+  run -125 --separate-stderr bash -c \
+    'PURBA_FAULT=assert "$1" test_probe.py | head -n 1; exit "${PIPESTATUS[0]}"' _ "${fault_purba}"
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_probe.py::test_one internal error: assertion: PURBA_FAULT=assert
+LINES
+  grep -Fq -- 'purba: invocation error: cannot write to stdout: ' <<<"${stderr}"
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}

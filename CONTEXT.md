@@ -46,6 +46,10 @@ The [location](#location) that carries what must outlive the review that produce
 
 A rule or mechanism that two or more [parts](#part) follow, and that no part owns. Like a part, each concern is designed in depth on its own.
 
+### Count
+
+What a [run](#run) met, in numbers: each selected test once, by its [outcome](#outcome) or as a [blocked test](#blocked-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
+
 ### Debrief
 
 A comment on a merged [pull request](#pull-request) that says where the change differs from its [implementation plan](#implementation-plan). It is owed only where the two differ.
@@ -95,6 +99,10 @@ An error that a [part](#part) sees in how a [run](#run) was started or where it 
 A unit of work, holding a question to settle or a task to do.
 
 _Avoid_: ticket
+
+### Kind
+
+Whether an error is a [project error](#project-error), an [internal error](#internal-error) or an [invocation error](#invocation-error). The [part](#part) that first sees the error names its kind.
 
 ### Landscape
 
