@@ -76,6 +76,27 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test under a statement at the module's level prints as refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import sys' \
+    'if sys.version_info >= (3, 0):' '    def test_inside_if():' '        assert 1 == 2' \
+    'try:' '    def test_inside_try():' '        assert 1 == 2' \
+    'except Exception:' '    pass' \
+    'def test_top():' '    assert True' >test_nested.py
+
+  run -4 --separate-stderr purba test_nested.py
+
+  local unseen='and purba cannot see whether import binds it'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_nested.py::test_inside_if project error: the def sits under \`if\`, ${unseen}
+test_nested.py::test_inside_try project error: the def sits under \`try\`, ${unseen}
+test_nested.py::test_top passed
+3 tests: 1 passed, 2 blocked; 2 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a module that did not load prints its error once, and each of its tests as blocked" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \

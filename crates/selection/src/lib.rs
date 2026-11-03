@@ -4,6 +4,7 @@
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::iter;
 use std::path::{Path, PathBuf};
 
 use purba_parsing::Module;
@@ -96,6 +97,7 @@ enum Reason {
     ReturnsValue,
     NoDefault(Vec<String>),
     Rebound(String, Vec<usize>),
+    Under(&'static str),
 }
 
 impl fmt::Display for Reason {
@@ -141,6 +143,10 @@ impl fmt::Display for Reason {
                     lines.join(", ")
                 )
             }
+            Self::Under(keyword) => write!(
+                formatter,
+                "the def sits under `{keyword}`, and purba cannot see whether import binds it"
+            ),
         }
     }
 }
@@ -150,7 +156,8 @@ impl fmt::Display for Reason {
 /// Each list keeps source order. `path` is the module's path as the tester
 /// typed it. A name defined twice is one test, at its first definition: import
 /// binds the name there and binds it again at each later `def`, so selection
-/// judges the last body.
+/// judges the last body. A `def` under a statement at the module's level is a
+/// test that selection refuses, unless a `def` at the top binds the name.
 ///
 /// # Panics
 ///
@@ -162,17 +169,35 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     {
         panic!("PURBA_FAULT=selection");
     }
-    let mut last = Vec::new();
-    let mut places = HashMap::new();
-    for statement in &module.syntax().body {
-        if let Stmt::FunctionDef(function) = statement
-            && function.name.starts_with("test")
-        {
+    let statements = &module.syntax().body;
+    let top: HashSet<&str> = statements
+        .iter()
+        .filter_map(|statement| match statement {
+            Stmt::FunctionDef(function) => Some(function.name.as_str()),
+            _ => None,
+        })
+        .collect();
+    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef)> = Vec::new();
+    let mut places: HashMap<&str, usize> = HashMap::new();
+    for statement in statements {
+        let found = match (statement, keyword(statement)) {
+            (Stmt::FunctionDef(function), _) => vec![(None, function)],
+            (_, Some(keyword)) => defs_under(statement)
+                .into_iter()
+                .filter(|function| !top.contains(function.name.as_str()))
+                .map(|function| (Some(keyword), function))
+                .collect(),
+            (_, None) => Vec::new(),
+        };
+        for (under, function) in found {
+            if !function.name.starts_with("test") {
+                continue;
+            }
             match places.entry(function.name.as_str()) {
-                Entry::Occupied(place) => last[*place.get()] = function,
+                Entry::Occupied(place) => last[*place.get()].1 = function,
                 Entry::Vacant(place) => {
                     place.insert(last.len());
-                    last.push(function);
+                    last.push((under, function));
                 }
             }
         }
@@ -180,12 +205,13 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     let bindings = bindings(module.syntax());
     let mut tests = Vec::new();
     let mut refused = Vec::new();
-    for function in last {
+    for (under, function) in last {
         let test = TestId {
             path: path.to_path_buf(),
             function: function.name.to_string(),
         };
-        let reasons = reasons(function, module, &bindings);
+        let mut reasons: Vec<Reason> = under.map(Reason::Under).into_iter().collect();
+        reasons.extend(reasons_of(function, module, &bindings));
         if reasons.is_empty() {
             tests.push(test);
         } else {
@@ -195,8 +221,65 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     (tests, refused)
 }
 
-/// Why purba cannot call `function`.
-fn reasons(
+/// The keyword of a statement at the module's level whose blocks import may
+/// run or skip.
+const fn keyword(statement: &Stmt) -> Option<&'static str> {
+    match statement {
+        Stmt::If(_) => Some("if"),
+        Stmt::Try(_) => Some("try"),
+        Stmt::With(_) => Some("with"),
+        Stmt::For(_) => Some("for"),
+        Stmt::While(_) => Some("while"),
+        Stmt::Match(_) => Some("match"),
+        _ => None,
+    }
+}
+
+/// Each `def` in the blocks of `statement`, at any depth, in source order. The
+/// body of a `def` or a `class` is not one of its blocks.
+fn defs_under(statement: &Stmt) -> Vec<&StmtFunctionDef> {
+    let mut found = Vec::new();
+    // A walk that recurses once for each level of nesting overflows the stack
+    // on statements that nest deeper than the stack.
+    let mut pending = vec![statement];
+    while let Some(statement) = pending.pop() {
+        let blocks: Vec<&[Stmt]> = match statement {
+            Stmt::FunctionDef(function) => {
+                found.push(function);
+                continue;
+            }
+            Stmt::If(branch) => iter::once(branch.body.as_slice())
+                .chain(
+                    branch
+                        .elif_else_clauses
+                        .iter()
+                        .map(|clause| clause.body.as_slice()),
+                )
+                .collect(),
+            Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
+                .chain(attempt.handlers.iter().map(|handler| {
+                    let ExceptHandler::ExceptHandler(clause) = handler;
+                    clause.body.as_slice()
+                }))
+                .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
+                .collect(),
+            Stmt::With(with) => vec![with.body.as_slice()],
+            Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+            Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+            Stmt::Match(choice) => choice
+                .cases
+                .iter()
+                .map(|case| case.body.as_slice())
+                .collect(),
+            _ => Vec::new(),
+        };
+        pending.extend(blocks.into_iter().flatten().rev());
+    }
+    found
+}
+
+/// Why purba cannot call `function`, from its `def` and its body.
+fn reasons_of(
     function: &StmtFunctionDef,
     module: &Module,
     bindings: &HashMap<&str, Vec<Binding>>,

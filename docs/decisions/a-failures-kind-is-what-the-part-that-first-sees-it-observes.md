@@ -43,7 +43,7 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 - **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
-- **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
+- **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, a name bound again, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
 - **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
@@ -58,7 +58,7 @@ flowchart LR
   parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
   parsing -- "a syntax error" --> project["<b>project error</b>"]
-  selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, an async def, a yield, a parameter with no default, a returned value" --> project
+  selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a def under a statement, an async def, a yield, a parameter with no default, a returned value" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception" --> project
   execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]

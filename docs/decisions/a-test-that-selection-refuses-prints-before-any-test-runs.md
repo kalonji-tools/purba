@@ -35,4 +35,4 @@ The refused lines keep source order, and the lines of the selected tests follow 
 `mise run test:rust` checks which tests selection refuses, and the words of each reason, in `crates/selection/tests/select.rs`.
 It checks in `crates/command/tests/run.rs` that the line of one refused async test prints before any test runs.
 `mise run test:wheel` checks the line of that refused test, the count and the exit code on the installed `purba`.
-No test outside selection checks that several refused lines keep source order.
+It checks there that the lines of two tests that selection refuses keep source order.
