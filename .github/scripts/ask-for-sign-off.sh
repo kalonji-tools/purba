@@ -59,11 +59,15 @@ sign_off_start() {
 }
 
 stand_down_while_open() {
-  local open
+  local listed open
   # ⚠️ Never replace this with a force-push. A pull request that broke keeps
   # the head that refused it, and the logs hanging off that head.
-  if ! open=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open --json number --jq \
-    '.[].number'); then
+  #
+  # `--head` matches a branch of that name in any fork, so a pull request from
+  # a fork is dropped here. `gh pr list --help`, the flag `--head`.
+  if ! listed=$(gh pr list --repo "${GH_REPO}" --head "${branch}" --state open \
+    --json number,isCrossRepository) ||
+    ! open=$(jq -r '.[] | select(.isCrossRepository | not) | .number' <<<"${listed}"); then
     cannot "the open pull requests on ${branch} could not be read."
   fi
   if [[ -n "${open}" ]]; then
