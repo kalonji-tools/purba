@@ -484,3 +484,38 @@ fn a_body_that_raises_purbas_panic_exception_leaves_no_entry() {
         );
     });
 }
+
+#[test]
+fn a_syntax_error_that_ruff_passes_is_cpythons_error_at_the_load() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = source("def test_a():\n    assert True\n\nreturn 5\n");
+        let err = purba_assertion::load(py, Path::new("test_return.py"), &rewrite)
+            .err()
+            .expect("the load fails");
+        assert_eq!(
+            err.to_string(),
+            "SyntaxError: 'return' outside function (test_return.py, line 4)",
+            "CPython names the error when the module compiles"
+        );
+    });
+}
+
+#[test]
+fn a_module_that_nests_too_deep_is_cpythons_error_at_the_load() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = source(&format!(
+            "def test_a():\n    x = {}1\n    assert x\n",
+            "-".repeat(200_000)
+        ));
+        let err = purba_assertion::load(py, Path::new("test_deep.py"), &rewrite)
+            .err()
+            .expect("the load fails");
+        assert_eq!(
+            err.to_string(),
+            "MemoryError: Parser stack overflowed - Python source too complex to parse",
+            "CPython's error, as for any module that does not compile"
+        );
+    });
+}

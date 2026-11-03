@@ -49,4 +49,4 @@ It checks a `def`, a full-width `def`, a `del`, an `import *` and a `globals().u
 It checks a local name, a parameter, a loop target, a full-width local name and a closure.
 It checks that a test that rebinds `_purba_ran` gives that `NameError`, even when its assert fails.
 It checks that the next test finds the hook back.
-It checks, through command, that purba prints the error for a module that defines `_purba_ran`, and exits 4.
+`crates/assertion/tests/load.rs` holds each of these checks.
