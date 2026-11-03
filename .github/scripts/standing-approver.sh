@@ -6,6 +6,7 @@
 #   standing_approver
 #       reads the reviews of one pull request on standard input, and prints
 #       `<login> <id>` of the approval that stands, or nothing when none stands.
+#       It passes over each review from a bot, so no bot approval stands.
 #       It reads the permission of each approver from GitHub, and only admin
 #       or write stands.
 #
@@ -28,6 +29,7 @@ standing_approver() {
   if ! standing=$(jq -r '
     to_entries | map(.value + {order: .key})
     | map(select(.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))
+    | map(select(.user.type != "Bot"))
     | group_by(.user.id) | map(max_by(.order)) | map(select(.state == "APPROVED"))
     | map(select(.user.login != null)) | sort_by(.order) | reverse | .[]
     | "\(.user.login)\t\(.user.id // "")"' <<<"${reviews}"); then

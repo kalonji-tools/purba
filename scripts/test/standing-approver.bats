@@ -208,3 +208,22 @@ reviews() {
   [[ "${status}" -eq 2 ]]
   [[ -z "${output}" ]]
 }
+
+@test "a newer approval from a bot does not stand over an older one from a person" {
+  given='[{"state":"APPROVED","user":{"login":"owner-1","id":42,"type":"User"}},'
+  given+='{"state":"APPROVED","user":{"login":"some-app[bot]","id":7,"type":"Bot"}}]'
+
+  run standing_approver <<<"${given}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "owner-1 42" ]]
+}
+
+@test "an approval from a bot alone does not stand, and is not refused" {
+  given='[{"state":"APPROVED","user":{"login":"some-app[bot]","id":7,"type":"Bot"}}]'
+
+  run standing_approver <<<"${given}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}

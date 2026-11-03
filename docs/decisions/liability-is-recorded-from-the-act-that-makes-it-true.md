@@ -66,7 +66,7 @@ It is written where that act can still be read once the pull request is gone.
 |---|---|---|---|
 | origin | the contributor | as the commit is made, or once the reviewer is satisfied | `Signed-off-by:` |
 | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
-| acceptance | a workflow, from the approval of an account with write access | the moment that account approves | an `Accepted-by:` trailer on every commit |
+| acceptance | a workflow, from the approval of a person whose account has write access | the moment that person approves | an `Accepted-by:` trailer on every commit |
 | stewardship | the code owner | whenever ownership changes | `.github/CODEOWNERS` |
 
 **The contributor writes the origin trailer, and no workflow writes one.**
@@ -88,6 +88,8 @@ A push that leaves the tree unchanged does not dismiss a review, so one approval
 It is written into every commit the pull request adds, and never into the head alone.
 A commit without the trailer is a commit from before this decision.
 A reader who has to tell those two apart is back at the problem stated above.
+
+**An approval from a bot never stands as the acceptance.**
 
 **The committer field is not the acceptance record.**
 The agent is truthfully the author and the committer, because it writes the change and it makes the commit.
@@ -111,7 +113,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 **Downside:**
 
 - **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
-- **An account with write access that is no code owner can stand as the acceptance.** When its approval is the newest from an account with write access, the trailer names it. The ruleset still needs the code owner's approval, unless the pull request touches no path the code owner holds.
+- **A person with write access who is no code owner can stand as the acceptance.** When that approval is the newest from a person with write access, the trailer names that person. The ruleset still needs the code owner's approval, unless the pull request touches no path the code owner holds.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` and implies nothing else.
 - **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event. The code that reports the check is therefore code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`. A pull request changes the scripts the job calls, and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it. The loss is real rather than a restatement of the row above. `.github/CODEOWNERS` covers `/.github/` and `/scripts/` for this reason, which makes the code owner read a change to the gate.
 - **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object. A signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not separate a person from their agent in any case. It proves custody of a key, and a key kept where the agent runs is a key the agent uses. [purba records delegation and does not prevent it](purba-records-delegation-and-does-not-prevent-it.md) decides what follows from that.
@@ -124,6 +126,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the trailer is parsed and not matched as text | strong, `scripts/check-origin.sh` reads the trailer rather than the message |
 | the origin trailer was written by a person and not by their agent | **none**, and nothing stops an agent running the command that adds it |
 | `Accepted-by:` names an account with write access that approved the pull request | strong, and measured: the job replaces a trailer that names anyone else, so a branch cannot carry one in. `scripts/test/standing-approver.bats` checks that a later approval from an account without write access does not stand |
+| an approval from a bot never stands as the acceptance | strong, `.github/scripts/standing-approver.sh` drops each review from a bot before it reads the approvals. `scripts/test/standing-approver.bats` checks that a newer approval from a bot does not stand over an older one from a person |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |

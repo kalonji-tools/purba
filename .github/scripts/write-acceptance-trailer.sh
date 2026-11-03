@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The acceptance that an approval from an account with write access owes every
-# commit on the branch.
+# The acceptance that an approval from a person whose account has write access
+# owes every commit on the branch.
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
