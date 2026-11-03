@@ -17,7 +17,7 @@ bats_require_minimum_version 1.5.0
 test_a.py::test_one passed
 test_a.py::test_two failed: assert 1 == 2
 test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 0 raised, 1 unknown, 0 blocked; 0 errors
+3 tests: 1 passed, 1 failed, 1 unknown
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
 }
@@ -86,7 +86,7 @@ test_refused.py::test_e project error: the test returns a value, and purba does 
 test_refused.py::test_f project error: ${foreign}
 test_refused.py::test_g project error: ${rebound}
 test_refused.py::test_d passed
-7 tests: 1 passed, 0 failed, 0 raised, 0 unknown, 6 blocked; 6 errors
+7 tests: 1 passed, 6 blocked; 6 project errors
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -104,7 +104,7 @@ LINES
 test_load.py project error: ValueError: x
 test_load.py::test_one blocked: test_load.py did not load
 test_load.py::test_two blocked: test_load.py did not load
-2 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 2 blocked; 1 error
+2 tests: 2 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -120,7 +120,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_paren.py project error: SyntaxError: Expected a parameter or the end of the parameter list
-0 tests: 0 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 1 error
+0 tests; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }

@@ -255,8 +255,8 @@ impl<'py> Worker<'py> {
 }
 
 /// How many tests of a run passed, failed, raised, are `unknown`, or are
-/// blocked, and how many errors the run met. Each test counts once, and each
-/// error once.
+/// blocked, and how many project errors and internal errors the run met. Each
+/// test counts once, and each error once.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
@@ -264,12 +264,13 @@ pub struct Tally {
     pub raised: usize,
     pub unknown: usize,
     pub blocked: usize,
-    pub errors: usize,
+    pub project_errors: usize,
+    pub internal_errors: usize,
 }
 
 impl Tally {
     /// Counts one test by its kind. An error in place of an outcome blocked
-    /// that test, so it counts one blocked test and one error.
+    /// that test, so it counts one blocked test and one project error.
     pub const fn add<E>(&mut self, result: &Result<&Kind, E>) {
         match result {
             Ok(Kind::Passed) => self.passed += 1,
@@ -278,7 +279,7 @@ impl Tally {
             Ok(Kind::Unknown) => self.unknown += 1,
             Err(_) => {
                 self.blocked += 1;
-                self.errors += 1;
+                self.project_errors += 1;
             }
         }
     }
@@ -288,8 +289,8 @@ impl Tally {
         self.blocked += 1;
     }
 
-    /// Counts one error that belongs to no test.
-    pub const fn add_error(&mut self) {
-        self.errors += 1;
+    /// Counts one project error that belongs to no test.
+    pub const fn add_project_error(&mut self) {
+        self.project_errors += 1;
     }
 }

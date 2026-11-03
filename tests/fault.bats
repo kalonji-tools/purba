@@ -73,7 +73,7 @@ print(platform.python_version() + getattr(sys, "abiflags", ""))')
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors
+1 test: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -85,7 +85,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors
+1 test: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -97,7 +97,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed, 0 failed, 0 raised, 0 unknown, 0 blocked; 0 errors
+1 test: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
