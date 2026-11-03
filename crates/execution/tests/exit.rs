@@ -31,45 +31,67 @@ fn a_call_to_os_exit_gives_raised_however_the_test_makes_it() {
         "test_load_exit.py",
         "import os\nos._exit(0)\n\ndef test_one():\n    pass\n",
     );
+    let test_load_catches_exit = module(
+        "test_load_catches_exit.py",
+        "import os\ntry:\n    os._exit(0)\nexcept BaseException:\n    pass\n\n\
+         def test_one():\n    pass\n",
+    );
+    let test_load_exit_alone = module(
+        "test_load_exit_alone.py",
+        "import os\nos._exit(5)\n\ndef test_one():\n    pass\n",
+    );
+    let ran = |kind: Kind| Ok(Some(kind));
     let raised = |call: &str| {
-        Ok(Kind::Raised {
+        ran(Kind::Raised {
             exception: format!("ExitInsideATest: {call}"),
         })
     };
-    let results: Vec<Result<Kind, String>> = purba_execution::attach(|worker| {
+    // A step with no function is a `load` alone, as dispatch makes it.
+    let results: Vec<Result<Option<Kind>, String>> = purba_execution::attach(|worker| {
         [
-            (&test_exit, "test_fails"),
-            (&test_exit, "test_catches_exception"),
-            (&test_exit, "test_starts_a_thread"),
-            (&test_exit, "test_catches_base_exception"),
-            (&test_exit, "test_passes"),
-            (&test_load_exit, "test_one"),
-            (&test_exit, "test_passes"),
+            (&test_exit, Some("test_fails")),
+            (&test_exit, Some("test_catches_exception")),
+            (&test_exit, Some("test_starts_a_thread")),
+            (&test_exit, Some("test_catches_base_exception")),
+            (&test_exit, Some("test_passes")),
+            (&test_load_exit, Some("test_one")),
+            (&test_exit, Some("test_passes")),
+            (&test_load_catches_exit, None),
+            (&test_exit, Some("test_passes")),
+            (&test_load_exit_alone, None),
+            (&test_exit, Some("test_passes")),
         ]
         .iter()
         .map(|(module, function)| {
-            worker
-                .run(module, function)
-                .map(|outcome| outcome.kind().clone())
-                .map_err(|error| error.to_string())
+            match function {
+                Some(function) => worker
+                    .run(module, function)
+                    .map(|outcome| Some(outcome.kind().clone())),
+                None => worker.load(module).map(|()| None),
+            }
+            .map_err(|error| error.to_string())
         })
         .collect()
     });
     assert_eq!(
         results,
         [
-            Ok(Kind::Failed {
+            ran(Kind::Failed {
                 assert: "assert 1 == 2".to_owned()
             }),
             raised("os._exit(3)"),
             raised("os._exit(1)"),
             raised("os._exit(2)"),
-            Ok(Kind::Passed),
+            ran(Kind::Passed),
             Err("ExitInsideATest: os._exit(0)".to_owned()),
-            Ok(Kind::Passed),
+            ran(Kind::Passed),
+            Err("ExitInsideATest: os._exit(0)".to_owned()),
+            ran(Kind::Passed),
+            Err("ExitInsideATest: os._exit(5)".to_owned()),
+            ran(Kind::Passed),
         ],
         "each call in a test gives raised, whoever sees it, and the next test runs. \
-         A call while the module loads fails the load, so no test's call runs and it gives \
-         an error, and the next test does not get the call",
+         A call while a module loads fails the load, whether the module catches it or not, \
+         so no test's call runs and it gives an error, and the next test does not get the call",
     );
 }

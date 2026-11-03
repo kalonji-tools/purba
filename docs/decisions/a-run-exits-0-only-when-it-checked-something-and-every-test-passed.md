@@ -70,7 +70,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **This record chooses no code for an interrupt.** The design in depth of interrupt handling chooses it.
-- **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the last test. The worker takes that call when the test returns. So a call from a thread, or one whose error the test catches, counts too. In a process that a test forks, `os._exit` still exits.
+- **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the worker last took one. The worker takes that call when the test returns, and when the load of a module returns. So a call from a thread, or one whose error the test catches, counts too. A call while a module loads fails that load, whether the module catches it or not. In a process that a test forks, `os._exit` still exits.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds each kind of failure.
@@ -84,15 +84,17 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
-- **A thread that calls `os._exit` after its test returned charges the test that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
+- **A thread that calls `os._exit` after its test returned charges the test or the load that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
 - **A thread that calls `os._exit` while its test hangs does not end the run.** The run waits on the test. `faulthandler` with `exit=True` still ends it, because it exits from C.
 
 ## Confirmation
 
 `mise run test:rust` checks that reporting renders the first of 125, 3, 1, 4, 2 and 0 that a tally of the run meets.
 It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
+It checks that a call while a module loads fails the load, caught or not, and that the next test passes.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
+
 `mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, 3 on an invocation error, and 125 when the `fault` wheel panics.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 

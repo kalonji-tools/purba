@@ -109,6 +109,24 @@ LINES
   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
 }
 
+@test "a module that catches the panic while it loads gets its internal error, and no test runs" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_load_catches_panic.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_load_catches_panic.py internal error: assertion: PURBA_FAULT=assert
+test_load_catches_panic.py::test_one blocked: test_load_catches_panic.py did not load
+test_load_catches_panic.py::test_two blocked: test_load_catches_panic.py did not load
+2 tests: 2 blocked; 1 internal error
+LINES
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}
+
 @test "the fault wheel gives the module an internal error when PURBA_FAULT is selection" {
   cd "${BATS_TEST_DIRNAME}/fault"
 

@@ -234,9 +234,9 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
 
 impl<'py> Worker<'py> {
     /// Calls `function` of `module`, and makes its outcome. When the guard
-    /// recorded a call to `os._exit` since the last test, the outcome is
-    /// `Raised`, and names that call to `os._exit`. An error before the test's
-    /// call stays as it is.
+    /// recorded a call to `os._exit` since the worker last took one, the
+    /// outcome is `Raised`, and names that call to `os._exit`. An error before
+    /// the test's call stays as it is.
     ///
     /// # Errors
     ///
@@ -259,11 +259,15 @@ impl<'py> Worker<'py> {
         }
     }
 
-    /// Loads `module` once, and keeps it, or keeps that its load failed.
+    /// Loads `module` once, and keeps it, or keeps that its load failed. The
+    /// load takes the call to `os._exit` that the guard recorded and the note
+    /// of a panic, so no later test takes them.
     ///
     /// # Errors
     ///
-    /// The load raised. A later call names the module that did not load.
+    /// The load raised, or it called `os._exit`, even when the module caught
+    /// the call. An internal error when the module caught a panic and the
+    /// panic hook noted it. A later call names the module that did not load.
     pub fn load(&mut self, module: &Module) -> Result<(), Error> {
         self.loaded(module).map(|_| ())
     }
@@ -271,8 +275,18 @@ impl<'py> Worker<'py> {
     fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
             let loaded = purba_assertion::load(self.py, &module.path, &module.rewrite);
-            let failed = loaded.as_ref().err().map(error);
-            self.loaded.insert(module.path.clone(), loaded.ok());
+            let exit = self.guard.get().take();
+            let failed = match (panic::take(), exit, &loaded) {
+                (Some(noted), _, _) => Some(Error(Reason::Internal(noted.caught_by("execution")))),
+                (None, Some(call), Ok(_)) => {
+                    Some(Error::project(format!("ExitInsideATest: {call}")))
+                }
+                (None, _, loaded) => loaded.as_ref().err().map(error),
+            };
+            self.loaded.insert(
+                module.path.clone(),
+                loaded.ok().filter(|_| failed.is_none()),
+            );
             if let Some(failed) = failed {
                 return Err(failed);
             }
