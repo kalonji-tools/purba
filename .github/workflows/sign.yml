@@ -53,8 +53,8 @@ jobs:
       # on them. So the job reports the required check itself.
       checks: write
     # Never call this job `Sign-off`. A job writes a check run under its own
-    # name, so that name must not be the required one. The last step reports
-    # `Sign-off` on purpose instead.
+    # name, so that name must not be the required one. The step that writes
+    # the acceptance trailer reports `Sign-off` on purpose instead.
     name: sign
     # A run that a finished gate starts reports on the head of `main`, so a
     # refusal there marks `main` red. On the pull request's own events, the
