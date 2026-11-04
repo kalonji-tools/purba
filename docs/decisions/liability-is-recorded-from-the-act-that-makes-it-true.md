@@ -132,7 +132,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
 | a change to the gate reaches the code owner | strong, `.github/CODEOWNERS` covers `/.github/` and `/scripts/`, and a code owner review is required |
-| a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because no such pull request exists here. The job's `if:` skips it on the gate-completed event, and the first step refuses it on the pull request's own events |
+| a pull request from a fork never reaches the checkout in the signing job | strong, and measured on two of the three events. On the gate-completed event the job's `if:` skipped it, once for each of `Quality`, `Build` and `Scripts`. On the pull request event the first step refused it, and the review event takes the same step |
 | the contributor read what they signed | none, and no check can make it |
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
@@ -217,8 +217,11 @@ On the gate-completed event none of that holds, because the run starts from `mai
 There the `sign` job skips a pull request from a fork, because its own `if:` compares the head's repository with this one.
 A skipped job leaves no failed check run on the head of `main`.
 On the pull request's own events, the first step of the job refuses the fork before the checkout.
-No pull request from a fork exists in this repository, so neither the `if:` nor that step met one.
 [An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) carries such a contribution to a branch here first, where this mechanism writes the trailer as it does on any other branch.
+
+A pull request from a fork left three skipped `sign` runs on the head of `main`.
+The first step refused it on the head of the pull request.
+The measurement is recorded on [On the gate-completed event, sign refuses a pull request from a fork and marks main red](https://github.com/kalonji-tools/purba/issues/754).
 
 The row on whether the contributor read what they signed is the point of the whole mechanism, and no check can ever make it.
 A detector good enough to suggest is not good enough to gate.
