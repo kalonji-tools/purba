@@ -45,12 +45,12 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
 }
 
 #[test]
-fn a_tally_counts_the_error_of_a_module_by_its_kind_and_apart_from_its_tests() {
+fn a_tally_counts_an_error_that_blocks_no_test_by_its_kind_and_apart_from_its_tests() {
     let mut tally = Tally::default();
-    tally.add_module(&Error::project("ValueError: x".to_owned()));
+    tally.add_error(&Error::project("ValueError: x".to_owned()));
     tally.add_blocked();
     tally.add_blocked();
-    tally.add_module(&internal("dispatch"));
+    tally.add_error(&internal("dispatch"));
     assert_eq!(
         tally,
         Tally {

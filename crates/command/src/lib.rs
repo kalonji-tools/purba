@@ -6,7 +6,7 @@ use std::io::{self, Write};
 use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
-use purba_dispatch::{Handed, Module};
+use purba_dispatch::{Charged, Handed, Module};
 use purba_selection::{Refused, TestId};
 
 /// Why a run did not finish.
@@ -70,7 +70,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         Ok(module) => module,
         Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
         Err(purba_parsing::Error::Syntax(error)) => {
-            report.module(
+            report.error(
                 &path.display(),
                 &purba_execution::Error::project(error.to_string()),
             )?;
@@ -80,7 +80,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     let (modules, refused_tests) = match modules(&path, &parsed) {
         Ok(found) => found,
         Err(error) => {
-            report.module(&path.display(), &error)?;
+            report.error(&path.display(), &error)?;
             return Ok(report.finish()?);
         }
     };
@@ -94,8 +94,11 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result) => report.line(&test, &result),
-            Handed::NotLoaded(path, error) => report.module(&path.display(), &error),
+            Handed::NotLoaded(path, error) | Handed::Thread(Charged::Module(path), error) => {
+                report.error(&path.display(), &error)
+            }
             Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
+            Handed::Thread(Charged::Test(test), error) => report.error(&test, &error),
         }
         .map_or_else(ControlFlow::Break, ControlFlow::Continue)
     });

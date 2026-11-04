@@ -115,6 +115,46 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a thread's exception in a test prints a project error, and the test keeps its outcome" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import threading' \
+    'def test_thread():' \
+    '    t = threading.Thread(target=lambda: 1/0, name="T"); t.start(); t.join()' \
+    '    assert True' >test_thread.py
+
+  run -4 --separate-stderr purba test_thread.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_thread.py::test_thread passed
+test_thread.py::test_thread project error: thread T raised ZeroDivisionError: division by zero
+1 test: 1 passed; 1 project error
+LINES
+  [[ "${stderr}" == *"Traceback"*"ZeroDivisionError: division by zero"* ]] || false
+}
+
+@test "a thread that outlives its test prints its error under the test that left it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import threading' \
+    'go = threading.Event()' \
+    'left = []' \
+    'def late():' '    go.wait()' '    raise ValueError("late")' \
+    'def test_a():' \
+    '    thread = threading.Thread(target=late, name="T", daemon=True)' \
+    '    thread.start()' '    left.append(thread)' '    assert True' \
+    'def test_b():' '    go.set()' '    left[0].join()' '    assert True' >test_late.py
+
+  run -4 --separate-stderr purba test_late.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_late.py::test_a passed
+test_late.py::test_b passed
+test_late.py::test_a project error: thread T raised ValueError: late
+2 tests: 2 passed; 1 project error
+LINES
+}
+
 @test "a module that does not parse prints its error once, and no test of it" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
