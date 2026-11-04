@@ -86,6 +86,10 @@ The [actor](#actor) that wires purba's machine-readable output into another syst
 
 An error that a [part](#part) sees in purba itself: a panic, or an error that purba never expects. A [tester](#tester) reports it as a bug in purba.
 
+### Interrupt
+
+A signal that asks a [run](#run) to stop: SIGINT, SIGTERM or SIGHUP, or on Windows a Ctrl-C or Ctrl-Break. It is not an error, and no [test](#test) or module carries it.
+
 ### Invariant
 
 A rule that two or more [parts](#part) follow, written as an absence. Unlike a [concern](#concern), it needs no design of its own.
