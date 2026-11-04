@@ -53,7 +53,7 @@ purba: internal error: <part>: <message>
 - **The line of an internal error names the part that found it, and the message.** It names no place in purba's source.
 - **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. On Unix, the Python carries its ABI flags, so a free-threaded 3.14.0 reads `3.14.0t`. The second links the defect template. They follow the count, or the line that stopped the run.
 - **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps it.
-- **The count always names the tests, and names each other column only above 0.** The columns keep their order: passed, failed, raised, unknown and blocked, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
+- **The count always names the tests, and names each other column only above 0.** The columns keep their order: passed, failed, raised, unknown, interrupted, blocked and unreached, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
 
 ```
 3 tests: 3 passed

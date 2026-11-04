@@ -58,5 +58,4 @@ No command checks this yet.
 The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds it, and ends with a test that sends each case to an installed `purba`.
 
 - [A Ctrl-C outside a test's call gives the next test raised, or vanishes](https://github.com/kalonji-tools/purba/issues/774)
-- [What does an interrupted run print, and which code does it exit?](https://github.com/kalonji-tools/purba/issues/769)
 - [Is a test that raises KeyboardInterrupt itself an interrupt?](https://github.com/kalonji-tools/purba/issues/770)
