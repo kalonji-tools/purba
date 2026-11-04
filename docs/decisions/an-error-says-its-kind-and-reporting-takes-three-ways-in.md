@@ -31,7 +31,7 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 - **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
 - **Reporting takes three ways in, and `finish` ends the report.** The three ways in are these:
   - `line` takes a test with its outcome or its error.
-  - `module` takes a module with its error.
+  - `error` takes a module or a test, with its error, and counts no blocked test.
   - `blocked` takes a test that its module blocked.
 - **Reporting's tests reach it through the three ways in and `finish`.** An outcome goes through the private `add`.
 
@@ -44,5 +44,5 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 `mise run test:rust` checks that a tally counts an error of each kind, for a test and for a module.
 It checks that an error says its kind.
-It checks that reporting prints a project error and an internal error through `line` and through `module`.
+It checks that reporting prints a project error and an internal error through `line` and through `error`.
 `mise run lint:wiring` checks that the manifest of command names execution along an arrow of the parts diagram.
