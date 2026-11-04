@@ -48,7 +48,7 @@ A rule or mechanism that two or more [parts](#part) follow, and that no part own
 
 ### Count
 
-What a [run](#run) met, in numbers: each selected test once, by its [outcome](#outcome) or as a [blocked test](#blocked-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
+What a [run](#run) met, in numbers: each selected test once, by its [outcome](#outcome) or as a [blocked](#blocked-test) or [unreached test](#unreached-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
 
 ### Debrief
 
@@ -88,7 +88,7 @@ An error that a [part](#part) sees in purba itself: a panic, or an error that pu
 
 ### Interrupt
 
-A signal that asks a [run](#run) to stop: SIGINT, SIGTERM or SIGHUP, or on Windows a Ctrl-C or Ctrl-Break. It is not an error, and no [test](#test) or module carries it.
+A signal that asks a [run](#run) to stop: SIGINT, SIGTERM or SIGHUP, or on Windows a Ctrl-C or Ctrl-Break. It is not an error, and purba charges no [test](#test) or module with a failure.
 
 ### Invariant
 
@@ -138,7 +138,7 @@ The statement that a contributor has the right to submit a contribution. Only a 
 
 ### Outcome
 
-What a [run](#run) says about one selected test that no error blocked, such as passed, failed, raised or unknown. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
+What a [run](#run) says about one selected test that it reached and that no error blocked, such as passed, failed, raised, unknown or interrupted. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
 
 ### Outside contribution
 
@@ -259,6 +259,10 @@ What an [issue](#issue) gets when it is filed: one label that says how it is res
 ### Unpublished comment
 
 A comment that stays in the tree, read only by somebody who opens the file. It is written only when the information belongs in no other [location](#location).
+
+### Unreached test
+
+A selected test that the [run](#run) never reached, because an [interrupt](#interrupt) stopped the run first. It has no [outcome](#outcome).
 
 ### Walking skeleton
 

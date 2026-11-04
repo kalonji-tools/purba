@@ -69,7 +69,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **An internal error has a code of its own, 125.** The line that purba prints names each kind.
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
-- **This record chooses no code for an interrupt.** The design in depth of interrupt handling chooses it.
+- **An interrupted run dies by its signal, and takes no code of this table.** [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds how it ends.
 - **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the worker last took one. The worker takes that call when the test returns, and when the load of a module returns. So a call from a thread, or one whose error the test catches, counts too. A call while a module loads fails that load, whether the module catches it or not. In a process that a test forks, `os._exit` still exits.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
@@ -81,7 +81,6 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
-- **Ctrl-C ends only the test that runs.** Python raises `KeyboardInterrupt` inside the test, so the test has the outcome `raised`. Dispatch hands on the next test. A tester presses Ctrl-C once for each test left, and the run exits 4.
 - **The table gives no code to a run that a suppression fails, or to a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
 - **A thread that calls `os._exit` after its test returned charges the test or the load that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
