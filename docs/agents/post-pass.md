@@ -1,4 +1,4 @@
-# Run a post pass
+# Run a post pass (probe)
 
 [A change is specified before it is built](../decisions/a-change-is-specified-before-it-is-built.md#decision-outcome) says when an agent owes a [post pass](../../CONTEXT.md#post-pass).
 
