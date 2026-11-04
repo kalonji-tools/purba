@@ -37,7 +37,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
 - **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
-- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.** Each other test's line prints as dispatch hands the test on. Each group of lines keeps source order. A module that does not load prints its line, then the line of each of its tests. A module that does not parse prints its line and the count, and no line for a test.
+- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.** Each other test's line prints as dispatch hands the test on. Each group of lines keeps source order. A module that does not load prints its line, then the line of each of its tests. A module that does not parse prints its line and the count, and no line for a test. The line of a thread's exception prints when purba takes it. It follows the line of the test that ran then, and the error of a load prints before the first test of its module.
 
 ```
 tests/test_a.py::test_one passed
@@ -46,7 +46,7 @@ tests/test_a.py::test_three unknown: no assert ran
 3 tests: 1 passed, 1 failed, 1 unknown
 ```
 
-- **Each line holds the path as the tester typed it, then `::` and the name of the test function.** Then it names the test's outcome, `blocked`, or the kind of its error. The line of a module that does not parse or load holds its path, then `project error`.
+- **Each line holds the path as the tester typed it, then `::` and the name of the test function.** Then it names the test's outcome, `blocked`, or the kind of its error. The line of a module that does not parse or load, or of a thread that its load left alive, holds its path, then `project error`.
 - **A line that is not `passed` gives a reason.** A failed line quotes the source text of its assert, with no values. An `unknown` line says `no assert ran`. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
 - **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
 - **The count names the tests, then each outcome, `blocked` and each kind of error above 0.** `test` and each kind of error take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
