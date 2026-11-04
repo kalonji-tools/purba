@@ -44,7 +44,7 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, a name bound again, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
-- **A thread's exception during a test is a project error.** The test keeps its own outcome. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`, and fails a load that runs.
+- **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the one that runs when it raises. The test keeps its outcome, and the load its result. A thread that raises `SystemExit` itself gives no error, as CPython prints none. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`, and fails a load that runs.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
 - **The text of an internal error names the part that found it.**
@@ -72,10 +72,14 @@ flowchart LR
 - **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. The tests of each part guard it.
 - **A failure that no part sees has no kind.** A test that ends the process through `posix._exit` or a crash leaves no line for itself.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
+- **A thread that a left-over thread starts charges the test that runs then.** Its owner is the test that left the first thread.
+- **A thread that raises after the last test, or while the interpreter shuts down, gives no line.** The run can exit 0.
+- **A tester who replaces `threading.excepthook` hides each thread's exception from purba.**
 
 ## Confirmation
 
 `mise run test:rust` checks that a test that selection refuses, and a module that does not parse or load, prints a project error.
+`mise run test:rust` checks that a thread's exception charges the test or the load that left the thread.
 `mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error.
 No command checks the rest of this record.
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names the gate of the kinds.

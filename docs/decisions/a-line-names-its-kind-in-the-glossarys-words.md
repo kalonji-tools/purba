@@ -39,7 +39,7 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 **A line names its kind in the glossary's words.**
 
 - **The line of an error names its kind:** [project error](../../CONTEXT.md#project-error), [internal error](../../CONTEXT.md#internal-error) or [invocation error](../../CONTEXT.md#invocation-error). A test's line names its [outcome](../../CONTEXT.md#outcome) or `blocked`, as before.
-- **A line goes where its error stops.** An error that stops one test or one module prints to stdout, in the place of that test or module. A module that an error stops prints its line once, then each of its selected tests as blocked. An error that stops the run prints one line to stderr, after `purba: `.
+- **A line goes where its error stops.** An error that stops one test or one module prints to stdout, in the place of that test or module. A module that an error stops prints its line once, then each of its selected tests as blocked. An error that stops the run prints one line to stderr, after `purba: `. An error that stops nothing prints on its own line, which names the test or the module that it charges.
 
 ```
 <test> project error: <reason>
