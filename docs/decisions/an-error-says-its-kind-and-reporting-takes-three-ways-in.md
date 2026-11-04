@@ -31,7 +31,7 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 - **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
 - **Reporting takes three ways in, and `finish` ends the report.** The three ways in are these:
   - `line` takes a test with its outcome or its error.
-  - `error` takes a module or a test, with an error that blocks no test.
+  - `error` takes a module or a test, with its error, and counts no blocked test.
   - `blocked` takes a test that its module blocked.
 - **Reporting's tests reach it through the three ways in and `finish`.** An outcome goes through the private `add`.
 

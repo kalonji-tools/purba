@@ -453,7 +453,7 @@ impl Tally {
 
     /// Counts one error by its kind, and no test. The error of a module counts
     /// through it, and each test that the error blocked through
-    /// [`Tally::add_blocked`]. So does the error of a thread, which blocks no test.
+    /// [`Tally::add_blocked`]. The error of a thread counts through it alone.
     pub fn add_error(&mut self, error: &Error) {
         match error.kind() {
             ErrorKind::Project => self.project_errors += 1,

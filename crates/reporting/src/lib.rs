@@ -59,7 +59,7 @@ impl<W: Write> Report<W> {
         self.add(test, result.as_ref().map(Outcome::kind))
     }
 
-    /// Adds an error that blocks no test to the tally, beside `subject`, and
+    /// Adds an error to the tally, beside `subject`, counts no blocked test, and
     /// writes its line and flushes it. `subject` is a module that did not load
     /// or parse, or the test or the module that the error of a thread charges.
     ///

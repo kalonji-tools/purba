@@ -133,7 +133,9 @@ fn taken<R>(
 }
 
 /// The test or the module that `owner` names. Selection refuses a name bound
-/// again, so a path and a function name one test.
+/// again, so a path and a function name one test. `hand` keeps each test before
+/// it takes the errors of its threads, so the module stands in only for a test
+/// that dispatch never handed on.
 fn charged<T: Test + Clone>(owner: Owner, handed: &[(PathBuf, T)]) -> Charged<T> {
     match owner {
         Owner::Test(path, function) => handed
