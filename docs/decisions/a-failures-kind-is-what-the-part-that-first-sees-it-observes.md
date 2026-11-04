@@ -48,7 +48,7 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
 - **The text of an internal error names the part that found it.**
-- **The kind of an interrupt waits for the design in depth of interrupt handling.**
+- **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops.
 
 The figure shows each part and the kinds that it first sees.
 
