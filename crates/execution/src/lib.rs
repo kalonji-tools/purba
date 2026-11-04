@@ -1,6 +1,7 @@
 //! Execution: loads a module, runs a test, and makes its outcome.
 
 pub mod panic;
+mod thread;
 
 use std::any::Any;
 use std::collections::HashMap;
@@ -148,12 +149,25 @@ pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Resul
         .unwrap_or_else(|payload| Err(Error::caught(payload.as_ref(), catcher)))
 }
 
+/// The load or the test that left a thread alive, which a thread's exception
+/// charges. A load names the path of its module, and a test its path and the
+/// name of its function.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Owner {
+    Load(PathBuf),
+    Test(PathBuf, String),
+}
+
 /// Runs tests in this process. It loads each module once, and keeps it under its
-/// path, or keeps that its load failed.
+/// path, or keeps that its load failed. It keeps the owner of each thread that a
+/// load or a test left alive.
 pub struct Worker<'py> {
     py: Python<'py>,
     loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
     guard: &'static Py<Guard>,
+    hook: &'static Py<thread::Hook>,
+    owners: Vec<(Py<PyAny>, Owner)>,
+    last: Option<Owner>,
 }
 
 mod exit {
@@ -216,11 +230,13 @@ fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
 }
 
 /// Gives `work` a worker for as long as it runs. Before the first worker, it
-/// guards `os._exit` for the life of the process.
+/// guards `os._exit`, and hooks `threading.excepthook`, for the life of the
+/// process. So each run imports `threading`.
 ///
 /// # Panics
 ///
-/// The guard could not take the place of `os._exit`.
+/// The guard could not take the place of `os._exit`, or the hook the place of
+/// `threading.excepthook`.
 pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
     Python::initialize();
     Python::attach(|py| {
@@ -228,6 +244,9 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
             py,
             loaded: HashMap::new(),
             guard: guard(py).expect("the guard takes the place of os._exit"),
+            hook: thread::hook(py).expect("the hook takes the place of threading.excepthook"),
+            owners: Vec::new(),
+            last: None,
         })
     })
 }
@@ -236,7 +255,8 @@ impl<'py> Worker<'py> {
     /// Calls `function` of `module`, and makes its outcome. When the guard
     /// recorded a call to `os._exit` since the worker last took one, the
     /// outcome is `Raised`, and names that call to `os._exit`. An error before
-    /// the test's call stays as it is.
+    /// the test's call stays as it is. Each thread that the call leaves alive
+    /// gets the test as its owner, unless it has one.
     ///
     /// # Errors
     ///
@@ -244,7 +264,12 @@ impl<'py> Worker<'py> {
     /// callable. An internal error when a panic crossed the test's call, or
     /// when the test caught a panic and the panic hook noted it.
     pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
+        let before = self.hook.get().alive(self.py);
         let result = self.call(module, function);
+        self.own(
+            &before,
+            Owner::Test(module.path.clone(), function.to_owned()),
+        );
         let exit = self.guard.get().take();
         if let Some(noted) = panic::take() {
             return Err(Error(Reason::Internal(noted.caught_by("execution"))));
@@ -261,7 +286,8 @@ impl<'py> Worker<'py> {
 
     /// Loads `module` once, and keeps it, or keeps that its load failed. The
     /// load takes the call to `os._exit` that the guard recorded and the note
-    /// of a panic, so no later test takes them.
+    /// of a panic, so no later test takes them. Each thread that the load
+    /// leaves alive gets the load as its owner.
     ///
     /// # Errors
     ///
@@ -274,7 +300,9 @@ impl<'py> Worker<'py> {
 
     fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
+            let before = self.hook.get().alive(self.py);
             let loaded = purba_assertion::load(self.py, &module.path, &module.rewrite);
+            self.own(&before, Owner::Load(module.path.clone()));
             let exit = self.guard.get().take();
             let failed = match (panic::take(), exit, &loaded) {
                 (Some(noted), _, _) => Some(Error(Reason::Internal(noted.caught_by("execution")))),
@@ -294,6 +322,53 @@ impl<'py> Worker<'py> {
         self.loaded[&module.path]
             .as_ref()
             .ok_or_else(|| Error::project(format!("{} did not load", module.path.display())))
+    }
+
+    /// Takes each exception that a thread raised since the last take, in the
+    /// order threads raised them, as a project error with its owner. A thread
+    /// with no owner charges the load or the test that ran last. Before any
+    /// load or test, it takes nothing.
+    pub fn threads(&mut self) -> Vec<(Owner, Error)> {
+        let Some(last) = &self.last else {
+            return Vec::new();
+        };
+        self.hook
+            .get()
+            .take()
+            .into_iter()
+            .map(|raised| {
+                let owner = raised
+                    .thread
+                    .and_then(|thread| {
+                        self.owners
+                            .iter()
+                            .find(|(owned, _)| owned.is(&thread))
+                            .map(|(_, owner)| owner.clone())
+                    })
+                    .unwrap_or_else(|| last.clone());
+                (owner, Error::project(raised.text))
+            })
+            .collect()
+    }
+
+    /// Gives `owner` each thread that is alive now and was not in `before`, and
+    /// has no owner yet. `owner` then ran last.
+    fn own(&mut self, before: &[Py<PyAny>], owner: Owner) {
+        let new: Vec<Py<PyAny>> = self
+            .hook
+            .get()
+            .alive(self.py)
+            .into_iter()
+            .filter(|thread| {
+                !before
+                    .iter()
+                    .chain(self.owners.iter().map(|(owned, _)| owned))
+                    .any(|known| known.is(thread))
+            })
+            .collect();
+        self.owners
+            .extend(new.into_iter().map(|thread| (thread, owner.clone())));
+        self.last = Some(owner);
     }
 
     fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
@@ -361,7 +436,7 @@ impl Tally {
             Ok(Kind::Unknown) => self.unknown += 1,
             Err(error) => {
                 self.blocked += 1;
-                self.add_module(error);
+                self.add_error(error);
             }
         }
     }
@@ -376,9 +451,10 @@ impl Tally {
         self.invocation_errors += 1;
     }
 
-    /// Counts one error by its kind. A module's error counts through it, and
-    /// each test that the error blocked through [`Tally::add_blocked`].
-    pub fn add_module(&mut self, error: &Error) {
+    /// Counts one error by its kind, and no test. The error of a module counts
+    /// through it, and each test that the error blocked through
+    /// [`Tally::add_blocked`]. So does the error of a thread, which blocks no test.
+    pub fn add_error(&mut self, error: &Error) {
         match error.kind() {
             ErrorKind::Project => self.project_errors += 1,
             ErrorKind::Internal { .. } => self.internal_errors += 1,

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use purba_dispatch::{Handed, Module, Test};
 use purba_execution::{Error, ErrorKind, Kind, Rewrite};
 
+#[derive(Clone)]
 struct Named(&'static str);
 
 impl Test for Named {
@@ -27,6 +28,7 @@ enum Seen {
     Test(&'static str, Result<Kind, String>),
     NotLoaded(PathBuf, String),
     Blocked(&'static str, PathBuf),
+    Thread(String),
 }
 
 /// The text of a project error, or `internal error: <part>: <message>`.
@@ -53,6 +55,7 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
             ),
             Handed::NotLoaded(path, err) => Seen::NotLoaded(path, reason(&err)),
             Handed::Blocked(test, path) => Seen::Blocked(test.0, path),
+            Handed::Thread(_, err) => Seen::Thread(reason(&err)),
         });
         ControlFlow::Continue(())
     });

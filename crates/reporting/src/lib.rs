@@ -1,5 +1,6 @@
-//! Reporting: prints one line for each test, and for each module that did not
-//! load, as it takes them, then a count, and renders the exit code.
+//! Reporting: prints one line for each test, for each module that did not
+//! load, and for the error of each thread, as it takes them, then a count, and
+//! renders the exit code.
 
 use std::fmt::{self, Display};
 use std::io::{self, Write};
@@ -27,8 +28,9 @@ impl Display for Reason<'_> {
     }
 }
 
-/// Prints each test beside its outcome or error to `out`, and each module that
-/// did not load, as it takes them, then the count. Keeps only the tally.
+/// Prints each test beside its outcome or error to `out`, each module that did
+/// not load, and the error of each thread, as it takes them, then the count.
+/// Keeps only the tally.
 pub struct Report<W: Write> {
     out: W,
     tally: Tally,
@@ -57,15 +59,16 @@ impl<W: Write> Report<W> {
         self.add(test, result.as_ref().map(Outcome::kind))
     }
 
-    /// Adds the error of a module that did not load or parse to the tally,
-    /// and writes its line and flushes it.
+    /// Adds an error that blocks no test to the tally, beside `subject`, and
+    /// writes its line and flushes it. `subject` is a module that did not load
+    /// or parse, or the test or the module that the error of a thread charges.
     ///
     /// # Errors
     ///
     /// When `out` refuses the write or the flush.
-    pub fn module<M: Display>(&mut self, module: &M, error: &Error) -> Result<(), Refused> {
-        self.tally.add_module(error);
-        let written = writeln!(self.out, "{module} {}", Reason(error));
+    pub fn error<S: Display>(&mut self, subject: &S, error: &Error) -> Result<(), Refused> {
+        self.tally.add_error(error);
+        let written = writeln!(self.out, "{subject} {}", Reason(error));
         self.flushed(written)
     }
 
@@ -367,7 +370,7 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .module(&"test_b.py", &project("ValueError: x"))
+            .error(&"test_b.py", &project("ValueError: x"))
             .expect("a Vec takes every write");
         for test in ["test_b.py::test_one", "test_b.py::test_two"] {
             report
@@ -387,6 +390,30 @@ mod tests {
             code, 4,
             "the error sets the code, and a blocked test changes nothing"
         );
+    }
+
+    #[test]
+    fn an_error_that_blocks_no_test_prints_under_its_test_and_keeps_the_tests_outcome() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .add(&"test_t.py::test_one", Ok(&Kind::Passed))
+            .expect("a Vec takes every write");
+        report
+            .error(
+                &"test_t.py::test_one",
+                &project("thread T raised ValueError: late"),
+            )
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "test_t.py::test_one passed\n\
+             test_t.py::test_one project error: thread T raised ValueError: late\n\
+             1 test: 1 passed; 1 project error\n",
+            "the test's line, then the error on its own line, counted once and blocking no test"
+        );
+        assert_eq!(code, 4, "the project error makes the run exit 4");
     }
 
     #[test]
@@ -425,7 +452,7 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .module(&"test_m.py", &internal("dispatch", "boom\n  at the load"))
+            .error(&"test_m.py", &internal("dispatch", "boom\n  at the load"))
             .expect("a Vec takes every write");
         for test in ["test_m.py::test_one", "test_m.py::test_two"] {
             report

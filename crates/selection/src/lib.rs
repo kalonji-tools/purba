@@ -32,6 +32,7 @@ use ruff_text_size::{Ranged, TextSize};
 /// ```compile_fail,E0616
 /// fn forge(id: &mut purba_selection::TestId) { id.function = "test_two".into(); }
 /// ```
+#[derive(Clone)]
 pub struct TestId {
     path: PathBuf,
     function: String,
