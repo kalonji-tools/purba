@@ -112,7 +112,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 
 **Downside:**
 
-- **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the first step of the `sign` job refuses the fork instead. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
+- **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the `sign` job skips the fork by its own `if:`. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
 - **A person with write access who is no code owner can stand as the acceptance.** When that approval is the newest from a person with write access, the trailer names that person. The ruleset still needs the code owner's approval, unless the pull request touches no path the code owner holds.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` and implies nothing else.
 - **The mechanism reports its own required check, and a pull request can change the mechanism.** GitHub runs the workflow from the head of the pull request, for the review event as well as for the push event. The code that reports the check is therefore code the change itself can edit. A gate finishing is the exception, because that run takes the workflow from `main`. A pull request changes the scripts the job calls, and not the file that calls them. The approval an environment held could not be edited that way, and this decision removes it. The loss is real rather than a restatement of the row above. `.github/CODEOWNERS` covers `/.github/` and `/scripts/` for this reason, which makes the code owner read a change to the gate.
@@ -132,7 +132,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
 | a change to the gate reaches the code owner | strong, `.github/CODEOWNERS` covers `/.github/` and `/scripts/`, and a code owner review is required |
-| a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because the refusal is the first step and no such pull request exists here |
+| a pull request from a fork never reaches the checkout in the signing job | strong by construction, and never exercised, because no such pull request exists here. The job's `if:` skips it on the gate-completed event, and the first step refuses it on the pull request's own events |
 | the contributor read what they signed | none, and no check can make it |
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
@@ -214,9 +214,10 @@ On the pull request event the token is read only, and the push is refused.
 A maintainer allowed to modify the branch does not change it.
 On the gate-completed event none of that holds, because the run starts from `main` and takes the permissions the workflow declares.
 
-What refuses the fork there is the first step of the `sign` job.
-It reads the repository the head belongs to, and stops before the checkout.
-That step never ran, because no pull request from a fork exists in this repository.
+There the `sign` job skips a pull request from a fork, because its own `if:` compares the head's repository with this one.
+A skipped job leaves no failed check run on the head of `main`.
+On the pull request's own events, the first step of the job refuses the fork before the checkout.
+No pull request from a fork exists in this repository, so neither the `if:` nor that step met one.
 [An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) carries such a contribution to a branch here first, where this mechanism writes the trailer as it does on any other branch.
 
 The row on whether the contributor read what they signed is the point of the whole mechanism, and no check can ever make it.
