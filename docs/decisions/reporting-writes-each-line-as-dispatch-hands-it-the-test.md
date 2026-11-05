@@ -26,7 +26,27 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reporting writes each line as dispatch hands it the test.**
 
-- **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** The function returns `ControlFlow`, and no test runs after a `Break`. For a test that runs, dispatch calls the function as the worker returns the outcome or error of the test. For a module that does not load, dispatch calls the function with the error of the module, then for each of its tests as blocked. Dispatch runs none of those tests. After each load and each test, dispatch calls the function with the error of each thread that the worker took.
+- **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** The function returns `ControlFlow`, and no test runs after a `Break`.
+
+  ```mermaid
+  sequenceDiagram
+    participant worker
+    participant dispatch
+    participant function as command's function
+    alt the module loads
+      dispatch->>function: the error of each thread the load took
+      loop each test
+        worker->>dispatch: its outcome or error
+        dispatch->>function: that outcome or error
+        dispatch->>function: the error of each thread the test took
+      end
+    else the module does not load
+      dispatch->>function: the error of the module
+      dispatch->>function: the error of each thread the load took
+      dispatch->>function: each of its tests, as blocked, and runs none of them
+    end
+  ```
+
 - **Parsing and selection keep returning what they find, and command hands it on at once.**
 - **A test that selection refuses never reaches dispatch.** [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when its line prints.
 - **Reporting writes and flushes each line as it takes it, and keeps only the tally until the count.**
