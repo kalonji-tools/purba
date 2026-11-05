@@ -1,6 +1,6 @@
 # Which records would a figure say in fewer words?
 
-Of the 94 records on `main` at `04ae25d`, nine would be shorter with a figure. The gains are small: one record saves 23 words, three save 11 to 16, and five save 7 or fewer. Two of the nine carry a defect: one figure adds a claim, and one loses the glossary links. Of the four figures already in records, one passes once its source is rewritten, and it renders the same. Two fail outright. In the fourth, the verdict turns on whether the HTML tags inside a label count as words. No record needs a form that neither fence draws.
+Of the 94 records on `main` at `04ae25d`, nine would be shorter with a figure. The gains are small: one record saves 23 words, three save 11 to 16, and five save 7 or fewer. Two of the nine carry a defect: one figure adds a claim, and one loses the glossary links. Of the four figures already in records, one passes once its source is rewritten, and it renders the same. The other three fail, whether or not an HTML tag inside a label counts as a word. No record needs a form that neither fence draws.
 
 This file answers [Which records would a figure say in fewer words, and what would each figure replace?](https://github.com/kalonji-tools/purba/issues/787). The branch is never merged.
 
@@ -30,7 +30,7 @@ This file answers [Which records would a figure say in fewer words, and what wou
 | record | with its figure | best version without it | best figure | verdict |
 |---|---:|---:|---:|---|
 | [Each part is a crate](#each-part-is-a-crate) | 977 | 962, five "X uses Y" lines | 960, the same graph with `&` | passes once rewritten |
-| [A change is specified before it is built](#a-change-is-specified-before-it-is-built) | 1046, or 1014 without its HTML tags | 1022, four bullets | 1022, markdown labels | turns on whether a tag is a word |
+| [A change is specified before it is built](#a-change-is-specified-before-it-is-built) | 1046, or 1026 without its HTML tags | 1022, four bullets | 1022, markdown labels | fails: the bullets win, and the markdown labels tie them |
 | [A panic inside a test gives that test an internal error](#a-panic-inside-a-test-gives-that-test-an-internal-error) | 1060 | 1012, a five-row table | 1020, short ids | fails: the table wins |
 | [A failure's kind is what the part that first sees it observes](#a-failures-kind-is-what-the-part-that-first-sees-it-observes) | 1543 | 1441, three sentences | none shorter | fails: it repeats the record's own bullets |
 
@@ -203,7 +203,9 @@ flowchart TD
 
 ### A change is specified before it is built
 
-The figure's labels carry `<b>` and `<br>` tags, which this count reads as 32 words. Counted with them, the four bullets below win, 1022 to 1046. Counted without them, the figure wins, 1014 to 1022. A rewrite with Markdown labels comes to 1022, a tie.
+The figure's labels carry 20 `<b>` and `<br>` tags, which this count reads as 20 words. Counted with them, the four bullets below win, 1022 to 1046. Counted without them, each tag read as a space, the bullets still win, 1022 to 1026. A rewrite with Markdown labels comes to 1022, a tie.
+
+An earlier version of this file said the figure wins without its tags, 1014 to 1022. That count deleted each tag without a space, so the words on either side of each `<br>` joined, and twelve words were lost.
 
 - Design: file the issue, triage, design spec, until the issue type is set.
 - Implement: implementation plan, implement, post pass, until it is marked ready.
