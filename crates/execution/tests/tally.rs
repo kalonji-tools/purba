@@ -22,6 +22,7 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
         Ok(&failed),
         Ok(&raised),
         Ok(&Kind::Unknown),
+        Ok(&Kind::Interrupted),
         Err(&project),
         Err(&internal),
     ] {
@@ -34,6 +35,7 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
             failed: 1,
             raised: 1,
             unknown: 1,
+            interrupted: 1,
             blocked: 2,
             project_errors: 1,
             internal_errors: 1,

@@ -1,7 +1,8 @@
 //! Reporting: prints one line for each test, for each module that did not
 //! load, and for the error of each thread, as it takes them, then a count, and
-//! renders the exit code. Reporting prints no line for an unreached test. The
-//! count names it.
+//! renders the exit code. Reporting prints `interrupted` for a test that an
+//! interrupt landed in. It prints no line for an unreached test. The count
+//! names it.
 
 use std::fmt::{self, Display};
 use std::io::{self, Write};
@@ -100,6 +101,7 @@ impl<W: Write> Report<W> {
                 writeln!(out, "{test} raised: {}", one_line(exception))
             }
             Ok(Kind::Unknown) => writeln!(out, "{test} unknown: no assert ran"),
+            Ok(Kind::Interrupted) => writeln!(out, "{test} interrupted"),
             Err(error) => writeln!(out, "{test} {}", Reason(error)),
         };
         self.flushed(written)
@@ -134,6 +136,7 @@ fn count_line(tally: &Tally) -> String {
         + tally.failed
         + tally.raised
         + tally.unknown
+        + tally.interrupted
         + tally.blocked
         + tally.unreached;
     let outcomes: Vec<String> = [
@@ -141,6 +144,7 @@ fn count_line(tally: &Tally) -> String {
         (tally.failed, "failed"),
         (tally.raised, "raised"),
         (tally.unknown, "unknown"),
+        (tally.interrupted, "interrupted"),
         (tally.blocked, "blocked"),
         (tally.unreached, "unreached"),
     ]
@@ -547,6 +551,7 @@ mod tests {
             failed,
             raised,
             unknown,
+            interrupted: 0,
             blocked: 0,
             project_errors,
             internal_errors: 0,
@@ -639,6 +644,42 @@ mod tests {
              test_a.py::test_three raised: KeyboardInterrupt:\n\
              4 tests: 1 passed, 1 raised, 1 blocked, 1 unreached; 1 project error\n",
             "the unreached test has no line, and the count names it after blocked"
+        );
+    }
+
+    #[test]
+    fn an_interrupted_test_prints_its_line_and_the_count_names_it_after_unknown() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        for (test, kind) in [
+            ("test_a.py::test_one", Kind::Passed),
+            ("test_a.py::test_two", Kind::Passed),
+            ("test_a.py::test_three", Kind::Interrupted),
+        ] {
+            report
+                .add(&test, Ok(&kind))
+                .expect("a Vec takes every write");
+        }
+        report.unreached();
+        report.unreached();
+        report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "test_a.py::test_one passed\n\
+             test_a.py::test_two passed\n\
+             test_a.py::test_three interrupted\n\
+             5 tests: 2 passed, 1 interrupted, 2 unreached\n",
+            "the interrupted test prints its line, and the count names it before unreached"
+        );
+        assert_eq!(
+            count_line(&Tally {
+                unknown: 1,
+                interrupted: 1,
+                blocked: 1,
+                ..Tally::default()
+            }),
+            "3 tests: 1 unknown, 1 interrupted, 1 blocked",
+            "the count names interrupted after unknown, and before blocked"
         );
     }
 

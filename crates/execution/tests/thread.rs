@@ -95,7 +95,7 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
                 Some(function) => worker
                     .run(module, function)
                     .map(|outcome| Some(outcome.kind().clone())),
-                None => worker.load(module).map(|()| None),
+                None => worker.load(module).map(|_| None),
             }
             .map_err(|error| error.to_string());
             let threads = worker
