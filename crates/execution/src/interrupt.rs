@@ -1,5 +1,7 @@
-//! purba's signal handler. It keeps the first interrupt of the process. It
-//! raises `KeyboardInterrupt` only inside a test's call or a load. Once Python
+//! purba's signal handler. It keeps the first interrupt of the process.
+//!
+//! It raises `KeyboardInterrupt` only inside a test's call or a load. After
+//! each, purba gives SIGINT its own signal handler again. Once Python
 //! finalizes, purba dies by the interrupt that it kept.
 
 use std::io::{self, Write};
@@ -91,17 +93,48 @@ pub(crate) fn kept(py: Python<'_>) -> bool {
 }
 
 /// Runs `work` as a test's call or a load, in which the signal handler raises
-/// `KeyboardInterrupt`.
-pub(crate) fn calling<R>(work: impl FnOnce() -> R) -> R {
+/// `KeyboardInterrupt`. Also says whether the first signal landed inside it.
+/// Then gives SIGINT purba's signal handler again, if the test or the module
+/// installed its own.
+pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
     struct Close;
     impl Drop for Close {
         fn drop(&mut self) {
             CALLING.store(false, Ordering::SeqCst);
         }
     }
+    let kept_before = KEPT.load(Ordering::SeqCst) != 0;
     CALLING.store(true, Ordering::SeqCst);
-    let _close = Close;
-    work()
+    let close = Close;
+    let result = work();
+    let landed = !kept_before && KEPT.load(Ordering::SeqCst) != 0;
+    drop(close);
+    put_back(py);
+    (result, landed)
+}
+
+/// Gives SIGINT purba's signal handler again, when purba installed it and
+/// SIGINT has another one now.
+fn put_back(py: Python<'_>) {
+    let Some(handler) = SIGNAL_HANDLER.get(py) else {
+        return;
+    };
+    let give = || -> PyResult<()> {
+        let signal = py.import("signal")?;
+        let sigint = signal.getattr("SIGINT")?;
+        if !signal.getattr("getsignal")?.call1((&sigint,))?.is(handler) {
+            signal.getattr("signal")?.call1((sigint, handler))?;
+        }
+        Ok(())
+    };
+    // `signal.signal` first runs a signal that waits, through the signal
+    // handler that SIGINT has, and that one may raise:
+    // <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L522-L525>
+    // The signal no longer waits then, so a second try gives SIGINT purba's
+    // signal handler. Its error has no test to charge.
+    if give().is_err() {
+        drop(give());
+    }
 }
 
 /// Runs after finalization gives each signal its default action:

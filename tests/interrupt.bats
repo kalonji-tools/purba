@@ -108,22 +108,108 @@ LINES
   [[ ! -e two ]]
 }
 
-@test "a Ctrl-C in a test's call starts no later test, and purba dies by SIGINT" {
+@test "a Ctrl-C in a test's call makes the test interrupted, and its finally block runs" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    assert True' \
-    'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        Path("finally").touch()' \
     'def test_three():' '    Path("three").touch()' >test_call.py
 
   run -0 --separate-stderr interrupt test_call.py 0
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_call.py::test_one passed
-test_call.py::test_two raised: KeyboardInterrupt:
-3 tests: 1 passed, 1 raised, 1 unreached
+test_call.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == $'purba: interrupt: SIGINT\npurba ended by SIGINT' ]] || false
+  [[ -e finally ]] || false
+  [[ ! -e three ]]
+}
+
+@test "a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import time' 'from pathlib import Path' \
+    'Path("marker").touch()' 'time.sleep(3)' \
+    'def test_one():' '    assert True' \
+    'def test_two():' '    assert True' >test_load.py
+
+  run -0 --separate-stderr interrupt test_load.py 0
+
+  [[ "${output}" == '2 tests: 2 unreached' ]] || false
+  [[ "${stderr}" == $'purba: interrupt: SIGINT\npurba ended by SIGINT' ]]
+}
+
+@test "a KeyboardInterrupt with no signal makes the test raised, and the next test runs" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_one():' '    raise KeyboardInterrupt' \
+    'def test_two():' '    assert True' >test_bare.py
+
+  run -4 --separate-stderr purba test_bare.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_bare.py::test_one raised: KeyboardInterrupt:
+test_bare.py::test_two passed
+2 tests: 1 passed, 1 raised
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a signal handler that a test installs lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
+    '    assert True' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    Path("three").touch()' >test_handler.py
+
+  run -0 --separate-stderr interrupt test_handler.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_handler.py::test_one passed
+test_handler.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == $'purba: interrupt: SIGINT\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
+}
+
+@test "a signal handler that a module installs lives only for its load" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'signal.signal(signal.SIGINT, lambda signum, frame: None)' \
+    'def test_one():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_two():' '    Path("two").touch()' >test_module_handler.py
+
+  run -0 --separate-stderr interrupt test_module_handler.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_module_handler.py::test_one interrupted
+2 tests: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == $'purba: interrupt: SIGINT\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+@test "a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import time' 'from pathlib import Path' \
+    'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    except KeyboardInterrupt:' '        pass' '    assert True' >test_passes.py
+  printf '%s\n' 'import time' 'from pathlib import Path' \
+    'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        assert 1 == 2' >test_fails.py
+  printf '%s\n' 'import os, time' 'from pathlib import Path' \
+    'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        os._exit(3)' >test_exits.py
+
+  for module in test_passes test_fails test_exits; do
+    rm -f marker
+    run -0 --separate-stderr interrupt "${module}.py" 0
+    [[ "${output}" == "${module}.py::test_one interrupted"$'\n1 test: 1 interrupted' ]] || false
+    [[ "${stderr}" == $'purba: interrupt: SIGINT\npurba ended by SIGINT' ]] || false
+  done
 }
 
 @test "a Ctrl-C that the parent ignores stays ignored, and the run ends normally" {

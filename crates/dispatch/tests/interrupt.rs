@@ -66,16 +66,11 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
         seen,
         [
             Seen::Test("test_one", Ok(Kind::Passed)),
-            Seen::Test(
-                "test_two",
-                Ok(Kind::Raised {
-                    exception: "KeyboardInterrupt: ".to_owned()
-                })
-            ),
+            Seen::Test("test_two", Ok(Kind::Interrupted)),
             Seen::Unreached("test_three"),
             Seen::Unreached("test_four"),
         ],
-        "the signal's test keeps its outcome; each later test is unreached; the next \
-         module never loads"
+        "the signal's test is interrupted. Each later test is unreached. The next \
+         module never loads."
     );
 }

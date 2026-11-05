@@ -53,14 +53,15 @@ pub struct Outcome {
 }
 
 impl Outcome {
-    /// Whether the test passed, failed, raised or is `unknown`.
+    /// Whether the test passed, failed, raised, or is `unknown` or
+    /// `interrupted`.
     #[must_use]
     pub const fn kind(&self) -> &Kind {
         &self.kind
     }
 }
 
-/// Passed, failed, raised or unknown.
+/// Passed, failed, raised, unknown or interrupted.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Kind {
     /// An assert ran, and the test returned.
@@ -68,13 +69,16 @@ pub enum Kind {
     /// The last assert that ran did not hold, and the test raised
     /// `AssertionError`. `assert` is the source text of that assert.
     Failed { assert: String },
-    /// The test's call raised, and the outcome is not `Failed`. A call to
-    /// `os._exit` during the call gives `Raised` too, even when the test caught
-    /// its error. `exception` is the type and the message of the exception, as
-    /// text.
+    /// The test's call raised, and the outcome is not `Failed` or
+    /// `Interrupted`. A call to `os._exit` during the call gives `Raised` too,
+    /// even when the test caught its error. `exception` is the type and the
+    /// message of the exception, as text.
     Raised { exception: String },
     /// No assert ran, and the test returned.
     Unknown,
+    /// The first interrupt landed during the test's call. The test has this
+    /// outcome whether it then passed, failed, raised or called `os._exit`.
+    Interrupted,
 }
 
 /// Why `run` made no outcome: a project error or an internal error.
@@ -160,6 +164,16 @@ pub enum Owner {
     Test(PathBuf, String),
 }
 
+/// What a load did, when it gave no error.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Load {
+    /// The module loaded, or loaded before.
+    Done,
+    /// The first interrupt landed during the load, so no test of the module
+    /// runs.
+    Interrupted,
+}
+
 /// Runs tests in this process. It loads each module once, and keeps it under its
 /// path, or keeps that its load failed. It keeps the owner of each thread that a
 /// load or a test left alive.
@@ -170,6 +184,8 @@ pub struct Worker<'py> {
     hook: &'static Py<thread::Hook>,
     owners: Vec<(Py<PyAny>, Owner)>,
     last: Option<Owner>,
+    /// Whether the first interrupt landed during the last load.
+    load_interrupted: bool,
 }
 
 mod exit {
@@ -249,6 +265,7 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
             hook: thread::hook(py).expect("the hook takes the place of threading.excepthook"),
             owners: Vec::new(),
             last: None,
+            load_interrupted: false,
         })
     })
 }
@@ -263,9 +280,10 @@ impl<'py> Worker<'py> {
 
     /// Calls `function` of `module`, and makes its outcome. When the guard
     /// recorded a call to `os._exit` since the worker last took one, the
-    /// outcome is `Raised`, and names that call to `os._exit`. An error before
-    /// the test's call stays as it is. Each thread that the call leaves alive
-    /// gets the test as its owner, unless it has one.
+    /// outcome is `Raised`, and names that call to `os._exit`. When the first
+    /// interrupt landed during the call, the outcome is `Interrupted`. An error
+    /// before the test's call stays as it is. Each thread that the call leaves
+    /// alive gets the test as its owner, unless it has one.
     ///
     /// # Errors
     ///
@@ -284,7 +302,7 @@ impl<'py> Worker<'py> {
             return Err(Error(Reason::Internal(noted.caught_by("execution"))));
         }
         match (exit, result) {
-            (Some(call), Ok(_)) => Ok(Outcome {
+            (Some(call), Ok(outcome)) if outcome.kind != Kind::Interrupted => Ok(Outcome {
                 kind: Kind::Raised {
                     exception: format!("ExitInsideATest: {call}"),
                 },
@@ -296,23 +314,35 @@ impl<'py> Worker<'py> {
     /// Loads `module` once, and keeps it, or keeps that its load failed. The
     /// load takes the call to `os._exit` that the guard recorded and the note
     /// of a panic, so no later test takes them. Each thread that the load
-    /// leaves alive gets the load as its owner.
+    /// leaves alive gets the load as its owner. When the first interrupt
+    /// landed during the load, it gives `Load::Interrupted`, in place of
+    /// `Load::Done` or of the project error of the load.
     ///
     /// # Errors
     ///
     /// The load raised, or it called `os._exit`, even when the module caught
     /// the call. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
-    pub fn load(&mut self, module: &Module) -> Result<(), Error> {
-        self.loaded(module).map(|_| ())
+    pub fn load(&mut self, module: &Module) -> Result<Load, Error> {
+        self.load_interrupted = false;
+        let loaded = self.loaded(module).map(|_| ());
+        if !self.load_interrupted {
+            return loaded.map(|()| Load::Done);
+        }
+        match loaded {
+            Err(err) if err.kind() != ErrorKind::Project => Err(err),
+            _ => Ok(Load::Interrupted),
+        }
     }
 
     fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
             let before = self.hook.get().alive(self.py);
             let py = self.py;
-            let loaded =
-                interrupt::calling(|| purba_assertion::load(py, &module.path, &module.rewrite));
+            let (loaded, landed) = interrupt::calling(py, || {
+                purba_assertion::load(py, &module.path, &module.rewrite)
+            });
+            self.load_interrupted = landed;
             self.own(&before, Owner::Load(module.path.clone()));
             let exit = self.guard.get().take();
             let failed = match (panic::take(), exit, &loaded) {
@@ -397,10 +427,13 @@ impl<'py> Worker<'py> {
             return Err(error(&err));
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
+        let mut landed = false;
         let (result, last) = loaded.watch(|| {
-            Ok(interrupt::calling(|| {
+            let (called, inside) = interrupt::calling(py, || {
                 std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))
-            }))
+            });
+            landed = inside;
+            Ok(called)
         });
         let result = match result {
             Ok(Ok(called)) => called,
@@ -408,6 +441,7 @@ impl<'py> Worker<'py> {
             Err(err) => Err(err),
         };
         let kind = match (result, last) {
+            _ if landed => Kind::Interrupted,
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
             (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
@@ -423,15 +457,18 @@ impl<'py> Worker<'py> {
     }
 }
 
-/// How many tests of a run passed, failed, raised, are `unknown`, blocked or
-/// unreached, and how many errors of each kind it met. Each test counts once,
-/// and each error once, by its kind.
+/// How many tests of a run passed, failed, raised, are `unknown` or
+/// `interrupted`, are blocked or unreached, and how many errors of each kind
+/// it met.
+///
+/// Each test counts once, and each error once, by its kind.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
     pub failed: usize,
     pub raised: usize,
     pub unknown: usize,
+    pub interrupted: usize,
     pub blocked: usize,
     /// Tests that the run never reached, because an interrupt stopped the run.
     pub unreached: usize,
@@ -450,6 +487,7 @@ impl Tally {
             Ok(Kind::Failed { .. }) => self.failed += 1,
             Ok(Kind::Raised { .. }) => self.raised += 1,
             Ok(Kind::Unknown) => self.unknown += 1,
+            Ok(Kind::Interrupted) => self.interrupted += 1,
             Err(error) => {
                 self.blocked += 1;
                 self.add_error(error);

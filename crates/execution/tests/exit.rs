@@ -67,7 +67,7 @@ fn a_call_to_os_exit_gives_raised_however_the_test_makes_it() {
                 Some(function) => worker
                     .run(module, function)
                     .map(|outcome| Some(outcome.kind().clone())),
-                None => worker.load(module).map(|()| None),
+                None => worker.load(module).map(|_| None),
             }
             .map_err(|error| error.to_string())
         })

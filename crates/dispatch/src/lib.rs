@@ -80,7 +80,8 @@ pub enum Charged<T> {
 ///
 /// Before each load and each test, dispatch asks the worker whether purba's
 /// signal handler kept an interrupt. Once it did, `each` takes each test left,
-/// of each module left, as unreached. Nothing further loads or runs.
+/// of each module left, as unreached. Nothing further loads or runs. When the
+/// interrupt lands in a load, `each` takes no project error of the load.
 ///
 /// A panic that crosses the load of a module or the run of a test gives that
 /// module or that test an internal error.

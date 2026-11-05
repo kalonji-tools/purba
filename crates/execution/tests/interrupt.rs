@@ -1,18 +1,41 @@
 use std::path::PathBuf;
 
-use purba_execution::{Kind, Module, Rewrite};
+use purba_execution::{Kind, Module, Rewrite, Worker};
 use pyo3::Python;
+use pyo3::types::{PyAnyMethods, PyTypeMethods};
 
 const TEST_SIGNALS: &str = "import signal\n\n\
     def test_bare():\n    raise KeyboardInterrupt\n\n\
-    def test_signal():\n    signal.raise_signal(signal.SIGINT)\n";
+    def test_handler():\n    signal.signal(signal.SIGINT, lambda signum, frame: None)\n    \
+    assert True\n\n\
+    def test_signal():\n    try:\n        signal.raise_signal(signal.SIGINT)\n    \
+    except KeyboardInterrupt:\n        pass\n    assert True\n";
 
-const TEST_LOAD_SIGNAL: &str = "import signal\n\nsignal.raise_signal(signal.SIGINT)\n";
-
-/// What one step of the test saw: the outcome of a test, the result of a load,
-/// or a signal that the test raised outside a call, then whether purba kept a
-/// signal.
+/// What one step of the test saw: the outcome of a test, or a signal that the
+/// test raised outside a call, then whether purba kept a signal.
 type Step = (Result<Option<Kind>, String>, bool);
+
+/// The outcome of `function`, or the text of its error.
+fn run(worker: &mut Worker<'_>, module: &Module, function: &str) -> Result<Option<Kind>, String> {
+    worker
+        .run(module, function)
+        .map(|outcome| Some(outcome.kind().clone()))
+        .map_err(|error| error.to_string())
+}
+
+/// The name of the type of the signal handler that SIGINT has now.
+fn sigint_handler() -> String {
+    Python::attach(|py| {
+        py.import("signal")
+            .and_then(|signal| {
+                let handler = signal
+                    .getattr("getsignal")?
+                    .call1((signal.getattr("SIGINT")?,))?;
+                handler.get_type().name()?.extract::<String>()
+            })
+            .expect("signal.getsignal names SIGINT's signal handler")
+    })
+}
 
 // purba's signal handler keeps the first signal for the life of the process.
 // Cargo runs the tests of one binary on several threads. So each signal in
@@ -24,17 +47,15 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_only_inside_a_call() {
         PathBuf::from("test_signals.py"),
         Rewrite::of_source(TEST_SIGNALS).expect("the source parses"),
     );
-    let load_signal = Module::new(
-        PathBuf::from("test_load_signal.py"),
-        Rewrite::of_source(TEST_LOAD_SIGNAL).expect("the source parses"),
-    );
-    let steps: Vec<Step> = purba_execution::attach(|worker| {
+    let (steps, handler): (Vec<Step>, String) = purba_execution::attach(|worker| {
         purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
         let mut steps = Vec::new();
-        let kind = worker
-            .run(&module, "test_bare")
-            .map(|outcome| Some(outcome.kind().clone()))
-            .map_err(|error| error.to_string());
+        let kind = run(worker, &module, "test_bare");
+        steps.push((kind, worker.interrupted()));
+        let kind = run(worker, &module, "test_handler");
+        let handler = sigint_handler();
+        steps.push((kind, worker.interrupted()));
+        let kind = run(worker, &module, "test_signal");
         steps.push((kind, worker.interrupted()));
         let outside = Python::attach(|py| {
             py.run(
@@ -46,32 +67,27 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_only_inside_a_call() {
         .map(|()| None)
         .map_err(|error| error.to_string());
         steps.push((outside, worker.interrupted()));
-        let kind = worker
-            .run(&module, "test_signal")
-            .map(|outcome| Some(outcome.kind().clone()))
-            .map_err(|error| error.to_string());
-        steps.push((kind, worker.interrupted()));
-        let loaded = worker
-            .load(&load_signal)
-            .map(|()| None)
-            .map_err(|error| error.to_string());
-        steps.push((loaded, worker.interrupted()));
-        steps
+        (steps, handler)
     });
-    let raised = || {
-        Ok(Some(Kind::Raised {
-            exception: "KeyboardInterrupt: ".to_owned(),
-        }))
-    };
+    assert_eq!(
+        handler, "SignalHandler",
+        "purba puts its own signal handler back when the call of a test that took SIGINT returns"
+    );
     assert_eq!(
         steps,
         [
-            (raised(), false),
+            (
+                Ok(Some(Kind::Raised {
+                    exception: "KeyboardInterrupt: ".to_owned(),
+                })),
+                false
+            ),
+            (Ok(Some(Kind::Passed)), false),
+            (Ok(Some(Kind::Interrupted)), true),
             (Ok(None), true),
-            (raised(), true),
-            (Err("KeyboardInterrupt: ".to_owned()), true),
         ],
-        "purba keeps no signal after a bare raise; it keeps a signal outside a call, \
-         and raises nothing; a signal raises KeyboardInterrupt in a call and in a load"
+        "purba keeps no signal after a bare raise. A test that takes SIGINT passes. A \
+         signal in a call makes the test interrupted, though it caught the \
+         KeyboardInterrupt and passed. A signal outside a call raises nothing."
     );
 }
