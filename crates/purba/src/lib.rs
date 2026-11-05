@@ -24,6 +24,10 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 /// A write that stdout refused once the report exists returns the code that
 /// reporting gives with it: 125 after an internal error, and 3 otherwise. A
 /// run that exits 125 then asks for a report, in two lines on stderr.
+///
+/// Before command runs, it gives SIGINT purba's signal handler. After an interrupt
+/// before selection ends, it returns 130 and prints nothing more. purba then
+/// dies by that signal once Python finalizes.
 #[pyfunction]
 #[pyo3(name = "_main")]
 fn main(py: Python<'_>) -> u8 {
@@ -36,10 +40,14 @@ fn main(py: Python<'_>) -> u8 {
         Err(error) => return stop(&error),
     };
     purba_execution::panic::wrap_hook();
+    if let Err(error) = purba_execution::interrupt::install() {
+        return stop(&error);
+    }
     let code = match panic::catch_unwind(|| {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
         Ok(Ok(code)) => code,
+        Ok(Err(purba_command::Error::Interrupted)) => 130,
         Ok(Err(error @ purba_command::Error::Refused { code, .. })) => {
             stop(&error);
             code
