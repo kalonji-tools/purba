@@ -37,7 +37,7 @@ One of its invariants is "the diagram is the only wiring".
 | its interface | the `pub` items of the crate's `src/lib.rs` |
 | the parts it uses | the `purba-*` entries of each table of dependencies in its `Cargo.toml`, dev and build included |
 | PyO3 | a dependency of each part that [crosses the seam](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) |
-| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`, and uses `purba-command` and `purba-execution`, the second for the wrap of Rust's panic hook |
+| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`, and uses `purba-command` and `purba-execution`, the second for the wrap of Rust's panic hook and for purba's signal handler |
 
 ```mermaid
 flowchart TD

@@ -28,6 +28,7 @@ A change to another part then edits the tests of command.
   - It sets the order of the lines, and reporting writes them.
   - It stops the run at an invocation error.
   - It runs no test after a stop.
+  - It stops the run, with no line and no count, at an interrupt before selection ends.
   - It returns the exit code.
 - **A test of command checks the test and the kind of each line, and the exit code.** It pins no reason and no count line.
 - **The tests of each other part check that part's rules.** `crates/assertion/tests/load.rs` checks CPython's errors at the load, and `crates/parsing/tests/parse.rs` checks ruff's messages.

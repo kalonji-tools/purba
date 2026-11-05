@@ -60,7 +60,8 @@ Each test after the interrupted one is an [unreached test](../../CONTEXT.md#unre
 
 ## Confirmation
 
-No command checks this yet.
-The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds it, and ends with a test that sends each case to an installed `purba`.
+`mise run test:wheel` checks that a first interrupt outside a test's call or inside one starts no later test, and that purba dies by SIGINT.
+The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds the rest. It ends with a test that sends each case to an installed `purba`.
 
-- [A Ctrl-C outside a test's call gives the next test raised, or vanishes](https://github.com/kalonji-tools/purba/issues/774)
+- [A first interrupt stops the run, prints its count, and dies by the signal](https://github.com/kalonji-tools/purba/issues/793)
+- [A second interrupt exits at once, SIGTERM and SIGHUP count as SIGINT, and purba dies after finalization](https://github.com/kalonji-tools/purba/issues/794)
