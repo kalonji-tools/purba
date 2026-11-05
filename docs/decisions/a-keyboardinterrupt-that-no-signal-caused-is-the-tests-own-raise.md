@@ -45,4 +45,4 @@ test_a.py::test_two passed
 ## Confirmation
 
 `mise run test:rust` checks that purba keeps no signal after a bare raise, and that a SIGINT that a test sends stops the run.
-The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds the rest. It ends with a test that sends each case to an installed `purba`.
+`mise run test:wheel` checks that a test that raises `KeyboardInterrupt` with no signal is `raised`, and that the next test runs.

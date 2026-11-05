@@ -68,6 +68,6 @@ test_a.py::test_three interrupted
 `mise run test:wheel` checks that a first interrupt starts no later test, and that purba dies by SIGINT.
 It checks that the test the interrupt lands in is `interrupted`, and that an interrupt in a load leaves each test unreached.
 It checks that a signal handler of a test or a module lives only for its call or its load.
-The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds the rest. It ends with a test that sends each case to an installed `purba`.
-
-- [A second interrupt exits at once, SIGTERM and SIGHUP count as SIGINT, and purba dies after finalization](https://github.com/kalonji-tools/purba/issues/794)
+It checks that a second interrupt ends purba at once by that interrupt's signal, even while a cleanup runs C code.
+It checks that SIGTERM and SIGHUP do what SIGINT does.
+It checks that a Ctrl-C after the count ends Python's wait for threads, and lets a test's `atexit` function finish.
