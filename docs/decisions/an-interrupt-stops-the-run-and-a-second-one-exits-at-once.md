@@ -28,6 +28,8 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **SIGTERM and SIGHUP do what SIGINT does.** Chosen. A CI cancel and a closed terminal each get the cleanup.
 - **A second interrupt raises again, as the first does.** Rejected. Each press ends one cleanup, so the tester presses once for each.
 - **A second interrupt skips the cleanup left, and exits at once.** Chosen. A cleanup that hangs cannot trap the tester.
+- **purba's signal handler ends purba on a second interrupt.** Rejected. It runs only at the next line of Python, so a cleanup that loops in C code keeps purba alive.
+- **The first interrupt gives each interrupt signal its default action.** Chosen. The second ends purba wherever it lands.
 - **A test that catches the `KeyboardInterrupt` continues the run, as today.** Rejected. The test swallows the tester's Ctrl-C. The run can then exit 0.
 - **A signal handler that a test or a module installs outlives its call or its load, as today.** Rejected. One test or one module disarms Ctrl-C for each later test.
 - **An `_Avoid_` line for `cancel` and `abort`.** Rejected. `typos` rewrites each word in every tracked file. GitHub reads `cancel-in-progress` as a key.
@@ -44,7 +46,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **A signal that the parent ignores stays ignored.**
 - **The run stops even when a test catches the `KeyboardInterrupt`.** It stops when the test returns.
 - **A signal handler that a test installs lives only for its call, and one that a module installs lives only for its load.** purba puts its own back when the call or the load returns.
-- **A second interrupt skips the cleanup left, and exits at once.** Any two interrupts count, so SIGINT and then SIGTERM make a second.
+- **A second interrupt skips the cleanup left, and exits at once.** Any two interrupts count, so SIGINT and then SIGTERM make a second. The first interrupt gives each interrupt signal its default action, so the second ends purba even while a cleanup runs C code.
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
 [An interrupt puts back no more than a normal end does](an-interrupt-puts-back-no-more-than-a-normal-end-does.md#decision-outcome) says what each part puts back.
@@ -54,12 +56,13 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **A second interrupt leaves built what the skipped cleanup would tear down.**
 - **A Ctrl-C during a test that installed its own signal handler does not stop the run.** The test's signal handler takes it, as the test asked.
 - **A CI that sends purba SIGINT and then SIGTERM ends the cleanup at the SIGTERM.** GitHub does so when purba is the step's entry process. The time before its SIGKILL goes unused.
+- **A cleanup that installs its own signal handler after the first interrupt takes a second interrupt that comes before the call or the load returns.**
 
 ## Confirmation
 
 `mise run test:wheel` checks that a first interrupt starts no later test, and that purba dies by SIGINT.
 It checks that the test the interrupt lands in is `interrupted`, and that an interrupt in a load leaves each test unreached.
 It checks that a signal handler of a test or a module lives only for its call or its load.
-The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds the rest. It ends with a test that sends each case to an installed `purba`.
-
-- [A second interrupt exits at once, SIGTERM and SIGHUP count as SIGINT, and purba dies after finalization](https://github.com/kalonji-tools/purba/issues/794)
+It checks that a second interrupt ends purba at once by that interrupt's signal, even while a cleanup runs C code.
+It checks that SIGTERM and SIGHUP do what SIGINT does.
+It checks that a Ctrl-C after the count ends Python's wait for threads, and lets a test's `atexit` function finish.
