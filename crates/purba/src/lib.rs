@@ -25,9 +25,10 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 /// reporting gives with it: 125 after an internal error, and 3 otherwise. A
 /// run that exits 125 then asks for a report, in two lines on stderr.
 ///
-/// Before command runs, it gives SIGINT purba's signal handler. After an interrupt
-/// before selection ends, it returns 130 and prints nothing more. purba then
-/// dies by that signal once Python finalizes.
+/// Before command runs, it gives each interrupt signal purba's signal handler.
+/// After an interrupt before selection ends, it returns 130 and prints nothing
+/// more. After command returns, a first interrupt ends Python's wait for
+/// threads. purba dies by the signal that it kept once Python finalizes.
 #[pyfunction]
 #[pyo3(name = "_main")]
 fn main(py: Python<'_>) -> u8 {
@@ -60,6 +61,10 @@ fn main(py: Python<'_>) -> u8 {
     if code == 125 {
         ask_for_report(py);
     }
+    // When purba cannot register its `atexit` function, the window in which a
+    // first interrupt ends the wait for threads stays shut. That interrupt then
+    // ends purba only once the wait is done.
+    drop(purba_execution::interrupt::ended(py));
     code
 }
 
