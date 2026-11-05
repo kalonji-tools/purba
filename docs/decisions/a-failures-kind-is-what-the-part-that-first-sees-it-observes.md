@@ -44,11 +44,11 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, a name bound again, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
-- **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs when the thread raises. The test keeps its outcome, and a load that succeeds still succeeds. A thread that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`, and fails a load that runs.
+- **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs when the thread raises. The test keeps its outcome, and a load that succeeds still succeeds. A thread that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. A call to `os._exit` from a thread differs: [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the test that runs the outcome `raised`, and fails a load that runs. It names the exception of a load that the first interrupt lands in.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
 - **The text of an internal error names the part that found it.**
-- **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops.
+- **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) gives the test that the interrupt lands in the outcome `interrupted`, whether its call then passes, fails or raises.
 
 The figure shows each part and the kinds that it first sees.
 
@@ -61,7 +61,7 @@ flowchart LR
   selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a def under a statement, an async def, a yield, a parameter with no default, a returned value" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception" --> project
-  execution -- "passed, failed, raised, unknown" --> outcome["<b>outcome</b>"]
+  execution -- "passed, failed, raised, unknown, interrupted" --> outcome["<b>outcome</b>"]
   execution -- "purba's own PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
 ```

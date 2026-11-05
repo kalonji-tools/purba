@@ -57,7 +57,7 @@ flowchart LR
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
-- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It loads each module on the worker before its tests. For a module that does not load, it hands on the error once, and each of its tests as blocked. After each load and each test, it hands on the error of each thread that the worker took.
+- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It loads each module on the worker before its tests. For a module that does not load, it hands on the error once, and each of its tests as blocked. For a load that the first interrupt lands in, it hands on no project error. After each load and each test, it hands on the error of each thread that the worker took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
