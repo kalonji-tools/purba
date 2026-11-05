@@ -413,6 +413,7 @@ dependencies = [
  "purba-parsing",
  "purba-reporting",
  "purba-selection",
+ "pyo3",
 ]
 
 [[package]]
@@ -427,6 +428,7 @@ dependencies = [
 name = "purba-execution"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "purba-assertion",
  "purba-fixtures",
  "pyo3",

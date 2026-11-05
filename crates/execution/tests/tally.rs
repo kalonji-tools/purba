@@ -38,6 +38,7 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
             project_errors: 1,
             internal_errors: 1,
             invocation_errors: 0,
+            unreached: 0,
         },
         "one of each kind, and a test whose own error blocks it counts as blocked \
          and as one error of that error's kind"
@@ -90,5 +91,22 @@ fn an_error_says_its_kind() {
         (internal.kind(), internal.to_string()),
         (ErrorKind::Internal { part: "command" }, "boom".to_owned()),
         "an internal error names its part, and prints its message"
+    );
+}
+
+#[test]
+fn a_tally_counts_an_unreached_test_apart_from_each_outcome() {
+    let mut tally = Tally::default();
+    tally.add(Ok(&Kind::Passed));
+    tally.add_unreached();
+    tally.add_unreached();
+    assert_eq!(
+        tally,
+        Tally {
+            passed: 1,
+            unreached: 2,
+            ..Tally::default()
+        },
+        "one passed test, and two that the run never reached"
     );
 }

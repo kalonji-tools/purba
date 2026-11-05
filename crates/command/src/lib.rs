@@ -21,6 +21,8 @@ pub enum Error {
     /// stdout refused a write of the report. `code` is the exit code of what
     /// the run met by then: 125 after an internal error, and 3 otherwise.
     Refused { error: io::Error, code: u8 },
+    /// An interrupt came before selection ended, so no count exists.
+    Interrupted,
 }
 
 impl From<purba_reporting::Refused> for Error {
@@ -37,6 +39,10 @@ impl fmt::Display for Error {
             Self::Write(error) | Self::Refused { error, .. } => {
                 write!(formatter, "cannot write to stdout: {error}")
             }
+            Self::Interrupted => write!(
+                formatter,
+                "an interrupt stopped the run before selection ended"
+            ),
         }
     }
 }
@@ -49,10 +55,15 @@ impl fmt::Display for Error {
 ///
 /// # Errors
 ///
-/// In the order the run meets them: when the arguments are not one path to
-/// one `.py` file, when `out` is an error, when the module cannot be read,
-/// and when `out` refuses a write. Each stops the run. Only a refused write
-/// comes once the tests start, and no test runs after it.
+/// Each stops the run. In the order the run meets them:
+///
+/// - The arguments are not one path to one `.py` file.
+/// - `out` is an error.
+/// - purba cannot read the module.
+/// - An interrupt comes before selection ends.
+/// - `out` refuses a write.
+///
+/// Only a refused write comes once the tests start, and no test runs after it.
 ///
 /// # Panics
 ///
@@ -70,20 +81,15 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         Ok(module) => module,
         Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
         Err(purba_parsing::Error::Syntax(error)) => {
-            report.error(
-                &path.display(),
-                &purba_execution::Error::project(error.to_string()),
-            )?;
-            return Ok(report.finish()?);
+            let error = purba_execution::Error::project(error.to_string());
+            return stopped(report, &path, &error);
         }
     };
     let (modules, refused_tests) = match modules(&path, &parsed) {
         Ok(found) => found,
-        Err(error) => {
-            report.error(&path.display(), &error)?;
-            return Ok(report.finish()?);
-        }
+        Err(error) => return stopped(report, &path, &error),
     };
+    not_interrupted()?;
     drop(parsed);
     for refused in &refused_tests {
         report.line(
@@ -99,6 +105,10 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
             }
             Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
             Handed::Thread(Charged::Test(test), error) => report.error(&test, &error),
+            Handed::Unreached(_) => {
+                report.unreached();
+                Ok(())
+            }
         }
         .map_or_else(ControlFlow::Break, ControlFlow::Continue)
     });
@@ -106,6 +116,27 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         return Err(refused.into());
     }
     Ok(report.finish()?)
+}
+
+/// Prints the line of a module whose error stops the run before any test, then
+/// the count. After an interrupt, it prints neither.
+fn stopped(
+    mut report: purba_reporting::Report<impl Write>,
+    path: &Path,
+    error: &purba_execution::Error,
+) -> Result<u8, Error> {
+    not_interrupted()?;
+    report.error(&path.display(), error)?;
+    Ok(report.finish()?)
+}
+
+/// Gives `Error::Interrupted` when purba's signal handler kept an interrupt.
+fn not_interrupted() -> Result<(), Error> {
+    if purba_execution::interrupted() {
+        Err(Error::Interrupted)
+    } else {
+        Ok(())
+    }
 }
 
 /// The one path that `arguments` names after the script's name.

@@ -15,6 +15,9 @@ purba-parsing = { path = "../parsing" }
 purba-reporting = { path = "../reporting" }
 purba-selection = { path = "../selection" }
 
+[dev-dependencies]
+pyo3.workspace = true
+
 [features]
 fault = ["purba-assertion/fault", "purba-selection/fault"]
 

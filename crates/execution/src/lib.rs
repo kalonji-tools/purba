@@ -1,5 +1,7 @@
-//! Execution: loads a module, runs a test, and makes its outcome.
+//! Execution: loads a module, runs a test, and makes its outcome. It keeps the
+//! first interrupt of the process.
 
+pub mod interrupt;
 pub mod panic;
 mod thread;
 
@@ -252,6 +254,13 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
 }
 
 impl<'py> Worker<'py> {
+    /// Whether purba's signal handler kept an interrupt. A signal that waits
+    /// runs the signal handler before this check.
+    #[must_use]
+    pub fn interrupted(&self) -> bool {
+        interrupt::kept(self.py)
+    }
+
     /// Calls `function` of `module`, and makes its outcome. When the guard
     /// recorded a call to `os._exit` since the worker last took one, the
     /// outcome is `Raised`, and names that call to `os._exit`. An error before
@@ -301,7 +310,9 @@ impl<'py> Worker<'py> {
     fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
         if !self.loaded.contains_key(&module.path) {
             let before = self.hook.get().alive(self.py);
-            let loaded = purba_assertion::load(self.py, &module.path, &module.rewrite);
+            let py = self.py;
+            let loaded =
+                interrupt::calling(|| purba_assertion::load(py, &module.path, &module.rewrite));
             self.own(&before, Owner::Load(module.path.clone()));
             let exit = self.guard.get().take();
             let failed = match (panic::take(), exit, &loaded) {
@@ -386,8 +397,11 @@ impl<'py> Worker<'py> {
             return Err(error(&err));
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
-        let (result, last) =
-            loaded.watch(|| Ok(std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))));
+        let (result, last) = loaded.watch(|| {
+            Ok(interrupt::calling(|| {
+                std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))
+            }))
+        });
         let result = match result {
             Ok(Ok(called)) => called,
             Ok(Err(payload)) => return Err(Error::caught(payload.as_ref(), "execution")),
@@ -409,9 +423,9 @@ impl<'py> Worker<'py> {
     }
 }
 
-/// How many tests of a run passed, failed, raised, are `unknown`, or are
-/// blocked, and how many errors of each kind the run met. Each test counts
-/// once, and each error once, by its kind.
+/// How many tests of a run passed, failed, raised, are `unknown`, blocked or
+/// unreached, and how many errors of each kind it met. Each test counts once,
+/// and each error once, by its kind.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
@@ -419,6 +433,8 @@ pub struct Tally {
     pub raised: usize,
     pub unknown: usize,
     pub blocked: usize,
+    /// Tests that the run never reached, because an interrupt stopped the run.
+    pub unreached: usize,
     pub project_errors: usize,
     pub internal_errors: usize,
     /// Writes that stdout refused. The run stops at the first.
@@ -446,6 +462,11 @@ impl Tally {
         self.blocked += 1;
     }
 
+    /// Counts one test that the run never reached.
+    pub const fn add_unreached(&mut self) {
+        self.unreached += 1;
+    }
+
     /// Counts one write that stdout refused.
     pub const fn add_invocation_error(&mut self) {
         self.invocation_errors += 1;
@@ -460,4 +481,13 @@ impl Tally {
             ErrorKind::Internal { .. } => self.internal_errors += 1,
         }
     }
+}
+
+/// Whether purba's signal handler kept an interrupt, outside any worker.
+///
+/// A signal that waits runs the signal handler before this check. Before Python
+/// starts, no signal handler of purba's exists, so none kept one.
+#[must_use]
+pub fn interrupted() -> bool {
+    Python::try_attach(interrupt::kept).unwrap_or(false)
 }

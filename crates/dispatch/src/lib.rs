@@ -1,6 +1,7 @@
-//! Dispatch: loads each module on one worker in-process, hands it each
-//! selected test, and hands on what the worker returns, the error of a
-//! module that did not load, or the error of a thread.
+//! Dispatch: loads each module on one worker in-process, and hands it each
+//! selected test. It hands on what the worker returns, and the error of a module
+//! that did not load or of a thread. It also hands on each test that an
+//! interrupt left unreached.
 
 use std::ops::ControlFlow;
 use std::path::PathBuf;
@@ -56,6 +57,8 @@ pub enum Handed<T> {
     /// The error of a thread's exception, beside the test or the module that
     /// it charges. It blocks no test.
     Thread(Charged<T>, Error),
+    /// A test that the run never reached, because an interrupt stopped the run.
+    Unreached(T),
 }
 
 /// What the error of a thread charges: a test, or a module by its path.
@@ -75,6 +78,10 @@ pub enum Charged<T> {
 /// the worker took, beside the test or the module that it charges. After a
 /// load, they come before the first test or the first blocked test.
 ///
+/// Before each load and each test, dispatch asks the worker whether purba's
+/// signal handler kept an interrupt. Once it did, `each` takes each test left,
+/// of each module left, as unreached. Nothing further loads or runs.
+///
 /// A panic that crosses the load of a module or the run of a test gives that
 /// module or that test an internal error.
 pub fn hand<T: Test + Clone, B>(
@@ -87,6 +94,12 @@ pub fn hand<T: Test + Clone, B>(
         let mut handed: Vec<(PathBuf, T)> = Vec::new();
         for module in modules {
             if module.tests.is_empty() {
+                continue;
+            }
+            if worker.interrupted() {
+                for test in module.tests {
+                    each(Handed::Unreached(test))?;
+                }
                 continue;
             }
             let path = module.path.clone();
@@ -106,6 +119,10 @@ pub fn hand<T: Test + Clone, B>(
                 each(Handed::Thread(charged(owner, &handed), error))?;
             }
             for test in module.tests {
+                if worker.interrupted() {
+                    each(Handed::Unreached(test))?;
+                    continue;
+                }
                 let (result, threads) =
                     taken(worker, |worker| worker.run(&executable, test.function()));
                 handed.push((path.clone(), test.clone()));
