@@ -29,7 +29,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **A second interrupt raises again, as the first does.** Rejected. Each press ends one cleanup, so the tester presses once for each.
 - **A second interrupt skips the cleanup left, and exits at once.** Chosen. A cleanup that hangs cannot trap the tester.
 - **A test that catches the `KeyboardInterrupt` continues the run, as today.** Rejected. The test swallows the tester's Ctrl-C. The run can then exit 0.
-- **A signal handler that a test installs outlives its test, as today.** Rejected. One test disarms Ctrl-C for each later test.
+- **A signal handler that a test or a module installs outlives its call or its load, as today.** Rejected. One test or one module disarms Ctrl-C for each later test.
 - **An `_Avoid_` line for `cancel` and `abort`.** Rejected. `typos` rewrites each word in every tracked file. GitHub reads `cancel-in-progress` as a key.
 
 ## Decision Outcome
@@ -43,7 +43,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **SIGTERM, SIGHUP and a Ctrl-Break on Windows do what SIGINT does.**
 - **A signal that the parent ignores stays ignored.**
 - **The run stops even when a test catches the `KeyboardInterrupt`.** It stops when the test returns.
-- **A signal handler that a test installs lives only for the call of that test.** purba puts its own back when the call returns.
+- **A signal handler that a test installs lives only for its call, and one that a module installs lives only for its load.** purba puts its own back when the call or the load returns.
 - **A second interrupt skips the cleanup left, and exits at once.** Any two interrupts count, so SIGINT and then SIGTERM make a second.
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
@@ -57,8 +57,9 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 ## Confirmation
 
-`mise run test:wheel` checks that a first interrupt outside a test's call or inside one starts no later test, and that purba dies by SIGINT.
+`mise run test:wheel` checks that a first interrupt starts no later test, and that purba dies by SIGINT.
+It checks that the test the interrupt lands in is `interrupted`, and that an interrupt in a load leaves each test unreached.
+It checks that a signal handler of a test or a module lives only for its call or its load.
 The map [Wayfinder: purba's interrupt handling, stopping the run and tearing down what it built](https://github.com/kalonji-tools/purba/issues/765) builds the rest. It ends with a test that sends each case to an installed `purba`.
 
-- [A first interrupt stops the run, prints its count, and dies by the signal](https://github.com/kalonji-tools/purba/issues/793)
 - [A second interrupt exits at once, SIGTERM and SIGHUP count as SIGINT, and purba dies after finalization](https://github.com/kalonji-tools/purba/issues/794)
