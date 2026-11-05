@@ -36,14 +36,22 @@ Selection and assertion both need the AST of a selected module, and no other par
 
 **Command lends one parse of each module to selection, and then to assertion's rewrite.**
 
-| question | answer |
-|---|---|
-| who reads a test file | parsing, when command asks for the module by its path |
-| who holds the tree, and how long | command, for one module, while selection and then assertion's rewrite read it |
-| what crosses from one part to another | facts only: each selected test, and assertion's rewrite of its module, as plain data |
-| when assertion rewrites | before the run, and only a module where selection selected a test |
-| how assertion rewrites | it splices the source text at node ranges, and never changes the tree |
-| a worker in another process | it gets the rewritten text, so it needs no parser |
+```mermaid
+sequenceDiagram
+  loop each module, before the run
+    command->>parsing: its path
+    parsing-->>command: the tree, from the file it reads
+    Note over command: holds the tree while selection, then assertion, reads it
+    command->>selection: lends the tree
+    selection-->>command: each selected test
+    opt selection selected a test
+      command->>assertion: lends the tree
+      assertion-->>command: the source text, spliced at node ranges, the tree unchanged
+    end
+  end
+  command->>dispatch: each rewritten text and its selected tests, so a worker in another process needs no parser
+  Note over command,dispatch: only facts cross a part, as plain data
+```
 
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds how often a module crosses and loads.
 

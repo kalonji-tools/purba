@@ -23,12 +23,18 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 **A worker loads each module once, and command hands each module once.**
 
-| question | answer |
-|---|---|
-| what command hands dispatch | each module once: assertion's rewrite of it, and its selected tests |
-| what dispatch hands execution | each module once, to load it, then a function's name and its module for each test |
-| how often execution loads a module | once in a worker, when dispatch asks it to load the module before the first test of the module. The worker does not load again a module that failed to load, and dispatch runs none of its tests |
-| where it is drawn | the sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) |
+```mermaid
+sequenceDiagram
+  command->>dispatch: each module once, as assertion's rewrite of it, and its selected tests
+  dispatch->>execution: the module, to load it in a worker before its first test
+  loop each selected test
+    dispatch->>execution: a function's name, and its module
+  end
+```
+
+The sequence of one run in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) draws these hand-offs too.
+A worker does not load a module again after the module fails to load.
+Dispatch runs none of that module's tests.
 
 [Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds why execution takes a function's name.
 

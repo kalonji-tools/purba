@@ -34,14 +34,20 @@ The order of design must also put the effort where a failure is likely and costs
 **A design in depth waits for every part it uses and every concern that crosses it, and risk orders what nothing blocks.**
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each part and concern.
 
+```math
+\begin{aligned}
+\text{score of an item} &= \sum_{\text{its risks in the landscape}} \text{score of a risk} \\
+\text{score of a risk} &= \text{probability} \times \text{impact}
+\end{aligned}
+```
+
 The rule takes the next part or concern in these steps.
 
-1. Take the item with the highest score among the items that nothing blocks. The score of an item is the sum of the scores of its risks in the landscape.
+1. Take the item with the highest score among the items that nothing blocks.
 2. On a tie, add up the scores of the items that wait on each one directly, and take the highest.
 3. On a tie, take the item whose line comes first in the landscape, parts before concerns. This step is arbitrary, and it exists only so that the order is complete.
 
-A [risk](../../CONTEXT.md#risk) scores its probability times its impact.
-A risk's impact comes from the quality it breaks.
+A [risk](../../CONTEXT.md#risk)'s impact comes from the quality it breaks.
 Probability and impact take the same levels.
 
 | level | value | impact, by the quality a risk breaks |
