@@ -68,8 +68,8 @@ Reading sentence position drops the line classifier and refuses neither.
 The command refuses bold inside a sentence, which is the half it can decide.
 The purpose of bold stays where the diagram rule sits, and the Downside names what that costs.
 
-A diagram may not raise the record's word count.
-That rule is decidable and a reviewer decides it, because the length of a record without its diagram is not a number the tree holds.
+A diagram enters where it reads clearer than the words it replaces.
+A reviewer decides whether a diagram reads clearer.
 [A figure in a record is a fence GitHub renders](a-figure-in-a-record-is-a-fence-github-renders.md) says which form a diagram takes.
 
 **Evidence density is reported and refuses nothing.**
