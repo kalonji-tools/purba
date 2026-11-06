@@ -142,6 +142,40 @@ path as a gitattributes pattern in a code span, and a location with no path as i
 word, linked to its CONTEXT.md entry." \
   "${found[@]}"
 
+# A record names its areas in the paragraph after its reach. The landscape sits
+# two folders above the records, as each record's own link to it says, and it
+# holds every area but four.
+#
+#   the decision:
+# docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+landscape=${dir}/../../LANDSCAPE.md
+names=''
+[[ ! -r "${landscape}" ]] || names=$(area_names "${landscape}")
+[[ -n "${names}" ]] ||
+  cannot "${landscape} names no part or concern, so no area can be checked."
+declare -A area=()
+while IFS= read -r name; do
+  area[${name}]=1
+done <<<"${names}"
+
+found=()
+for f in "${records[@]}"; do
+  area_read "${f}" at areas
+  [[ -n "${at}" ]] || continue
+  if [[ -z "${areas}" ]]; then
+    found+=("${f}:${at}")
+    continue
+  fi
+  while IFS= read -r name; do
+    [[ -n "${area[${name}]:-}" ]] || found+=("${f}:${at}: ${name}")
+  done <<<"${areas}"
+done
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A record names each area it decides something in, in an \`**Area:**\` paragraph after its \
+reach. docs/README.md is written from these lines, so a record with no line is missing from it. An \
+area is design, workflow, writing, tooling, or the name of a part or a concern in LANDSCAPE.md." \
+  "${found[@]}"
+
 for ((i = 0; i < ${#rules[@]}; i += 3)); do
   mapfile -t found < <(grep "^${rules[i]}"$'\t' <<<"${prose}" | cut -f2- || true)
   [[ ${#found[@]} -gt 0 ]] || continue

@@ -12,6 +12,9 @@ setup() {
   unwired="a Confirmation that admits an unwired gate and names no issue"
   unmatched="a pattern in a reach that matches no tracked file"
   reach="**Reach:** \`docs/decisions/*.md\`"
+  area="**Area:** tooling"
+  refused_area="A record names each area it decides something in, in an \`**Area:**\` paragraph"
+  landscape >LANDSCAPE.md
   compliant >"${record}"
   git add "${record}"
 }
@@ -33,6 +36,8 @@ Something needs a decision.
 
 **Reach:** `docs/decisions/*.md`
 
+**Area:** tooling
+
 **This is decided.**
 
 **Downside:**
@@ -43,6 +48,26 @@ Something needs a decision.
 
 `mise run lint:records` reads this.
 RECORD
+}
+
+# The landscape the area rule reads, two folders above the records. It names one
+# part, one invariant and one concern.
+landscape() {
+  cat <<'LANDSCAPE'
+# purba's landscape
+
+## The parts and their dependencies
+
+- **alpha.** Starts the run.
+
+## The invariants
+
+- **one parser.** No part but alpha parses the source.
+
+## The cross-cutting concerns
+
+- **the beta seam.** Carries a live object, in every part.
+LANDSCAPE
 }
 
 # Replace one piece of a record, and fail when nothing was replaced. A test of
@@ -78,14 +103,14 @@ words() {
 }
 
 @test "the directory is an argument" {
-  mkdir elsewhere
+  mkdir -p elsewhere/decisions
   swap "## Considered Options" "## Options"
-  mv "${record}" elsewhere/a-record-holds.md
+  mv "${record}" elsewhere/decisions/a-record-holds.md
 
-  run "${script}" elsewhere
+  run "${script}" elsewhere/decisions
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *$'the confirmation.\n  elsewhere/a-record-holds.md'* ]]
+  [[ "${output}" == *$'the confirmation.\n  elsewhere/decisions/a-record-holds.md'* ]]
 }
 
 @test "a record missing a section is refused and named" {
@@ -264,7 +289,7 @@ words() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"A Downside label stands on its own line"* ]]
   [[ "${output}" != *"A Downside label never counts its costs"* ]]
-  [[ "${output}" == *"${record}:17"* ]]
+  [[ "${output}" == *"${record}:19"* ]]
 }
 
 @test "a Downside label that counts its costs is refused for both" {
@@ -295,7 +320,7 @@ words() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"Bold marks every Downside lead-in"* ]]
-  [[ "${output}" == *"${record}:17: 0 lead-ins over 1 costs"* ]]
+  [[ "${output}" == *"${record}:19: 0 lead-ins over 1 costs"* ]]
 }
 
 @test "a numbered citation is refused in a record and passes outside one" {
@@ -362,7 +387,7 @@ words() {
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"the borrowed rules a command reports and never refuses"* ]]
-  [[ "${output}" == *"in the passive voice             3 of     9 sentences  33%"* ]]
+  [[ "${output}" == *"in the passive voice             3 of    10 sentences  30%"* ]]
   [[ "${output}" == *"the formal words found"*"utilize"* ]]
 }
 
@@ -370,8 +395,8 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *" 75.0%    3 of   4  ${record}"* ]]
-  [[ "${output}" == *"all records  75.0%  3 of 4"* ]]
+  [[ "${output}" == *" 80.0%    4 of   5  ${record}"* ]]
+  [[ "${output}" == *"all records  80.0%  4 of 5"* ]]
 }
 
 @test "a record with no prose line is refused, and the report does not abort" {
@@ -406,6 +431,7 @@ FAKE
   swap "${reach}" "${reach} \`nowhere/**\`"
   mkdir -p "${BATS_TEST_TMPDIR}/bare/docs/decisions"
   cp "${record}" "${BATS_TEST_TMPDIR}/bare/docs/decisions/"
+  cp LANDSCAPE.md "${BATS_TEST_TMPDIR}/bare/"
   cd "${BATS_TEST_TMPDIR}/bare"
 
   run "${script}"
@@ -423,7 +449,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *" 75.0%    3 of   4  ${record}"*" 25.0%    1 of   4  ${second}"* ]]
+  [[ "${output}" == *" 80.0%    4 of   5  ${record}"*" 40.0%    2 of   5  ${second}"* ]]
 }
 
 @test "a fifth section after the Confirmation is refused" {
@@ -448,8 +474,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"articles                         2 in    20 words"* ]]
-  [[ "${output}" == *"formal words                     0 in    20 words"* ]]
+  [[ "${output}" == *"articles                         2 in    22 words"* ]]
+  [[ "${output}" == *"formal words                     0 in    22 words"* ]]
 }
 
 @test "a Decision Outcome that does not open with a reach is refused" {
@@ -463,7 +489,8 @@ FAKE
 }
 
 @test "a reach below the first line of the Decision Outcome is refused" {
-  swap "${reach}"$'\n\n**This is decided.**' $'**This is decided.**\n\n'"${reach}"
+  swap "${reach}"$'\n\n'"${area}"$'\n\n**This is decided.**' \
+    $'**This is decided.**\n\n'"${reach}"$'\n\n'"${area}"
 
   run "${script}"
 
@@ -513,7 +540,7 @@ FAKE
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"runs to 25 words"* ]]
-  [[ "${output}" == *"articles                         2 in    20 words"* ]]
+  [[ "${output}" == *"articles                         2 in    22 words"* ]]
 }
 
 @test "a paragraph that opens with Reach outside the Decision Outcome is prose" {
@@ -542,6 +569,82 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+}
+
+@test "an area that the landscape names passes" {
+  swap "${area}" "**Area:** the beta seam"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "the four areas outside the landscape pass, a comma between two" {
+  swap "${area}" "**Area:** design, workflow, writing, tooling, alpha"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a record with no area line is refused where the line belongs" {
+  swap "${area}"$'\n\n' ""
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${refused_area} after its reach."* ]]
+  [[ "${output}" == *"An area is design, workflow, writing, tooling, or the name of a part"* ]]
+  [[ "${output}" == *"${record}:15"* ]]
+}
+
+@test "an area line below the decision is refused" {
+  swap "${area}"$'\n\n**This is decided.**' $'**This is decided.**\n\n'"${area}"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${refused_area}"* ]]
+  [[ "${output}" == *"${record}:15"* ]]
+}
+
+@test "an area line with no area is refused" {
+  swap "${area}" "**Area:**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${refused_area}"* ]]
+  [[ "${output}" == *"${record}:15"* ]]
+}
+
+@test "an area outside the list is refused and named" {
+  swap "${area}" "**Area:** bugs, tooling"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${refused_area}"* ]]
+  [[ "${output}" == *"${record}:15: bugs"* ]]
+  [[ "${output}" != *": tooling"* ]]
+}
+
+@test "an invariant of the landscape is no area" {
+  swap "${area}" "**Area:** one parser"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:15: one parser"* ]]
+}
+
+@test "a landscape that names no part cannot be decided" {
+  printf '# purba\x27s landscape\n' >LANDSCAPE.md
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"LANDSCAPE.md names no part"* ]]
 }
 
 @test "math outside a math fence is refused" {
