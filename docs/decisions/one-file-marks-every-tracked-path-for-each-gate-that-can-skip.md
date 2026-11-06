@@ -26,6 +26,8 @@ Where do the marks live?
 
 **Reach:** `/.config/gates` `.github/scripts/changed.sh` `scripts/test/changed.bats` `scripts/check-gates.sh` `scripts/test/check-gates.bats` `/.config/tasks.toml` `.github/workflows/quality.yml` `/.github/CODEOWNERS`
 
+**Topic:** Repository tooling
+
 **`.config/gates` marks each tracked path for each gate it names, and `mise run lint:gates` refuses a path left unmarked.**
 
 **Each gate takes one attribute in the file.**

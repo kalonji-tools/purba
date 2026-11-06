@@ -31,6 +31,8 @@ No record says what each part puts back, in what order, or how long purba's sign
 
 **Reach:** `crates/**` `tests/**`
 
+**Topic:** One section of the product design; 
+
 **An interrupt puts back no more than a normal end does.**
 
 - **Each part leaves the process as a normal end leaves it.** `sys.modules` keeps each module that assertion loaded, and execution keeps its guard and its hooks.

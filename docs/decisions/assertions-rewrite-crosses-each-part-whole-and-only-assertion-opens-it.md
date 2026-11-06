@@ -22,6 +22,8 @@ Dispatch and execution carried each half as a field.
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **Assertion's rewrite crosses each part whole, and only assertion opens it.**
 
 | question | answer |

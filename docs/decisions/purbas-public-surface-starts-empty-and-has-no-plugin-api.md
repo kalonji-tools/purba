@@ -32,6 +32,8 @@ A runner that refuses plugins must say how an integration reaches a test.
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `/pyproject.toml` `crates/**`
 
+**Topic:** Product design, whole
+
 **purba's [public surface](../../CONTEXT.md#public-surface) starts empty, and nothing joins it except through the issue that needs it.**
 
 - **A name that a test uses joins with a [milestone](../../CONTEXT.md#milestone).** A flag or an exit code joins with a change that purba needs to work as a command.

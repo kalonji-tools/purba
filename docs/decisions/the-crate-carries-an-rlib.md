@@ -30,6 +30,8 @@ Its Rust workflow states in a comment that it excludes doc tests on purpose.
 
 **Reach:** `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/tasks.toml` `.github/workflows/build.yml` `*.rs` `.github/workflows/quality.yml`
 
+**Topic:** Repository tooling
+
 The crate declares `crate-type = ["cdylib", "rlib"]`, and `extension-module` is a named feature rather than a default one.
 
 That feature omits libpython.

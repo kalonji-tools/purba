@@ -34,6 +34,8 @@ Selection and assertion both need the AST of a selected module, and no other par
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **Command lends one parse of each module to selection, and then to assertion's rewrite.**
 
 ```mermaid

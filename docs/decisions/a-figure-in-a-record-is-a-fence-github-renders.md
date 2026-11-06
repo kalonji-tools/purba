@@ -27,6 +27,8 @@ So an icon draws nothing and raises no error, unless it is a built-in icon of an
 
 **Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**` `scripts/test/check-records.bats`
 
+**Topic:** How a record is written
+
 **A figure in a record is a fence GitHub renders.**
 
 | kind | fence | rule |

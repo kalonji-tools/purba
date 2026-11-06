@@ -22,6 +22,8 @@ Two forms were in use.
 
 **Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml`
 
+**Topic:** Repository tooling; How a record is written
+
 A refusal states the rule, why it holds, and where it was found.
 
 | part | required |

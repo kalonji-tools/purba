@@ -24,6 +24,8 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 
 **Reach:** `crates/**` `/.config/tasks.toml` `tests/**` `.github/workflows/build.yml` `.github/workflows/publish.yml` `/pyproject.toml`
 
+**Topic:** One section of the product design: errors; Repository tooling
+
 **A test causes an internal error through a switch that only a test build carries.**
 
 - **The cargo feature `fault` makes a part panic, or raise an error purba never expects, at the point that `PURBA_FAULT` names.** The wheel that a tester installs leaves the feature out, so the public surface does not change.

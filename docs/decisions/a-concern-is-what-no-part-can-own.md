@@ -29,6 +29,8 @@ The landscape needs a test that keeps out what a part can own.
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
 
+**Topic:** Product design, whole
+
 **A [concern](../../CONTEXT.md#concern) is what no part can own.**
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names each concern and the parts it crosses.
 

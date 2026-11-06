@@ -34,6 +34,8 @@ Only the lines the gate reads count.
 
 **Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**` `scripts/test/check-records.bats` `.github/workflows/cargo-scripts.yml`
 
+**Topic:** How a record is written; Repository tooling
+
 **A part-of-speech tagger decides the tense rule.**
 The check walks back from a participle to `has`, `have`, `had` or `having`.
 It stops at a determiner, a number, a noun, `to`, a form of `be` or a code span.

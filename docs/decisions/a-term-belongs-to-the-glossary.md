@@ -44,6 +44,8 @@ The vocabulary had neither.
 
 **Reach:** `/CONTEXT.md` `docs/decisions/*.md` `/AGENTS.md`
 
+**Topic:** How a record is written
+
 A term is defined once, in `CONTEXT.md`, and a record names it and does not hold it.
 
 **The split.**

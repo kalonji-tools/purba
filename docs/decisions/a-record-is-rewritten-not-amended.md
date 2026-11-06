@@ -36,6 +36,8 @@ The prototype's context document pointed at records and did not restate them, an
 
 **Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/check-prose.rs` `scripts/list-records.sh` `scripts/records.sh` `scripts/test/list-records.bats` `scripts/test/records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh` `docs/agents/post-pass.md`
 
+**Topic:** How a record is written
+
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
 This is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).

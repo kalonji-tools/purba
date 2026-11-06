@@ -35,6 +35,8 @@ No record says what an interrupted run prints, or which code it exits.
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md`
 
+**Topic:** One section of the product design; 
+
 **An interrupted run prints its count, and dies by the signal.**
 
 - **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does.

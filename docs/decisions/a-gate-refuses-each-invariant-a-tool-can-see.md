@@ -34,6 +34,8 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 **Reach:** `/LANDSCAPE.md` `/Cargo.toml` `/.cargo/config.toml` `/.config/tasks.toml` `clippy.toml` `crates/**` `scripts/check-wiring.sh` `*.py`
 
+**Topic:** Repository tooling; Product design, whole
+
 **A gate refuses each invariant that a tool can see, from the first code the gate reads.**
 
 - **Each refusal of a gate is a breach, and a gate may miss a breach.** The table names each miss that a probe or a source shows, and the reviewer checks for others too.

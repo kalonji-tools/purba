@@ -30,6 +30,8 @@ The rows of the first prototype that do not name a type checker come from a sket
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **A [test](../../CONTEXT.md#test) names two values of one type by two fixtures.**
 
 ```python

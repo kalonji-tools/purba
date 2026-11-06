@@ -32,6 +32,8 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
 
+**Topic:** One section of the product design; 
+
 **purba is always strict: no mode, flag or opt-out turns strictness off.**
 
 - **A [strict check](../../CONTEXT.md#strict-check) blocks only when its predicate guarantees each violation or clean that it gives.** A check that blocks answers `unknown` where its predicate cannot guarantee the verdict.

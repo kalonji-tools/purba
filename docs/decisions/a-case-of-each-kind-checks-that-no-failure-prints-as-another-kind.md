@@ -29,6 +29,8 @@ It can also change into another kind in the line that reporting writes, or in th
 
 **Reach:** `tests/**` `.github/workflows/build.yml`
 
+**Topic:** One section of the product design; 
+
 **A case of each kind checks that no failure prints as another kind.**
 
 - **No case of a kind prints a line, uses a stream or sets an exit code that the records do not give its kind.** A project error and a test that raised still share one exit code.

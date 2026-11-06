@@ -24,6 +24,8 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **An error says its kind, and reporting takes four ways in.**
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.

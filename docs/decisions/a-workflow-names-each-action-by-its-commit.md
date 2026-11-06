@@ -30,6 +30,8 @@ These jobs run an action while they hold a credential:
 
 **Reach:** `.github/workflows/*.yml` `/.config/tasks.toml` `/prek.toml` `/.pinact.yaml` `/.pinact.yml` `.github/pinact.yaml` `.github/pinact.yml`
 
+**Topic:** Repository tooling
+
 **Each `uses:` names an action by its full commit, and a comment names the version tag on that commit.**
 
 ```yaml

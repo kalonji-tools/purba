@@ -31,6 +31,8 @@ It is which identity opens it.
 
 **Reach:** `.github/workflows/*.yml` `.github/scripts/report-run-failure.sh`
 
+**Topic:** Repository tooling
+
 An act `GITHUB_TOKEN` may not perform earns an identity scoped to that act.
 Actions' own token is never widened to reach it.
 

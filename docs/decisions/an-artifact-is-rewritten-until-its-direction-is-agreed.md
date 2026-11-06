@@ -57,6 +57,8 @@ A second question decides when a rewrite stops being allowed.
 
 **Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [debrief](../../CONTEXT.md#debrief) `/AGENTS.md`
 
+**Topic:** Pull-request workflow
+
 An artifact is rewritten in place until its direction is agreed, and is frozen after.
 
 **Agreement is declared, and the issue type is the declaration.**

@@ -24,6 +24,8 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **Reporting writes each line as dispatch hands it the test.**
 
 - **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** The function returns `ControlFlow`, and no test runs after a `Break`.

@@ -21,6 +21,8 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **A worker loads each module once, and command hands each module once.**
 
 ```mermaid

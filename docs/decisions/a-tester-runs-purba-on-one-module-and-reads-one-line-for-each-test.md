@@ -31,6 +31,8 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 
 **Reach:** `/pyproject.toml` `crates/**`
 
+**Topic:** One section of the product design; 
+
 **A [tester](../../CONTEXT.md#tester) runs `purba <path>` on one module, and reads one line for each test and a count.**
 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.

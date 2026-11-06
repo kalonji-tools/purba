@@ -31,6 +31,8 @@ Each predates any product code outside `src/`.
 
 **Reach:** `/Cargo.toml` `/.cargo/config.toml` `crates/**` `/pyproject.toml` `/.config/gates` `/.config/readers` `/.config/tasks.toml` `scripts/check-links.sh` `.github/scripts/release.sh`
 
+**Topic:** Repository tooling; Product design, whole
+
 **Every crate lives under `crates/`, beside a root manifest that holds only the workspace.**
 
 | file | what it holds |

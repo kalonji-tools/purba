@@ -47,6 +47,8 @@ Each of the three cites the closed issue that produced the record, so the pointe
 
 **Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `scripts/check-links.sh` `scripts/test/check-links.bats` `/pyproject.toml` `/README.md` `/.gitattributes` `/.config/tasks.toml` `.github/workflows/quality.yml` `/AGENTS.md` `/.config/mise.toml`
 
+**Topic:** How a record is written
+
 An unpublished comment is written only when the information belongs in no other location.
 
 **The order in which a location takes information.**

@@ -21,6 +21,8 @@ So the question is whether any act by a person can be made impossible for their 
 
 **Reach:** `scripts/sign-branch.sh` `/.config/tasks.toml` `/CONTRIBUTING.md`
 
+**Topic:** Pull-request workflow
+
 **purba records delegation and does not prevent it.**
 An agent acts for a person here, and that person remains answerable for what it does.
 This record says so, and implies no separation that no check makes.

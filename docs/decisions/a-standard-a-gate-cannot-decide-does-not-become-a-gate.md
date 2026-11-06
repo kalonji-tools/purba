@@ -23,6 +23,8 @@ The thread said: "The Decision Outcome is written by a person, or the change doe
 
 **Reach:** `.github/workflows/*.yml` `.github/scripts/**` `scripts/**` `/.config/tasks.toml` `/prek.toml`
 
+**Topic:** Repository tooling; Pull-request workflow
+
 **A standard a gate cannot decide does not become a gate.**
 The record states it, the reader judges it, and nothing blocks on it.
 A gate over a judgement measures only that someone clicked.

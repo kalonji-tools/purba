@@ -27,6 +27,8 @@ A run that stops too little runs tests on a wrong input.
 
 **Reach:** `crates/**`
 
+**Topic:** One section of the product design; 
+
 **An error stops only the work that depends on it.**
 
 | kind | it stops | for example |

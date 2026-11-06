@@ -29,6 +29,8 @@ So reporting cannot tell an [internal error](../../CONTEXT.md#internal-error) fr
 
 **Reach:** `crates/**`
 
+**Topic:** One section of the product design; 
+
 **A panic inside a test gives that test an internal error.**
 
 The figure shows where each panic stops.

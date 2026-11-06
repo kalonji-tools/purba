@@ -25,6 +25,8 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 **Reach:** `crates/**`
 
+**Topic:** One section of the product design; 
+
 **The walking skeleton crosses the seam in execution and assertion.**
 
 | part | what crosses into Rust | what stays in Python |

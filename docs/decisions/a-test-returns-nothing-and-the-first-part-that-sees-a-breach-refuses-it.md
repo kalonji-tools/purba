@@ -26,6 +26,8 @@ Selection takes each `def test…`, and execution calls it.
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md` `/LANDSCAPE.md`
 
+**Topic:** One section of the product design; 
+
 **A [test](../../CONTEXT.md#test) returns nothing, and the first part that sees a breach of a test refuses it.**
 
 | a test | a breach | the part that sees it |

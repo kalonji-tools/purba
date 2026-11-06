@@ -26,6 +26,8 @@ The prototype shows what an unanswered location question costs.
 
 **Reach:** `**`
 
+**Topic:** How a record is written
+
 A location inherits its readers.
 
 **The words this record uses are defined once.**

@@ -16,6 +16,8 @@ So the base branch and the head can hold different marks, and the gate reads one
 
 **Reach:** `/.config/gates` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/changed.sh` `scripts/attributes.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
 
+**Topic:** Repository tooling
+
 **`changed.sh` reads `.config/gates` on the base branch of the pull request.**
 A pull request cannot mark the paths it changes to skip its own gate.
 A pull request to another branch reads the marks of that branch.

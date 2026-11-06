@@ -24,6 +24,8 @@ A part needs its language before anyone writes it.
 
 **Reach:** `crates/**` `/pyproject.toml` `/Cargo.toml`
 
+**Topic:** Product design, whole
+
 **Every part of the walking skeleton is Rust, inside the one extension module.**
 
 | part | what forced Rust |

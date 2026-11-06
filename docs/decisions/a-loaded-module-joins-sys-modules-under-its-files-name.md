@@ -27,6 +27,8 @@ It runs the text through `compile()` and `exec()`.
 
 **Reach:** `crates/**`
 
+**Topic:** One section of the product design; 
+
 **A loaded module joins `sys.modules` under its file's name, without `.py`, before its body runs.**
 
 That name is also the module's `__name__`, so `dir/test_a.py` loads as `test_a`.

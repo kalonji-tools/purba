@@ -54,6 +54,8 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 **Reach:** `crates/**`
 
+**Topic:** One section of the product design; 
+
 **A run exits 0 only when at least one test ran and every test passed.**
 
 | code | the run |

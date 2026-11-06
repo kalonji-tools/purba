@@ -32,6 +32,8 @@ Each of these changes the order.
 
 **Reach:** `/LANDSCAPE.md` `docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md` `scripts/order-of-design.sh` `scripts/test/order-of-design.bats` `/.config/tasks.toml`
 
+**Topic:** Product design, whole; Repository tooling
+
 **A script calculates the order of design, and only a changed input moves it.**
 
 - **A pull request rewrites each line of the landscape that it makes untrue.** A design in depth is one such pull request.

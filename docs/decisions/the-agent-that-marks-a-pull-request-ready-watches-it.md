@@ -16,6 +16,8 @@ On the pull request that wrote `AGENTS.md`, each review round ended with a perso
 
 **Reach:** [pull request](../../CONTEXT.md#pull-request) `/AGENTS.md`
 
+**Topic:** Pull-request workflow
+
 **The agent that marks a pull request ready watches it, and acts on each review before anyone asks.**
 The rule names the act and no mechanism, because each tool that `AGENTS.md` reaches watches its own way.
 

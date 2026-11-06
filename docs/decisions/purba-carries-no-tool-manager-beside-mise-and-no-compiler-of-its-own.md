@@ -53,6 +53,8 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 
 **Reach:** `/.config/mise.toml` `/.config/mise.lock` `Cargo.lock` `/.gitattributes` `/README.md` `devenv.*` `flake.nix` `.tool-versions` `.github/workflows/*.yml`
 
+**Topic:** Repository tooling
+
 **purba carries no tool manager beside mise, and no compiler of its own.**
 mise names the version of every package `.config/mise.toml` declares, in one committed lockfile.
 [One manifest declares each package](one-manifest-declares-each-package.md) says which packages `.config/mise.toml` declares.

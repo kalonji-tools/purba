@@ -24,6 +24,8 @@ When purba took this decision, the places that stated the rule disagreed.
 
 **Reach:** `.github/CODEOWNERS` `docs/decisions/*.md` `/AGENTS.md`
 
+**Topic:** How a record is written; Pull-request workflow
+
 **The person owns the Decision Outcome.**
 Work an agent wrote is welcome, and nothing about it changes what the reviewer reads for.
 

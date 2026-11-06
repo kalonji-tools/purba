@@ -28,6 +28,8 @@ oxitest divided by language, into Rust modules and one Python package with a bri
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `crates/**`
 
+**Topic:** Product design, whole
+
 **purba divides into parts by responsibility, and not by language.**
 Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 [The landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) names each part and draws which part depends on which.

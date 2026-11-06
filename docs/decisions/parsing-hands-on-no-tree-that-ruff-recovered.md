@@ -23,6 +23,8 @@ Parsing kept only whether ruff found an error, and handed the recovered tree to 
 
 **Reach:** `crates/parsing/**` `crates/command/**` `crates/assertion/**` `tests/**` `/Cargo.toml`
 
+**Topic:** One section of the product design; 
+
 **Parsing hands on no tree that ruff recovered.**
 
 - **A module with a syntax error gives a [project error](../../CONTEXT.md#project-error) in place of a module.** Command prints the module's line, and hands nothing to selection, assertion or dispatch.

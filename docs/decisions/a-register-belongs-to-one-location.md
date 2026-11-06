@@ -54,6 +54,8 @@ The pull request has no shape to preserve.
 
 **Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/LANDSCAPE.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
 
+**Topic:** How a record is written
+
 A register belongs to one location, and this record names it and does not hold it.
 
 **Two layers.**
