@@ -38,6 +38,8 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md`
 
+**Area:** interrupt handling
+
 **An [interrupt](../../CONTEXT.md#interrupt) stops the run, and a second one exits at once.**
 
 - **The first interrupt stops the run wherever it lands.** No test starts after it, and no module loads. It is no [kind of failure](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome).

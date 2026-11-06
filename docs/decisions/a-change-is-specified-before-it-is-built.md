@@ -16,6 +16,8 @@ Later decisions removed some of its gates and changed another, and the comment s
 
 **Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [implementation plan](../../CONTEXT.md#implementation-plan) [post pass](../../CONTEXT.md#post-pass) [debrief](../../CONTEXT.md#debrief) `/AGENTS.md` `/CONTRIBUTING.md` `/.config/tasks.toml` `.github/PULL_REQUEST_TEMPLATE.md` `docs/agents/post-pass.md`
 
+**Area:** workflow
+
 A change is specified before it is built, and it moves through four phases that each leave one artifact for one reader.
 
 ```mermaid

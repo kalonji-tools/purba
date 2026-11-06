@@ -39,5 +39,6 @@ docs/agents/**                    handler
 scripts/**                        toolsmith
 docs/**                           technical-writer
 docs/decisions/**                 architect
+docs/README.md                    architect
 crates/**                         coder library-author tester
 tests/**                          coder reviewer

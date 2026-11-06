@@ -28,6 +28,8 @@ A way past one verdict must therefore show in the report.
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
 
+**Area:** strictness
+
 **A suppression is an outcome that the report shows, and not a switch.**
 
 - **A [suppression](../../CONTEXT.md#suppression) names one strict check and gives a reason.** purba refuses a suppression with no name or no reason.

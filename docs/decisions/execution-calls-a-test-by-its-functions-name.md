@@ -25,6 +25,8 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Area:** execution
+
 **Execution calls a test by its function's name, and reporting prints the identity it is given.**
 
 | question | answer |

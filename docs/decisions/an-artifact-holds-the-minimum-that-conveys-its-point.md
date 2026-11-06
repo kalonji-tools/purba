@@ -29,6 +29,8 @@ So the defect is what an artifact admits, not how its sentences read.
 
 **Reach:** [commit message](../../CONTEXT.md#commit-message) [issue](../../CONTEXT.md#issue) [pull request](../../CONTEXT.md#pull-request) `**`
 
+**Area:** writing
+
 An artifact holds the minimum that conveys its point.
 
 **The test is a judgement.**

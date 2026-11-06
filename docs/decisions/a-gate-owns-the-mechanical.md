@@ -25,6 +25,8 @@ Three, weighed against the published configuration of eighteen projects and agai
 
 **Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `/Cargo.toml` `/.cargo/config.toml` `crates/*/Cargo.toml` `/pyproject.toml` `/.cargo/deny.toml` `/prek.toml` `/.config/tasks.toml` `/.editorconfig` `/.shellcheckrc` `/.gitattributes` `.github/workflows/*.yml` `rustfmt.toml` `.rustfmt.toml` `clippy.toml` `.clippy.toml` `typos.toml` `_typos.toml` `.typos.toml` `/.config/mise.toml` `*.rs` `*.sh` `*.bats`
 
+**Area:** tooling
+
 **A gate owns every standard a reviewer would otherwise state by hand.**
 The rule takes two clauses, because a formatter has no severity to set.
 

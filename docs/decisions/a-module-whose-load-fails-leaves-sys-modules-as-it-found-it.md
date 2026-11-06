@@ -31,6 +31,8 @@ purba printed the same lines and the same exit code under each choice.
 
 **Reach:** `crates/assertion/**`
 
+**Area:** assertion
+
 **A module whose load fails leaves `sys.modules` as it found it.**
 
 - **Load puts back the module that the name held before.** A name that held nothing leaves `sys.modules`.

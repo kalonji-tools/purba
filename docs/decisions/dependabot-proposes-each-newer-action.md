@@ -30,6 +30,8 @@ Security updates never raise one.
 
 **Reach:** `.github/dependabot.yml` `.github/workflows/*.yml` `/AGENTS.md`
 
+**Area:** tooling
+
 **Dependabot proposes each newer action the workflows use.**
 It reads `.github/dependabot.yml` once a week.
 Version updates move every action in one pull request.

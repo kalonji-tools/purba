@@ -45,6 +45,8 @@ Neither cargo-deny nor clippy reads `.config/`.
 
 **Reach:** `/*` `/.config/**` `/.cargo/**` `typos.toml` `_typos.toml` `.typos.toml` `lychee.toml` `scripts/check-gates.sh`
 
+**Area:** tooling
+
 **A tool's configuration lives in the first location its tool reads: `.config/`, then `pyproject.toml`, then the root.**
 
 "Reads" means the pinned tool finds the file run bare, with no flag and no environment variable. Clippy, below, is the one exception.

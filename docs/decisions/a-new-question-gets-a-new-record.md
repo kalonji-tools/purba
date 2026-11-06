@@ -4,10 +4,10 @@
 
 The [architect](../../CONTEXT.md#architect) chooses purba's direction, so it needs every decision at once.
 Every other reader arrives at one record through a link.
-No file sends a reader through the whole set.
+[The index of records](../README.md) lists every title, and no file sends a reader through the text of the whole set.
 
-[A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) makes `ls`, `grep` and `mise run list:records` the whole interface, and each title is a proposition.
-So `ls` shows a decision only while a title states it.
+[A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) makes `ls`, `grep`, `mise run list:records` and that index the whole interface, and each title is a proposition.
+So `ls` and the index show a decision only while a title states it.
 
 The records on `main` at `6b79589`, read at 238 words a minute:
 
@@ -38,6 +38,8 @@ The title did not state that second decision, so `ls` did not show it.
 ## Decision Outcome
 
 **Reach:** `docs/decisions/*.md` `/AGENTS.md`
+
+**Area:** writing
 
 **A new question gets a new record.**
 When an issue asks a question that no title on `main` answers, its answer goes in a new record.

@@ -36,6 +36,8 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 
 **Reach:** `crates/**` `tests/**`
 
+**Area:** errors
+
 **A line names its kind in the glossary's words.**
 
 - **The line of an error names its kind:** [project error](../../CONTEXT.md#project-error), [internal error](../../CONTEXT.md#internal-error) or [invocation error](../../CONTEXT.md#invocation-error). A test's line names its [outcome](../../CONTEXT.md#outcome) or `blocked`, as before.

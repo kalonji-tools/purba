@@ -30,6 +30,8 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 
 **Reach:** `crates/**` `/CONTEXT.md` `/LANDSCAPE.md`
 
+**Area:** errors
+
 **A failure's kind is what the part that first sees it observes.**
 
 | kind | what a part sees | the tester fixes it in |

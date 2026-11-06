@@ -18,6 +18,8 @@
 
 **Reach:** `crates/**` `tests/**` `/LANDSCAPE.md`
 
+**Area:** reporting
+
 **A test that selection refuses prints before any test runs.**
 The refused lines keep source order, and the lines of the selected tests follow them.
 

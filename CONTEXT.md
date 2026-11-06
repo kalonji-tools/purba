@@ -18,6 +18,10 @@ A role that reads purba. It names nobody, and one entity occupies several.
 
 The [actor](#actor) that chooses purba's direction and is answerable for what that direction costs.
 
+### Area
+
+The kind of work a [record](#record) decides something in: product design, one [part](#part) or [concern](#concern), the pull-request workflow, writing, or repository tooling. A record names each area it decides something in.
+
 ### Artifact
 
 Anything purba writes for a [reader](#reader), and never a file that a workflow uploads from a job. It is rewritten in place until its direction is agreed, and frozen after.

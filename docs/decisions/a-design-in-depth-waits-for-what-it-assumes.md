@@ -31,6 +31,8 @@ The order of design must also put the effort where a failure is likely and costs
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md` `scripts/order-of-design.sh`
 
+**Area:** design
+
 **A design in depth waits for every part it uses and every concern that crosses it, and risk orders what nothing blocks.**
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each part and concern.
 

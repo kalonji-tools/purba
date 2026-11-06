@@ -22,6 +22,8 @@ Two forms were in use.
 
 **Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml`
 
+**Area:** tooling, writing
+
 A refusal states the rule, why it holds, and where it was found.
 
 | part | required |

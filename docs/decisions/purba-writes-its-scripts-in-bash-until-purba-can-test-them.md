@@ -42,6 +42,8 @@ So was the runner.
 
 **Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/*.yml` `/.config/mise.toml` `/.config/tasks.toml` `/.config/gates` `/prek.toml`
 
+**Area:** tooling
+
 **purba writes its scripts in bash.**
 A change of language is earned by something the new language brings that bash cannot.
 
