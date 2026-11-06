@@ -39,7 +39,23 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
 - **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
-- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.** Each other test's line prints as dispatch hands the test on. Each group of lines keeps source order. A module that does not load prints its line, then the line of each of its tests. A load that the first interrupt lands in prints no line, unless it meets an internal error. A module that does not parse prints its line and the count, and no line for a test. After an interrupt before selection ends, no line and no count print, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says. The line of a thread's exception prints when purba takes it. It follows the line of the test that ran then, and the error of a load prints before the first test of its module. An [unreached test](../../CONTEXT.md#unreached-test) prints no line, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
+- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.**
+
+  ```mermaid
+  flowchart TD
+    parse{"does the module parse, and does selection meet no internal error?"}
+    parse -- no --> stopped{"an interrupt before selection ends?"}
+    parse -- yes --> selected{"an interrupt before selection ends?"}
+    stopped -- yes --> silent["no line and no count"]
+    selected -- yes --> silent
+    stopped -- no --> module["the module's line, and no line for a test"]
+    selected -- no --> refused["the line of each test that selection refuses, in source order"]
+    refused --> others["each other test's line, in source order, as dispatch hands the test on"]
+    module --> count["the count"]
+    others --> count
+  ```
+
+  A module that does not load prints its line, then the line of each of its tests. A load that the first interrupt lands in prints no line, unless it meets an internal error. The line of a thread's exception prints when purba takes the exception. It follows the line of the test that ran then, and the error of a load prints before the first test of its module. An [unreached test](../../CONTEXT.md#unreached-test) prints no line, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds why a run that an interrupt stops before selection ends prints no count.
 
 ```
 tests/test_a.py::test_one passed

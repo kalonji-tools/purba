@@ -53,13 +53,16 @@ Permanence decides what is eligible. A second question decides what is written.
 
 A commit message carries what must outlive the review that produced it, and nothing else.
 
-Everything a review consumes and discards belongs in the pull request or the issue.
+```mermaid
+flowchart TD
+  statement["a statement about the change"] --> make{"can the committer make it truthfully?"}
+  make -- no --> acts["wherever the person who can make it acts: the review statement, the part no committer can make, stays where the reviewer acts"]
+  make -- yes --> outlive{"must it outlive the review that produced it?"}
+  outlive -- yes --> commit["the commit message: the origin statement, the part a contributor can make, belongs here"]
+  outlive -- "no, the review consumes and discards it" --> pr["the pull request or the issue"]
+```
 
-Permanence decides among the statements the committer can make truthfully.
-A statement the committer cannot make belongs wherever the person who can make it acts.
-[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) divides liability along that line.
-The origin statement is the part a contributor can make, so it belongs in the commit.
-The review statement is the part no committer can make, so it stays where the reviewer acts.
+[Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) divides liability by who can make a statement.
 
 **Subject.**
 

@@ -152,16 +152,19 @@ So the job refuses a branch whose replay changes the content.
 The rewrite leaves the content of the branch untouched, because nothing it admits can change it.
 
 This job carries each verdict forward on that basis.
-The tree at the head it writes may equal the tree at the head it replaced.
-It then reports the same conclusion again on the new head.
-A conclusion is reported again only where it answers for the tree.
 
-GitHub draws a check run's conclusion from a fixed set, and `success` and `failure` are the two members of it that answer.
-The rest report what happened to the run, so this job names the conclusion it refused and leaves the context absent.
-The pull request then stays blocked until somebody closes it and reopens it, which runs the gates on the rewritten head.
-Where the two trees differ this job carries nothing.
-The `sign` job cannot reach that case, because it refuses a branch whose replay changes the content before it rewrites anything.
-This script is given two heads and cannot know what produced them, so it reads the trees and does not trust its caller.
+```mermaid
+flowchart TD
+  trees{"the tree at the head it writes equals the tree at the head it replaced?"}
+  trees -- "no, the two trees differ" --> nothing["this job carries nothing"]
+  trees -- yes --> conclusion{"the conclusion of each context on the head it replaced"}
+  conclusion -- "success or failure: of the fixed set GitHub draws a conclusion from, the two that answer for the tree" --> again["reports the same conclusion again on the new head"]
+  conclusion -- "any other member, which reports what happened to the run" --> absent["names the conclusion it refused, and leaves the context absent"]
+  absent --> blocked["the pull request stays blocked until somebody closes it and reopens it, which runs the gates on the rewritten head"]
+```
+
+Before it rewrites anything, the `sign` job refuses a branch whose replay changes the content, so it never reaches two trees that differ.
+`.github/scripts/carry-verdicts.sh` is given two heads and cannot know what produced them, so it reads the trees and does not trust its caller.
 
 The two cases above, the trees matching and the trees differing, were the whole rule. A third case occurred twice: the verdict is not in yet.
 This job rewrote the branch before `Quality` concluded.

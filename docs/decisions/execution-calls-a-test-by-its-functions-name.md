@@ -29,19 +29,32 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 **Execution calls a test by its function's name, and reporting prints the identity it is given.**
 
-| question | answer |
-|---|---|
-| what execution takes | a module, and the name of one function in it |
-| what a module holds | its path as the tester typed it, and assertion's rewrite of it |
-| how execution finds the function | its worker loads each module once, keyed by the path, and looks the name up in that module |
-| what an in-process worker is | a value of execution, which dispatch holds |
-| what an outcome holds | no name of its test |
-| who puts each outcome beside its test | dispatch, which uses selection and execution |
-| what reporting takes | each outcome or error, beside a value that prints itself |
-| how selection's identity prints | `path::function`, as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out a line |
-| who constructs an identity | selection alone, because its fields are private |
-| who builds a part's input | the part that uses it. Command builds dispatch's input, and dispatch builds execution's module |
+```mermaid
+sequenceDiagram
+  participant selection
+  participant command
+  participant dispatch
+  participant execution
+  participant reporting
+  Note over selection: constructs each identity alone, because its fields are private
+  selection-->>command: each selected test, as its identity
+  command->>dispatch: dispatch's input, which command builds
+  Note over dispatch: holds the in-process worker, a value of execution, and builds execution's module
+  Note over execution: its worker loads each module once, keyed by the path
+  loop each selected test
+    dispatch->>execution: the module, and the name of one function in it
+    Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
+    Note over execution: its worker looks the name up in the module it loaded
+    execution-->>dispatch: an outcome or error, and an outcome holds no name of its test
+    Note over dispatch: puts each outcome beside its test, and uses selection and execution
+    dispatch->>command: the outcome or error, beside its test
+    command->>reporting: the outcome or error, beside a value that prints itself
+    Note over reporting: prints selection's identity as path::function
+  end
+```
 
+The part that uses another part builds that part's input.
+[A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out the line where an identity prints as `path::function`.
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds why a worker loads each module once.
 [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds how a rewrite crosses the parts.
 
