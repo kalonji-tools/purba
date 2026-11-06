@@ -23,8 +23,7 @@ Security updates never raise one.
 
 ## Considered Options
 
-- **Bump each action that warns, by hand.** Rejected. It moves the actions that warned. The next deprecation arrives the same way.
-- **Dependabot version updates.** Chosen. GitHub runs it under its own identity. purba writes one file.
+- **Bump each action that warns, by hand.** It moves the actions that warned. The next deprecation arrives the same way.
 
 ## Decision Outcome
 
@@ -33,7 +32,9 @@ Security updates never raise one.
 **Area:** tooling
 
 **Dependabot proposes each newer action the workflows use.**
-It reads `.github/dependabot.yml` once a week.
+GitHub runs Dependabot under its own identity.
+purba writes one file.
+Dependabot reads `.github/dependabot.yml` once a week.
 Version updates move every action in one pull request.
 No security update arrives for an action, because GitHub raises no alert for an action named by its commit.
 

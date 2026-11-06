@@ -15,8 +15,7 @@ So a `paths:` filter cannot narrow Build, and the workflow must start on every p
 
 ## Considered Options
 
-- **A path with no mark skips the gate.** Rejected. A pull request that adds a path and its mark reads the base, where the path has no mark yet.
-- **A path with no mark starts the gate.** Chosen.
+- **A path with no mark skips the gate.** A pull request that adds a path and its mark reads the base, where the path has no mark yet.
 
 ## Decision Outcome
 

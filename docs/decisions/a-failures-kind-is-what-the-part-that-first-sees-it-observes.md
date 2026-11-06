@@ -18,13 +18,10 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 
 ## Considered Options
 
-- **A kind is the true cause of a failure.** Rejected. No part can tell a `NameError` that purba's rewrite causes from one that a typo of the tester causes. So no check can apply the kind.
-- **A failure's kind is what the part that first sees it observes.** Chosen. Each part can check an exception class or a branch that it holds.
-- **A test that raised gives an error in place of an outcome.** Rejected. One error then holds a raise, a failed load and a defect of purba. Execution loses the kind.
-- **A test that raised has the outcome `raised`.** Chosen. The test's body ran, so the run can say something about the test.
-- **The words purba used: usage error, diagnostic and error inside purba.** Rejected. A full disk is no usage error. "Diagnostic" names no place to fix. "Error inside purba" is a phrase and not a name.
-- **Invocation error, project error and internal error.** Chosen. Each name says where the tester fixes the error.
-- **A forged pass is a defect.** Rejected. `_purba_ran` is not on the [public surface](../../CONTEXT.md#public-surface), so a hand call breaks no promise.
+- **A kind is the true cause of a failure.** No part can tell a `NameError` that purba's rewrite causes from one that a typo of the tester causes. So no check can apply the kind.
+- **A test that raised gives an error in place of an outcome.** One error then holds a raise, a failed load and a defect of purba. Execution loses the kind.
+- **The words purba used: usage error, diagnostic and error inside purba.** A full disk is no usage error. "Diagnostic" names no place to fix. "Error inside purba" is a phrase and not a name.
+- **A forged pass is a defect.** `_purba_ran` is not on the [public surface](../../CONTEXT.md#public-surface), so a hand call breaks no promise.
 
 ## Decision Outcome
 
@@ -33,6 +30,7 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 **Area:** errors
 
 **A failure's kind is what the part that first sees it observes.**
+Each part can check an exception class or a branch that it holds.
 
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
@@ -41,8 +39,10 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned or raised | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
+The name of each error kind says where the tester fixes the error.
+
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
-- **A test whose call raised has the outcome `raised`.** An `AssertionError` when the last assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
+- **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when the last assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, a name bound again, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.

@@ -24,19 +24,16 @@ In another language each of those git invocations becomes a subprocess call carr
 
 ## Considered Options
 
-- **Rust, for every script.** Rejected. A script written in Rust must be compiled before it can gate, so it cannot gate the build that compiles it.
-- **Python, now.** Rejected. It costs a linter and a test runner this project does not use, and it buys nothing shell does not already have.
-- **Bash.** Chosen. Three tools already gate it, and it fits the plumbing above.
+- **Rust, for every script.** A script written in Rust must be compiled before it can gate, so it cannot gate the build that compiles it.
+- **Python, now.** It costs a linter and a test runner this project does not use, and it buys nothing shell does not already have.
 
 The trigger for a later change was weighed separately.
 
-- **Once purba is mature.** Rejected. Nothing decides it, and [Decide the Rust/Python placement rule](https://github.com/kalonji-tools/purba/issues/6) is out of scope for the same reason.
-- **Once purba runs purba's own test suite.** Chosen. One command answers it.
+- **Once purba is mature.** Nothing decides it, and [Decide the Rust/Python placement rule](https://github.com/kalonji-tools/purba/issues/6) is out of scope for the same reason.
 
 So was the runner.
 
-- **`shellspec`.** Rejected. `shfmt` strips every nested level from a spec body, because `Describe` and `It` are plain commands to a shell parser.
-- **`bats`.** Chosen. It survives the formatter, and `shellcheck` reads its test blocks as brace groups.
+- **`shellspec`.** `shfmt` strips every nested level from a spec body, because `Describe` and `It` are plain commands to a shell parser.
 
 ## Decision Outcome
 
@@ -45,9 +42,11 @@ So was the runner.
 **Area:** tooling
 
 **purba writes its scripts in bash.**
+Three tools already gate bash, and bash fits the plumbing above.
 A change of language is earned by something the new language brings that bash cannot.
 
 **A change to Python is earned when purba runs purba's own test suite.**
+One command answers whether purba runs purba's own test suite.
 purba runs Python tests and nothing else, so at that point the scripts' tests become the product's own first user.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) keeps the end-to-end test of purba in bats after that point.
 
@@ -57,6 +56,7 @@ That excludes a pull toward Rust because the product is Rust, and a pull toward 
 The trigger above turns on which runner executes a script's tests, so the exclusion leaves it standing.
 
 **`bats` is the runner, and a test of a script ends in `.bats`.**
+`bats` survives the formatter, and `shellcheck` reads its test blocks as brace groups.
 [A gate owns the mechanical standard](a-gate-owns-the-mechanical.md) puts a writer ahead of a checker, and `shfmt` is a writer.
 A `shellspec` file ends in `.sh`, which is the glob every shell task already reads.
 The formatter therefore reaches every spec the moment it is written.

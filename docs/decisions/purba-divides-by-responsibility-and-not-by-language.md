@@ -20,9 +20,8 @@ oxitest divided by language, into Rust modules and one Python package with a bri
 
 ## Considered Options
 
-- **Divide by language, into a Rust core and a Python package with a bridge between them.** Rejected. The bridge becomes a dependency of every part. oxitest's bridge drew the cost that the Context shows.
-- **Divide into the parts that the three comparable runners share.** Rejected. None of them gives parallel execution a part of its own. Each makes the result model a part, where purba makes it an interface.
-- **Divide by responsibility, each part with one interface.** Chosen. A part owns what it decides, whichever language holds its code.
+- **Divide by language, into a Rust core and a Python package with a bridge between them.** The bridge becomes a dependency of every part. oxitest's bridge drew the cost that the Context shows.
+- **Divide into the parts that the three comparable runners share.** None of them gives parallel execution a part of its own. Each makes the result model a part, where purba makes it an interface.
 
 ## Decision Outcome
 
@@ -31,6 +30,7 @@ oxitest divided by language, into Rust modules and one Python package with a bri
 **Area:** design
 
 **purba divides into parts by responsibility, and not by language.**
+A part owns what it decides, and has one interface.
 Each [part](../../CONTEXT.md#part) may hold Rust, Python or both.
 [The landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies) names each part and draws which part depends on which.
 

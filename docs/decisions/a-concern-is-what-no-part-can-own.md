@@ -22,8 +22,7 @@ The landscape needs a test that keeps out what a part can own.
 
 ## Considered Options
 
-- **A concern is anything that two or more parts touch.** Rejected. Output capture, the timeout of a test, a selected test's identity and async would each join the list, though each has an owner.
-- **A concern is what two or more parts follow, what no part can own, and what is designed in depth on its own.** Chosen. It keeps out what a part owns, and what has no design of its own.
+- **A concern is anything that two or more parts touch.** Output capture, the timeout of a test, a selected test's identity and async would each join the list, though each has an owner.
 
 ## Decision Outcome
 
@@ -32,6 +31,8 @@ The landscape needs a test that keeps out what a part can own.
 **Area:** design
 
 **A [concern](../../CONTEXT.md#concern) is what no part can own.**
+Two or more parts follow a concern, and a concern is designed in depth on its own.
+The definition keeps out what a part owns, and what has no design of its own.
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names each concern and the parts it crosses.
 
 | concern | why no part can own it |

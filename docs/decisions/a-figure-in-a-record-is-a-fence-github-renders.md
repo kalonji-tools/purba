@@ -20,8 +20,7 @@ So an icon draws nothing and raises no error, unless it is a built-in icon of an
 
 ## Considered Options
 
-- **A committed image, drawn with a tool GitHub does not render, such as mingrammer's `diagrams` or draw.io.** Rejected. Nobody can review its diff. The image goes stale when nobody renders it again.
-- **A fence GitHub renders from its source.** Chosen. Each figure is text in the diff. GitHub draws it for every reader.
+- **A committed image, drawn with a tool GitHub does not render, such as mingrammer's `diagrams` or draw.io.** Nobody can review its diff. The image goes stale when nobody renders it again.
 
 ## Decision Outcome
 
@@ -30,6 +29,8 @@ So an icon draws nothing and raises no error, unless it is a built-in icon of an
 **Area:** writing
 
 **A figure in a record is a fence GitHub renders.**
+Each figure is text in the diff.
+GitHub draws it for every reader.
 
 | kind | fence | rule |
 |---|---|---|

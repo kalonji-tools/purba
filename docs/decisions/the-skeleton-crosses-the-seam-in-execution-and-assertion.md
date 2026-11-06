@@ -15,11 +15,10 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 ## Considered Options
 
-- **Command reads `std::env::args()`.** Rejected. Command must guess how many leading entries belong to the interpreter.
-- **Execution finds the failed assert by the line number of the traceback.** Rejected. A live traceback then reaches execution. Two asserts on one line are ambiguous.
-- **Reporting writes each line through `sys.stdout`.** Rejected. Reporting then crosses the seam for every line.
-- **An `AssertionError` that no assert raised fails, with the error's text.** Rejected. A failed line then names no assert. purba then counts a failure that no assert found.
-- **Only execution and assertion hold a live Python object.** Chosen. Each other part takes data.
+- **Command reads `std::env::args()`.** Command must guess how many leading entries belong to the interpreter.
+- **Execution finds the failed assert by the line number of the traceback.** A live traceback then reaches execution. Two asserts on one line are ambiguous.
+- **Reporting writes each line through `sys.stdout`.** Reporting then crosses the seam for every line.
+- **An `AssertionError` that no assert raised fails, with the error's text.** A failed line then names no assert. purba then counts a failure that no assert found.
 
 ## Decision Outcome
 
@@ -28,6 +27,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 **Area:** the Rust/Python seam
 
 **The walking skeleton crosses the seam in execution and assertion.**
+Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|

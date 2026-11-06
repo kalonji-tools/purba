@@ -22,10 +22,9 @@ Each predates any product code outside `src/`.
 
 ## Considered Options
 
-- **`src/<part>/`, beside the crate of the extension module in `src/`.** Rejected. Bare `cargo test` reaches the parts only through `default-members`.
-- **`crates/<part>/`, with the crate of the extension module in `src/`.** Rejected. Each record about product code names two patterns.
-- **The registration in the pull request that records this.** Rejected. `crates/**` matches no file until the code moves. Until then, `src/lib.rs` falls outside each record that names `crates/**`.
-- **Every crate under `crates/`, beside a root that holds only the workspace.** Chosen. Bare `cargo test` reaches every crate with no setting.
+- **`src/<part>/`, beside the crate of the extension module in `src/`.** Bare `cargo test` reaches the parts only through `default-members`.
+- **`crates/<part>/`, with the crate of the extension module in `src/`.** Each record about product code names two patterns.
+- **The registration in the pull request that records this.** `crates/**` matches no file until the code moves. Until then, `src/lib.rs` falls outside each record that names `crates/**`.
 
 ## Decision Outcome
 
@@ -34,6 +33,7 @@ Each predates any product code outside `src/`.
 **Area:** tooling, design
 
 **Every crate lives under `crates/`, beside a root manifest that holds only the workspace.**
+Bare `cargo test` reaches every crate with no setting.
 
 | file | what it holds |
 |---|---|

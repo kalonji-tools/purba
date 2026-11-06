@@ -22,11 +22,10 @@ The pipeline worked as an agent-to-agent protocol and produced nothing for the p
 
 ## Considered Options
 
-- **Sort actors by what they are: a person, a program, or an agent.** Rejected. No location is written differently on account of a reader being made of silicon, and one person occupies several actors in a single day.
-- **Give each person and each program its own actor.** Rejected. This ties an actor to an incumbent, so the roster changes whenever a person changes role. An unnamed future reader cannot appear on it at all.
-- **Sort actors by the language they work in.** Rejected on measurement. In the prototype, 15 of 681 Python files sit outside the Python tree and their reader is the toolsmith. The same language reaches three readers, so the location carries the distinction and the roster does not need to.
-- **List what each actor wants.** Rejected. A list of wants is never complete, and a reader checks whether it is on the list rather than whether it is in the position.
-- **Name an actor by its role, and state the mindset that role is in.** Chosen. A mindset covers what a list of wants leaves out, and it is what a reader recognises itself by.
+- **Sort actors by what they are: a person, a program, or an agent.** No location is written differently on account of a reader being made of silicon, and one person occupies several actors in a single day.
+- **Give each person and each program its own actor.** This ties an actor to an incumbent, so the roster changes whenever a person changes role. An unnamed future reader cannot appear on it at all.
+- **Sort actors by the language they work in.** In the prototype, 15 of 681 Python files sit outside the Python tree and their reader is the toolsmith. The same language reaches three readers, so the location carries the distinction and the roster does not need to.
+- **List what each actor wants.** A list of wants is never complete, and a reader checks whether it is on the list rather than whether it is in the position.
 
 ## Decision Outcome
 
@@ -34,7 +33,8 @@ The pipeline worked as an agent-to-agent protocol and produced nothing for the p
 
 **Area:** writing
 
-An actor is a role that reads, stated as the mindset it reads from.
+**An actor is a role that reads, stated as the mindset it reads from.**
+A mindset covers what a list of wants leaves out, and it is what a reader recognises itself by.
 
 The roster is flat.
 

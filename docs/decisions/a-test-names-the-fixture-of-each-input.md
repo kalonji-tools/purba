@@ -15,10 +15,9 @@ With `src: Tx[SourceDb]`, a reader found the fixture of `src` only through anoth
 
 ## Considered Options
 
-- **A test names the fixture of each input in a decorator, `@using(src=source)`.** Rejected. A fixture of the wrong type passed every type checker.
-- **A test names the fixture of each input in a default typed `Any`, `= use_any(source)`.** Rejected. A fixture of the wrong type passed every type checker.
-- **A test names the fixture of each input in `Annotated[Tx[Database], From(source)]`.** Rejected. A fixture of the wrong type passed every type checker.
-- **A test names the fixture of each input in a typed default, `= use(tx, source)`.** Chosen. The readers gave it the best mean rank of the forms above. A type checker sees a fixture of the wrong type.
+- **A test names the fixture of each input in a decorator, `@using(src=source)`.** A fixture of the wrong type passed every type checker.
+- **A test names the fixture of each input in a default typed `Any`, `= use_any(source)`.** A fixture of the wrong type passed every type checker.
+- **A test names the fixture of each input in `Annotated[Tx[Database], From(source)]`.** A fixture of the wrong type passed every type checker.
 
 ## Decision Outcome
 
@@ -27,6 +26,8 @@ With `src: Tx[SourceDb]`, a reader found the fixture of `src` only through anoth
 **Area:** fixtures
 
 **A [test](../../CONTEXT.md#test) names the fixture of each of its [inputs](../../CONTEXT.md#input) in a typed default.**
+The readers gave the typed default a better mean rank than each lost form.
+A type checker sees a fixture of the wrong type.
 
 ```python
 def test_copy(src: Tx[Database] = use(tx, source), dst: Tx[Database] = use(tx, target)) -> None: ...

@@ -22,9 +22,8 @@ A link in a file cannot name that, and a file that a change adds carries no link
 
 ## Considered Options
 
-- **A link in each file only.** Rejected. It misses each rule about a kind of text, and it misses a file that the change adds.
-- **One map in `.config/records`.** Rejected. It is an index, and a change to it escapes the code owner.
-- **A line in each record, read with the links in files.** Chosen. A pattern reaches a file that a change adds, and a word reaches a location with no path. A change to a reach is a change to a record, so [significance](../../CONTEXT.md#significance) routes it to the code owner.
+- **A link in each file only.** It misses each rule about a kind of text, and it misses a file that the change adds.
+- **One map in `.config/records`.** It is an index, and a change to it escapes the code owner.
 
 ## Decision Outcome
 
@@ -33,6 +32,8 @@ A link in a file cannot name that, and a file that a change adds carries no link
 **Area:** writing
 
 **Each record opens its Decision Outcome with its [reach](../../CONTEXT.md#reach).**
+A pattern reaches a file that a change adds, and a word reaches a location with no path.
+A change to a reach is a change to a record, so [significance](../../CONTEXT.md#significance) routes it to the code owner.
 
 | part | how it is written |
 |---|---|

@@ -9,8 +9,7 @@ On the pull request that wrote `AGENTS.md`, each review round ended with a perso
 
 ## Considered Options
 
-- **A workflow that starts an agent on each review.** Rejected. It gives an agent a token of this repository, which is a separate decision.
-- **The agent that marked it ready watches it.** Chosen. Nobody has to carry the review to the agent that holds the work.
+- **A workflow that starts an agent on each review.** It gives an agent a token of this repository, which is a separate decision.
 
 ## Decision Outcome
 

@@ -11,8 +11,7 @@
 
 ## Considered Options
 
-- **Each refused line prints at its place among the lines of the selected tests.** Rejected. When a test above the refused test hangs or ends the process, the refused line never prints.
-- **Each refused line prints before any test runs.** Chosen. Selection judges each test before any test runs.
+- **Each refused line prints at its place among the lines of the selected tests.** When a test above the refused test hangs or ends the process, the refused line never prints.
 
 ## Decision Outcome
 
@@ -21,6 +20,7 @@
 **Area:** reporting
 
 **A test that selection refuses prints before any test runs.**
+Selection judges each test before any test runs.
 The refused lines keep source order, and the lines of the selected tests follow them.
 
 - **Selection judges the last `def` of a name, because import binds that one.** The line keeps the place of the first `def`, as for a selected test. Selection refuses a test whose name the module binds again after that `def`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.

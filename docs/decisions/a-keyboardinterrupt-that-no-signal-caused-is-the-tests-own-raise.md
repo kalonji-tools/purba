@@ -15,8 +15,7 @@ No record says whether a `KeyboardInterrupt` that a test raises with no signal s
 
 ## Considered Options
 
-- **A `KeyboardInterrupt` that no signal caused stops the run, as in pytest and unittest.** Rejected. A test of code that lets a `KeyboardInterrupt` escape then hides each later test.
-- **A `KeyboardInterrupt` that no signal caused gives the test the outcome `raised`, as today.** Chosen. Execution sees a raise, and no signal.
+- **A `KeyboardInterrupt` that no signal caused stops the run, as in pytest and unittest.** A test of code that lets a `KeyboardInterrupt` escape then hides each later test.
 
 ## Decision Outcome
 
@@ -25,6 +24,7 @@ No record says whether a `KeyboardInterrupt` that a test raises with no signal s
 **Area:** interrupt handling
 
 **A `KeyboardInterrupt` that no signal caused is the test's own raise.**
+Execution sees a raise, and no signal.
 
 - **A test whose call raises it, with no signal during the call, has the [outcome](../../CONTEXT.md#outcome) `raised`.** The next test runs.
 - **A subclass of `KeyboardInterrupt` counts the same.** The line names the subclass.

@@ -15,8 +15,7 @@ Dispatch and execution carried each half as a field.
 
 ## Considered Options
 
-- **The rewritten text and the text of each assert cross as two fields.** Rejected. The tests of dispatch and execution write each mark by hand. A new field edits each part.
-- **The rewrite crosses whole, and dispatch names its type through execution.** Chosen. No test of dispatch or execution knows the hook. The parts diagram keeps its arrows.
+- **The rewritten text and the text of each assert cross as two fields.** The tests of dispatch and execution write each mark by hand. A new field edits each part.
 
 ## Decision Outcome
 
@@ -25,6 +24,8 @@ Dispatch and execution carried each half as a field.
 **Area:** assertion
 
 **Assertion's rewrite crosses each part whole, and only assertion opens it.**
+No test of dispatch or execution knows the hook.
+The parts diagram keeps its arrows.
 
 ```mermaid
 flowchart LR

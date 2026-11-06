@@ -24,11 +24,9 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 ## Considered Options
 
-- **A gate refuses every breach, and only breaches.** Rejected. Every invariant fails that bar, so the reviewer would keep each of them. A tool sees most breaches of each invariant in the table below.
-- **A gate refuses only breaches, and names what it misses.** Chosen. For each invariant that a gate refuses, the reviewer keeps what the table names as missed.
-- **Every gate at the walking skeleton.** Rejected. The skeleton adds one part in each slice, so the code of an early slice would stand without its gate until the last slice merges.
-- **Each gate at the design in depth of its part.** Rejected. Code would stand without its gate until that design merges.
-- **Each gate in the pull request that adds the first code it reads.** Chosen. The gate runs red on real code, and not on an empty tree.
+- **A gate refuses every breach, and only breaches.** Every invariant fails that bar, so the reviewer would keep each of them. A tool sees most breaches of each invariant in the table below.
+- **Every gate at the walking skeleton.** The skeleton adds one part in each slice, so the code of an early slice would stand without its gate until the last slice merges.
+- **Each gate at the design in depth of its part.** Code would stand without its gate until that design merges.
 
 ## Decision Outcome
 
@@ -38,8 +36,8 @@ purba holds no product code, so no gate over an invariant has anything to read y
 
 **A gate refuses each invariant that a tool can see, from the first code the gate reads.**
 
-- **Each refusal of a gate is a breach, and a gate may miss a breach.** The table names each miss that a probe or a source shows, and the reviewer checks for others too.
-- **The pull request that adds the first code a gate reads also adds the gate.** It runs the gate green and red.
+- **Each refusal of a gate is a breach, and a gate may miss a breach.** The table names each miss that a probe or a source shows. The reviewer checks each miss the table names, and others too.
+- **The pull request that adds the first code a gate reads also adds the gate.** The gate runs red on real code, and not on an empty tree. The pull request runs the gate green and red.
 - **The probes of clippy and the compiler show that a gate can decide a breach.** They are evidence, and they are not a design.
 
 | invariant | a gate can refuse it when | the code that first builds it | what it misses |

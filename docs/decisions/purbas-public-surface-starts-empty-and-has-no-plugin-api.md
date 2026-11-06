@@ -19,14 +19,12 @@ A runner that refuses plugins must say how an integration reaches a test.
 
 ## Considered Options
 
-- **A plugin API, as pytest's hooks.** Rejected. A hook runs for tests that never named it, so it breaks the [explicit quality](../../LANDSCAPE.md#the-quality-priorities).
+- **A plugin API, as pytest's hooks.** A hook runs for tests that never named it, so it breaks the [explicit quality](../../LANDSCAPE.md#the-quality-priorities).
   It also breaks the invariant that [the diagram is the only wiring](../../LANDSCAPE.md#the-invariants).
   purba carries what xdist and pytest-asyncio do.
   [purba divides by responsibility and not by language](purba-divides-by-responsibility-and-not-by-language.md#decision-outcome) puts parallel runs in dispatch, and makes async a property of execution.
-- **A first surface decided up front, as oxitest's `__all__`.** Rejected. It writes down names that no candidate asked for.
+- **A first surface decided up front, as oxitest's `__all__`.** It writes down names that no candidate asked for.
   [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10#issuecomment-5593350290) refused it, because it re-imports the up-front scope that [Distinguish a milestone from a feature](https://github.com/kalonji-tools/purba/issues/16#issuecomment-5561583582) refused.
-- **An empty surface, with each integration as a library that a test imports by name.** Chosen. Each name joins with the issue that needs it.
-  A test names each integration that affects it.
 
 ## Decision Outcome
 

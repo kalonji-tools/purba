@@ -18,9 +18,8 @@ The hook shares the module's namespace with the tester's own names, so a name of
 
 ## Considered Options
 
-- **A name that the module never writes.** Rejected. It needs a walk of every name, and a name that command, dispatch and execution carry to the load. It misses `import *` and `globals().update(…)`.
-- **A module that writes `_purba_ran` is an error that parsing shows.** Rejected. Parsing sees only the text, and `import *` and `globals().update(…)` bind the name when the module runs.
-- **A check of the hook in assertion, at the load and after each test.** Chosen. It stays inside assertion, and it sees what the module binds when it runs.
+- **A name that the module never writes.** It needs a walk of every name, and a name that command, dispatch and execution carry to the load. It misses `import *` and `globals().update(…)`.
+- **A module that writes `_purba_ran` is an error that parsing shows.** Parsing sees only the text, and `import *` and `globals().update(…)` bind the name when the module runs.
 
 ## Decision Outcome
 
@@ -29,6 +28,7 @@ The hook shares the module's namespace with the tester's own names, so a name of
 **Area:** assertion
 
 **A module that binds a name purba adds is a project error.**
+The checks below stay inside assertion, and they see what the module binds when it runs.
 
 - **The rule holds for each name that a rewrite of purba adds to a module,** `_purba_ran` and each helper that a later rewrite adds.
 - **Before the body of the module runs, the load checks that no function holds such a name as a local name.**

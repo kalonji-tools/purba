@@ -30,10 +30,9 @@ The title did not state that second decision, so `ls` did not show it.
 
 ## Considered Options
 
-- **A budget for the length of the set.** Rejected. The architect reads the set through its titles, so the length of the bodies is not its cost. A ceiling also refuses a new decision because older records are long.
-- **A target length for each record.** Rejected. `.template.md` set three minutes from the first record, and two records in twenty-four met it.
-- **Extend the record whose subject is closest.** Rejected. That was the practice, and the record above is its result.
-- **A new question gets a new record.** Chosen. The test starts from the question an issue asks, which a reviewer can read, and it keeps each decision in a title.
+- **A budget for the length of the set.** The architect reads the set through its titles, so the length of the bodies is not its cost. A ceiling also refuses a new decision because older records are long.
+- **A target length for each record.** `.template.md` set three minutes from the first record, and two records in twenty-four met it.
+- **Extend the record whose subject is closest.** That was the practice, and the record above is its result.
 
 ## Decision Outcome
 
@@ -42,6 +41,8 @@ The title did not state that second decision, so `ls` did not show it.
 **Area:** writing
 
 **A new question gets a new record.**
+The rule below starts from the question an issue asks, which a reviewer can read.
+It keeps each decision in a title.
 When an issue asks a question that no title on `main` answers, its answer goes in a new record.
 The new record and the older one link each other, each in one line.
 A reviewer decides whether a title answers a question, because no command can.

@@ -18,15 +18,12 @@ Each of these changes the order.
 
 ## Considered Options
 
-- **A design rewrites only its own risk and order lines, and an issue fixes each other line.** Rejected. `main` states a false shape between the two merges.
-- **A design rewrites each line it makes untrue.** Chosen. `main` states purba's shape after each merge.
-- **The order stays as the map charted it.** Rejected. A wrong judgement then never leaves the order.
-- **Each design calculates the order again, whatever it changed.** Rejected. A design that changes no input gets the same order.
-- **The walking skeleton ends with a new score for each risk.** Rejected. It scores again the risks that it cannot see.
-- **The order changes in the pull request that changes an input.** Chosen. The order moves with its evidence, and with nothing else.
-- **The reviewer calculates the order by hand.** Rejected. Two reviewers can get two orders from the same landscape.
-- **A gate alone.** Rejected. It finds the error, and the author still repairs it by hand.
-- **A task that writes the order, and a gate that refuses a different one.** Chosen. One script gives one order, and the task repairs what the gate refuses.
+- **A design rewrites only its own risk and order lines, and an issue fixes each other line.** `main` states a false shape between the two merges.
+- **The order stays as the map charted it.** A wrong judgement then never leaves the order.
+- **Each design calculates the order again, whatever it changed.** A design that changes no input gets the same order.
+- **The walking skeleton ends with a new score for each risk.** It scores again the risks that it cannot see.
+- **The reviewer calculates the order by hand.** Two reviewers can get two orders from the same landscape.
+- **A gate alone.** It finds the error, and the author still repairs it by hand.
 
 ## Decision Outcome
 
@@ -35,8 +32,10 @@ Each of these changes the order.
 **Area:** design, tooling
 
 **A script calculates the order of design, and only a changed input moves it.**
+One script gives one order: `mise run fmt:order` writes it, and `mise run lint:order` refuses a different one.
+The order moves with its evidence.
 
-- **A pull request rewrites each line of the landscape that it makes untrue.** A design in depth is one such pull request.
+- **A pull request rewrites each line of the landscape that it makes untrue.** `main` states purba's shape after each merge. A design in depth is one such pull request.
 - **The inputs of the order are lines of the landscape.** They are the probability and impact of each risk, where it lands, the arrows between the parts, and the parts each concern crosses.
   They also include which parts and concerns link their design.
 - **The pull request that changes an input runs `mise run fmt:order`.** That task rewrites the order section, and prints each step the rule takes.

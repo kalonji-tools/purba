@@ -20,10 +20,9 @@ Two of these rules were already purba's.
 
 ## Considered Options
 
-- **The standard, adopted whole.** Rejected. Fifty rules written for aircraft maintenance, to gain the few that bind prose here.
-- **A tool that checks the standard.** Rejected. The Vale package registry carries no entry for it, and every project that offers one calls itself an approximation.
-- **A rule for every property that moved.** Rejected. A reading level moves twelve grades when a writer appends a backticked name, so the number falls and the prose does not improve.
-- **The rules a command can decide, quoted and borrowed.** Chosen.
+- **The standard, adopted whole.** Fifty rules written for aircraft maintenance, to gain the few that bind prose here.
+- **A tool that checks the standard.** The Vale package registry carries no entry for it, and every project that offers one calls itself an approximation.
+- **A rule for every property that moved.** A reading level moves twelve grades when a writer appends a backticked name, so the number falls and the prose does not improve.
 
 ## Decision Outcome
 
@@ -31,7 +30,7 @@ Two of these rules were already purba's.
 
 **Area:** writing
 
-purba borrows a prose rule from the standard, and never adopts the standard.
+**purba borrows a prose rule from the standard, and never adopts the standard.**
 
 A borrowed rule is quoted in the words the standard uses.
 No public source carries the rule numbers, so purba cites none.

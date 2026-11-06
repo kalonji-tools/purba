@@ -11,16 +11,14 @@ Where the gate does not read the path, each of those runs is waste.
 
 Which rule keeps the marks complete?
 
-- **No rule.** Rejected. A path added with no mark starts the gate for good, and nobody decides it.
-- **Derive the marks from the build.** Rejected. A derivation sees what Cargo or `strace` records, and misses what mise, GitHub and the step of `build.yml` that loads the wheel read. A derived mark then skips the gate on a path that the gate reads.
-- **A list of only the paths that start the gate, or of only those that skip it.** Rejected. A default decides a path on neither list, and no rule makes anyone decide that path.
-- **Mark every tracked path for each gate, and refuse a path left unmarked.** Chosen. The lint runs in Quality, which runs on every pull request.
+- **No rule.** A path added with no mark starts the gate for good, and nobody decides it.
+- **Derive the marks from the build.** A derivation sees what Cargo or `strace` records, and misses what mise, GitHub and the step of `build.yml` that loads the wheel read. A derived mark then skips the gate on a path that the gate reads.
+- **A list of only the paths that start the gate, or of only those that skip it.** A default decides a path on neither list, and no rule makes anyone decide that path.
 
 Where do the marks live?
 
-- **Each gate keeps its patterns in its own script.** Rejected. No rule keeps a pattern list complete.
-- **A file for each gate.** Rejected. Each file names every tracked path again.
-- **One file, with one attribute for each gate.** Chosen. The gitattributes format carries more than one attribute on a line.
+- **Each gate keeps its patterns in its own script.** No rule keeps a pattern list complete.
+- **A file for each gate.** Each file names every tracked path again.
 
 ## Decision Outcome
 
@@ -29,8 +27,10 @@ Where do the marks live?
 **Area:** tooling
 
 **`.config/gates` marks each tracked path for each gate it names, and `mise run lint:gates` refuses a path left unmarked.**
+The lint runs in Quality, which runs on every pull request.
 
 **Each gate takes one attribute in the file.**
+The gitattributes format carries more than one attribute on a line.
 A line such as `crates/**  build  -scripts` marks a path for both gates.
 
 **Downside:**

@@ -14,13 +14,12 @@ GitHub lists every file of a folder before it renders the folder's `README.md`.
 
 ## Considered Options
 
-- **The flat folder, with no index.** Rejected. A person cannot find a record by its area in it.
-- **A folder for each area.** Rejected. Apart from the search by area, it adds only a code owner for each area, and purba has one owner. It breaks each link to a record from outside the tree.
-- **An index page alone, written by hand.** Rejected. It drifts each time a pull request adds, renames or deletes a record.
-- **An index inside `docs/decisions/`.** Rejected. GitHub renders it below every record.
-- **The word kind for the line.** Rejected. [Kind](../../CONTEXT.md#kind) already names the kind of an error.
-- **Four areas, with no area for repository tooling.** Rejected. None of the four fits a record that decides how a tool of the repository runs.
-- **A line in each record, and an index at `docs/README.md` that a task writes from the lines.** Chosen. Nothing moves. A gate keeps the line and the index true.
+- **The flat folder, with no index.** A person cannot find a record by its area in it.
+- **A folder for each area.** Apart from the search by area, it adds only a code owner for each area, and purba has one owner. It breaks each link to a record from outside the tree.
+- **An index page alone, written by hand.** It drifts each time a pull request adds, renames or deletes a record.
+- **An index inside `docs/decisions/`.** GitHub renders it below every record.
+- **The word kind for the line.** [Kind](../../CONTEXT.md#kind) already names the kind of an error.
+- **Four areas, with no area for repository tooling.** None of the four fits a record that decides how a tool of the repository runs.
 
 ## Decision Outcome
 
@@ -28,7 +27,9 @@ GitHub lists every file of a folder before it renders the folder's `README.md`.
 
 **Area:** writing, tooling
 
-Each record names the [area](../../CONTEXT.md#area) it decides something in, and `docs/README.md` lists the records by area.
+**Each record names the [area](../../CONTEXT.md#area) it decides something in, and `docs/README.md` lists the records by area.**
+No record moves.
+A gate keeps the `**Area:**` line and the index true.
 
 - **The line.** It is its own paragraph after the reach: `**Area:**`, then each area of the record, with a comma between two areas.
 - **The areas.** They are a closed list, and the index names each one in full:

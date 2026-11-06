@@ -18,8 +18,7 @@ This is also the cheapest moment to decide:
 
 ## Considered Options
 
-- **`rustpython-parser`.** Rejected. It is not stale, it is abandoned, and it says so in three independent places. Its README now reads "superseded by". Its maintainer stated the repository will not be maintained and confirmed this covers the crate. The interpreter it was built for migrated onto a fork of ruff's parser and keeps no reference to it. The consequences are present rather than prospective: it declares no grammar version anywhere and fails outright on 7 of 774 CPython 3.14 source files.
-- **`ruff_python_parser`, with its AST, text-size and source-file companions.** Chosen. Its API is not meaningfully unstable for this use. Across six published versions over ten weeks the whole surface a prescan touches is byte-identical. That surface is the parse entry point, its options and result types, all 25 statement and 33 expression variants, and every visitor trait. The churn sits in peripheral helpers.
+- **`rustpython-parser`.** It is not stale, it is abandoned, and it says so in three independent places. Its README now reads "superseded by". Its maintainer stated the repository will not be maintained and confirmed this covers the crate. The interpreter it was built for migrated onto a fork of ruff's parser and keeps no reference to it. The consequences are present rather than prospective: it declares no grammar version anywhere and fails outright on 7 of 774 CPython 3.14 source files.
 
 Anyone re-checking the rejected crate will find a repository whose metadata says it is not archived, with a recent commit.
 The evidence is in its issues and its README, not in repository metadata.
@@ -30,7 +29,11 @@ The evidence is in its issues and its README, not in repository metadata.
 
 **Area:** parsing
 
-purba parses with four ruff crates behind a thin parsing seam.
+**purba parses with four ruff crates behind a thin parsing seam.**
+The API of `ruff_python_parser` is not meaningfully unstable for this use.
+Across six published versions over ten weeks the whole surface a prescan touches is byte-identical.
+That surface is the parse entry point, its options and result types, all 25 statement and 33 expression variants, and every visitor trait.
+The churn sits in peripheral helpers.
 `[workspace.dependencies]` pins each crate it names exactly at `=0.0.17`.
 
 | crate | what the seam needs from it |

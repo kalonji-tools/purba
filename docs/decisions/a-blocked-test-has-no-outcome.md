@@ -15,13 +15,11 @@ A module that does not load blocks each of its tests, so one cause can count onc
 
 ## Considered Options
 
-- **Each test carries the error.** Rejected. One cause shows once for each test. The count counts it each time.
-- **One error, and its tests print nothing, as the surveyed runners do.** Rejected. The tester no longer reads one line for each test, and does not see what the error cost.
-- **Each test that an error blocks has the outcome `unknown`.** Rejected. Its line tells the tester to fix the test, and the fix is where the error is.
-- **One error, and each test that it blocks prints as blocked.** Chosen. The cause shows once. Selection already knows each test that the error cost.
-- **Each test that an error blocks prints as `stopped`.** Rejected. The word reads as an interruption from outside the tester's code, such as Ctrl-C.
-- **A test whose own error blocks it prints as blocked, and names that error.** Rejected. `blocked` then sends the tester to the test on one line, and to a fix outside the test on another.
-- **A test whose own error blocks it prints that error, and counts as blocked.** Chosen. Its line says that the fix is in the test.
+- **Each test carries the error.** One cause shows once for each test. The count counts it each time.
+- **One error, and its tests print nothing, as the surveyed runners do.** The tester no longer reads one line for each test, and does not see what the error cost.
+- **Each test that an error blocks has the outcome `unknown`.** Its line tells the tester to fix the test, and the fix is where the error is.
+- **Each test that an error blocks prints as `stopped`.** The word reads as an interruption from outside the tester's code, such as Ctrl-C.
+- **A test whose own error blocks it prints as blocked, and names that error.** `blocked` then sends the tester to the test on one line, and to a fix outside the test on another.
 
 ## Decision Outcome
 
@@ -31,7 +29,8 @@ A module that does not load blocks each of its tests, so one cause can count onc
 
 **A blocked test has no outcome.**
 
-- **A test that an error outside the test blocks prints as [blocked](../../CONTEXT.md#blocked-test), and names what blocked it.** A test whose own error blocks it prints that error, and counts as blocked.
+- **A test that an error outside the test blocks prints as [blocked](../../CONTEXT.md#blocked-test), and names what blocked it.** Selection already knows each test that the error cost.
+- **A test whose own error blocks it prints that error, and counts as blocked.** Its line says that the fix is in the test.
 - **The error shows once.**
 - **The rule holds for every error that blocks a test, whatever its kind.**
 - **The count of tests holds every selected test.** A blocked test has a column of its own, so the columns add up to the count.

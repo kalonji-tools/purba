@@ -16,12 +16,11 @@ A run that stops too little runs tests on a wrong input.
 
 ## Considered Options
 
-- **A run stops at the first failed test, as pytest's `-x` does.** Rejected. It answers a different question: when to stop a run that works.
-- **Every error stops the run, as pytest does for a module that raises at import.** Rejected. One broken module hides the outcome of every other test.
-- **An error stops only the work that depends on it.** Chosen. Every test that can still run gives its outcome, and no test runs on a wrong input.
-- **A part names the first error, and stops.** Rejected. The tester then fixes one error for each run, as oxitest's registrar found.
-- **An internal error stops the run.** Rejected. A panic inside one test costs the printed line of every test.
-- **The rule is an invariant of the landscape.** Rejected. [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) says that a rule that a concern states is not an invariant.
+- **A run stops at the first failed test, as pytest's `-x` does.** It answers a different question: when to stop a run that works.
+- **Every error stops the run, as pytest does for a module that raises at import.** One broken module hides the outcome of every other test.
+- **A part names the first error, and stops.** The tester then fixes one error for each run, as oxitest's registrar found.
+- **An internal error stops the run.** A panic inside one test costs the printed line of every test.
+- **The rule is an invariant of the landscape.** [An invariant needs no design of its own](an-invariant-needs-no-design-of-its-own.md#decision-outcome) says that a rule that a concern states is not an invariant.
 
 ## Decision Outcome
 
@@ -30,6 +29,7 @@ A run that stops too little runs tests on a wrong input.
 **Area:** errors
 
 **An error stops only the work that depends on it.**
+Every test that can still run gives its outcome, and no test runs on a wrong input.
 
 | kind | it stops | for example |
 |---|---|---|

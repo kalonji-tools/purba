@@ -38,20 +38,18 @@ The latest of 17 edits across 202 comments lands 86 minutes after the comment ap
 
 ## Considered Options
 
-- **Strike the superseded spans in place.** Rejected. Tried on a live issue: a strike across a multi sentence list item carrying bold and links renders as noise. It works on a heading and on nothing longer.
-- **A banner at the top of the body.** Rejected. It marks the body and leaves the dead text persuasive, which is the failure rather than a fix for it.
-- **A `superseded` label.** Rejected. It marks the issue and never the span, and the measured defect is span level.
-- **Rewrite, and preserve the old body in a comment.** Rejected. The platform already keeps every version, so the copy is a second thing to maintain and to disagree with the first.
-- **Rewrite, and link the prior version from the mark.** Rejected by measurement. No stored version is addressable, so the link cannot be written.
-- **Rewrite, and carry one line pointing at what replaced it.** Chosen. The body then reads as current state. A forward pointer tells the reader why it changed, where a backward link would only say that it changed.
+- **Strike the superseded spans in place.** Tried on a live issue: a strike across a multi sentence list item carrying bold and links renders as noise. It works on a heading and on nothing longer.
+- **A banner at the top of the body.** It marks the body and leaves the dead text persuasive, which is the failure rather than a fix for it.
+- **A `superseded` label.** It marks the issue and never the span, and the measured defect is span level.
+- **Rewrite, and preserve the old body in a comment.** The platform already keeps every version, so the copy is a second thing to maintain and to disagree with the first.
+- **Rewrite, and link the prior version from the mark.** A measurement shows that no stored version is addressable, so the link cannot be written.
 
 A second question decides when a rewrite stops being allowed.
 
-- **Append only, never edit.** Rejected. It refuses a typo fix made four minutes after the comment appears, and two of the eight design specs are exactly that.
-- **Freeze once somebody read it.** Rejected, because nothing reports a read. `viewerViewedState` is the caller's own private checkbox and returns `UNVIEWED` for files the caller wrote.
-- **Freeze on a planning field.** Rejected. Four are defined here, and a value is invisible to anyone not signed in: one issue carries `Priority: Medium`, which reads as nothing to the public. A rule an outside contributor cannot evaluate is not a rule.
-- **Freeze on something that happens to the artifact, such as a reply or a close.** Rejected. It makes the freeze point a judgement about what somebody did, so the record has to define acting. The best available definition was reliance rather than notice, and that is not a test anyone can run.
-- **Freeze when the parties declare the direction agreed, by setting the issue type.** Chosen. It is a declaration rather than a detection, which is the move [architectural significance is declared, not detected](significance-is-declared-not-detected.md) already made here for the same reason. The property becomes true by definition, and nothing has to judge it.
+- **Append only, never edit.** It refuses a typo fix made four minutes after the comment appears, and two of the eight design specs are exactly that.
+- **Freeze once somebody read it.** Nothing reports a read. `viewerViewedState` is the caller's own private checkbox and returns `UNVIEWED` for files the caller wrote.
+- **Freeze on a planning field.** Four are defined here, and a value is invisible to anyone not signed in: one issue carries `Priority: Medium`, which reads as nothing to the public. A rule an outside contributor cannot evaluate is not a rule.
+- **Freeze on something that happens to the artifact, such as a reply or a close.** It makes the freeze point a judgement about what somebody did, so the record has to define acting. The best available definition was reliance rather than notice, and that is not a test anyone can run.
 
 ## Decision Outcome
 
@@ -59,9 +57,12 @@ A second question decides when a rewrite stops being allowed.
 
 **Area:** workflow
 
-An artifact is rewritten in place until its direction is agreed, and is frozen after.
+**An artifact is rewritten in place until its direction is agreed, and is frozen after.**
+A rewritten body then reads as current state.
 
 **Agreement is declared, and the issue type is the declaration.**
+The type is a declaration rather than a detection, which is the move [architectural significance is declared, not detected](significance-is-declared-not-detected.md) already made here for the same reason.
+Agreement becomes true by definition, and nothing has to judge it.
 Resolving a design spec ends by setting the type, which records that the parties agree on the direction.
 `Task`, `Bug` and `Feature` therefore mean more than a taxonomy: each one says this was agreed.
 
@@ -80,6 +81,8 @@ The declaration is public, it is a string comparison, and lifting it is recorded
 
 **Marking is not a rewrite.**
 A frozen artifact gains a pointer and never loses or changes content.
+A forward pointer leads to the replacement, and the replacement says why the superseded text was wrong.
+A backward link would only say that something replaced it.
 A mark is a signal and never a licence: what permits a rewrite is that the artifact is not frozen yet.
 
 **A re-scope narrows, and anything else is two issues.**

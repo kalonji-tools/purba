@@ -37,11 +37,10 @@ Each of the three cites the closed issue that produced the record, so the pointe
 
 ## Considered Options
 
-- **Locality: a comment explains the line it sits on.** Rejected. All three duplicated blocks pass it, because each is local to the line it sits on.
-- **A comment-to-code ratio.** Rejected. Removing the duplicated lines improves `Cargo.toml` and raises every ratio computable over it.
-- **A separate register for configuration.** Rejected. The split between configuration and code counts violations rather than a difference in kind, and the admission test below names configuration.
-- **Trap-only: a comment exists to stop a wrong edit.** Rejected as the whole rule. Whether an edit is plausible is a judgement. It survives inside the admission test.
-- **Subtraction: a comment carries what the other locations do not.** Chosen. It removes the duplicated lines by construction.
+- **Locality: a comment explains the line it sits on.** All three duplicated blocks pass it, because each is local to the line it sits on.
+- **A comment-to-code ratio.** Removing the duplicated lines improves `Cargo.toml` and raises every ratio computable over it.
+- **A separate register for configuration.** The split between configuration and code counts violations rather than a difference in kind, and the admission test below names configuration.
+- **Trap-only: a comment exists to stop a wrong edit.** It is not the whole rule. Whether an edit is plausible is a judgement. It survives inside the admission test.
 
 ## Decision Outcome
 
@@ -49,7 +48,8 @@ Each of the three cites the closed issue that produced the record, so the pointe
 
 **Area:** writing
 
-An unpublished comment is written only when the information belongs in no other location.
+**An unpublished comment is written only when the information belongs in no other location.**
+Subtraction keeps only what no other location carries, so it removes the duplicated lines by construction.
 
 **The order in which a location takes information.**
 The pull request, then the commit and the issue its subject names, then the decision record, then the published comment.

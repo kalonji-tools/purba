@@ -22,9 +22,8 @@ Its Rust workflow states in a comment that it excludes doc tests on purpose.
 
 ## Considered Options
 
-- **A bare cdylib.** Rejected. It is the silent failure above.
+- **A bare cdylib.** It is the silent failure above.
 - **Library crates beside the crate of the extension module.** Deferred to [each part is a crate](each-part-is-a-crate.md#decision-outcome), which makes them. They are a permanent architectural commitment. Their evidence cuts both ways, because the project that has this split documents its seam least of any measured.
-- **One crate carrying both crate types.** Chosen. The extra rlib is inert to the wheel builder, which produces a byte-identical abi3 wheel. Verified end to end.
 
 ## Decision Outcome
 
@@ -32,7 +31,9 @@ Its Rust workflow states in a comment that it excludes doc tests on purpose.
 
 **Area:** tooling
 
-The crate declares `crate-type = ["cdylib", "rlib"]`, and `extension-module` is a named feature rather than a default one.
+**The crate declares `crate-type = ["cdylib", "rlib"]`, and `extension-module` is a named feature rather than a default one.**
+The extra rlib is inert to the wheel builder, which produces a byte-identical abi3 wheel.
+purba verified this end to end.
 
 That feature omits libpython.
 As a default it would break both documentation lints.

@@ -23,9 +23,8 @@ So a run can go green and check nothing, and its reader may not notice.
 
 ## Considered Options
 
-- **Fast feedback first.** Rejected. A fast run that lies costs the tester more than a slow run that tells the truth.
-- **Migration fidelity first, with each pytest suite run under purba unchanged.** Rejected. An unchanged suite keeps each test that checks nothing.
-- **An honest outcome first, then explicit, legible result, reviewable core and fast feedback.** Chosen. Each step of the rank decides one collision.
+- **Fast feedback first.** A fast run that lies costs the tester more than a slow run that tells the truth.
+- **Migration fidelity first, with each pytest suite run under purba unchanged.** An unchanged suite keeps each test that checks nothing.
 
 ## Decision Outcome
 
@@ -34,6 +33,7 @@ So a run can go green and check nothing, and its reader may not notice.
 **Area:** design
 
 **purba ranks five qualities, and an honest outcome comes first.**
+Each step of the rank decides one collision.
 [The landscape](../../LANDSCAPE.md#the-quality-priorities) states each quality.
 
 | rank | quality | it wins over the next one when |

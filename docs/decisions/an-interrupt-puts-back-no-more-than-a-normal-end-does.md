@@ -20,12 +20,9 @@ No record says what each part puts back, in what order, or how long purba's sign
 
 ## Considered Options
 
-- **Each part puts back what it changed in purba's process.** Rejected. The process dies after the count. Execution installs its guard and its hooks once for the process.
-- **Each part leaves the process as a normal end leaves it, as today.** Chosen. Nothing that a part changes outlives the process.
-- **A signal after the count reaches Python's own signal handler, as today.** Rejected. Python reports a Ctrl-C in its wait for threads as ignored. The run then exits with the code of its count.
-- **purba's signal handlers stay until finalization gives each signal its default action.** Chosen. A Ctrl-C in the wait for threads then ends purba by the signal, as an interrupt in a test does.
-- **purba hides the text that Python prints when an interrupt ends its wait for threads.** Rejected. purba would replace `sys.unraisablehook` after the count. The new hook would hide the error of a test's `atexit` function too.
-- **Python prints its own text.** Chosen. The tester reads which wait the interrupt ended.
+- **Each part puts back what it changed in purba's process.** The process dies after the count. Execution installs its guard and its hooks once for the process.
+- **A signal after the count reaches Python's own signal handler, as today.** Python reports a Ctrl-C in its wait for threads as ignored. The run then exits with the code of its count.
+- **purba hides the text that Python prints when an interrupt ends its wait for threads.** purba would replace `sys.unraisablehook` after the count. The new hook would hide the error of a test's `atexit` function too.
 
 ## Decision Outcome
 
@@ -35,7 +32,7 @@ No record says what each part puts back, in what order, or how long purba's sign
 
 **An interrupt puts back no more than a normal end does.**
 
-- **Each part leaves the process as a normal end leaves it.** `sys.modules` keeps each module that assertion loaded, and execution keeps its guard and its hooks.
+- **Each part leaves the process as a normal end leaves it.** Nothing that a part changes outlives the process. `sys.modules` keeps each module that assertion loaded, and execution keeps its guard and its hooks.
 - **purba's signal handlers stay until the first interrupt, or finalization, gives each signal its default action.** They stay after a normal end too. A signal that comes later ends purba, unless the parent ignores it.
 - **The errors of the threads that the interrupted test left alive still print.** They print after the line of the test.
 
@@ -53,7 +50,7 @@ flowchart TD
 
 Each test after the interrupted one is an [unreached test](../../CONTEXT.md#unreached-test).
 
-- **A first interrupt during finalization ends only the wait for threads.** Python prints that it ignored the `KeyboardInterrupt`. The rest of finalization runs. Then purba dies by the signal. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says what a second one does.
+- **A first interrupt during finalization ends only the wait for threads.** Python prints that it ignored the `KeyboardInterrupt`. The tester reads which wait the interrupt ended. The rest of finalization runs. Then purba dies by the signal. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says what a second one does.
 
 **Downside:**
 

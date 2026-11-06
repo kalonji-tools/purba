@@ -19,11 +19,10 @@ One of its invariants is "the diagram is the only wiring".
 
 ## Considered Options
 
-- **One crate, with a module for each part.** Rejected. An arrow the diagram does not draw compiles. Each test needs `libpython`.
-- **A cli, a lib and a core, with command in cli and the other parts as modules of core.** Rejected. Inside core, an arrow the diagram does not draw compiles. A grep misses a grouped `use`. Each test of core needs `libpython`.
-- **PyO3 only in the crate that builds the extension module.** Rejected. Each part that reaches Python grows inside that one crate, the bridge that [purba divides by responsibility and not by language](purba-divides-by-responsibility-and-not-by-language.md#considered-options) rejects.
-- **A crate named for its part alone.** Rejected. A crate on crates.io already holds most of those names.
-- **A crate for each part, with PyO3 in each part that crosses the seam.** Chosen. The compiler refuses an arrow that a part's manifest does not name.
+- **One crate, with a module for each part.** An arrow the diagram does not draw compiles. Each test needs `libpython`.
+- **A cli, a lib and a core, with command in cli and the other parts as modules of core.** Inside core, an arrow the diagram does not draw compiles. A grep misses a grouped `use`. Each test of core needs `libpython`.
+- **PyO3 only in the crate that builds the extension module.** Each part that reaches Python grows inside that one crate, the bridge that [purba divides by responsibility and not by language](purba-divides-by-responsibility-and-not-by-language.md#considered-options) rejects.
+- **A crate named for its part alone.** A crate on crates.io already holds most of those names.
 
 ## Decision Outcome
 
@@ -32,6 +31,7 @@ One of its invariants is "the diagram is the only wiring".
 **Area:** design
 
 **Each part of purba is a crate, and its manifest names what it uses.**
+The compiler refuses an arrow that a part's manifest does not name.
 
 | what | where |
 |---|---|

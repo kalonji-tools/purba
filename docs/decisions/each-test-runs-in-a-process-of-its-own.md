@@ -15,11 +15,9 @@ So a test can fail for what an earlier test left.
 
 ## Considered Options
 
-- **One interpreter for the tests of a module.** Rejected. click's tests leak through it.
-- **The tests whose text shows them isolated share one interpreter.** Rejected. The text of click's tests showed none of its leaks.
-- **Each test runs in a process of its own.** Chosen. No change that a test makes in memory reaches another test. A crash ends one test, and not the run.
-- **The forkserver of `multiprocessing` loads the module.** Rejected. It ignores a preload that raises `ImportError`, and the module body then runs for each test.
-- **A zygote of purba's own loads the module.** Chosen. purba sees a failed load itself, and gives one project error.
+- **One interpreter for the tests of a module.** click's tests leak through it.
+- **The tests whose text shows them isolated share one interpreter.** The text of click's tests showed none of its leaks.
+- **The forkserver of `multiprocessing` loads the module.** It ignores a preload that raises `ImportError`, and the module body then runs for each test.
 
 ## Decision Outcome
 
@@ -28,8 +26,10 @@ So a test can fail for what an earlier test left.
 **Area:** dispatch
 
 **Each [test](../../CONTEXT.md#test) runs in a process of its own.**
+No change that a test makes in memory reaches another test.
+A crash ends one test, and not the run.
 
-- **A zygote of purba's own loads the module once, and forks each test.**
+- **A zygote of purba's own loads the module once, and forks each test.** purba sees a failed load itself.
 - **A module that fails to load gives one project error.** The zygote then forks no test.
 - **On Windows, purba spawns each test.**
 - **No record decides how macOS starts each test.**

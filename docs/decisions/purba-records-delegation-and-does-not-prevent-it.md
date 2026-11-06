@@ -11,11 +11,10 @@ So the question is whether any act by a person can be made impossible for their 
 
 ## Considered Options
 
-- **A signature.** Rejected. A key kept where the agent runs is a key the agent uses, so a signature proves custody rather than personhood.
-- **A credential out of the agent's reach.** Rejected. The agent runs on the machine that holds the credentials.
-- **The block GitHub documents on an approval of one's own pull request.** Rejected. It keys on the author rather than on the approver.
-- **A hardware key that demands a touch for each signature.** Rejected. It is genuinely out of reach, and git cannot ask for one. The allowed-signers format `ssh-keygen(1)` documents admits `cert-authority`, `namespaces`, `valid-after` and `valid-before`. None of them concerns the presence of a person.
-- **Record the delegation, and imply no separation.** Chosen. Every route above is closed. A record that claimed one would claim a check nobody makes.
+- **A signature.** A key kept where the agent runs is a key the agent uses, so a signature proves custody rather than personhood.
+- **A credential out of the agent's reach.** The agent runs on the machine that holds the credentials.
+- **The block GitHub documents on an approval of one's own pull request.** It keys on the author rather than on the approver.
+- **A hardware key that demands a touch for each signature.** It is genuinely out of reach, and git cannot ask for one. The allowed-signers format `ssh-keygen(1)` documents admits `cert-authority`, `namespaces`, `valid-after` and `valid-before`. None of them concerns the presence of a person.
 
 ## Decision Outcome
 
@@ -24,6 +23,7 @@ So the question is whether any act by a person can be made impossible for their 
 **Area:** workflow
 
 **purba records delegation and does not prevent it.**
+Every route in Considered Options is closed.
 An agent acts for a person here, and that person remains answerable for what it does.
 This record says so, and implies no separation that no check makes.
 

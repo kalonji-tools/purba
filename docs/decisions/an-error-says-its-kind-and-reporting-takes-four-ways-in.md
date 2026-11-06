@@ -17,8 +17,7 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 ## Considered Options
 
-- **Reporting reads `part()` as the kind, picks the counter of an internal error, and takes five ways in.** Rejected. The rule that counts lives in two crates.
-- **The error says its kind, execution counts it, and reporting takes four ways in.** Chosen. A new kind and the rule that counts it change in execution alone.
+- **Reporting reads `part()` as the kind, picks the counter of an internal error, and takes five ways in.** The rule that counts lives in two crates.
 
 ## Decision Outcome
 
@@ -27,6 +26,7 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 **Area:** errors
 
 **An error says its kind, and reporting takes four ways in.**
+A new kind and the rule that counts it change in execution alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
 - **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, and for a module that does not parse.

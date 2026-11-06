@@ -21,11 +21,10 @@ The order of design must also put the effort where a failure is likely and costs
 
 ## Considered Options
 
-- **Callers first.** Rejected. A caller would come before each part it uses, so its design in depth would assume them.
-- **Used parts first, with the concerns last or in no order.** Rejected. The Rust/Python seam and strictness both cross fixtures, so a design of fixtures would assume both.
-- **Every concern first, then the parts in layers of what they use.** Rejected. Parsing waits only for errors, but a layer holds it behind concerns with lower scores.
-- **Order by the highest quality an item serves.** Rejected. Strictness and interrupt handling both serve an honest outcome, so that order cannot choose between them.
-- **A design in depth waits for every part it uses and every concern that crosses it, and risk orders what nothing blocks.** Chosen. No design assumes what a later design can undo. The effort goes where a failure is likely and costs most.
+- **Callers first.** A caller would come before each part it uses, so its design in depth would assume them.
+- **Used parts first, with the concerns last or in no order.** The Rust/Python seam and strictness both cross fixtures, so a design of fixtures would assume both.
+- **Every concern first, then the parts in layers of what they use.** Parsing waits only for errors, but a layer holds it behind concerns with lower scores.
+- **Order by the highest quality an item serves.** Strictness and interrupt handling both serve an honest outcome, so that order cannot choose between them.
 
 ## Decision Outcome
 
@@ -34,6 +33,8 @@ The order of design must also put the effort where a failure is likely and costs
 **Area:** design
 
 **A design in depth waits for every part it uses and every concern that crosses it, and risk orders what nothing blocks.**
+No design assumes what a later design can undo.
+The effort goes where a failure is likely and costs most.
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each part and concern.
 
 ```math

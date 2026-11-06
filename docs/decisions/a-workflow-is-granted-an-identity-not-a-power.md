@@ -22,10 +22,9 @@ It is which identity opens it.
 
 ## Considered Options
 
-- **Permit Actions to create and approve pull requests.** Rejected, and measured before it was. The switch buys the approve power, and it does not even finish the job. A pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state. Every weekly bump would then wait for a person to press a button before `Quality` and `Build` ran.
-- **Open no pull request, and leave a person a link to open one.** Rejected on the ruleset. The person who opens it becomes its author. `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one maintainer, so every bump would merge through an override. The gate would never bind the one change nobody wrote.
-- **Open it with an account's token.** Rejected. An account token is named by what it is rather than by what it does. It carries whatever that account may do, wherever that account may do it. It also expires on a date nobody records. A bump that stops because a token lapsed is the same silence this workflow exists to break.
-- **Mint an installation token for the act, and grant Actions nothing further.** Chosen. The token is bounded by an installation rather than by a person, it lives one hour, it is minted per run, and nobody rotates it.
+- **Permit Actions to create and approve pull requests.** purba measured it, then refused it. The switch buys the approve power, and it does not even finish the job. A pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state. Every weekly bump would then wait for a person to press a button before `Quality` and `Build` ran.
+- **Open no pull request, and leave a person a link to open one.** The person who opens it becomes its author. `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one maintainer, so every bump would merge through an override. The gate would never bind the one change nobody wrote.
+- **Open it with an account's token.** An account token is named by what it is rather than by what it does. It carries whatever that account may do, wherever that account may do it. It also expires on a date nobody records. A bump that stops because a token lapsed is the same silence this workflow exists to break.
 
 ## Decision Outcome
 
@@ -33,10 +32,11 @@ It is which identity opens it.
 
 **Area:** tooling
 
-An act `GITHUB_TOKEN` may not perform earns an identity scoped to that act.
+**An act `GITHUB_TOKEN` may not perform earns an identity scoped to that act.**
 Actions' own token is never widened to reach it.
 
 The identity is a GitHub App. It holds no code, no server and no webhook.
+The installation, not a person, bounds the App's token, and nobody rotates it.
 
 | the App | |
 |---|---|

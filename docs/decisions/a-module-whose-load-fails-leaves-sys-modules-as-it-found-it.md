@@ -21,11 +21,10 @@ purba printed the same lines and the same exit code under each choice.
 
 ## Considered Options
 
-- **Keep the module under its name.** Rejected. A later import gets a half-made module, and no error.
-- **Remove the name.** Rejected. A failed module that shadowed a loaded module makes the next import load a second copy, whose classes differ from the first. Once assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides, remove gives what put back gives.
-- **Put `None` under the name.** Rejected. Each later import of a shadowed name halts for the rest of the run.
-- **Leave it to the design in depth of execution alone.** Rejected. Until that design, a later import gets a half-made module.
-- **Put back what the name held.** Chosen. A new name gives what [`importlib`](https://github.com/python/cpython/blob/v3.12.14/Lib/importlib/_bootstrap.py#L936-L941) gives, and a shadowed name keeps its module. oxitest chose it after a half-made module broke later imports, in [`70fbc27a`](https://github.com/kalonji-tools/oxitest/commit/70fbc27a).
+- **Keep the module under its name.** A later import gets a half-made module, and no error.
+- **Remove the name.** A failed module that shadowed a loaded module makes the next import load a second copy, whose classes differ from the first. Once assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides, remove gives what put back gives.
+- **Put `None` under the name.** Each later import of a shadowed name halts for the rest of the run.
+- **Leave it to the design in depth of execution alone.** Until that design, a later import gets a half-made module.
 
 ## Decision Outcome
 
@@ -35,7 +34,7 @@ purba printed the same lines and the same exit code under each choice.
 
 **A module whose load fails leaves `sys.modules` as it found it.**
 
-- **Load puts back the module that the name held before.** A name that held nothing leaves `sys.modules`.
+- **Load puts back the module that the name held before.** A name that held nothing leaves `sys.modules`, as [`importlib`](https://github.com/python/cpython/blob/v3.12.14/Lib/importlib/_bootstrap.py#L936-L941) does, and as oxitest chose after a half-made module broke later imports, in [`70fbc27a`](https://github.com/kalonji-tools/oxitest/commit/70fbc27a).
 - **This holds for any exception after the module joins `sys.modules`, `SystemExit` included.**
 - **The design in depth of execution decides which part puts the entry back, if any, once a worker loads many modules.**
 

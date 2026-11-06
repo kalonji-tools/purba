@@ -28,9 +28,8 @@ The prototype's context document pointed at records and did not restate them, an
 
 ## Considered Options
 
-- **Append-only, with a status field and amendments.** Rejected. The prototype had exactly this. Its supersede path was chosen zero times in nineteen records, and its status field became nine nested prose paragraphs.
-- **A single-sentence record.** Rejected. It is structurally capped, because a sentence cannot absorb twenty amendments. It lost on tooling: the most-starred record tool released nothing since 2018.
-- **A public Markdown convention, cut to its minimum, plus a fitness function.** Chosen. It has no runtime, so nothing can go dead, and its Confirmation section already is the staleness mechanism.
+- **Append-only, with a status field and amendments.** The prototype had exactly this. Its supersede path was chosen zero times in nineteen records, and its status field became nine nested prose paragraphs.
+- **A single-sentence record.** It is structurally capped, because a sentence cannot absorb twenty amendments. It lost on tooling: the most-starred record tool released nothing since 2018.
 
 ## Decision Outcome
 
@@ -38,9 +37,11 @@ The prototype's context document pointed at records and did not restate them, an
 
 **Area:** writing
 
-A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
+**A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.**
+A public Markdown convention, cut to its minimum, has no runtime, so nothing can go dead, and its Confirmation section already is the staleness mechanism.
+`mise run lint:records` is its fitness function.
 
-This is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).
+A decision record is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).
 Every other artifact this project writes freezes once its direction is agreed.
 A record does not.
 

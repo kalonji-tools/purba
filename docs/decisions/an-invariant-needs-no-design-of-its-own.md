@@ -28,8 +28,7 @@ The landscape needs a test that keeps out what a concern already states.
 
 ## Considered Options
 
-- **An invariant is any rule that two or more parts follow.** Rejected. The rules of strictness and configuration would join the list, though each concern already states its own rule.
-- **An invariant is a rule that two or more parts follow, written as an absence, that needs no design of its own.** Chosen. One instance breaks an absence, so a reviewer can point at the breach.
+- **An invariant is any rule that two or more parts follow.** The rules of strictness and configuration would join the list, though each concern already states its own rule.
 
 ## Decision Outcome
 
@@ -38,6 +37,8 @@ The landscape needs a test that keeps out what a concern already states.
 **Area:** design
 
 **An [invariant](../../CONTEXT.md#invariant) needs no design of its own.**
+Two or more parts follow an invariant, and it is written as an absence.
+One instance breaks an absence, so a reviewer can point at the breach.
 [The landscape](../../LANDSCAPE.md#the-invariants) names each invariant and the parts it binds.
 
 | invariant | why it holds |

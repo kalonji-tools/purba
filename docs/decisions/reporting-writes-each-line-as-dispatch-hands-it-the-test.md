@@ -16,9 +16,8 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 ## Considered Options
 
-- **Dispatch returns every result, and reporting prints after the last test.** Rejected. A crash inside a test leaves no line for any test.
-- **A sink trait that dispatch declares.** Rejected. Command must name execution's types where it implements the trait. When command names them through a re-export of dispatch, no gate sees that use.
-- **A function that dispatch calls once for each test.** Chosen. Command names no type of an outcome, and the parts diagram draws each call.
+- **Dispatch returns every result, and reporting prints after the last test.** A crash inside a test leaves no line for any test.
+- **A sink trait that dispatch declares.** Command must name execution's types where it implements the trait. When command names them through a re-export of dispatch, no gate sees that use.
 
 ## Decision Outcome
 
@@ -28,7 +27,7 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reporting writes each line as dispatch hands it the test.**
 
-- **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** The function returns `ControlFlow`, and no test runs after a `Break`.
+- **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** Command names no type of an outcome, and the parts diagram draws each call. The function returns `ControlFlow`, and no test runs after a `Break`.
 
   ```mermaid
   sequenceDiagram

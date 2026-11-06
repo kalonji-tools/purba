@@ -15,10 +15,9 @@ A part needs its language before anyone writes it.
 
 ## Considered Options
 
-- **Execution's import step in a Python file.** Rejected. Only the end-to-end test runs it.
-- **Command in a `__main__.py`.** Rejected. Only the end-to-end test runs it.
-- **Command as a Rust executable that spawns python.** Rejected. It ships in a second wheel. purba then chooses the interpreter, so a wrong choice exits 1, which reads as a failed test.
-- **Every part in Rust, inside the extension module.** Chosen. `cargo test` runs every part.
+- **Execution's import step in a Python file.** Only the end-to-end test runs it.
+- **Command in a `__main__.py`.** Only the end-to-end test runs it.
+- **Command as a Rust executable that spawns python.** It ships in a second wheel. purba then chooses the interpreter, so a wrong choice exits 1, which reads as a failed test.
 
 ## Decision Outcome
 
@@ -27,6 +26,7 @@ A part needs its language before anyone writes it.
 **Area:** design
 
 **Every part of the walking skeleton is Rust, inside the one extension module.**
+`cargo test` runs every part.
 
 | part | what forced Rust |
 |---|---|

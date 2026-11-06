@@ -20,10 +20,9 @@ The decision that a milestone is done must not rest on a verdict that cannot dec
 
 ## Considered Options
 
-- **A verdict at the end that the migration is clean.** Rejected. "Clean" decides nothing, and a person then reads the finished code.
-- **Total coverage, where a test may split or merge upstream tests.** Rejected. It needs a coverage mark that has no design.
+- **A verdict at the end that the migration is clean.** "Clean" decides nothing, and a person then reads the finished code.
+- **Total coverage, where a test may split or merge upstream tests.** It needs a coverage mark that has no design.
   The honest-outcome scenario also compares by name.
-- **A desired-state suite that the person approves before the build, and a signal that the shape of the milestone sets.** Chosen. The person reads one suite, and never the finished code.
 
 ## Decision Outcome
 
@@ -32,6 +31,7 @@ The decision that a milestone is done must not rest on a verdict that cannot dec
 **Area:** design
 
 **A milestone is done when the signal that its shape declares holds.**
+The person reads one suite, the desired-state suite, and never the finished code.
 
 | step | act |
 |---|---|

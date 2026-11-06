@@ -32,14 +32,12 @@ Neither cargo-deny nor clippy reads `.config/`.
 
 ## Considered Options
 
-- **Move each file its tool finds under `.config/`, and leave the rest at the root.** Rejected. The root keeps two files that `pyproject.toml` could hold.
-- **Fold each file into `pyproject.toml` where its tool reads a table there, and move nothing.** Rejected. The root keeps every file that only `.config/` could take.
-- **Move and fold, with no order between the two.** Rejected. git-cliff reads both locations, and no rule picks one.
-- **A flag that names the file under `.config/`.** Rejected. Run bare or in an editor, typos, lychee and shellcheck fall back to their defaults and report nothing.
-- **An environment variable that names the file, set outside the tool.** Rejected. Only git-cliff and shellcheck read one, and an editor outside mise sees neither. The variable that names clippy's file is set by cargo itself.
-- **An order of three locations.** Chosen. One rule places every tool, and the root keeps only what no tool reads elsewhere.
-- **The configuration of each Rust tool at the root.** Rejected. The root keeps two files that `.cargo/` can hold.
-- **The configuration of each Rust tool under `.cargo/`.** Chosen. One directory holds the configuration of cargo, cargo-deny and clippy.
+- **Move each file its tool finds under `.config/`, and leave the rest at the root.** The root keeps two files that `pyproject.toml` could hold.
+- **Fold each file into `pyproject.toml` where its tool reads a table there, and move nothing.** The root keeps every file that only `.config/` could take.
+- **Move and fold, with no order between the two.** git-cliff reads both locations, and no rule picks one.
+- **A flag that names the file under `.config/`.** Run bare or in an editor, typos, lychee and shellcheck fall back to their defaults and report nothing.
+- **An environment variable that names the file, set outside the tool.** Only git-cliff and shellcheck read one, and an editor outside mise sees neither. The variable that names clippy's file is set by cargo itself.
+- **The configuration of each Rust tool at the root.** The root keeps two files that `.cargo/` can hold.
 
 ## Decision Outcome
 
@@ -48,8 +46,9 @@ Neither cargo-deny nor clippy reads `.config/`.
 **Area:** tooling
 
 **A tool's configuration lives in the first location its tool reads: `.config/`, then `pyproject.toml`, then the root.**
+One rule places every tool but a Rust tool that reads `.cargo/`, and the root keeps only what no tool reads elsewhere.
 
-"Reads" means the pinned tool finds the file run bare, with no flag and no environment variable. Clippy, below, is the one exception.
+"Reads" means the pinned tool finds the file run bare, with no flag and no environment variable. Clippy, below, is the one exception to this meaning.
 A flag reaches only the command that passes it, and an editor passes none.
 
 **A file only GitHub reads stays outside the order.**
@@ -59,6 +58,7 @@ It lives under `.github/`, as [only GitHub runs what lives under `.github`](only
 `.config/readers` is one, because the script that reads it can look anywhere.
 
 **A Rust tool that reads `.cargo/` is the exception to the order: its configuration lives there.**
+One directory holds the configuration of cargo, cargo-deny and clippy.
 Cargo reads `.cargo/config.toml`.
 cargo-deny reads `.cargo/deny.toml`.
 Clippy reads `.cargo/clippy.toml`, because `[env]` in `.cargo/config.toml` sets `CLIPPY_CONF_DIR` with `force = true`.

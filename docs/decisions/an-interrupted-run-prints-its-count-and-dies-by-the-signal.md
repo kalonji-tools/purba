@@ -23,13 +23,10 @@ No record says what an interrupted run prints, or which code it exits.
 
 ## Considered Options
 
-- **An interrupted run prints as today.** Rejected. A Ctrl-C reads as the test's own raise. The run exits 4. A CI cancel leaves no count.
-- **An interrupted run exits 2, as pytest's does.** Rejected. purba's 2 means `unknown`.
-- **An interrupted run dies by its signal.** Chosen. A shell that runs purba then sees the interrupt, and `git bisect run` aborts.
-- **A test that catches the `KeyboardInterrupt` keeps its own outcome, as today.** Rejected. The interrupt cut its body, so a pass checked less than it claims.
-- **The test that the interrupt lands in has the outcome `interrupted`.** Chosen. The line names the test that ran, which is often the one that hangs.
-- **A test that the run never reached counts as `not run`.** Rejected. purba does not run a blocked test either.
-- **A test that the run never reached counts as `unreached`.** Chosen. The run reached a blocked test, and never reached this one.
+- **An interrupted run prints as today.** A Ctrl-C reads as the test's own raise. The run exits 4. A CI cancel leaves no count.
+- **An interrupted run exits 2, as pytest's does.** purba's 2 means `unknown`.
+- **A test that catches the `KeyboardInterrupt` keeps its own outcome, as today.** The interrupt cut its body, so a pass checked less than it claims.
+- **A test that the run never reached counts as `not run`.** purba does not run a blocked test either.
 
 ## Decision Outcome
 
@@ -38,10 +35,11 @@ No record says what an interrupted run prints, or which code it exits.
 **Area:** interrupt handling
 
 **An interrupted run prints its count, and dies by the signal.**
+A shell that runs purba then sees the interrupt, and `git bisect run` aborts.
 
 - **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does.
-- **The test that the interrupt lands in has the [outcome](../../CONTEXT.md#outcome) `interrupted`.** Its line prints in its place on stdout, after it unwinds. It has that outcome whether it then passes, fails or raises.
-- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The count names it. [A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
+- **The test that the interrupt lands in has the [outcome](../../CONTEXT.md#outcome) `interrupted`.** The line names the test that ran, which is often the one that hangs. Its line prints in its place on stdout, after it unwinds. It has that outcome whether it then passes, fails or raises.
+- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
 - **The count names `interrupted` after `unknown`, and `unreached` after `blocked`.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 
 ```

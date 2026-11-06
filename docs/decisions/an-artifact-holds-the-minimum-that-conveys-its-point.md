@@ -18,12 +18,11 @@ So the defect is what an artifact admits, not how its sentences read.
 
 ## Considered Options
 
-- **A reading level.** Rejected. Six formulas disagree by seven grades on one record, and appending backticked identifiers moves the score twelve grades while the words stay the same.
-- **A wordiness linter.** Rejected. It finds nothing here, because the defect is admission rather than wording.
-- **ASD-STE100, adopted whole.** Rejected. Fifty rules for aircraft maintenance to gain three ideas, and the standard sits where a reader must ask for it. [purba borrows from Simplified Technical English rather than adopting it](purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md) names the rules purba took instead.
-- **One voice standard across every location.** Rejected. No established project states one. Git requires an imperative subject and says nothing about its own code comments.
-- **Subtraction, meaning remove whatever can be removed.** Rejected. A table, a diagram and an example are admissible when they carry the point.
-- **Sufficiency, with named categories beneath it.** Chosen. It says what an artifact is for rather than how long it may be.
+- **A reading level.** Six formulas disagree by seven grades on one record, and appending backticked identifiers moves the score twelve grades while the words stay the same.
+- **A wordiness linter.** It finds nothing here, because the defect is admission rather than wording.
+- **ASD-STE100, adopted whole.** Fifty rules for aircraft maintenance to gain three ideas, and the standard sits where a reader must ask for it. [purba borrows from Simplified Technical English rather than adopting it](purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md) names the rules purba took instead.
+- **One voice standard across every location.** No established project states one. Git requires an imperative subject and says nothing about its own code comments.
+- **Subtraction, meaning remove whatever can be removed.** A table, a diagram and an example are admissible when they carry the point.
 
 ## Decision Outcome
 
@@ -31,7 +30,8 @@ So the defect is what an artifact admits, not how its sentences read.
 
 **Area:** writing
 
-An artifact holds the minimum that conveys its point.
+**An artifact holds the minimum that conveys its point.**
+Sufficiency, with named categories beneath it, says what an artifact is for rather than how long it may be.
 
 **The test is a judgement.**
 No command decides whether an element carries the point.
@@ -47,6 +47,13 @@ Discarded alternatives, intermediate edits and the order the work happened in st
 |---|
 | what a session leaves behind |
 | a count of the costs on the `**Downside:**` label |
+| an option its question did not weigh |
+
+An option is weighed when it answers the record's question, and one of these holds:
+
+- The issue names it.
+- A record or the code holds it today.
+- The person raised it.
 
 **The rules below are decidable, and a command owns them.**
 

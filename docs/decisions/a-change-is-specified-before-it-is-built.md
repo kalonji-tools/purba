@@ -10,7 +10,7 @@ Later decisions removed some of its gates and changed another, and the comment s
 
 ## Considered Options
 
-- **Specify first, in phases that each leave an artifact for a reader.** Chosen. No alternative was put forward.
+No option was put forward against the one that won.
 
 ## Decision Outcome
 
@@ -18,7 +18,7 @@ Later decisions removed some of its gates and changed another, and the comment s
 
 **Area:** workflow
 
-A change is specified before it is built, and it moves through four phases that each leave one artifact for one reader.
+**A change is specified before it is built, and it moves through four phases that each leave one artifact for one reader.**
 
 ```mermaid
 flowchart LR

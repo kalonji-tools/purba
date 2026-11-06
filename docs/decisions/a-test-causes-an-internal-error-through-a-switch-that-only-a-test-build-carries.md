@@ -15,10 +15,9 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 
 ## Considered Options
 
-- **A file of a tester that breaks purba.** Rejected. `builtins.py` gives a project error, and the `latin-1` module gives `failed`. The fix of either defect turns the test red.
-- **A test of a part that hands the next part a broken value.** Rejected. It never starts the console script, so it misses the exit code of a panic.
-- **A switch in the wheel that a tester installs.** Rejected. The switch then adds to the public surface.
-- **A switch that only a test build carries.** Chosen. It causes an internal error at a chosen point, through the console script that the wheel installs.
+- **A file of a tester that breaks purba.** `builtins.py` gives a project error, and the `latin-1` module gives `failed`. The fix of either defect turns the test red.
+- **A test of a part that hands the next part a broken value.** It never starts the console script, so it misses the exit code of a panic.
+- **A switch in the wheel that a tester installs.** The switch then adds to the public surface.
 
 ## Decision Outcome
 
@@ -27,6 +26,7 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 **Area:** errors, tooling
 
 **A test causes an internal error through a switch that only a test build carries.**
+The switch causes the internal error through the console script that the wheel installs.
 
 - **The cargo feature `fault` makes a part panic, or raise an error purba never expects, at the point that `PURBA_FAULT` names.** The wheel that a tester installs leaves the feature out, so the public surface does not change.
 - **The test that causes an internal error runs on a second wheel, which `mise run test:wheel` builds with `fault` and installs.** Every other test of the wheel runs on the wheel without `fault`, as [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides.

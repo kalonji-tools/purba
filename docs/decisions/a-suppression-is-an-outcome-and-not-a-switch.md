@@ -20,9 +20,8 @@ A way past one verdict must therefore show in the report.
 
 ## Considered Options
 
-- **No suppression.** Rejected. The tester rewrites the test until the check stops, and no report shows that rewrite.
-- **An opt-out that the report does not show.** Rejected. It is the switch that [purba is always strict](purba-is-always-strict.md#considered-options) refuses, at a smaller scale.
-- **A suppression that the report shows as a warning, by name and with a reason, under a cap that the integrator sets.** Chosen. The report shows every suppressed verdict, so a suppression is no switch. The cap bounds how many violations a tester suppresses, whether a person or an agent occupies the tester.
+- **No suppression.** The tester rewrites the test until the check stops, and no report shows that rewrite.
+- **An opt-out that the report does not show.** It is the switch that [purba is always strict](purba-is-always-strict.md#considered-options) refuses, at a smaller scale.
 
 ## Decision Outcome
 
@@ -38,7 +37,7 @@ A way past one verdict must therefore show in the report.
 - **purba counts a suppression as used only when it turns a violation of a selected test into a warning.** A verdict of `unknown` or `clean` passes through it unchanged.
 - **A suppression that suppresses nothing fails the run.** If purba only warned about such a suppression, the suppression would stay. The Python study above finds such suppressions common.
 - **purba does not judge a suppression whose tests the run did not select.**
-- **An [integrator](../../CONTEXT.md#integrator) caps the suppressed verdicts with a configuration key and a flag.** Where the integrator sets both, the lower value applies. The integrator can refuse every suppression with the cap.
+- **An [integrator](../../CONTEXT.md#integrator) caps the suppressed verdicts with a configuration key and a flag.** The cap bounds how many violations a tester suppresses, whether a person or an agent occupies the tester. Where the integrator sets both, the lower value applies. The integrator can refuse every suppression with the cap.
 - **The cap counts verdicts and not sites.** A count of sites would charge a module suppression once, however many verdicts it suppresses. A run over the cap fails. The report still lists every suppressed verdict.
 - **The cap only tightens strictness, so it is not a switch.**
 

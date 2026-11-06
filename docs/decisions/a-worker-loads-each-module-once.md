@@ -13,9 +13,8 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 ## Considered Options
 
-- **Execution loads the module again for each test.** Rejected. The module body then runs once for each test. An outcome can then differ from pytest's.
-- **Each selected test carries the rewritten text of its module.** Rejected. Each test of a module then carries a copy of the same text.
-- **One load of each module in a worker, from one hand-off by command.** Chosen. The module body runs once for its tests, as under pytest. Command hands one text for each module.
+- **Execution loads the module again for each test.** The module body then runs once for each test. An outcome can then differ from pytest's.
+- **Each selected test carries the rewritten text of its module.** Each test of a module then carries a copy of the same text.
 
 ## Decision Outcome
 
@@ -24,6 +23,7 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 **Area:** dispatch
 
 **A worker loads each module once, and command hands each module once.**
+The module body runs once for its tests, as under pytest.
 
 ```mermaid
 sequenceDiagram

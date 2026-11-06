@@ -20,10 +20,9 @@ Every candidate measured on the prototype fails.
 
 ## Considered Options
 
-- **Diff size.** Rejected. Reviewability is the number of independent decisions, not lines. A signature change across 500 files is one decision. 55 lines across scopes is several.
-- **A breaking-change marker in the commit message.** Rejected. It appears on 21 of 2,129 commits.
-- **Detecting that a change touches a record.** Rejected as a detector. Of 89 commits touching the prototype's record directory, 61 touched no code at all.
-- **Declaring it.** Chosen. The property becomes true by definition, so CI routes on it and judges nothing.
+- **Diff size.** Reviewability is the number of independent decisions, not lines. A signature change across 500 files is one decision. 55 lines across scopes is several.
+- **A breaking-change marker in the commit message.** It appears on 21 of 2,129 commits.
+- **Detecting that a change touches a record.** It fails as a detector. Of 89 commits touching the prototype's record directory, 61 touched no code at all.
 
 | pull request size | lines | mean lifetime |
 |---|---|---|
@@ -39,7 +38,8 @@ No threshold catches what mattered, because nothing ever required a person to re
 
 **Area:** workflow, writing
 
-A change is architecturally significant if and only if it adds or changes a decision record.
+**A change is architecturally significant if and only if it adds or changes a decision record.**
+Significance becomes true by definition, so CI routes on it and judges nothing.
 
 `.github/CODEOWNERS` assigns `/docs/decisions/` to the human, and the ruleset requires that owner's review on a pull request touching it.
 The same ruleset requires one approving review on every pull request, under no path condition.

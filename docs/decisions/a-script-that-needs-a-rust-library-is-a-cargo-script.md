@@ -16,9 +16,8 @@ The same check was built in each form, against harper-core and the records.
 
 ## Considered Options
 
-- **One named exception, like the Python inside `build.yml`.** Rejected. The next script that needs a library would need a record of its own.
-- **A binary crate.** Rejected as the first form, and kept as the fallback. It builds a few seconds faster from cold, and a cache makes a cold build rare. It is a directory where a cargo script is one file.
-- **A cargo script, under a rule that names the condition.** Chosen. The condition is what earns the change, so the next script that meets it needs no new record.
+- **One named exception, like the Python inside `build.yml`.** The next script that needs a library would need a record of its own.
+- **A binary crate.** purba keeps it as the fallback. It builds a few seconds faster from cold, and a cache makes a cold build rare. It is a directory where a cargo script is one file.
 
 ## Decision Outcome
 
@@ -27,6 +26,7 @@ The same check was built in each form, against harper-core and the records.
 **Area:** tooling
 
 **A script that needs a Rust library that bash cannot call is a cargo script.**
+The condition is what earns the change, so the next script that meets it needs no new record.
 `cargo -Zscript` builds it in the release profile.
 A debug build runs too slowly to gate.
 

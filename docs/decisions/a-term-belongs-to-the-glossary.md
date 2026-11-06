@@ -34,11 +34,10 @@ The vocabulary had neither.
 
 ## Considered Options
 
-- **Leave each definition in the record that decided it.** Rejected. The two most-used terms are decided by no record, so there is nowhere for them to sit.
-- **A glossary that points at the records.** Rejected. It sends the reader back into the corpus, and an index is not a source of truth.
-- **Define a term where it is first used.** Rejected. A record is rewritten in place, so first use moves whenever the corpus is reordered.
-- **Move every definition out, including a roster.** Rejected. A roster is the outcome of a decision and not a definition, so moving it wholesale empties the record that earned it.
-- **One glossary holding every definition, with a record keeping its decision and naming the glossary.** Chosen. It matches what this project already does twice. A record names a register and does not hold one. The same record points at a template and does not restate it.
+- **Leave each definition in the record that decided it.** The two most-used terms are decided by no record, so there is nowhere for them to sit.
+- **A glossary that points at the records.** It sends the reader back into the corpus, and an index is not a source of truth.
+- **Define a term where it is first used.** A record is rewritten in place, so first use moves whenever the corpus is reordered.
+- **Move every definition out, including a roster.** A roster is the outcome of a decision and not a definition, so moving it wholesale empties the record that earned it.
 
 ## Decision Outcome
 
@@ -46,7 +45,10 @@ The vocabulary had neither.
 
 **Area:** writing
 
-A term is defined once, in `CONTEXT.md`, and a record names it and does not hold it.
+**A term is defined once, in `CONTEXT.md`, and a record names it and does not hold it.**
+One glossary that holds every definition matches what this project already does twice.
+A record names a register and does not hold one.
+The same record points at a template and does not restate it.
 
 **The split.**
 

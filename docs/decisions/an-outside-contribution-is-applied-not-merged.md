@@ -17,13 +17,12 @@ Five prototypes measured what a workflow can and cannot do across the fork bound
 
 ## Considered Options
 
-- **Merge the pull request from the fork and write no acceptance trailer.** Rejected. A record with a documented hole has to be read beside its documentation before a reader can trust it. The risk this mechanism was built against sits outside this repository.
-- **Let a workflow write the trailer on the fork.** Rejected on measurement. The token is read only there whatever `permissions:` declares, and `maintainer_can_modify` grants a person rather than the Actions token.
-- **Let a merge queue build the commits here, and have a job rewrite them.** Rejected on measurement. The queue branch refuses the push with `protected branch hook declined`, and the queue then merges the commit it built.
-- **Have a workflow mirror the branch and open the pull request.** Rejected. A workflow opens a pull request only where the repository allows Actions to create and approve them, and that is one setting rather than two. Acceptance is derived from an approval here, so a workflow that can approve voids the record it would write.
-- **Give the contributor write access to one branch prefix.** Rejected. Write access also carries the power to approve a pull request.
-- **Have the maintainer write the trailer onto the fork branch, and a job verify it against the approval.** Measured, and it works. Not taken. It stops when the contributor clears "Allow edits from maintainers". That option is absent on a fork owned by an organization, so it cannot stand alone. Running it beside the chosen option would give a maintainer two paths. The better of the two fails on a condition purba does not control. purba has no outside contributor today. A contributor who wants the merge that GitHub records is what would take this up.
-- **Have the maintainer apply the work to a branch in this repository.** Chosen. It needs no new mechanism, because the branch is an ordinary branch here and the gate treats it as one.
+- **Merge the pull request from the fork and write no acceptance trailer.** A record with a documented hole has to be read beside its documentation before a reader can trust it. The risk this mechanism was built against sits outside this repository.
+- **Let a workflow write the trailer on the fork.** A measurement shows that the token is read only there whatever `permissions:` declares, and `maintainer_can_modify` grants a person rather than the Actions token.
+- **Let a merge queue build the commits here, and have a job rewrite them.** A measurement shows that the queue branch refuses the push with `protected branch hook declined`, and the queue then merges the commit it built.
+- **Have a workflow mirror the branch and open the pull request.** A workflow opens a pull request only where the repository allows Actions to create and approve them, and that is one setting rather than two. Acceptance is derived from an approval here, so a workflow that can approve voids the record it would write.
+- **Give the contributor write access to one branch prefix.** Write access also carries the power to approve a pull request.
+- **Have the maintainer write the trailer onto the fork branch, and a job verify it against the approval.** purba measured it, and it works. purba does not take it. It stops when the contributor clears "Allow edits from maintainers". That option is absent on a fork owned by an organization, so it cannot stand alone. Kept beside the applied branch, it would give a maintainer two paths. The better of the two fails on a condition purba does not control. purba has no outside contributor today. A contributor who wants the merge that GitHub records is what would take this up.
 
 ## Decision Outcome
 
@@ -31,7 +30,8 @@ Five prototypes measured what a workflow can and cannot do across the fork bound
 
 **Area:** workflow
 
-An outside contribution is applied to a branch in this repository, and the pull request from the fork is a proposal.
+**An outside contribution is applied to a branch in this repository, and the pull request from the fork is a proposal.**
+This path needs no new mechanism, because the branch is an ordinary branch here and the gate treats it as one.
 
 | | |
 |---|---|
