@@ -55,7 +55,7 @@ A mutant files purba's own `PanicException` as `raised`.
 `tests/kinds.bats` runs red under it.
 
 ```
-sed -i 's/Ok(Err(payload)) => return Err(Error::caught(payload.as_ref(), "execution")),/Ok(Err(payload)) => return Ok(Outcome { kind: Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string() } }),/' crates/execution/src/lib.rs
+sed -i 's/return (Err(Error::caught(payload.as_ref(), "execution")), landed);/return (Ok(Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string() }), landed);/' crates/execution/src/lib.rs
 mise run test:wheel
 ```
 
