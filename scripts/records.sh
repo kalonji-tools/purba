@@ -1,8 +1,11 @@
 # shellcheck shell=bash
-# What a record is, where its reach is, and the paths a reach matches.
+# What a record is, where its reach is, the paths a reach matches, and the areas
+# a record names.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
 #                  docs/decisions/a-record-names-every-location-where-it-applies.md
+#   the areas:
+# docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
 #
 #   is_record <path>                     prints <path> when it is a record
 #   reach_lines <record>                 prints `<first> <last> reach`, the lines
@@ -18,6 +21,12 @@
 #                                        <paths> that a pattern matches
 #   reach_match <scratch> <attributes>   prints `<attribute> NUL <path> NUL` for
 #               <paths>                  each NUL-separated path a pattern matches
+#   area_names <landscape>               prints each area, one to a line, in the
+#                                        order of the index, and nothing when the
+#                                        landscape names no part or concern
+#   area_read <record> <line> <areas>    sets <line> to the number of the line
+#                                        after the reach, and <areas> to each
+#                                        area that line names, one to a line
 #
 # Each line of <attributes> is `<pattern> <attribute>`. <scratch> is a directory
 # the caller removes. The caller sources report.sh first.
@@ -171,4 +180,51 @@ reach_match() {
   while IFS= read -r -d '' name && IFS= read -r -d '' attribute && IFS= read -r -d '' state; do
     [[ "${state}" != set ]] || printf '%s\0%s\0' "${attribute}" "${name}"
   done <"${scratch}/attributes"
+}
+
+# A part or a concern is the bold name that opens a bullet of its section. The
+# four areas outside the landscape sit around them, in the order of the index.
+area_names() {
+  awk '
+    /^## / {
+      section = ($0 == "## The parts and their dependencies" ||
+        $0 == "## The cross-cutting concerns")
+    }
+    section && match($0, /^- \*\*[^*]+\.\*\*/) { names[++count] = substr($0, 5, RLENGTH - 7) }
+    END {
+      if (count == 0) exit
+      print "design"
+      for (i = 1; i <= count; i++) print names[i]
+      print "workflow"
+      print "writing"
+      print "tooling"
+    }
+  ' "$1"
+}
+
+# Both are empty when the record has no reach, because the line after a broken
+# reach is not yet the line after a reach. <areas> is empty when the line is no
+# area line, or names no area.
+area_read() {
+  local span reach last number line word list=""
+  local -a content words
+  printf -v "$2" '%s' ""
+  printf -v "$3" '%s' ""
+  reach_read "$1" span reach
+  [[ "${span}" == *' reach' ]] || return 0
+  read -r _ last _ <<<"${span}"
+  mapfile -t content <"$1"
+  for ((number = last + 1; number <= ${#content[@]}; number++)); do
+    [[ -z "${content[number - 1]//[[:space:]]/}" ]] || break
+  done
+  printf -v "$2" '%s' "${number}"
+  line=${content[number - 1]:-}
+  [[ "${line}" =~ ^\*\*Area:\*\*(.*)$ ]] || return 0
+  IFS=, read -ra words <<<"${BASH_REMATCH[1]}"
+  for word in "${words[@]}"; do
+    word=${word#"${word%%[![:space:]]*}"}
+    word=${word%"${word##*[![:space:]]}"}
+    [[ -z "${word}" ]] || list+="${word}"$'\n'
+  done
+  printf -v "$3" '%s' "${list%$'\n'}"
 }

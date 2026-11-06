@@ -19,12 +19,18 @@ depends = ["lint", "test"]
 [fmt]
 description = """\
 Rewrite every formatting difference, every action not named by its commit, \
-and the order of design"""
+the order of design, and the index of the records"""
 depends = ["fmt:*"]
 
 ["fmt:cargo-scripts"]
 description = "Rewrite the formatting of each cargo script"
 run = "git ls-files -z {{vars.cargo_scripts}} | xargs -0 -r rustfmt --edition 2024"
+
+#   the decision:
+# docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+["fmt:index"]
+description = "Rewrite docs/README.md, the index of the records, from the area line of each record"
+run = "scripts/index-of-records.sh"
 
 #   the decision:  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
 ["fmt:order"]
@@ -63,6 +69,12 @@ done
 ["lint:gates"]
 description = "Refuse a tracked path that .config/gates does not mark for each gate it names"
 run = "scripts/check-gates.sh"
+
+#   the decision:
+# docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+["lint:index"]
+description = "Refuse a docs/README.md that differs from the index the area lines give"
+run = "scripts/index-of-records.sh --check"
 
 ["lint:licences"]
 description = "Refuse a dependency whose licence is not on the allowlist"
