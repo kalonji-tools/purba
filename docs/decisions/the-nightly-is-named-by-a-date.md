@@ -21,10 +21,9 @@ Nothing reports the difference.
 
 ## Considered Options
 
-- **A floating channel name.** Rejected. A floating name drifts, and no lockfile stops it.
-- **`RUSTUP_TOOLCHAIN` under `[env]`.** Rejected. It overrides what the backend installs and says nothing when the two differ.
-- **A toolchain file at the root.** Rejected. It loses inside a mise shell and wins outside one. Nothing reports the difference.
-- **A date, named once in `.config/mise.toml`.** Chosen. A date is an exact version, so it resolves only to itself, and this is the form mise documents.
+- **A floating channel name.** A floating name drifts, and no lockfile stops it.
+- **`RUSTUP_TOOLCHAIN` under `[env]`.** It overrides what the backend installs and says nothing when the two differ.
+- **A toolchain file at the root.** It loses inside a mise shell and wins outside one. Nothing reports the difference.
 
 ## Decision Outcome
 
@@ -33,6 +32,7 @@ Nothing reports the difference.
 **Area:** tooling
 
 **The nightly is named once, in `.config/mise.toml`, as a date.**
+A date is an exact version, so it resolves only to itself, and mise documents that form.
 `.config/mise.lock` records the same string, because mise derives an exact request's lock row from the request.
 So `.config/mise.lock` cannot disagree with `.config/mise.toml`.
 A person moves the date.

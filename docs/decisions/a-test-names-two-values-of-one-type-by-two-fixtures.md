@@ -19,12 +19,11 @@ The rows of the first prototype that do not name a type checker come from a sket
 
 ## Considered Options
 
-- **The refusal stays, and the tester writes a type that holds both values.** Rejected. The type hides its values from purba. Its fixture also skips the fixture of `Database`.
-- **Two `NewType`s of the type, each with a fixture of its own, and one generic fixture draws a reagent for each.** Rejected. A reader of `src: Tx[SourceDb]` finds its fixture only through another file.
-- **A `NewType` sits on the input that the test names.** Rejected for a stock. A test reaches a stock through a reagent, so each reagent then needs a `NewType` too.
-- **Fixtures builds a `NewType` through the fixture of its type.** Rejected. A fixture that names the type then gets a third value. Only a refusal of execution stops it.
-- **Two fixtures, each named in a typed default of the test.** Chosen. The line names where each value comes from. A fixture names its inputs in the same way, so no fixture gets a third value.
-- **Execution refuses a fixture that names one stock twice.** Rejected. Both names reach one shared stock.
+- **The refusal stays, and the tester writes a type that holds both values.** The type hides its values from purba. Its fixture also skips the fixture of `Database`.
+- **Two `NewType`s of the type, each with a fixture of its own, and one generic fixture draws a reagent for each.** A reader of `src: Tx[SourceDb]` finds its fixture only through another file.
+- **A `NewType` sits on the input that the test names.** For a stock, a test reaches it through a reagent, so each reagent then needs a `NewType` too.
+- **Fixtures builds a `NewType` through the fixture of its type.** A fixture that names the type then gets a third value. Only a refusal of execution stops it.
+- **Execution refuses a fixture that names one stock twice.** Both names reach one shared stock.
 
 ## Decision Outcome
 
@@ -33,6 +32,7 @@ The rows of the first prototype that do not name a type checker come from a sket
 **Area:** fixtures
 
 **A [test](../../CONTEXT.md#test) names two values of one type by two fixtures.**
+The test's line names where each value comes from.
 
 ```python
 @fixture
@@ -54,7 +54,7 @@ purba has no public surface for them yet.
 
 - **One generic fixture draws the reagent from every [stock](../../CONTEXT.md#stock).** `use(tx, source)` names that fixture, and the stock that it draws from.
 - **A fixture that draws a reagent takes its stock as its one parameter with no default.** `use(tx, source)` hands `tx` the stock that `source` builds.
-- **A fixture names each other input as a test does.** A fixture that names `use(tx, source)` gets the reagent that the test gets.
+- **A fixture names each other input as a test does.** So no fixture gets a third value. A fixture that names `use(tx, source)` gets the reagent that the test gets.
 - **A test names two values of any other type by two fixtures too.** `alice: User = use(alice)` and `bob: User = use(bob)` name two users.
 - **A fixture that names one stock twice gets that stock twice.**
 - **Execution refuses a fixture that names one reagent twice, as it refuses a test that does.**

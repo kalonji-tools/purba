@@ -14,18 +14,15 @@ It does not say how an author builds it.
 
 ## Considered Options
 
-- **TDD for every implementation.** Rejected. A record or a prose change has no test that a runner executes, so no test can fail first.
-- **TDD wherever a runner executes the change.** Chosen.
+- **TDD for every implementation.** A record or a prose change has no test that a runner executes, so no test can fail first.
 
 The proof of the order was weighed separately.
 
-- **The order of the commits.** Rejected. It shows an order and no failure.
-- **A push that holds only the test, and fails.** Chosen. CI runs on the head of a push, so only a push of its own runs the test alone.
+- **The order of the commits.** It shows an order and no failure.
 
 So was a gate.
 
-- **A gate that reads the changed paths.** Rejected. It checks that a push came first, and not what that push showed.
-- **No gate.** Chosen.
+- **A gate that reads the changed paths.** It checks that a push came first, and not what that push showed.
 
 ## Decision Outcome
 
@@ -48,8 +45,10 @@ Kent Beck's [Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd) defines the
 | names both files in the refusal | no refusal exists |
 
 **The author pushes the test alone, and its run fails before the code follows.**
+CI runs on the head of a push, so only a push of its own runs the test alone.
 `Scripts` and `Build` cancel a run when a new push lands, and a cancelled run proves nothing.
 The failed head outlives a reduction of the commits, because each head that a force push replaced keeps the commits below it.
+No gate proves the order.
 
 **A change with no new behaviour proves its coverage first.**
 The plan names the test that covers the code.

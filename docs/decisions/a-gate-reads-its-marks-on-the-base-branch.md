@@ -9,8 +9,7 @@ So the base branch and the head can hold different marks, and the gate reads one
 
 ## Considered Options
 
-- **The head of the pull request.** Rejected. A pull request could mark the paths it changes to skip, and skip its own gate.
-- **The base branch.** Chosen.
+- **The head of the pull request.** A pull request could mark the paths it changes to skip, and skip its own gate.
 
 ## Decision Outcome
 

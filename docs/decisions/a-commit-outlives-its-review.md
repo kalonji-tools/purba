@@ -36,14 +36,12 @@ Record corpora run at roughly one record per thousand commits, so they were neve
 
 ## Considered Options
 
-- **Cap the body length in CI.** Rejected. No commit-message tool caps body length, three ship body *minimums* instead, and a four-hundred-line body passes checkpatch with zero warnings. A number in CI is also the shape of check that cost the prototype thousands of lines of scripts for two recorded fires.
-- **Divide by artifact: the record holds rationale, the issue holds deliberation, the commit holds the rest.** Rejected by the measurement above. No project documents such a division, and the substitution it assumes happens nowhere.
-- **Divide by permanence.** Chosen. It is the only seam with precedent: four projects separate the commit message from review material on whether the text must outlive the review.
+- **Cap the body length in CI.** No commit-message tool caps body length, three ship body *minimums* instead, and a four-hundred-line body passes checkpatch with zero warnings. A number in CI is also the shape of check that cost the prototype thousands of lines of scripts for two recorded fires.
+- **Divide by artifact: the record holds rationale, the issue holds deliberation, the commit holds the rest.** The measurement above killed it. No project documents such a division, and the substitution it assumes happens nowhere.
 
 Permanence decides what is eligible. A second question decides what is written.
 
-- **A named element list, with an exception for a record commit.** Rejected. Every new kind of commit needs another clause, and the list already collides with itself. A body cannot both state the problem and not restate the diff, when the diff is the record.
-- **Subtraction: the body carries what no other location already carries.** Chosen. It states the value of a commit rather than its length, and the two rules the list already carries become instances of it.
+- **A named element list, with an exception for a record commit.** Every new kind of commit needs another clause, and the list already collides with itself. A body cannot both state the problem and not restate the diff, when the diff is the record.
 
 ## Decision Outcome
 
@@ -51,7 +49,8 @@ Permanence decides what is eligible. A second question decides what is written.
 
 **Area:** workflow, writing
 
-A commit message carries what must outlive the review that produced it, and nothing else.
+**A commit message carries what must outlive the review that produced it, and nothing else.**
+Permanence is the only seam with precedent: four projects separate the commit message from review material on whether the text must outlive the review.
 
 ```mermaid
 flowchart TD
@@ -92,6 +91,9 @@ Where no sentence survives, the subject stands alone.
 - Addressed to the reader who no longer remembers the details, never to the reviewer.
 - What any other location already holds is not written in the body again, and neither is what the diff already shows. [A register belongs to one location](a-register-belongs-to-one-location.md) names the locations and the register of each.
 - It names what a change relates to, and never its position in a planned series. A series can shrink. A body cannot be corrected.
+
+Subtraction keeps only what no other location carries.
+It states the value of a commit rather than its length, and the two rules the named element list carries become instances of it.
 
 **A rewrite carries more than a new record.**
 

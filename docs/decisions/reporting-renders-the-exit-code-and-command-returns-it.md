@@ -17,10 +17,9 @@ Some part counts each outcome and each error, and some part turns that count int
 
 ## Considered Options
 
-- **Reporting returns the tally, and command maps it to the code.** Rejected. Command then renders the outcomes for an integrator. The landscape says that reporting renders each outcome for an integrator.
-- **The parts diagram gains an arrow from command to execution, and command counts.** Rejected. Command then names the kind of an outcome.
-- **Dispatch counts while it hands each test.** Rejected. Reporting cannot name a type of dispatch, so it would count again for its count line.
-- **Execution holds the rule that counts, reporting renders the code, and command returns it.** Chosen. Execution defines each kind, so a new kind and the rule that counts it change in one crate. Command names no type of an outcome.
+- **Reporting returns the tally, and command maps it to the code.** Command then renders the outcomes for an integrator. The landscape says that reporting renders each outcome for an integrator.
+- **The parts diagram gains an arrow from command to execution, and command counts.** Command then names the kind of an outcome.
+- **Dispatch counts while it hands each test.** Reporting cannot name a type of dispatch, so it would count again for its count line.
 
 ## Decision Outcome
 
@@ -29,6 +28,8 @@ Some part counts each outcome and each error, and some part turns that count int
 **Area:** reporting
 
 **Reporting renders the exit code, and command returns it.**
+Execution defines each kind, so a new kind and the rule that counts it change in one crate.
+Command names no type of an outcome.
 
 | question | answer |
 |---|---|

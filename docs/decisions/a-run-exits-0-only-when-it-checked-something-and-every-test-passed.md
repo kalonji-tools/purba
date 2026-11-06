@@ -31,24 +31,19 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 ## Considered Options
 
-- **`unknown` exits 1, as a failed test does.** Rejected. An integrator could not tell a test that found a defect from a test that checked nothing.
-- **A run with no test exits 0.** Rejected. It reads as clean, and the run checked nothing.
-- **An error that `_main` does not catch.** Rejected. It exits 1, so an internal error reads as a failed test.
-- **A test that raised exits 1, as a failed test does.** Rejected. An integrator could not tell a test whose assert found a defect from a test whose code raised.
-- **A test that raised exits 3.** Rejected. 3 says that the run did not finish, but the run goes on past the test.
-- **Codes that keep `unknown`, a run with no test, and a test that raised or gave no outcome apart from a failure.** Chosen. Only a run that checked at least one behaviour, in which every test has an outcome and none failed, raised or is `unknown`, exits 0.
-- **A test that calls `os._exit` ends the run with its code, and the Downside names it.** Rejected. With 0, the run reads as clean though an earlier test failed.
-- **Only `os._exit(0)` makes the test raise, as in Go.** Rejected. Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
-- **The guard raises and records nothing, and the Downside names a call whose error a thread or the test catches.** Rejected. A test that hides the call passes, and the run can exit 0. Before the guard, the run ended with the code of the call.
-- **Off the test's thread, a code other than 0 calls the real `os._exit`.** Rejected. `faulthandler` already ends a hung test, and the guard would need to know which thread runs the test.
-- **A guard takes the place of `os._exit` in purba's process.** Chosen. A test that calls it has the outcome `raised`. A child that a test forks still exits.
-- **A digit names the kind, and a second digit names the failure.** Rejected. No surveyed tool gives a digit a meaning. SMTP's second digit ran out of codes.
-- **Each kind has a code of its own.** Rejected. No surveyed tool that reads an exit code tells a test that raised apart from a project error.
-- **Only the line that purba prints names the kind, and 3 and 4 each hold several kinds.** Rejected. An internal error then reads as an invocation error or as a test that raised.
-- **Only an internal error gets a new code.** Chosen. `git bisect run` and a system that retries each ask whether the tool itself failed.
-- **A failed test comes first in the order.** Rejected. A run with a failed test and a panic inside another test then exits 1, which reads as a failed test.
-- **The order puts an internal error first, then an invocation error, then a failed test.** Chosen. An internal error never comes after a failed test. A failed test still comes before what the run could not check.
-- **An internal error exits 125.** Chosen. `git bisect run` skips the commit, and does not blame it.
+- **`unknown` exits 1, as a failed test does.** An integrator could not tell a test that found a defect from a test that checked nothing.
+- **A run with no test exits 0.** It reads as clean, and the run checked nothing.
+- **An error that `_main` does not catch.** It exits 1, so an internal error reads as a failed test.
+- **A test that raised exits 1, as a failed test does.** An integrator could not tell a test whose assert found a defect from a test whose code raised.
+- **A test that raised exits 3.** 3 says that the run did not finish, but the run goes on past the test.
+- **A test that calls `os._exit` ends the run with its code, and the Downside names it.** With 0, the run reads as clean though an earlier test failed.
+- **Only `os._exit(0)` makes the test raise, as in Go.** Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
+- **The guard raises and records nothing, and the Downside names a call whose error a thread or the test catches.** A test that hides the call passes, and the run can exit 0. Before the guard, the run ended with the code of the call.
+- **Off the test's thread, a code other than 0 calls the real `os._exit`.** `faulthandler` already ends a hung test, and the guard would need to know which thread runs the test.
+- **A digit names the kind, and a second digit names the failure.** No surveyed tool gives a digit a meaning. SMTP's second digit ran out of codes.
+- **Each kind has a code of its own.** No surveyed tool that reads an exit code tells a test that raised apart from a project error.
+- **Only the line that purba prints names the kind, and 3 and 4 each hold several kinds.** An internal error then reads as an invocation error or as a test that raised.
+- **A failed test comes first in the order.** A run with a failed test and a panic inside another test then exits 1, which reads as a failed test.
 
 ## Decision Outcome
 
@@ -72,10 +67,12 @@ flowchart TD
   unknown -- no --> c0["0: at least one test ran, and every test passed"]
 ```
 
-- **An internal error has a code of its own, 125.** The line that purba prints names each kind.
+- **An internal error has a code of its own, 125.** `git bisect run` and a system that retries each ask whether the tool itself failed. On 125, `git bisect run` skips the commit, and does not blame it. The line that purba prints names each kind.
+- **The order puts an internal error first, then an invocation error, then a failed test.** An internal error never comes after a failed test. A failed test still comes before what the run could not check.
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
 - **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
 - **An interrupted run dies by its signal, and takes none of the codes 0, 1, 2, 3, 4 and 125.** [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds how it ends.
+- **A guard takes the place of `os._exit` in purba's process.**
 - **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the worker last took one. The worker takes that call when the test returns, and when the load of a module returns. So a call from a thread, or one whose error the test catches, counts too. A call while a module loads fails that load, whether the module catches it or not, unless the first interrupt landed in the load. In a process that a test forks, `os._exit` still exits. A test that the first interrupt lands in has the outcome `interrupted` instead, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.

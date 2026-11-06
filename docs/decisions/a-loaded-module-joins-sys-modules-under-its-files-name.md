@@ -20,8 +20,7 @@ It runs the text through `compile()` and `exec()`.
 
 ## Considered Options
 
-- **Keep the module out of `sys.modules`.** Rejected. A module with a `@dataclass` under `from __future__ import annotations` does not load. A test that pickles its own class or function fails.
-- **Put the module in `sys.modules` under its file's name, without `.py`, before its body runs.** Chosen. Each row of the probe passes. The cost is one call before `exec()`.
+- **Keep the module out of `sys.modules`.** A module with a `@dataclass` under `from __future__ import annotations` does not load. A test that pickles its own class or function fails.
 
 ## Decision Outcome
 
@@ -30,6 +29,8 @@ It runs the text through `compile()` and `exec()`.
 **Area:** assertion
 
 **A loaded module joins `sys.modules` under its file's name, without `.py`, before its body runs.**
+Each row of the probe passes.
+The cost is one call before `exec()`.
 
 That name is also the module's `__name__`, so `dir/test_a.py` loads as `test_a`.
 [A module whose load fails leaves sys.modules as it found it](a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md#decision-outcome) decides what a failed load leaves in `sys.modules`.

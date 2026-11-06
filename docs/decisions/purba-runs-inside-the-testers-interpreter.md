@@ -18,9 +18,8 @@ Each arrangement decides which interpreter runs the tester's code.
 
 ## Considered Options
 
-- **A Rust host that loads the tester's `libpython`.** Rejected. The choice of interpreter becomes purba's work. A wrong choice reaches the tester as a test failure, or as a report of an interpreter that did not run the test.
-- **A Rust host that ships its own CPython.** Rejected. A compiled package in the tester's environment that is not `abi3` loads only when its version and threading variant match the bundled interpreter.
-- **An extension module that the tester's interpreter loads.** Chosen. The interpreter that the tester chose is the one that runs the test.
+- **A Rust host that loads the tester's `libpython`.** The choice of interpreter becomes purba's work. A wrong choice reaches the tester as a test failure, or as a report of an interpreter that did not run the test.
+- **A Rust host that ships its own CPython.** A compiled package in the tester's environment that is not `abi3` loads only when its version and threading variant match the bundled interpreter.
 
 ## Decision Outcome
 

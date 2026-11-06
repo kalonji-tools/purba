@@ -15,8 +15,7 @@ Two forms were in use.
 
 ## Considered Options
 
-- **A refusal also names the file that holds its rule.** Rejected. `mise run lint:links` reads a cited path only in a comment. A file named in a refusal goes stale when that file is renamed. Nothing reports it.
-- **A refusal states the rule, why it holds, and where it was found.** Chosen.
+- **A refusal also names the file that holds its rule.** `mise run lint:links` reads a cited path only in a comment. A file named in a refusal goes stale when that file is renamed. Nothing reports it.
 
 ## Decision Outcome
 
@@ -24,7 +23,7 @@ Two forms were in use.
 
 **Area:** tooling, writing
 
-A refusal states the rule, why it holds, and where it was found.
+**A refusal states the rule, why it holds, and where it was found.**
 
 | part | required |
 |---|---|

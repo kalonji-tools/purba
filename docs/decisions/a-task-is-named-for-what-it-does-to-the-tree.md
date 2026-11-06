@@ -15,11 +15,10 @@ A group that lists its members by hand runs a new lint in CI only when its autho
 
 ## Considered Options
 
-- **The subject first, such as `shell:lint`.** Rejected. A check that reads the whole repository has no subject, so it needs an invented group.
-- **The prefix names a topic, such as `fmt:check`.** Rejected. A reader cannot tell from the prefix whether a task changes their files.
-- **One task for each tool, such as `lint:clippy`.** Rejected. A tool that reads two subjects splits one subject across two names.
-- **A group with a list kept by hand, such as `quality`.** Rejected. A lint left off the list runs nowhere in CI, so it refuses nothing.
-- **The verb first, the subject after the colon, and a bare verb as the group.** Chosen. The verb answers whether a task touches your files, and the wildcard keeps every group whole.
+- **The subject first, such as `shell:lint`.** A check that reads the whole repository has no subject, so it needs an invented group.
+- **The prefix names a topic, such as `fmt:check`.** A reader cannot tell from the prefix whether a task changes their files.
+- **One task for each tool, such as `lint:clippy`.** A tool that reads two subjects splits one subject across two names.
+- **A group with a list kept by hand, such as `quality`.** A lint left off the list runs nowhere in CI, so it refuses nothing.
 
 ## Decision Outcome
 
@@ -28,6 +27,7 @@ A group that lists its members by hand runs a new lint in CI only when its autho
 **Area:** tooling
 
 **A task is named `<verb>:<subject>`.**
+The verb answers whether a task touches your files.
 
 | verb | what the task does to the tree |
 |---|---|

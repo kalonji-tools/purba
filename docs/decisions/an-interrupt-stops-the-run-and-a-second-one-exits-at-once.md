@@ -20,19 +20,14 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 ## Considered Options
 
-- **What runs carries the interrupt, as today.** Rejected. A Ctrl-C in a load reads as a project error. One between two tests reads as the next test's raise.
-- **The interrupt stops the run wherever it lands.** Chosen. No later work starts. No test or module carries it.
-- **The test that runs finishes, and no later test starts, as RSpec does.** Rejected. A test that hangs never stops on the first interrupt.
-- **The test that runs stops at once, and unwinds.** Chosen. Python raises inside the test, so its `finally` runs.
-- **SIGTERM ends purba by its default action, as today.** Rejected. A CI cancel then leaves all that the run built.
-- **SIGTERM and SIGHUP do what SIGINT does.** Chosen. A CI cancel and a closed terminal each get the cleanup.
-- **A second interrupt raises again, as the first does.** Rejected. Each press ends one cleanup, so the tester presses once for each.
-- **A second interrupt skips the cleanup left, and exits at once.** Chosen. A cleanup that hangs cannot trap the tester.
-- **purba's signal handler ends purba on a second interrupt.** Rejected. It runs only at the next line of Python, so a cleanup that loops in C code keeps purba alive.
-- **The first interrupt gives each interrupt signal its default action.** Chosen. The second ends purba wherever it lands.
-- **A test that catches the `KeyboardInterrupt` continues the run, as today.** Rejected. The test swallows the tester's Ctrl-C. The run can then exit 0.
-- **A signal handler that a test or a module installs outlives its call or its load, as today.** Rejected. One test or one module disarms Ctrl-C for each later test.
-- **An `_Avoid_` line for `cancel` and `abort`.** Rejected. `typos` rewrites each word in every tracked file. GitHub reads `cancel-in-progress` as a key.
+- **What runs carries the interrupt, as today.** A Ctrl-C in a load reads as a project error. One between two tests reads as the next test's raise.
+- **The test that runs finishes, and no later test starts, as RSpec does.** A test that hangs never stops on the first interrupt.
+- **SIGTERM ends purba by its default action, as today.** A CI cancel then leaves all that the run built.
+- **A second interrupt raises again, as the first does.** Each press ends one cleanup, so the tester presses once for each.
+- **purba's signal handler ends purba on a second interrupt.** It runs only at the next line of Python, so a cleanup that loops in C code keeps purba alive.
+- **A test that catches the `KeyboardInterrupt` continues the run, as today.** The test swallows the tester's Ctrl-C. The run can then exit 0.
+- **A signal handler that a test or a module installs outlives its call or its load, as today.** One test or one module disarms Ctrl-C for each later test.
+- **An `_Avoid_` line for `cancel` and `abort`.** `typos` rewrites each word in every tracked file. GitHub reads `cancel-in-progress` as a key.
 
 ## Decision Outcome
 
@@ -42,13 +37,13 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 **An [interrupt](../../CONTEXT.md#interrupt) stops the run, and a second one exits at once.**
 
-- **The first interrupt stops the run wherever it lands.** No test starts after it, and no module loads. It is no [kind of failure](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome).
+- **The first interrupt stops the run wherever it lands.** No test or module carries it. No test starts after it, and no module loads. It is no [kind of failure](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome).
 - **The test that runs stops at once.** Python unwinds it, so its `finally` runs.
-- **SIGTERM, SIGHUP and a Ctrl-Break on Windows do what SIGINT does.**
+- **SIGTERM, SIGHUP and a Ctrl-Break on Windows do what SIGINT does.** A CI cancel and a closed terminal each get the cleanup.
 - **A signal that the parent ignores stays ignored.**
 - **The run stops even when a test catches the `KeyboardInterrupt`.** It stops when the test returns.
 - **A signal handler that a test installs lives only for its call, and one that a module installs lives only for its load.** purba puts its own back when the call or the load returns.
-- **A second interrupt skips the cleanup left, and exits at once.** Any two interrupts count, so SIGINT and then SIGTERM make a second. The first interrupt gives each interrupt signal its default action, so the second ends purba even while a cleanup runs C code.
+- **A second interrupt skips the cleanup left, and exits at once.** A cleanup that hangs cannot trap the tester. Any two interrupts count, so SIGINT and then SIGTERM make a second. The first interrupt gives each interrupt signal its default action, so the second ends purba even while a cleanup runs C code.
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
 [An interrupt puts back no more than a normal end does](an-interrupt-puts-back-no-more-than-a-normal-end-does.md#decision-outcome) says what each part puts back.

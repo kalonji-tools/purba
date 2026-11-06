@@ -19,10 +19,9 @@ PEP 693 states the lifetime: security fixes run for five years after a version's
 
 ## Considered Options
 
-- **A version chosen now.** Rejected. 3.11 was chosen that way, and because nothing recorded why, no reader could tell the decision from a placeholder.
-- **The oldest version still supported at purba's first release.** Rejected. The release date is unknown, so the condition cannot decide. This map refused an undecidable condition five times.
-- **A fixed offset below the newest version.** Rejected. It computes the same floor today and states no reason. It moves whenever the newest version moves, and nobody can say whether that was intended.
-- **The oldest version that still has a fixed span of life left.** Chosen. It is the reason written as a rule, so the floor recomputes without anybody choosing a version.
+- **A version chosen now.** 3.11 was chosen that way, and because nothing recorded why, no reader could tell the decision from a placeholder.
+- **The oldest version still supported at purba's first release.** The release date is unknown, so the condition cannot decide. This map refused an undecidable condition five times.
+- **A fixed offset below the newest version.** It computes the same floor today and states no reason. It moves whenever the newest version moves, and nobody can say whether that was intended.
 
 ## Decision Outcome
 
@@ -30,7 +29,8 @@ PEP 693 states the lifetime: security fixes run for five years after a version's
 
 **Area:** design, tooling
 
-purba's Python floor is the oldest CPython that still has two years of support left.
+**purba's Python floor is the oldest CPython that still has two years of support left.**
+The rule states its reason, a span of life left, so the floor recomputes and nobody chooses a version.
 
 The rule computes the floor, and `pyproject.toml` declares what it computes today.
 This record does not repeat that version, because it moves and the rule does not.

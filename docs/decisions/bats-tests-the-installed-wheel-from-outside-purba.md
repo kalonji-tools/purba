@@ -16,10 +16,9 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 
 ## Considered Options
 
-- **A cargo test that calls `_main` in-process.** Rejected. It skips the wheel and the console script, which the test must confirm.
-- **The test on `main` now, under `skip`.** Rejected. A skipped test checks nothing, and Build reports it as a pass.
-- **The test on `main` now, against a stub `_main`.** Rejected. The stub turns the test green, and the test then proves nothing.
-- **bats against the installed command, from outside purba.** Chosen. It crosses the console script and the wheel.
+- **A cargo test that calls `_main` in-process.** It skips the wheel and the console script, which the test must confirm.
+- **The test on `main` now, under `skip`.** A skipped test checks nothing, and Build reports it as a pass.
+- **The test on `main` now, against a stub `_main`.** The stub turns the test green, and the test then proves nothing.
 
 ## Decision Outcome
 
@@ -28,6 +27,7 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 **Area:** tooling
 
 **bats tests the `purba` command that the wheel installs, from outside purba.**
+The test crosses the console script and the wheel.
 
 | file | holds |
 |---|---|

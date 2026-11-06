@@ -25,10 +25,9 @@ Only the lines the gate reads count.
 
 ## Considered Options
 
-- **The word-list walk.** Rejected. It passes a participle the list lacks, such as `has never had`, and each one costs a defect. A fix in bash of that list and of [The records gate reads a sentence wrapped across two lines as two sentences](https://github.com/kalonji-tools/purba/issues/311) was the alternative.
-- **A Weir rule, run by `harper-cli`.** Rejected, and kept as the fallback. Weir reads the tag and never the dictionary. The tagger gives `enforced`, `pinned` and `rewritten` no tag, so the rule passes `has enforced`. `harper-cli` reads its user dictionary as bare words with no verb form, so purba cannot close that gap.
-- **The word-list walk or the Weir rule.** Rejected. It refuses the most tenses, and also the most lines that hold none.
-- **harper-core as a library.** Chosen. It reads the forms of a verb from the dictionary and the class of a word from the tagger.
+- **The word-list walk.** It passes a participle the list lacks, such as `has never had`, and each one costs a defect. A fix in bash of that list and of [The records gate reads a sentence wrapped across two lines as two sentences](https://github.com/kalonji-tools/purba/issues/311) was the alternative.
+- **A Weir rule, run by `harper-cli`.** purba keeps it as the fallback. Weir reads the tag and never the dictionary. The tagger gives `enforced`, `pinned` and `rewritten` no tag, so the rule passes `has enforced`. `harper-cli` reads its user dictionary as bare words with no verb form, so purba cannot close that gap.
+- **The word-list walk or the Weir rule.** It refuses the most tenses, and also the most lines that hold none.
 
 ## Decision Outcome
 
@@ -37,6 +36,7 @@ Only the lines the gate reads count.
 **Area:** writing, tooling
 
 **A part-of-speech tagger decides the tense rule.**
+harper-core, as a library, reads the forms of a verb from the dictionary and the class of a word from the tagger.
 The check walks back from a participle to `has`, `have`, `had` or `having`.
 It stops at a determiner, a number, a noun, `to`, a form of `be` or a code span.
 In a question that opens with a form of `have` or a question word, a determiner, a number and a noun do not stop it.

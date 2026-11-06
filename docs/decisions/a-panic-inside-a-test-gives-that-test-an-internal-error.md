@@ -14,16 +14,11 @@ So reporting cannot tell an [internal error](../../CONTEXT.md#internal-error) fr
 
 ## Considered Options
 
-- **Dispatch alone catches a panic around each test.** Rejected. The next test takes a recorded call to `os._exit`, and a test that catches the panic hides it.
-- **Execution catches a panic around the test's call, and dispatch catches the rest.** Rejected. A test that catches the panic hides it.
-- **purba's hooks raise an exception of purba's own, and dispatch catches the rest.** Rejected. Each hook carries a wrapper, and stderr loses the Python traceback with the tester's line.
-- **A wrap of Rust's panic hook records each panic, execution catches around the call, and dispatch catches the rest.** Chosen. The next test keeps its line, and a test that catches the panic cannot hide it.
-- **A variant of the value that dispatch hands carries an internal error.** Rejected. Execution then needs a second type of error to reach dispatch.
-- **One error carries a project error or an internal error.** Chosen. What dispatch hands keeps its shape.
-- **A part of its own holds the wrap and its note.** Rejected. The landscape then gains a part, two arrows and a line in the order of design, for one note.
-- **Execution holds the wrap and its note.** Chosen. Dispatch reads the note through an arrow that the parts diagram already draws.
-- **Execution names the part of each panic, for each part that catches one.** Chosen. The rule lives in one place. Only execution builds the internal error.
-- **Command catches a panic in selection, through an arrow of its own to execution.** Chosen. Execution holds the one rule that names the part.
+- **Dispatch alone catches a panic around each test.** The next test takes a recorded call to `os._exit`, and a test that catches the panic hides it.
+- **Execution catches a panic around the test's call, and dispatch catches the rest.** A test that catches the panic hides it.
+- **purba's hooks raise an exception of purba's own, and dispatch catches the rest.** Each hook carries a wrapper, and stderr loses the Python traceback with the tester's line.
+- **A variant of the value that dispatch hands carries an internal error.** Execution then needs a second type of error to reach dispatch.
+- **A part of its own holds the wrap and its note.** The landscape then gains a part, two arrows and a line in the order of design, for one note.
 
 ## Decision Outcome
 
@@ -51,10 +46,11 @@ flowchart LR
   command --> module["<b>internal error</b> for that module, and no test of it runs"]
 ```
 
-- **The error that execution hands is a project error or an internal error.** An internal error carries the part that found it, and its message. Both are data.
-- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** `_main` installs the wrap.
+- **A wrap of Rust's panic hook records each panic, execution catches around the call, and dispatch catches the rest.** The next test keeps its line, and a test that catches the panic cannot hide it.
+- **The error that execution hands is a project error or an internal error.** What dispatch hands keeps its shape. An internal error carries the part that found it, and its message. Both are data.
+- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** Dispatch reads the note through an arrow that the parts diagram already draws. `_main` installs the wrap.
 - **A panic in the source of a part names that part.** Any other panic names the part that catches it.
-- **Execution's module `panic` names the part of a panic.** Dispatch and command reach it through `catch`. `_main` calls `panic::caught` directly.
+- **Execution's module `panic` names the part of a panic.** Dispatch and command reach it through `catch`. `_main` calls `panic::caught` directly. The rule lives in one place. Only execution builds the internal error.
 - **Command catches a panic in selection, and gives the module that selection reads an internal error.**
 
 **Downside:**

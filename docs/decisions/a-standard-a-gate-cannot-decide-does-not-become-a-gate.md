@@ -16,8 +16,7 @@ The thread said: "The Decision Outcome is written by a person, or the change doe
 
 ## Considered Options
 
-- **Require the thread to be resolved before the merge.** Rejected. In the table above it records a click every time and a judgement never.
-- **Post the questions, and block nothing.** Chosen. The reviewer reads them while they decide. Nothing claims that a judgement was made.
+- **Require the thread to be resolved before the merge.** In the table above it records a click every time and a judgement never.
 
 ## Decision Outcome
 
@@ -27,6 +26,10 @@ The thread said: "The Decision Outcome is written by a person, or the change doe
 
 **A standard a gate cannot decide does not become a gate.**
 The record states it, the reader judges it, and nothing blocks on it.
+A comment on each pull request that changes a record asks its questions once the pull request is ready for review, and blocks nothing.
+The reviewer reads them while they decide.
+Nothing claims that a judgement was made.
+
 A gate over a judgement measures only that someone clicked.
 A reader who judged nothing satisfies it exactly as well.
 

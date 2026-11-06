@@ -125,6 +125,7 @@
 - [An unpublished comment carries what no other location carries](decisions/an-unpublished-comment-carries-what-no-other-location-carries.md)
 - [purba borrows from Simplified Technical English rather than adopting it](decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md)
 - [Architectural significance is declared, not detected](decisions/significance-is-declared-not-detected.md)
+- [The decision sentence is the winner, and Considered Options holds only what lost](decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md)
 - [The glossary stays open, and a gate rewrites each word it avoids](decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md)
 - [The person owns the Decision Outcome](decisions/the-person-owns-the-decision-outcome.md)
 
@@ -157,6 +158,7 @@
 - [purba supports a Python that has two years left](decisions/purba-supports-a-python-with-two-years-left.md)
 - [purba writes its scripts in bash until purba can test them](decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md)
 - [The crate carries an rlib](decisions/the-crate-carries-an-rlib.md)
+- [The decision sentence is the winner, and Considered Options holds only what lost](decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md)
 - [The glossary stays open, and a gate rewrites each word it avoids](decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md)
 - [The nightly is named by a date](decisions/the-nightly-is-named-by-a-date.md)
 - [The zip alerts of check-prose are dismissed as unused](decisions/the-zip-alerts-of-check-prose-are-dismissed-as-unused.md)

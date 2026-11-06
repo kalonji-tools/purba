@@ -14,13 +14,11 @@ mise installs a Python tool into an environment of its own.
 
 Each answer below places the line where mise stops.
 
-- **mise declares whatever it can fetch.** Rejected. mise installs a Python tool such as pytest into an environment of its own, where it cannot import purba.
+- **mise declares whatever it can fetch.** mise installs a Python tool such as pytest into an environment of its own, where it cannot import purba.
 
-- **A package declared where a foreign tool reads it, and in mise as well.** Rejected, because a package that two managers declare is a conflict in the making. It keeps maturin in `pyproject.toml` for pip and in `.config/mise.toml` for everyone else.
+- **A package declared where a foreign tool reads it, and in mise as well.** A package that two managers declare is a conflict in the making. This option keeps maturin in `pyproject.toml` for pip and in `.config/mise.toml` for everyone else.
 
-- **`pyproject.toml` declares maturin, and mise drops it.** Rejected. A source build would work, but no lockfile would hold the build backend.
-
-- **A package that shares purba's process or environment goes in its language's manifest, and mise declares the rest.** Chosen. One reason places a linked crate and a test runner alike.
+- **`pyproject.toml` declares maturin, and mise drops it.** A source build would work, but no lockfile would hold the build backend.
 
 ## Decision Outcome
 
@@ -29,6 +27,7 @@ Each answer below places the line where mise stops.
 **Area:** tooling
 
 **One manifest declares each package.**
+One reason places a linked crate and a test runner alike: whether the package shares purba's process or environment.
 
 | package | manifest |
 |---|---|

@@ -16,8 +16,7 @@ Parsing kept only whether ruff found an error, and handed the recovered tree to 
 
 ## Considered Options
 
-- **`Module` keeps `has_syntax_error()`, and each part that reads the tree checks it.** Rejected. A part that omits the check reads a recovered tree, as selection did when it named `test_bad1`.
-- **`parse` returns an error in place of a `Module`.** Chosen. No later part can hold a recovered tree.
+- **`Module` keeps `has_syntax_error()`, and each part that reads the tree checks it.** A part that omits the check reads a recovered tree, as selection did when it named `test_bad1`.
 
 ## Decision Outcome
 

@@ -14,8 +14,7 @@ A change to another part then edits the tests of command.
 
 ## Considered Options
 
-- **A test of command compares the whole stdout.** Rejected. A change to reporting's count line fails each test of command that pins it.
-- **A test of command checks only command's rules.** Chosen. Each rule fails the tests of the part that owns it.
+- **A test of command compares the whole stdout.** A change to reporting's count line fails each test of command that pins it.
 
 ## Decision Outcome
 
@@ -24,6 +23,7 @@ A change to another part then edits the tests of command.
 **Area:** command
 
 **A command test checks only command's rules.**
+Each rule fails the tests of the part that owns it.
 
 - **A test of command checks a rule that command owns.** Command owns these rules:
   - It reads the arguments.

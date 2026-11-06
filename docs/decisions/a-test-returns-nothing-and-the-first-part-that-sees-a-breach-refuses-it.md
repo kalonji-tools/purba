@@ -13,14 +13,11 @@ Selection takes each `def test…`, and execution calls it.
 
 ## Considered Options
 
-- **Selection takes each `def test…`, and execution ignores what the call returns.** Rejected. A test that returns `False` prints `passed`, and an `async` test prints `unknown`.
-- **A test takes no input until fixtures has its design in depth.** Rejected. It contradicts the design of fixtures on the day that the design merges.
-- **Two inputs that name one fixture share one object, and purba allows it.** Rejected. A test that compares two inputs then compares one object with itself.
-- **Execution refuses a test with two inputs that name one fixture.** Chosen. No test then gets one object under two names.
-- **Execution gives `unknown` to a test that returns a value.** Rejected. Selection sees the `return` first.
-- **Selection refuses a `return` of a value in a test.** Chosen. The text shows it before any test runs.
-- **A test names a shared value whose content can change.** Rejected. Each test that names it then carries the risk.
-- **A test reaches a shared value whose content can change only through a fixture.** Chosen. The risk then sits in one fixture.
+- **Selection takes each `def test…`, and execution ignores what the call returns.** A test that returns `False` prints `passed`, and an `async` test prints `unknown`.
+- **A test takes no input until fixtures has its design in depth.** It contradicts the design of fixtures on the day that the design merges.
+- **Two inputs that name one fixture share one object, and purba allows it.** A test that compares two inputs then compares one object with itself.
+- **Execution gives `unknown` to a test that returns a value.** Selection sees the `return` first.
+- **A test names a shared value whose content can change.** Each test that names it then carries the risk.
 
 ## Decision Outcome
 
@@ -29,6 +26,7 @@ Selection takes each `def test…`, and execution calls it.
 **Area:** selection
 
 **A [test](../../CONTEXT.md#test) returns nothing, and the first part that sees a breach of a test refuses it.**
+The text of a test shows a `return` of a value before any test runs, so selection refuses it.
 
 | a test | a breach | the part that sees it |
 |---|---|---|
@@ -42,9 +40,9 @@ Selection takes each `def test…`, and execution calls it.
 
 - **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
-- **Selection leaves two inputs that name one fixture to execution.** Only execution resolves the names in `use(…)`.
+- **Selection leaves two inputs that name one fixture to execution.** Execution refuses such a test, so no test gets one object under two names. Only execution resolves the names in `use(…)`.
 - **The type of a [catalyst](../../CONTEXT.md#catalyst) proves it immutable.** Fixtures reads the type before it builds the value.
-- **A test reaches a stock only through a [reagent](../../CONTEXT.md#reagent) that a fixture draws from it.** That fixture undoes what the test changes, such as through one transaction that it rolls back.
+- **A test reaches a stock only through a [reagent](../../CONTEXT.md#reagent) that a fixture draws from it.** The risk that a test changes what the next test sees sits in one fixture. That fixture undoes what the test changes, such as through one transaction that it rolls back.
 
 **Downside:**
 

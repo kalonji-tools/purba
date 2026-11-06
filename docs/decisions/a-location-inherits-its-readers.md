@@ -14,13 +14,12 @@ The prototype shows what an unanswered location question costs.
 
 ## Considered Options
 
-- **Bind each location to one reader.** Rejected. `docs/decisions/` serves the architect and the technical writer at once.
-- **Let a child override its parent, as GitHub's `CODEOWNERS` does.** Rejected. The last matching pattern wins there, so a child naming the architect would dismiss the technical writer. Override is correct for an approval and wrong for a reader.
-- **Author a reader list for every location.** Rejected. A commit and a changelog hold no content of their own, so a second authored list can disagree with the thing it describes. [Decide purba's documentation harness and example verification](https://github.com/kalonji-tools/purba/issues/28) settled the form: a check that detects drift is worse than a design where drift cannot happen.
-- **Route by the stage of work rather than by the location.** Rejected. A stage can be reordered or removed while every location stays, so a record keyed to stages is rewritten on each revision.
-- **Invent a binding syntax.** Rejected after a prototype. The smallest thing that works is directory prefixes, and prefixes cannot express `*.toml`, which in the prototype reached 956 of 1,109 files in four patterns.
-- **Implement part of gitattributes syntax by hand.** Rejected. A file that looks like gitattributes and supports less than gitattributes lies about itself. The subset is invisible until someone writes a pattern it silently ignores.
-- **Accumulate readers down the tree, written in gitattributes syntax and parsed by gitattributes' own parser.** Chosen.
+- **Bind each location to one reader.** `docs/decisions/` serves the architect and the technical writer at once.
+- **Let a child override its parent, as GitHub's `CODEOWNERS` does.** The last matching pattern wins there, so a child naming the architect would dismiss the technical writer. Override is correct for an approval and wrong for a reader.
+- **Author a reader list for every location.** A commit and a changelog hold no content of their own, so a second authored list can disagree with the thing it describes. [Decide purba's documentation harness and example verification](https://github.com/kalonji-tools/purba/issues/28) settled the form: a check that detects drift is worse than a design where drift cannot happen.
+- **Route by the stage of work rather than by the location.** A stage can be reordered or removed while every location stays, so a record keyed to stages is rewritten on each revision.
+- **Invent a binding syntax.** A prototype tried it. The smallest thing that works is directory prefixes, and prefixes cannot express `*.toml`, which in the prototype reached 956 of 1,109 files in four patterns.
+- **Implement part of gitattributes syntax by hand.** A file that looks like gitattributes and supports less than gitattributes lies about itself. The subset is invisible until someone writes a pattern it silently ignores.
 
 ## Decision Outcome
 
@@ -28,7 +27,7 @@ The prototype shows what an unanswered location question costs.
 
 **Area:** writing
 
-A location inherits its readers.
+**A location inherits its readers.**
 
 **The words this record uses are defined once.**
 [A term belongs to the glossary](a-term-belongs-to-the-glossary.md) holds them.

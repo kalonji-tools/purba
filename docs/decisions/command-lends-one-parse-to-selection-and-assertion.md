@@ -18,17 +18,16 @@ Selection and assertion both need the AST of a selected module, and no other par
 
 ## Considered Options
 
-- **Each part asks parsing for the module, and parsing reads on each request.** Rejected. Parsing parses each module twice, from a file that can change between the two reads. Each worker needs a parser.
-- **The tree travels to each part that wants it.** Rejected. No ruff node crosses a process. Execution, fixtures and reporting would depend on ruff's types for one fact each.
-- **Parsing keeps each tree for the run.** Rejected. A kept tree holds far more than its source, to save a parse that costs a fraction of `compile()`.
-- **Parsing keeps the text, so each file is read once.** Rejected. One parse before the run already gives each part one text.
-- **Selection reads the file and hands the text to parsing.** Rejected. A second part then opens test files, and parsing parses a text it did not read.
-- **A database with one interface for each part.** Rejected. `&dyn Db` passes through every call, and a run whose order is fixed repays no database.
-- **One walk calls each consumer registered with parsing.** Rejected. Assertion sees each module before selection decides, which breaks lazy work.
-- **Selection calls assertion's rewrite.** Rejected. Selection then holds two jobs.
-- **A node travels as a `NodeIndex`, or as a kind and a range.** Rejected. The parser leaves every index empty, and a later part wants a fact, not a node.
-- **Assertion changes a copy of the tree.** Rejected. A tree goes back to source only through one more ruff crate, or a Python `ast` that assertion builds across the seam.
-- **Command lends one parse to selection and then to assertion's rewrite, and only facts cross a part.** Chosen.
+- **Each part asks parsing for the module, and parsing reads on each request.** Parsing parses each module twice, from a file that can change between the two reads. Each worker needs a parser.
+- **The tree travels to each part that wants it.** No ruff node crosses a process. Execution, fixtures and reporting would depend on ruff's types for one fact each.
+- **Parsing keeps each tree for the run.** A kept tree holds far more than its source, to save a parse that costs a fraction of `compile()`.
+- **Parsing keeps the text, so each file is read once.** One parse before the run already gives each part one text.
+- **Selection reads the file and hands the text to parsing.** A second part then opens test files, and parsing parses a text it did not read.
+- **A database with one interface for each part.** `&dyn Db` passes through every call, and a run whose order is fixed repays no database.
+- **One walk calls each consumer registered with parsing.** Assertion sees each module before selection decides, which breaks lazy work.
+- **Selection calls assertion's rewrite.** Selection then holds two jobs.
+- **A node travels as a `NodeIndex`, or as a kind and a range.** The parser leaves every index empty, and a later part wants a fact, not a node.
+- **Assertion changes a copy of the tree.** A tree goes back to source only through one more ruff crate, or a Python `ast` that assertion builds across the seam.
 
 ## Decision Outcome
 

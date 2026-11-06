@@ -45,15 +45,14 @@ No signature is available as a third place: GitHub does not sign what a rebase m
 
 ## Considered Options
 
-- **Keep answerability only at the approval.** Rejected. It does not survive a clone, and the mechanism fails on a pull request from a fork, which is the path an outside contributor uses.
-- **Treat the committer field as the acceptance record.** Rejected. The field already states who made the commit, and a design that depends on a merge overwriting it is a coincidence rather than a mechanism.
-- **Two human approvals, one on a deployment environment and one on the pull request.** Rejected. A push that leaves the tree unchanged does not dismiss a review. One approval is therefore enough, and the second act records nothing the first does not.
-- **Squash merge, to gain control of the commit message.** Rejected. It works, and the ruleset permits a linear history under squash, so this is refused on cost rather than on feasibility. It destroys the commit granularity that [a commit message outlives its review](a-commit-outlives-its-review.md) exists to protect.
-- **Git notes.** Rejected. A default clone does not fetch notes, so the record fails at the one thing it exists to do.
-- **A file mapping each unsigned commit to its pull request and approver.** Rejected. It is a second authored home for a fact GitHub already holds, and it grows for as long as the repository does.
-- **Name only a code owner.** Rejected. A pull request that touches no path in `.github/CODEOWNERS` has no code owner. The ruleset then lets it merge on one approval with write access, so the trailer would name nobody.
-- **Trust the association GitHub writes on each review.** Rejected. GitHub writes `MEMBER` for every member of the organisation, with write access or without it.
-- **Write each statement from the act that makes it true.** Chosen. Every other option asks one party to certify something it cannot know, or stores a fact in a field that means something else.
+- **Keep answerability only at the approval.** It does not survive a clone, and the mechanism fails on a pull request from a fork, which is the path an outside contributor uses.
+- **Treat the committer field as the acceptance record.** The field already states who made the commit, and a design that depends on a merge overwriting it is a coincidence rather than a mechanism.
+- **Two human approvals, one on a deployment environment and one on the pull request.** A push that leaves the tree unchanged does not dismiss a review. One approval is therefore enough, and the second act records nothing the first does not.
+- **Squash merge, to gain control of the commit message.** It works, and the ruleset permits a linear history under squash, so this is refused on cost rather than on feasibility. It destroys the commit granularity that [a commit message outlives its review](a-commit-outlives-its-review.md) exists to protect.
+- **Git notes.** A default clone does not fetch notes, so the record fails at the one thing it exists to do.
+- **A file mapping each unsigned commit to its pull request and approver.** It is a second authored home for a fact GitHub already holds, and it grows for as long as the repository does.
+- **Name only a code owner.** A pull request that touches no path in `.github/CODEOWNERS` has no code owner. The ruleset then lets it merge on one approval with write access, so the trailer would name nobody.
+- **Trust the association GitHub writes on each review.** GitHub writes `MEMBER` for every member of the organisation, with write access or without it.
 
 ## Decision Outcome
 
@@ -61,8 +60,9 @@ No signature is available as a third place: GitHub does not sign what a rebase m
 
 **Area:** workflow
 
-Each liability is written from the act that makes it true.
+**Each liability is written from the act that makes it true.**
 It is written where that act can still be read once the pull request is gone.
+Every option that lost asks one party to certify something it cannot know, or stores a fact in a field that means something else.
 
 | liability | written by | at | into |
 |---|---|---|---|

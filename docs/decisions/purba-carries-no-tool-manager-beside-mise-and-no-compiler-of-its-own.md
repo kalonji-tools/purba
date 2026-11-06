@@ -39,15 +39,13 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 | devenv alone | 3 of 6 | 53 s to 217 s |
 | mise for versions, devenv for the system layer | 3 of 6 | 53 s to 217 s |
 | mise with zig supplying the compiler | 6 of 6 | 21 s to 195 s |
-| **mise alone** | **6 of 6** | **18 s to 69 s** |
+| mise alone | 6 of 6 | 18 s to 69 s |
 
-- **devenv alone.** Rejected on reach and on cost. Windows is reachable only through WSL2, and nixpkgs 26.11 dropped x86_64-darwin outright, so Intel macOS fails at evaluation rather than at compilation. It is the slowest arrangement everywhere it does run, and it writes a directory into every worktree.
+- **devenv alone.** Windows is reachable only through WSL2, and nixpkgs 26.11 dropped x86_64-darwin outright, so Intel macOS fails at evaluation rather than at compilation. It is the slowest arrangement everywhere it does run, and it writes a directory into every worktree.
 
-- **mise for tool versions, devenv for the system layer.** Rejected, though it works. It keeps the reach problem above, because the system layer is the half that cannot leave nix. It adds a second lockfile and a rule about which one owns what.
+- **mise for tool versions, devenv for the system layer.** It works, but it keeps the reach problem above, because the system layer is the half that cannot leave nix. It adds a second lockfile and a rule about which one owns what.
 
-- **mise with zig supplying the compiler.** Rejected after being built and priced. zig reaches the same six platforms only by a fallback to the host compiler on three of them, and that fallback is silent. Forcing build scripts through zig broke aarch64 Linux on a Cortex-A53 linker argument that rustc emits by default. It cost the very wheel floor zig was bought for. On macOS zig produces exactly the tags the host toolchain produces unaided. Its one real gain is the Linux floor, `manylinux_2_17` against `manylinux_2_34`.
-
-- **mise alone.** Chosen. Same reach as the zig arrangement and faster on every platform, with nothing in the repository beyond a lockfile. The C toolchain comes from the host, which every runner and every ordinary developer machine already carries.
+- **mise with zig supplying the compiler.** zig reaches the same six platforms only by a fallback to the host compiler on three of them, and that fallback is silent. Forcing build scripts through zig broke aarch64 Linux on a Cortex-A53 linker argument that rustc emits by default. It cost the very wheel floor zig was bought for. On macOS zig produces exactly the tags the host toolchain produces unaided. Its one real gain is the Linux floor, `manylinux_2_17` against `manylinux_2_34`.
 
 ## Decision Outcome
 
@@ -56,6 +54,7 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 **Area:** tooling
 
 **purba carries no tool manager beside mise, and no compiler of its own.**
+mise alone has the reach of the zig arrangement and is faster on every platform, with nothing in the repository beyond a lockfile.
 mise names the version of every package `.config/mise.toml` declares, in one committed lockfile.
 [One manifest declares each package](one-manifest-declares-each-package.md) says which packages `.config/mise.toml` declares.
 

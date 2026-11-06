@@ -17,9 +17,8 @@ No command reads an `_Avoid_` line.
 
 ## Considered Options
 
-- **Close the glossary.** Rejected. Over every word, it needs an approved list of every word form above. [purba borrows from Simplified Technical English rather than adopting it](purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md) excludes the only ready-made list. Over purba's own words, no test separates a purba term from a general one.
-- **Leave the `_Avoid_` line to `AGENTS.md`.** Rejected. A contributor who never reads `AGENTS.md` writes the avoided word. Nobody sees it.
-- **Keep the glossary open, and let `typos` rewrite each word it avoids.** Chosen. The hook that already writes the fix for a misspelling writes this one.
+- **Close the glossary.** Over every word, it needs an approved list of every word form above. [purba borrows from Simplified Technical English rather than adopting it](purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md) excludes the only ready-made list. Over purba's own words, no test separates a purba term from a general one.
+- **Leave the `_Avoid_` line to `AGENTS.md`.** A contributor who never reads `AGENTS.md` writes the avoided word. Nobody sees it.
 
 ## Decision Outcome
 
@@ -32,9 +31,11 @@ A word missing from `CONTEXT.md` may be used.
 No command holds a word on it to one sense.
 
 **A gate rewrites each word an `_Avoid_` line names.**
+The `typos` hook that already writes the fix for a misspelling writes the fix for an avoided word.
 `[tool.typos]` in `pyproject.toml` names each form of the word and the word that replaces it.
 `typos --write-changes` then rewrites it in every tracked text file except a generated one.
 It never checks a `Cargo.toml` or `pyproject.toml`.
+
 `typos` matches a whole word, so a plural is a form of its own.
 Two patterns spare a mention: the `_Avoid_` line, and a code span that quotes the word.
 

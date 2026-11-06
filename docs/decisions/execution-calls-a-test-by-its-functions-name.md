@@ -17,9 +17,8 @@ In the parts diagram, execution and reporting use no interface of selection.
 
 ## Considered Options
 
-- **Execution and reporting use selection, as two new arrows of the parts diagram.** Rejected. Only selection constructs an identity, so a test of either part parses a real module to get one.
-- **The invariant binds dispatch alone.** Rejected. Reporting then builds `path::function` itself, the breach that the gate for one identity misses.
-- **Execution and reporting never name the identity's type.** Chosen. The tests of execution and reporting then need no identity of selection.
+- **Execution and reporting use selection, as two new arrows of the parts diagram.** Only selection constructs an identity, so a test of either part parses a real module to get one.
+- **The invariant binds dispatch alone.** Reporting then builds `path::function` itself, the breach that the gate for one identity misses.
 
 ## Decision Outcome
 
@@ -28,6 +27,7 @@ In the parts diagram, execution and reporting use no interface of selection.
 **Area:** execution
 
 **Execution calls a test by its function's name, and reporting prints the identity it is given.**
+Neither part names the identity's type, so the tests of execution and reporting need no identity of selection.
 
 ```mermaid
 sequenceDiagram

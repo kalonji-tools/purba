@@ -37,13 +37,11 @@ Only the second row can strand purba on nightly, and only through code purba wri
 **What the channel buys.**
 
 - **Newer `rustfmt` and `clippy`, or `-Z` flags in continuous integration.** Real, and not reasons. Both follow from any nightly, so neither could show this decision wrong, and a flag is spent out of a channel already bought. They are gains purba collects, and neither could buy the channel on its own.
-- **The next generation trait solver.** Chosen. It is a specific compiler change, on a published stabilization path, and the claim it supports can be tested on every pull request.
 
 **How the return to stable stays open.**
 
-- **Nothing checks it.** Rejected. The agreed escape hatch is a move back to stable as a last resort. With no check nothing reports whether that hatch is still open. The drift is silent, it accumulates, and it surfaces as a pile of inference repairs on the day the hatch is needed.
-- **A blocking stable build.** Rejected. It forbids the two patterns in the second row of the table above, outright and in advance. Those are the only gains the new solver offers a project that writes Rust.
-- **A non blocking stable build.** Chosen. The tree holds no nightly only syntax, so a stable `cargo check` is an exact detector rather than an approximation. It records the day the hatch closes and never stops the work.
+- **Nothing checks it.** The agreed escape hatch is a move back to stable as a last resort. With no check nothing reports whether that hatch is still open. The drift is silent, it accumulates, and it surfaces as a pile of inference repairs on the day the hatch is needed.
+- **A blocking stable build.** It forbids the two patterns in the second row of the table above, outright and in advance. Those are the only gains the new solver offers a project that writes Rust.
 
 ## Decision Outcome
 
@@ -51,7 +49,11 @@ Only the second row can strand purba on nightly, and only through code purba wri
 
 **Area:** tooling
 
-purba builds on Rust nightly to meet the next generation trait solver before it reaches stable.
+**purba builds on Rust nightly to meet the next generation trait solver before it reaches stable.**
+The next generation trait solver is a specific compiler change, on a published stabilization path.
+The solver supports a claim that every pull request can test.
+
+- **A non blocking stable build reports whether the return to stable is still open.** The tree holds no nightly only syntax, so a stable `cargo check` is an exact detector rather than an approximation. It records the day the hatch closes.
 
 [The nightly is named by a date](the-nightly-is-named-by-a-date.md) says which nightly.
 

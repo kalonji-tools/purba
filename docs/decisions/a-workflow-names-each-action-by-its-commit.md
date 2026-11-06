@@ -22,9 +22,8 @@ These jobs run an action while they hold a credential:
 
 ## Considered Options
 
-- **Name each action by a tag.** Rejected. Whoever controls the repository of the action can move the tag. The next run then executes that code with the credential of the job.
-- **Name each action by its commit, with no comment.** Rejected. A reader and a reviewer of a Dependabot pull request cannot see which version a commit is.
-- **Name each action by its commit, with its version in a comment.** Chosen. The commit cannot move, and the comment tells the reader the version.
+- **Name each action by a tag.** Whoever controls the repository of the action can move the tag. The next run then executes that code with the credential of the job.
+- **Name each action by its commit, with no comment.** A reader and a reviewer of a Dependabot pull request cannot see which version a commit is.
 
 ## Decision Outcome
 
@@ -33,6 +32,7 @@ These jobs run an action while they hold a credential:
 **Area:** tooling
 
 **Each `uses:` names an action by its full commit, and a comment names the version tag on that commit.**
+The commit cannot move, and the comment tells the reader the version.
 
 ```yaml
 - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1

@@ -21,9 +21,8 @@ Records touched is not decisions carried.
 
 ## Considered Options
 
-- **One decision per pull request.** Rejected. A repair carries no decision, so a bound on decisions never reaches it.
-- **A gate on the number of records a pull request touches.** Rejected. That count is decidable and counts records, which is the wrong thing.
-- **One issue per pull request, and no bound on records.** Chosen. Every merged pull request already complied, so the rule states what the tree does.
+- **One decision per pull request.** A repair carries no decision, so a bound on decisions never reaches it.
+- **A gate on the number of records a pull request touches.** That count is decidable and counts records, which is the wrong thing.
 
 ## Decision Outcome
 
@@ -33,6 +32,7 @@ Records touched is not decisions carried.
 
 **One pull request answers one issue.**
 Nothing bounds the number of records it rewrites.
+Every merged pull request already complied, so the rule states what the tree does.
 A second issue rides along when one change answers both, and the pull request says so.
 
 **Downside:**

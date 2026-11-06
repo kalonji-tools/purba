@@ -15,11 +15,10 @@ This record answers the house half, which nothing answered: how purba configures
 
 ## Considered Options
 
-Three, weighed against the published configuration of eighteen projects and against purba's own tree.
+purba weighed each option below against the published configuration of eighteen projects and against its own tree.
 
-- **The tool's default severity.** Sixteen of the eighteen run their linter at its default, and four enable more. Rejected because it is not the strictest available, not because it is unusual.
-- **A severity chosen where the tree is already clean.** Rejected. One of the eighteen documents the practice, and its reason is a backlog too large to repair now. purba's was four findings against nineteen lines of Rust. ⚠️ **The practice also fails on its own terms.** A floor at `warning` keeps `SC1090`, which is merely noisy, and drops `SC2102`, which is the class that put an unquoted glob into a workflow.
-- **The strictest setting the tool offers, with every exclusion named.** Chosen.
+- **The tool's default severity.** Sixteen of the eighteen run their linter at its default, and four enable more. Its fault is that it is not the strictest available, not that it is unusual.
+- **A severity chosen where the tree is already clean.** One of the eighteen documents the practice, and its reason is a backlog too large to repair now. purba's was four findings against nineteen lines of Rust. ⚠️ **The practice also fails on its own terms.** A floor at `warning` keeps `SC1090`, which is merely noisy, and drops `SC2102`, which is the class that put an unquoted glob into a workflow.
 
 ## Decision Outcome
 

@@ -19,8 +19,7 @@ Only `zip` 9 fixes each one.
 
 ## Considered Options
 
-- **Wait for a harper tag that requires `zip` 9.** Rejected. No tag requires it, so the critical alert and the high ones stay open with no end.
-- **Dismiss the alerts as code that check-prose does not use.** Chosen. check-prose never calls `weirpack`, the one `harper-core` module that reads an archive.
+- **Wait for a harper tag that requires `zip` 9.** No tag requires it, so the critical alert and the high ones stay open with no end.
 
 ## Decision Outcome
 
@@ -29,6 +28,7 @@ Only `zip` 9 fixes each one.
 **Area:** tooling
 
 **A person dismisses the `zip` alerts on `scripts/check-prose/Cargo.lock` as `not_used`, while check-prose builds no `zip` 7.2.0 and calls no `weirpack`.**
+check-prose never calls `weirpack`, the one `harper-core` module that reads an archive.
 
 - **The dismissal waits for this record to merge.** Each dismissal comment names this record.
 - **A new advisory on `zip` opens an alert that this record does not dismiss.**

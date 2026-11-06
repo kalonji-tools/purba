@@ -15,9 +15,8 @@ The stakes are not tidiness.
 
 ## Considered Options
 
-- **One directory for every script.** Rejected. A workflow's own shell has no reader outside the workflow, and `.github/` is where the thing that runs it already lives.
-- **Keyed on what a script does.** Rejected as undecidable. Whether a task belongs to continuous integration is a judgement, and this project refused undecidable conditions repeatedly.
-- **Keyed on what calls it.** Chosen. A caller is a fact a command can read.
+- **One directory for every script.** A workflow's own shell has no reader outside the workflow, and `.github/` is where the thing that runs it already lives.
+- **Keyed on what a script does.** It is undecidable. Whether a task belongs to continuous integration is a judgement, and this project refused undecidable conditions repeatedly.
 
 ## Decision Outcome
 
@@ -26,6 +25,7 @@ The stakes are not tidiness.
 **Area:** tooling
 
 **Only GitHub runs what lives under `.github`.**
+A caller is a fact a command can read.
 A script is refused when every caller of it lives in the other half of the tree.
 
 `.github/**` is GitHub's half.
