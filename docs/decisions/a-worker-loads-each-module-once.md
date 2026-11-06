@@ -30,7 +30,7 @@ sequenceDiagram
   command->>dispatch: each module once, as assertion's rewrite of it, and its selected tests
   dispatch->>execution: the module, to load it in a worker before its first test
   loop each selected test
-    dispatch->>execution: a function's name, and its module
+    dispatch->>execution: a function's name, its module, and the test that it hands back as a thread's owner
   end
 ```
 

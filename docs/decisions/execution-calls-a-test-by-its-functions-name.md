@@ -42,7 +42,7 @@ sequenceDiagram
   Note over dispatch: holds the in-process worker, a value of execution, and builds execution's module
   Note over execution: its worker loads each module once, keyed by the path
   loop each selected test
-    dispatch->>execution: the module, and the name of one function in it
+    dispatch->>execution: the module, the name of one function in it, and the test that it hands back as a thread's owner
     Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
     Note over execution: its worker looks the name up in the module it loaded
     execution-->>dispatch: an outcome or error, and an outcome holds no name of its test

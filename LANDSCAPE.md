@@ -72,11 +72,11 @@ flowchart TD
   command -- "the outcomes" --> reporting
   command -- "a module" --> parsing
   command -- "a rewrite" --> assertion
-  command -- "a call to catch, and a project error" --> execution
+  command -- "a call to catch, a project error, and whether an interrupt was kept" --> execution
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
-  dispatch -- "a module to load, then each test, and its outcome" --> execution
+  dispatch -- "a module to load, then each test, its outcome, and whether an interrupt was kept" --> execution
   execution -- "the inputs a test names" --> fixtures
   execution -- "a rewritten module" --> assertion
   reporting -- "an outcome" --> execution
@@ -113,7 +113,7 @@ sequenceDiagram
   assertion -->> execution: the loaded module
   execution -->> dispatch: it loaded
   loop each selected test
-    dispatch ->> execution: a function's name, and its module
+    dispatch ->> execution: a function's name, its module, and the test that it hands back as a thread's owner
     execution ->> fixtures: the inputs the test names
     fixtures -->> execution: no inputs
     Note over execution: calls the test in Python
