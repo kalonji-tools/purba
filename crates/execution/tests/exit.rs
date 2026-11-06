@@ -46,36 +46,55 @@ fn a_call_to_os_exit_gives_raised_however_the_test_makes_it() {
             exception: format!("ExitInsideATest: {call}"),
         })
     };
-    // A step with no function is a `load` alone, as dispatch makes it.
-    let results: Vec<Result<Option<Kind>, String>> = purba_execution::attach(|worker| {
-        [
-            (&test_exit, Some("test_fails")),
-            (&test_exit, Some("test_catches_exception")),
-            (&test_exit, Some("test_starts_a_thread")),
-            (&test_exit, Some("test_catches_base_exception")),
-            (&test_exit, Some("test_passes")),
-            (&test_load_exit, Some("test_one")),
-            (&test_exit, Some("test_passes")),
-            (&test_load_catches_exit, None),
-            (&test_exit, Some("test_passes")),
-            (&test_load_exit_alone, None),
-            (&test_exit, Some("test_passes")),
-        ]
-        .iter()
-        .map(|(module, function)| {
-            match function {
-                Some(function) => worker
-                    .run(module, function)
-                    .map(|outcome| Some(outcome.kind().clone())),
-                None => worker.load(module).map(|_| None),
-            }
-            .map_err(|error| error.to_string())
-        })
-        .collect()
-    });
+    // A step with no function is a `load` alone, as dispatch makes it. After
+    // each step, the worker takes the errors of threads, as dispatch does.
+    let (results, threads): (Vec<Result<Option<Kind>, String>>, Vec<String>) =
+        purba_execution::attach(|worker| {
+            let mut threads = Vec::new();
+            let results = [
+                (&test_exit, None),
+                (&test_exit, Some("test_fails")),
+                (&test_exit, Some("test_catches_exception")),
+                (&test_exit, Some("test_starts_a_thread")),
+                (&test_exit, Some("test_catches_base_exception")),
+                (&test_exit, Some("test_passes")),
+                (&test_load_exit, None),
+                (&test_load_exit, Some("test_one")),
+                (&test_exit, Some("test_passes")),
+                (&test_load_catches_exit, None),
+                (&test_exit, Some("test_passes")),
+                (&test_load_exit_alone, None),
+                (&test_exit, Some("test_passes")),
+            ]
+            .iter()
+            .map(|(module, function)| {
+                let result = match function {
+                    Some(function) => worker
+                        .run(module, function, *function)
+                        .map(|outcome| Some(outcome.kind().clone())),
+                    None => worker.load(module).map(|()| None),
+                }
+                .map_err(|error| error.to_string());
+                threads.extend(
+                    worker
+                        .threads()
+                        .into_iter()
+                        .map(|(_, error)| error.to_string()),
+                );
+                result
+            })
+            .collect();
+            (results, threads)
+        });
+    assert_eq!(
+        threads,
+        Vec::<String>::new(),
+        "a call to os._exit from a thread gives the test raised alone, and no error of the thread",
+    );
     assert_eq!(
         results,
         [
+            Ok(None),
             ran(Kind::Failed {
                 assert: "assert 1 == 2".to_owned()
             }),
@@ -84,6 +103,7 @@ fn a_call_to_os_exit_gives_raised_however_the_test_makes_it() {
             raised("os._exit(2)"),
             ran(Kind::Passed),
             Err("ExitInsideATest: os._exit(0)".to_owned()),
+            Err("test_load_exit.py did not load".to_owned()),
             ran(Kind::Passed),
             Err("ExitInsideATest: os._exit(0)".to_owned()),
             ran(Kind::Passed),

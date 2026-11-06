@@ -17,9 +17,13 @@ const TEST_SIGNALS: &str = "import signal\n\n\
 type Step = (Result<Kind, String>, bool);
 
 /// The outcome of `function`, or the text of its error.
-fn run(worker: &mut Worker<'_>, module: &Module, function: &str) -> Result<Kind, String> {
+fn run(
+    worker: &mut Worker<'_, &'static str>,
+    module: &Module,
+    function: &'static str,
+) -> Result<Kind, String> {
     worker
-        .run(module, function)
+        .run(module, function, function)
         .map(|outcome| outcome.kind().clone())
         .map_err(|error| error.to_string())
 }
@@ -50,14 +54,15 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
     );
     let (steps, handlers): (Vec<Step>, [String; 2]) = purba_execution::attach(|worker| {
         purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+        worker.load(&module).expect("the module loads");
         let mut steps = Vec::new();
         let kind = run(worker, &module, "test_bare");
-        steps.push((kind, worker.interrupted()));
+        steps.push((kind, purba_execution::interrupted()));
         let kind = run(worker, &module, "test_handler");
         let handlers = [handler("SIGINT"), handler("SIGTERM")];
-        steps.push((kind, worker.interrupted()));
+        steps.push((kind, purba_execution::interrupted()));
         let kind = run(worker, &module, "test_signal");
-        steps.push((kind, worker.interrupted()));
+        steps.push((kind, purba_execution::interrupted()));
         (steps, handlers)
     });
     assert_eq!(

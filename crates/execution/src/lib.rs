@@ -3,6 +3,7 @@
 
 pub mod interrupt;
 pub mod panic;
+mod step;
 mod thread;
 
 use std::any::Any;
@@ -20,6 +21,7 @@ use pyo3::sync::PyOnceLock;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Bound, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use serde::{Deserialize, Serialize};
+use step::{Gives, Met};
 
 /// A module that dispatch hands a worker.
 pub struct Module {
@@ -76,8 +78,9 @@ pub enum Kind {
     Raised { exception: String },
     /// No assert ran, and the test returned.
     Unknown,
-    /// The first interrupt landed during the test's call. The test has this
-    /// outcome whether it then passed, failed, raised or called `os._exit`.
+    /// The first interrupt landed during the test's step: its lookup or its
+    /// call. The test has this outcome whether it then passed, failed, raised or
+    /// called `os._exit`.
     Interrupted,
 }
 
@@ -156,36 +159,38 @@ pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Resul
 }
 
 /// The load or the test that left a thread alive, which a thread's exception
-/// charges. A load names the path of its module, and a test its path and the
-/// name of its function.
+/// charges. A load names the path of its module. A test is the one that the
+/// caller handed to [`Worker::run`].
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Owner {
+pub enum Owner<T> {
     Load(PathBuf),
-    Test(PathBuf, String),
-}
-
-/// What a load did, when it gave no error.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Load {
-    /// The module loaded, or loaded before.
-    Done,
-    /// The first interrupt landed during the load, so no test of the module
-    /// runs.
-    Interrupted,
+    Test(T),
 }
 
 /// Runs tests in this process. It loads each module once, and keeps it under its
 /// path, or keeps that its load failed. It keeps the owner of each thread that a
 /// load or a test left alive.
-pub struct Worker<'py> {
+pub struct Worker<'py, T> {
     py: Python<'py>,
     loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
     guard: &'static Py<Guard>,
     hook: &'static Py<thread::Hook>,
-    owners: Vec<(Py<PyAny>, Owner)>,
-    last: Option<Owner>,
-    /// Whether the first interrupt landed during the last load.
-    load_interrupted: bool,
+    owners: Vec<(Py<PyAny>, Owner<T>)>,
+    last: Option<Owner<T>>,
+}
+
+/// What a load or a call meets, from before its first line of Python: whether
+/// purba kept an interrupt as it opened, and the threads alive then.
+struct Window {
+    kept: bool,
+    alive: Vec<Py<PyAny>>,
+}
+
+impl Window {
+    /// Whether the first interrupt landed since the window opened.
+    fn landed(&self) -> bool {
+        !self.kept && interrupt::kept_now()
+    }
 }
 
 mod exit {
@@ -255,7 +260,7 @@ fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
 ///
 /// The guard could not take the place of `os._exit`, or the hook the place of
 /// `threading.excepthook`.
-pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
+pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
     Python::initialize();
     Python::attach(|py| {
         work(&mut Worker {
@@ -265,111 +270,121 @@ pub fn attach<R>(work: impl for<'py> FnOnce(&mut Worker<'py>) -> R) -> R {
             hook: thread::hook(py).expect("the hook takes the place of threading.excepthook"),
             owners: Vec::new(),
             last: None,
-            load_interrupted: false,
         })
     })
 }
 
-impl<'py> Worker<'py> {
-    /// Whether purba's signal handler kept an interrupt. A signal that waits
-    /// runs the signal handler before this check.
-    #[must_use]
-    pub fn interrupted(&self) -> bool {
-        interrupt::kept(self.py)
-    }
-
-    /// Calls `function` of `module`, and makes its outcome. When the guard
-    /// recorded a call to `os._exit` since the worker last took one, the
-    /// outcome is `Raised`, and names that call to `os._exit`. When the first
-    /// interrupt landed during the call, the outcome is `Interrupted`. An error
-    /// before the test's call stays as it is. Each thread that the call leaves
-    /// alive gets the test as its owner, unless it has one.
+impl<'py, T: Clone> Worker<'py, T> {
+    /// Calls `function` of `module`, which `load` loaded, and makes its
+    /// outcome. When the first interrupt landed in the step, the outcome is
+    /// `Interrupted`, and when it landed before the test's call, the call does
+    /// not run. When the guard recorded a call to `os._exit` since the worker
+    /// last took one, the outcome is `Raised`, and names that call to
+    /// `os._exit`, unless the step gave a project error of its own. Each thread
+    /// that the step leaves alive gets `test` as its owner, unless it has one.
     ///
     /// # Errors
     ///
-    /// The module did not load, it has no `function`, or `function` is not
-    /// callable. An internal error when a panic crossed the test's call, or
-    /// when the test caught a panic and the panic hook noted it.
-    pub fn run(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
-        let before = self.hook.get().alive(self.py);
-        let result = self.call(module, function);
-        self.own(
-            &before,
-            Owner::Test(module.path.clone(), function.to_owned()),
-        );
-        let exit = self.guard.get().take();
-        if let Some(noted) = panic::take() {
-            return Err(Error(Reason::Internal(noted.caught_by("execution"))));
-        }
-        match (exit, result) {
-            (Some(call), Ok(outcome)) if outcome.kind != Kind::Interrupted => Ok(Outcome {
-                kind: Kind::Raised {
+    /// An internal error when `module` was never given to `load`, when a panic
+    /// crossed the test's call, or when the test caught a panic and the panic
+    /// hook noted it. A project error when the module did not load, it has no
+    /// `function`, or `function` is not callable.
+    pub fn run(&mut self, module: &Module, function: &str, test: T) -> Result<Outcome, Error> {
+        let window = self.open();
+        let (own, interrupted) = self.call(&window, module, function);
+        let met = self.close(&window, Owner::Test(test), interrupted);
+        step::decide(own, met).map(|gives| Outcome {
+            kind: match gives {
+                Gives::Own(kind) => kind,
+                Gives::Interrupted => Kind::Interrupted,
+                Gives::Exit(call) => Kind::Raised {
                     exception: format!("ExitInsideATest: {call}"),
                 },
-            }),
-            (_, result) => result,
-        }
+            },
+        })
     }
 
     /// Loads `module` once, and keeps it, or keeps that its load failed. The
     /// load takes the call to `os._exit` that the guard recorded and the note
     /// of a panic, so no later test takes them. Each thread that the load
     /// leaves alive gets the load as its owner. When the first interrupt
-    /// landed during the load, it gives `Load::Interrupted`, in place of
-    /// `Load::Done` or of the project error of the load.
+    /// landed in the load, it gives no project error, and keeps no module.
     ///
     /// # Errors
     ///
     /// The load raised, or it called `os._exit`, even when the module caught
     /// the call. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
-    pub fn load(&mut self, module: &Module) -> Result<Load, Error> {
-        self.load_interrupted = false;
-        let loaded = self.loaded(module).map(|_| ());
-        if !self.load_interrupted {
-            return loaded.map(|()| Load::Done);
+    pub fn load(&mut self, module: &Module) -> Result<(), Error> {
+        if self.loaded.contains_key(&module.path) {
+            return self.module(module).map(|_| ());
         }
-        match loaded {
-            Err(err) if err.kind() != ErrorKind::Project => Err(err),
-            _ => Ok(Load::Interrupted),
-        }
-    }
-
-    fn loaded(&mut self, module: &Module) -> Result<&Loaded<'py>, Error> {
-        if !self.loaded.contains_key(&module.path) {
-            let before = self.hook.get().alive(self.py);
-            let py = self.py;
+        let window = self.open();
+        let py = self.py;
+        let (own, interrupted) = if window.landed() {
+            (Ok(None), true)
+        } else {
             let (loaded, landed) = interrupt::calling(py, || {
                 purba_assertion::load(py, &module.path, &module.rewrite)
             });
-            self.load_interrupted = landed;
-            self.own(&before, Owner::Load(module.path.clone()));
-            let exit = self.guard.get().take();
-            let failed = match (panic::take(), exit, &loaded) {
-                (Some(noted), _, _) => Some(Error(Reason::Internal(noted.caught_by("execution")))),
-                (None, Some(call), Ok(_)) => {
-                    Some(Error::project(format!("ExitInsideATest: {call}")))
-                }
-                (None, _, loaded) => loaded.as_ref().err().map(error),
-            };
-            self.loaded.insert(
-                module.path.clone(),
-                loaded.ok().filter(|_| failed.is_none()),
-            );
-            if let Some(failed) = failed {
-                return Err(failed);
-            }
+            (loaded.map(Some).map_err(|err| error(&err)), landed)
+        };
+        let met = self.close(&window, Owner::Load(module.path.clone()), interrupted);
+        let (kept, result) = match step::decide(own, met) {
+            Ok(Gives::Own(loaded)) => (loaded, Ok(())),
+            Ok(Gives::Interrupted) => (None, Ok(())),
+            Ok(Gives::Exit(call)) => (
+                None,
+                Err(Error::project(format!("ExitInsideATest: {call}"))),
+            ),
+            Err(error) => (None, Err(error)),
+        };
+        self.loaded.insert(module.path.clone(), kept);
+        result
+    }
+
+    /// The module that `load` loaded for `module`.
+    fn module(&self, module: &Module) -> Result<&Loaded<'py>, Error> {
+        match self.loaded.get(&module.path) {
+            None => Err(Error(Reason::Internal(panic::Caught {
+                part: "execution".to_owned(),
+                message: format!("{} was never given to load", module.path.display()),
+            }))),
+            Some(None) => Err(Error::project(format!(
+                "{} did not load",
+                module.path.display()
+            ))),
+            Some(Some(loaded)) => Ok(loaded),
         }
-        self.loaded[&module.path]
-            .as_ref()
-            .ok_or_else(|| Error::project(format!("{} did not load", module.path.display())))
+    }
+
+    /// Opens the window of a step, before its first line of Python.
+    fn open(&self) -> Window {
+        let kept = interrupt::kept_now();
+        Window {
+            kept,
+            alive: self.hook.get().alive(self.py),
+        }
+    }
+
+    /// Closes the window of a step that `owner` ran. Gives `owner` each thread
+    /// that the step left alive, and takes the call to `os._exit` and the note
+    /// of a panic.
+    fn close(&mut self, window: &Window, owner: Owner<T>, interrupted: bool) -> Met {
+        self.own(&window.alive, owner);
+        let exit = self.guard.get().take();
+        Met {
+            panic: panic::take(),
+            interrupted,
+            exit,
+        }
     }
 
     /// Takes each exception that a thread raised since the last take, in the
     /// order threads raised them, as a project error with its owner. A thread
     /// with no owner charges the load or the test that ran last. Before any
     /// load or test, it takes nothing.
-    pub fn threads(&mut self) -> Vec<(Owner, Error)> {
+    pub fn threads(&mut self) -> Vec<(Owner<T>, Error)> {
         let Some(last) = &self.last else {
             return Vec::new();
         };
@@ -394,7 +409,7 @@ impl<'py> Worker<'py> {
 
     /// Gives `owner` each thread that is alive now and was not in `before`, and
     /// has no owner yet. `owner` then ran last.
-    fn own(&mut self, before: &[Py<PyAny>], owner: Owner) {
+    fn own(&mut self, before: &[Py<PyAny>], owner: Owner<T>) {
         let new: Vec<Py<PyAny>> = self
             .hook
             .get()
@@ -412,21 +427,35 @@ impl<'py> Worker<'py> {
         self.last = Some(owner);
     }
 
-    fn call(&mut self, module: &Module, function: &str) -> Result<Outcome, Error> {
+    /// Looks `function` up in `module`. Calls it, unless the first interrupt
+    /// landed since `window` opened. Also says whether the first interrupt
+    /// landed in the step.
+    fn call(
+        &self,
+        window: &Window,
+        module: &Module,
+        function: &str,
+    ) -> (Result<Kind, Error>, bool) {
         let py = self.py;
-        let loaded = self.loaded(module)?;
-        let test = loaded
-            .module()
-            .getattr(function)
-            .map_err(|err| error(&err))?;
+        let loaded = match self.module(module) {
+            Ok(loaded) => loaded,
+            Err(error) => return (Err(error), window.landed()),
+        };
+        let test = match loaded.module().getattr(function) {
+            Ok(test) => test,
+            Err(err) => return (Err(error(&err)), window.landed()),
+        };
         // A call of an object that is not callable runs no code, and gives
         // CPython's own `TypeError`.
         if !test.is_callable()
             && let Err(err) = test.call0()
         {
-            return Err(error(&err));
+            return (Err(error(&err)), window.landed());
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
+        if window.landed() {
+            return (Ok(Kind::Interrupted), true);
+        }
         let mut landed = false;
         let (result, last) = loaded.watch(|| {
             let (called, inside) = interrupt::calling(py, || {
@@ -437,11 +466,12 @@ impl<'py> Worker<'py> {
         });
         let result = match result {
             Ok(Ok(called)) => called,
-            Ok(Err(payload)) => return Err(Error::caught(payload.as_ref(), "execution")),
+            Ok(Err(payload)) => {
+                return (Err(Error::caught(payload.as_ref(), "execution")), landed);
+            }
             Err(err) => Err(err),
         };
         let kind = match (result, last) {
-            _ if landed => Kind::Interrupted,
             (Ok(_), Some(_)) => Kind::Passed,
             (Ok(_), None) => Kind::Unknown,
             (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
@@ -453,7 +483,7 @@ impl<'py> Worker<'py> {
                 exception: err.to_string(),
             },
         };
-        Ok(Outcome { kind })
+        (Ok(kind), landed)
     }
 }
 
@@ -521,7 +551,7 @@ impl Tally {
     }
 }
 
-/// Whether purba's signal handler kept an interrupt, outside any worker.
+/// Whether purba's signal handler kept an interrupt.
 ///
 /// A signal that waits runs the signal handler before this check. Before Python
 /// starts, no signal handler of purba's exists, so none kept one.

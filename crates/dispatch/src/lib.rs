@@ -78,7 +78,7 @@ pub enum Charged<T> {
 /// the worker took, beside the test or the module that it charges. After a
 /// load, they come before the first test or the first blocked test.
 ///
-/// Before each load and each test, dispatch asks the worker whether purba's
+/// Before each load and each test, dispatch asks execution whether purba's
 /// signal handler kept an interrupt. Once it did, `each` takes each test left,
 /// of each module left, as unreached. Nothing further loads or runs. When the
 /// interrupt lands in a load, `each` takes no project error of the load.
@@ -90,14 +90,11 @@ pub fn hand<T: Test + Clone, B>(
     mut each: impl FnMut(Handed<T>) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
     purba_execution::attach(|worker| {
-        // Each test handed on so far, by the path of its module, so that the
-        // error of a thread can name a test that ran before.
-        let mut handed: Vec<(PathBuf, T)> = Vec::new();
         for module in modules {
             if module.tests.is_empty() {
                 continue;
             }
-            if worker.interrupted() {
+            if purba_execution::interrupted() {
                 for test in module.tests {
                     each(Handed::Unreached(test))?;
                 }
@@ -109,7 +106,7 @@ pub fn hand<T: Test + Clone, B>(
             if let Err(error) = loaded {
                 each(Handed::NotLoaded(path.clone(), error))?;
                 for (owner, error) in threads {
-                    each(Handed::Thread(charged(owner, &handed), error))?;
+                    each(Handed::Thread(charged(owner), error))?;
                 }
                 for test in module.tests {
                     each(Handed::Blocked(test, path.clone()))?;
@@ -117,19 +114,19 @@ pub fn hand<T: Test + Clone, B>(
                 continue;
             }
             for (owner, error) in threads {
-                each(Handed::Thread(charged(owner, &handed), error))?;
+                each(Handed::Thread(charged(owner), error))?;
             }
             for test in module.tests {
-                if worker.interrupted() {
+                if purba_execution::interrupted() {
                     each(Handed::Unreached(test))?;
                     continue;
                 }
-                let (result, threads) =
-                    taken(worker, |worker| worker.run(&executable, test.function()));
-                handed.push((path.clone(), test.clone()));
+                let (result, threads) = taken(worker, |worker| {
+                    worker.run(&executable, test.function(), test.clone())
+                });
                 each(Handed::Test(test, result))?;
                 for (owner, error) in threads {
-                    each(Handed::Thread(charged(owner, &handed), error))?;
+                    each(Handed::Thread(charged(owner), error))?;
                 }
             }
         }
@@ -137,12 +134,15 @@ pub fn hand<T: Test + Clone, B>(
     })
 }
 
+/// The error of each thread that the worker took, beside its owner.
+type Threads<T> = Vec<(Owner<T>, Error)>;
+
 /// Runs `work`, then takes the errors of threads, inside one `catch`. A panic
 /// gives the internal error of `work`, and takes no error of a thread.
-fn taken<R>(
-    worker: &mut Worker<'_>,
-    work: impl FnOnce(&mut Worker<'_>) -> Result<R, Error>,
-) -> (Result<R, Error>, Vec<(Owner, Error)>) {
+fn taken<T: Clone, R>(
+    worker: &mut Worker<'_, T>,
+    work: impl FnOnce(&mut Worker<'_, T>) -> Result<R, Error>,
+) -> (Result<R, Error>, Threads<T>) {
     purba_execution::catch("dispatch", || {
         let result = work(worker);
         Ok((result, worker.threads()))
@@ -150,18 +150,10 @@ fn taken<R>(
     .unwrap_or_else(|error| (Err(error), Vec::new()))
 }
 
-/// The test or the module that `owner` names. Selection refuses a name bound
-/// again, so a path and a function name one test. `hand` keeps each test before
-/// it takes the errors of its threads, so the module stands in only for a test
-/// that dispatch never handed on.
-fn charged<T: Test + Clone>(owner: Owner, handed: &[(PathBuf, T)]) -> Charged<T> {
+/// The test or the module that `owner` names.
+fn charged<T>(owner: Owner<T>) -> Charged<T> {
     match owner {
-        Owner::Test(path, function) => handed
-            .iter()
-            .find(|(module, test)| *module == path && test.function() == function)
-            .map_or(Charged::Module(path), |(_, test)| {
-                Charged::Test(test.clone())
-            }),
+        Owner::Test(test) => Charged::Test(test),
         Owner::Load(path) => Charged::Module(path),
     }
 }

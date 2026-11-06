@@ -162,6 +162,12 @@ pub(crate) fn kept(py: Python<'_>) -> bool {
     // call. A signal handler that a test installed may raise here. Its error
     // has no test to charge, so `kept` drops it.
     drop(py.check_signals());
+    kept_now()
+}
+
+/// Whether the signal handler kept a signal. It runs no Python, so a signal
+/// that waits still waits after it.
+pub(crate) fn kept_now() -> bool {
     KEPT.load(Ordering::SeqCst) != 0
 }
 
@@ -176,11 +182,11 @@ pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) 
             CALLING.store(false, Ordering::SeqCst);
         }
     }
-    let kept_before = KEPT.load(Ordering::SeqCst) != 0;
+    let kept_before = kept_now();
     CALLING.store(true, Ordering::SeqCst);
     let close = Close;
     let result = work();
-    let landed = !kept_before && KEPT.load(Ordering::SeqCst) != 0;
+    let landed = !kept_before && kept_now();
     drop(close);
     put_back(py);
     (result, landed)
@@ -211,7 +217,7 @@ fn put_back(py: Python<'_>) {
     if give().is_err() {
         drop(give());
     }
-    if KEPT.load(Ordering::SeqCst) != 0 {
+    if kept_now() {
         // Its error has no test to charge either.
         drop(give_default_actions(py));
     }

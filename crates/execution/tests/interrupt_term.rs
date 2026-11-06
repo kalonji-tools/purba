@@ -45,8 +45,9 @@ fn a_sigterm_in_a_call_makes_the_test_interrupted_and_gives_each_signal_its_defa
     let before = SIGNALS.map(disposition);
     let kind = purba_execution::attach(|worker| {
         purba_execution::interrupt::install().expect("purba's signal handler takes each signal");
+        worker.load(&module).expect("the module loads");
         worker
-            .run(&module, "test_term")
+            .run(&module, "test_term", "test_term")
             .map(|outcome| outcome.kind().clone())
             .map_err(|error| error.to_string())
     });

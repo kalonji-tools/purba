@@ -9,21 +9,24 @@ fn module(name: &str, source: &str) -> Module {
     )
 }
 
-fn test(path: &str, function: &str) -> Owner {
-    Owner::Test(PathBuf::from(path), function.to_owned())
+/// The owner of a thread: the test, by the name of its function, or a load.
+type Owned = Owner<&'static str>;
+
+const fn test(function: &'static str) -> Owned {
+    Owner::Test(function)
 }
 
-fn load(path: &str) -> Owner {
+fn load(path: &str) -> Owned {
     Owner::Load(PathBuf::from(path))
 }
 
 /// The outcome or the error of a load or a test, and the error of each thread
 /// that the worker took after it.
-type Step = (Result<Option<Kind>, String>, Vec<(Owner, String)>);
+type Step = (Result<Option<Kind>, String>, Vec<(Owned, String)>);
 
 /// A step that gave `result`, and the error of each thread that it took, from
 /// its owner, the name of the thread and its exception.
-fn step(result: Option<Kind>, threads: &[(Owner, &str, &str)]) -> Step {
+fn step(result: Option<Kind>, threads: &[(Owned, &str, &str)]) -> Step {
     (
         Ok(result),
         threads
@@ -80,9 +83,11 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
     // A step with no function is a `load` alone, as dispatch makes it.
     let steps: Vec<Step> = purba_execution::attach(|worker| {
         [
+            (&test_thread, None),
             (&test_thread, Some("test_joins")),
             (&test_thread, Some("test_exits")),
             (&test_thread, Some("test_two")),
+            (&test_late, None),
             (&test_late, Some("test_leaves")),
             (&test_late, Some("test_releases")),
             (&test_load_thread, None),
@@ -93,9 +98,9 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
         .map(|(module, function)| {
             let result = match function {
                 Some(function) => worker
-                    .run(module, function)
+                    .run(module, function, *function)
                     .map(|outcome| Some(outcome.kind().clone())),
-                None => worker.load(module).map(|_| None),
+                None => worker.load(module).map(|()| None),
             }
             .map_err(|error| error.to_string());
             let threads = worker
@@ -112,30 +117,19 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
     assert_eq!(
         steps,
         [
-            step(
-                passed(),
-                &[(test("test_thread.py", "test_joins"), "A", zero)]
-            ),
-            step(
-                passed(),
-                &[(test("test_thread.py", "test_exits"), "Q", "Quit: 1")]
-            ),
+            step(None, &[]),
+            step(passed(), &[(test("test_joins"), "A", zero)]),
+            step(passed(), &[(test("test_exits"), "Q", "Quit: 1")]),
             step(
                 passed(),
                 &[
-                    (
-                        test("test_thread.py", "test_two"),
-                        "B",
-                        "IndexError: list index out of range"
-                    ),
-                    (test("test_thread.py", "test_two"), "C", "KeyError: 'k'"),
+                    (test("test_two"), "B", "IndexError: list index out of range"),
+                    (test("test_two"), "C", "KeyError: 'k'"),
                 ]
             ),
+            step(None, &[]),
             step(passed(), &[]),
-            step(
-                passed(),
-                &[(test("test_late.py", "test_leaves"), "T", "ValueError: late")]
-            ),
+            step(passed(), &[(test("test_leaves"), "T", "ValueError: late")]),
             step(None, &[(load("test_load_thread.py"), "L", zero)]),
             step(None, &[]),
             step(
