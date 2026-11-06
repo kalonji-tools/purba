@@ -26,11 +26,20 @@ Dispatch and execution carried each half as a field.
 
 **Assertion's rewrite crosses each part whole, and only assertion opens it.**
 
+```mermaid
+flowchart LR
+  subgraph assertion["assertion, the only part that reads the text and the asserts"]
+    rewrite["its rewrite"]
+    load["its load"]
+  end
+  rewrite -->|"one Rewrite, which holds the rewritten text and the text of each assert"| command
+  command -->|"the Rewrite, whole"| dispatch
+  dispatch -->|"the Rewrite, whole"| execution
+  execution -->|"the Rewrite, whole"| load
+```
+
 | question | answer |
 |---|---|
-| what assertion's rewrite gives | one `Rewrite`, which holds the rewritten text and the text of each assert |
-| how it crosses | whole, from command to dispatch to execution, and into assertion's `load` |
-| who reads its text and its asserts | assertion alone |
 | how dispatch names its type | as `purba_execution::Rewrite`, because execution's interface takes it |
 | how a test of another part builds one | `Rewrite::of_source`, from the text of a module with a plain `assert` |
 | how parsing reads a text that no file holds | `parse_source`. `parse` reads the file, then calls it |

@@ -47,18 +47,21 @@ The same ruleset requires one approving review on every pull request, under no p
 The reviewer reads for one thing: whether the decision, the spec and the implementation are the same thing.
 That is the question no check can ask, and routing exists to put it in front of a person rather than to choose which person.
 
-A pull request that touches a record carries all three links in one diff, and the code owner reads it.
-A pull request that touches no record is further down a chain whose decision already merged.
-The reviewer reads the change against the record that governs it.
-Where no record governs it, the reviewer asks whether one is owed.
-That question is a suggestion and never a gate, and nothing enforces it.
+```mermaid
+flowchart TD
+  pr["a pull request"] --> touches{"does it touch a record?"}
+  touches -- yes --> owner["it carries all three links in one diff, and the code owner reads it"]
+  touches -- no --> governs{"does a record govern it?"}
+  governs -- yes --> against["it is further down a chain whose decision already merged, and the reviewer reads the change against that record"]
+  governs -- no --> owed["the reviewer asks whether one is owed: a suggestion and never a gate, and nothing enforces it"]
+```
 
 [The person owns the Decision Outcome](the-person-owns-the-decision-outcome.md) says who answers for the decision a record holds.
 
 **Downside:**
 
 - **A change can be significant and touch no record, and nothing catches it.** Making the signal decidable means giving up detection, and this is the price.
-- **The question above is all that reaches that gap.** A companion gate stood beside it and required a pull request touching a record to also touch code. It is deleted because a record merges before the thing it decides is built. A pull request carrying a record alone is the ordinary shape here, and not an exception. The gate never said what counts as code either. What it was written to close stays open.
+- **The question whether a pull request owes a record is all that reaches that gap.** A companion gate stood beside that question and required a pull request that touches a record to also touch code. It is deleted because a record merges before the thing it decides is built. A pull request that carries a record alone is the ordinary shape here, and not an exception. The gate never said what counts as code either. What it was written to close stays open.
 
 ## Confirmation
 

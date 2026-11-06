@@ -40,7 +40,7 @@ Some part counts each outcome and each error, and some part turns that count int
 
 **Downside:**
 
-- **The table of the exit code lives in two places.** The exit-code record holds it, and reporting repeats it in `exit_code`. A change to one must change the other.
+- **The rule of the exit code lives in two places.** The exit-code record draws it, and reporting repeats it in `exit_code`. A change to one must change the other.
 
 ## Confirmation
 
