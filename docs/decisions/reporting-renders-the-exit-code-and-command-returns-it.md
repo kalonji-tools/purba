@@ -26,6 +26,8 @@ Some part counts each outcome and each error, and some part turns that count int
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
+**Area:** reporting
+
 **Reporting renders the exit code, and command returns it.**
 
 | question | answer |

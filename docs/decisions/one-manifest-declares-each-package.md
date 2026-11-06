@@ -26,6 +26,8 @@ Each answer below places the line where mise stops.
 
 **Reach:** `/Cargo.toml` `crates/*/Cargo.toml` `/pyproject.toml` `/.config/mise.toml` `scripts/**/*.rs` `scripts/check-manifests.sh` `.github/**/*.rs` `rust-toolchain.toml`
 
+**Area:** tooling
+
 **One manifest declares each package.**
 
 | package | manifest |

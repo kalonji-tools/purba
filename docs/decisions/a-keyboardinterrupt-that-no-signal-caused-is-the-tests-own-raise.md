@@ -22,6 +22,8 @@ No record says whether a `KeyboardInterrupt` that a test raises with no signal s
 
 **Reach:** `crates/**` `tests/**`
 
+**Area:** interrupt handling
+
 **A `KeyboardInterrupt` that no signal caused is the test's own raise.**
 
 - **A test whose call raises it, with no signal during the call, has the [outcome](../../CONTEXT.md#outcome) `raised`.** The next test runs.

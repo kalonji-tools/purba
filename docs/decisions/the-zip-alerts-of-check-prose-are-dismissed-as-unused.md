@@ -26,6 +26,8 @@ Only `zip` 9 fixes each one.
 
 **Reach:** `scripts/check-prose/**`
 
+**Area:** tooling
+
 **A person dismisses the `zip` alerts on `scripts/check-prose/Cargo.lock` as `not_used`, while check-prose builds no `zip` 7.2.0 and calls no `weirpack`.**
 
 - **The dismissal waits for this record to merge.** Each dismissal comment names this record.

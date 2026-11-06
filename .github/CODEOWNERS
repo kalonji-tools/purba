@@ -11,6 +11,7 @@
 # branch of a pull request to have any effect.
 
 /docs/decisions/ @snregales
+/docs/README.md @snregales
 
 /.config/readers @snregales
 

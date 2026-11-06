@@ -21,6 +21,8 @@ A change to another part then edits the tests of command.
 
 **Reach:** `crates/command/tests/**`
 
+**Area:** command
+
 **A command test checks only command's rules.**
 
 - **A test of command checks a rule that command owns.** Command owns these rules:

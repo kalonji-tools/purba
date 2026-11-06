@@ -29,6 +29,8 @@ Two of these rules were already purba's.
 
 **Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**` `docs/agents/post-pass.md`
 
+**Area:** writing
+
 purba borrows a prose rule from the standard, and never adopts the standard.
 
 A borrowed rule is quoted in the words the standard uses.

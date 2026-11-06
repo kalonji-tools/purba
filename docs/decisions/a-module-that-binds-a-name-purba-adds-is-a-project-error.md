@@ -26,6 +26,8 @@ The hook shares the module's namespace with the tester's own names, so a name of
 
 **Reach:** `crates/assertion/**`
 
+**Area:** assertion
+
 **A module that binds a name purba adds is a project error.**
 
 - **The rule holds for each name that a rewrite of purba adds to a module,** `_purba_ran` and each helper that a later rewrite adds.

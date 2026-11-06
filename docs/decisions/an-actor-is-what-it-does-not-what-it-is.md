@@ -32,6 +32,8 @@ The pipeline worked as an agent-to-agent protocol and produced nothing for the p
 
 **Reach:** `/CONTEXT.md` `/.config/readers` `scripts/check-readers.sh` `scripts/test/check-readers.bats`
 
+**Area:** writing
+
 An actor is a role that reads, stated as the mindset it reads from.
 
 The roster is flat.

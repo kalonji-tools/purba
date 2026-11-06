@@ -27,6 +27,8 @@ A module that does not load blocks each of its tests, so one cause can count onc
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md`
 
+**Area:** errors
+
 **A blocked test has no outcome.**
 
 - **A test that an error outside the test blocks prints as [blocked](../../CONTEXT.md#blocked-test), and names what blocked it.** A test whose own error blocks it prints that error, and counts as blocked.

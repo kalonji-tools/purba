@@ -28,6 +28,8 @@ The evidence is in its issues and its README, not in repository metadata.
 
 **Reach:** `/Cargo.toml` `crates/**` `/.cargo/deny.toml` `/.cargo/clippy.toml`
 
+**Area:** parsing
+
 purba parses with four ruff crates behind a thin parsing seam.
 `[workspace.dependencies]` pins each crate it names exactly at `=0.0.17`.
 

@@ -29,6 +29,8 @@ One of its invariants is "the diagram is the only wiring".
 
 **Reach:** `crates/**` `/LANDSCAPE.md` `scripts/check-wiring.sh`
 
+**Area:** design
+
 **Each part of purba is a crate, and its manifest names what it uses.**
 
 | what | where |

@@ -36,6 +36,8 @@ The prototype's context document pointed at records and did not restate them, an
 
 **Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/check-prose.rs` `scripts/list-records.sh` `scripts/records.sh` `scripts/test/list-records.bats` `scripts/test/records.bats` `/AGENTS.md` `.github/workflows/records.yml` `.github/scripts/post-record-thread.sh` `docs/agents/post-pass.md`
 
+**Area:** writing
+
 A record is a Markdown file at `docs/decisions/<proposition-slug>.md`, it reads as current state, and it is replaced rather than annotated.
 
 This is the exception to [an artifact is rewritten until its direction is agreed](an-artifact-is-rewritten-until-its-direction-is-agreed.md).
@@ -52,8 +54,8 @@ Four sections are required, in order:
 Consequences is optional. The downside is required, inside Decision Outcome.
 
 The title is a proposition.
-Filenames carry no numbers and there is no index.
-`ls`, `grep` and `mise run list:records` are the whole interface.
+Filenames carry no numbers.
+`ls`, `grep`, `mise run list:records` and the index of [a record names its area, and docs/README.md lists the records by area](a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md) are the whole interface.
 
 Records cite each other by proposition, never by number.
 A proposition survives a rename and is falsifiable at a glance.

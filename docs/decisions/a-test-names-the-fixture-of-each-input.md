@@ -24,6 +24,8 @@ With `src: Tx[SourceDb]`, a reader found the fixture of `src` only through anoth
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md` `/LANDSCAPE.md`
 
+**Area:** fixtures
+
 **A [test](../../CONTEXT.md#test) names the fixture of each of its [inputs](../../CONTEXT.md#input) in a typed default.**
 
 ```python

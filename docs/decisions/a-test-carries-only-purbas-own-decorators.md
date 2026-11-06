@@ -27,6 +27,8 @@ A person who reads one test then cannot see what runs in its place.
 
 **Reach:** `crates/**` `tests/**` `/CONTEXT.md`
 
+**Area:** selection
+
 **A [test](../../CONTEXT.md#test) carries only purba's own decorators, under purba's own names.**
 
 - **A decorator of purba belongs to purba's [public surface](../../CONTEXT.md#public-surface).** It joins with a [milestone](../../CONTEXT.md#milestone), as [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) says.

@@ -31,6 +31,8 @@ So a run can go green and check nothing, and its reader may not notice.
 
 **Reach:** `/LANDSCAPE.md`
 
+**Area:** design
+
 **purba ranks five qualities, and an honest outcome comes first.**
 [The landscape](../../LANDSCAPE.md#the-quality-priorities) states each quality.
 

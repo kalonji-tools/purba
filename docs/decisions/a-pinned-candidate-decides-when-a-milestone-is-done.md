@@ -29,6 +29,8 @@ The decision that a milestone is done must not rest on a verdict that cannot dec
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
 
+**Area:** design
+
 **A milestone is done when the signal that its shape declares holds.**
 
 | step | act |

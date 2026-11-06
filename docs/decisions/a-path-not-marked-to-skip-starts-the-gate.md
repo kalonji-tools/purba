@@ -22,6 +22,8 @@ So a `paths:` filter cannot narrow Build, and the workflow must start on every p
 
 **Reach:** `/.config/gates` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/changed.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
 
+**Area:** tooling
+
 **A gate skips a pull request only when `.config/gates` marks every path the pull request changes to skip that gate.**
 
 | part | what it does |

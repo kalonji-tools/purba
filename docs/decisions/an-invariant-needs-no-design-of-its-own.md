@@ -35,6 +35,8 @@ The landscape needs a test that keeps out what a concern already states.
 
 **Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
 
+**Area:** design
+
 **An [invariant](../../CONTEXT.md#invariant) needs no design of its own.**
 [The landscape](../../LANDSCAPE.md#the-invariants) names each invariant and the parts it binds.
 
