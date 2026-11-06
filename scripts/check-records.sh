@@ -176,6 +176,56 @@ reach. docs/README.md is written from these lines, so a record with no line is m
 area is design, workflow, writing, tooling, or the name of a part or a concern in LANDSCAPE.md." \
   "${found[@]}"
 
+# Considered Options holds only what lost, so an option there carries no mark.
+#
+#   the decision:
+# docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
+chosen=()
+rejected=()
+for f in "${records[@]}"; do
+  marks=$(option_marks "${f}")
+  while read -r number word; do
+    if [[ "${word}" == Chosen ]]; then
+      chosen+=("${f}:${number}")
+    elif [[ -n "${word}" ]]; then
+      rejected+=("${f}:${number}")
+    fi
+  done <<<"${marks}"
+done
+[[ ${#chosen[@]} -eq 0 ]] || refuse \
+  "Considered Options holds only what lost, so no option there is marked Chosen. The bold \
+decision sentence after the area is the winner, and its reason follows it. Each other winner that \
+Decision Outcome does not already state is a list line under that sentence." \
+  "${chosen[@]}"
+# The decision sentence is the winner, so it opens the paragraph after the
+# area, on one bold line that ends a sentence. A code span may hold `**`, so
+# each one is read as one word first. A record with no area line is refused
+# above, and has no decision sentence to read here.
+tick=$'\x60'
+# A closing emphasis may come before the stop, and a closing quote or
+# parenthesis after it.
+decision='^\*\*([^*]|\*[^*])+\*?[.?!]["'"'"')]*\*\*$'
+found=()
+for f in "${records[@]}"; do
+  decision_read "${f}" at line
+  [[ -n "${at}" ]] || continue
+  line=${line%"${line##*[![:space:]]}"}
+  while [[ "${line}" =~ ${tick}[^${tick}]+${tick} ]]; do
+    line=${line/"${BASH_REMATCH[0]}"/x}
+  done
+  [[ "${line}" =~ ${decision} ]] || found+=("${f}:${at}")
+done
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A Decision Outcome opens, after its area, with the decision in one line that \`**\` wraps \
+and whose words end with \`.\`, \`?\` or \`!\`. The decision sentence is the record's winner, so \
+a reader finds the decision in one place. The line named is where the decision sentence stands." \
+  "${found[@]}"
+[[ ${#rejected[@]} -eq 0 ]] || refuse \
+  "A lost option states why it lost, with no mark, because Rejected marks nothing in a list of \
+losers. \`mise run fmt:records\` strips Rejected., and the author rewrites any other form by \
+hand." \
+  "${rejected[@]}"
+
 for ((i = 0; i < ${#rules[@]}; i += 3)); do
   mapfile -t found < <(grep "^${rules[i]}"$'\t' <<<"${prose}" | cut -f2- || true)
   [[ ${#found[@]} -gt 0 ]] || continue
