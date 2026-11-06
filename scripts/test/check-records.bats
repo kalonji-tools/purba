@@ -30,7 +30,7 @@ Something needs a decision.
 
 ## Considered Options
 
-- **This.** Chosen.
+- **That.** It lost.
 
 ## Decision Outcome
 
@@ -126,7 +126,7 @@ words() {
 
 @test "sections out of order are refused" {
   swap "## Considered Options" "## Decision Outcome"
-  swap $'**This.** Chosen.\n\n## Decision Outcome' $'**This.** Chosen.\n\n## Considered Options'
+  swap $'**That.** It lost.\n\n## Decision Outcome' $'**That.** It lost.\n\n## Considered Options'
 
   run "${script}"
 
@@ -444,7 +444,7 @@ FAKE
   second=docs/decisions/b-second-record.md
   compliant >"${second}"
   swap_in "${second}" "Something needs a decision." "\`This\` needs a decision."
-  swap_in "${second}" "**This is decided.**" "\`This\` is decided."
+  swap_in "${second}" "**This is decided.**" "**\`This\` is decided.**"
 
   run "${script}"
 
@@ -474,8 +474,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  [[ "${output}" == *"articles                         2 in    22 words"* ]]
-  [[ "${output}" == *"formal words                     0 in    22 words"* ]]
+  [[ "${output}" == *"articles                         2 in    23 words"* ]]
+  [[ "${output}" == *"formal words                     0 in    23 words"* ]]
 }
 
 @test "a Decision Outcome that does not open with a reach is refused" {
@@ -540,7 +540,7 @@ FAKE
 
   [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"runs to 25 words"* ]]
-  [[ "${output}" == *"articles                         2 in    22 words"* ]]
+  [[ "${output}" == *"articles                         2 in    23 words"* ]]
 }
 
 @test "a paragraph that opens with Reach outside the Decision Outcome is prose" {
@@ -717,4 +717,175 @@ FAKE
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
+}
+
+@test "a winner marked Chosen in Considered Options is refused where it stands" {
+  swap "- **That.** It lost." "- **That.** Chosen. It won."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"Considered Options holds only what lost"* ]]
+  [[ "${output}" == *"${record}:9"* ]]
+}
+
+@test "a lost option that opens with Rejected. is refused, and the refusal names the fixer" {
+  swap "- **That.** It lost." "- **That.** Rejected. It lost."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A lost option states why it lost, with no mark"* ]]
+  [[ "${output}" == *"mise run fmt:records"* ]]
+  [[ "${output}" == *"${record}:9"* ]]
+}
+
+@test "another form of Rejected that opens a lost option is refused" {
+  swap "- **That.** It lost." "- **That.** Rejected on measurement. It lost."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A lost option states why it lost, with no mark"* ]]
+  [[ "${output}" == *"${record}:9"* ]]
+}
+
+@test "Rejected later in the reason of a lost option passes" {
+  swap "- **That.** It lost." "- **That.** It lost. A review Rejected it."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "an option marked Chosen inside a fence in Considered Options passes" {
+  swap "- **That.** It lost." $'- **That.** It lost.\n\n```text\n- **This.** Chosen.\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a lead-in with Chosen after it outside Considered Options passes" {
+  swap "**This is decided.**" $'**This is decided.**\n\n- **This.** Chosen. Rejected.'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "an option marked Chosen inside a tilde fence in Considered Options passes" {
+  swap "- **That.** It lost." $'- **That.** It lost.\n\n~~~text\n- **This.** Chosen.\n~~~'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a plain decision sentence after the area is refused where it stands" {
+  swap "**This is decided.**" "This is decided."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a decision sentence bold in part is refused where it stands" {
+  swap "**This is decided.**" "**This is decided**, for now."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a decision that opens with a list item is refused" {
+  swap "**This is decided.**" "- **This is decided.**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a decision that opens with a fence is refused" {
+  swap "**This is decided.**" $'```text\nThis is decided.\n```'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a bold label straight after the area is refused where it stands" {
+  swap "**This is decided.**" "**Note:**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a bold line that ends no sentence is refused where it stands" {
+  swap "**This is decided.**" "**This is decided (for now)**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  [[ "${output}" == *"${record}:17"* ]]
+}
+
+@test "a decision sentence that holds ** in a code span passes" {
+  swap "**This is decided.**" "**The reach \`**\` is decided.**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a decision sentence with a space after it passes" {
+  swap "**This is decided.**" "**This is decided.** "
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a decision sentence that ends in an emphasis passes" {
+  swap "**This is decided.**" "**This is decided *for now*.**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a decision sentence that ends in a quote passes" {
+  swap "**This is decided.**" "**The word is \"done.\"**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a decision sentence that ends in a parenthesis passes" {
+  swap "**This is decided.**" "**This is decided (for now.)**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a decision sentence that ends in a single quote passes" {
+  swap "**This is decided.**" "**The word is 'done.'**"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
 }

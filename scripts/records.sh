@@ -1,11 +1,13 @@
 # shellcheck shell=bash
-# What a record is, where its reach is, the paths a reach matches, and the areas
-# a record names.
+# What a record is, where its reach is, the paths a reach matches, the areas a
+# record names, and the marks its options carry.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
 #                  docs/decisions/a-record-names-every-location-where-it-applies.md
 #   the areas:
 # docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+#   the marks:
+# docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
 #
 #   is_record <path>                     prints <path> when it is a record
 #   reach_lines <record>                 prints `<first> <last> reach`, the lines
@@ -27,6 +29,13 @@
 #   area_read <record> <line> <areas>    sets <line> to the number of the line
 #                                        after the reach, and <areas> to each
 #                                        area that line names, one to a line
+#   decision_read <record> <line> <text> sets <line> to the number of the first
+#                                        line after the area, and <text> to that
+#                                        line, or both to nothing with no area
+#   option_marks <record>                prints `<line> <word>` for each option of
+#                                        Considered Options whose text after its
+#                                        lead-in opens with <word>, Chosen or
+#                                        Rejected
 #
 # Each line of <attributes> is `<pattern> <attribute>`. <scratch> is a directory
 # the caller removes. The caller sources report.sh first.
@@ -38,25 +47,36 @@ is_record() {
   [[ ! "$1" =~ ^docs/decisions/[^/.][^/]*\.md$ ]] || printf '%s\n' "$1"
 }
 
-# Sets <found> in the caller to the number of the first line of the array
-# <lines> that matches <ERE> outside a fence, or to nothing.
+# Moves the fence <fence> of the caller past <line>, and succeeds when the line
+# opens a fence, sits inside one or closes it.
 #
 # A fence of three or more backticks or tildes hides each line until a run of
 # the same character, at least as long, closes it. A fence that no run closes
 # runs to the end.
 #
 #   the fence:     https://spec.commonmark.org/0.31.2/#fenced-code-blocks
+fence_step() {
+  local -n open_fence=$2
+  local tick=$'\x60'
+  if [[ -n "${open_fence}" ]]; then
+    [[ ! "$1" =~ ^\ {0,3}(${open_fence:0:1}+)[[:space:]]*$ ||
+      ${#BASH_REMATCH[1]} -lt ${#open_fence} ]] || open_fence=""
+    return 0
+  fi
+  [[ "$1" =~ ^\ {0,3}(${tick}{3,}|~{3,}) ]] || return 1
+  open_fence=${BASH_REMATCH[1]}
+}
+
+# Sets <found> in the caller to the number of the first line of the array
+# <lines> that matches <ERE> outside a fence, or to nothing.
 unfenced_find() {
   local -n from_lines=$1
-  local pattern=$2 line fence="" number=0 tick=$'\x60'
+  local pattern=$2 line fence="" number=0
   printf -v "$3" '%s' ""
   for line in "${from_lines[@]}"; do
     number=$((number + 1))
-    if [[ -n "${fence}" ]]; then
-      [[ ! "${line}" =~ ^\ {0,3}(${fence:0:1}+)[[:space:]]*$ ||
-        ${#BASH_REMATCH[1]} -lt ${#fence} ]] || fence=""
-    elif [[ "${line}" =~ ^\ {0,3}(${tick}{3,}|~{3,}) ]]; then
-      fence=${BASH_REMATCH[1]}
+    if fence_step "${line}" fence; then
+      continue
     elif [[ "${line}" =~ ${pattern} ]]; then
       printf -v "$3" '%s' "${number}"
       return 0
@@ -227,4 +247,45 @@ area_read() {
     [[ -z "${word}" ]] || list+="${word}"$'\n'
   done
   printf -v "$3" '%s' "${list%$'\n'}"
+}
+
+# An option inside a fence is quoted, so it carries no mark. A lead-in ends at
+# the first `**` after the one that opens it.
+option_marks() {
+  # shellcheck disable=SC2034 # fence_step writes it through a name reference
+  local line fence="" number=0 inside=0 rest
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    number=$((number + 1))
+    if fence_step "${line}" fence; then
+      continue
+    elif [[ "${line}" == '## '* ]]; then
+      inside=0
+      [[ "${line}" != '## Considered Options' ]] || inside=1
+    elif ((inside)) && [[ "${line}" =~ ^[[:space:]]*[-*+][[:space:]]+\*\* ]]; then
+      rest=${line#*'**'}
+      [[ "${rest}" == *'**'* ]] || continue
+      rest=${rest#*'**'}
+      rest=${rest#"${rest%%[![:space:]]*}"}
+      if [[ "${rest}" =~ ^(Chosen|Rejected)([^[:alnum:]]|$) ]]; then
+        printf '%s %s\n' "${number}" "${BASH_REMATCH[1]}"
+      fi
+    fi
+  done <"$1"
+}
+
+# The names of the locals differ from any name a caller passes, because
+# `printf -v` writes the nearest variable of that name.
+decision_read() {
+  local area_at area_list number
+  local -a content
+  printf -v "$2" '%s' ""
+  printf -v "$3" '%s' ""
+  area_read "$1" area_at area_list
+  [[ -n "${area_list}" ]] || return 0
+  mapfile -t content <"$1"
+  for ((number = area_at + 1; number <= ${#content[@]}; number++)); do
+    [[ -z "${content[number - 1]//[[:space:]]/}" ]] || break
+  done
+  printf -v "$2" '%s' "${number}"
+  printf -v "$3" '%s' "${content[number - 1]:-}"
 }

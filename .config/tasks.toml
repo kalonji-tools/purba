@@ -19,7 +19,7 @@ depends = ["lint", "test"]
 [fmt]
 description = """\
 Rewrite every formatting difference, every action not named by its commit, \
-the order of design, and the index of the records"""
+the order of design, the index of the records, and the mark of a lost option"""
 depends = ["fmt:*"]
 
 ["fmt:cargo-scripts"]
@@ -40,6 +40,12 @@ run = "scripts/order-of-design.sh"
 ["fmt:pins"]
 description = "Rewrite each action a workflow names by a tag to its commit"
 run = "pinact run"
+
+#   the decision:
+# docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
+["fmt:records"]
+description = "Strip the Rejected. mark from each lost option of each record"
+run = "scripts/unmark-lost-options.sh"
 
 ["fmt:rust"]
 description = "Rewrite the Rust formatting"
