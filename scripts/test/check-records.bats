@@ -822,6 +822,15 @@ FAKE
   [[ "${output}" == *"${record}:17"* ]]
 }
 
+@test "a gerund after beside is refused" {
+  prose "The gate sits beside checking the records."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${record}:5: checking"* ]]
+}
+
 @test "a bold label straight after the area is refused where it stands" {
   swap "**This is decided.**" "**Note:**"
 

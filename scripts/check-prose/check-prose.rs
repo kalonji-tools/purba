@@ -87,7 +87,7 @@ const BE: [&str; 8] = ["is", "are", "was", "were", "be", "been", "being", "am"];
 #[rustfmt::skip]
 const PREPOSITIONS: &[&str] = &[
     "by", "for", "of", "without", "before", "after", "while", "when", "on", "in", "about", "from",
-    "than", "through", "against", "into", "onto", "over", "under", "as", "because",
+    "than", "through", "against", "into", "onto", "over", "under", "beside", "as", "because",
 ];
 
 #[rustfmt::skip]
