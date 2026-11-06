@@ -11,11 +11,12 @@ fn module(name: &str, source: &str) -> Module {
 
 fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
     purba_execution::attach(|worker| {
+        worker.load(module).expect("the module loads");
         functions
             .iter()
             .map(|function| {
                 worker
-                    .run(module, function)
+                    .run(module, function, *function)
                     .expect("the test runs")
                     .kind()
                     .clone()
@@ -97,11 +98,12 @@ fn a_name_that_is_not_callable_is_an_error() {
          def test_deque():\n    pass\n\ntest_deque = collections.deque()\n",
     );
     let errors: Vec<String> = purba_execution::attach(|worker| {
+        worker.load(&test_bound).expect("the module loads");
         ["test_bound", "test_deque"]
             .iter()
             .map(|function| {
                 worker
-                    .run(&test_bound, function)
+                    .run(&test_bound, function, *function)
                     .expect_err("an object that is not callable is not a test")
                     .to_string()
             })
@@ -132,20 +134,27 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
          def test_one():\n    pass\n\ndef test_two():\n    pass\n",
     );
     let errors: Vec<String> = purba_execution::attach(|worker| {
-        ["test_one", "test_two"]
-            .iter()
-            .map(|function| {
+        let loaded = worker
+            .load(&loads)
+            .expect_err("the module raises")
+            .to_string();
+        std::iter::once(loaded)
+            .chain(["test_one", "test_two"].iter().map(|function| {
                 worker
-                    .run(&loads, function)
+                    .run(&loads, function, *function)
                     .expect_err("the module does not load")
                     .to_string()
-            })
+            }))
             .collect()
     });
     assert_eq!(
         errors,
-        ["ValueError: load 1", "test_fails.py did not load"],
-        "the second test names the module, and the body runs once",
+        [
+            "ValueError: load 1",
+            "test_fails.py did not load",
+            "test_fails.py did not load"
+        ],
+        "each test names the module, and the body runs once",
     );
 }
 
@@ -169,7 +178,7 @@ fn a_load_that_fails_gives_its_error_once() {
                 .expect_err("the module did not load")
                 .to_string(),
             worker
-                .run(&fails, "test_one")
+                .run(&fails, "test_one", "test_one")
                 .expect_err("the module did not load")
                 .to_string(),
         ]
@@ -199,7 +208,7 @@ fn a_test_runs_on_the_module_that_load_loaded() {
             .load(&loads)
             .expect("a second load keeps the first module");
         worker
-            .run(&loads, "test_one")
+            .run(&loads, "test_one", "test_one")
             .expect("the test runs")
             .kind()
             .clone()
@@ -339,11 +348,12 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
         ),
     );
     let results: Vec<Result<Kind, String>> = purba_execution::attach(|worker| {
+        worker.load(&test_panic).expect("the module loads");
         ["test_one", "test_two", "test_three"]
             .iter()
             .map(|function| {
                 worker
-                    .run(&test_panic, function)
+                    .run(&test_panic, function, *function)
                     .map(|outcome| outcome.kind().clone())
                     .map_err(|error| reason(&error))
             })

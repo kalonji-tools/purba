@@ -146,6 +146,30 @@ LINES
   [[ ! -e three ]]
 }
 
+@test "a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys, time, types' 'from pathlib import Path' \
+    'class Slow(types.ModuleType):' '    def __getattribute__(self, name):' \
+    '        if name == "test_two":' \
+    '            Path("marker").touch()' '            time.sleep(2)' \
+    '        return super().__getattribute__(name)' \
+    'sys.modules[__name__].__class__ = Slow' \
+    'def test_one():' '    assert True' \
+    'def test_two():' '    Path("two").touch()' \
+    'def test_three():' '    Path("three").touch()' >test_lookup.py
+
+  run -0 --separate-stderr interrupt test_lookup.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_lookup.py::test_one passed
+test_lookup.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]] || false
+  [[ ! -e three ]]
+}
+
 @test "a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
@@ -325,6 +349,30 @@ LINES
   [[ "${stderr%%$'\n'*}" == "${SIGINT_LINE}" ]] || false
   [[ "${stderr##*$'\n'}" == 'purba ended by SIGINT' ]] || false
   [[ ! -e thread ]]
+}
+
+@test "the error of a thread in the test that a Ctrl-C lands in prints after that test's line" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import threading, time' 'from pathlib import Path' \
+    'go = threading.Event()' \
+    'def late():' '    go.wait()' '    raise ValueError("late")' \
+    'def test_one():' '    assert True' \
+    'def test_two():' '    thread = threading.Thread(target=late, name="T")' '    thread.start()' \
+    '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        go.set()' '        thread.join()' \
+    'def test_three():' '    Path("three").touch()' >test_thread_error.py
+
+  run -0 --separate-stderr interrupt test_thread_error.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_thread_error.py::test_one passed
+test_thread_error.py::test_two interrupted
+test_thread_error.py::test_two project error: thread T raised ValueError: late
+3 tests: 1 passed, 1 interrupted, 1 unreached; 1 project error
+LINES
+  [[ "${stderr%%$'\n'*}" == "${SIGINT_LINE}" ]] || false
+  [[ "${stderr##*$'\n'}" == 'purba ended by SIGINT' ]] || false
+  [[ ! -e three ]]
 }
 
 @test "a Ctrl-C in a test's atexit function lets the function finish, and purba dies by SIGINT" {
