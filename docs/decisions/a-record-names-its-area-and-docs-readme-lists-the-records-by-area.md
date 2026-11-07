@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-A person looks for a record by the kind of work it decides, and an agent looks with `grep`.
+One reader looks for a record by the kind of work it decides, and another reader looks with `grep`.
 [A decision record is rewritten, not amended](a-record-is-rewritten-not-amended.md) keeps the records in one flat folder.
 GitHub lists every file of a folder before it renders the folder's `README.md`.
 
@@ -14,7 +14,7 @@ GitHub lists every file of a folder before it renders the folder's `README.md`.
 
 ## Considered Options
 
-- **The flat folder, with no index.** A person cannot find a record by its area in it.
+- **The flat folder, with no index.** A reader cannot find a record by its area in it.
 - **A folder for each area.** Apart from the search by area, it adds only a code owner for each area, and purba has one owner. It breaks each link to a record from outside the tree.
 - **An index page alone, written by hand.** It drifts each time a pull request adds, renames or deletes a record.
 - **An index inside `docs/decisions/`.** GitHub renders it below every record.

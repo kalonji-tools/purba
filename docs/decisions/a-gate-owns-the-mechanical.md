@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 purba welcomes a contribution written by an agent.
-Nobody can assume an agent read a convention, and a reviewer who states one by hand states it again next time.
+Nobody can assume a contributor read a convention, and a reviewer who states one by hand states it again next time.
 
 So a convention no tool enforces is not a convention.
 It is a review comment, rewritten forever, by the reader whose attention is scarcest.
@@ -33,7 +33,7 @@ A tool that detects runs at the strictest setting it offers, with every optional
 A check is dropped only where it is named together with the reason it is dropped, at the location a reader meets the code.
 
 A tool that normalises has one location for its style, and tolerates no deviation from it.
-[A normaliser's style is chosen for the human who reads the code](a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md) says which style.
+[A normaliser's style is chosen for the reader of the code](a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md) says which style.
 
 **A standard nothing can fix is still stated, and then it is only checked.**
 Line length is that standard, because no formatter wraps a line.
@@ -116,7 +116,7 @@ A misspelling in either stayed as written.
 A file named like the configuration of `typos` needs no exclusion either.
 A misspelling planted in `Cargo.toml` stayed as written, and `typos` found it in the same bytes saved as `other.toml`, in [typos never reads a Cargo.toml or pyproject.toml, and the record says it writes in every file but a generated one](https://github.com/kalonji-tools/purba/issues/738).
 
-Where a person fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
+Where a hand edit fixed a real typo, `typos` wrote the same fix in 57 of 60 lines.
 ⚠️ **Some of its fixes in code change behaviour.**
 On three trees that already spell-check, each of its 19 rewrites in code files was wrong.
 Twelve of them renamed a name that a test misspells on purpose.

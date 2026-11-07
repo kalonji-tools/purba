@@ -15,7 +15,7 @@ Only `zip` 9 fixes each one.
 | `zip` 8.6.0 comes from `harper-core`, and no feature of `harper-core` drops it | [`harper-core/Cargo.toml`](https://github.com/Automattic/harper/blob/v2.3.0/harper-core/Cargo.toml#L37) |
 | in `harper-core`, only the `weirpack` module calls `zip`, and only `harper-cli` and `harper-wasm` call that module | [`harper-core/src/weirpack/mod.rs`](https://github.com/Automattic/harper/blob/v2.3.0/harper-core/src/weirpack/mod.rs#L126) |
 | `harper-core` 3.0.0 requires `zip` 8.6.0 | [`harper-core/Cargo.toml` at 3.0.0](https://github.com/Automattic/harper/blob/v3.0.0/harper-core/Cargo.toml) |
-| a person reopens an alert that a person dismissed | [GitHub's page on Dependabot alerts](https://docs.github.com/en/code-security/how-tos/manage-security-alerts/manage-dependabot-alerts/view-dependabot-alerts) |
+| an alert dismissed by hand is reopened by hand | [GitHub's page on Dependabot alerts](https://docs.github.com/en/code-security/how-tos/manage-security-alerts/manage-dependabot-alerts/view-dependabot-alerts) |
 
 ## Considered Options
 
@@ -27,7 +27,7 @@ Only `zip` 9 fixes each one.
 
 **Area:** tooling
 
-**A person dismisses the `zip` alerts on `scripts/check-prose/Cargo.lock` as `not_used`, while check-prose builds no `zip` 7.2.0 and calls no `weirpack`.**
+**The `zip` alerts on `scripts/check-prose/Cargo.lock` are dismissed by hand as `not_used`, while check-prose builds no `zip` 7.2.0 and calls no `weirpack`.**
 check-prose never calls `weirpack`, the one `harper-core` module that reads an archive.
 
 - **The dismissal waits for this record to merge.** Each dismissal comment names this record.
@@ -36,14 +36,14 @@ check-prose never calls `weirpack`, the one `harper-core` module that reads an a
 A change in the reach runs this check:
 
 1. For each `zip` in the lockfile, run the `cargo tree` command of Confirmation.
-2. When the command prints a crate for `zip` 7.2.0, a person reopens the alerts.
+2. When the command prints a crate for `zip` 7.2.0, reopen the alerts.
 3. Search the harper source at the tag of `check-prose.rs` for each caller of `weirpack`.
-4. When a crate that check-prose builds calls `weirpack`, a person reopens the alerts.
+4. When a crate that check-prose builds calls `weirpack`, reopen the alerts.
 5. When the lockfile holds no `zip` below 9.0.5, the same change deletes this record.
 
 **Downside:**
 
-- **Nothing refuses a change that breaks the condition.** The check rests on the person who reads this record.
+- **Nothing refuses a change that breaks the condition.** The check rests on the reader of this record.
 - **The alerts page hides a dismissed alert.** It lists open alerts unless its filter changes.
 
 ## Confirmation

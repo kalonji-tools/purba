@@ -4,7 +4,7 @@
 
 On `main` at `b82e8b6`, selection judges only a `def` with no decorator, because a decorator can change what the call takes and returns.
 Execution calls whatever the module binds to the name of the test.
-A person who reads one test then cannot see what runs in its place.
+A reader of one test then cannot see what runs in its place.
 
 | fact | source |
 |---|---|
@@ -13,12 +13,12 @@ A person who reads one test then cannot see what runs in its place.
 
 ## Considered Options
 
-- **Execution gives `unknown` to a decorated test whose call returns a value.** The decorator still changes the test in a way that a person who reads the test cannot see.
+- **Execution gives `unknown` to a decorated test whose call returns a value.** The decorator still changes the test in a way that a reader of the test cannot see.
 - **A decorator of purba under a name that the tester gives it, `needs_fd_capture = skip(…)`.** The name does not say whether purba skips the test, hands it an input, or expects it to raise.
 - **A decorator of purba under an import alias, `from purba import skip as needs_fd_capture`.** The alias does not say what purba does either.
-- **A decorator of purba on a class that holds the tests.** A person who reads one method does not see the decorator on its class.
-- **A mark for the whole module, such as pytest's `pytestmark`.** A person who reads one test does not see the mark. A run that picks its files by platform leaves out a module that cannot load there.
-- **Selection leaves a name bound under `global` in a function unseen, as it leaves `globals()`.** Execution then calls what the function bound, and a person who reads the test cannot see it.
+- **A decorator of purba on a class that holds the tests.** A reader of one method does not see the decorator on its class.
+- **A mark for the whole module, such as pytest's `pytestmark`.** A reader of one test does not see the mark. A run that picks its files by platform leaves out a module that cannot load there.
+- **Selection leaves a name bound under `global` in a function unseen, as it leaves `globals()`.** Execution then calls what the function bound, and a reader of the test cannot see it.
 
 ## Decision Outcome
 
@@ -29,7 +29,7 @@ A person who reads one test then cannot see what runs in its place.
 **A [test](../../CONTEXT.md#test) carries only purba's own decorators, under purba's own names.**
 
 - **A decorator of purba belongs to purba's [public surface](../../CONTEXT.md#public-surface).** It joins with a [milestone](../../CONTEXT.md#milestone), as [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) says.
-- **Selection refuses a test that carries any other decorator, as a project error for that test alone.** A person who reads the test sees all that purba does to it.
+- **Selection refuses a test that carries any other decorator, as a project error for that test alone.** A reader of the test sees all that purba does to it.
 - **A test names a decorator of purba through `purba`, or through a name that the module imports from purba with no alias.** `@purba.skip`, and `@skip` after `from purba import skip`, are the only forms. After `import purba as p`, selection refuses `@p.skip`.
 - **Selection refuses a test whose decorator uses a name that the module binds again after its import.** A decorator's name bound again does not say what purba does. After `from purba import skip`, `skip = keep` is one such binding.
 - **A decorator of purba returns the function that it takes.** The body that selection judges is then the body that runs.

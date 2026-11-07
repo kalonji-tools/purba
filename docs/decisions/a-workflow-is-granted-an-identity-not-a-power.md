@@ -22,8 +22,8 @@ It is which identity opens it.
 
 ## Considered Options
 
-- **Permit Actions to create and approve pull requests.** purba measured it, then refused it. The switch buys the approve power, and it does not even finish the job. A pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state. Every weekly bump would then wait for a person to press a button before `Quality` and `Build` ran.
-- **Open no pull request, and leave a person a link to open one.** The person who opens it becomes its author. `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one maintainer, so every bump would merge through an override. The gate would never bind the one change nobody wrote.
+- **Permit Actions to create and approve pull requests.** purba measured it, then refused it. The switch buys the approve power, and it does not even finish the job. A pull request created with `GITHUB_TOKEN` puts its workflow runs in an approval-required state. Every weekly bump would then wait for an approval of its runs before `Quality` and `Build` ran.
+- **Open no pull request, and leave a person a link to open one.** The person who opens it becomes its author. `protect-main` requires one approving review and a code owner's review, and GitHub refuses an approval from the author. purba has one code owner, so every bump would merge through an override. The gate would never bind the one change nobody wrote.
 - **Open it with an account's token.** An account token is named by what it is rather than by what it does. It carries whatever that account may do, wherever that account may do it. It also expires on a date nobody records. A bump that stops because a token lapsed is the same silence this workflow exists to break.
 
 ## Decision Outcome
@@ -36,7 +36,7 @@ It is which identity opens it.
 Actions' own token is never widened to reach it.
 
 The identity is a GitHub App. It holds no code, no server and no webhook.
-The installation, not a person, bounds the App's token, and nobody rotates it.
+The installation, not an account, bounds the App's token, and nobody rotates it.
 
 | the App | |
 |---|---|
@@ -60,7 +60,7 @@ A change that points one of them at the App token would stop the only thing that
 **Downside:**
 
 - **An App can be uninstalled, and its key can be replaced.** Either fails the mint, which fails the run, which reports. That is the loud behaviour, and purba chose it rather than a quiet stand down. A bump that stands down quietly freezes the compiler and says nothing.
-- ⚠️ **A repository setting is invisible to a reader of this tree.** The switch this record refuses is read back through the API and appears in no file here. A later maintainer can turn it on, and nothing in the tree will contradict them.
+- ⚠️ **A repository setting is invisible to a reader of this tree.** The switch this record refuses is read back through the API and appears in no file here. Anyone with admin access can turn it on later, and nothing in the tree will contradict them.
 - **This adds a third thing the workflow trusts at run time**, beside the checkout and the tool installer. It is published by GitHub's own organization and pinned the way purba pins the other two.
 
 ## Confirmation
@@ -73,7 +73,7 @@ Taken 2026-09-29, one call, one branch, one minute apart, differing only in the 
 |---|---|
 | `gh pr create` under `GITHUB_TOKEN` | refused, and the refusal names the setting |
 | `gh pr create` under the installation token | opened, and the author reads `purba-bump[bot]` with type `Bot` |
-| workflow runs GitHub created on that pull request | six, of which `Quality` and `Build` are two, and zero waiting for a person |
+| workflow runs GitHub created on that pull request | six, of which `Quality` and `Build` are two, and none waits for an approval |
 | a mint given an app id that is not the App | the step fails, so a lost identity is loud rather than quiet |
 
 ⚠️ **The author reads two ways, and a check written against the wrong one refuses a pull request the App did open.**

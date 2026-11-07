@@ -15,7 +15,7 @@ purba's records are written in a vocabulary that no record defines.
 
 Measured against the fourteen records that stood before this one.
 
-A session answering a single question about the issue register read four records end to end to learn six words.
+A reader with a single question about the issue register read four records end to end to learn six words.
 
 | | lines |
 |---|---:|

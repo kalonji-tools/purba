@@ -11,7 +11,7 @@ A module that does not load blocks each of its tests, so one cause can count onc
 | a module that raises while it loads gives its error to the first test, and `did not load` to each later test | [`run.rs`](https://github.com/kalonji-tools/purba/blob/e2e3c70/crates/execution/tests/run.rs#L102-L127) |
 | each of the seven surveyed runners shows a module that fails to load as one item, and names none of its tests | [the research of test-runner failures](https://github.com/kalonji-tools/purba/blob/56d78a28c577c265e926eceb9ef510cfcb04ef55/research/test-runner-failures.md?plain=1#L53-L67) |
 | selection selects a module's tests from the parse, before assertion loads the module | [`command`](https://github.com/kalonji-tools/purba/blob/e2e3c70/crates/command/src/lib.rs#L62-L73) |
-| rustc's `ErrorGuaranteed` proves that the person was told, and cargo cuts an error that "does not add any new information" | [the research of error propagation](https://github.com/kalonji-tools/purba/blob/0c906fa23e9a4b8f87822ec8bf6abe5b3caf2b68/research/error-propagation.md?plain=1#L163-L168) |
+| rustc's `ErrorGuaranteed` proves that rustc emitted the error, and cargo cuts an error that "does not add any new information" | [the research of error propagation](https://github.com/kalonji-tools/purba/blob/0c906fa23e9a4b8f87822ec8bf6abe5b3caf2b68/research/error-propagation.md?plain=1#L163-L168) |
 
 ## Considered Options
 

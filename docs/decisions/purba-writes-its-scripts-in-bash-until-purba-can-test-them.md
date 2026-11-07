@@ -47,11 +47,11 @@ A change of language is earned by something the new language brings that bash ca
 
 **A change to Python is earned when purba runs purba's own test suite.**
 One command answers whether purba runs purba's own test suite.
-purba runs Python tests and nothing else, so at that point the scripts' tests become the product's own first user.
+purba runs Python tests and nothing else, so at that point purba can run the scripts' tests.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) keeps the end-to-end test of purba in bats after that point.
 
 **The language the product is written in is not evidence for the language its scripts are written in.**
-A script and the product share no user.
+A script and the product share no reader.
 That excludes a pull toward Rust because the product is Rust, and a pull toward Python because the product tests Python.
 The trigger above turns on which runner executes a script's tests, so the exclusion leaves it standing.
 

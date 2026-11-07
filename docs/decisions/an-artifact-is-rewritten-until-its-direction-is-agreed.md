@@ -5,7 +5,7 @@
 purba re-scopes its own issues, and nothing marks the part that stopped being true.
 A re-scope arrives as a comment, the body it contradicts stays unmarked, and the reader reconciles the two wrongly.
 
-On [Post the mandatory review threads that must be resolved before a merge](https://github.com/kalonji-tools/purba/issues/53), an agent read the body first and built design questions on a premise the re-scope already killed.
+On [Post the mandatory review threads that must be resolved before a merge](https://github.com/kalonji-tools/purba/issues/53), a reader read the body first and built design questions on a premise the re-scope already killed.
 That comment was present, correct, and read.
 It lost to the body, because the body reads as current and carries no mark saying it is not.
 
@@ -33,7 +33,7 @@ The interface serves history from a popover, three candidate paths answer 404, a
 **A mark can point at what replaced a body and never at the body it replaced.**
 
 A second behaviour already ran, unwritten.
-Nobody here ever edited a comment outside the session that wrote it.
+Nobody here ever edited a comment outside the work that produced it.
 The latest of 17 edits across 202 comments lands 86 minutes after the comment appears, and both design spec edits are typo fixes.
 
 ## Considered Options

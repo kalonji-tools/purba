@@ -38,14 +38,14 @@ No command decides whether an element carries the point.
 A reviewer decides, and this record does not pretend otherwise.
 
 **Provenance crosses every location.**
-What a session leaves behind does not enter an artifact.
+What the work leaves behind does not enter an artifact.
 Discarded alternatives, intermediate edits and the order the work happened in stay where they happened, unless a reader needs them to understand the result.
 
 **A category is named by a review, and enters when this record is rewritten.**
 
 | material that never carries the point |
 |---|
-| what a session leaves behind |
+| what the work leaves behind |
 | a count of the costs on the `**Downside:**` label |
 | an option its question did not weigh |
 

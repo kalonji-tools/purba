@@ -56,7 +56,7 @@ Parsing returns a syntax error as an error, and never panics, because a file tha
 [Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) says what that error holds.
 MSRV is the upgrade clock, not the API.
 
-**A person raises the pin, when one of three triggers fires.**
+**A coder raises the pin by hand, when one of three triggers fires.**
 
 - A supported CPython has syntax that the pinned parser refuses.
 - purba needs a fix in the parser.
@@ -85,7 +85,7 @@ There is no `0.0.1`, and the mapping is not arithmetic.
 - **The publisher commits to nothing.** These crates first reached the registry eleven weeks before this decision, published so another project could consume them. No policy statement commits their publisher to a continuation. Confidence over the measured window is high and extrapolating is not.
 - **MSRV moves about every six weeks**, three times in ten weeks, and each move is a pin somebody has to raise.
 - **The dependency count is higher**, at 61 transitive against 45, and four direct crates to name against one.
-- **Nothing notices a new ruff release.** A trigger reaches the person only when they meet it.
+- **Nothing notices a new ruff release.** A trigger reaches the coder only when they meet it.
 
 Being wrong here is survivable, and being wrong the other way is not:
 

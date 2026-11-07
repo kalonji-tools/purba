@@ -71,7 +71,7 @@ Three commands refused a crate at `tools/stray/`:
 | `cargo check` inside it | exit 101: "current package believes it's in a workspace when it's not" |
 
 `mise run lint:rust` and `mise run test:rust` exited 0, because neither builds a crate that is not a member.
-A person who marks its directory in `.config/gates` and `.config/readers` passes `lint:gates` and `lint:readers`.
+A change that marks the crate's directory in `.config/gates` and `.config/readers` passes `lint:gates` and `lint:readers`.
 The reviewer then reads where the crate lives.
 
 Each cargo command refused a member of the workspace without `[lints] workspace = true`, and passed it once it had the table:

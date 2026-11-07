@@ -39,7 +39,7 @@ The commit cannot move, and the comment tells the reader the version.
 ```
 
 The comment holds the most specific version tag on the commit.
-A new action takes the commit that its tag names on the day a person adds it.
+A new action takes the commit that its tag names on the day an author adds it.
 Dependabot moves the commit and the comment together, as [Dependabot proposes each newer action](dependabot-proposes-each-newer-action.md) says.
 
 **`mise run fmt:pins` writes the pin, and a hook runs it at commit.**

@@ -90,14 +90,14 @@ done
 
 [[ ${#stranded[@]} -eq 0 ]] || refuse \
   "A script is refused when every caller of it lives in the other half. Only GitHub runs \
-what lives under .github, and a script a person or this project's own tooling runs lives in \
-scripts/." \
+what lives under .github, and a script that a caller runs by hand, or that this project's own \
+tooling runs, lives in scripts/." \
   "${stranded[@]}"
 
 [[ ${#unreachable[@]} -eq 0 ]] || refuse \
   "A script under .github that nothing under .github names is reached by nothing, because \
-the runners there are enumerable. A script a person runs lives in scripts/, where the person is a \
-caller this command cannot see." \
+the runners there are enumerable. A script a caller runs by hand lives in scripts/, where that \
+caller is one this command cannot see." \
   "${unreachable[@]}"
 
 finish

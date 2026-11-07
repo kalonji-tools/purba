@@ -135,7 +135,7 @@
 - [A gate owns the mechanical standard](decisions/a-gate-owns-the-mechanical.md)
 - [A gate reads its marks on the base branch](decisions/a-gate-reads-its-marks-on-the-base-branch.md)
 - [A gate refuses each invariant a tool can see, from the first code it reads](decisions/a-gate-refuses-each-invariant-a-tool-can-see.md)
-- [A normaliser's style is chosen for the human who reads the code](decisions/a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md)
+- [A normaliser's style is chosen for the reader of the code](decisions/a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md)
 - [A part-of-speech tagger decides the tense rule](decisions/a-part-of-speech-tagger-decides-the-tense-rule.md)
 - [A path not marked to skip starts the gate](decisions/a-path-not-marked-to-skip-starts-the-gate.md)
 - [A record names its area, and docs/README.md lists the records by area](decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md)

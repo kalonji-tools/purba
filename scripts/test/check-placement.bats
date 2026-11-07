@@ -81,7 +81,7 @@ placed() {
   [[ "${output}" != *"${stranded}"* ]]
 }
 
-@test "a script outside .github that nothing names passes, because a person runs it" {
+@test "a script outside .github that nothing names passes, because a caller runs it by hand" {
   placed
   track scripts/by-hand.sh 'echo by hand'
 

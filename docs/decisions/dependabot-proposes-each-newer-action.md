@@ -4,7 +4,7 @@
 
 Each workflow names an action by its commit, as [a workflow names each action by its commit](a-workflow-names-each-action-by-its-commit.md) says.
 Nothing in the tree proposes a newer one.
-A person learns of an old action when GitHub warns about it.
+A reader of a workflow run learns of an old action when GitHub warns about it.
 By then GitHub already deprecated the runtime under it.
 
 A wheel job, which uses both actions below, carried this warning:

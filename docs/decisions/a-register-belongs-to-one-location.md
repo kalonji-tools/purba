@@ -44,7 +44,7 @@ The pull request has no shape to preserve.
 ## Considered Options
 
 - **One register, written as the same dimensions for every location.** A commit subject, a record and an issue distribute information for different reasons. One vocabulary forced over them makes a table that reads well and decides nothing.
-- **A register per location, written inside this record.** [A record is rewritten, not amended](a-record-is-rewritten-not-amended.md) governs records. It points at its template and does not restate it. A rule kept three clicks from the person who writes is a rule they do not read.
+- **A register per location, written inside this record.** [A record is rewritten, not amended](a-record-is-rewritten-not-amended.md) governs records. It points at its template and does not restate it. A rule kept three clicks from the author is a rule they do not read.
 - **A template, relied on as the mechanism.** The measurements above refute it. A template reaches the web interface and reaches nothing else.
 - **A required status check over the pull request body.** It is the one location purba could gate this way. The gate would buy a shape that costs nothing to state, and refuse work over a heading. The project would rather lose the guarantee than spend a reviewer's merge on prose.
 - **A workflow on every issue, checking its headings.** An issue has no merge event, so the check can only label after the fact. It would fire on every issue of one author who already follows the rule.

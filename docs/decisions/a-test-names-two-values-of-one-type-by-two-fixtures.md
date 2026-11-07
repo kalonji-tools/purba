@@ -15,7 +15,7 @@ A test of a copy needs two databases: the one that it copies from, and the one t
 | a type that held both databases hid them from purba, and its fixture built each database itself, not through the fixture of `Database` | the same |
 | in `src: Tx[SourceDb]`, no agent that read blind named the fixture of `src` from the test's line alone; in `= use(tx, source)`, two of three did | [the readers' answers](https://github.com/kalonji-tools/purba/tree/30147b4/proto-700/runs/readers) |
 
-The rows of the first prototype that do not name a type checker come from a sketch of the rules, so each is a model.
+The rows of the first prototype that do not name a type checker come from a sketch of the rules, so each is a simulation.
 
 ## Considered Options
 
