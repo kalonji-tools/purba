@@ -1,0 +1,40 @@
+# RESEARCH (#852): runs the probes of research/macos-start/ on a push to the
+# research branch. The branch never merges, so this file never reaches main.
+name: Probe 852
+
+on:
+  push:
+    branches: [research/macos-start]
+    paths:
+      - "research/macos-start/**"
+      - ".github/workflows/probe-852.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: ${{ matrix.os }} py${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, ubuntu-latest]
+        python: ["3.12", "3.14"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install numpy
+      - run: |
+          sw_vers || true
+          python research/macos-start/run.py 2>&1 | tee probe.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: probe-${{ matrix.os }}-py${{ matrix.python }}
+          path: probe.txt
