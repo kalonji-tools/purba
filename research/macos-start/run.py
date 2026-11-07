@@ -5,11 +5,12 @@ Each safety case runs in a fresh interpreter, with Python's warning about a
 fork in a multi-threaded process made visible.
 """
 
-import json, os, platform, subprocess, sys, tempfile
+import itertools, json, os, platform, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODS = os.path.join(HERE, "mods")
-DARWIN_ONLY = {"cf-prefs-both", "cf-prefs-parent-only", "mac-ver-both"}
+DARWIN_ONLY = {"cf-prefs-both", "cf-prefs-parent-only", "cf-prefs-child-only", "mac-ver-both"}
+SAFETY_REPEATS = int(os.environ.get("SAFETY_REPEATS", "1"))
 COST = [("fork", 200), ("forkserver", 200), ("spawn", 50), ("posix_spawn", 50)]
 REPEATS = 3
 
@@ -54,7 +55,7 @@ def safety():
     runs = [(case, {}) for case in CASES if darwin or case not in DARWIN_ONLY]
     runs.append(("proxies-thread-both", {"OBJC_DISABLE_INITIALIZE_FORK_SAFETY": "YES"}))
     script = os.path.join(HERE, "safety.py")
-    for case, extra in runs:
+    for (case, extra), _ in itertools.product(runs, range(SAFETY_REPEATS)):
         done = subprocess.run(
             [sys.executable, "-W", "always::DeprecationWarning", script, case],
             env=dict(os.environ, **extra),

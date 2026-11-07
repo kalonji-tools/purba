@@ -54,6 +54,13 @@ def dns():
     return socket.getaddrinfo("example.com", 443)
 
 
+def http():
+    import urllib.request
+
+    with urllib.request.urlopen("https://example.com", timeout=10) as reply:
+        return reply.status
+
+
 def tls():
     import ssl
 
@@ -107,11 +114,17 @@ CASES = {
     "proxies-thread-both": (lambda: loop(proxies), proxies),
     "cf-prefs-both": (cf_preferences, cf_preferences),
     "cf-prefs-parent-only": (cf_preferences, nothing),
+    "cf-prefs-child-only": (nothing, cf_preferences),
     "dns-both": (dns, dns),
+    "dns-parent-only": (dns, nothing),
+    "dns-child-only": (nothing, dns),
+    "http-both": (http, http),
+    "http-child-only": (nothing, http),
     "tls-both": (tls, tls),
     "mac-ver-both": (mac_ver, mac_ver),
     "numpy-import-parent": (import_only("numpy"), matmul),
     "numpy-both": (matmul, matmul),
+    "numpy-child-only": (nothing, matmul),
 }
 
 
