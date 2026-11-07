@@ -87,6 +87,6 @@ shell_files = "'*.sh' '*.bats'"
 
 [task_config]
 includes = [".config/tasks.toml"]
-# Windows otherwise runs a task through `cmd`, which cannot exec a shebang.
+# A task body is bash, and stops at its first failed line.
 # https://mise.jdx.dev/tasks/task-configuration.html
 shell = "bash -c -o errexit"

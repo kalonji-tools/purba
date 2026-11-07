@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -90,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
         # `3.14t` needs no job of its own: the command below is the same for it
         # as for every other arm.
         python: ['3.12', '3.13', '3.14', '3.14t']
@@ -136,8 +136,6 @@ jobs:
       # names the interpreter above. Without it a mise task would build against
       # mise's own python and the matrix would change nothing.
       - name: Build against ${{ matrix.python }}
-        # `run:` defaults to PowerShell on Windows, where the expansion below is
-        # empty and maturin is handed `--interpreter ""`.
         shell: bash
         run: mise run build --interpreter "$(command -v python)"
 
@@ -160,7 +158,6 @@ jobs:
       # Its own folder and venv keep the wheel above as the one a tester installs.
       # `test:wheel` in .config/tasks.toml says why `--features` names both.
       - name: Build the fault wheel on ${{ matrix.python }}
-        if: runner.os != 'Windows'
         shell: bash
         run: |
           set -euo pipefail
@@ -172,7 +169,6 @@ jobs:
 
       #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
       - name: Run the end-to-end tests on ${{ matrix.python }}
-        if: runner.os != 'Windows'
         env:
           FAULT_PURBA: ${{ github.workspace }}/target/fault-venv/bin/purba
         run: bats --print-output-on-failure tests

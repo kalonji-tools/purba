@@ -168,15 +168,13 @@ description = "Run the Rust tests"
 # binary does not load.
 # https://pyo3.rs/v0.29.2/building-and-distribution#dynamically-embedding-the-python-interpreter
 #
-# Windows needs no assignment: its test binary loads without one.
-#
 #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
 #   the decision:  docs/decisions/every-crate-lives-under-crates.md
 run = """
-{% if os() != "windows" %}export {% if os() == "macos" %}DYLD_FALLBACK_LIBRARY_PATH
+export {% if os() == "macos" %}DYLD_FALLBACK_LIBRARY_PATH
 {%- else %}LD_LIBRARY_PATH{% endif %}=$(python -c \
 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
-{% endif %}cargo test --all-targets && cargo test --doc -p purba \
+cargo test --all-targets && cargo test --doc -p purba \
 && cargo test --doc --workspace --exclude purba
 """
 
