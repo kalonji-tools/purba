@@ -51,7 +51,7 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 ## Confirmation
 
-The required `Build` check runs `cargo test --doc -p purba` on Linux, macOS and Windows.
+The required `Build` check runs `cargo test --doc -p purba` on Linux and macOS.
 
 It does more than run examples.
 On a bare cdylib, `cargo test --doc -p purba` exits 101 with "no library targets found".

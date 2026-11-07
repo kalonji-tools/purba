@@ -32,7 +32,7 @@ it, and several dependencies compile C or assembly while they build.
 |---|---|
 | Linux | your distribution's build tools, such as `build-essential` |
 | macOS | the Xcode command line tools, `xcode-select --install` |
-| Windows | the Visual Studio Build Tools, with the C++ workload |
+| Windows | WSL2, then the Linux row above |
 | NixOS | `pkgs.gcc`, which supplies both `cc` and `ld` |
 
 Nothing announces a missing compiler in advance. The build fails at the first

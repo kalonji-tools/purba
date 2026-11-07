@@ -41,7 +41,7 @@ Four arrangements were built and run against the same criterion, a wheel that a 
 | mise with zig supplying the compiler | 6 of 6 | 21 s to 195 s |
 | mise alone | 6 of 6 | 18 s to 69 s |
 
-- **devenv alone.** Windows is reachable only through WSL2, and nixpkgs 26.11 dropped x86_64-darwin outright, so Intel macOS fails at evaluation rather than at compilation. It is the slowest arrangement everywhere it does run, and it writes a directory into every worktree.
+- **devenv alone.** nixpkgs 26.11 dropped x86_64-darwin, so Intel macOS fails at evaluation rather than at compilation. It is the slowest arrangement everywhere it runs. It writes a directory into every worktree.
 
 - **mise for tool versions, devenv for the system layer.** It works, but it keeps the reach problem above, because the system layer is the half that cannot leave nix. It adds a second lockfile and a rule about which one owns what.
 
@@ -88,8 +88,6 @@ A lower floor waits for a reader who asks for one, and zig is the measured way t
 `mise install --locked`, run against an empty store.
 
 It reproduces every tool from the committed lockfile, the Rust toolchain included.
-The lockfile holds no Windows entry for `bats`.
-The install on Windows skips that tool and reports nothing.
 Run against a store that already holds them it reports "already installed" and resolves nothing, so a local pass there proves nothing at all.
 
 ⚠️ **A floating version name cannot be held by this lockfile.**
@@ -109,7 +107,7 @@ The toolchain is therefore named by a date, which resolves only to itself.
 
 | property | check |
 |---|---|
-| the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on three operating systems and on every interpreter above the floor |
+| the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on Linux and macOS and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
 
 The `build.yml` check is worth naming precisely.

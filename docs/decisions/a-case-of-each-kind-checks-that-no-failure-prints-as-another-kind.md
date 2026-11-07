@@ -36,7 +36,7 @@ It can also change into another kind in the line that reporting writes, or in th
 - **`tests/kinds.bats` matches only the last two lines of the panic case's stderr.** It builds them from purba's version, the Python's version and ABI flags, the OS and the architecture of the run. Rust's hook and the Python traceback above them change with each edit and each Python version.
 - **The module of the panic case also holds a test that passes, one that fails and one that raises.** purba prints the line of each of them. The run exits 125.
 - **The panic case's test sets `PURBA_FAULT=assert` around its own assert, and takes it away after.** The switch needs no new code. The test runs second, so two tests run after it.
-- **The `wheel` job of Build builds the `fault` wheel and runs `tests/kinds.bats`, on each OS where bats runs and each Python version.** The ruleset requires Build.
+- **The `wheel` job of Build builds the `fault` wheel and runs `tests/kinds.bats`, on each OS and each Python version.** The ruleset requires Build.
 - **The panic case runs on the `fault` wheel, and every other case runs on the wheel without `fault`.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides each wheel.
 
 **Downside:**
@@ -44,7 +44,6 @@ It can also change into another kind in the line that reporting writes, or in th
 - **`tests/kinds.bats` misses a shape of a kind that it holds no case of.** A thread's exception, a module named after a loaded module and a panic while a module loads are some of them.
 - **`tests/kinds.bats` misses a defect of purba that a part sees as a failed assert.** The `fault` switch causes a panic or an error that purba never expects, and never a wrong answer.
 - **`tests/kinds.bats` misses whether exit code 1 comes before exit code 4.** The panic case meets both, and exits 125. `mise run test:rust` checks that order through command.
-- **`tests/kinds.bats` misses Windows.** bats does not run there.
 - **`tests/kinds.bats` misses a defect in the code that `fault` adds.** That code runs only in the `fault` wheel.
 - **`tests/kinds.bats` misses a line above the last two on the panic case's stderr.** It does not read that line.
 

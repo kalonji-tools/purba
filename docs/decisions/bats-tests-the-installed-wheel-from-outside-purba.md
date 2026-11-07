@@ -9,7 +9,6 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 | fact | source |
 |---|---|
 | bats ran the installed `purba` on ubuntu and macOS, on 3.12, 3.13, 3.14 and 3.14t | [What runs the walking skeleton's end-to-end test, and on which interpreters?](https://github.com/kalonji-tools/purba/pull/544#issuecomment-6152302976) |
-| all four Windows arms found no `bats`, and each loaded the wheel | [What runs the walking skeleton's end-to-end test, and on which interpreters?](https://github.com/kalonji-tools/purba/pull/544#issuecomment-6152302976) |
 | `.config/mise.lock` locks `bats` for Linux and macOS only | [`.config/mise.lock`](https://github.com/kalonji-tools/purba/blob/f5fbbff9923b78ebf99e04aec732edb5aaaf1040/.config/mise.lock#L42-L68) |
 | an import whose error a prototype `_main` swallowed left stdout and the exit code unchanged | [What runs the walking skeleton's end-to-end test, and on which interpreters?](https://github.com/kalonji-tools/purba/issues/535#issuecomment-6152849037) |
 | a test of the sentinel alone passed while `purba` was not installed | [What runs the walking skeleton's end-to-end test, and on which interpreters?](https://github.com/kalonji-tools/purba/issues/535#issuecomment-6152849037) |
@@ -46,13 +45,12 @@ The test crosses the console script and the wheel.
 
 - **`mise run test:wheel` builds the wheel, installs it into a venv under `target/`, and runs `bats` over `tests/`.** `test` and `check` run it.
 - **The test that causes an internal error runs on a second wheel.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) says why.
-- **Build's `wheel` job runs the end-to-end tests after it loads the wheel.** Every arm runs them except the Windows arms.
+- **Build's `wheel` job runs the end-to-end tests after it loads the wheel.** Every arm runs them.
 - **The end-to-end tests stay in bats after purba runs its own tests.** A broken purba could report its own test as passed.
 - **The slice of the skeleton that turns the test green adds it.** `main` cannot hold the test red.
 
 **Downside:**
 
-- **Windows never runs the console script.** The Windows arms import the wheel's module, and never start the command that pip installs there.
 - **Every local `mise run check` builds and installs the wheel.**
 - **The sentinel sees an import, and nothing less.** A rewrite that reads `test_b.py` and never imports it passes the test.
 - **On the free-threaded Python from python.org on macOS, purba cannot see a closed stdout, and Build hides it.** That Python's `Python.app` lists the executable `Python`, and holds `PythonT`. So macOS logs at each start, through a socket on the lowest free fd. When the shell closed stdout, that fd is 1. Build links `Python` to `PythonT` before the end-to-end tests. A tester's Python keeps the missing executable.
