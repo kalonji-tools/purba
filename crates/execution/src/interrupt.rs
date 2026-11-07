@@ -2,11 +2,15 @@
 //!
 //! It raises `KeyboardInterrupt` inside a test's call or a load, and while
 //! Python waits for threads after the command. After each call and each load,
-//! purba gives each interrupt signal purba's signal handler again. The first
+//! purba gives each interrupt signal purba's signal handler again, or the ignore
+//! that the parent gave it. On Unix, it then gives each interrupt signal the
+//! place in the thread's mask that it had when `install` ran. The first
 //! interrupt gives each interrupt signal its default action. The end of each
-//! later call or load gives each interrupt signal its default action again. So
-//! a second interrupt ends purba wherever it lands. Once Python finalizes,
-//! purba dies by the interrupt that it kept.
+//! later call or load gives each interrupt signal its default action again. Once
+//! Python finalizes, purba dies by the interrupt that it kept.
+//!
+//! `docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md`
+//! says what a second interrupt does.
 
 use std::io::{self, Write};
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
@@ -28,6 +32,31 @@ static ENDED: AtomicBool = AtomicBool::new(false);
 
 /// The number of each signal that `install` gave purba's signal handler.
 static GIVEN: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// The number of each interrupt signal that purba's parent ignores.
+static IGNORED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// The number of each interrupt signal that the thread's mask did not hold
+/// when `install` ran.
+#[cfg(unix)]
+static UNMASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// The number of each interrupt signal that the thread's mask held when
+/// `install` ran.
+#[cfg(unix)]
+static MASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// The functions and the ignore of `_signal` that `install` found.
+/// `signal.signal` calls `_signal.signal` by its name in the module `signal`, so
+/// a test that patches either module reaches it, but not these:
+/// <https://github.com/python/cpython/blob/v3.15.2/Lib/signal.py#L56-L59>
+struct Functions {
+    signal: Py<PyAny>,
+    getsignal: Py<PyAny>,
+    ignore: Py<PyAny>,
+}
+
+static FUNCTIONS: PyOnceLock<Functions> = PyOnceLock::new();
 
 /// The names of the interrupt signals in Python's `signal` module.
 #[cfg(not(windows))]
@@ -81,6 +110,57 @@ fn given() -> Vec<i32> {
     GIVEN.lock().unwrap_or_else(PoisonError::into_inner).clone()
 }
 
+/// Adds `signum` to `list`, once.
+fn remember(list: &Mutex<Vec<i32>>, signum: i32) {
+    let mut list = list.lock().unwrap_or_else(PoisonError::into_inner);
+    if !list.contains(&signum) {
+        list.push(signum);
+    }
+}
+
+/// Whether the thread's mask holds `signum`.
+#[cfg(unix)]
+fn masked(signum: i32) -> bool {
+    // SAFETY: `pthread_sigmask` with no new set only reads the mask into `mask`,
+    // which `sigemptyset` initialized.
+    unsafe {
+        let mut mask = std::mem::zeroed::<libc::sigset_t>();
+        libc::sigemptyset(&raw mut mask);
+        libc::pthread_sigmask(libc::SIG_BLOCK, std::ptr::null(), &raw mut mask);
+        libc::sigismember(&raw const mask, signum) == 1
+    }
+}
+
+/// Gives each interrupt signal the place in the thread's mask that it had when
+/// `install` ran. A signal that only a test's mask held then reaches its signal
+/// handler.
+#[cfg(unix)]
+fn put_back_mask() {
+    let read = |signals: &Mutex<Vec<i32>>| {
+        signals
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone()
+    };
+    change_mask(libc::SIG_BLOCK, &read(&MASKED));
+    change_mask(libc::SIG_UNBLOCK, &read(&UNMASKED));
+}
+
+/// Masks or unmasks, by `how`, each signal in `signals`.
+#[cfg(unix)]
+fn change_mask(how: libc::c_int, signals: &[i32]) {
+    // SAFETY: each number is a signal that Python's `_signal` module named, or
+    // that the kernel sent, and `sigemptyset` initialized `set`.
+    unsafe {
+        let mut set = std::mem::zeroed::<libc::sigset_t>();
+        libc::sigemptyset(&raw mut set);
+        for &signum in signals {
+            libc::sigaddset(&raw mut set, signum);
+        }
+        libc::pthread_sigmask(how, &raw const set, std::ptr::null_mut());
+    }
+}
+
 /// The name that purba's interrupt line on stderr gives a signal: the key that
 /// sent it.
 #[cfg(windows)]
@@ -104,7 +184,9 @@ const fn shown(name: &str) -> &str {
 ///
 /// A parent that starts purba in the background ignores SIGINT for it. The first
 /// install also registers the function that makes purba die by the signal it
-/// kept, once Python finalizes.
+/// kept, once Python finalizes. `install` keeps what `put_back` gives back: the
+/// signals that the parent ignores and, on Unix, the place of each signal in the
+/// thread's mask.
 ///
 /// # Errors
 ///
@@ -112,24 +194,30 @@ const fn shown(name: &str) -> &str {
 pub fn install() -> PyResult<()> {
     Python::initialize();
     Python::attach(|py| {
-        let signal = py.import("signal")?;
+        let signal = py.import("_signal")?;
         let handler = SIGNAL_HANDLER.get_or_try_init(py, || {
             // SAFETY: `die` runs no Python, so it may run after finalization.
             unsafe { pyo3::ffi::Py_AtExit(Some(die)) };
             Py::new(py, SignalHandler)
         })?;
-        let ignored = signal.getattr("SIG_IGN")?;
+        let functions = FUNCTIONS.get_or_try_init(py, || -> PyResult<_> {
+            Ok(Functions {
+                signal: signal.getattr("signal")?.unbind(),
+                getsignal: signal.getattr("getsignal")?.unbind(),
+                ignore: signal.getattr("SIG_IGN")?.unbind(),
+            })
+        })?;
+        let ignore = functions.ignore.bind(py);
         for name in NAMES {
-            let signum = signal.getattr(name)?;
-            if signal.getattr("getsignal")?.call1((&signum,))?.is(&ignored) {
+            let signum = signal.getattr(name)?.extract::<i32>()?;
+            #[cfg(unix)]
+            remember(if masked(signum) { &MASKED } else { &UNMASKED }, signum);
+            if functions.getsignal.bind(py).call1((signum,))?.is(ignore) {
+                remember(&IGNORED, signum);
                 continue;
             }
-            signal.getattr("signal")?.call1((&signum, handler))?;
-            let signum = signum.extract::<i32>()?;
-            let mut given = GIVEN.lock().unwrap_or_else(PoisonError::into_inner);
-            if !given.contains(&signum) {
-                given.push(signum);
-            }
+            functions.signal.bind(py).call1((signum, handler))?;
+            remember(&GIVEN, signum);
         }
         Ok(())
     })
@@ -173,8 +261,8 @@ pub(crate) fn kept_now() -> bool {
 
 /// Runs `work` as a test's call or a load, in which the signal handler raises
 /// `KeyboardInterrupt`. Also says whether the first signal landed inside it.
-/// Then gives each interrupt signal purba's signal handler again, if the test
-/// or the module installed its own.
+/// Then gives each interrupt signal back what `put_back` names, if the test or
+/// the module changed it.
 pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
     struct Close;
     impl Drop for Close {
@@ -192,31 +280,43 @@ pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) 
     (result, landed)
 }
 
-/// Gives purba's signal handler back to each signal that `install` gave it,
-/// when the signal has another one now. After the first signal, it then gives
-/// each signal its default action again.
+/// Gives purba's signal handler back to each signal that `install` gave it, and
+/// the ignore back to each signal that the parent ignores, when the signal has
+/// another signal handler now. On Unix, it then gives each signal the place in
+/// the mask that it had at `install`. After the first signal, it then gives each
+/// signal its default action again.
 fn put_back(py: Python<'_>) {
-    let Some(handler) = SIGNAL_HANDLER.get(py) else {
+    let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
     };
+    let ignore = functions.ignore.bind(py);
     let given = given();
+    let ignored = IGNORED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .clone();
     let give = || -> PyResult<()> {
-        let signal = py.import("signal")?;
-        for &signum in &given {
-            if !signal.getattr("getsignal")?.call1((signum,))?.is(handler) {
-                signal.getattr("signal")?.call1((signum, handler))?;
+        let wanted = given
+            .iter()
+            .map(|&signum| (signum, handler.bind(py).as_any()))
+            .chain(ignored.iter().map(|&signum| (signum, ignore)));
+        for (signum, wanted) in wanted {
+            if !functions.getsignal.bind(py).call1((signum,))?.is(wanted) {
+                functions.signal.bind(py).call1((signum, wanted))?;
             }
         }
         Ok(())
     };
-    // `signal.signal` first runs a signal that waits, through the signal
+    // `_signal.signal` first runs a signal that waits, through the signal
     // handler that the signal has, and that one may raise:
     // <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L522-L525>
-    // The signal no longer waits then, so a second try gives each signal
-    // purba's signal handler. Its error has no test to charge.
+    // The signal no longer waits then, so a second try gives each signal back
+    // what it had. Its error has no test to charge.
     if give().is_err() {
         drop(give());
     }
+    #[cfg(unix)]
+    put_back_mask();
     if kept_now() {
         // Its error has no test to charge either.
         drop(give_default_actions(py));
@@ -231,13 +331,12 @@ fn put_back(py: Python<'_>) {
 /// signal:
 /// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L1838-L1855>
 fn give_default_actions(py: Python<'_>) -> PyResult<()> {
-    let Some(handler) = SIGNAL_HANDLER.get(py) else {
+    let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return Ok(());
     };
-    let getsignal = py.import("signal")?.getattr("getsignal")?;
     for signum in given() {
-        if getsignal.call1((signum,))?.is(handler) {
-            // SAFETY: `signal` takes a number that Python's `signal` module named.
+        if functions.getsignal.bind(py).call1((signum,))?.is(handler) {
+            // SAFETY: `signal` takes a number that Python's `_signal` module named.
             unsafe { libc::signal(signum, libc::SIG_DFL) };
         }
     }
@@ -258,13 +357,17 @@ extern "C" fn die() {
 fn die_by(signum: i32) -> ! {
     #[cfg(not(windows))]
     {
-        // SAFETY: `signal` and `raise` take a signal number that the kernel sent.
-        unsafe {
-            libc::signal(signum, libc::SIG_DFL);
-            libc::raise(signum);
-        }
-        // `raise` returns only while the thread blocks the signal. purba then
-        // exits with the code that a shell reports for a death by the signal.
+        // SAFETY: `signal` takes a signal number that the kernel sent.
+        unsafe { libc::signal(signum, libc::SIG_DFL) };
+        // A mask can hold the signal: the parent's, which `put_back` gave back,
+        // or one that a test or its `atexit` function set. So purba unmasks it
+        // before `raise`.
+        #[cfg(unix)]
+        change_mask(libc::SIG_UNBLOCK, &[signum]);
+        // SAFETY: `raise` takes a signal number that the kernel sent.
+        unsafe { libc::raise(signum) };
+        // `raise` returns only when the unmask failed. purba then exits with the
+        // code that a shell reports for a death by the signal.
         std::process::exit(128 + signum)
     }
     // CPython exits with this code after a Ctrl-C:
