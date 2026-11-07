@@ -40,9 +40,9 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **The first interrupt stops the run wherever it lands.** No test or module carries it. No test starts after it, and no module loads. It is no [kind of failure](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome).
 - **The test that runs stops at once.** Python unwinds it, so its `finally` runs.
 - **SIGTERM, SIGHUP and a Ctrl-Break on Windows do what SIGINT does.** A CI cancel and a closed terminal each get the cleanup.
-- **A signal that the parent ignores stays ignored.**
+- **An interrupt signal keeps the ignore and the mask that the parent gave it.**
 - **The run stops even when a test catches the `KeyboardInterrupt`.** It stops when the test returns.
-- **A signal handler that a test installs lives only for its call, and one that a module installs lives only for its load.** purba puts its own back when the call or the load returns.
+- **What a test's call or a module's load gives an interrupt signal through Python's `signal` module lives only for that call or load.** When the call or the load returns, purba gives each interrupt signal back purba's signal handler, or the ignore that the parent gave it. On Unix, purba then masks again each interrupt signal that the parent masks, and unmasks the rest. purba reads and sets only the mask of the thread that runs the tests. Then, after the first interrupt, purba gives each interrupt signal that has purba's signal handler its default action.
 - **A second interrupt skips the cleanup left, and exits at once.** A cleanup that hangs cannot trap the tester. Any two interrupts count, so SIGINT and then SIGTERM make a second. The first interrupt gives each interrupt signal its default action, so the second ends purba even while a cleanup runs C code.
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
@@ -52,6 +52,8 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 - **A second interrupt leaves built what the skipped cleanup would tear down.**
 - **A Ctrl-C during a test that installed its own signal handler does not stop the run.** The test's signal handler takes it, as the test asked.
+- **When a test's mask, and not the parent's, holds a Ctrl-C until the call returns, the run stops only then.** The test keeps its outcome, and is not `interrupted`.
+- **A second interrupt that the parent's ignore or mask holds does not exit at once.** It never arrives, so a cleanup that hangs traps the tester. purba dies by the first interrupt's signal once Python finalizes, as [an interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
 - **A CI that sends purba SIGINT and then SIGTERM ends the cleanup at the SIGTERM.** GitHub does so when purba is the step's entry process. The time before its SIGKILL goes unused.
 - **A cleanup that installs its own signal handler after the first interrupt takes a second interrupt that comes before the call or the load returns.**
 
@@ -59,7 +61,13 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 `mise run test:wheel` checks that a first interrupt starts no later test, and that purba dies by SIGINT.
 It checks that the test the interrupt lands in is `interrupted`, and that an interrupt in a load leaves each test unreached.
-It checks that a signal handler of a test or a module lives only for its call or its load.
 It checks that a second interrupt ends purba at once by that interrupt's signal, even while a cleanup runs C code.
 It checks that SIGTERM and SIGHUP do what SIGINT does.
 It checks that a Ctrl-C after the count ends Python's wait for threads, and lets a test's `atexit` function finish.
+
+`mise run test:wheel` also checks that a signal handler of a test or a module lives only for its call or its load.
+It checks that a signal handler of a test lives only for its call, even when the test patches `signal.signal`, `_signal.signal` and `_signal.getsignal`.
+It checks that a mask of a test or a module lives only for its call or its load.
+It checks that a Ctrl-C that a test's mask holds stops the run when the call returns, though the test has its own signal handler.
+It checks that a signal that the parent ignores gets the ignore back after the call of a test that gives it a signal handler.
+It checks that purba masks again a signal that the parent masks, after the call of a test that unmasks it.

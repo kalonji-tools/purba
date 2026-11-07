@@ -37,7 +37,7 @@ No record says what an interrupted run prints, or which code it exits.
 **An interrupted run prints its count, and dies by the signal.**
 A shell that runs purba then sees the interrupt, and `git bisect run` aborts.
 
-- **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does.
+- **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names each second interrupt that does not exit at once.
 - **The test that the interrupt lands in has the [outcome](../../CONTEXT.md#outcome) `interrupted`.** The line names the test that ran, which is often the one that hangs. Its line prints in its place on stdout, after it unwinds. It has that outcome whether it then passes, fails or raises.
 - **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
 - **The count names `interrupted` after `unknown`, and `unreached` after `blocked`.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
@@ -53,7 +53,7 @@ test_a.py::test_three interrupted
 - **After the count, purba dies by the first signal.** A shell sees 130 for SIGINT, 143 for SIGTERM and 129 for SIGHUP. The signal comes ahead of each code of [the exit-code record](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome).
 - **An interrupt after the last test still ends the run by the signal.** The count names each test by its outcome.
 - **After an interrupt before selection finishes, purba prints no count.** It does not know the tests yet.
-- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay.
+- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. When the parent's ignore or mask holds the second signal, purba dies by the first signal after Python finalizes, as [an interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says.
 - **On Windows, purba exits `STATUS_CONTROL_C_EXIT` after a Ctrl-C or a Ctrl-Break.** The line names `Ctrl-C` or `Ctrl-Break`.
 
 **Downside:**
