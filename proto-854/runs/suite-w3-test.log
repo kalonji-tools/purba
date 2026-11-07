@@ -1,0 +1,1192 @@
+[test:shell] $ bats --print-output-on-failure --recursive scripts/test
+[test:cargo-scripts] $ git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+[test:wheel] $ maturin build --quiet
+[test:rust] $ export LD_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba/554454d8dfc5e654/out/purba-554454d8dfc5e654)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-assertion/00c075db24c9eb3f/out/purba_assertion-00c075db24c9eb3f)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/load.rs (target/debug/build/purba-assertion/11cec0446c00770c/out/load-11cec0446c00770c)
+[test:cargo-scripts]    Compiling check-prose v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w3/scripts/check-prose/check-prose.rs)
+[test:rust] 
+[test:rust] running 18 tests
+[test:rust] test a_shadowed_name_gets_its_module_back_when_the_body_raises ... ok
+[test:rust] test a_module_that_binds_the_hook_fails_to_load ... ok
+[test:rust] test an_assert_tests_its_value_once ... ok
+[test:rust] test the_mark_gives_back_whether_its_value_held ... ok
+[test:rust] test a_call_that_rebinds_the_hook_gives_a_name_error ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust] test a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error ... ok
+[test:rust] test a_body_that_calls_sys_exit_leaves_no_entry ... ok
+[test:rust] test loading_runs_the_body_of_the_module ... ok
+[test:rust] test watch_starts_clear ... ok
+[test:wheel] 🐍 Found CPython 3.12 at /home/snregales/.local/share/mise/installs/python/3.12.14/bin/python3
+[test:wheel] 🔗 Found pyo3 bindings with abi3-py3.12 support
+[test:wheel] 📡 Using build options features from pyproject.toml
+[test:rust]   File "test_panics_on_load.py", line 10, in <module>
+[test:rust] test a_module_that_nests_too_deep_is_cpythons_error_at_the_load ... ok
+[test:rust] test a_syntax_error_that_ruff_passes_is_cpythons_error_at_the_load ... ok
+[test:rust] test the_module_is_named_by_its_file ... ok
+[test:rust] test a_mark_with_no_assert_raises ... ok
+[test:rust] test watch_gives_the_text_of_the_last_assert_that_ran ... ok
+[test:rust] test a_new_name_leaves_sys_modules_when_its_body_raises ... ok
+[test:rust] test a_function_that_binds_the_hook_as_a_local_name_fails_to_load ... ok
+[test:rust] pyo3_runtime.PanicException: raised while it loads
+[test:rust] test a_body_that_raises_purbas_panic_exception_leaves_no_entry ... ok
+[test:rust] test a_dataclass_under_postponed_annotations_loads ... ok
+[test:rust] 
+[test:rust] test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+[test:rust] 
+[test:rust]      Running tests/rewrite.rs (target/debug/build/purba-assertion/56661ceeeb8ef28a/out/rewrite-56661ceeeb8ef28a)
+[test:rust] 
+[test:rust] running 6 tests
+[test:rust] test a_text_that_does_not_parse_gives_the_syntax_error ... ok
+[test:rust] test a_yield_keeps_its_parentheses ... ok
+[test:rust] test a_module_with_no_assert_is_unchanged ... ok
+[test:rust] test each_assert_records_its_index ... ok
+[test:rust] test a_text_that_no_file_holds_gives_the_rewrite_of_a_file_that_holds_it ... ok
+[test:rust] test a_nested_assert_is_marked_too ... ok
+[test:rust] 
+[test:rust] test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-command/68d7116ca5b19fbc/out/purba_command-68d7116ca5b19fbc)
+[test:rust] 
+[test:rust] running 3 tests
+[test:rust] test tests::one_py_file_after_the_scripts_name_is_the_path ... ok
+[test:rust] test tests::any_other_arguments_are_the_usage_error ... ok
+[test:rust] test tests::each_error_says_why ... ok
+[test:rust] 
+[test:rust] test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-command/2f1ceddcc0268e38/out/interrupt-2f1ceddcc0268e38)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test an_interrupt_before_selection_ends_gives_no_count ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+[test:rust] 
+[test:rust]      Running tests/run.rs (target/debug/build/purba-command/6ef2cac2c772bb69/out/run-6ef2cac2c772bb69)
+[test:rust] 
+[test:rust] running 14 tests
+[test:rust] test a_module_that_cannot_be_read_is_the_read_error ... ok
+[test:rust] test a_usage_error_comes_before_a_stdout_that_takes_no_write ... ok
+[test:rust] test a_refused_line_is_written_before_any_test_runs ... ok
+[test:rust] test a_module_that_does_not_parse_prints_its_line_and_no_test ... ok
+[test:rust] test a_stdout_that_takes_no_write_stops_the_run_before_any_test ... ok
+[test:rust] test a_module_with_no_test_exits_2 ... ok
+[test:rust] test a_test_whose_own_error_blocks_it_keeps_its_project_error_line ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w3/target/tmp/test_command_refused_after_internal.py", line 11, in test_one
+[test:rust] test a_module_whose_every_test_is_refused_does_not_load ... ok
+[test:rust] test a_write_refused_during_the_run_stops_the_tests_after_it ... ok
+[test:rust] test a_writer_that_refuses_is_the_write_error ... ok
+[test:rust] test a_test_that_selection_refuses_prints_above_the_tests_that_run ... ok
+[test:rust]     raise panic_exception()('raised by the test')
+[test:rust] pyo3_runtime.PanicException: raised by the test
+[test:rust] test a_write_refused_after_an_internal_error_returns_125 ... ok
+[test:rust] test a_module_that_did_not_load_prints_its_error_once ... ok
+[test:rust] test a_run_writes_its_lines_and_returns_the_exit_code ... ok
+[test:rust] 
+[test:rust] test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-dispatch/ad4134d3d275f280/out/purba_dispatch-ad4134d3d275f280)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/hand.rs (target/debug/build/purba-dispatch/dce38be8932761d8/out/hand-dce38be8932761d8)
+[test:rust] 
+[test:rust] running 11 tests
+[test:rust] test a_break_at_a_module_that_does_not_load_hands_no_blocked_test ... ok
+[test:rust] test dispatch_calls_no_test_after_a_break ... ok
+[test:rust] test dispatch_loads_no_module_that_has_no_test ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "test_getattr_panics.py", line 11, in __getattr__
+[test:rust] pyo3_runtime.PanicException: raised by __getattr__
+[test:rust] test a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_test_runs ... ok
+[test:rust] test dispatch_calls_only_the_tests_it_is_handed ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "test_load_panics.py", line 10, in <module>
+[test:rust] test an_error_stands_beside_its_test_and_the_run_goes_on ... ok
+[test:rust] test the_tests_of_a_module_share_one_worker ... ok
+[test:rust] test each_outcome_stands_beside_its_test ... ok
+[test:rust] test a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked ... ok
+[test:rust] test dispatch_hands_each_test_before_it_runs_the_next ... ok
+[test:rust] pyo3_runtime.PanicException: raised while it loads
+[test:rust] test a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blocked ... ok
+[test:rust] 
+[test:rust] test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-dispatch/e2b8e57f30c6ff4d/out/interrupt-e2b8e57f30c6ff4d)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test dispatch_hands_on_each_test_after_an_interrupt_as_unreached ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load.rs (target/debug/build/purba-dispatch/26fabd7d2b060937/out/interrupt_load-26fabd7d2b060937)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test dispatch_hands_on_each_test_after_an_interrupt_in_a_load_as_unreached ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/thread.rs (target/debug/build/purba-dispatch/5a8f93b51e2a1b23/out/thread-5a8f93b51e2a1b23)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] Exception in thread L:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 6, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread T:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 12, in late
+[test:rust] ValueError: late
+[test:rust] test dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-execution/e9159a2ea1854532/out/purba_execution-e9159a2ea1854532)
+[test:rust] 
+[test:rust] running 3 tests
+[test:rust] test panic::tests::a_location_outside_the_source_of_a_part_names_no_part ... ok
+[test:rust] test panic::tests::a_location_under_crates_names_its_part ... ok
+[test:rust] test step::tests::a_panic_an_interrupt_the_steps_own_error_and_a_call_to_os_exit_hide_each_one_after_them ... ok
+[test:rust] 
+[test:rust] test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/exit.rs (target/debug/build/purba-execution/d191151bbb470920/out/exit-d191151bbb470920)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] Exception in thread Thread-1:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust] purba.ExitInsideATest: os._exit(1)
+[test:rust] test a_call_to_os_exit_gives_raised_however_the_test_makes_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-execution/29da111a4d3af5fd/out/interrupt-29da111a4d3af5fd)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load.rs (target/debug/build/purba-execution/6e8c0bc61d5a4948/out/interrupt_load-6e8c0bc61d5a4948)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_its_load ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load_waiting.rs (target/debug/build/purba-execution/3123074e94080aca/out/interrupt_load_waiting-3123074e94080aca)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module_runs ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_outside.rs (target/debug/build/purba-execution/037f72cc95294546/out/interrupt_outside-037f72cc95294546)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test purbas_signal_handler_keeps_a_signal_outside_a_call_and_raises_nothing ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_term.rs (target/debug/build/purba-execution/616e52dc6f6c80e1/out/interrupt_term-616e52dc6f6c80e1)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGTERM; a second interrupt exits at once
+[test:rust] test a_sigterm_in_a_call_makes_the_test_interrupted_and_gives_each_signal_its_default_action ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/panic.rs (target/debug/build/purba-execution/296fea3d5b5e3145/out/panic-296fea3d5b5e3145)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] test the_wrap_records_each_panic_and_calls_the_hook_it_replaced ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/run.rs (target/debug/build/purba-execution/03857619f421fc6e/out/run-03857619f421fc6e)
+[test:rust] 
+[test:rust] running 16 tests
+[test:rust] test an_outcome_is_data ... ok
+[test:rust] test a_caught_assert_that_did_not_hold_and_a_return_give_passed ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust] test a_module_level_assert_leaves_a_test_unknown ... ok
+[test:rust] test an_assertion_error_after_an_assert_that_held_gives_raised ... ok
+[test:rust] test an_exception_after_a_caught_assert_that_did_not_hold_gives_raised ... ok
+[test:rust] test another_exception_gives_raised ... ok
+[test:rust] test a_module_that_fails_to_load_runs_its_body_once ... ok
+[test:rust] test a_load_that_fails_gives_its_error_once ... ok
+[test:rust]   File "test_panic_exception.py", line 11, in test_one
+[test:rust] test a_worker_loads_each_module_once ... ok
+[test:rust] test a_test_runs_on_the_module_that_load_loaded ... ok
+[test:rust] test an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised ... ok
+[test:rust] pyo3_runtime.PanicException: raised by the test
+[test:rust] test purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs ... ok
+[test:rust] test a_name_that_is_not_callable_is_an_error ... ok
+[test:rust] test a_forked_child_exits_with_its_own_code ... ok
+[test:rust] test an_assertion_error_before_any_assert_gives_raised ... ok
+[test:rust] test the_three_tests_of_test_a_pass_fail_and_are_unknown ... ok
+[test:rust] 
+[test:rust] test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/run_needs_load.rs (target/debug/build/purba-execution/aac1f4f39096995c/out/run_needs_load-aac1f4f39096995c)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] test a_run_on_a_module_never_given_to_load_is_an_internal_error_and_runs_none_of_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/tally.rs (target/debug/build/purba-execution/c202ae5b285ce1d5/out/tally-c202ae5b285ce1d5)
+[test:rust] 
+[test:rust] running 5 tests
+[test:rust] test a_tally_adds_each_kind_and_each_error_by_its_kind ... ok
+[test:rust] test a_tally_counts_an_error_that_blocks_no_test_by_its_kind_and_apart_from_its_tests ... ok
+[test:rust] test a_tally_notes_a_refused_write_as_an_invocation_error ... ok
+[test:rust] test a_tally_counts_an_unreached_test_apart_from_each_outcome ... ok
+[test:rust] test an_error_says_its_kind ... ok
+[test:rust] 
+[test:rust] test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/thread.rs (target/debug/build/purba-execution/64a7370e1980b5fc/out/thread-64a7370e1980b5fc)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] Exception in thread A:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 16, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread Q:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 8, in leave
+[test:rust] test_thread.Quit: 1
+[test:rust] Exception in thread B:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 25, in <lambda>
+[test:rust] IndexError: list index out of range
+[test:rust] Exception in thread C:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 26, in <lambda>
+[test:rust] KeyError: 'k'
+[test:rust] Exception in thread T:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 8, in late
+[test:rust] ValueError: late
+[test:rust] Exception in thread L:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_load_thread.py", line 3, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread M:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_load_leaves.py", line 7, in late
+[test:rust] test a_threads_exception_charges_the_test_or_the_load_that_left_the_thread ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust] ValueError: late
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-fixtures/74ed8f68edd35742/out/purba_fixtures-74ed8f68edd35742)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-parsing/ed9891fee9b050ee/out/purba_parsing-ed9891fee9b050ee)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/parse.rs (target/debug/build/purba-parsing/b6efc63c15ed5d92/out/parse-b6efc63c15ed5d92)
+[test:rust] 
+[test:rust] running 8 tests
+[test:rust] test a_missing_file_is_not_found ... ok
+[test:rust] test a_module_gives_its_text_and_its_tree ... ok
+[test:rust] test a_byte_order_mark_is_not_part_of_the_text ... ok
+[test:rust] test a_syntax_error_refuses_the_module_with_ruffs_first_error ... ok
+[test:rust] test a_column_counts_unicode_scalars_after_a_byte_order_mark ... ok
+[test:rust] test an_assert_with_no_value_or_a_starred_value_gives_ruffs_message ... ok
+[test:rust] test a_module_that_nests_deeper_than_its_stack_and_does_not_parse_frees_its_tree ... ok
+[test:wheel] 📦 Built wheel for abi3 Python ≥ 3.12 to /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w3/target/wheels/purba-0.0.0-cp312-abi3-manylinux_2_34_x86_64.whl
+[test:rust] test a_module_that_nests_deeper_than_its_stack_frees_its_tree ... ok
+[test:rust] 
+[test:rust] test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-reporting/36a499f1b002de8c/out/purba_reporting-36a499f1b002de8c)
+[test:rust] 
+[test:rust] running 17 tests
+[test:rust] test tests::a_module_that_an_internal_error_stops_prints_once_and_each_test_as_blocked ... ok
+[test:rust] test tests::a_module_that_did_not_load_prints_once_and_each_test_as_blocked ... ok
+[test:rust] test tests::a_reason_over_several_lines_prints_on_one ... ok
+[test:rust] test tests::a_test_that_an_internal_error_stops_prints_it_and_counts_as_blocked ... ok
+[test:rust] test tests::a_test_whose_own_error_blocks_it_prints_a_project_error_and_counts_as_blocked ... ok
+[test:rust] test tests::a_write_refused_after_an_internal_error_keeps_125 ... ok
+[test:rust] test tests::an_error_that_another_part_finds_prints_as_a_project_error ... ok
+[test:rust] test tests::an_error_that_blocks_no_test_prints_under_its_test_and_keeps_the_tests_outcome ... ok
+[test:rust] test tests::a_refused_count_is_the_error_of_finish ... ok
+[test:rust] test tests::a_refused_write_is_the_error_of_its_line_with_the_code_3 ... ok
+[test:rust] test tests::an_interrupted_test_prints_its_line_and_the_count_names_it_after_unknown ... ok
+[test:rust] test tests::an_unreached_test_prints_no_line_and_the_count_names_it_after_blocked ... ok
+[test:rust] test tests::each_line_is_flushed_before_the_next_test ... ok
+[test:rust] test tests::each_test_prints_its_outcome_or_error_and_the_count ... ok
+[test:rust] test tests::the_count_names_each_column_only_above_0 ... ok
+[test:rust] test tests::the_count_names_project_errors_apart_from_internal_errors ... ok
+[test:rust] test tests::the_exit_code_names_the_worst_of_the_run ... ok
+[test:rust] 
+[test:rust] test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-selection/d331ad399ec1c743/out/purba_selection-d331ad399ec1c743)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/select.rs (target/debug/build/purba-selection/bdd880c2ab5f41f2/out/select-bdd880c2ab5f41f2)
+[test:rust] 
+[test:rust] running 16 tests
+[test:rust] test a_return_of_a_value_in_the_tests_own_body_is_refused ... ok
+[test:rust] test a_name_defined_twice_is_one_test_at_its_first_definition ... ok
+[test:rust] test a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test ... ok
+[test:rust] test a_def_at_the_top_decides_the_name_of_a_def_under_a_statement ... ok
+[test:rust] test a_parameter_with_no_default_is_refused ... ok
+[test:rust] test a_test_that_carries_a_decorator_is_refused ... ok
+[test:rust] test a_test_that_purba_cannot_call_is_refused_with_its_reason ... ok
+[test:rust] test a_test_under_a_statement_at_the_modules_level_is_refused ... ok
+[test:rust] test each_test_function_in_source_order ... ok
+[test:rust] test a_yield_in_the_tests_own_body_makes_it_a_generator ... ok
+[test:rust] test two_defs_of_one_name_under_statements_are_one_refused_test_at_the_first ... ok
+[test:rust] test selection_judges_the_last_def_of_a_name_at_the_place_of_the_first ... ok
+[test:rust] test an_identity_gives_its_path_and_function ... ok
+[test:rust] test a_test_whose_name_the_module_binds_again_is_refused ... ok
+[test:wheel] 🐍 Found CPython 3.12 at /home/snregales/.local/share/mise/installs/python/3.12.14/bin/python3
+[test:wheel] 🔗 Found pyo3 bindings with abi3-py3.12 support
+[test:rust] test a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selection ... ok
+[test:wheel] 📦 Built wheel for abi3 Python ≥ 3.12 to target/wheels-fault/purba-0.0.0-cp312-abi3-manylinux_2_34_x86_64.whl
+[test:rust] test a_body_that_nests_deeper_than_the_stack_does_not_crash_selection ... ok
+[test:rust] 
+[test:rust] test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.53s
+[test:rust] 
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+[test:rust]    Doc-tests purba
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+[test:rust]    Doc-tests purba_assertion
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_command
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_dispatch
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_execution
+[test:rust] 
+[test:rust] running 2 tests
+[test:rust] test crates/execution/src/lib.rs - Outcome (line 50) - compile fail ... ok
+[test:rust] test crates/execution/src/lib.rs - Outcome (line 46) - compile fail ... ok
+[test:rust] 
+[test:rust] test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]    Doc-tests purba_fixtures
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_parsing
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_reporting
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_selection
+[test:rust] 
+[test:rust] running 4 tests
+[test:rust] test crates/selection/src/lib.rs - TestId (line 32) - compile fail ... ok
+[test:rust] test crates/selection/src/lib.rs - TestId (line 24) - compile fail ... ok
+[test:rust] test crates/selection/src/lib.rs - TestId (line 28) - compile fail ... ok
+[test:rust] test crates/selection/src/lib.rs - Refused (line 64) - compile fail ... ok
+[test:rust] 
+[test:rust] test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+[test:rust] 
+[test:rust] Finished in 3.43s
+[test:shell] 1..548
+[test:shell] ok 1 with no trailer to write it exits 2 and leaves the commit alone
+[test:shell] ok 2 a code owner named in .github/CODEOWNERS is refused
+[test:shell] ok 3 a code owner named only in CODEOWNERS or docs/CODEOWNERS is not refused
+[test:wheel] 1..56
+[test:wheel] ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+[test:wheel] ok 2 the fault wheel panics in command when PURBA_FAULT is command
+[test:wheel] ok 3 the fault wheel passes the test when PURBA_FAULT is unset
+[test:wheel] ok 4 the wheel without fault passes the test when PURBA_FAULT is assert
+[test:wheel] ok 5 the wheel without fault passes the test when PURBA_FAULT is command
+[test:wheel] ok 6 the fault wheel names execution for purba's own PanicException that a test raises
+[test:wheel] ok 7 a test that catches the panic still gets its internal error, and the next test its own
+[test:cargo-scripts]     Finished `release` profile [optimized] target(s) in 10.04s
+[test:cargo-scripts]      Running unittests check-prose.rs (target/scripts/release/build/check-prose/c6690d51484620a6/out/check_prose-c6690d51484620a6)
+[test:cargo-scripts] 
+[test:cargo-scripts] running 78 tests
+[test:wheel] ok 8 a module that catches the panic while it loads gets its internal error, and no test runs
+[test:wheel] ok 9 the fault wheel gives the module an internal error when PURBA_FAULT is selection
+[test:wheel] ok 10 the wheel without fault passes the test when PURBA_FAULT is selection
+[test:cargo-scripts] test tests::a_level_two_heading_in_a_quote_or_a_list_item_is_not_a_section ... ok
+[test:cargo-scripts] test tests::a_downside_label_named_inside_a_table_is_not_the_label ... ok
+[test:cargo-scripts] test tests::a_block_quote_is_not_prose ... ok
+[test:cargo-scripts] test tests::a_line_underlined_with_dashes_is_a_section ... ok
+[test:cargo-scripts] test tests::a_fence_nested_under_a_list_item_opens_a_block ... ok
+[test:cargo-scripts] test tests::a_blank_line_splits_a_paragraph ... ok
+[test:cargo-scripts] test tests::a_list_item_is_not_a_paragraph ... ok
+[test:cargo-scripts] test tests::a_fenced_downside_label_before_the_real_one_is_not_the_label ... ok
+[test:cargo-scripts] test tests::a_fenced_admission_in_the_confirmation_is_not_found ... ok
+[test:cargo-scripts] test tests::a_fenced_list_line_under_the_label_is_not_a_cost ... ok
+[test:cargo-scripts] test tests::a_downside_with_no_list_has_no_costs ... ok
+[test:cargo-scripts] test tests::a_fenced_confirmation_heading_is_not_the_confirmation ... ok
+[test:cargo-scripts] test tests::a_fence_one_record_leaves_open_does_not_hide_the_next_record ... ok
+[test:cargo-scripts] test tests::a_line_before_a_list_a_table_a_fence_or_a_heading_is_not_wrapped ... ok
+[test:cargo-scripts] test tests::a_built_in_icon_and_an_icon_outside_a_mermaid_fence_pass ... ok
+[test:cargo-scripts] test tests::a_code_span_a_math_fence_and_a_price_are_not_math ... ok
+[test:cargo-scripts] test tests::a_mark_in_a_fenced_or_an_indented_code_block_is_not_found ... ok
+[test:cargo-scripts] test tests::a_code_span_keeps_a_preposition_and_a_gerund_apart ... ok
+[test:cargo-scripts] test tests::a_code_span_is_one_word_and_never_none ... ok
+[test:cargo-scripts] test tests::a_gerund_after_a_form_of_be_or_a_preposition_is_found ... ok
+[test:cargo-scripts] test tests::a_fenced_heading_under_the_label_does_not_end_its_costs ... ok
+[test:cargo-scripts] test tests::a_cost_with_no_bold_lead_in_is_found ... ok
+[test:cargo-scripts] test tests::a_line_that_holds_a_link_is_not_bare ... ok
+[test:cargo-scripts] test tests::a_downside_label_followed_by_a_sentence_has_a_preamble ... ok
+[test:cargo-scripts] test tests::a_link_is_one_word_whatever_its_title_holds ... ok
+[test:cargo-scripts] test tests::a_list_item_opened_by_a_plus_holds_no_prose_line ... ok
+[test:cargo-scripts] test tests::a_list_under_a_later_heading_is_not_a_cost ... ok
+[test:cargo-scripts] test tests::a_line_that_breaks_a_sentence_in_a_list_item_or_a_quote_is_wrapped ... ok
+[test:cargo-scripts] test tests::a_mark_outside_a_code_block_is_found ... ok
+[test:cargo-scripts] test tests::a_nested_cost_is_a_cost_and_a_warning_sign_may_precede_its_lead_in ... ok
+[test:cargo-scripts] test tests::a_paragraph_of_six_sentences_passes_and_a_longer_one_is_found_once ... ok
+[test:cargo-scripts] test tests::a_mark_with_no_letter_and_no_digit_is_not_a_word ... ok
+[test:cargo-scripts] test tests::a_reach_is_not_prose ... ok
+[test:cargo-scripts] test tests::a_paragraph_after_a_numbered_list_runs_to_twenty_five_words ... ok
+[test:cargo-scripts] test tests::a_paragraph_that_ends_in_a_link_still_ends_there ... ok
+[test:cargo-scripts] test tests::a_count_in_a_word_or_in_digits_opens_a_counted_preamble ... ok
+[test:cargo-scripts] test tests::a_modal_a_possession_an_obligation_a_passive_and_a_code_span_are_no_tense ... ok
+[test:cargo-scripts] test tests::a_table_cell_is_not_prose ... ok
+[test:cargo-scripts] test tests::a_participle_is_a_tense_only_when_the_list_names_it ... ok
+[test:cargo-scripts] test tests::a_record_with_no_downside_label_has_no_list_of_costs ... ok
+[test:cargo-scripts] test tests::a_participle_is_irregular_or_ends_in_ed_and_runs_past_three_letters ... ok
+[test:cargo-scripts] test tests::a_participle_that_no_list_names_is_a_tense ... ok
+[test:cargo-scripts] test tests::a_sentence_in_a_list_item_is_prose ... ok
+[test:cargo-scripts] test tests::a_sentence_that_ends_inside_bold_is_not_wrapped ... ok
+[test:cargo-scripts] test tests::a_table_row_a_heading_and_a_link_title_hold_no_tense ... ok
+[test:cargo-scripts] test tests::an_em_dash_in_a_table_cell_is_read ... ok
+[test:cargo-scripts] test tests::a_sentence_past_both_limits_in_a_numbered_item_is_one_finding ... ok
+[test:cargo-scripts] test tests::a_reach_outside_the_decision_outcome_is_prose ... ok
+[test:cargo-scripts] test tests::an_html_block_is_not_prose ... ok
+[test:cargo-scripts] test tests::a_sentence_in_a_numbered_item_runs_to_twenty_words ... ok
+[test:cargo-scripts] test tests::a_paragraph_in_a_loose_numbered_item_runs_to_twenty_words ... ok
+[test:cargo-scripts] test tests::a_tense_wrapped_across_two_lines_is_found_at_its_first_line ... ok
+[test:cargo-scripts] test tests::bold_that_opens_a_table_cell_opens_its_sentence ... ok
+[test:cargo-scripts] test tests::an_admission_outside_the_confirmation_needs_no_issue ... ok
+[test:cargo-scripts] test tests::an_admission_names_its_issue_only_with_a_link_to_this_repository ... ok
+[test:cargo-scripts] test tests::each_form_of_an_icon_in_a_mermaid_fence_is_found_at_its_line ... ok
+[test:cargo-scripts] test tests::a_perfect_tense_is_found_in_each_of_its_forms ... ok
+[test:cargo-scripts] test tests::a_word_between_have_and_its_participle_does_not_hide_the_tense ... ok
+[test:cargo-scripts] test tests::a_technical_noun_a_compound_and_a_word_of_four_letters_are_no_gerund ... ok
+[test:cargo-scripts] test tests::bold_after_a_code_span_sits_inside_the_sentence ... ok
+[test:cargo-scripts] test tests::an_adverb_between_the_two_does_not_hide_the_gerund ... ok
+[test:cargo-scripts] test tests::an_em_dash_in_a_code_span_or_a_fenced_block_is_not_read ... ok
+[test:cargo-scripts] test tests::bold_that_opens_a_second_sentence_passes ... ok
+[test:cargo-scripts] test tests::an_adverb_does_not_hide_a_perfect_tense ... ok
+[test:cargo-scripts] test tests::an_exclamation_mark_and_a_question_mark_each_end_a_sentence ... ok
+[test:cargo-scripts] test tests::an_adverb_does_not_hide_the_passive_voice ... ok
+[test:cargo-scripts] test tests::an_indented_line_goes_on_with_the_paragraph_above_it ... ok
+[test:cargo-scripts] test tests::one_bold_letter_inside_a_sentence_is_bold ... ok
+[test:cargo-scripts] test tests::spaces_after_the_label_are_not_a_preamble ... ok
+[test:cargo-scripts] test tests::math_in_a_heading_or_a_link_title_is_math ... ok
+[test:cargo-scripts] test tests::each_block_that_is_not_prose_closes_the_paragraph_above_it ... ok
+[test:cargo-scripts] test tests::inline_math_and_a_display_block_are_math ... ok
+[test:cargo-scripts] test tests::the_paragraph_after_a_reach_is_prose ... ok
+[test:cargo-scripts] test tests::two_globs_on_one_line_are_not_bold ... ok
+[test:cargo-scripts] test tests::seven_list_items_are_not_a_paragraph ... ok
+[test:cargo-scripts] test tests::the_innermost_list_sets_the_limit ... ok
+[test:cargo-scripts] test tests::two_lead_ins_on_one_line_are_two_lead_ins ... ok
+[test:cargo-scripts] test tests::each_phrase_that_admits_an_unwired_gate_is_found_when_no_issue_is_named ... ok
+[test:cargo-scripts] 
+[test:cargo-scripts] test result: ok. 78 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+[test:cargo-scripts] 
+[test:cargo-scripts] Finished in 10.46s
+[test:shell] ok 4 a contribution that changes .github/ and more names than a pipe holds is warned about
+[test:shell] ok 5 a contribution that changes only a .github/ path outside ASCII is warned about
+[test:shell] ok 6 a contribution whose diff cannot be read exits 2 and pushes nothing
+[test:shell] ok 7 a failed read of the account gh acts as exits 2 and pushes nothing
+[test:shell] ok 8 a failed read of the open pull requests exits 2, and says the branch is pushed
+[test:wheel] ok 11 a run that met an internal error exits 125 when stdout then refuses a write
+[test:wheel] ok 12 the report of an internal error ignores a test that changed sys.abiflags
+[test:shell] ok 9 a failed read of the title exits 2, and says the branch is pushed
+[test:shell] ok 10 a pull request that cannot be opened exits 2, and says the branch is pushed
+[test:shell] ok 11 a comment that cannot be posted exits 2, and names the pull request that is open
+[test:shell] ok 12 a merge base that cannot be found exits 2 and pushes nothing
+[test:shell] ok 13 a push the remote declines exits 2 and opens no pull request
+[test:shell] ok 14 a work tree whose top cannot be found exits 2 and pushes nothing
+[test:shell] ok 15 a main that cannot be fetched exits 2 and pushes nothing
+[test:shell] ok 16 a contribution that cannot be fetched exits 2 and pushes nothing
+[test:shell] ok 17 a commit of the contribution that cannot be read exits 2 and pushes nothing
+[test:shell] ok 18 a .github/CODEOWNERS that cannot be read exits 2 and pushes nothing
+[test:shell] ok 19 a .github/CODEOWNERS that is a directory exits 2 and pushes nothing
+[test:shell] ok 20 a contribution that changes only scripts/report.sh is warned about by name
+[test:shell] ok 21 a contribution that changes neither .github/ nor scripts/ is not warned about
+[test:shell] ok 22 a contribution whose commit carries no Signed-off-by is refused and pushes nothing
+[test:shell] ok 23 a contribution whose pull request is open already opens none, and posts no comment
+[test:wheel] ok 13 a Ctrl-C while purba writes a line starts no later test, and purba dies by SIGINT
+[test:shell] ok 24 a pull request from a fork on accepted/pr-7 is not the one that merges
+[test:shell] ok 25 a fetch that moves FETCH_HEAD after the checks does not change what is pushed
+[test:shell] ok 26 the caller keeps the tree it checked out
+[test:shell] ok 27 a branch a closed pull request left behind is replaced
+[test:shell] ok 28 an open pull request makes the run stand down, and says until when
+[test:shell] ok 29 a pull request from a fork on the branch does not make the run stand down
+[test:shell] ok 30 a run that changes a third file is refused, pushes nothing, and keeps the tree
+[test:shell] ok 31 an issue that is not a number exits 2
+[test:shell] ok 32 with an empty repository name it stops before it calls the API
+[test:shell] ok 33 the wrong number of arguments exits 2
+[test:shell] ok 34 a push that fails exits 2, and the caller keeps the tree it checked out
+[test:shell] ok 35 a pull request that cannot be opened exits 2 and says the branch is pushed
+[test:shell] ok 36 each path gets each named attribute and its state
+[test:shell] ok 37 with no attribute named, a path gets only the attributes the file gives it
+[test:shell] ok 38 the repository's own attributes do not change a match
+[test:shell] ok 39 a GIT_DIR the caller exports does not change a match, and the caller keeps it
+[test:shell] ok 40 a GIT_DIR and a GIT_WORK_TREE the caller exports do not change a match
+[test:shell] ok 41 a git config the caller's environment carries does not change a match
+[test:shell] ok 42 a relative attributes file is read from the caller's directory
+[test:shell] ok 43 the attributes of a template do not change a match
+[test:shell] ok 44 each name after a pattern or a macro is printed once, with no sign and no value
+[test:shell] ok 45 a git that cannot make the empty repository exits 2
+[test:shell] ok 46 a git that cannot name the variables that point it at a repository exits 2
+[test:shell] ok 47 a git that cannot match exits 2, and names the file
+[test:shell] ok 48 a quiet week proposes nothing
+[test:shell] ok 49 a week the pin moved pushes one commit and opens one pull request
+[test:wheel] ok 14 a Ctrl-C while purba writes the last line prints the count, and purba dies by SIGINT
+[test:shell] ok 50 the commit it pushes is the bot's, carries no sign-off, and holds the two files
+[test:shell] ok 51 a file the bump staged is not in the commit it pushes
+[test:shell] ok 52 an open proposal makes the run stand down before it upgrades
+[test:shell] ok 53 a pin the script cannot read exits 2 before it upgrades
+[test:shell] ok 54 a pin the bump left unreadable exits 2 and pushes nothing
+[test:shell] ok 55 an upgrade that fails stops the run, and nothing is pushed
+[test:shell] ok 56 a tree that is not clean exits 2 before it upgrades
+[test:shell] ok 57 open pull requests that cannot be read exit 2 before it upgrades
+[test:shell] ok 58 a commit git refuses exits 2 and pushes nothing
+[test:shell] ok 59 a bump that rewrites the lock and moves no pin proposes nothing
+[test:shell] ok 60 a success is carried onto the rewritten head, under the same name
+[test:shell] ok 61 a failure is carried as a failure
+[test:shell] ok 62 a context with no verdict is not carried
+[test:shell] ok 63 a conclusion that is neither success nor failure is not carried
+[test:shell] ok 64 a context that is not carried does not stop the one after it
+[test:shell] ok 65 a rewrite that changed the content carries nothing
+[test:shell] ok 66 a head that did not move carries nothing onto itself
+[test:shell] ok 67 fewer than three arguments exits 2, and calls no gh
+[test:wheel] ok 15 a Ctrl-C while purba calls __str__ keeps the exception's text, and purba dies by SIGINT
+[test:shell] ok 68 a commit git does not hold exits 2 and reports a failed Carry on the rewritten head
+[test:shell] ok 69 a verdict the API refuses to take exits 2, and then asks for Carry
+[test:shell] ok 70 a read the API refuses reports a failed Carry on the rewritten head
+[test:shell] ok 71 a changed path marked with the gate starts it
+[test:shell] ok 72 a pull request whose every path is marked - prints nothing and says so
+[test:shell] ok 73 a path the file leaves unmarked starts the gate
+[test:wheel] ok 16 a Ctrl-C in a test's call makes the test interrupted, and its finally block runs
+[test:shell] ok 74 a deleted path marked with the gate starts it
+[test:shell] ok 75 a path moved out of a directory marked with the gate starts it
+[test:shell] ok 76 a path moved into a directory marked with the gate starts it
+[test:shell] ok 77 a marked path among paths marked - starts the gate
+[test:shell] ok 78 a path whose name holds a letter outside ASCII is read whole
+[test:shell] ok 79 a pattern with a slash matches from the root only
+[test:shell] ok 80 each gate reads its own attribute from the same file
+[test:shell] ok 81 a git that cannot make the empty repository exits 2 and prints nothing
+[test:shell] ok 82 the wrong number of arguments exits 2
+[test:shell] ok 83 a base that cannot be read exits 2 and prints nothing
+[test:shell] ok 84 a head that unmarks its own change still starts the gate
+[test:shell] ok 85 a base that holds no .config/gates exits 2 and prints nothing
+[test:shell] ok 86 a tree whose every path is marked passes
+[test:shell] ok 87 a tracked path no line marks is refused, and named with the gate
+[test:shell] ok 88 a new file in a directory whose files are marked one by one is refused
+[test:shell] ok 89 a later line wins over an earlier one
+[test:shell] ok 90 a path whose mark is removed with ! is refused
+[test:shell] ok 91 a path marked with a value is refused
+[test:shell] ok 92 each gate the file names is checked, so a new gate needs no change here
+[test:shell] ok 93 a gate is read without the prefix and the value that mark it
+[test:shell] ok 94 a comment and a blank line name no gate
+[test:shell] ok 95 an untracked file is not checked
+[test:shell] ok 96 a git that cannot make the empty repository is an error, not a refusal
+[test:wheel] ok 17 a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts
+[test:shell] ok 97 a missing .config/gates is an error, not a refusal
+[test:shell] ok 98 a .config/gates that names no gate is an error, not a refusal
+[test:shell] ok 99 a tree whose links and cited paths all resolve passes
+[test:shell] ok 100 a dead link to a tracked file is refused, though the branch did not change that file
+[test:wheel] ok 18 a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT
+[test:shell] ok 101 a dead link is named when FORCE_COLOR is set
+[test:wheel] ok 19 a KeyboardInterrupt with no signal makes the test raised, and the next test runs
+[test:shell] ok 102 a link to a heading that does not exist is refused
+[test:shell] ok 103 a built URL, a fixture and an email address pass the online leg
+[test:shell] ok 104 a dead link inside a code span is refused
+[test:wheel] ok 20 a signal handler that a test installs lives only for its call
+[test:shell] ok 105 a file .gitattributes marks generated is not read for a link or a cited path
+[test:shell] ok 106 the online leg reads only the files changed since PURBA_BASE, and no deleted file
+[test:shell] ok 107 on a laptop the base is the merge base with origin/main
+[test:wheel] ok 21 a signal handler that a module installs lives only for its load
+[test:shell] ok 108 a base git cannot read stops the check with exit 2
+[test:shell] ok 109 a base that looks like an option is not read as one
+[test:shell] ok 110 a dead link the online leg finds is refused
+[test:shell] ok 111 a dead link to a file in a changed file is refused once
+[test:shell] ok 112 a lychee that cannot run stops the check with exit 2
+[test:wheel] ok 22 a mask that a test puts on SIGINT lives only for its call
+[test:shell] ok 113 a comment that cites a missing path is refused, with its file, line and path
+[test:shell] ok 114 a cited directory that holds a tracked file passes, and a glob is skipped
+[test:shell] ok 115 a path outside a comment, or in Markdown, is not read
+[test:wheel] ok 23 a mask that a module puts on SIGINT lives only for its load
+[test:shell] ok 116 a comment in a file with no extension, and a // comment, are read
+[test:wheel] ok 24 a signal that the parent masks stays masked after a test unmasks it
+[test:shell] ok 117 a path that a comment cites under crates/ is checked
+[test:shell] ok 118 a cited path on disk that git does not track is refused
+[test:shell] ok 119 a relative link in the README is refused
+[test:wheel] ok 25 a Ctrl-C in a test that unmasks a signal the parent masks ends purba by SIGINT
+[test:shell] ok 120 a relative image in the README is refused
+[test:shell] ok 121 a relative reference definition and a relative HTML link in the README are refused
+[test:shell] ok 122 a link to a heading of the README passes
+[test:shell] ok 123 a relative link in a file PyPI does not show passes
+[test:shell] ok 124 the README is the file pyproject.toml names
+[test:shell] ok 125 a pyproject.toml that names no readme stops the check with exit 2
+[test:shell] ok 126 every refusal is reported in one run
+[test:shell] ok 127 a run from a subdirectory reads the whole tree
+[test:shell] ok 128 outside a git repository the check stops with exit 2
+[test:shell] ok 129 manifests that declare different packages pass
+[test:shell] ok 130 a package in .config/mise.toml and Cargo.toml is refused
+[test:shell] ok 131 case and a run of separators do not tell two names apart
+[test:shell] ok 132 a mise key is read without its backend and its owner
+[test:shell] ok 133 a renamed crate is read by its package name
+[test:wheel] ok 26 a Ctrl-C that a test's mask holds stops the run, though the test has its own handler
+[test:shell] ok 134 a package that one manifest declares twice passes
+[test:shell] ok 135 a mise.toml above the repository declares nothing
+[test:shell] ok 136 a Cargo.toml above the repository is not read in place of a missing one
+[test:shell] ok 137 a run from a subdirectory reads the manifests at the top
+[test:wheel] ok 27 a test's signal handler lives only for its call, though the test patches signal.signal
+[test:shell] ok 138 a package in pyproject.toml is refused, wherever it is declared
+[test:shell] ok 139 a pyproject.toml whose lists are empty, or absent, declares nothing
+[test:shell] ok 140 a manifest that cannot be read stops the check
+[test:shell] ok 141 every refusal is reported in one run
+[test:shell] ok 142 a crate in a cargo script and Cargo.toml is refused
+[test:shell] ok 143 a member's package is named by the member's own manifest
+[test:shell] ok 144 a crate that two members name is no conflict
+[test:shell] ok 145 a branch whose every commit is signed passes
+[test:shell] ok 146 a commit with no sign-off is refused, and only that commit is named
+[test:shell] ok 147 a sign-off written in the body and not as a trailer is refused
+[test:wheel] ok 28 a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises
+[test:shell] ok 148 a sign-off whose address cannot reach anyone is refused
+[test:shell] ok 149 a branch that holds no commit of its own passes
+[test:shell] ok 150 an unsigned commit the base gained since the branch left it is not read
+[test:shell] ok 151 a signed merge below an unsigned commit draws no merge sentence
+[test:shell] ok 152 an unsigned merge commit draws the merge sentence
+[test:shell] ok 153 on a runner the refusal is one annotation, and each commit keeps its line
+[test:shell] ok 154 a refusal is appended to the file the caller names
+[test:shell] ok 155 a range that cannot be read exits 2
+[test:shell] ok 156 a base name git calls ambiguous is read, and git's warning reaches stderr
+[test:shell] ok 157 the wrong number of arguments exits 2
+[test:shell] ok 158 a trailer that cannot be read exits 2, and refuses no commit
+[test:shell] ok 159 a subject that cannot be read exits 2, and does not pass the commit
+[test:wheel] ok 29 a Ctrl-C that the parent ignores stays ignored, and the run ends normally
+[test:shell] ok 160 a script named from its own half passes
+[test:shell] ok 161 a script under .github named only by a task is refused
+[test:shell] ok 162 a script outside .github named only by a workflow is refused
+[test:shell] ok 163 a script named from both halves passes
+[test:shell] ok 164 a script under .github that nothing names is refused
+[test:shell] ok 165 a script outside .github that nothing names passes, because a caller runs it by hand
+[test:shell] ok 166 a name on a comment line is not a caller, indented or not
+[test:shell] ok 167 a second script of one name, in the other half, is refused
+[test:shell] ok 168 a bare mention of the name, with no slash before it, is not a caller
+[test:shell] ok 169 a script that names itself is not its own caller
+[test:wheel] ok 30 a signal handler that a test gives a signal the parent ignores lives only for its call
+[test:shell] ok 170 a sibling that sources a script is its caller
+[test:shell] ok 171 a hook that names a script is its caller
+[test:shell] ok 172 every misplaced script is reported in one run
+[test:shell] ok 173 a script that is not tracked is not read
+[test:shell] ok 174 on a runner the refusal is one annotation
+[test:shell] ok 175 a tree with no tracked script exits 2
+[test:shell] ok 176 outside a git repository it exits 2
+[test:shell] ok 177 a cargo script outside .github named only by a workflow is refused
+[test:wheel] ok 31 a Ctrl-C that a test's mask holds stops the run when the call returns
+[test:shell] ok 178 a script named on the first line of a caller longer than a pipe holds passes
+[test:shell] ok 179 a caller that cannot be read exits 2
+[test:shell] ok 180 a tree whose every file reaches an actor passes
+[test:shell] ok 181 a tracked file that reaches no actor is refused, and named
+[test:shell] ok 182 a directory that binds nothing passes its ancestor's actors down
+[test:shell] ok 183 a file reached only through a macro passes
+[test:shell] ok 184 an actor unset below its binding no longer reaches the file
+[test:wheel] ok 32 SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal
+[test:shell] ok 185 a name off the roster is refused, even on a pattern that matches nothing
+[test:shell] ok 186 a member of a macro off the roster is refused
+[test:shell] ok 187 a name is read without the prefix that unsets it
+[test:shell] ok 188 a macro named after an actor is refused
+[test:shell] ok 189 the roster is read from the record, so a new actor needs no change here
+[test:shell] ok 190 a linked name outside the roster's table is not an actor
+[test:shell] ok 191 an untracked file is not checked
+[test:shell] ok 192 a git that cannot make the empty repository is an error, not a refusal
+[test:shell] ok 193 a missing .config/readers is an error, not a refusal
+[test:shell] ok 194 a roster with no actor is an error, not a refusal
+[test:wheel] ok 33 a second Ctrl-C ends purba at once by SIGINT, even while a finally block runs C code
+[test:wheel] ok 34 SIGINT and then SIGTERM make a second interrupt, and purba dies by SIGTERM
+[test:wheel] ok 35 a second Ctrl-C ends purba at once by SIGINT, when the first lands in a test's C code
+[test:wheel] ok 36 SIGINT then SIGTERM end purba at once by SIGTERM, when the first lands in a test's C code
+[test:wheel] ok 37 two signals that wait at once make a second interrupt, and purba dies by the second
+[test:wheel] ok 38 a Ctrl-C ends Python's wait for a thread that a test left alive, and purba dies by SIGINT
+[test:wheel] ok 39 the error of a thread in the test that a Ctrl-C lands in prints after that test's line
+[test:shell] ok 195 a record that breaks no rule passes
+[test:shell] ok 196 the directory is an argument
+[test:wheel] ok 40 a Ctrl-C in a test's atexit function lets the function finish, and purba dies by SIGINT
+[test:wheel] ok 41 a test whose assert fails prints failed, and the run exits 1
+[test:wheel] ok 42 a test that raises prints raised, and the run exits 4
+[test:wheel] ok 43 a module that does not parse prints a project error, and the run exits 4
+[test:wheel] ok 44 an argument that purba cannot take prints an invocation error, and the run exits 3
+[test:wheel] ok 45 a panic stops only its test, each other test keeps its line, and the run exits 125
+[test:wheel] ok 46 purba runs test_a.py through every part, and never imports test_b.py
+[test:wheel] ok 47 purba with no path exits 3, and says why on stderr
+[test:wheel] ok 48 purba with stdout closed exits 3, and says why on stderr
+[test:wheel] ok 49 purba with stdout open for reading exits 3, and says why on stderr
+[test:wheel] ok 50 a test that aborts purba leaves the line of each test before it
+[test:wheel] ok 51 a test that selection refuses prints above the tests that run, and is never called
+[test:wheel] ok 52 a test under a statement at the module's level prints as refused
+[test:wheel] ok 53 a module that did not load prints its error once, and each of its tests as blocked
+[test:wheel] ok 54 a thread's exception in a test prints a project error, and the test keeps its outcome
+[test:wheel] ok 55 a thread that outlives its test prints its error under the test that left it
+[test:wheel] ok 56 a module that does not parse prints its error once, and no test of it
+[test:shell] ok 197 a record missing a section is refused and named
+[test:wheel] Finished in 45.78s
+[test:shell] ok 198 sections out of order are refused
+[test:shell] ok 199 Consequences between the outcome and the confirmation passes
+[test:shell] ok 200 Consequences anywhere else is refused
+[test:shell] ok 201 a comment addressed to a reviewer is refused
+[test:shell] ok 202 the template's comment obeys the prose rules, refused at the template's own line
+[test:shell] ok 203 only the template's comment is read, and never as a record
+[test:shell] ok 204 a record that the template's comment names and no file holds is refused
+[test:shell] ok 205 a name with an underscore before it, or a letter after .md, is no record name
+[test:shell] ok 206 a name after another name and a slash is part of a path, and no record name
+[test:shell] ok 207 a name with a second extension is no record name
+[test:shell] ok 208 a name before a full stop is a record name
+[test:shell] ok 209 a missing name written twice on one line is refused once
+[test:shell] ok 210 the first part of a path is no record name, though no file holds it
+[test:shell] ok 211 a missing record name is refused once, though a longer name before it holds it
+[test:shell] ok 212 a missing template cannot be decided
+[test:shell] ok 213 a missing template says the file is missing, and nothing of the two markers
+[test:shell] ok 214 a template that exists and cannot be read says so, and not that it is missing
+[test:shell] ok 215 a template that does not open with its comment cannot be decided
+[test:shell] ok 216 a first line that holds more than the marker cannot be decided, and the message says why
+[test:shell] ok 217 a bare issue number is refused
+[test:shell] ok 218 an em-dash in prose is refused
+[test:shell] ok 219 bold inside a sentence is refused
+[test:shell] ok 220 a sentence wrapped across two lines is refused where it breaks
+[test:shell] ok 221 a sentence of twenty-six words is refused
+[test:shell] ok 222 a sentence of twenty-one words in a numbered list is refused
+[test:shell] ok 223 a sentence of twenty-one words in a bulleted list passes
+[test:shell] ok 224 a seventh sentence in a paragraph is refused once
+[test:shell] ok 225 a gerund after a form of be is refused
+[test:shell] ok 226 a perfect tense is refused
+[test:shell] ok 227 a participle in the participle list is a tense
+[test:shell] ok 228 a Downside label followed by a sentence is refused
+[test:shell] ok 229 a Downside label that counts its costs is refused for both
+[test:shell] ok 230 a record with no Downside label is refused
+[test:shell] ok 231 a cost with no bold lead-in is refused
+[test:shell] ok 232 a numbered citation is refused in a record and passes outside one
+[test:shell] ok 233 a Confirmation that admits an unwired gate and names no issue is reported, not refused
+[test:shell] ok 234 on a runner an unwired gate writes no annotation
+[test:shell] ok 235 every rule a record breaks is reported in one run
+[test:shell] ok 236 on a runner each rule a record breaks is one annotation
+[test:shell] ok 237 the passive voice and a formal word are reported and never refused
+[test:shell] ok 238 evidence density is reported for each record and for all of them
+[test:shell] ok 239 a record with no prose line is refused, and the report does not abort
+[test:shell] ok 240 a directory holding no record exits 2
+[test:shell] ok 241 a tag that check-records.sh does not know exits 2
+[test:shell] ok 242 outside a git repository it reads the records
+[test:shell] ok 243 evidence density lists the barest record first
+[test:shell] ok 244 a fifth section after the Confirmation is refused
+[test:shell] ok 245 an issue number with no space before it is refused
+[test:shell] ok 246 the report counts the articles and the words it read
+[test:shell] ok 247 a Decision Outcome that does not open with a reach is refused
+[test:shell] ok 248 a reach below the first line of the Decision Outcome is refused
+[test:shell] ok 249 a pattern that matches no tracked file is listed, and refused nowhere
+[test:shell] ok 250 on a runner a pattern that matches nothing writes no annotation
+[test:shell] ok 251 a reach that names no location is refused
+[test:shell] ok 252 a reach is not prose, so its length and its words are not counted
+[test:shell] ok 253 a paragraph that opens with Reach outside the Decision Outcome is prose
+[test:shell] ok 254 a reach that holds prose beside its locations is refused
+[test:shell] ok 255 a reach of words and patterns across two lines passes
+[test:shell] ok 256 an area that the landscape names passes
+[test:shell] ok 257 the four areas outside the landscape pass, a comma between two
+[test:shell] ok 258 a record with no area line is refused where the line belongs
+[test:shell] ok 259 an area line below the decision is refused
+[test:shell] ok 260 an area line with no area is refused
+[test:shell] ok 261 an area outside the list is refused and named
+[test:shell] ok 262 an invariant of the landscape is no area
+[test:shell] ok 263 a landscape that names no part cannot be decided
+[test:shell] ok 264 math outside a math fence is refused
+[test:shell] ok 265 an icon in a mermaid fence is refused
+[test:shell] ok 266 a record whose fence holds a ## line passes
+[test:shell] ok 267 a record whose fence holds a <!-- passes
+[test:shell] ok 268 a record whose fence holds a #12 passes
+[test:shell] ok 269 a record whose fence holds an ADR-12 passes
+[test:shell] ok 270 a #12 on the line after a closing fence is refused
+[test:shell] ok 271 a paragraph line followed by --- is refused for its sections
+[test:shell] ok 272 a winner marked Chosen in Considered Options is refused where it stands
+[test:shell] ok 273 a lost option that opens with Rejected. is refused, and the refusal names the fixer
+[test:shell] ok 274 another form of Rejected that opens a lost option is refused
+[test:shell] ok 275 Rejected later in the reason of a lost option passes
+[test:shell] ok 276 an option marked Chosen inside a fence in Considered Options passes
+[test:shell] ok 277 a lead-in with Chosen after it outside Considered Options passes
+[test:shell] ok 278 an option marked Chosen inside a tilde fence in Considered Options passes
+[test:shell] ok 279 a plain decision sentence after the area is refused where it stands
+[test:shell] ok 280 a decision sentence bold in part is refused where it stands
+[test:shell] ok 281 a decision that opens with a list item is refused
+[test:shell] ok 282 a decision that opens with a fence is refused
+[test:shell] ok 283 a gerund after beside is refused
+[test:shell] ok 284 a bold label straight after the area is refused where it stands
+[test:shell] ok 285 a bold line that ends no sentence is refused where it stands
+[test:shell] ok 286 a decision sentence that holds ** in a code span passes
+[test:shell] ok 287 a decision sentence with a space after it passes
+[test:shell] ok 288 a decision sentence that ends in an emphasis passes
+[test:shell] ok 289 a decision sentence that ends in a quote passes
+[test:shell] ok 290 a decision sentence that ends in a parenthesis passes
+[test:shell] ok 291 a decision sentence that ends in a single quote passes
+[test:shell] ok 292 a branch that replays prints the head it built, and each commit carries the trailer
+[test:shell] ok 293 the replay keeps the committer its caller gives
+[test:shell] ok 294 a base that moved on reads the same commits
+[test:shell] ok 295 a merge that made a change of its own loses content and is refused
+[test:shell] ok 296 content the replay changes with no merge commit is refused, and the cause is not guessed
+[test:shell] ok 297 an empty commit is refused and named
+[test:shell] ok 298 a commit the replay empties is refused and named
+[test:shell] ok 299 a merge resolved by hand does not apply and is refused
+[test:shell] ok 300 a replay that stops on a root commit is refused and does not abort
+[test:shell] ok 301 a replay that stops for a reason the check cannot name says so
+[test:shell] ok 302 a repository with no committer still replays
+[test:shell] ok 303 on a runner the refusal is one annotation
+[test:shell] ok 304 a refusal leaves no worktree and no configuration behind
+[test:shell] ok 305 a head that shares no history with the base exits 2
+[test:shell] ok 306 with rebase.updateRefs set, a branch inside the range stays where it was
+[test:shell] ok 307 with commit.gpgSign set, the replay signs nothing
+[test:shell] ok 308 a base name git calls ambiguous replays, and git's warning reaches stderr
+[test:shell] ok 309 the wrong number of arguments exits 2
+[test:shell] ok 310 a replay git refuses to start says it stopped on no commit
+[test:shell] ok 311 a worktree git cannot make exits 2, and what git wrote is kept
+[test:shell] ok 312 a replay git refuses to start is not blamed on an empty commit
+[test:shell] ok 313 a head given as HEAD is the caller's HEAD, not the replay's
+[test:shell] ok 314 a context that concluded success is green, and the head is what was asked about
+[test:shell] ok 315 a context with no run at all is refused
+[test:shell] ok 316 a run still going is no verdict
+[test:shell] ok 317 a context that concluded anything but success is refused and named
+[test:shell] ok 318 the run that finished last decides, whatever order the API returns
+[test:shell] ok 319 a rerun still going does not hide the verdict before it
+[test:shell] ok 320 every context is read, and the first one that is not green stops it
+[test:shell] ok 321 with no context named it exits 2, because no list is green by being empty
+[test:shell] ok 322 each context gets its conclusion, or none, in the order asked
+[test:shell] ok 323 three contexts read the check runs once
+[test:shell] ok 324 with an empty repository name it stops before it calls the API
+[test:shell] ok 325 a read the API refuses exits 2, whichever function reads
+[test:shell] ok 326 an answer that holds no check runs exits 2
+[test:shell] ok 327 an answer whose check runs are not objects exits 2
+[test:shell] ok 328 uses and messages along drawn arrows pass
+[test:shell] ok 329 a use the diagram does not draw is refused
+[test:shell] ok 330 a dev-dependency is a use
+[test:shell] ok 331 an arrow between two crates that the manifest does not use is refused
+[test:shell] ok 332 a crate named for no part is refused
+[test:shell] ok 333 the crate purba is not read
+[test:shell] ok 334 a call along no drawn arrow is refused
+[test:shell] ok 335 an answer back along no drawn arrow is refused
+[test:shell] ok 336 a message whose end is no part is refused
+[test:shell] ok 337 a landscape with no section of parts cannot be read
+[test:shell] ok 338 a repository git handed the suite is not the one a test commits into
+[test:shell] ok 339 a test that leaves its repository does not find one around it
+[test:shell] ok 340 a fake that was never run has no call to show
+[test:shell] ok 341 what a runner or a caller sets does not reach a test
+[test:shell] ok 342 the page lists each record under each area it names, in the order of the landscape
+[test:shell] ok 343 the records of one area follow their file names, not their titles
+[test:shell] ok 344 the template is not listed
+[test:shell] ok 345 the check passes on the page the script writes, and changes nothing
+[test:shell] ok 346 the check refuses a page that misses a new record, and writes nothing
+[test:shell] ok 347 the check refuses a page after a record changes its title or its area
+[test:shell] ok 348 the check refuses a missing page
+[test:shell] ok 349 a record with no area line cannot be listed
+[test:shell] ok 350 an area outside the list cannot be listed
+[test:shell] ok 351 an unknown option is refused
+[test:shell] ok 352 a reach that holds a glossary word puts its record on every pull request
+[test:shell] ok 353 a reach that holds ** puts its record on every pull request
+[test:shell] ok 354 the records on every pull request share one line
+[test:shell] ok 355 a pattern that matches a changed path names its record
+[test:shell] ok 356 a pattern that matches no changed path leaves its record off every list
+[test:shell] ok 357 a reach that holds prose beside its locations names nothing by its patterns
+[test:shell] ok 358 a changed file outside docs/decisions that links a record at the base names it
+[test:shell] ok 359 a link the change writes names nothing
+[test:shell] ok 360 a link from a changed record names nothing but that record
+[test:shell] ok 361 a record the change adds is named
+[test:shell] ok 362 the reach of a record the change edits is read at the head
+[test:shell] ok 363 a record on every pull request is not named again
+[test:shell] ok 364 a record the change deletes is named, and linked at the base
+[test:shell] ok 365 a record that links an issue a commit subject names may hold a stale sentence
+[test:shell] ok 366 an issue whose number only starts the same is not a stale sentence
+[test:shell] ok 367 a line that names a changed file's basename may hold a stale sentence
+[test:shell] ok 368 a line that names a parent directory of a changed file may hold a stale sentence
+[test:shell] ok 369 a line in a record the change edits is not a stale sentence
+[test:shell] ok 370 a reach is not a stale sentence
+[test:shell] ok 371 the output opens with the base and the head
+[test:shell] ok 372 a remote written for ssh gives the same address
+[test:shell] ok 373 the base defaults to where the change left origin/main
+[test:shell] ok 374 the base is an argument
+[test:shell] ok 375 outside a git repository it exits 2
+[test:shell] ok 376 a base git cannot read exits 2
+[test:shell] ok 377 a git that cannot make the empty repository exits 2
+[test:shell] ok 378 a repository with no origin exits 2
+[test:shell] ok 379 a head with no record that a stale sentence breaks exits 2
+[test:shell] ok 380 --added prints each line the change adds where the pattern matches
+[test:shell] ok 381 --added leaves out a line in docs/decisions/sub/x.md
+[test:shell] ok 382 --added reads the change whatever diff the user configures
+[test:shell] ok 383 --added names a path that holds a space as git tracks it
+[test:shell] ok 384 --added after the base is read
+[test:shell] ok 385 run from a subdirectory, it reads the whole repository
+[test:shell] ok 386 an ssh remote with a port and a trailing slash gives the same address
+[test:shell] ok 387 --added counts lines as the change has them, whatever hunk context the user sets
+[test:shell] ok 388 --added prints a path that holds a quote as git tracks it
+[test:shell] ok 389 --added with no pattern exits 2
+[test:shell] ok 390 a change that replaces a directory with a file of its name is read
+[test:shell] ok 391 a path that holds a newline is read
+[test:shell] ok 392 an scp remote whose owner is a number is not read as a port
+[test:shell] ok 393 a link to an issue page with no number is not an issue a subject names
+[test:shell] ok 394 a directory is named only where a path starts with it
+[test:shell] ok 395 a basename inside a longer name is not a stale sentence
+[test:shell] ok 396 a basename counts wherever it stands whole on the line
+[test:shell] ok 397 a basename after its directory may hold a stale sentence
+[test:shell] ok 398 a basename with no extension that is also a word is not a stale sentence
+[test:shell] ok 399 a file in a directory with no extension is named by its path
+[test:shell] ok 400 a file at the root with no extension is named by its basename
+[test:shell] ok 401 --added prints the same lines whatever diff algorithm the user sets
+[test:shell] ok 402 --added counts lines as the change has them, whatever GIT_DIFF_OPTS holds
+[test:shell] ok 403 a relative path starts where its dots start
+[test:shell] ok 404 a landscape whose order is the calculated order passes, and prints nothing
+[test:shell] ok 405 a changed probability that moves an item is refused, and the calculated order is named
+[test:shell] ok 406 a removed arrow that frees a part is refused
+[test:shell] ok 407 a concern that crosses fewer parts frees them, and the stale order is refused
+[test:shell] ok 408 a sentence of another section that ends in a list of parts is not a crossing
+[test:shell] ok 409 a risk whose item differs from its row in the record is refused, and named
+[test:shell] ok 410 a risk whose score differs from its row in the record is refused, and named
+[test:shell] ok 411 a risk with no row in the record is refused, and named
+[test:shell] ok 412 a row of the record with no risk in the landscape passes
+[test:shell] ok 413 an arrow to a name that is no part is refused, and named
+[test:shell] ok 414 two parts that use each other are refused
+[test:shell] ok 415 a tie in score goes to the item more waits on
+[test:shell] ok 416 a tie that nothing else breaks goes to the line that comes first, parts before concerns
+[test:shell] ok 417 an item whose line links its design leaves the order
+[test:shell] ok 418 a designed item that keeps its order line is refused
+[test:shell] ok 419 with no option, it writes the calculated order, prints each step, and changes nothing else
+[test:shell] ok 420 an order list whose numbers do not count from one is refused, and written with no option
+[test:shell] ok 421 with no option, an order section with no numbered list cannot be written
+[test:shell] ok 422 a link to a section of the record still finds the record
+[test:shell] ok 423 a landscape with no order section cannot be checked
+[test:shell] ok 424 an order section that links no record cannot be checked
+[test:shell] ok 425 a failed read of the files exits 2, and does not say that no comment is owed
+[test:shell] ok 426 files that hold no record exit 0, and say that no comment is owed
+[test:shell] ok 427 a change to the template alone exits 0, and posts no comment
+[test:shell] ok 428 a change to the template and a record posts a comment that lists the record alone
+[test:shell] ok 429 a pull request that already holds the comment gets no second one
+[test:shell] ok 430 a failed read of the comments exits 2, and posts nothing
+[test:shell] ok 431 a Markdown file directly under docs/decisions/ is a record, and nothing else is
+[test:shell] ok 432 the reach is the first paragraph of the Decision Outcome, read whole when it wraps
+[test:shell] ok 433 a Reach paragraph that holds prose beside its locations is not a reach
+[test:shell] ok 434 a Reach paragraph that names no location is not a reach
+[test:shell] ok 435 an outcome that opens with a paragraph or a heading has no reach, and gives its first line
+[test:shell] ok 436 a record with no Decision Outcome gives nothing
+[test:shell] ok 437 a Reach paragraph before the Decision Outcome is not the reach
+[test:shell] ok 438 a fenced Decision Outcome line before the heading is not the heading
+[test:shell] ok 439 a fence closes only on its own character, at least as long as it opened
+[test:shell] ok 440 a fence that nothing closes runs to the end, and hides the Decision Outcome below it
+[test:shell] ok 441 each code span in a reach is a pattern, in order, and a glossary word is not
+[test:shell] ok 442 a paragraph that is not a reach gives no pattern
+[test:shell] ok 443 a reach with ** or a glossary word reaches every pull request, and patterns alone do not
+[test:shell] ok 444 a pattern is matched as gitattributes matches it, not as a pathspec
+[test:shell] ok 445 a path that ends in a newline is matched like any other
+[test:shell] ok 446 a pattern that two records hold names each of them
+[test:shell] ok 447 the comment of a template keeps its line numbers, and each line outside it is blank
+[test:shell] ok 448 a template that does not open with a comment, or never closes it, has none
+[test:shell] ok 449 an owed release pushes one commit and opens one pull request
+[test:shell] ok 450 the pull request says the next run tags the version, whether scheduled or dispatched
+[test:shell] ok 451 the commit is the bot's, carries no sign-off, and writes the version once on each side
+[test:shell] ok 452 the changelog holds the features and fixes under the version, and nothing else
+[test:shell] ok 453 a feature after a release proposes a patch
+[test:shell] ok 454 a breaking change after a release proposes a minor
+[test:shell] ok 455 nothing to release proposes nothing
+[test:shell] ok 456 a version no tag carries is tagged on the commit that wrote it
+[test:shell] ok 457 a pushed tag is named as a step output
+[test:shell] ok 458 a proposal names no tag
+[test:shell] ok 459 an open release pull request makes the run stand down
+[test:shell] ok 460 a commit git refuses exits 2, pushes nothing, and leaves no changelog
+[test:shell] ok 461 a release that changes a third file is refused and pushes nothing
+[test:shell] ok 462 a register git-cliff refuses exits 2 and shows why
+[test:shell] ok 463 a tree that is not clean exits 2 before it computes anything
+[test:shell] ok 464 a tag that cannot be pushed exits 2
+[test:shell] ok 465 a summary that names a record stops the check
+[test:shell] ok 466 a summary that names the template of a record stops the check
+[test:shell] ok 467 a summary that names the directory of the records is written
+[test:shell] ok 468 a detail that names a record is written
+[test:shell] ok 469 two refusals print with a blank line between them, and each finding indented 2 spaces
+[test:shell] ok 470 each line of a finding is indented, and an empty line stays empty
+[test:shell] ok 471 finish exits 1 after a refusal, and 0 with none
+[test:shell] ok 472 cannot exits 2, and appends to PURBA_REPORT
+[test:shell] ok 473 cannot writes a message that names a record
+[test:shell] ok 474 on a runner, a refusal leaves stdout empty
+[test:shell] ok 475 on a runner, cannot with no detail is one annotation, and stdout stays empty
+[test:shell] ok 476 on a runner, a caller's detail is the same after a refusal
+[test:shell] ok 477 each run opens its issue with its own title, and carries bug and wayfinder:task
+[test:shell] ok 478 for each run, an open issue with the same title gets a comment, and no second issue opens
+[test:shell] ok 479 an open issue with another title gets no comment, and the failure opens its own issue
+[test:shell] ok 480 an answer that is not a list of issues exits 2, and says the failure was not recorded
+[test:shell] ok 481 for each run, the wrong arguments exit 2 before it calls the API
+[test:shell] ok 482 for each run, an empty repository name exits 2 before it calls the API
+[test:shell] ok 483 a run it does not know exits 2 before it calls the API
+[test:shell] ok 484 a failed read of the open issues exits 2, and says the failure was not recorded
+[test:shell] ok 485 a failed comment on the open issue exits 2, and says the failure was not recorded
+[test:shell] ok 486 a failed issue create exits 2, and says the failure was not recorded
+[test:shell] ok 487 abi3 wheels at the floor pass
+[test:shell] ok 488 a wheel built for one interpreter is refused, and named
+[test:shell] ok 489 on a runner, the annotation names each wheel it refuses
+[test:shell] ok 490 an abi3 wheel at another floor is refused
+[test:shell] ok 491 a directory that holds no wheel exits 2
+[test:shell] ok 492 a requires-python it cannot read exits 2
+[test:shell] ok 493 the wrong number of arguments exits 2
+[test:shell] ok 494 the real pyproject.toml names a floor it can read
+[test:shell] ok 495 with rebase.updateRefs set, the answer N leaves a stacked branch where it was
+[test:shell] ok 496 a base name git calls ambiguous lists the commits, and signs them
+[test:shell] ok 497 a commit with another person's sign-off gets the committer's own beside it
+[test:shell] ok 498 a commit whose sign-off has no address gets the committer's own
+[test:shell] ok 499 a commit whose own sign-off comes before another trailer gets no second one
+[test:shell] ok 500 a commit with no sign-off gets the committer's own
+[test:shell] ok 501 the approval that came last is the one that stands, and a comment is not one
+[test:shell] ok 502 an approval its author follows with a change request does not stand
+[test:shell] ok 503 an approval given again after a change request stands, and a comment leaves it
+[test:shell] ok 504 a change request from another reviewer leaves an approval standing
+[test:shell] ok 505 an approval its author follows with a dismissed review does not stand
+[test:shell] ok 506 an author who renames their account is still one author
+[test:shell] ok 507 a login GitHub would not write is refused as text, before its permission is asked
+[test:shell] ok 508 an approval without write access does not stand over an earlier one with it
+[test:shell] ok 509 an approval from an account without write access alone does not stand
+[test:shell] ok 510 an account whose permission reads write stands, and one that reads read does not
+[test:shell] ok 511 a permission that cannot be read exits 2, and prints no approver
+[test:shell] ok 512 an approver id that is not a number, or is absent, is refused
+[test:shell] ok 513 reviews that are not a JSON array exit 2
+[test:shell] ok 514 a reply with no permission exits 2, and prints no approver
+[test:shell] ok 515 an approval with no login is passed over
+[test:shell] ok 516 a call with no GH_REPO exits 2
+[test:shell] ok 517 reviews the rule cannot read exit 2, and print no approver
+[test:shell] ok 518 a newer approval from a bot does not stand over an older one from a person
+[test:shell] ok 519 an approval from a bot alone does not stand, and is not refused
+[test:shell] ok 520 Rejected. after the lead-in of a lost option goes, and the reason stays
+[test:shell] ok 521 a lost option that holds only Rejected. keeps its lead-in
+[test:shell] ok 522 another form of Rejected stays for a writer to rewrite
+[test:shell] ok 523 an option inside a fence stays
+[test:shell] ok 524 a lead-in outside Considered Options stays
+[test:shell] ok 525 a record with no mark is left byte for byte
+[test:shell] ok 526 the template is not rewritten
+[test:shell] ok 527 the directory is an argument
+[test:shell] ok 528 a directory with no record cannot be rewritten
+[test:shell] ok 529 an approved branch whose gates are green is accepted, pushed and reported
+[test:shell] ok 530 a base that moved on after the branch left it is not where the branch lands
+[test:shell] ok 531 the head it pushes is the head the replay check printed
+[test:shell] ok 532 a commit pushed after the checkout stays on the branch, and nothing is accepted
+[test:shell] ok 533 with no approval it writes nothing and reads no gate
+[test:shell] ok 534 a gate that is not green leaves nothing to accept, and the sentence is true
+[test:shell] ok 535 check runs that cannot be read exit 2, and nothing is accepted
+[test:shell] ok 536 a pull request that cannot be read exits 2, and nothing is accepted
+[test:shell] ok 537 a pull request with no base branch exits 2, and nothing is accepted
+[test:shell] ok 538 a login GitHub would not write exits 1, and nothing is pushed
+[test:shell] ok 539 a commit with no sign-off is refused before anything is rewritten
+[test:shell] ok 540 a commit that replays empty is refused before anything is rewritten
+[test:shell] ok 541 on a runner the refusal of the replay check reaches the log once, on stderr
+[test:shell] ok 542 a branch whose replay changes its content is refused, and nothing is pushed
+[test:shell] ok 543 a rule that cannot run is reported as a check that could not run
+[test:shell] ok 544 a refusal whose check run cannot be written exits 2
+[test:shell] ok 545 an acceptance whose check run cannot be written exits 2, after the push
+[test:shell] ok 546 a second run on an accepted branch pushes nothing and reports again
+[test:shell] ok 547 a branch onto another branch rewrites only its own commits
+[test:shell] ok 548 a variable the workflow supplies stops it when absent
+[test:shell] Finished in 166.97s
+Finished in 166.98s

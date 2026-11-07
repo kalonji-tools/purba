@@ -1,0 +1,9 @@
+== w3 with its suite patch on 3.12d
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error ignores a test that changed sys.abiflags
+== w3 with its suite patch on 3.14td
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error ignores a test that changed sys.abiflags
+== w3 with its suite patch on 3.14t
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error ignores a test that changed sys.abiflags

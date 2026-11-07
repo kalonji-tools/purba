@@ -1,0 +1,15 @@
+
+thread '<unnamed>' (3661287) panicked at crates/assertion/src/lib.rs:125:13:
+PURBA_FAULT=assert
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+--- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+Python stack trace below:
+/tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.15.0+debug-linux-x86_64-gnu/lib/python3.15/linecache.py:265: DeprecationWarning: Module globals is missing a __spec__.loader
+  warnings.warn(
+Traceback (most recent call last):
+  File "test_control.py", line 2, in test_one
+    assert True
+           ^^^^
+pyo3_runtime.PanicException: PURBA_FAULT=assert
+purba: an internal error is a bug in purba 0.0.0, on CPython 3.15.0, linux x86_64.
+purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md

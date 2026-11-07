@@ -1,0 +1,133 @@
+[lint:records] $ scripts/check-records.sh
+
+a pattern in a reach that matches no tracked file
+
+  docs/decisions/a-gate-owns-the-mechanical.md: rustfmt.toml
+  docs/decisions/a-gate-owns-the-mechanical.md: .rustfmt.toml
+  docs/decisions/a-gate-owns-the-mechanical.md: .clippy.toml
+  docs/decisions/a-gate-owns-the-mechanical.md: typos.toml
+  docs/decisions/a-gate-owns-the-mechanical.md: _typos.toml
+  docs/decisions/a-gate-owns-the-mechanical.md: .typos.toml
+  docs/decisions/a-workflow-names-each-action-by-its-commit.md: /.pinact.yaml
+  docs/decisions/a-workflow-names-each-action-by-its-commit.md: /.pinact.yml
+  docs/decisions/a-workflow-names-each-action-by-its-commit.md: .github/pinact.yaml
+  docs/decisions/a-workflow-names-each-action-by-its-commit.md: .github/pinact.yml
+  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: typos.toml
+  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: _typos.toml
+  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: .typos.toml
+  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: lychee.toml
+  docs/decisions/one-manifest-declares-each-package.md: .github/**/*.rs
+  docs/decisions/one-manifest-declares-each-package.md: rust-toolchain.toml
+  docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: devenv.*
+  docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: flake.nix
+  docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: .tool-versions
+  docs/decisions/the-nightly-is-named-by-a-date.md: rust-toolchain.toml
+
+the borrowed rules a command reports and never refuses
+
+  in the passive voice           308 of  4618 sentences  6%
+  articles                      7753 in 52417 words
+  formal words                     0 in 52417 words
+
+evidence density: prose lines carrying no number, no code span and no link
+
+ 88.6%   31 of  35  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+ 85.4%   35 of  41  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+ 84.2%   32 of  38  docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+ 80.9%   38 of  47  docs/decisions/a-record-is-rewritten-not-amended.md
+ 80.0%    8 of  10  docs/decisions/a-command-test-checks-only-commands-rules.md
+ 79.2%   19 of  24  docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
+ 78.9%   15 of  19  docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md
+ 78.3%   36 of  46  docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+ 77.8%   14 of  18  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
+ 77.1%   27 of  35  docs/decisions/a-term-belongs-to-the-glossary.md
+ 76.2%   16 of  21  docs/decisions/purba-records-delegation-and-does-not-prevent-it.md
+ 76.2%   16 of  21  docs/decisions/dependabot-proposes-each-newer-action.md
+ 75.9%   44 of  58  docs/decisions/a-commit-outlives-its-review.md
+ 75.4%   43 of  57  docs/decisions/a-register-belongs-to-one-location.md
+ 75.3%   55 of  73  docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+ 75.0%   18 of  24  docs/decisions/significance-is-declared-not-detected.md
+ 75.0%   15 of  20  docs/decisions/one-manifest-declares-each-package.md
+ 75.0%   12 of  16  docs/decisions/a-pinned-candidate-decides-when-a-milestone-is-done.md
+ 73.3%   11 of  15  docs/decisions/purba-runs-inside-the-testers-interpreter.md
+ 72.7%    8 of  11  docs/decisions/one-pull-request-answers-one-issue.md
+ 72.7%    8 of  11  docs/decisions/a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md
+ 70.6%   12 of  17  docs/decisions/an-invariant-needs-no-design-of-its-own.md
+ 70.4%   19 of  27  docs/decisions/a-record-names-every-location-where-it-applies.md
+ 69.2%    9 of  13  docs/decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md
+ 68.8%   22 of  32  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+ 68.8%   22 of  32  docs/decisions/an-implementation-follows-test-driven-development.md
+ 68.8%   11 of  16  docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
+ 68.6%   24 of  35  docs/decisions/the-crate-carries-an-rlib.md
+ 68.5%   37 of  54  docs/decisions/a-change-is-specified-before-it-is-built.md
+ 66.7%    8 of  12  docs/decisions/reporting-writes-each-line-as-dispatch-hands-it-the-test.md
+ 66.7%    8 of  12  docs/decisions/command-lends-one-parse-to-selection-and-assertion.md
+ 66.7%    6 of   9  docs/decisions/parsing-hands-on-no-tree-that-ruff-recovered.md
+ 66.7%   12 of  18  docs/decisions/execution-calls-a-test-by-its-functions-name.md
+ 66.7%   12 of  18  docs/decisions/a-worker-loads-each-module-once.md
+ 66.7%   10 of  15  docs/decisions/a-gate-refuses-each-invariant-a-tool-can-see.md
+ 65.9%   27 of  41  docs/decisions/a-location-inherits-its-readers.md
+ 65.2%   73 of 112  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+ 64.8%   35 of  54  docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md
+ 64.7%   11 of  17  docs/decisions/one-file-marks-every-tracked-path-for-each-gate-that-can-skip.md
+ 63.6%   14 of  22  docs/decisions/a-new-question-gets-a-new-record.md
+ 63.2%   12 of  19  docs/decisions/a-concern-is-what-no-part-can-own.md
+ 63.0%   29 of  46  docs/decisions/purba-parses-python-with-ruff.md
+ 62.5%   10 of  16  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
+ 62.1%   18 of  29  docs/decisions/an-outside-contribution-is-applied-not-merged.md
+ 61.7%   29 of  47  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+ 61.5%    8 of  13  docs/decisions/the-person-owns-the-decision-outcome.md
+ 61.5%    8 of  13  docs/decisions/assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md
+ 60.7%   17 of  28  docs/decisions/purba-supports-a-python-with-two-years-left.md
+ 60.0%    6 of  10  docs/decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md
+ 60.0%    6 of  10  docs/decisions/a-suppression-is-an-outcome-and-not-a-switch.md
+ 60.0%    6 of  10  docs/decisions/a-blocked-test-has-no-outcome.md
+ 58.3%    7 of  12  docs/decisions/an-interrupted-run-prints-its-count-and-dies-by-the-signal.md
+ 57.1%    8 of  14  docs/decisions/purbas-public-surface-starts-empty-and-has-no-plugin-api.md
+ 57.1%    8 of  14  docs/decisions/a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md
+ 57.1%    8 of  14  docs/decisions/a-record-names-the-role-not-the-kind-of-entity.md
+ 57.1%    8 of  14  docs/decisions/an-interrupt-puts-back-no-more-than-a-normal-end-does.md
+ 55.6%   10 of  18  docs/decisions/purba-ranks-an-honest-outcome-first.md
+ 55.6%   10 of  18  docs/decisions/purba-divides-by-responsibility-and-not-by-language.md
+ 55.0%   11 of  20  docs/decisions/the-nightly-is-named-by-a-date.md
+ 54.5%    6 of  11  docs/decisions/a-test-that-selection-refuses-prints-before-any-test-runs.md
+ 53.8%    7 of  13  docs/decisions/purba-is-always-strict.md
+ 53.3%   16 of  30  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md
+ 52.9%    9 of  17  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
+ 52.4%   11 of  21  docs/decisions/reporting-renders-the-exit-code-and-command-returns-it.md
+ 50.0%    8 of  16  docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md
+ 50.0%    6 of  12  docs/decisions/the-zip-alerts-of-check-prose-are-dismissed-as-unused.md
+ 50.0%    6 of  12  docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
+ 50.0%    6 of  12  docs/decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md
+ 50.0%   10 of  20  docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md
+ 48.6%   18 of  37  docs/decisions/only-github-runs-what-lives-under-github.md
+ 48.5%   16 of  33  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
+ 47.1%    8 of  17  docs/decisions/purba-runs-on-linux-and-macos.md
+ 46.7%   28 of  60  docs/decisions/a-gate-owns-the-mechanical.md
+ 46.2%    6 of  13  docs/decisions/each-test-runs-in-a-process-of-its-own.md
+ 45.5%    5 of  11  docs/decisions/every-part-of-the-skeleton-is-rust-inside-the-extension-module.md
+ 45.0%    9 of  20  docs/decisions/the-skeleton-crosses-the-seam-in-execution-and-assertion.md
+ 44.4%    4 of   9  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+ 43.8%    7 of  16  docs/decisions/a-test-names-two-values-of-one-type-by-two-fixtures.md
+ 41.7%    5 of  12  docs/decisions/a-gate-reads-its-marks-on-the-base-branch.md
+ 41.2%    7 of  17  docs/decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md
+ 40.0%    8 of  20  docs/decisions/a-workflow-names-each-action-by-its-commit.md
+ 40.0%    6 of  15  docs/decisions/a-test-names-the-fixture-of-each-input.md
+ 38.9%    7 of  18  docs/decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md
+ 38.5%    5 of  13  docs/decisions/each-part-is-a-crate.md
+ 38.5%    5 of  13  docs/decisions/a-test-carries-only-purbas-own-decorators.md
+ 38.5%    5 of  13  docs/decisions/a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md
+ 37.5%    9 of  24  docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md
+ 37.5%    6 of  16  docs/decisions/a-path-not-marked-to-skip-starts-the-gate.md
+ 37.5%    3 of   8  docs/decisions/a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md
+ 36.4%    4 of  11  docs/decisions/a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md
+ 34.8%    8 of  23  docs/decisions/a-task-is-named-for-what-it-does-to-the-tree.md
+ 30.4%    7 of  23  docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md
+ 28.6%    6 of  21  docs/decisions/a-panic-inside-a-test-gives-that-test-an-internal-error.md
+ 27.3%    3 of  11  docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+ 26.7%    4 of  15  docs/decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md
+ 21.1%    4 of  19  docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md
+ 17.6%    3 of  17  docs/decisions/every-crate-lives-under-crates.md
+ 16.7%    3 of  18  docs/decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md
+ 15.4%    2 of  13  docs/decisions/a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md
+all records  60.9%  1388 of 2281

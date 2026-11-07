@@ -1,0 +1,15 @@
+🐍 Found CPython 3.14t at /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+⚠️ Warning: abi3 does not yet support CPython 3.14t at /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python so the build artifacts will be version-specific.
+error: unused build dependency `pyo3-build-config`
+  --> crates/purba/Cargo.toml:24:1
+   |
+24 | pyo3-build-config = "0.29.2"
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `cargo::unused_dependencies` is set to `deny` in `[lints]`
+help: consider removing the dependency on `pyo3-build-config`
+error: could not parse `purba` (manifest) due to 1 previous error
+💥 maturin failed
+  Caused by: Failed to build a native library through cargo
+  Caused by: Cargo build finished with "exit status: 101": `env -u CARGO PYO3_BUILD_EXTENSION_MODULE="1" PYO3_ENVIRONMENT_SIGNATURE="cpython-3.14-64bit" PYO3_PYTHON="/tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python" PYTHON_SYS_EXECUTABLE="/tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python" "cargo" "rustc" "--profile" "release" "--features" "extension-module,fault" "--message-format" "json-render-diagnostics" "--manifest-path" "/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-no-build-rs/crates/purba/Cargo.toml" "--lib" "--crate-type" "cdylib"`

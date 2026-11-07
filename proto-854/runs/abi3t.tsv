@@ -1,0 +1,17 @@
+way	pair	test	exit	report names	truth	verdict
+w1-abi3t-on-3.15	3.15.0	control	125	3.15.0	3.15.0	right
+w1-abi3t-on-3.15	3.15.0	sets_abiflags	125	3.15.0	3.15.0	right
+w1-abi3t-on-3.15	3.15.0+freethreaded	control	125	3.15.0t	3.15.0t	right
+w1-abi3t-on-3.15	3.15.0+freethreaded	sets_abiflags	125	3.15.0t	3.15.0t	right
+w1-abi3t-on-3.15t	3.15.0	control	125	3.15.0	3.15.0	right
+w1-abi3t-on-3.15t	3.15.0	sets_abiflags	125	3.15.0	3.15.0	right
+w1-abi3t-on-3.15t	3.15.0+freethreaded	control	125	3.15.0t	3.15.0t	right
+w1-abi3t-on-3.15t	3.15.0+freethreaded	sets_abiflags	125	3.15.0t	3.15.0t	right
+w2-abi3t-on-3.15	3.15.0	control	125	3.15.0t	3.15.0	WRONG
+w2-abi3t-on-3.15	3.15.0	sets_abiflags	125	3.15.0t	3.15.0	WRONG
+w2-abi3t-on-3.15	3.15.0+freethreaded	control	125	3.15.0t	3.15.0t	right
+w2-abi3t-on-3.15	3.15.0+freethreaded	sets_abiflags	125	3.15.0t	3.15.0t	right
+w2-abi3t-on-3.15t	3.15.0	control	125	3.15.0t	3.15.0	WRONG
+w2-abi3t-on-3.15t	3.15.0	sets_abiflags	125	3.15.0t	3.15.0	WRONG
+w2-abi3t-on-3.15t	3.15.0+freethreaded	control	125	3.15.0t	3.15.0t	right
+w2-abi3t-on-3.15t	3.15.0+freethreaded	sets_abiflags	125	3.15.0t	3.15.0t	right

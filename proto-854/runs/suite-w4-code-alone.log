@@ -1,0 +1,1112 @@
+[test:shell] $ bats --print-output-on-failure --recursive scripts/test
+[test:wheel] $ maturin build --quiet
+[test:rust] $ export LD_LIBRARY_PATH=$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+[test:cargo-scripts] $ git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:wheel]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:wheel]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:cargo-scripts]     Blocking waiting for file lock on package cache
+[test:rust]     Blocking waiting for file lock on package cache
+[test:rust]    Compiling proc-macro2 v1.0.107
+[test:rust]    Compiling quote v1.0.47
+[test:rust]    Compiling unicode-ident v1.0.24
+[test:rust]    Compiling cfg-if v1.0.5
+[test:rust]    Compiling smallvec v1.16.3
+[test:rust]    Compiling libc v0.2.189
+[test:rust]    Compiling memchr v2.8.3
+[test:rust]    Compiling zerocopy v0.8.63
+[test:rust]    Compiling rustversion v1.0.23
+[test:rust]    Compiling zmij v1.0.23
+[test:rust]    Compiling collection_literals v1.0.3
+[test:rust]    Compiling siphasher v1.0.4
+[test:rust]    Compiling interpolator v0.5.0
+[test:rust]    Compiling hashbrown v0.17.1
+[test:rust]    Compiling equivalent v1.0.3
+[test:rust]    Compiling find-msvc-tools v0.1.15
+[test:rust]    Compiling shlex v2.0.1
+[test:rust]    Compiling static_assertions v1.1.0
+[test:rust]    Compiling object v0.39.1
+[test:rust]    Compiling itoa v1.0.18
+[test:rust]    Compiling thin-vec v0.2.21
+[test:rust]    Compiling heck v0.5.0
+[test:rust]    Compiling tinyvec v1.13.3
+[test:cargo-scripts]    Compiling proc-macro2 v1.0.107
+[test:cargo-scripts]    Compiling unicode-ident v1.0.26
+[test:cargo-scripts]    Compiling quote v1.0.47
+[test:cargo-scripts]    Compiling libc v0.2.190
+[test:cargo-scripts]    Compiling serde_core v1.0.229
+[test:cargo-scripts]    Compiling serde v1.0.229
+[test:cargo-scripts]    Compiling cfg-if v1.0.5
+[test:cargo-scripts]    Compiling autocfg v1.5.1
+[test:cargo-scripts]    Compiling libm v0.2.16
+[test:cargo-scripts]    Compiling zerocopy v0.8.60
+[test:cargo-scripts]    Compiling parking_lot_core v0.9.12
+[test:cargo-scripts]    Compiling scopeguard v1.2.0
+[test:cargo-scripts]    Compiling equivalent v1.0.2
+[test:cargo-scripts]    Compiling getrandom v0.3.4
+[test:cargo-scripts]    Compiling allocator-api2 v0.2.21
+[test:cargo-scripts]    Compiling log v0.4.34
+[test:cargo-scripts]    Compiling unicode-xid v0.2.6
+[test:cargo-scripts]    Compiling unicode-segmentation v1.13.3
+[test:cargo-scripts]    Compiling portable-atomic v1.15.0
+[test:cargo-scripts]    Compiling stable_deref_trait v1.2.1
+[test:cargo-scripts]    Compiling cfg_aliases v0.2.2
+[test:cargo-scripts]    Compiling memchr v2.8.3
+[test:rust]    Compiling either v1.19.0
+[test:rust]    Compiling thiserror v2.0.21
+[test:wheel] 🐍 Found CPython 3.12 at /home/snregales/.local/share/mise/installs/python/3.12.14/bin/python3
+[test:wheel] 🔗 Found pyo3 bindings with abi3-py3.12 support
+[test:wheel] 📡 Using build options features from pyproject.toml
+[test:rust]    Compiling phf_shared v0.11.3
+[test:rust]    Compiling cc v1.9.0
+[test:rust]    Compiling target-lexicon v0.13.5
+[test:cargo-scripts]    Compiling fastrand v2.5.0
+[test:rust]    Compiling ryu v1.0.23
+[test:cargo-scripts]    Compiling lock_api v0.4.14
+[test:rust]    Compiling rustc-hash v2.1.3
+[test:cargo-scripts]    Compiling foldhash v0.1.5
+[test:rust]    Compiling bitflags v2.13.2
+[test:cargo-scripts]    Compiling web-time v1.1.0
+[test:rust]    Compiling arrayvec v0.7.8
+[test:cargo-scripts]    Compiling futures-core v0.3.34
+[test:cargo-scripts]    Compiling cubecl-common v0.8.1
+[test:rust]    Compiling itertools v0.15.0
+[test:rust]    Compiling drop_bomb v0.1.5
+[test:rust]    Compiling once_cell v1.21.4
+[test:cargo-scripts]    Compiling futures-io v0.3.34
+[test:cargo-scripts]    Compiling parking v2.2.1
+[test:rust]    Compiling serde_core v1.0.229
+[test:rust]    Compiling serde v1.0.229
+[test:rust]    Compiling purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/fixtures)
+[test:cargo-scripts]    Compiling pin-project-lite v0.2.17
+[test:cargo-scripts]    Compiling embassy-futures v0.1.2
+[test:rust]    Compiling phf v0.11.3
+[test:cargo-scripts]    Compiling crc32fast v1.5.2
+[test:cargo-scripts]    Compiling find-msvc-tools v0.1.14
+[test:cargo-scripts]    Compiling simd-adler32 v0.3.10
+[test:cargo-scripts]    Compiling siphasher v1.0.4
+[test:cargo-scripts]    Compiling shlex v2.0.1
+[test:cargo-scripts]    Compiling version_check v0.9.5
+[test:cargo-scripts]    Compiling itoa v1.0.18
+[test:cargo-scripts]    Compiling convert_case v0.10.0
+[test:cargo-scripts]    Compiling futures-lite v2.6.1
+[test:cargo-scripts]    Compiling zmij v1.0.23
+[test:cargo-scripts]    Compiling pkg-config v0.3.34
+[test:cargo-scripts]    Compiling adler2 v2.0.1
+[test:rust]    Compiling aho-corasick v1.1.5
+[test:rust]    Compiling bstr v1.13.1
+[test:cargo-scripts]    Compiling phf_shared v0.14.0
+[test:cargo-scripts]    Compiling crossbeam-utils v0.8.23
+[test:cargo-scripts]    Compiling colored v3.1.1
+[test:cargo-scripts]    Compiling miniz_oxide v0.9.1
+[test:cargo-scripts]    Compiling crunchy v0.2.4
+[test:cargo-scripts]    Compiling num-traits v0.2.19
+[test:cargo-scripts]    Compiling crossbeam-epoch v0.9.21
+[test:rust]    Compiling unicode-normalization v0.1.26
+[test:cargo-scripts]    Compiling litemap v0.8.3
+[test:cargo-scripts]    Compiling writeable v0.6.4
+[test:cargo-scripts]    Compiling ahash v0.8.12
+[test:rust]    Compiling castaway v0.2.4
+[test:cargo-scripts]    Compiling phf_generator v0.14.0
+[test:rust]    Compiling indexmap v2.14.2
+[test:cargo-scripts]    Compiling aho-corasick v1.1.5
+[test:cargo-scripts]    Compiling serde_json v1.0.151
+[test:rust]    Compiling compact_str v0.10.0
+[test:rust]    Compiling pyo3-build-config v0.29.2
+[test:cargo-scripts]    Compiling zlib-rs v0.6.8
+[test:cargo-scripts]    Compiling regex-syntax v0.8.11
+[test:cargo-scripts]    Compiling once_cell v1.21.4
+[test:cargo-scripts]    Compiling spin v0.10.1
+[test:rust]    Compiling syn v3.0.9
+[test:rust]    Compiling proc-macro-utils v0.10.0
+[test:rust]    Compiling syn v2.0.119
+[test:cargo-scripts]    Compiling syn v3.0.6
+[test:cargo-scripts]    Compiling syn v2.0.119
+[test:rust]    Compiling getrandom v0.2.17
+[test:cargo-scripts]    Compiling unty v0.0.4
+[test:cargo-scripts]    Compiling crossbeam-deque v0.8.8
+[test:cargo-scripts]    Compiling icu_properties_data v2.3.0
+[test:cargo-scripts]    Compiling heck v0.5.0
+[test:cargo-scripts]    Compiling icu_normalizer_data v2.3.0
+[test:cargo-scripts]    Compiling utf8parse v0.2.2
+[test:rust]    Compiling rand_core v0.6.4
+[test:cargo-scripts]    Compiling tiny-keccak v2.0.2
+[test:cargo-scripts]    Compiling utf8_iter v1.0.4
+[test:cargo-scripts]    Compiling anstyle-parse v1.0.0
+[test:cargo-scripts]    Compiling string_cache_codegen v0.11.2
+[test:cargo-scripts]    Compiling phf_codegen v0.14.0
+[test:cargo-scripts]    Compiling matrixmultiply v0.3.11
+[test:cargo-scripts]    Compiling anstyle v1.0.14
+[test:cargo-scripts]    Compiling either v1.18.0
+[test:cargo-scripts]    Compiling foldhash v0.2.0
+[test:cargo-scripts]    Compiling uuid v1.27.0
+[test:cargo-scripts]    Compiling is_terminal_polyfill v1.70.2
+[test:cargo-scripts]    Compiling data-encoding v2.11.1
+[test:cargo-scripts]    Compiling zstd-safe v7.3.0
+[test:cargo-scripts]    Compiling anstyle-query v1.1.5
+[test:rust]    Compiling pyo3-ffi v0.29.2
+[test:rust]    Compiling pyo3 v0.29.2
+[test:rust]    Compiling manyhow-macros v0.14.1
+[test:cargo-scripts]    Compiling colorchoice v1.0.5
+[test:cargo-scripts]    Compiling new_debug_unreachable v1.0.6
+[test:cargo-scripts]    Compiling rayon-core v1.13.0
+[test:cargo-scripts]    Compiling anstream v1.0.0
+[test:rust]    Compiling ordermap v1.2.2
+[test:cargo-scripts]    Compiling web_atoms v0.3.0
+[test:cargo-scripts]    Compiling strsim v0.11.1
+[test:cargo-scripts]    Compiling thiserror v1.0.69
+[test:cargo-scripts]    Compiling rand_core v0.9.5
+[test:rust]    Compiling stacker v0.1.25
+[test:cargo-scripts]    Compiling paste v1.0.15
+[test:cargo-scripts]    Compiling fnv v1.0.7
+[test:cargo-scripts]    Compiling rawpointer v0.2.1
+[test:cargo-scripts]    Compiling precomputed-hash v0.1.1
+[test:cargo-scripts]    Compiling ident_case v1.0.1
+[test:cargo-scripts]    Compiling clap_lex v1.1.1
+[test:cargo-scripts]    Compiling jobserver v0.1.35
+[test:cargo-scripts]    Compiling getrandom v0.2.17
+[test:cargo-scripts]    Compiling clap_builder v4.6.7
+[test:cargo-scripts]    Compiling phf v0.14.0
+[test:cargo-scripts]    Compiling burn-ndarray v0.19.1
+[test:cargo-scripts]    Compiling const-random-macro v0.1.16
+[test:cargo-scripts]    Compiling same-file v1.0.6
+[test:cargo-scripts]    Compiling cc v1.6.0
+[test:cargo-scripts]    Compiling tendril v0.5.1
+[test:cargo-scripts]    Compiling atomic_float v1.1.0
+[test:cargo-scripts]    Compiling walkdir v2.5.0
+[test:cargo-scripts]    Compiling dtoa v1.0.11
+[test:cargo-scripts]    Compiling fst v0.4.7
+[test:cargo-scripts]    Compiling rmp v0.8.15
+[test:cargo-scripts]    Compiling num-integer v0.1.47
+[test:cargo-scripts]    Compiling num-complex v0.4.6
+[test:cargo-scripts]    Compiling rayon v1.12.0
+[test:cargo-scripts]    Compiling const-random v0.1.18
+[test:cargo-scripts]    Compiling percent-encoding v2.3.2
+[test:cargo-scripts]    Compiling thiserror v2.0.21
+[test:cargo-scripts]    Compiling hashbrown v0.17.1
+[test:cargo-scripts]    Compiling form_urlencoded v1.2.2
+[test:cargo-scripts]    Compiling dtoa-short v0.3.5
+[test:cargo-scripts]    Compiling bumpalo v3.20.3
+[test:cargo-scripts]    Compiling twox-hash v2.1.5
+[test:rust]    Compiling manyhow v0.14.1
+[test:cargo-scripts]    Compiling strum v0.28.0
+[test:cargo-scripts]    Compiling unicode-width v0.2.2
+[test:cargo-scripts]    Compiling pulldown-cmark v0.13.4
+[test:cargo-scripts]    Compiling ruzstd v0.8.3
+[test:cargo-scripts]    Compiling itertools v0.14.0
+[test:cargo-scripts]    Compiling maplit v1.0.2
+[test:cargo-scripts]    Compiling pulldown-cmark-escape v0.11.0
+[test:cargo-scripts]    Compiling harper-core v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[test:rust]    Compiling quote-use-macros v0.9.0
+[test:rust]    Compiling thiserror-impl v2.0.21
+[test:rust]    Compiling serde_derive v1.0.229
+[test:cargo-scripts]    Compiling ndarray v0.16.1
+[test:cargo-scripts]    Compiling getopts v0.2.24
+[test:cargo-scripts]    Compiling zopfli v0.8.3
+[test:cargo-scripts]    Compiling serde_bytes v0.11.19
+[test:rust]    Compiling quote-use v0.9.0
+[test:rust]    Compiling attribute-derive-macro v0.11.0
+[test:cargo-scripts]    Compiling regex-automata v0.4.18
+[test:cargo-scripts]    Compiling flate2 v1.1.10
+[test:rust]    Compiling ar_archive_writer v0.5.3
+[test:cargo-scripts]    Compiling hashbrown v0.16.1
+[test:cargo-scripts]    Compiling indexmap v2.14.2
+[test:cargo-scripts]    Compiling synstructure v0.14.0
+[test:cargo-scripts]    Compiling darling_core v0.20.11
+[test:rust]    Compiling psm v0.1.32
+[test:rust]    Compiling attribute-derive v0.11.0
+[test:rust]    Compiling ppv-lite86 v0.2.21
+[test:rust]    Compiling pyo3-macros-backend v0.29.2
+[test:cargo-scripts]    Compiling bitflags v2.13.2
+[test:cargo-scripts]    Compiling unicase v2.10.0
+[test:cargo-scripts]    Compiling cached_proc_macro_types v0.1.1
+[test:cargo-scripts]    Compiling typed-path v0.12.3
+[test:cargo-scripts]    Compiling levenshtein_automata v0.2.1
+[test:cargo-scripts]    Compiling lru v0.16.4
+[test:cargo-scripts]    Compiling zstd-sys v2.1.0+zstd.1.5.7
+[test:rust]    Compiling get-size-derive2 v0.11.1
+[test:rust]    Compiling rand_chacha v0.3.1
+[test:cargo-scripts]    Compiling unicode-blocks v0.1.10
+[test:rust]    Compiling is-macro v0.3.8
+[test:cargo-scripts]    Compiling unicode-script v0.5.8
+[test:rust]    Compiling rand v0.8.8
+[test:rust]    Compiling get-size2 v0.11.1
+[test:rust]    Compiling ruff_text_size v0.0.17
+[test:rust]    Compiling char_str v0.0.4
+[test:rust]    Compiling ruff_source_file v0.0.17
+[test:cargo-scripts]    Compiling fid-rs v0.2.0
+[test:rust]    Compiling phf_generator v0.11.3
+[test:rust]    Compiling phf_codegen v0.11.3
+[test:rust]    Compiling ruff_python_trivia v0.0.17
+[test:rust]    Compiling ruff_unicode_names2_generator v0.0.17
+[test:cargo-scripts]    Compiling zerocopy-derive v0.8.60
+[test:cargo-scripts]    Compiling derive-new v0.7.0
+[test:rust]    Compiling ruff_python_ast v0.0.17
+[test:cargo-scripts]    Compiling derive_more-impl v2.1.1
+[test:cargo-scripts]    Compiling derive_more-impl v1.0.0
+[test:rust]    Compiling ruff_unicode_names2 v0.0.17
+[test:cargo-scripts]    Compiling serde_derive v1.0.229
+[test:cargo-scripts]    Compiling bytemuck_derive v1.12.1
+[test:cargo-scripts]    Compiling zerofrom-derive v0.1.8
+[test:cargo-scripts]    Compiling yoke-derive v0.8.4
+[test:cargo-scripts]    Compiling zerovec-derive v0.11.6
+[test:shell] 1..548
+[test:cargo-scripts]    Compiling displaydoc v0.2.7
+[test:shell] ok 1 with no trailer to write it exits 2 and leaves the commit alone
+[test:cargo-scripts]    Compiling regex v1.13.1
+[test:cargo-scripts]    Compiling burn-derive v0.19.1
+[test:rust]    Compiling pyo3-macros v0.29.2
+[test:shell] ok 2 a code owner named in .github/CODEOWNERS is refused
+[test:cargo-scripts]    Compiling clap_derive v4.6.7
+[test:cargo-scripts]    Compiling thiserror-impl v1.0.69
+[test:cargo-scripts]    Compiling bytemuck v1.25.2
+[test:cargo-scripts]    Compiling derive_more v1.0.0
+[test:cargo-scripts]    Compiling darling_macro v0.20.11
+[test:cargo-scripts]    Compiling thiserror-impl v2.0.21
+[test:cargo-scripts]    Compiling zerofrom v0.1.8
+[test:shell] ok 3 a code owner named only in CODEOWNERS or docs/CODEOWNERS is not refused
+[test:cargo-scripts]    Compiling yoke v0.8.3
+[test:cargo-scripts]    Compiling darling v0.20.11
+[test:cargo-scripts]    Compiling strum_macros v0.28.0
+[test:cargo-scripts]    Compiling is-macro v0.3.8
+[test:cargo-scripts]    Compiling cached_proc_macro v0.27.0
+[test:cargo-scripts]    Compiling zerovec v0.11.8
+[test:cargo-scripts]    Compiling derive_more v2.1.1
+[test:cargo-scripts]    Compiling zerotrie v0.2.5
+[test:cargo-scripts]    Compiling louds-rs v0.7.0
+[test:cargo-scripts]    Compiling trie-rs v0.4.2
+[test:cargo-scripts]    Compiling zip v8.6.0
+[test:cargo-scripts]    Compiling blanket v0.4.0
+[test:cargo-scripts]    Compiling tinystr v0.8.4
+[test:cargo-scripts]    Compiling potential_utf v0.1.6
+[test:cargo-scripts]    Compiling icu_collections v2.3.0
+[test:cargo-scripts]    Compiling icu_locale_core v2.3.0
+[test:cargo-scripts]    Compiling clap v4.6.7
+[test:cargo-scripts]    Compiling rs-conllu v0.3.0
+[test:rust]    Compiling ruff_python_parser v0.0.17
+[test:cargo-scripts]    Compiling smallvec v1.16.2
+[test:cargo-scripts]    Compiling hashbrown v0.15.5
+[test:cargo-scripts]    Compiling bincode v2.0.1
+[test:cargo-scripts]    Compiling rmp-serde v1.3.1
+[test:cargo-scripts]    Compiling cssparser v0.38.0
+[test:cargo-scripts]    Compiling ordered-float v5.5.0
+[test:cargo-scripts]    Compiling parking_lot v0.12.5
+[test:cargo-scripts]    Compiling icu_provider v2.3.1
+[test:cargo-scripts]    Compiling string_cache v0.11.0
+[test:cargo-scripts]    Compiling icu_normalizer v2.3.0
+[test:cargo-scripts]    Compiling icu_properties v2.3.0
+[test:rust]    Compiling purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/parsing)
+[test:rust]    Compiling purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/assertion)
+[test:rust]    Compiling purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/selection)
+[test:rust]    Compiling purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/execution)
+[test:cargo-scripts]    Compiling markup5ever v0.40.0
+[test:cargo-scripts]    Compiling html5ever v0.40.1
+[test:cargo-scripts]    Compiling idna_adapter v1.2.2
+[test:cargo-scripts]    Compiling idna v1.1.0
+[test:rust]    Compiling purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/dispatch)
+[test:rust]    Compiling purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/reporting)
+[test:cargo-scripts]    Compiling url v2.5.8
+[test:rust]    Compiling purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/command)
+[test:cargo-scripts]    Compiling zstd v0.13.3
+[test:cargo-scripts]    Compiling harper-thesaurus v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[test:rust]    Compiling purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/purba)
+[test:cargo-scripts]    Compiling ammonia v4.2.1
+[test:cargo-scripts]    Compiling ppv-lite86 v0.2.21
+[test:cargo-scripts]    Compiling half v2.7.1
+[test:cargo-scripts]    Compiling cached v0.59.0
+[test:cargo-scripts]    Compiling rand_chacha v0.9.0
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 37.47s
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba/554454d8dfc5e654/out/purba-554454d8dfc5e654)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-assertion/00c075db24c9eb3f/out/purba_assertion-00c075db24c9eb3f)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/load.rs (target/debug/build/purba-assertion/11cec0446c00770c/out/load-11cec0446c00770c)
+[test:rust] 
+[test:rust] running 18 tests
+[test:cargo-scripts]    Compiling float8 v0.4.2
+[test:cargo-scripts]    Compiling rand v0.9.5
+[test:rust] test a_module_that_nests_too_deep_is_cpythons_error_at_the_load ... ok
+[test:rust] test a_body_that_calls_sys_exit_leaves_no_entry ... ok
+[test:rust] test the_mark_gives_back_whether_its_value_held ... ok
+[test:rust] test loading_runs_the_body_of_the_module ... ok
+[test:rust] test a_new_name_leaves_sys_modules_when_its_body_raises ... ok
+[test:rust] test watch_starts_clear ... ok
+[test:rust] test a_shadowed_name_gets_its_module_back_when_the_body_raises ... ok
+[test:rust] test a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error ... ok
+[test:rust] test a_mark_with_no_assert_raises ... ok
+[test:rust] test a_call_that_rebinds_the_hook_gives_a_name_error ... ok
+[test:rust] test an_assert_tests_its_value_once ... ok
+[test:rust] test a_module_that_binds_the_hook_fails_to_load ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "test_panics_on_load.py", line 10, in <module>
+[test:rust] test a_syntax_error_that_ruff_passes_is_cpythons_error_at_the_load ... ok
+[test:rust] test watch_gives_the_text_of_the_last_assert_that_ran ... ok
+[test:rust] pyo3_runtime.PanicException: raised while it loads
+[test:rust] test the_module_is_named_by_its_file ... ok
+[test:rust] test a_body_that_raises_purbas_panic_exception_leaves_no_entry ... ok
+[test:rust] test a_function_that_binds_the_hook_as_a_local_name_fails_to_load ... ok
+[test:rust] test a_dataclass_under_postponed_annotations_loads ... ok
+[test:rust] 
+[test:rust] test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+[test:rust] 
+[test:rust]      Running tests/rewrite.rs (target/debug/build/purba-assertion/56661ceeeb8ef28a/out/rewrite-56661ceeeb8ef28a)
+[test:rust] 
+[test:rust] running 6 tests
+[test:rust] test a_module_with_no_assert_is_unchanged ... ok
+[test:rust] test a_text_that_does_not_parse_gives_the_syntax_error ... ok
+[test:rust] test each_assert_records_its_index ... ok
+[test:rust] test a_yield_keeps_its_parentheses ... ok
+[test:rust] test a_nested_assert_is_marked_too ... ok
+[test:rust] test a_text_that_no_file_holds_gives_the_rewrite_of_a_file_that_holds_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-command/68d7116ca5b19fbc/out/purba_command-68d7116ca5b19fbc)
+[test:rust] 
+[test:rust] running 3 tests
+[test:rust] test tests::any_other_arguments_are_the_usage_error ... ok
+[test:rust] test tests::each_error_says_why ... ok
+[test:rust] test tests::one_py_file_after_the_scripts_name_is_the_path ... ok
+[test:rust] 
+[test:rust] test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-command/2f1ceddcc0268e38/out/interrupt-2f1ceddcc0268e38)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test an_interrupt_before_selection_ends_gives_no_count ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/run.rs (target/debug/build/purba-command/6ef2cac2c772bb69/out/run-6ef2cac2c772bb69)
+[test:rust] 
+[test:rust] running 14 tests
+[test:rust] test a_module_that_cannot_be_read_is_the_read_error ... ok
+[test:rust] test a_stdout_that_takes_no_write_stops_the_run_before_any_test ... ok
+[test:rust] test a_refused_line_is_written_before_any_test_runs ... ok
+[test:rust] test a_usage_error_comes_before_a_stdout_that_takes_no_write ... ok
+[test:rust] test a_module_that_does_not_parse_prints_its_line_and_no_test ... ok
+[test:rust] test a_module_with_no_test_exits_2 ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust] test a_test_that_selection_refuses_prints_above_the_tests_that_run ... ok
+[test:rust]   File "/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/target/tmp/test_command_refused_after_internal.py", line 11, in test_one
+[test:rust] test a_test_whose_own_error_blocks_it_keeps_its_project_error_line ... ok
+[test:rust] test a_run_writes_its_lines_and_returns_the_exit_code ... ok
+[test:rust] test a_module_that_did_not_load_prints_its_error_once ... ok
+[test:rust] test a_write_refused_during_the_run_stops_the_tests_after_it ... ok
+[test:rust] test a_writer_that_refuses_is_the_write_error ... ok
+[test:rust] test a_module_whose_every_test_is_refused_does_not_load ... ok
+[test:rust]     raise panic_exception()('raised by the test')
+[test:rust] pyo3_runtime.PanicException: raised by the test
+[test:rust] test a_write_refused_after_an_internal_error_returns_125 ... ok
+[test:rust] 
+[test:rust] test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-dispatch/ad4134d3d275f280/out/purba_dispatch-ad4134d3d275f280)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/hand.rs (target/debug/build/purba-dispatch/dce38be8932761d8/out/hand-dce38be8932761d8)
+[test:rust] 
+[test:rust] running 11 tests
+[test:rust] test a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked ... ok
+[test:rust] test dispatch_loads_no_module_that_has_no_test ... ok
+[test:rust] test dispatch_calls_no_test_after_a_break ... ok
+[test:rust] test an_error_stands_beside_its_test_and_the_run_goes_on ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust] test a_break_at_a_module_that_does_not_load_hands_no_blocked_test ... ok
+[test:rust] test dispatch_calls_only_the_tests_it_is_handed ... ok
+[test:rust] test each_outcome_stands_beside_its_test ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "test_load_panics.py", line 10, in <module>
+[test:rust] test the_tests_of_a_module_share_one_worker ... ok
+[test:rust]   File "test_getattr_panics.py", line 11, in __getattr__
+[test:rust] test dispatch_hands_each_test_before_it_runs_the_next ... ok
+[test:rust] pyo3_runtime.PanicException: raised while it loads
+[test:rust] test a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blocked ... ok
+[test:rust] pyo3_runtime.PanicException: raised by __getattr__
+[test:rust] test a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_test_runs ... ok
+[test:rust] 
+[test:rust] test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-dispatch/e2b8e57f30c6ff4d/out/interrupt-e2b8e57f30c6ff4d)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test dispatch_hands_on_each_test_after_an_interrupt_as_unreached ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load.rs (target/debug/build/purba-dispatch/26fabd7d2b060937/out/interrupt_load-26fabd7d2b060937)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test dispatch_hands_on_each_test_after_an_interrupt_in_a_load_as_unreached ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/thread.rs (target/debug/build/purba-dispatch/5a8f93b51e2a1b23/out/thread-5a8f93b51e2a1b23)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] Exception in thread L:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 6, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread T:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 12, in late
+[test:rust] ValueError: late
+[test:rust] test dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-execution/e9159a2ea1854532/out/purba_execution-e9159a2ea1854532)
+[test:rust] 
+[test:rust] running 3 tests
+[test:rust] test panic::tests::a_location_under_crates_names_its_part ... ok
+[test:rust] test panic::tests::a_location_outside_the_source_of_a_part_names_no_part ... ok
+[test:rust] test step::tests::a_panic_an_interrupt_the_steps_own_error_and_a_call_to_os_exit_hide_each_one_after_them ... ok
+[test:rust] 
+[test:rust] test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/exit.rs (target/debug/build/purba-execution/d191151bbb470920/out/exit-d191151bbb470920)
+[test:rust] 
+[test:rust] running 1 test
+[test:cargo-scripts]    Compiling rand_distr v0.5.1
+[test:rust] Exception in thread Thread-1:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust] purba.ExitInsideATest: os._exit(1)
+[test:rust] test a_call_to_os_exit_gives_raised_however_the_test_makes_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+[test:rust] 
+[test:rust]      Running tests/interrupt.rs (target/debug/build/purba-execution/29da111a4d3af5fd/out/interrupt-29da111a4d3af5fd)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load.rs (target/debug/build/purba-execution/6e8c0bc61d5a4948/out/interrupt_load-6e8c0bc61d5a4948)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_its_load ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+[test:rust] 
+[test:rust]      Running tests/interrupt_load_waiting.rs (target/debug/build/purba-execution/3123074e94080aca/out/interrupt_load_waiting-3123074e94080aca)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module_runs ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/interrupt_outside.rs (target/debug/build/purba-execution/037f72cc95294546/out/interrupt_outside-037f72cc95294546)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGINT; a second interrupt exits at once
+[test:rust] test purbas_signal_handler_keeps_a_signal_outside_a_call_and_raises_nothing ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/interrupt_term.rs (target/debug/build/purba-execution/616e52dc6f6c80e1/out/interrupt_term-616e52dc6f6c80e1)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] purba: interrupt: SIGTERM; a second interrupt exits at once
+[test:rust] test a_sigterm_in_a_call_makes_the_test_interrupted_and_gives_each_signal_its_default_action ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running tests/panic.rs (target/debug/build/purba-execution/296fea3d5b5e3145/out/panic-296fea3d5b5e3145)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] test the_wrap_records_each_panic_and_calls_the_hook_it_replaced ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/run.rs (target/debug/build/purba-execution/03857619f421fc6e/out/run-03857619f421fc6e)
+[test:rust] 
+[test:rust] running 16 tests
+[test:rust] test an_outcome_is_data ... ok
+[test:rust] test a_module_level_assert_leaves_a_test_unknown ... ok
+[test:rust] test an_exception_after_a_caught_assert_that_did_not_hold_gives_raised ... ok
+[test:rust] test a_module_that_fails_to_load_runs_its_body_once ... ok
+[test:rust] test a_name_that_is_not_callable_is_an_error ... ok
+[test:rust] test a_load_that_fails_gives_its_error_once ... ok
+[test:rust] test another_exception_gives_raised ... ok
+[test:rust] test a_worker_loads_each_module_once ... ok
+[test:rust] test an_assertion_error_after_an_assert_that_held_gives_raised ... ok
+[test:rust] test a_caught_assert_that_did_not_hold_and_a_return_give_passed ... ok
+[test:rust] test the_three_tests_of_test_a_pass_fail_and_are_unknown ... ok
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "test_panic_exception.py", line 11, in test_one
+[test:rust] test an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised ... ok
+[test:rust] test a_test_runs_on_the_module_that_load_loaded ... ok
+[test:rust] test an_assertion_error_before_any_assert_gives_raised ... ok
+[test:rust] pyo3_runtime.PanicException: raised by the test
+[test:rust] test purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs ... ok
+[test:rust] test a_forked_child_exits_with_its_own_code ... ok
+[test:rust] 
+[test:rust] test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+[test:rust] 
+[test:rust]      Running tests/run_needs_load.rs (target/debug/build/purba-execution/aac1f4f39096995c/out/run_needs_load-aac1f4f39096995c)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] test a_run_on_a_module_never_given_to_load_is_an_internal_error_and_runs_none_of_it ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+[test:rust] 
+[test:rust]      Running tests/tally.rs (target/debug/build/purba-execution/c202ae5b285ce1d5/out/tally-c202ae5b285ce1d5)
+[test:rust] 
+[test:rust] running 5 tests
+[test:rust] test a_tally_adds_each_kind_and_each_error_by_its_kind ... ok
+[test:rust] test a_tally_counts_an_error_that_blocks_no_test_by_its_kind_and_apart_from_its_tests ... ok
+[test:rust] test a_tally_notes_a_refused_write_as_an_invocation_error ... ok
+[test:rust] test a_tally_counts_an_unreached_test_apart_from_each_outcome ... ok
+[test:rust] test an_error_says_its_kind ... ok
+[test:rust] 
+[test:rust] test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/thread.rs (target/debug/build/purba-execution/64a7370e1980b5fc/out/thread-64a7370e1980b5fc)
+[test:rust] 
+[test:rust] running 1 test
+[test:rust] Exception in thread A:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 16, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread Q:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 8, in leave
+[test:rust] test_thread.Quit: 1
+[test:rust] Exception in thread B:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 25, in <lambda>
+[test:rust] IndexError: list index out of range
+[test:rust] Exception in thread C:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_thread.py", line 26, in <lambda>
+[test:rust] KeyError: 'k'
+[test:rust] Exception in thread T:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_late.py", line 8, in late
+[test:rust] ValueError: late
+[test:rust] Exception in thread L:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_load_thread.py", line 3, in <lambda>
+[test:rust] ZeroDivisionError: division by zero
+[test:rust] Exception in thread M:
+[test:rust] Traceback (most recent call last):
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[test:rust]     self.run()
+[test:rust]   File "/home/snregales/.local/share/mise/installs/python/3.12.14/lib/python3.12/threading.py", line 1012, in run
+[test:rust]     self._target(*self._args, **self._kwargs)
+[test:rust]   File "test_load_leaves.py", line 7, in late
+[test:rust] ValueError: late
+[test:rust] test a_threads_exception_charges_the_test_or_the_load_that_left_the_thread ... ok
+[test:rust] 
+[test:rust] test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-fixtures/74ed8f68edd35742/out/purba_fixtures-74ed8f68edd35742)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-parsing/ed9891fee9b050ee/out/purba_parsing-ed9891fee9b050ee)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/parse.rs (target/debug/build/purba-parsing/b6efc63c15ed5d92/out/parse-b6efc63c15ed5d92)
+[test:rust] 
+[test:rust] running 8 tests
+[test:rust] test a_missing_file_is_not_found ... ok
+[test:rust] test a_syntax_error_refuses_the_module_with_ruffs_first_error ... ok
+[test:rust] test a_byte_order_mark_is_not_part_of_the_text ... ok
+[test:rust] test a_module_gives_its_text_and_its_tree ... ok
+[test:rust] test a_column_counts_unicode_scalars_after_a_byte_order_mark ... ok
+[test:rust] test an_assert_with_no_value_or_a_starred_value_gives_ruffs_message ... ok
+[test:rust] test a_module_that_nests_deeper_than_its_stack_and_does_not_parse_frees_its_tree ... ok
+[test:cargo-scripts]    Compiling cubecl-quant v0.8.1
+[test:cargo-scripts]    Compiling burn-common v0.19.1
+[test:cargo-scripts]    Compiling burn-tensor v0.19.1
+[test:rust] test a_module_that_nests_deeper_than_its_stack_frees_its_tree ... ok
+[test:rust] 
+[test:rust] test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.89s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-reporting/36a499f1b002de8c/out/purba_reporting-36a499f1b002de8c)
+[test:rust] 
+[test:rust] running 17 tests
+[test:rust] test tests::a_module_that_an_internal_error_stops_prints_once_and_each_test_as_blocked ... ok
+[test:rust] test tests::a_module_that_did_not_load_prints_once_and_each_test_as_blocked ... ok
+[test:rust] test tests::a_reason_over_several_lines_prints_on_one ... ok
+[test:rust] test tests::a_refused_count_is_the_error_of_finish ... ok
+[test:rust] test tests::a_test_that_an_internal_error_stops_prints_it_and_counts_as_blocked ... ok
+[test:rust] test tests::a_refused_write_is_the_error_of_its_line_with_the_code_3 ... ok
+[test:rust] test tests::a_write_refused_after_an_internal_error_keeps_125 ... ok
+[test:rust] test tests::an_error_that_another_part_finds_prints_as_a_project_error ... ok
+[test:rust] test tests::an_error_that_blocks_no_test_prints_under_its_test_and_keeps_the_tests_outcome ... ok
+[test:rust] test tests::a_test_whose_own_error_blocks_it_prints_a_project_error_and_counts_as_blocked ... ok
+[test:rust] test tests::an_interrupted_test_prints_its_line_and_the_count_names_it_after_unknown ... ok
+[test:rust] test tests::an_unreached_test_prints_no_line_and_the_count_names_it_after_blocked ... ok
+[test:rust] test tests::each_line_is_flushed_before_the_next_test ... ok
+[test:rust] test tests::the_count_names_each_column_only_above_0 ... ok
+[test:rust] test tests::each_test_prints_its_outcome_or_error_and_the_count ... ok
+[test:rust] test tests::the_count_names_project_errors_apart_from_internal_errors ... ok
+[test:rust] test tests::the_exit_code_names_the_worst_of_the_run ... ok
+[test:rust] 
+[test:rust] test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running unittests src/lib.rs (target/debug/build/purba-selection/d331ad399ec1c743/out/purba_selection-d331ad399ec1c743)
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]      Running tests/select.rs (target/debug/build/purba-selection/bdd880c2ab5f41f2/out/select-bdd880c2ab5f41f2)
+[test:rust] 
+[test:rust] running 16 tests
+[test:rust] test a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test ... ok
+[test:rust] test a_name_defined_twice_is_one_test_at_its_first_definition ... ok
+[test:rust] test a_def_at_the_top_decides_the_name_of_a_def_under_a_statement ... ok
+[test:rust] test a_parameter_with_no_default_is_refused ... ok
+[test:rust] test an_identity_gives_its_path_and_function ... ok
+[test:rust] test a_yield_in_the_tests_own_body_makes_it_a_generator ... ok
+[test:rust] test a_return_of_a_value_in_the_tests_own_body_is_refused ... ok
+[test:rust] test each_test_function_in_source_order ... ok
+[test:rust] test two_defs_of_one_name_under_statements_are_one_refused_test_at_the_first ... ok
+[test:rust] test a_test_that_carries_a_decorator_is_refused ... ok
+[test:rust] test selection_judges_the_last_def_of_a_name_at_the_place_of_the_first ... ok
+[test:rust] test a_test_under_a_statement_at_the_modules_level_is_refused ... ok
+[test:rust] test a_test_that_purba_cannot_call_is_refused_with_its_reason ... ok
+[test:rust] test a_test_whose_name_the_module_binds_again_is_refused ... ok
+[test:rust] test a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selection ... ok
+[test:rust] test a_body_that_nests_deeper_than_the_stack_does_not_crash_selection ... ok
+[test:rust] 
+[test:rust] test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.75s
+[test:rust] 
+[test:rust]     Blocking waiting for file lock on build directory
+[test:shell] ok 4 a contribution that changes .github/ and more names than a pipe holds is warned about
+[test:cargo-scripts]    Compiling burn-core v0.19.1
+[test:cargo-scripts]    Compiling burn-ir v0.19.1
+[test:shell] ok 5 a contribution that changes only a .github/ path outside ASCII is warned about
+[test:shell] ok 6 a contribution whose diff cannot be read exits 2 and pushes nothing
+[test:shell] ok 7 a failed read of the account gh acts as exits 2 and pushes nothing
+[test:shell] ok 8 a failed read of the open pull requests exits 2, and says the branch is pushed
+[test:cargo-scripts]    Compiling burn-optim v0.19.1
+[test:cargo-scripts]    Compiling burn-nn v0.19.1
+[test:shell] ok 9 a failed read of the title exits 2, and says the branch is pushed
+[test:rust]    Compiling purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/purba)
+[test:shell] ok 10 a pull request that cannot be opened exits 2, and says the branch is pushed
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.19s
+[test:rust]    Doc-tests purba
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:shell] ok 11 a comment that cannot be posted exits 2, and names the pull request that is open
+[test:rust]    Compiling pyo3-ffi v0.29.2
+[test:rust]    Compiling pyo3 v0.29.2
+[test:shell] ok 12 a merge base that cannot be found exits 2 and pushes nothing
+[test:shell] ok 13 a push the remote declines exits 2 and opens no pull request
+[test:wheel] 📦 Built wheel for abi3 Python ≥ 3.12 to /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/target/wheels/purba-0.0.0-cp312-abi3-manylinux_2_34_x86_64.whl
+[test:shell] ok 14 a work tree whose top cannot be found exits 2 and pushes nothing
+[test:wheel] 🐍 Found CPython 3.12 at /home/snregales/.local/share/mise/installs/python/3.12.14/bin/python3
+[test:wheel] 🔗 Found pyo3 bindings with abi3-py3.12 support
+[test:shell] ok 15 a main that cannot be fetched exits 2 and pushes nothing
+[test:shell] ok 16 a contribution that cannot be fetched exits 2 and pushes nothing
+[test:shell] ok 17 a commit of the contribution that cannot be read exits 2 and pushes nothing
+[test:shell] ok 18 a .github/CODEOWNERS that cannot be read exits 2 and pushes nothing
+[test:shell] ok 19 a .github/CODEOWNERS that is a directory exits 2 and pushes nothing
+[test:shell] ok 20 a contribution that changes only scripts/report.sh is warned about by name
+[test:shell] ok 21 a contribution that changes neither .github/ nor scripts/ is not warned about
+[test:shell] ok 22 a contribution whose commit carries no Signed-off-by is refused and pushes nothing
+[test:shell] ok 23 a contribution whose pull request is open already opens none, and posts no comment
+[test:rust]    Compiling purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/assertion)
+[test:rust]    Compiling purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/execution)
+[test:shell] ok 24 a pull request from a fork on accepted/pr-7 is not the one that merges
+[test:rust]    Compiling purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/reporting)
+[test:rust]    Compiling purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/dispatch)
+[test:cargo-scripts]    Compiling burn v0.19.1
+[test:shell] ok 25 a fetch that moves FETCH_HEAD after the checks does not change what is pushed
+[test:rust]    Compiling purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/command)
+[test:shell] ok 26 the caller keeps the tree it checked out
+[test:rust]     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.74s
+[test:rust]    Doc-tests purba_assertion
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_command
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_dispatch
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_execution
+[test:shell] ok 27 a branch a closed pull request left behind is replaced
+[test:rust] 
+[test:rust] running 2 tests
+[test:rust] test crates/execution/src/lib.rs - Outcome (line 50) - compile fail ... ok
+[test:rust] test crates/execution/src/lib.rs - Outcome (line 46) - compile fail ... ok
+[test:rust] 
+[test:rust] test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+[test:rust] 
+[test:rust]    Doc-tests purba_fixtures
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_parsing
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_reporting
+[test:rust] 
+[test:rust] running 0 tests
+[test:rust] 
+[test:rust] test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test:rust] 
+[test:rust]    Doc-tests purba_selection
+[test:rust] 
+[test:rust] running 4 tests
+[test:rust] test crates/selection/src/lib.rs - TestId (line 28) - compile fail ... ok
+[test:rust] test crates/selection/src/lib.rs - TestId (line 24) - compile fail ... ok
+[test:rust] test crates/selection/src/lib.rs - Refused (line 64) - compile fail ... ok
+[test:shell] ok 28 an open pull request makes the run stand down, and says until when
+[test:rust] test crates/selection/src/lib.rs - TestId (line 32) - compile fail ... ok
+[test:rust] 
+[test:rust] test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+[test:rust] 
+[test:rust] Finished in 50.11s
+[test:shell] ok 29 a pull request from a fork on the branch does not make the run stand down
+[test:shell] ok 30 a run that changes a third file is refused, pushes nothing, and keeps the tree
+[test:shell] ok 31 an issue that is not a number exits 2
+[test:shell] ok 32 with an empty repository name it stops before it calls the API
+[test:shell] ok 33 the wrong number of arguments exits 2
+[test:shell] ok 34 a push that fails exits 2, and the caller keeps the tree it checked out
+[test:cargo-scripts]    Compiling harper-pos-utils v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[test:shell] ok 35 a pull request that cannot be opened exits 2 and says the branch is pushed
+[test:shell] ok 36 each path gets each named attribute and its state
+[test:shell] ok 37 with no attribute named, a path gets only the attributes the file gives it
+[test:cargo-scripts]    Compiling harper-brill v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[test:shell] ok 38 the repository's own attributes do not change a match
+[test:shell] ok 39 a GIT_DIR the caller exports does not change a match, and the caller keeps it
+[test:shell] ok 40 a GIT_DIR and a GIT_WORK_TREE the caller exports do not change a match
+[test:shell] ok 41 a git config the caller's environment carries does not change a match
+[test:shell] ok 42 a relative attributes file is read from the caller's directory
+[test:shell] ok 43 the attributes of a template do not change a match
+[test:shell] ok 44 each name after a pattern or a macro is printed once, with no sign and no value
+[test:shell] ok 45 a git that cannot make the empty repository exits 2
+[test:shell] ok 46 a git that cannot name the variables that point it at a repository exits 2
+[test:shell] ok 47 a git that cannot match exits 2, and names the file
+[test:wheel] 📦 Built wheel for abi3 Python ≥ 3.12 to target/wheels-fault/purba-0.0.0-cp312-abi3-manylinux_2_34_x86_64.whl
+[test:shell] ok 48 a quiet week proposes nothing
+[test:shell] ok 49 a week the pin moved pushes one commit and opens one pull request
+[test:shell] ok 50 the commit it pushes is the bot's, carries no sign-off, and holds the two files
+[test:shell] ok 51 a file the bump staged is not in the commit it pushes
+[test:shell] ok 52 an open proposal makes the run stand down before it upgrades
+[test:shell] ok 53 a pin the script cannot read exits 2 before it upgrades
+[test:shell] ok 54 a pin the bump left unreadable exits 2 and pushes nothing
+[test:shell] ok 55 an upgrade that fails stops the run, and nothing is pushed
+[test:shell] ok 56 a tree that is not clean exits 2 before it upgrades
+[test:shell] ok 57 open pull requests that cannot be read exit 2 before it upgrades
+[test:shell] ok 58 a commit git refuses exits 2 and pushes nothing
+[test:shell] ok 59 a bump that rewrites the lock and moves no pin proposes nothing
+[test:shell] ok 60 a success is carried onto the rewritten head, under the same name
+[test:shell] ok 61 a failure is carried as a failure
+[test:shell] ok 62 a context with no verdict is not carried
+[test:shell] ok 63 a conclusion that is neither success nor failure is not carried
+[test:shell] ok 64 a context that is not carried does not stop the one after it
+[test:shell] ok 65 a rewrite that changed the content carries nothing
+[test:shell] ok 66 a head that did not move carries nothing onto itself
+[test:shell] ok 67 fewer than three arguments exits 2, and calls no gh
+[test:shell] ok 68 a commit git does not hold exits 2 and reports a failed Carry on the rewritten head
+[test:shell] ok 69 a verdict the API refuses to take exits 2, and then asks for Carry
+[test:shell] ok 70 a read the API refuses reports a failed Carry on the rewritten head
+[test:shell] ok 71 a changed path marked with the gate starts it
+[test:shell] ok 72 a pull request whose every path is marked - prints nothing and says so
+[test:shell] ok 73 a path the file leaves unmarked starts the gate
+[test:shell] ok 74 a deleted path marked with the gate starts it
+[test:shell] ok 75 a path moved out of a directory marked with the gate starts it
+[test:shell] ok 76 a path moved into a directory marked with the gate starts it
+[test:shell] ok 77 a marked path among paths marked - starts the gate
+[test:shell] ok 78 a path whose name holds a letter outside ASCII is read whole
+[test:shell] ok 79 a pattern with a slash matches from the root only
+[test:shell] ok 80 each gate reads its own attribute from the same file
+[test:shell] ok 81 a git that cannot make the empty repository exits 2 and prints nothing
+[test:shell] ok 82 the wrong number of arguments exits 2
+[test:shell] ok 83 a base that cannot be read exits 2 and prints nothing
+[test:shell] ok 84 a head that unmarks its own change still starts the gate
+[test:shell] ok 85 a base that holds no .config/gates exits 2 and prints nothing
+[test:shell] ok 86 a tree whose every path is marked passes
+[test:shell] ok 87 a tracked path no line marks is refused, and named with the gate
+[test:wheel] 1..57
+[test:shell] ok 88 a new file in a directory whose files are marked one by one is refused
+[test:shell] ok 89 a later line wins over an earlier one
+[test:wheel] ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+[test:shell] ok 90 a path whose mark is removed with ! is refused
+[test:shell] ok 91 a path marked with a value is refused
+[test:wheel] ok 2 the fault wheel panics in command when PURBA_FAULT is command
+[test:shell] ok 92 each gate the file names is checked, so a new gate needs no change here
+[test:wheel] ok 3 the fault wheel passes the test when PURBA_FAULT is unset
+[test:wheel] ok 4 the wheel without fault passes the test when PURBA_FAULT is assert
+[test:shell] ok 93 a gate is read without the prefix and the value that mark it
+[test:wheel] ok 5 the wheel without fault passes the test when PURBA_FAULT is command
+[test:shell] ok 94 a comment and a blank line name no gate
+[test:shell] ok 95 an untracked file is not checked
+[test:wheel] ok 6 the fault wheel names execution for purba's own PanicException that a test raises
+[test:shell] ok 96 a git that cannot make the empty repository is an error, not a refusal
+[test:wheel] ok 7 a test that catches the panic still gets its internal error, and the next test its own
+[test:shell] ok 97 a missing .config/gates is an error, not a refusal
+[test:shell] ok 98 a .config/gates that names no gate is an error, not a refusal
+[test:wheel] ok 8 a module that catches the panic while it loads gets its internal error, and no test runs
+[test:wheel] ok 9 the fault wheel gives the module an internal error when PURBA_FAULT is selection
+[test:wheel] ok 10 the wheel without fault passes the test when PURBA_FAULT is selection
+[test:shell] ok 99 a tree whose links and cited paths all resolve passes
+[test:shell] ok 100 a dead link to a tracked file is refused, though the branch did not change that file
+[test:shell] ok 101 a dead link is named when FORCE_COLOR is set
+[test:shell] ok 102 a link to a heading that does not exist is refused
+[test:shell] ok 103 a built URL, a fixture and an email address pass the online leg
+[test:shell] ok 104 a dead link inside a code span is refused
+[test:wheel] ok 11 a run that met an internal error exits 125 when stdout then refuses a write
+[test:wheel] not ok 12 the report of an internal error keeps the flags read before a test changed sys.abiflags
+[test:wheel] # (in test file tests/fault.bats, line 190)
+[test:wheel] #   `diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")' failed
+[test:wheel] # --- /dev/fd/63	2026-11-07 20:27:02.547434732 +0100
+[test:wheel] # +++ /dev/fd/62	2026-11-07 20:27:02.547434732 +0100
+[test:wheel] # @@ -1,2 +1,2 @@
+[test:wheel] # -purba: an internal error is a bug in purba 0.0.0, on CPython 3.12.14, linux x86_64.
+[test:wheel] # +purba: an internal error is a bug in purba 0.0.0, on CPython 3.12.14x, linux x86_64.
+[test:wheel] #  purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md
+[test:wheel] # Last output:
+[test:wheel] # test_changes_abiflags.py::test_one internal error: assertion: PURBA_FAULT=assert
+[test:wheel] # 1 test: 1 blocked; 1 internal error
+[test:wheel] # Last stderr:
+[test:wheel] # thread '<unnamed>' (8309) panicked at crates/assertion/src/lib.rs:125:13:
+[test:wheel] # PURBA_FAULT=assert
+[test:wheel] # note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[test:wheel] # --- PyO3 is resuming a panic after fetching a PanicException from Python. ---
+[test:wheel] # Python stack trace below:
+[test:wheel] # Traceback (most recent call last):
+[test:wheel] #   File "test_changes_abiflags.py", line 6, in test_one
+[test:wheel] #     assert True
+[test:wheel] #            ^^^^^
+[test:wheel] # pyo3_runtime.PanicException: PURBA_FAULT=assert
+[test:wheel] # purba: an internal error is a bug in purba 0.0.0, on CPython 3.12.14x, linux x86_64.
+[test:wheel] # purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md
+[test:shell] ok 105 a file .gitattributes marks generated is not read for a link or a cited path
+[test:shell] ok 106 the online leg reads only the files changed since PURBA_BASE, and no deleted file
+[test:shell] ok 107 on a laptop the base is the merge base with origin/main
+[test:shell] ok 108 a base git cannot read stops the check with exit 2
+[test:shell] ok 109 a base that looks like an option is not read as one
+[test:shell] ok 110 a dead link the online leg finds is refused
+[test:shell] ok 111 a dead link to a file in a changed file is refused once
+[test:shell] ok 112 a lychee that cannot run stops the check with exit 2
+[test:shell] ok 113 a comment that cites a missing path is refused, with its file, line and path
+[test:shell] ok 114 a cited directory that holds a tracked file passes, and a glob is skipped
+[test:shell] ok 115 a path outside a comment, or in Markdown, is not read
+[test:shell] ok 116 a comment in a file with no extension, and a // comment, are read
+[test:shell] ok 117 a path that a comment cites under crates/ is checked
+[test:shell] ok 118 a cited path on disk that git does not track is refused
+[test:shell] ok 119 a relative link in the README is refused
+[test:shell] ok 120 a relative image in the README is refused
+[test:wheel] ok 13 a Ctrl-C while purba writes a line starts no later test, and purba dies by SIGINT
+[test:shell] ok 121 a relative reference definition and a relative HTML link in the README are refused
+[test:shell] ok 122 a link to a heading of the README passes
+[test:shell] ok 123 a relative link in a file PyPI does not show passes
+[test:shell] ok 124 the README is the file pyproject.toml names
+[test:shell] ok 125 a pyproject.toml that names no readme stops the check with exit 2
+[test:shell] ok 126 every refusal is reported in one run
+[test:shell] ok 127 a run from a subdirectory reads the whole tree
+[test:shell] ok 128 outside a git repository the check stops with exit 2
+[test:shell] ok 129 manifests that declare different packages pass
+[test:shell] ok 130 a package in .config/mise.toml and Cargo.toml is refused
+[test:shell] ok 131 case and a run of separators do not tell two names apart
+[test:shell] ok 132 a mise key is read without its backend and its owner
+[test:shell] ok 133 a renamed crate is read by its package name
+[test:shell] ok 134 a package that one manifest declares twice passes
+[test:shell] ok 135 a mise.toml above the repository declares nothing
+[test:shell] ok 136 a Cargo.toml above the repository is not read in place of a missing one
+[test:shell] ok 137 a run from a subdirectory reads the manifests at the top
+[test:wheel] ok 14 a Ctrl-C while purba writes the last line prints the count, and purba dies by SIGINT
+[test:shell] ok 138 a package in pyproject.toml is refused, wherever it is declared
+[test:shell] ok 139 a pyproject.toml whose lists are empty, or absent, declares nothing
+[test:shell] ok 140 a manifest that cannot be read stops the check
+[test:shell] ok 141 every refusal is reported in one run
+[test:shell] ok 142 a crate in a cargo script and Cargo.toml is refused
+[test:shell] ok 143 a member's package is named by the member's own manifest
+[test:shell] ok 144 a crate that two members name is no conflict
+[test:shell] ok 145 a branch whose every commit is signed passes
+[test:shell] ok 146 a commit with no sign-off is refused, and only that commit is named
+[test:shell] ok 147 a sign-off written in the body and not as a trailer is refused
+[test:wheel] ok 15 a Ctrl-C while purba calls __str__ keeps the exception's text, and purba dies by SIGINT
+[test:shell] ok 148 a sign-off whose address cannot reach anyone is refused
+[test:shell] ok 149 a branch that holds no commit of its own passes
+[test:shell] ok 150 an unsigned commit the base gained since the branch left it is not read
+[test:shell] ok 151 a signed merge below an unsigned commit draws no merge sentence
+[test:shell] ok 152 an unsigned merge commit draws the merge sentence
+[test:shell] ok 153 on a runner the refusal is one annotation, and each commit keeps its line
+[test:shell] ok 154 a refusal is appended to the file the caller names
+[test:wheel] ok 16 a Ctrl-C in a test's call makes the test interrupted, and its finally block runs
+[test:shell] ok 155 a range that cannot be read exits 2
+[test:shell] ok 156 a base name git calls ambiguous is read, and git's warning reaches stderr
+[test:shell] ok 157 the wrong number of arguments exits 2
+[test:shell] ok 158 a trailer that cannot be read exits 2, and refuses no commit
+[test:shell] ok 159 a subject that cannot be read exits 2, and does not pass the commit
+[test:shell] ok 160 a script named from its own half passes
+[test:shell] ok 161 a script under .github named only by a task is refused
+[test:shell] ok 162 a script outside .github named only by a workflow is refused
+[test:shell] ok 163 a script named from both halves passes
+[test:shell] ok 164 a script under .github that nothing names is refused
+[test:shell] ok 165 a script outside .github that nothing names passes, because a caller runs it by hand
+[test:shell] ok 166 a name on a comment line is not a caller, indented or not
+[test:shell] ok 167 a second script of one name, in the other half, is refused
+[test:shell] ok 168 a bare mention of the name, with no slash before it, is not a caller
+[test:shell] ok 169 a script that names itself is not its own caller
+[test:shell] ok 170 a sibling that sources a script is its caller
+[test:shell] ok 171 a hook that names a script is its caller
+[test:shell] ok 172 every misplaced script is reported in one run
+[test:shell] ok 173 a script that is not tracked is not read
+[test:wheel] ok 17 a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts
+[test:shell] ok 174 on a runner the refusal is one annotation
+[test:shell] ok 175 a tree with no tracked script exits 2
+[test:shell] ok 176 outside a git repository it exits 2
+[test:shell] ok 177 a cargo script outside .github named only by a workflow is refused
+[test:wheel] ok 18 a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT
+[test:wheel] ok 19 a KeyboardInterrupt with no signal makes the test raised, and the next test runs
+[test:wheel] ok 20 a signal handler that a test installs lives only for its call
+[test:wheel] ok 21 a signal handler that a module installs lives only for its load
+[test:wheel] ok 22 a mask that a test puts on SIGINT lives only for its call
+[test:shell] ok 178 a script named on the first line of a caller longer than a pipe holds passes
+[test:shell] ok 179 a caller that cannot be read exits 2
+[test:shell] ok 180 a tree whose every file reaches an actor passes
+[test:shell] ok 181 a tracked file that reaches no actor is refused, and named
+[test:shell] ok 182 a directory that binds nothing passes its ancestor's actors down
+[test:shell] ok 183 a file reached only through a macro passes
+[test:wheel] ok 23 a mask that a module puts on SIGINT lives only for its load
+[test:wheel] ok 24 a signal that the parent masks stays masked after a test unmasks it
+[test:shell] ok 184 an actor unset below its binding no longer reaches the file
+[test:shell] ok 185 a name off the roster is refused, even on a pattern that matches nothing
+[test:shell] ok 186 a member of a macro off the roster is refused
+[test:shell] ok 187 a name is read without the prefix that unsets it
+[test:shell] ok 188 a macro named after an actor is refused
+[test:shell] ok 189 the roster is read from the record, so a new actor needs no change here
+[test:wheel] ok 25 a Ctrl-C in a test that unmasks a signal the parent masks ends purba by SIGINT
+[test:shell] ok 190 a linked name outside the roster's table is not an actor
+[test:shell] ok 191 an untracked file is not checked
+[test:shell] ok 192 a git that cannot make the empty repository is an error, not a refusal
+[test:shell] ok 193 a missing .config/readers is an error, not a refusal
+[test:shell] ok 194 a roster with no actor is an error, not a refusal
+[test:wheel] ok 26 a Ctrl-C that a test's mask holds stops the run, though the test has its own handler
+[test:wheel] ok 27 a test's signal handler lives only for its call, though the test patches signal.signal
+[test:wheel] ok 28 a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises
+[test:wheel] ok 29 a Ctrl-C that the parent ignores stays ignored, and the run ends normally
+[test:wheel] ok 30 a signal handler that a test gives a signal the parent ignores lives only for its call
+[test:wheel] ok 31 a Ctrl-C that a test's mask holds stops the run when the call returns
+[test:wheel] ok 32 SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal
+[test:wheel] ok 33 a second Ctrl-C ends purba at once by SIGINT, even while a finally block runs C code
+[test:wheel] ok 34 SIGINT and then SIGTERM make a second interrupt, and purba dies by SIGTERM
+[test:wheel] ok 35 a second Ctrl-C ends purba at once by SIGINT, when the first lands in a test's C code
+[test:wheel] ok 36 SIGINT then SIGTERM end purba at once by SIGTERM, when the first lands in a test's C code
+[test:wheel] ok 37 two signals that wait at once make a second interrupt, and purba dies by the second
+[test:wheel] ok 38 a Ctrl-C ends Python's wait for a thread that a test left alive, and purba dies by SIGINT
+[test:wheel] ok 39 the error of a thread in the test that a Ctrl-C lands in prints after that test's line
+[test:cargo-scripts]    Compiling check-prose v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/scripts/check-prose/check-prose.rs)
+[test:wheel] ok 40 a Ctrl-C in a test's atexit function lets the function finish, and purba dies by SIGINT
+[test:wheel] ok 41 a test whose assert fails prints failed, and the run exits 1
+[test:wheel] ok 42 a test that raises prints raised, and the run exits 4
+[test:wheel] ok 43 a module that does not parse prints a project error, and the run exits 4
+[test:wheel] ok 44 an argument that purba cannot take prints an invocation error, and the run exits 3
+[test:wheel] ok 45 a panic stops only its test, each other test keeps its line, and the run exits 125
+[test:wheel] ok 46 purba runs test_a.py through every part, and never imports test_b.py
+[test:wheel] ok 47 purba with no path exits 3, and says why on stderr
+[test:wheel] ok 48 purba with stdout closed exits 3, and says why on stderr
+[test:wheel] ok 49 purba with stdout open for reading exits 3, and says why on stderr
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+[test:wheel] # (in test file tests/skeleton.bats, line 56)
+[test:wheel] #   `run -3 --separate-stderr env PYTHONPATH="${site}" purba test_a.py' failed, expected exit code 3, got 1
+[test:wheel] # test_a.py::test_one passed
+[test:wheel] # test_a.py::test_two failed: assert 1 == 2
+[test:wheel] # test_a.py::test_three unknown: no assert ran
+[test:wheel] # 3 tests: 1 passed, 1 failed, 1 unknown
+[test:wheel] # Last output:
+[test:wheel] # test_a.py::test_one passed
+[test:wheel] # test_a.py::test_two failed: assert 1 == 2
+[test:wheel] # test_a.py::test_three unknown: no assert ran
+[test:wheel] # 3 tests: 1 passed, 1 failed, 1 unknown
+[test:wheel] ok 51 a test that aborts purba leaves the line of each test before it
+[test:wheel] ok 52 a test that selection refuses prints above the tests that run, and is never called
+[test:wheel] ok 53 a test under a statement at the module's level prints as refused
+[test:wheel] ok 54 a module that did not load prints its error once, and each of its tests as blocked
+[test:wheel] ok 55 a thread's exception in a test prints a project error, and the test keeps its outcome
+[test:wheel] ok 56 a thread that outlives its test prints its error under the test that left it
+[test:wheel] ok 57 a module that does not parse prints its error once, and no test of it
+Finished in 99.34s
+[test:wheel] ERROR task failed

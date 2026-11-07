@@ -1,0 +1,130 @@
+[lint:index] $ scripts/index-of-records.sh --check
+[lint:gates] $ scripts/check-gates.sh
+[lint:licences] $ cargo-deny check licenses
+[lint:cargo-scripts] $ git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024 --check
+[lint:links] $ scripts/check-links.sh
+[lint:manifests] $ scripts/check-manifests.sh
+[lint:order] $ scripts/order-of-design.sh --check
+[lint:pins] $ pinact run --check --verify-comment
+[lint:cargo-scripts] $ git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+[lint:gates] Finished in 37.5ms
+[lint:placement] $ scripts/check-placement.sh
+[lint:order] Finished in 41.2ms
+[lint:readers] $ scripts/check-readers.sh
+[lint:readers] Finished in 44.7ms
+[lint:records] $ scripts/check-records.sh
+[lint:manifests] Finished in 130.1ms
+[lint:rust] $ cargo fmt --check
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:placement] Finished in 150.4ms
+[lint:shell] $ shellcheck $(git ls-files '*.sh' '*.bats')
+[lint:licences] licenses ok
+[lint:licences] Finished in 210.2ms
+[lint:style] $ ec
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:rust] $ cargo clippy --all-targets
+[lint:style] Finished in 62.2ms
+[lint:wiring] $ scripts/check-wiring.sh
+[lint:rust]     Blocking waiting for file lock on package cache
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:wiring] Finished in 54.0ms
+[lint:index] Finished in 354.3ms
+[lint:cargo-scripts]     Blocking waiting for file lock on build directory
+[lint:rust]    Compiling unicode-ident v1.0.24
+[lint:rust]    Compiling cfg-if v1.0.5
+[lint:rust]     Checking hashbrown v0.17.1
+[lint:rust]     Checking equivalent v1.0.3
+[lint:rust]    Compiling siphasher v1.0.4
+[lint:rust]     Checking static_assertions v1.1.0
+[lint:rust]     Checking itoa v1.0.18
+[lint:rust]    Compiling memchr v2.8.3
+[lint:rust]     Checking smallvec v1.16.3
+[lint:rust]     Checking thin-vec v0.2.21
+[lint:rust]     Checking zmij v1.0.23
+[lint:rust]     Checking tinyvec v1.13.3
+[lint:rust]     Checking either v1.19.0
+[lint:rust]     Checking castaway v0.2.4
+[lint:rust]     Checking libc v0.2.189
+[lint:rust]    Compiling getrandom v0.2.17
+[lint:rust]     Checking rustc-hash v2.1.3
+[lint:rust]     Checking ryu v1.0.23
+[lint:cargo-scripts]     Checking cfg-if v1.0.5
+[lint:cargo-scripts]     Checking scopeguard v1.2.0
+[lint:cargo-scripts]     Checking equivalent v1.0.2
+[lint:cargo-scripts]     Checking allocator-api2 v0.2.21
+[lint:cargo-scripts]     Checking log v0.4.34
+[lint:cargo-scripts]     Checking memchr v2.8.3
+[lint:cargo-scripts]     Checking stable_deref_trait v1.2.1
+[lint:rust]     Checking bitflags v2.13.2
+[lint:rust]     Checking arrayvec v0.7.8
+[lint:rust]     Checking drop_bomb v0.1.5
+[lint:rust]     Checking once_cell v1.21.4
+[lint:cargo-scripts]     Checking pin-project-lite v0.2.17
+[lint:cargo-scripts]     Checking serde_core v1.0.229
+[lint:cargo-scripts]     Checking libc v0.2.190
+[lint:cargo-scripts]     Checking libm v0.2.16
+[lint:cargo-scripts]     Checking portable-atomic v1.15.0
+[lint:cargo-scripts]     Checking fastrand v2.5.0
+[lint:cargo-scripts]     Checking foldhash v0.1.5
+[lint:cargo-scripts]     Checking web-time v1.1.0
+[lint:cargo-scripts]     Checking futures-core v0.3.34
+[lint:cargo-scripts]     Checking futures-io v0.3.34
+[lint:rust]    Compiling proc-macro2 v1.0.107
+[lint:cargo-scripts]     Checking parking v2.2.1
+[lint:rust]     Checking serde_core v1.0.229
+[lint:rust]     Checking purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/fixtures)
+[lint:cargo-scripts]     Checking embassy-futures v0.1.2
+[lint:cargo-scripts]     Checking zerocopy v0.8.60
+[lint:cargo-scripts]     Checking bytemuck v1.25.2
+[lint:cargo-scripts]     Checking derive_more v2.1.1
+[lint:cargo-scripts]     Checking zerofrom v0.1.8
+[lint:cargo-scripts]     Checking simd-adler32 v0.3.10
+[lint:cargo-scripts]     Checking crc32fast v1.5.2
+[lint:rust]     Checking phf_shared v0.11.3
+[lint:cargo-scripts]     Checking adler2 v2.0.1
+[lint:cargo-scripts]     Checking lock_api v0.4.14
+[lint:rust]    Compiling rand_core v0.6.4
+[lint:cargo-scripts]     Checking colored v3.1.1
+[lint:cargo-scripts]     Checking itoa v1.0.18
+[lint:cargo-scripts]     Checking zlib-rs v0.6.8
+[lint:rust]     Checking phf v0.11.3
+[lint:cargo-scripts]     Checking regex-syntax v0.8.11
+[lint:cargo-scripts]     Checking once_cell v1.21.4
+[lint:cargo-scripts]     Checking litemap v0.8.3
+[lint:cargo-scripts]     Checking writeable v0.6.4
+[lint:cargo-scripts]     Checking crossbeam-utils v0.8.23
+[lint:cargo-scripts]     Checking yoke v0.8.3
+[lint:cargo-scripts]     Checking futures-lite v2.6.1
+[lint:rust]     Checking itertools v0.15.0
+[lint:rust]     Checking compact_str v0.10.0
+[lint:cargo-scripts]     Checking zmij v1.0.23
+[lint:rust]    Compiling rand_chacha v0.3.1
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/create-github-app-token/commits/v3.3.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/bump.yml:54
+[lint:pins]       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/cargo-scripts.yml:44
+[lint:pins]       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/upload-artifact/commits/v7.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/publish.yml:50
+[lint:pins]       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/download-artifact/commits/v8.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/publish.yml:65
+[lint:pins]       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/download-artifact/commits/v8.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/publish.yml:85
+[lint:pins]       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/pypa/gh-action-pypi-publish/commits/v1.14.3: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/publish.yml:91
+[lint:pins]       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/quality.yml:51
+[lint:pins]       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/create-github-app-token/commits/v3.3.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/release.yml:59
+[lint:pins]       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] .github/workflows/scripts.yml:59
+[lint:pins]       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+Finished in 791.7ms
+[lint:pins] ERROR task failed

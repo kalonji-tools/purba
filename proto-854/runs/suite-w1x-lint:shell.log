@@ -1,0 +1,2 @@
+[lint:shell] $ shellcheck $(git ls-files '*.sh' '*.bats')
+[lint:shell] $ shfmt --diff $(git ls-files '*.sh' '*.bats')

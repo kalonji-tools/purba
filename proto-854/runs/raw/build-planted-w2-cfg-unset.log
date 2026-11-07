@@ -1,0 +1,14 @@
+🐍 Found CPython 3.14t at /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+⚠️ Warning: abi3 does not yet support CPython 3.14t at /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/1e3b8089-a37d-4ac9-b574-0204284948d7/scratchpad/845/probes/uvpy/cpython-3.14.8+freethreaded-linux-x86_64-gnu/bin/python so the build artifacts will be version-specific.
+   Compiling purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/fixtures)
+   Compiling purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/purba)
+   Compiling purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/parsing)
+   Compiling purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/assertion)
+   Compiling purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/selection)
+   Compiling purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/execution)
+   Compiling purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/dispatch)
+   Compiling purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/reporting)
+   Compiling purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset/crates/command)
+    Finished `release` profile [optimized] target(s) in 1.44s
+📦 Built wheel for CPython 3.14t to /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w2-cfg-unset.wheels-314t/purba-0.0.0-cp314-cp314t-manylinux_2_34_x86_64.whl

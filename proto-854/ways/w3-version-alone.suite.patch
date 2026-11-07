@@ -1,0 +1,92 @@
+diff --git a/docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md b/docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md
+index 02b70c4..b892d96 100644
+--- a/docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md
++++ b/docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md
+@@ -56,7 +56,7 @@ purba: internal error: <part>: <message>
+ 
+ - **The line of an internal error names the part that found it, and the message.** The line names no place in purba's source. The tester learns the kind and the test, and Rust's panic hook gives the rest.
+ - **A module that an internal error stops prints its line once, and each of its selected tests as blocked.** It takes the shape of a module's project error.
+-- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The Python carries its ABI flags, so a free-threaded 3.14.0 reads `3.14.0t`. A tester's report then names the build that met the error. The second links the defect template. They follow the count, or the line that stopped the run. stdout keeps only the lines that name a test or a module, and the count.
++- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The Python carries `t` when it is free-threaded, so a free-threaded 3.14.0 reads `3.14.0t`. It names no debug build. A tester's report then names the build that met the error. The second links the defect template. They follow the count, or the line that stopped the run. stdout keeps only the lines that name a test or a module, and the count.
+ - **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. purba writes none of that text. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps the hook.
+ - **The count always names the tests, and names each other column only above 0.** When no semicolon follows the tests, no error happened. The columns keep their order: passed, failed, raised, unknown, interrupted, blocked and unreached, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
+ 
+@@ -83,6 +83,7 @@ purba: internal error: <part>: <message>
+ On the `fault` wheel, `mise run test:wheel` checks the line of an internal error that stops the run, and the two lines after that line.
+ `mise run test:rust` checks the line of an internal error for a test and for a module.
+ On the `fault` wheel, `mise run test:wheel` checks the line of an internal error inside a test, and the line of each test after it.
++On the `fault` wheel, `mise run test:wheel` checks that a test that changes `sys.abiflags` leaves the flags of the report as the build names them.
+ 
+ [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names its gate.
+ 
+diff --git a/docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md b/docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md
+index 9dc29e7..d2dd7e1 100644
+--- a/docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md
++++ b/docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md
+@@ -48,7 +48,6 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
+ 
+ - **The work that goes on after a panic trusts that the panic broke no state that another part reads.** The `UnwindSafe` bound of `catch_unwind` checks some of it. `AssertUnwindSafe` opts out of that check.
+ - **An invocation error that reporting finds discards every outcome of the run.** Each test ran, and the tester reads no outcome.
+-- **A Python with no `sys.abiflags` runs no test.** A test shares purba's interpreter, and can change the flags. So purba reads them before any test, for the report of an internal error. A missing `sys.abiflags` is an invocation error.
+ - **A tester who knows pytest expects a module that raises at import to stop the run.** purba runs every other module.
+ - **A runtime that puts a file that takes a write on fd 1 hides a closed stdout from purba.** macOS logs at each start of the free-threaded Python from python.org, because its `Python.app` lists an executable it does not hold. The log write opens a socket on the lowest free fd, which is then fd 1. purba writes its lines into that socket.
+ 
+@@ -61,8 +60,6 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
+ `mise run test:rust` checks that a panic while a module loads blocks the tests of that module.
+ `mise run test:wheel` checks that a panic inside a test stops only that test, on the installed `purba`.
+ On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module that selection reads an internal error, and runs no test.
+-`mise run test:wheel` checks that a Python with no `sys.abiflags` stops the run before any test, with an invocation error.
+-On the `fault` wheel, `mise run test:wheel` checks that a test that changes `sys.abiflags` leaves the report's flags as purba read them.
+ No command checks the rest of this record.
+ 
+ [A blocked test has no outcome](a-blocked-test-has-no-outcome.md#decision-outcome) says what each test that an error blocks prints.
+diff --git a/tests/fault.bats b/tests/fault.bats
+index 4f8d117..ecffd74 100644
+--- a/tests/fault.bats
++++ b/tests/fault.bats
+@@ -174,7 +174,7 @@ LINES
+   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+ }
+ 
+-@test "the report of an internal error keeps the flags read before a test changed sys.abiflags" {
++@test "the report of an internal error ignores a test that changed sys.abiflags" {
+   cd "${BATS_TEST_DIRNAME}/fault"
+ 
+   local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+diff --git a/tests/internal_error.sh b/tests/internal_error.sh
+index bcedda6..b17e572 100644
+--- a/tests/internal_error.sh
++++ b/tests/internal_error.sh
+@@ -10,7 +10,7 @@ report_lines() {
+   local version cpython system machine os arch
+   version=$("${python}" -c 'import importlib.metadata; print(importlib.metadata.version("purba"))')
+   cpython=$("${python}" -c 'import platform, sys
+-print(platform.python_version() + sys.abiflags)')
++print(platform.python_version() + sys.abiflags.replace("d", ""))')
+   system=$(uname -s)
+   machine=$(uname -m)
+   # Rust names each OS in lower case, macOS as macos, and Apple's arm64 as aarch64:
+diff --git a/tests/skeleton.bats b/tests/skeleton.bats
+index 1b9eb70..5b422b7 100644
+--- a/tests/skeleton.bats
++++ b/tests/skeleton.bats
+@@ -47,19 +47,6 @@ LINES
+   [[ "${stderr}" == "${refused}" ]]
+ }
+ 
+-@test "purba with no sys.abiflags exits 3, and says why on stderr" {
+-  local site="${BATS_TEST_TMPDIR:?set by bats}/site"
+-  mkdir "${site}"
+-  printf '%s\n' 'import sys' '' 'del sys.abiflags' >"${site}/sitecustomize.py"
+-  cd "${BATS_TEST_DIRNAME}/skeleton"
+-
+-  run -3 --separate-stderr env PYTHONPATH="${site}" purba test_a.py
+-
+-  local refused="purba: invocation error: AttributeError: module 'sys' has no attribute 'abiflags'"
+-  [[ -z "${output}" ]] || false
+-  [[ "${stderr}" == "${refused}" ]]
+-}
+-
+ @test "a test that aborts purba leaves the line of each test before it" {
+   cd "${BATS_TEST_TMPDIR:?set by bats}"
+   printf '%s\n' \

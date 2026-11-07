@@ -1,0 +1,25 @@
+plant	pair	test	exit	report names	truth	verdict
+w1-d-misspelt	3.12	control	125	3.12.14	3.12.14	right
+w1-d-misspelt	3.12	sets_abiflags	125	3.12.14	3.12.14	right
+w1-d-misspelt	3.12d	control	125	3.12.15	3.12.15d	WRONG
+w1-d-misspelt	3.12d	sets_abiflags	125	3.12.15	3.12.15d	WRONG
+w1-d-misspelt	3.15d	control	125	3.15.0	3.15.0d	WRONG
+w1-d-misspelt	3.15d	sets_abiflags	125	3.15.0	3.15.0d	WRONG
+w1-t-misspelt	3.14t	control	125	3.14.8	3.14.8t	WRONG
+w1-t-misspelt	3.14t	sets_abiflags	125	3.14.8	3.14.8t	WRONG
+w1-t-misspelt	3.14td	control	125	3.14.8d	3.14.8td	WRONG
+w1-t-misspelt	3.14td	sets_abiflags	125	3.14.8d	3.14.8td	WRONG
+w2-no-build-rs	-	-	-	-	-	build failed: error: unused build dependency `pyo3-build-config` error: could not parse `purba` (manifest) due to 1 previous error
+w2-no-build-rs-no-dep	-	-	-	-	-	build failed: error: unexpected `cfg` condition name: `Py_GIL_DISABLED` error: could not compile `purba` (lib) due to 1 previous error
+w2-cfg-unset	3.14t	control	125	3.14.8	3.14.8t	WRONG
+w2-cfg-unset	3.14t	sets_abiflags	125	3.14.8	3.14.8t	WRONG
+w2-cfg-unset	3.14td	control	125	3.14.8d	3.14.8td	WRONG
+w2-cfg-unset	3.14td	sets_abiflags	125	3.14.8d	3.14.8td	WRONG
+w2-d-misspelt	3.12d	control	125	3.12.15	3.12.15d	WRONG
+w2-d-misspelt	3.12d	sets_abiflags	125	3.12.15	3.12.15d	WRONG
+w3-t-misspelt	3.14t	control	125	3.14.8	3.14.8t	WRONG
+w3-t-misspelt	3.14t	sets_abiflags	125	3.14.8	3.14.8t	WRONG
+w4-attr-misspelt	3.12	control	125	3.12.14?	3.12.14	WRONG
+w4-attr-misspelt	3.12	sets_abiflags	125	3.12.14?	3.12.14	WRONG
+w4-attr-misspelt	3.12d	control	125	3.12.15?	3.12.15d	WRONG
+w4-attr-misspelt	3.12d	sets_abiflags	125	3.12.15?	3.12.15d	WRONG

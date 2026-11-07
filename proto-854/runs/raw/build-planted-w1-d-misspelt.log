@@ -1,0 +1,13 @@
+🐍 Found CPython 3.12 at /home/snregales/.local/share/mise/installs/python/3.12.14/bin/python
+🔗 Found pyo3 bindings with abi3-py3.12 support
+   Compiling purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/fixtures)
+   Compiling purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/parsing)
+   Compiling purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/assertion)
+   Compiling purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/selection)
+   Compiling purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/execution)
+   Compiling purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/reporting)
+   Compiling purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/dispatch)
+   Compiling purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/command)
+   Compiling purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt/crates/purba)
+    Finished `release` profile [optimized] target(s) in 1.11s
+📦 Built wheel for abi3 Python ≥ 3.12 to /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/planted-w1-d-misspelt.wheels-abi3/purba-0.0.0-cp312-abi3-manylinux_2_34_x86_64.whl

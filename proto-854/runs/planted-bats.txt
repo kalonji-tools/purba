@@ -1,0 +1,81 @@
+== w1-d-misspelt on 3.12
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w1-d-misspelt on 3.12d
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w1-d-misspelt on 3.15d
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w1-t-misspelt on 3.14t
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w1-t-misspelt on 3.14td
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w2-cfg-unset on 3.14t
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w2-cfg-unset on 3.14td
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w2-d-misspelt on 3.12d
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w3-t-misspelt on 3.14t
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w4-attr-misspelt on 3.12
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== w4-attr-misspelt on 3.12d
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w1 unplanted on 3.12
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w1 unplanted on 3.12d
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w1 unplanted on 3.14t
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w1 unplanted on 3.14td
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w2 unplanted on 3.12
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w2 unplanted on 3.12d
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w2 unplanted on 3.14t
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w2 unplanted on 3.14td
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w3 unplanted on 3.12
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w3 unplanted on 3.12d
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w3 unplanted on 3.14t
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w3 unplanted on 3.14td
+not ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w4 unplanted on 3.12
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w4 unplanted on 3.12d
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w4 unplanted on 3.14t
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags
+== control: w4 unplanted on 3.14td
+ok 1 the fault wheel panics in the assert hook when PURBA_FAULT is assert
+not ok 2 the report of an internal error keeps the flags read before a test changed sys.abiflags

@@ -1,0 +1,152 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 5a311dd..77cc45b 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -388,9 +388,11 @@ dependencies = [
+ name = "purba"
+ version = "0.0.0"
+ dependencies = [
++ "libc",
+  "purba-command",
+  "purba-execution",
+  "pyo3",
++ "pyo3-build-config",
+ ]
+ 
+ [[package]]
+diff --git a/Cargo.toml b/Cargo.toml
+index fd920a2..2bfb0c4 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -14,6 +14,7 @@ publish = false
+ # `publish = false` means purba has none.
+ 
+ [workspace.dependencies]
++libc = "0.2.189"
+ pyo3 = "0.29.2"
+ #   the decision:  docs/decisions/purba-parses-python-with-ruff.md
+ ruff_python_ast = "=0.0.17"
+diff --git a/crates/execution/Cargo.toml b/crates/execution/Cargo.toml
+index d6e95de..3ad2004 100644
+--- a/crates/execution/Cargo.toml
++++ b/crates/execution/Cargo.toml
+@@ -8,7 +8,7 @@ repository.workspace = true
+ publish.workspace = true
+ 
+ [dependencies]
+-libc = "0.2.189"
++libc.workspace = true
+ purba-assertion = { path = "../assertion" }
+ purba-fixtures = { path = "../fixtures" }
+ pyo3.workspace = true
+diff --git a/crates/purba/Cargo.toml b/crates/purba/Cargo.toml
+index acc9288..a4a7d99 100644
+--- a/crates/purba/Cargo.toml
++++ b/crates/purba/Cargo.toml
+@@ -15,10 +15,14 @@ name = "purba"
+ crate-type = ["cdylib", "rlib"]
+ 
+ [dependencies]
++libc.workspace = true
+ purba-command = { path = "../command" }
+ purba-execution = { path = "../execution" }
+ pyo3 = { workspace = true, features = ["abi3-py312"] }
+ 
++[build-dependencies]
++pyo3-build-config = "0.29.2"
++
+ [features]
+ #   the decision:  docs/decisions/the-crate-carries-an-rlib.md
+ extension-module = ["pyo3/extension-module"]
+diff --git a/crates/purba/build.rs b/crates/purba/build.rs
+new file mode 100644
+index 0000000..7ea8f3c
+--- /dev/null
++++ b/crates/purba/build.rs
+@@ -0,0 +1,6 @@
++//! Gives the crate the `cfg` of the Python it builds against, such as
++//! `Py_GIL_DISABLED`.
++
++fn main() {
++    pyo3_build_config::use_pyo3_cfgs();
++}
+diff --git a/crates/purba/src/lib.rs b/crates/purba/src/lib.rs
+index 45492b3..f3ee14f 100644
+--- a/crates/purba/src/lib.rs
++++ b/crates/purba/src/lib.rs
+@@ -18,8 +18,8 @@ use std::panic;
+ use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
+ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
+ 
+-/// The console script `purba`. It copies `sys.argv` into a list of strings and
+-/// `sys.abiflags` into a string, runs command on the list, and returns the exit
++/// The console script `purba`. It copies `sys.argv` into a list of strings,
++/// runs command on the list, and returns the exit
+ /// code. For the error that stops the run, it writes one line to stderr, and
+ /// returns 3, or 125 for a panic. A write that stdout refused once the report
+ /// exists returns the code that reporting gives with it: 125 after an internal
+@@ -33,15 +33,11 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
+ #[pyfunction]
+ #[pyo3(name = "_main")]
+ fn main(py: Python<'_>) -> u8 {
+-    // A test shares this interpreter, and may change `sys`. So before any test
+-    // runs, purba reads the ABI flags that the report of an internal error names.
+-    let (argv, flags) = match py.import("sys").and_then(|sys| {
+-        Ok((
+-            sys.getattr("argv")?.extract::<Vec<String>>()?,
+-            sys.getattr("abiflags")?.extract::<String>()?,
+-        ))
+-    }) {
+-        Ok(read) => read,
++    let argv = match py
++        .import("sys")
++        .and_then(|sys| sys.getattr("argv")?.extract::<Vec<String>>())
++    {
++        Ok(argv) => argv,
+         Err(error) => return stop(&error),
+     };
+     purba_execution::panic::wrap_hook();
+@@ -63,7 +59,7 @@ fn main(py: Python<'_>) -> u8 {
+         Err(payload) => internal(payload.as_ref()),
+     };
+     if code == 125 {
+-        ask_for_report(py, &flags);
++        ask_for_report(py);
+     }
+     // When purba cannot register its `atexit` function, the window in which a
+     // first interrupt ends the wait for threads stays shut. That interrupt then
+@@ -104,8 +100,9 @@ fn internal(payload: &(dyn Any + Send)) -> u8 {
+ }
+ 
+ /// Writes the two lines that ask for a report of an internal error.
+-fn ask_for_report(py: Python<'_>, flags: &str) {
++fn ask_for_report(py: Python<'_>) {
+     let version = py.version_info();
++    let flags = abi_flags();
+     let mut stderr = io::stderr();
+     // Each wheel of purba carries a `cp` tag, and pip gives it to CPython alone:
+     // https://github.com/pypa/packaging/blob/26.2/src/packaging/tags.py#L875-L878
+@@ -126,6 +123,23 @@ fn ask_for_report(py: Python<'_>, flags: &str) {
+     );
+ }
+ 
++/// The ABI flags of the build that runs purba, in the order of `sys.abiflags`:
++/// `t` for a free-threaded build, and `d` for a debug build. A test can change
++/// neither source.
++fn abi_flags() -> String {
++    let free_threaded = cfg!(Py_GIL_DISABLED);
++    // Only a debug build exports this function:
++    // https://github.com/python/cpython/blob/v3.15.0/Misc/stable_abi.toml#L2267-L2274
++    // SAFETY: the name is a C string, and `dlsym` only reads it.
++    let debug =
++        !unsafe { libc::dlsym(libc::RTLD_DEFAULT, c"_Py_NegativeRefcount".as_ptr()) }.is_null();
++    format!(
++        "{}{}",
++        if free_threaded { "t" } else { "" },
++        if debug { "d" } else { "" }
++    )
++}
++
+ /// The extension module Python imports as `purba`.
+ #[pymodule]
+ fn purba(module: &Bound<'_, PyModule>) -> PyResult<()> {

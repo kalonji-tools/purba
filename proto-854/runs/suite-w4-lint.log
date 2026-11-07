@@ -1,0 +1,445 @@
+[lint:index] $ scripts/index-of-records.sh --check
+[lint:manifests] $ scripts/check-manifests.sh
+[lint:gates] $ scripts/check-gates.sh
+[lint:links] $ scripts/check-links.sh
+[lint:licences] $ cargo-deny check licenses
+[lint:pins] $ pinact run --check --verify-comment
+[lint:cargo-scripts] $ git ls-files -z 'scripts/*.rs' '.github/*.rs' | xargs -0 -r rustfmt --edition 2024 --check
+[lint:order] $ scripts/order-of-design.sh --check
+[lint:cargo-scripts] $ git ls-files 'scripts/*.rs' '.github/*.rs' | while read -r s; do
+[lint:gates] Finished in 36.1ms
+[lint:placement] $ scripts/check-placement.sh
+[lint:order] Finished in 40.3ms
+[lint:readers] $ scripts/check-readers.sh
+[lint:readers] Finished in 45.4ms
+[lint:records] $ scripts/check-records.sh
+[lint:manifests] Finished in 128.4ms
+[lint:rust] $ cargo fmt --check
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:placement] Finished in 151.7ms
+[lint:shell] $ shellcheck $(git ls-files '*.sh' '*.bats')
+[lint:rust] $ cargo clippy --all-targets
+[lint:cargo-scripts]     Blocking waiting for file lock on package cache
+[lint:rust]     Blocking waiting for file lock on package cache
+[lint:cargo-scripts]     Checking cfg-if v1.0.5
+[lint:cargo-scripts]     Checking scopeguard v1.2.0
+[lint:cargo-scripts]     Checking equivalent v1.0.2
+[lint:cargo-scripts]     Checking log v0.4.34
+[lint:cargo-scripts]     Checking allocator-api2 v0.2.21
+[lint:cargo-scripts]     Checking stable_deref_trait v1.2.1
+[lint:cargo-scripts]     Checking memchr v2.8.3
+[lint:cargo-scripts]     Checking futures-io v0.3.34
+[lint:cargo-scripts]     Checking serde_core v1.0.229
+[lint:cargo-scripts]     Checking libc v0.2.190
+[lint:cargo-scripts]     Checking libm v0.2.16
+[lint:cargo-scripts]     Checking portable-atomic v1.15.0
+[lint:cargo-scripts]     Checking parking v2.2.1
+[lint:cargo-scripts]     Checking pin-project-lite v0.2.17
+[lint:cargo-scripts]     Checking fastrand v2.5.0
+[lint:cargo-scripts]     Checking foldhash v0.1.5
+[lint:cargo-scripts]     Checking web-time v1.1.0
+[lint:cargo-scripts]     Checking futures-core v0.3.34
+[lint:cargo-scripts]     Checking embassy-futures v0.1.2
+[lint:cargo-scripts]     Checking lock_api v0.4.14
+[lint:cargo-scripts]     Checking zerocopy v0.8.60
+[lint:cargo-scripts]     Checking bytemuck v1.25.2
+[lint:cargo-scripts]     Checking derive_more v2.1.1
+[lint:cargo-scripts]     Checking zerofrom v0.1.8
+[lint:cargo-scripts]     Checking simd-adler32 v0.3.10
+[lint:cargo-scripts]     Checking crc32fast v1.5.2
+[lint:cargo-scripts]     Checking adler2 v2.0.1
+[lint:cargo-scripts]     Checking itoa v1.0.18
+[lint:cargo-scripts]     Checking colored v3.1.1
+[lint:cargo-scripts]     Checking litemap v0.8.3
+[lint:index] Finished in 412.8ms
+[lint:cargo-scripts]     Checking writeable v0.6.4
+[lint:cargo-scripts]     Checking zlib-rs v0.6.8
+[lint:style] $ ec
+[lint:cargo-scripts]     Checking regex-syntax v0.8.11
+[lint:cargo-scripts]     Checking yoke v0.8.3
+[lint:rust]    Compiling unicode-ident v1.0.24
+[lint:rust]    Compiling cfg-if v1.0.5
+[lint:rust]     Checking hashbrown v0.17.1
+[lint:rust]     Checking equivalent v1.0.3
+[lint:rust]    Compiling siphasher v1.0.4
+[lint:rust]     Checking static_assertions v1.1.0
+[lint:rust]     Checking itoa v1.0.18
+[lint:rust]     Checking smallvec v1.16.3
+[lint:rust]     Checking thin-vec v0.2.21
+[lint:rust]    Compiling memchr v2.8.3
+[lint:rust]     Checking either v1.19.0
+[lint:cargo-scripts]     Checking futures-lite v2.6.1
+[lint:rust]     Checking zmij v1.0.23
+[lint:rust]     Checking tinyvec v1.13.3
+[lint:cargo-scripts]     Checking once_cell v1.21.4
+[lint:rust]     Checking castaway v0.2.4
+[lint:rust]     Checking libc v0.2.189
+[lint:rust]     Checking rustc-hash v2.1.3
+[lint:rust]     Checking ryu v1.0.23
+[lint:rust]     Checking bitflags v2.13.2
+[lint:cargo-scripts]     Checking zmij v1.0.23
+[lint:cargo-scripts]     Checking crossbeam-utils v0.8.23
+[lint:cargo-scripts]     Checking siphasher v1.0.4
+[lint:rust]     Checking arrayvec v0.7.8
+[lint:licences] licenses ok
+[lint:rust]    Compiling getrandom v0.2.17
+[lint:licences] Finished in 521.4ms
+[lint:rust]     Checking drop_bomb v0.1.5
+[lint:rust]     Checking once_cell v1.21.4
+[lint:wiring] $ scripts/check-wiring.sh
+[lint:cargo-scripts]     Checking utf8parse v0.2.2
+[lint:rust]     Checking serde_core v1.0.229
+[lint:rust]     Checking purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/fixtures)
+[lint:cargo-scripts]     Checking utf8_iter v1.0.4
+[lint:cargo-scripts]     Checking unty v0.0.4
+[lint:cargo-scripts]     Checking either v1.18.0
+[lint:cargo-scripts]     Checking uuid v1.27.0
+[lint:rust]    Compiling proc-macro2 v1.0.107
+[lint:cargo-scripts]     Checking anstyle-parse v1.0.0
+[lint:cargo-scripts]     Checking new_debug_unreachable v1.0.6
+[lint:cargo-scripts]     Checking spin v0.10.1
+[lint:cargo-scripts]     Checking foldhash v0.2.0
+[lint:cargo-scripts]     Checking miniz_oxide v0.9.1
+[lint:cargo-scripts]     Checking is_terminal_polyfill v1.70.2
+[lint:rust]    Compiling phf_shared v0.11.3
+[lint:cargo-scripts]     Checking data-encoding v2.11.1
+[lint:cargo-scripts]     Checking anstyle-query v1.1.5
+[lint:cargo-scripts]     Checking colorchoice v1.0.5
+[lint:wiring] Finished in 209.3ms
+[lint:rust]    Compiling rand_core v0.6.4
+[lint:cargo-scripts]     Checking anstyle v1.0.14
+[lint:cargo-scripts]     Checking phf_shared v0.14.0
+[lint:cargo-scripts]     Checking icu_properties_data v2.3.0
+[lint:cargo-scripts]     Checking icu_normalizer_data v2.3.0
+[lint:cargo-scripts]     Checking rawpointer v0.2.1
+[lint:cargo-scripts]     Checking precomputed-hash v0.1.1
+[lint:cargo-scripts]     Checking clap_lex v1.1.1
+[lint:cargo-scripts]     Checking strsim v0.11.1
+[lint:cargo-scripts]     Checking same-file v1.0.6
+[lint:cargo-scripts]     Checking thiserror v1.0.69
+[lint:rust]     Checking itertools v0.15.0
+[lint:cargo-scripts]     Checking matrixmultiply v0.3.11
+[lint:cargo-scripts]     Checking derive_more v1.0.0
+[lint:rust]    Compiling rand_chacha v0.3.1
+[lint:cargo-scripts]     Checking walkdir v2.5.0
+[lint:cargo-scripts]     Checking const-random v0.1.18
+[lint:cargo-scripts]     Checking tendril v0.5.1
+[lint:cargo-scripts]     Checking atomic_float v1.1.0
+[lint:rust]     Checking compact_str v0.10.0
+[lint:cargo-scripts]     Checking anstream v1.0.0
+[lint:cargo-scripts]     Checking percent-encoding v2.3.2
+[lint:cargo-scripts]     Checking zerovec v0.11.8
+[lint:rust]     Checking unicode-normalization v0.1.26
+[lint:cargo-scripts]     Checking zerotrie v0.2.5
+[lint:style] Finished in 580.4ms
+[lint:cargo-scripts]     Checking aho-corasick v1.1.5
+[lint:cargo-scripts]     Checking hashbrown v0.17.1
+[lint:cargo-scripts]     Checking dtoa v1.0.11
+[lint:cargo-scripts]     Checking crossbeam-epoch v0.9.21
+[lint:cargo-scripts]     Checking twox-hash v2.1.5
+[lint:cargo-scripts]     Checking phf v0.14.0
+[lint:cargo-scripts]     Checking form_urlencoded v1.2.2
+[lint:rust]    Compiling quote v1.0.47
+[lint:cargo-scripts]     Checking strum v0.28.0
+[lint:rust]     Checking phf v0.11.3
+[lint:cargo-scripts]     Checking unicode-width v0.2.2
+[lint:rust]    Compiling rand v0.8.8
+[lint:cargo-scripts]     Checking dtoa-short v0.3.5
+[lint:cargo-scripts]     Checking bumpalo v3.20.3
+[lint:cargo-scripts]     Checking thiserror v2.0.21
+[lint:cargo-scripts]     Checking fst v0.4.7
+[lint:cargo-scripts]     Checking itertools v0.14.0
+[lint:cargo-scripts]     Checking maplit v1.0.2
+[lint:cargo-scripts]     Checking ruzstd v0.8.3
+[lint:cargo-scripts]     Checking pulldown-cmark-escape v0.11.0
+[lint:rust]    Compiling object v0.39.1
+[lint:rust]     Checking indexmap v2.14.2
+[lint:cargo-scripts]     Checking getopts v0.2.24
+[lint:cargo-scripts]     Checking crossbeam-deque v0.8.8
+[lint:cargo-scripts]     Checking unicase v2.10.0
+[lint:cargo-scripts]     Checking cached_proc_macro_types v0.1.1
+[lint:cargo-scripts]     Checking typed-path v0.12.3
+[lint:cargo-scripts]     Checking unicode-blocks v0.1.10
+[lint:cargo-scripts]     Checking unicode-script v0.5.8
+[lint:cargo-scripts]     Checking clap_builder v4.6.7
+[lint:cargo-scripts]     Checking getrandom v0.3.4
+[lint:cargo-scripts]     Checking zopfli v0.8.3
+[lint:cargo-scripts]     Checking rayon-core v1.13.0
+[lint:rust]    Compiling syn v3.0.9
+[lint:rust]    Compiling proc-macro-utils v0.10.0
+[lint:rust]    Compiling syn v2.0.119
+[lint:cargo-scripts]     Checking num-traits v0.2.19
+[lint:cargo-scripts]     Checking indexmap v2.14.2
+[lint:cargo-scripts]     Checking rand_core v0.9.5
+[lint:cargo-scripts]     Checking tinystr v0.8.4
+[lint:cargo-scripts]     Checking potential_utf v0.1.6
+[lint:rust]     Checking aho-corasick v1.1.5
+[lint:rust]     Checking bstr v1.13.1
+[lint:cargo-scripts]     Checking levenshtein_automata v0.2.1
+[lint:pins] Finished in 1.89s
+[lint:rust]    Compiling phf_generator v0.11.3
+[lint:cargo-scripts]     Checking icu_collections v2.3.0
+[lint:rust]     Checking ordermap v1.2.2
+[lint:rust]    Compiling phf_codegen v0.11.3
+[lint:cargo-scripts]     Checking icu_locale_core v2.3.0
+[lint:cargo-scripts]     Checking flate2 v1.1.10
+[lint:cargo-scripts]     Checking rayon v1.12.0
+[lint:rust]    Compiling ruff_unicode_names2_generator v0.0.17
+[lint:rust]     Checking pyo3-ffi v0.29.2
+[lint:rust]    Compiling manyhow-macros v0.14.1
+[lint:cargo-scripts]     Checking regex-automata v0.4.18
+[lint:cargo-scripts]     Checking serde v1.0.229
+[lint:cargo-scripts]     Checking serde_bytes v0.11.19
+[lint:cargo-scripts]     Checking serde_json v1.0.151
+[lint:cargo-scripts]     Checking hashbrown v0.16.1
+[lint:cargo-scripts]     Checking bitflags v2.13.2
+[lint:cargo-scripts]     Checking rmp v0.8.15
+[lint:cargo-scripts]     Checking num-integer v0.1.47
+[lint:cargo-scripts]     Checking num-complex v0.4.6
+[lint:cargo-scripts]     Checking pulldown-cmark v0.13.4
+[lint:rust]    Compiling ruff_unicode_names2 v0.0.17
+[lint:cargo-scripts]     Checking smallvec v1.16.2
+[lint:cargo-scripts]     Checking hashbrown v0.15.5
+[lint:cargo-scripts]     Checking bincode v2.0.1
+[lint:cargo-scripts]     Checking ordered-float v5.5.0
+[lint:cargo-scripts]     Checking rmp-serde v1.3.1
+[lint:cargo-scripts]     Checking ndarray v0.16.1
+[lint:cargo-scripts]     Checking lru v0.16.4
+[lint:cargo-scripts]     Checking icu_provider v2.3.1
+[lint:cargo-scripts]     Checking parking_lot_core v0.9.12
+[lint:cargo-scripts]     Checking cssparser v0.38.0
+[lint:cargo-scripts]     Checking harper-thesaurus v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[lint:cargo-scripts]     Checking zip v8.6.0
+[lint:cargo-scripts]     Checking parking_lot v0.12.5
+[lint:cargo-scripts]     Checking icu_normalizer v2.3.0
+[lint:cargo-scripts]     Checking icu_properties v2.3.0
+[lint:cargo-scripts]     Checking string_cache v0.11.0
+[lint:cargo-scripts]     Checking web_atoms v0.3.0
+[lint:cargo-scripts]     Checking clap v4.6.7
+[lint:cargo-scripts]     Checking rs-conllu v0.3.0
+[lint:rust]    Compiling manyhow v0.14.1
+[lint:rust]    Compiling quote-use-macros v0.9.0
+[lint:rust]    Compiling thiserror-impl v2.0.21
+[lint:rust]    Compiling serde_derive v1.0.229
+[lint:cargo-scripts]     Checking markup5ever v0.40.0
+[lint:cargo-scripts]     Checking html5ever v0.40.1
+[lint:cargo-scripts]     Checking idna_adapter v1.2.2
+[lint:cargo-scripts]     Checking idna v1.1.0
+[lint:rust]    Compiling quote-use v0.9.0
+[lint:rust]    Compiling attribute-derive-macro v0.11.0
+[lint:cargo-scripts]     Checking url v2.5.8
+[lint:rust]     Checking thiserror v2.0.21
+[lint:cargo-scripts]     Checking fid-rs v0.2.0
+[lint:rust]    Compiling attribute-derive v0.11.0
+[lint:cargo-scripts]     Checking ammonia v4.2.1
+[lint:cargo-scripts]     Checking louds-rs v0.7.0
+[lint:rust]    Compiling pyo3-macros-backend v0.29.2
+[lint:cargo-scripts]     Checking trie-rs v0.4.2
+[lint:cargo-scripts]     Checking ppv-lite86 v0.2.21
+[lint:cargo-scripts]     Checking half v2.7.1
+[lint:cargo-scripts]     Checking ahash v0.8.12
+[lint:rust]    Compiling ar_archive_writer v0.5.3
+[lint:cargo-scripts]     Checking cached v0.59.0
+[lint:rust]    Compiling is-macro v0.3.8
+[lint:rust]    Compiling get-size-derive2 v0.11.1
+[lint:cargo-scripts]     Checking rand_chacha v0.9.0
+[lint:cargo-scripts]     Checking float8 v0.4.2
+[lint:cargo-scripts]     Checking rand v0.9.5
+[lint:rust]     Checking get-size2 v0.11.1
+[lint:rust]    Compiling psm v0.1.32
+[lint:rust]     Checking ruff_text_size v0.0.17
+[lint:rust]     Checking char_str v0.0.4
+[lint:rust]     Checking ruff_source_file v0.0.17
+[lint:cargo-scripts]     Checking regex v1.13.1
+[lint:rust]     Checking serde v1.0.229
+[lint:rust]     Checking ruff_python_trivia v0.0.17
+[lint:cargo-scripts]     Checking cubecl-common v0.8.1
+[lint:cargo-scripts]     Checking rand_distr v0.5.1
+[lint:rust]     Checking ruff_python_ast v0.0.17
+[lint:rust]     Checking stacker v0.1.25
+[lint:cargo-scripts]     Checking cubecl-quant v0.8.1
+[lint:cargo-scripts]     Checking burn-common v0.19.1
+[lint:cargo-scripts]     Checking burn-tensor v0.19.1
+[lint:rust]    Compiling pyo3-macros v0.29.2
+[lint:cargo-scripts]     Checking burn-core v0.19.1
+[lint:cargo-scripts]     Checking burn-ir v0.19.1
+[lint:rust]     Checking pyo3 v0.29.2
+[lint:rust]     Checking ruff_python_parser v0.0.17
+[lint:cargo-scripts]     Checking burn-nn v0.19.1
+[lint:cargo-scripts]     Checking burn-optim v0.19.1
+[lint:cargo-scripts]     Checking burn-ndarray v0.19.1
+[lint:rust]     Checking purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/parsing)
+[lint:rust]     Checking purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/selection)
+[lint:rust]     Checking purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/assertion)
+[lint:rust]     Checking purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/execution)
+[lint:rust]     Checking purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/dispatch)
+[lint:rust]     Checking purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/reporting)
+[lint:rust]     Checking purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/command)
+[lint:rust]     Checking purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/purba)
+[lint:rust]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 14.99s
+[lint:rust] $ cargo doc --no-deps
+[lint:rust]     Checking purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/fixtures)
+[lint:rust]  Documenting purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/fixtures)
+[lint:rust]     Checking purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/parsing)
+[lint:rust]  Documenting purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/parsing)
+[lint:rust]     Checking purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/assertion)
+[lint:rust]     Checking purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/selection)
+[lint:rust]  Documenting purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/assertion)
+[lint:rust]  Documenting purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/selection)
+[lint:rust]     Checking purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/execution)
+[lint:rust]  Documenting purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/execution)
+[lint:rust]     Checking purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/reporting)
+[lint:rust]     Checking purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/dispatch)
+[lint:rust]  Documenting purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/dispatch)
+[lint:rust]  Documenting purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/reporting)
+[lint:rust]     Checking purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/command)
+[lint:rust]  Documenting purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/command)
+[lint:rust]  Documenting purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/crates/purba)
+[lint:rust]     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.04s
+[lint:rust]    Generated /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/target/doc/purba/index.html and 8 other files
+[lint:rust] Finished in 16.23s
+[lint:cargo-scripts]     Checking burn v0.19.1
+[lint:cargo-scripts]     Checking harper-pos-utils v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[lint:cargo-scripts]     Checking harper-brill v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[lint:cargo-scripts]     Checking harper-core v2.3.0 (https://github.com/Automattic/harper?tag=v2.3.0#d0ae67ed)
+[lint:shell] $ shfmt --diff $(git ls-files '*.sh' '*.bats')
+[lint:shell] Finished in 17.41s
+[lint:cargo-scripts]     Checking check-prose v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w4/scripts/check-prose/check-prose.rs)
+[lint:cargo-scripts]     Finished `release` profile [optimized] target(s) in 20.36s
+[lint:cargo-scripts] Finished in 20.45s
+[lint:links] Finished in 21.03s
+[lint:records] 
+[lint:records] a pattern in a reach that matches no tracked file
+[lint:records] 
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: rustfmt.toml
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: .rustfmt.toml
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: .clippy.toml
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: typos.toml
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: _typos.toml
+[lint:records]   docs/decisions/a-gate-owns-the-mechanical.md: .typos.toml
+[lint:records]   docs/decisions/a-workflow-names-each-action-by-its-commit.md: /.pinact.yaml
+[lint:records]   docs/decisions/a-workflow-names-each-action-by-its-commit.md: /.pinact.yml
+[lint:records]   docs/decisions/a-workflow-names-each-action-by-its-commit.md: .github/pinact.yaml
+[lint:records]   docs/decisions/a-workflow-names-each-action-by-its-commit.md: .github/pinact.yml
+[lint:records]   docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: typos.toml
+[lint:records]   docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: _typos.toml
+[lint:records]   docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: .typos.toml
+[lint:records]   docs/decisions/configuration-takes-the-first-location-its-tool-reads.md: lychee.toml
+[lint:records]   docs/decisions/one-manifest-declares-each-package.md: .github/**/*.rs
+[lint:records]   docs/decisions/one-manifest-declares-each-package.md: rust-toolchain.toml
+[lint:records]   docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: devenv.*
+[lint:records]   docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: flake.nix
+[lint:records]   docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md: .tool-versions
+[lint:records]   docs/decisions/the-nightly-is-named-by-a-date.md: rust-toolchain.toml
+[lint:records] 
+[lint:records] the borrowed rules a command reports and never refuses
+[lint:records] 
+[lint:records]   in the passive voice           308 of  4620 sentences  6%
+[lint:records]   articles                      7754 in 52422 words
+[lint:records]   formal words                     0 in 52422 words
+[lint:records] 
+[lint:records] evidence density: prose lines carrying no number, no code span and no link
+[lint:records] 
+[lint:records]  88.6%   31 of  35  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
+[lint:records]  85.4%   35 of  41  docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md
+[lint:records]  84.2%   32 of  38  docs/decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md
+[lint:records]  80.9%   38 of  47  docs/decisions/a-record-is-rewritten-not-amended.md
+[lint:records]  80.0%    8 of  10  docs/decisions/a-command-test-checks-only-commands-rules.md
+[lint:records]  79.2%   19 of  24  docs/decisions/purba-borrows-from-simplified-technical-english-rather-than-adopting-it.md
+[lint:records]  78.9%   15 of  19  docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md
+[lint:records]  78.3%   36 of  46  docs/decisions/an-actor-is-what-it-does-not-what-it-is.md
+[lint:records]  77.8%   14 of  18  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
+[lint:records]  77.1%   27 of  35  docs/decisions/a-term-belongs-to-the-glossary.md
+[lint:records]  76.2%   16 of  21  docs/decisions/purba-records-delegation-and-does-not-prevent-it.md
+[lint:records]  76.2%   16 of  21  docs/decisions/dependabot-proposes-each-newer-action.md
+[lint:records]  75.9%   44 of  58  docs/decisions/a-commit-outlives-its-review.md
+[lint:records]  75.4%   43 of  57  docs/decisions/a-register-belongs-to-one-location.md
+[lint:records]  75.3%   55 of  73  docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md
+[lint:records]  75.0%   18 of  24  docs/decisions/significance-is-declared-not-detected.md
+[lint:records]  75.0%   15 of  20  docs/decisions/one-manifest-declares-each-package.md
+[lint:records]  75.0%   12 of  16  docs/decisions/a-pinned-candidate-decides-when-a-milestone-is-done.md
+[lint:records]  73.3%   11 of  15  docs/decisions/purba-runs-inside-the-testers-interpreter.md
+[lint:records]  72.7%    8 of  11  docs/decisions/one-pull-request-answers-one-issue.md
+[lint:records]  72.7%    8 of  11  docs/decisions/a-normalisers-style-is-chosen-for-the-human-who-reads-the-code.md
+[lint:records]  70.6%   12 of  17  docs/decisions/an-invariant-needs-no-design-of-its-own.md
+[lint:records]  70.4%   19 of  27  docs/decisions/a-record-names-every-location-where-it-applies.md
+[lint:records]  69.2%    9 of  13  docs/decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md
+[lint:records]  68.8%   22 of  32  docs/decisions/a-workflow-is-granted-an-identity-not-a-power.md
+[lint:records]  68.8%   22 of  32  docs/decisions/an-implementation-follows-test-driven-development.md
+[lint:records]  68.8%   11 of  16  docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
+[lint:records]  68.6%   24 of  35  docs/decisions/the-crate-carries-an-rlib.md
+[lint:records]  68.5%   37 of  54  docs/decisions/a-change-is-specified-before-it-is-built.md
+[lint:records]  66.7%    8 of  12  docs/decisions/reporting-writes-each-line-as-dispatch-hands-it-the-test.md
+[lint:records]  66.7%    8 of  12  docs/decisions/command-lends-one-parse-to-selection-and-assertion.md
+[lint:records]  66.7%    6 of   9  docs/decisions/parsing-hands-on-no-tree-that-ruff-recovered.md
+[lint:records]  66.7%   12 of  18  docs/decisions/execution-calls-a-test-by-its-functions-name.md
+[lint:records]  66.7%   12 of  18  docs/decisions/a-worker-loads-each-module-once.md
+[lint:records]  66.7%   10 of  15  docs/decisions/a-gate-refuses-each-invariant-a-tool-can-see.md
+[lint:records]  65.9%   27 of  41  docs/decisions/a-location-inherits-its-readers.md
+[lint:records]  65.2%   73 of 112  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+[lint:records]  64.8%   35 of  54  docs/decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md
+[lint:records]  64.7%   11 of  17  docs/decisions/one-file-marks-every-tracked-path-for-each-gate-that-can-skip.md
+[lint:records]  63.6%   14 of  22  docs/decisions/a-new-question-gets-a-new-record.md
+[lint:records]  63.2%   12 of  19  docs/decisions/a-concern-is-what-no-part-can-own.md
+[lint:records]  63.0%   29 of  46  docs/decisions/purba-parses-python-with-ruff.md
+[lint:records]  62.5%   10 of  16  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
+[lint:records]  62.1%   18 of  29  docs/decisions/an-outside-contribution-is-applied-not-merged.md
+[lint:records]  61.7%   29 of  47  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+[lint:records]  61.5%    8 of  13  docs/decisions/the-person-owns-the-decision-outcome.md
+[lint:records]  61.5%    8 of  13  docs/decisions/assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md
+[lint:records]  60.7%   17 of  28  docs/decisions/purba-supports-a-python-with-two-years-left.md
+[lint:records]  60.0%    6 of  10  docs/decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md
+[lint:records]  60.0%    6 of  10  docs/decisions/a-suppression-is-an-outcome-and-not-a-switch.md
+[lint:records]  60.0%    6 of  10  docs/decisions/a-blocked-test-has-no-outcome.md
+[lint:records]  58.3%    7 of  12  docs/decisions/an-interrupted-run-prints-its-count-and-dies-by-the-signal.md
+[lint:records]  57.1%    8 of  14  docs/decisions/purbas-public-surface-starts-empty-and-has-no-plugin-api.md
+[lint:records]  57.1%    8 of  14  docs/decisions/a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md
+[lint:records]  57.1%    8 of  14  docs/decisions/a-record-names-the-role-not-the-kind-of-entity.md
+[lint:records]  57.1%    8 of  14  docs/decisions/an-interrupt-puts-back-no-more-than-a-normal-end-does.md
+[lint:records]  55.6%   10 of  18  docs/decisions/purba-ranks-an-honest-outcome-first.md
+[lint:records]  55.6%   10 of  18  docs/decisions/purba-divides-by-responsibility-and-not-by-language.md
+[lint:records]  55.0%   11 of  20  docs/decisions/the-nightly-is-named-by-a-date.md
+[lint:records]  54.5%    6 of  11  docs/decisions/a-test-that-selection-refuses-prints-before-any-test-runs.md
+[lint:records]  53.8%    7 of  13  docs/decisions/purba-is-always-strict.md
+[lint:records]  53.3%   16 of  30  docs/decisions/configuration-takes-the-first-location-its-tool-reads.md
+[lint:records]  52.9%    9 of  17  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
+[lint:records]  52.4%   11 of  21  docs/decisions/reporting-renders-the-exit-code-and-command-returns-it.md
+[lint:records]  50.0%    8 of  16  docs/decisions/an-error-stops-only-the-work-that-depends-on-it.md
+[lint:records]  50.0%    6 of  12  docs/decisions/the-zip-alerts-of-check-prose-are-dismissed-as-unused.md
+[lint:records]  50.0%    6 of  12  docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
+[lint:records]  50.0%    6 of  12  docs/decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md
+[lint:records]  50.0%   10 of  20  docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md
+[lint:records]  48.6%   18 of  37  docs/decisions/only-github-runs-what-lives-under-github.md
+[lint:records]  48.5%   16 of  33  docs/decisions/a-part-of-speech-tagger-decides-the-tense-rule.md
+[lint:records]  47.1%    8 of  17  docs/decisions/purba-runs-on-linux-and-macos.md
+[lint:records]  46.7%   28 of  60  docs/decisions/a-gate-owns-the-mechanical.md
+[lint:records]  46.2%    6 of  13  docs/decisions/each-test-runs-in-a-process-of-its-own.md
+[lint:records]  45.5%    5 of  11  docs/decisions/every-part-of-the-skeleton-is-rust-inside-the-extension-module.md
+[lint:records]  45.0%    9 of  20  docs/decisions/the-skeleton-crosses-the-seam-in-execution-and-assertion.md
+[lint:records]  44.4%    4 of   9  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+[lint:records]  43.8%    7 of  16  docs/decisions/a-test-names-two-values-of-one-type-by-two-fixtures.md
+[lint:records]  41.7%    5 of  12  docs/decisions/a-gate-reads-its-marks-on-the-base-branch.md
+[lint:records]  41.2%    7 of  17  docs/decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md
+[lint:records]  40.0%    8 of  20  docs/decisions/a-workflow-names-each-action-by-its-commit.md
+[lint:records]  40.0%    6 of  15  docs/decisions/a-test-names-the-fixture-of-each-input.md
+[lint:records]  38.9%    7 of  18  docs/decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md
+[lint:records]  38.5%    5 of  13  docs/decisions/each-part-is-a-crate.md
+[lint:records]  38.5%    5 of  13  docs/decisions/a-test-carries-only-purbas-own-decorators.md
+[lint:records]  38.5%    5 of  13  docs/decisions/a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md
+[lint:records]  37.5%    9 of  24  docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md
+[lint:records]  37.5%    6 of  16  docs/decisions/a-path-not-marked-to-skip-starts-the-gate.md
+[lint:records]  37.5%    3 of   8  docs/decisions/a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md
+[lint:records]  36.4%    4 of  11  docs/decisions/a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md
+[lint:records]  34.8%    8 of  23  docs/decisions/a-task-is-named-for-what-it-does-to-the-tree.md
+[lint:records]  30.4%    7 of  23  docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md
+[lint:records]  28.6%    6 of  21  docs/decisions/a-panic-inside-a-test-gives-that-test-an-internal-error.md
+[lint:records]  27.3%    3 of  11  docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
+[lint:records]  26.7%    4 of  15  docs/decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md
+[lint:records]  22.2%    4 of  18  docs/decisions/a-line-names-its-kind-in-the-glossarys-words.md
+[lint:records]  17.6%    3 of  17  docs/decisions/every-crate-lives-under-crates.md
+[lint:records]  16.7%    3 of  18  docs/decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md
+[lint:records]  15.4%    2 of  13  docs/decisions/a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md
+[lint:records] all records  60.9%  1388 of 2280
+[lint:records] Finished in 24.04s
+Finished in 24.17s

@@ -1,0 +1,4 @@
+w1 abi3t-on-3.15: purba-0.0.0-cp315-abi3.abi3t-manylinux_2_34_x86_64.whl
+w1 abi3t-on-3.15t: purba-0.0.0-cp315-abi3.abi3t-manylinux_2_34_x86_64.whl
+w2 abi3t-on-3.15: purba-0.0.0-cp315-abi3.abi3t-manylinux_2_34_x86_64.whl
+w2 abi3t-on-3.15t: purba-0.0.0-cp315-abi3.abi3t-manylinux_2_34_x86_64.whl

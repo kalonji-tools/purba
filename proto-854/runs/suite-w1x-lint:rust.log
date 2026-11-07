@@ -1,0 +1,84 @@
+[lint:rust] $ cargo fmt --check
+[lint:rust] $ cargo clippy --all-targets
+   Compiling proc-macro2 v1.0.107
+    Checking hashbrown v0.17.1
+   Compiling memchr v2.8.3
+    Checking smallvec v1.16.3
+   Compiling phf_shared v0.11.3
+    Checking tinyvec v1.13.3
+    Checking itertools v0.15.0
+    Checking libc v0.2.189
+   Compiling rand_core v0.6.4
+    Checking compact_str v0.10.0
+    Checking serde_core v1.0.229
+   Compiling rand_chacha v0.3.1
+    Checking unicode-normalization v0.1.26
+    Checking aho-corasick v1.1.5
+    Checking bstr v1.13.1
+   Compiling object v0.39.1
+   Compiling rand v0.8.8
+    Checking indexmap v2.14.2
+   Compiling quote v1.0.47
+   Compiling syn v3.0.9
+   Compiling proc-macro-utils v0.10.0
+   Compiling syn v2.0.119
+    Checking pyo3-ffi v0.29.2
+   Compiling phf_generator v0.11.3
+    Checking ordermap v1.2.2
+   Compiling phf_codegen v0.11.3
+   Compiling ruff_unicode_names2_generator v0.0.17
+   Compiling manyhow-macros v0.14.1
+   Compiling ruff_unicode_names2 v0.0.17
+   Compiling manyhow v0.14.1
+   Compiling quote-use-macros v0.9.0
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling quote-use v0.9.0
+   Compiling attribute-derive-macro v0.11.0
+    Checking thiserror v2.0.21
+   Compiling attribute-derive v0.11.0
+   Compiling pyo3-macros-backend v0.29.2
+   Compiling ar_archive_writer v0.5.3
+   Compiling get-size-derive2 v0.11.1
+   Compiling is-macro v0.3.8
+    Checking get-size2 v0.11.1
+    Checking ruff_text_size v0.0.17
+    Checking char_str v0.0.4
+   Compiling psm v0.1.32
+    Checking ruff_source_file v0.0.17
+    Checking serde v1.0.229
+    Checking ruff_python_trivia v0.0.17
+    Checking ruff_python_ast v0.0.17
+    Checking stacker v0.1.25
+   Compiling pyo3-macros v0.29.2
+    Checking pyo3 v0.29.2
+    Checking ruff_python_parser v0.0.17
+    Checking purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/parsing)
+    Checking purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/selection)
+    Checking purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/assertion)
+    Checking purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/execution)
+    Checking purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/dispatch)
+    Checking purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/reporting)
+    Checking purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/command)
+    Checking purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/purba)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.58s
+[lint:rust] $ cargo doc --no-deps
+    Checking purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/fixtures)
+ Documenting purba-fixtures v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/fixtures)
+    Checking purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/parsing)
+ Documenting purba-parsing v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/parsing)
+    Checking purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/assertion)
+    Checking purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/selection)
+ Documenting purba-selection v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/selection)
+ Documenting purba-assertion v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/assertion)
+    Checking purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/execution)
+ Documenting purba-execution v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/execution)
+    Checking purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/reporting)
+    Checking purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/dispatch)
+ Documenting purba-dispatch v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/dispatch)
+ Documenting purba-reporting v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/reporting)
+    Checking purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/command)
+ Documenting purba-command v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/command)
+ Documenting purba v0.0.0 (/home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/crates/purba)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s
+   Generated /home/snregales/Projects/kalonji-tools/purba.proto-854-where-the-report-takes-the-abi-flags/proto-854/work/suite-w1x/target/doc/purba/index.html and 8 other files

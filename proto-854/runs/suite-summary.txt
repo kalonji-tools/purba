@@ -1,0 +1,38 @@
+w0 with its test changes: mise run test exit 0
+w0 with its test changes: mise run lint exit 0
+w1 code alone: mise run test exit 1
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+w1 with its test changes: mise run test exit 0
+w1 with its test changes: mise run lint exit 0
+w2 code alone: mise run test exit 1
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+w2 with its test changes: mise run test exit 0
+w2 with its test changes: mise run lint exit 0
+w3 code alone: mise run test exit 1
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+w3 with its test changes: mise run test exit 0
+w3 with its test changes: mise run lint exit 0
+w4 code alone: mise run test exit 1
+[test:wheel] not ok 12 the report of an internal error keeps the flags read before a test changed sys.abiflags
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+w4 with its test changes: mise run test exit 0
+w4 with its test changes: mise run lint exit 0
+w1x code alone: mise run test exit 1
+[test:wheel] not ok 50 purba with no sys.abiflags exits 3, and says why on stderr
+w1x with its test changes: mise run test exit 0
+w1x with its test changes: mise run lint exit 3
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/create-github-app-token/commits/v3.3.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/upload-artifact/commits/v7.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/download-artifact/commits/v8.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/download-artifact/commits/v8.0.2: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/pypa/gh-action-pypi-publish/commits/v1.14.3: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/create-github-app-token/commits/v3.3.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR failed to handle a line: verify the version annotation: get a commit hash: GET https://api.github.com/repos/actions/cache/commits/v6.1.0: 403 API rate limit of 60 still exceeded until 2026-11-07 20:40:53 +0100 CET, not making remote request. [rate reset in 5m34s]
+[lint:pins] ERROR task failed
+w1x lint:rust exit 0
+w1x lint:cargo-scripts exit 0
+w1x lint:links exit 0
+w1x lint:records exit 0
+w1x lint:shell exit 0
