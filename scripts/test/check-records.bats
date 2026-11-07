@@ -15,8 +15,25 @@ setup() {
   area="**Area:** tooling"
   refused_area="A record names each area it decides something in, in an \`**Area:**\` paragraph"
   landscape >LANDSCAPE.md
+  template=docs/decisions/.template.md
+  register >"${template}"
   compliant >"${record}"
   git add "${record}"
+}
+
+# A template whose comment no rule refuses. The comment names one record, and
+# a path and the glossary, which are no record names. Its comment ends on line
+# 5, and the form below it is never read.
+register() {
+  cat <<'TEMPLATE'
+<!--
+Copy this file to docs/decisions/{the-proposition-as-a-slug}.md.
+a-record-holds.md says why, and CONTEXT.md names each word.
+docs/agents/a-guide.md is no record.
+-->
+
+# {the proposition}
+TEMPLATE
 }
 
 # A record no rule refuses. Each test changes one thing in it.
@@ -106,6 +123,7 @@ words() {
   mkdir -p elsewhere/decisions
   swap "## Considered Options" "## Options"
   mv "${record}" elsewhere/decisions/a-record-holds.md
+  cp "${template}" elsewhere/decisions/
 
   run "${script}" elsewhere/decisions
 
@@ -161,12 +179,142 @@ words() {
   [[ "${output}" == *"${record}:5:"* ]]
 }
 
-@test "the template is not read, because a leading dot keeps it out" {
-  printf '<!-- how to write a record, with #45 in it -->\n' >docs/decisions/.template.md
+@test "the template's comment obeys the prose rules, refused at the template's own line" {
+  swap_in "${template}" "says why," "says why, as #45 said,"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"record prose carries no issue number"* ]]
+  [[ "${output}" == *"${template}:3:"* ]]
+}
+
+@test "only the template's comment is read, and never as a record" {
+  printf '\nAs #45 said.\n' >>"${template}"
 
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *".template.md"* ]]
+}
+
+@test "a record that the template's comment names and no file holds is refused" {
+  swap_in "${template}" "a-record-holds.md" "a-gone-record.md"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"A record that the template's comment names"* ]]
+  [[ "${output}" == *"${template}:3: a-gone-record.md"* ]]
+}
+
+@test "a name with an underscore before it, or a letter after .md, is no record name" {
+  swap_in "${template}" "is no record." "is no record, nor note_gone.md, nor a-gone-record.mdx."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a name after another name and a slash is part of a path, and no record name" {
+  swap_in "${template}" "is no record." "is no record, nor a-record-holds.md/a-gone-record.md."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a name with a second extension is no record name" {
+  swap_in "${template}" "is no record." "is no record, nor a-gone-record.md.bak."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a name before a full stop is a record name" {
+  swap_in "${template}" "is no record." "is no record, and neither is a-gone-record.md."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${template}:4: a-gone-record.md"* ]]
+}
+
+@test "a missing name written twice on one line is refused once" {
+  swap_in "${template}" "is no record." "is no record, nor a-gone.md, nor a-gone.md again."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  found=$(grep -c "${template}:4: a-gone.md" <<<"${output}")
+  [[ "${found}" -eq 1 ]]
+}
+
+@test "the first part of a path is no record name, though no file holds it" {
+  swap_in "${template}" "is no record." "is no record, nor a-gone-record.md/a-record-holds.md."
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a missing record name is refused once, though a longer name before it holds it" {
+  swap_in "${template}" "is no record." "is no record, nor a-gone-record.mdx, nor a-gone-record.md"
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  found=$(grep -c "${template}:4: a-gone-record.md" <<<"${output}")
+  [[ "${found}" -eq 1 ]]
+}
+
+@test "a missing template cannot be decided" {
+  rm "${template}"
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the comment of ${template} cannot be read"* ]]
+}
+
+@test "a missing template says the file is missing, and nothing of the two markers" {
+  rm "${template}"
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"is missing"* ]]
+  [[ "${output}" != *"stand alone"* ]]
+}
+
+@test "a template that exists and cannot be read says so, and not that it is missing" {
+  chmod 000 "${template}"
+
+  run "${script}"
+
+  chmod 644 "${template}"
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"cannot be opened"* ]]
+  [[ "${output}" != *"is missing"* ]]
+}
+
+@test "a template that does not open with its comment cannot be decided" {
+  printf '# {the proposition}\n' >"${template}"
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the comment of ${template} cannot be read"* ]]
+}
+
+@test "a first line that holds more than the marker cannot be decided, and the message says why" {
+  swap_in "${template}" $'<!--\nCopy' '<!-- Copy'
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"each stand alone on a line"* ]]
 }
 
 @test "a bare issue number is refused" {
@@ -430,7 +578,7 @@ FAKE
 @test "outside a git repository it reads the records" {
   swap "${reach}" "${reach} \`nowhere/**\`"
   mkdir -p "${BATS_TEST_TMPDIR}/bare/docs/decisions"
-  cp "${record}" "${BATS_TEST_TMPDIR}/bare/docs/decisions/"
+  cp "${record}" "${template}" "${BATS_TEST_TMPDIR}/bare/docs/decisions/"
   cp LANDSCAPE.md "${BATS_TEST_TMPDIR}/bare/"
   cd "${BATS_TEST_TMPDIR}/bare"
 

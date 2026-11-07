@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # What a record is, where its reach is, the paths a reach matches, the areas a
-# record names, and the marks its options carry.
+# record names, the marks its options carry, and the comment of the template.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
 #                  docs/decisions/a-record-names-every-location-where-it-applies.md
@@ -8,6 +8,7 @@
 # docs/decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md
 #   the marks:
 # docs/decisions/the-decision-sentence-is-the-winner-and-considered-options-holds-only-what-lost.md
+#   the template:  docs/decisions/a-register-belongs-to-one-location.md
 #
 #   is_record <path>                     prints <path> when it is a record
 #   reach_lines <record>                 prints `<first> <last> reach`, the lines
@@ -36,6 +37,10 @@
 #                                        Considered Options whose text after its
 #                                        lead-in opens with <word>, Chosen or
 #                                        Rejected
+#   template_comment <template>          prints <template> with each line outside
+#                                        its opening comment left blank. It fails
+#                                        unless its first line is `<!--` alone,
+#                                        and a later line is `-->` alone
 #
 # Each line of <attributes> is `<pattern> <attribute>`. <scratch> is a directory
 # the caller removes. The caller sources report.sh first.
@@ -288,4 +293,24 @@ decision_read() {
   done
   printf -v "$2" '%s' "${number}"
   printf -v "$3" '%s' "${content[number - 1]:-}"
+}
+
+# A comment opens on a `<!--` line and closes on a `-->` line. The two marker
+# lines and each line outside the comment print blank, so a line that a refusal
+# names is the template's own. Nothing prints until the comment closes.
+template_comment() {
+  awk '
+    NR == 1 {
+      if ($0 !~ /^<!--[[:space:]]*$/) exit
+      inside = 1
+      out[NR] = ""
+      next
+    }
+    inside && /^-->[[:space:]]*$/ { inside = 0; closed = 1; out[NR] = ""; next }
+    { out[NR] = inside ? $0 : "" }
+    END {
+      if (!closed) exit 1
+      for (i = 1; i <= NR; i++) print out[i]
+    }
+  ' "$1"
 }
