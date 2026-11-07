@@ -10,7 +10,7 @@ report_lines() {
   local version cpython system machine os arch
   version=$("${python}" -c 'import importlib.metadata; print(importlib.metadata.version("purba"))')
   cpython=$("${python}" -c 'import platform, sys
-print(platform.python_version() + getattr(sys, "abiflags", ""))')
+print(platform.python_version() + sys.abiflags)')
   system=$(uname -s)
   machine=$(uname -m)
   # Rust names each OS in lower case, macOS as macos, and Apple's arm64 as aarch64:
