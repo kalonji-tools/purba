@@ -96,7 +96,7 @@ An error that a [part](#part) sees in purba itself: a panic, or an error that pu
 
 ### Interrupt
 
-A signal that asks a [run](#run) to stop: SIGINT, SIGTERM or SIGHUP, or on Windows a Ctrl-C or Ctrl-Break. It is not an error, and purba charges no [test](#test) or module with a failure.
+A signal that asks a [run](#run) to stop: SIGINT, SIGTERM or SIGHUP. It is not an error, and purba charges no [test](#test) or module with a failure.
 
 ### Invariant
 
