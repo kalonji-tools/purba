@@ -83,6 +83,7 @@ One person occupies the architect, the reviewer and the toolsmith today, and an 
 Something that reads purba and wants nothing from it is not an actor.
 `git-cliff` reads a commit subject and wants nothing, so no location is written for it.
 An agent wants what the actor it occupies wants, so it adds no row.
+[A record names the role, not the kind of entity, unless the kind is what it decides](a-record-names-the-role-not-the-kind-of-entity.md#decision-outcome) says how a record names who acts.
 
 ⚠️ Three actors sit in both branches of the work, and one sits in both permanently.
 A library author becomes a contributor when it sends a change upstream, and a packager when it sends a build fix.

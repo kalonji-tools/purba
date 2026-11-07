@@ -61,6 +61,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Define no word in a record. A word that is specific to purba goes in `CONTEXT.md`. ([a term belongs to the glossary](docs/decisions/a-term-belongs-to-the-glossary.md#decision-outcome))
 - When you add an `_Avoid_` line to `CONTEXT.md`, add each form of the word to `[tool.typos]` in `pyproject.toml`. ([the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
 - Write a figure in a record as a fence GitHub renders: `mermaid` for a diagram or a plot, `math` for a formula. ([a figure in a record is a fence GitHub renders](docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md#decision-outcome))
+- Name the role, not the kind of entity, unless the kind is what the line decides. ([a record names the role, not the kind of entity, unless the kind is what it decides](docs/decisions/a-record-names-the-role-not-the-kind-of-entity.md#decision-outcome))
 - Rewrite a record when an issue it waits on closes, and remove the link to that issue. ([a decision record is rewritten, not amended](docs/decisions/a-record-is-rewritten-not-amended.md#decision-outcome), [`.template.md`](docs/decisions/.template.md))
 
 ## In anything you write
