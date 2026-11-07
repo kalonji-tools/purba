@@ -18,7 +18,8 @@ bats_require_minimum_version 1.5.0
 # sends each further signal one second after the one before. The signals are
 # SIGINT by default, or the names after <hold>, such as `INT TERM`. With
 # `none`, it sends no signal. With `ignored`, purba starts with SIGINT ignored,
-# and gets one SIGINT.
+# and gets one SIGINT. With `masked` first, purba starts with SIGINT masked, and
+# gets the signals named after it, or no signal.
 #
 # It reads stdout only <hold> seconds after the last signal. A pipe holds less
 # than a line of 300 KB, so purba waits in its write until then. It prints
@@ -32,15 +33,22 @@ import os, signal, subprocess, sys, time
 
 purba, module, hold, *names = sys.argv[1:]
 ignored = names == ["ignored"]
+masked = names[:1] == ["masked"]
+if masked:
+    names = names[1:] or ["none"]
 if ignored or not names:
     names = ["INT"]
 disposition = signal.SIG_IGN if ignored else signal.SIG_DFL
+def start():
+    signal.signal(signal.SIGINT, disposition)
+    if masked:
+        signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})
 child = subprocess.Popen(
     [purba, module],
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
     start_new_session=True,
-    preexec_fn=lambda: signal.signal(signal.SIGINT, disposition),
+    preexec_fn=start,
 )
 if names != ["none"]:
     deadline = time.monotonic() + 30
@@ -234,6 +242,116 @@ LINES
   [[ ! -e two ]]
 }
 
+@test "a mask that a test puts on SIGINT lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
+    '    assert True' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    Path("three").touch()' >test_mask.py
+
+  run -0 --separate-stderr interrupt test_mask.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_mask.py::test_one passed
+test_mask.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e three ]]
+}
+
+@test "a mask that a module puts on SIGINT lives only for its load" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
+    'def test_one():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_two():' '    Path("two").touch()' >test_module_mask.py
+
+  run -0 --separate-stderr interrupt test_module_mask.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_module_mask.py::test_one interrupted
+2 tests: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+@test "a signal that the parent masks stays masked after a test unmasks it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal' \
+    'def test_one():' '    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})' \
+    '    assert True' \
+    'def test_two():' \
+    '    assert signal.SIGINT in signal.pthread_sigmask(signal.SIG_BLOCK, set())' \
+    >test_parent_mask.py
+
+  run -0 --separate-stderr interrupt test_parent_mask.py 0 masked
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_parent_mask.py::test_one passed
+test_parent_mask.py::test_two passed
+2 tests: 2 passed
+LINES
+  [[ "${stderr}" == 'purba exited 0' ]]
+}
+
+@test "a Ctrl-C in a test that unmasks a signal the parent masks ends purba by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})' \
+    '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_two():' '    Path("two").touch()' >test_unmasked.py
+
+  run -0 --separate-stderr interrupt test_unmasked.py 0 masked INT
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_unmasked.py::test_one interrupted
+2 tests: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+@test "a Ctrl-C that a test's mask holds stops the run, though the test has its own handler" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
+    '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
+    '    Path("marker").touch()' '    time.sleep(2)' '    assert True' \
+    'def test_two():' '    Path("two").touch()' >test_held_own.py
+
+  run -0 --separate-stderr interrupt test_held_own.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_held_own.py::test_one passed
+2 tests: 1 passed, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+@test "a test's signal handler lives only for its call, though the test patches signal.signal" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' 'from unittest import mock' \
+    'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
+    '    mock.patch("signal.signal").start()' '    mock.patch("_signal.signal").start()' \
+    '    mock.patch("_signal.getsignal").start()' '    assert True' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    Path("three").touch()' >test_patched.py
+
+  run -0 --separate-stderr interrupt test_patched.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_patched.py::test_one passed
+test_patched.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e three ]]
+}
+
 @test "a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
@@ -267,6 +385,42 @@ test_ignored.py::test_one passed
 1 test: 1 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
+}
+
+@test "a signal handler that a test gives a signal the parent ignores lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.signal(signal.SIGINT, signal.default_int_handler)' \
+    '    assert True' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert True' \
+    'def test_three():' '    assert True' >test_ignored_handler.py
+
+  run -0 --separate-stderr interrupt test_ignored_handler.py 0 ignored
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ignored_handler.py::test_one passed
+test_ignored_handler.py::test_two passed
+test_ignored_handler.py::test_three passed
+3 tests: 3 passed
+LINES
+  [[ "${stderr}" == 'purba exited 0' ]]
+}
+
+@test "a Ctrl-C that a test's mask holds stops the run when the call returns" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
+    '    Path("marker").touch()' '    time.sleep(2)' '    assert True' \
+    'def test_two():' '    Path("two").touch()' >test_held.py
+
+  run -0 --separate-stderr interrupt test_held.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_held.py::test_one passed
+2 tests: 1 passed, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
 }
 
 @test "SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal" {
