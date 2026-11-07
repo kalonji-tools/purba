@@ -50,5 +50,9 @@ WSL2 runs a Linux kernel, so purba runs there as it does on Linux.
 ## Confirmation
 
 The matrices of `build.yml` and `publish.yml` name no Windows runner. No command checks that.
-[Remove the Windows arms from purba's code](https://github.com/kalonji-tools/purba/issues/841) makes a build for Windows stop with a message that names WSL2.
-It also removes each Windows arm of the code.
+
+A guard in `purba-execution` stops a build for Windows with a message that names WSL2.
+`cargo check --target x86_64-pc-windows-gnu` prints that message as its first error.
+The command needs Rust's standard library for that target, and a C compiler for that target.
+The build scripts of `stacker` and `psm` need that compiler.
+No CI job runs the command.
