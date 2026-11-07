@@ -1,5 +1,4 @@
 //! A signal that waits as a load starts stops that load.
-#![cfg(unix)]
 
 use std::path::PathBuf;
 

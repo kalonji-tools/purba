@@ -1,6 +1,5 @@
 //! A SIGTERM does what a SIGINT does, and the first interrupt gives each
 //! interrupt signal its default action.
-#![cfg(unix)]
 
 use std::path::PathBuf;
 
