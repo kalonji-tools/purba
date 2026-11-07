@@ -31,15 +31,13 @@ A crash ends one test, and not the run.
 
 - **A zygote of purba's own loads the module once, and forks each test.** purba sees a failed load itself.
 - **A module that fails to load gives one project error.** The zygote then forks no test.
-- **On Windows, purba spawns each test.**
 - **No record decides how macOS starts each test.**
 - **purba adds nothing to a test that the test does not name.**
 - **Until purba has its zygote, the tests of a module share one interpreter.**
 
 **Downside:**
 
-- **A tester pays a fork for each test, and a spawn on Windows.**
-- **On Windows, a module body with an effect outside the process runs once for each test.** An outcome can then differ by platform.
+- **A tester pays a fork for each test.**
 - **A module whose import starts a thread leaves a thread in the zygote when the zygote forks.** A lock that the thread held stays locked in each forked test.
 
 ## Confirmation

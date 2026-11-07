@@ -16,6 +16,7 @@
 - [purba divides by responsibility and not by language](decisions/purba-divides-by-responsibility-and-not-by-language.md)
 - [purba ranks an honest outcome first](decisions/purba-ranks-an-honest-outcome-first.md)
 - [purba runs inside the tester's interpreter](decisions/purba-runs-inside-the-testers-interpreter.md)
+- [purba runs on Linux and macOS, and a Windows user runs it under WSL](decisions/purba-runs-on-linux-and-macos.md)
 - [purba supports a Python that has two years left](decisions/purba-supports-a-python-with-two-years-left.md)
 - [purba's public surface starts empty and has no plugin API](decisions/purbas-public-surface-starts-empty-and-has-no-plugin-api.md)
 
@@ -156,6 +157,7 @@
 - [Only GitHub runs what lives under `.github`](decisions/only-github-runs-what-lives-under-github.md)
 - [purba carries no tool manager beside mise, and no compiler of its own](decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md)
 - [purba meets the next trait solver before it stabilizes](decisions/purba-meets-the-next-trait-solver-before-it-stabilizes.md)
+- [purba runs on Linux and macOS, and a Windows user runs it under WSL](decisions/purba-runs-on-linux-and-macos.md)
 - [purba supports a Python that has two years left](decisions/purba-supports-a-python-with-two-years-left.md)
 - [purba writes its scripts in bash until purba can test them](decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md)
 - [The crate carries an rlib](decisions/the-crate-carries-an-rlib.md)

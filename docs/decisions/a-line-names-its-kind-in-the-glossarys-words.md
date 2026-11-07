@@ -71,7 +71,6 @@ purba: internal error: <part>: <message>
 - **The count changes its shape from run to run.** A script that reads a column by its place breaks. An integrator reads the exit code until reporting decides a format.
 - **Rust's panic hook speaks Rust.** A tester sees `thread '<unnamed>' panicked at` and a path in purba's source.
 - **The defect template is written for a contributor.** A tester who reports a bug fills in a task.
-- **On Windows, a free-threaded build reads as the build with a GIL.** CPython gives `sys.abiflags` on Unix alone.
 
 ## Confirmation
 
