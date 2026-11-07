@@ -26,7 +26,7 @@ Two of these rules were already purba's.
 
 ## Decision Outcome
 
-**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/check-prose/**` `docs/agents/post-pass.md`
+**Reach:** `docs/decisions/*.md` `scripts/check-records.sh` `scripts/records.sh` `scripts/check-prose/**` `docs/agents/post-pass.md`
 
 **Area:** writing
 
@@ -74,7 +74,6 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 - **The rule numbers are absent.** A reader who holds the specification matches these rules to it by their words. The reader matches the active voice by its meaning.
 - **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` or a word in its list of prepositions and conjunctions, so a gerund elsewhere passes.
 - **A reported number binds nobody.** The passive voice is the largest deviation in the corpus and nothing refuses it.
-- **The file stating these rules is not checked against them.** `.template.md` sits outside the glob, and its prose lives inside a comment the same command refuses elsewhere.
 - **Nothing reports a breach of one idea in one sentence already on `main`.** Only the post pass reports that rule. The pass judges only the lines a change adds.
 - **Nothing reports a breach of one idea in one sentence in a change that a person writes.** [A change is specified before it is built](a-change-is-specified-before-it-is-built.md#decision-outcome) owes a post pass on work an agent wrote. No record owes a post pass on a person's work.
 
@@ -88,6 +87,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 | the same command refuses an `-ing` form after `be` or a listed preposition or conjunction | `scripts/check-prose/check-prose.rs` |
 | the same command refuses `has`, `have` or `had` with a participle | `scripts/check-prose/check-prose.rs` |
 | the same command reports the passive voice and refuses nothing | `scripts/check-prose/check-prose.rs` |
+| the same command applies each rule it refuses here to the comment of `.template.md` | `scripts/check-records.sh` |
 | the post pass judges each added line against every rule this record reports | `docs/agents/post-pass.md` |
 | the approved dictionary | a reader, and there will be no check |
 

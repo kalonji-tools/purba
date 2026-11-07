@@ -47,4 +47,4 @@ A rule that binds a role binds each [entity](../../CONTEXT.md#entity) that fills
 The reviewer of each change to `docs/decisions/` reads whether each line names the role.
 [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md), and no command decides this one.
 [`AGENTS.md`](../../AGENTS.md) carries the rule to an agent before it writes a record.
-[The template keeps only the rules a reviewer judges, and lint:records reads them](https://github.com/kalonji-tools/purba/issues/825) carries it into `.template.md`, for a writer who starts a record.
+`.template.md` carries it to a writer who starts a record.
