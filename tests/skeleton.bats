@@ -47,6 +47,19 @@ LINES
   [[ "${stderr}" == "${refused}" ]]
 }
 
+@test "purba with no sys.abiflags exits 3, and says why on stderr" {
+  local site="${BATS_TEST_TMPDIR:?set by bats}/site"
+  mkdir "${site}"
+  printf '%s\n' 'import sys' '' 'del sys.abiflags' >"${site}/sitecustomize.py"
+  cd "${BATS_TEST_DIRNAME}/skeleton"
+
+  run -3 --separate-stderr env PYTHONPATH="${site}" purba test_a.py
+
+  local refused="purba: invocation error: AttributeError: module 'sys' has no attribute 'abiflags'"
+  [[ -z "${output}" ]] || false
+  [[ "${stderr}" == "${refused}" ]]
+}
+
 @test "a test that aborts purba leaves the line of each test before it" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
