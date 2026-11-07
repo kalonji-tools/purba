@@ -197,3 +197,23 @@ hits() {
   [[ "${got}" == "one.md src/** src/a.rs
 two.md src/** src/a.rs" ]]
 }
+
+@test "the comment of a template keeps its line numbers, and each line outside it is blank" {
+  printf '<!--\nOne rule.\n-->\n\n# {the proposition}\n' >t.md
+
+  template_comment t.md >"${BATS_TEST_TMPDIR}/got"
+
+  printf '\nOne rule.\n\n\n\n' | cmp - "${BATS_TEST_TMPDIR}/got"
+}
+
+@test "a template that does not open with a comment, or never closes it, has none" {
+  for body in '# {the proposition}\n' '<!--\nOne rule.\n' 'Text.\n<!--\nOne rule.\n-->\n'; do
+    # shellcheck disable=SC2059 # each body is the format, so its \n are newlines
+    printf "${body}" >t.md
+
+    run template_comment t.md
+
+    [[ "${status}" -eq 1 ]]
+    [[ -z "${output}" ]]
+  done
+}

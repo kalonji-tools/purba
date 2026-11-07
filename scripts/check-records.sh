@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# The decision-record rules a command can decide.
+# The decision-record rules a command can decide, in each record and in the
+# comment of the template.
 #
 #   the decision:  docs/decisions/a-record-is-rewritten-not-amended.md
 #   the task:      mise run lint:records
 #
 #   check-records.sh [directory]
 #
-# Exits 1 when a record breaks a rule, and 2 when this script cannot decide.
+# Exits 1 when a record or the comment of the template breaks a rule, and 2
+# when this script cannot decide.
 #
 # It reports every rule before it exits, because a writer fixing one refusal
 # should not have to run it again to find the next.
@@ -26,6 +28,9 @@ records=("${dir}"/*.md)
 
 [[ ${#records[@]} -gt 0 ]] || cannot "no record found in ${dir}."
 
+scratch=$(mktemp -d)
+trap 'rm -rf "${scratch}"' EXIT
+
 # A cargo script reads the prose rules, the section order, the Downside, the
 # Confirmation, and the comment, issue-number and citation rules. It reads
 # through CommonMark, so a line in a code block is not prose. It prints one
@@ -33,11 +38,66 @@ records=("${dir}"/*.md)
 #
 #   the decision:  docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md
 here=$(cd "$(dirname "$0")" && pwd)
-prose=$(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\"" \
-  run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs" \
-  --target-dir "${here}/../target/scripts" -- \
-  "${here}/check-prose/participles.txt" "${records[@]}") ||
+read_prose=(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\""
+  run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs"
+  --target-dir "${here}/../target/scripts" -- "${here}/check-prose/participles.txt")
+prose=$("${read_prose[@]}" "${records[@]}") ||
   cannot 'the prose of a record cannot be read.'
+
+# The template is the register of the records, and its comment obeys their
+# prose rules. A second run reads the comment, with each other line blank, so
+# its sentences join no tally. The rules that read the parts of a record do
+# not bind it.
+#
+#   the decision:  docs/decisions/a-register-belongs-to-one-location.md
+template=${dir}/.template.md
+unread="the comment of ${template} cannot be read, so the rules a record obeys cannot be \
+checked in it. Its first line must be \`<!--\` and a later line must be \`-->\`, and the \
+two markers each stand alone on a line."
+[[ -e "${template}" ]] ||
+  cannot "the comment of ${template} cannot be read, because the file is missing."
+[[ -r "${template}" ]] ||
+  cannot "the comment of ${template} cannot be read, because the file cannot be opened."
+# template_comment is one awk command, so set -e has nothing inside it to stop.
+# shellcheck disable=SC2310
+template_comment "${template}" >"${scratch}/template.md" || cannot "${unread}"
+register=$("${read_prose[@]}" "${scratch}/template.md") ||
+  cannot 'the prose of the template cannot be read.'
+parts=$'^(sections|comment|preamble|counted|listless|leadins|unwired|tally|density)\t'
+while IFS= read -r line; do
+  [[ -z "${line}" || "${line}" =~ ${parts} ]] ||
+    prose+=$'\n'"${line//"${scratch}/template.md"/"${template}"}"
+done <<<"${register}"
+
+# A bare record name in the comment is a file beside the records. A path, an
+# upper-case name such as CONTEXT.md, and a name joined to an underscore or to a
+# second extension are no record names. A full stop may follow a name.
+name='(^|[^/._[:alnum:]-])([a-z0-9][a-z0-9-]*\.md)(\.([^[:alnum:]]|$)|[^./_[:alnum:]-]|$)'
+found=()
+declare -A named=()
+number=0
+while IFS= read -r line; do
+  number=$((number + 1))
+  # The characters after a name can sit before the next one, as the `,` of
+  # `a.md,b.md` does, so the scan starts again at them. A name at the end of the
+  # line ends the scan. A line refuses each missing name once.
+  while [[ "${line}" =~ ${name} ]]; do
+    entry="${template}:${number}: ${BASH_REMATCH[2]}"
+    after=${BASH_REMATCH[3]}
+    whole=${BASH_REMATCH[0]}
+    if [[ ! -f "${dir}/${BASH_REMATCH[2]}" && -z "${named[${entry}]:-}" ]]; then
+      found+=("${entry}")
+      named[${entry}]=1
+    fi
+    [[ -n "${after}" ]] || break
+    line=${after}${line#*"${whole}"}
+  done
+done <"${scratch}/template.md"
+[[ ${#found[@]} -eq 0 ]] || refuse \
+  "A record that the template's comment names is a file beside the records, because a writer \
+who follows the comment opens it. A record keeps the file name it was born with, so only a \
+deleted record leaves its name dead." \
+  "${found[@]}"
 
 # Each tag the cargo script prints, whether it refuses or is reported, and its
 # summary. The output follows the order of the rows. The summary of a refusal
@@ -242,9 +302,6 @@ done
 # matched.
 if top=$(git rev-parse --show-toplevel 2>/dev/null); then
   # git writes NUL-separated output, which a shell variable cannot hold.
-  scratch=$(mktemp -d)
-  trap 'rm -rf "${scratch}"' EXIT
-
   git -C "${top}" ls-files -z >"${scratch}/files" ||
     cannot "git cannot list the tracked files."
   reach_hits "${scratch}" "${scratch}/files" "${records[@]}" >"${scratch}/matched"

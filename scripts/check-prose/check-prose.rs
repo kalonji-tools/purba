@@ -30,7 +30,10 @@ nursery = { level = "deny", priority = -1 }
 //!     docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md
 //!   the caller:  scripts/check-records.sh
 //!
-//!   check-prose.rs <participles> <record>...
+//!   check-prose.rs <participles> <file>...
+//!
+//! Each <file> is a record, or the comment of the template with each other line
+//! left blank.
 //!
 //! Prints one line for each finding, tagged with the rule it breaks, then the
 //! tallies and the evidence density that the caller reports. Exits 0 either
@@ -127,7 +130,7 @@ const ASK: [&str; 9] = [
 fn main() {
     let mut args = std::env::args().skip(1);
     let Some(participles) = args.next() else {
-        eprintln!("usage: check-prose.rs <participles> <record>...");
+        eprintln!("usage: check-prose.rs <participles> <file>...");
         std::process::exit(2);
     };
     let Ok(list) = std::fs::read_to_string(&participles) else {
@@ -452,7 +455,8 @@ impl<'a> Record<'a> {
         record
     }
 
-    // The four Downside rules `docs/decisions/.template.md` states, and a
+    // The four Downside rules of
+    // `docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md`, and a
     // Confirmation that admits an unwired gate and names no issue.
     fn parts(&self) -> Vec<String> {
         let path = self.path;
@@ -740,8 +744,9 @@ impl<'a> Record<'a> {
         }
     }
 
-    // `docs/decisions/.template.md` puts one sentence on one line, so a line
-    // that ends mid-sentence and goes on is wrapped. A quote is read here,
+    // A sentence stays on one line, as
+    // `docs/decisions/a-record-is-rewritten-not-amended.md` says, so a line that
+    // ends mid-sentence and goes on is wrapped. A quote is read here,
     // because the writer chose where its lines break.
     fn wrap(&mut self, at: usize) {
         let line = self.line(at);
