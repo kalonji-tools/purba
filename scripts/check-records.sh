@@ -269,9 +269,10 @@ if top=$(git rev-parse --show-toplevel 2>/dev/null); then
 fi
 
 # Three borrowed rules a command cannot decide, reported and never
-# refused. The active voice rule admits the passive where the agent is
-# unknown, which is a judgement, and an article left out is not decidable at
-# all: the count below says how many are present, never how many are missing.
+# refused. The active voice rule admits the passive where a sentence cannot
+# name who acts, which is a judgement, and an article left out is not
+# decidable at all: the count below says how many are present, never how many
+# are missing.
 tally=$(grep -m1 '^tally' <<<"${prose}") || tally=''
 read -r _ sentences passives arts formals wordcount formallist <<<"${tally}"
 

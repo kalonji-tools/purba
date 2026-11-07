@@ -18,7 +18,7 @@ Five prototypes measured what a workflow can and cannot do across the fork bound
 ## Considered Options
 
 - **Merge the pull request from the fork and write no acceptance trailer.** A record with a documented hole has to be read beside its documentation before a reader can trust it. The risk this mechanism was built against sits outside this repository.
-- **Let a workflow write the trailer on the fork.** A measurement shows that the token is read only there whatever `permissions:` declares, and `maintainer_can_modify` grants a person rather than the Actions token.
+- **Let a workflow write the trailer on the fork.** A measurement shows that the token is read only there whatever `permissions:` declares, and `maintainer_can_modify` grants an account rather than the Actions token.
 - **Let a merge queue build the commits here, and have a job rewrite them.** A measurement shows that the queue branch refuses the push with `protected branch hook declined`, and the queue then merges the commit it built.
 - **Have a workflow mirror the branch and open the pull request.** A workflow opens a pull request only where the repository allows Actions to create and approve them, and that is one setting rather than two. Acceptance is derived from an approval here, so a workflow that can approve voids the record it would write.
 - **Give the contributor write access to one branch prefix.** Write access also carries the power to approve a pull request.

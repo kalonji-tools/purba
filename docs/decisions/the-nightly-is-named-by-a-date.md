@@ -35,7 +35,7 @@ Nothing reports the difference.
 A date is an exact version, so it resolves only to itself, and mise documents that form.
 `.config/mise.lock` records the same string, because mise derives an exact request's lock row from the request.
 So `.config/mise.lock` cannot disagree with `.config/mise.toml`.
-A person moves the date.
+A commit moves the date.
 
 ⚠️ **A floating name drifts, and no lockfile stops it.**
 [purba carries no tool manager beside mise, and no compiler of its own](purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md) holds the mechanism and what it costs.
@@ -46,10 +46,10 @@ Its absence is what stops the tree contradicting that record.
 
 **Downside:**
 
-- **A person must move the date, or purba freezes on one compiler.** `.github/workflows/bump.yml` proposes a newer date every week for a person to sign.
+- **A commit must move the date, or purba freezes on one compiler.** `.github/workflows/bump.yml` proposes a newer date every week for a person to sign.
 
 ## Confirmation
 
 | property | check |
 |---|---|
-| the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a developer machine does not |
+| the toolchain is the same everywhere | **true by construction, not by a check.** The request is exact, so every machine resolves the same version. `.github/workflows/build.yml` names the compiler each `rust` job built with, on three operating systems, so a reader can audit it; that step refuses nothing. ⚠️ **The claim excludes mise itself**, which cannot pin its own version, so each workflow names it and a local machine does not |

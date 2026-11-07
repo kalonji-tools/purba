@@ -32,7 +32,7 @@ Two of these rules were already purba's.
 
 **purba borrows a prose rule from the standard, and never adopts the standard.**
 
-A borrowed rule is quoted in the words the standard uses.
+purba quotes a borrowed rule in the words the standard uses, except the active voice, whose words [a record names the role, not the kind of entity, unless the kind is what it decides](a-record-names-the-role-not-the-kind-of-entity.md) sets.
 No public source carries the rule numbers, so purba cites none.
 
 **A rule refuses only where a command decides it.**
@@ -52,8 +52,8 @@ No public source carries the rule numbers, so purba cites none.
 [A part-of-speech tagger decides the tense rule](a-part-of-speech-tagger-decides-the-tense-rule.md) says which command refuses a tense.
 
 **The active voice is reported and never refused.**
-The rule admits the passive where the agent is unknown.
-A command cannot decide whether an agent is unknown.
+The rule admits the passive where a sentence cannot name who acts.
+A command cannot decide whether a sentence can name who acts.
 [A standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 
 **A list item carries a sentence, and a table cell does not.**
@@ -71,7 +71,7 @@ That title is owed rather than chosen, and charging its words to the sentence wo
 - **The approved dictionary is excluded.** The list is not obtainable here, so the largest rule in the standard binds nothing.
 - **A numbered list that is not a procedure takes the shorter limit too.** A command cannot tell a procedure from a numbered list of names.
 - **A procedure written as bullets keeps the longer limit.** Nothing checks that a procedure is written as a numbered list.
-- **The rule numbers are absent.** A reader holding the specification matches these rules to it by their words.
+- **The rule numbers are absent.** A reader who holds the specification matches these rules to it by their words. The reader matches the active voice by its meaning.
 - **An `-ing` form reaches the gate in two positions only.** The detector reads what follows a form of `be` or a word in its list of prepositions and conjunctions, so a gerund elsewhere passes.
 - **A reported number binds nobody.** The passive voice is the largest deviation in the corpus and nothing refuses it.
 - **The file stating these rules is not checked against them.** `.template.md` sits outside the glob, and its prose lives inside a comment the same command refuses elsewhere.

@@ -186,7 +186,7 @@ The [location](#location) that holds the discussion of how a change was implemen
 
 ### Reach
 
-The [locations](#location) a [record](#record) applies to. It names every location where a change makes the record apply, and a location where the change goes to a person counts.
+The [locations](#location) a [record](#record) applies to. It names every location where a change makes the record apply, and a location with no path counts.
 
 ### Reader
 

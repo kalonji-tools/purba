@@ -25,7 +25,7 @@ Three facts shape the rest of the choice.
 - **The two managers hold a toolchain by different mechanisms.** devenv wins the PATH. mise sets `RUSTUP_TOOLCHAIN`, which no PATH order can defeat.
 
 That last difference decides how each one fails.
-A gap in devenv's PATH coverage falls through to whatever rustup the developer already has.
+A gap in devenv's PATH coverage falls through to whatever rustup the machine already has.
 The shell keeps working with the wrong compiler in it.
 This was reproduced during the measurement.
 A shell served a stable rustc beside a nightly rustfmt, with no warning, on a version the pinned parser crates cannot build.
@@ -94,7 +94,7 @@ Run against a store that already holds them it reports "already installed" and r
 
 ⚠️ **A floating version name cannot be held by this lockfile.**
 `core:rust` finishes an install with a symlink from its install path to `CARGO_HOME/bin`.
-mise reads an absolute symlink outside its own directories as one a person made.
+mise reads an absolute symlink outside its own directories as one that mise did not make.
 Such a version outranks the lockfile.
 After the first rust install the lockfile is not consulted, and a floating name resolves against the channel again.
 Two runs six minutes apart, on one commit and one lockfile, installed `nightly-2026-09-22` and then `nightly-2026-09-25`.

@@ -29,15 +29,15 @@ A caller is a fact a command can read.
 A script is refused when every caller of it lives in the other half of the tree.
 
 `.github/**` is GitHub's half.
-Everything else is a person's, and `.config/tasks.toml` and `prek.toml` are in it because a person reaches a task through them.
-A script a person runs, or that this project's own tooling runs, lives in `scripts/`.
+Everything else belongs to a caller outside GitHub, and `.config/tasks.toml` and `prek.toml` are in it because that caller reaches a task through them.
+A script a caller runs by hand, or that this project's own tooling runs, lives in `scripts/`.
 
 A sourced helper needs no rule of its own.
 The script that sources it is a caller, so the same clause puts the helper where its callers are.
 
 A script that no caller in the tree names is refused under `.github` and accepted in `scripts/`.
 The runners under `.github` are enumerable, so nothing there reaches a script that no workflow and no sibling names.
-A person is a caller this repository cannot see, which is why the fork command belonged in `scripts/` while nothing here ran it at all.
+A caller outside the tree is one this repository cannot see, so the fork command belonged in `scripts/` while nothing here ran it at all.
 
 **`.github/CODEOWNERS` covers both directories.**
 Placement decides which directory a script sits in, and never who approves it.
@@ -77,7 +77,7 @@ The command does not read a test as a caller, so no test moves a script.
 | a script under `.github/scripts/` that only a task names | refused, and the task is named as its only caller |
 | a script in `scripts/` that only a workflow names | refused, and the workflow is named |
 | a script under `.github/scripts/` that nothing names | refused |
-| a script in `scripts/` that nothing names | passes, because a person is its caller |
+| a script in `scripts/` that nothing names | passes, because its caller is outside the tree |
 | a workflow that keeps a comment naming a script and loses the line that runs it | refused |
 | a second script of one name, in the other half | the new file is refused and the placed one passes, so a collision cannot produce a silent pass |
 | run outside a git repository | exits 2 rather than 1, because it cannot decide rather than refuse |

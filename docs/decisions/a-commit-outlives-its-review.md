@@ -27,7 +27,7 @@ Two of those five went on to list the changes.
 The commit is a second copy of a document that sits in the same tree.
 
 There is no standard to appeal to.
-No ISO, IEEE or RFC governs commit messages, Conventional Commits specifies only the machine contract, and git and the kernel specify the human one.
+No ISO, IEEE or RFC governs commit messages, Conventional Commits specifies only the machine contract, and git and the kernel specify the prose one.
 Both of those assume the commit is the only durable artifact, because both are mailing-list projects with no issue tracker and no decision records.
 
 The obvious fix was to let decision records absorb the rationale, and measurement killed it.

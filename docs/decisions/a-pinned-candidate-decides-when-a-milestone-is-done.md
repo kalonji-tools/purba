@@ -6,7 +6,7 @@ purba holds no product code yet.
 Nothing says when a [milestone](../../CONTEXT.md#milestone) is done.
 A feature list says what to build, and not whether purba runs real tests honestly.
 A third-party suite can say both, if a commit pins its tests before the build starts.
-The decision that a milestone is done must not rest on a verdict that cannot decide, or on a person who reads finished code.
+The decision that a milestone is done must not rest on a verdict that cannot decide, or on a reviewer who reads finished code.
 
 | fact | source |
 |---|---|
@@ -20,7 +20,7 @@ The decision that a milestone is done must not rest on a verdict that cannot dec
 
 ## Considered Options
 
-- **A verdict at the end that the migration is clean.** "Clean" decides nothing, and a person then reads the finished code.
+- **A verdict at the end that the migration is clean.** "Clean" decides nothing, and a reviewer then reads the finished code.
 - **Total coverage, where a test may split or merge upstream tests.** It needs a coverage mark that has no design.
   The honest-outcome scenario also compares by name.
 

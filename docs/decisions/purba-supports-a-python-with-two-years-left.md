@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 purba's Python floor was 3.11 and no location held a reason for it.
-A floor with no reason reads as a decision to the next person who finds it.
+A floor with no reason reads as a decision to the next reader who finds it.
 
 purba holds no product code, so the floor is a claim about a release that does not exist yet.
 A version that ends soon after that release costs support and returns nothing.
@@ -37,7 +37,7 @@ This record does not repeat that version, because it moves and the rule does not
 
 **The span is two years.**
 It is long enough that a version cannot die in the months after purba first ships.
-It is short enough that the floor does not outrun the versions people run.
+It is short enough that the floor does not outrun the versions in use.
 
 **The floor is recomputed when the version below it crosses the span.**
 That is an event in the release calendar rather than a date in this file.
@@ -62,7 +62,7 @@ So the claim above the floor is true, and nothing tests every version that satis
 
 **Downside:**
 
-- **Only the upload refuses a disagreement between `requires-python` and the abi3 feature.** A person who moves one and leaves the other passes every check before the merge. The next release then fails.
+- **Only the upload refuses a disagreement between `requires-python` and the abi3 feature.** A change that moves one and leaves the other passes every check before the merge. The next release then fails.
 - **Nothing refuses a matrix without its floor arm.** No job then builds the wheel on the floor.
 - **Nothing refuses a build on an interpreter below the floor.** `maturin build --interpreter` writes a version-specific wheel and a warning. `mise run build` uses the interpreter mise supplies, so only a build that names another interpreter meets this.
 - **The span is a judgement and this record freezes it.** No measurement chose two years, so a later reader can only find the reasoning above, never a number that settles it.
