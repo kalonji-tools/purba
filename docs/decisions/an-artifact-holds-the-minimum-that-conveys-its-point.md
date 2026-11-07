@@ -92,7 +92,6 @@ A threshold would refuse the records that obey.
 - **Naming a category costs a rewrite.** A record is replaced rather than appended to, so every category a review finds is paid for again.
 - **A count can refuse an artifact whose every element carries the point.** Evidence density is reported for that reason, and a word budget carries the same flaw.
 - **A reported number binds nobody.** It can be read and ignored indefinitely.
-- **The file stating the prose rules is not checked against them.** `.template.md` sits outside the glob, and its rules live inside a comment the same command refuses elsewhere.
 - **Bold used for emphasis at the head of a sentence passes.** A bolded table row is not a lead-in, and no rule here refuses it.
 
 ## Confirmation

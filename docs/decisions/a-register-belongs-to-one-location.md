@@ -51,7 +51,7 @@ The pull request has no shape to preserve.
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/LANDSCAPE.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) [pull request](../../CONTEXT.md#pull-request) [issue](../../CONTEXT.md#issue) [published comment](../../CONTEXT.md#published-comment) [unpublished comment](../../CONTEXT.md#unpublished-comment) [refusal](../../CONTEXT.md#refusal) `docs/decisions/.template.md` `.github/PULL_REQUEST_TEMPLATE.md` `.github/ISSUE_TEMPLATE/**` `/AGENTS.md` `/CONTEXT.md` `/LANDSCAPE.md` `/.config/cliff.toml` `scripts/report.sh` `scripts/records.sh` `scripts/check-records.sh` `.github/workflows/*.yml` `docs/agents/post-pass.md`
 
 **Area:** writing
 
@@ -97,6 +97,8 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 **A gate holds the decision record's register.**
 
 `mise run lint:records` refuses a record that breaks a rule a command can decide.
+It also reads the register, the comment of `docs/decisions/.template.md`, by each prose rule it refuses in a record.
+It refuses a bare record name in that comment that no file holds.
 `Quality` runs it on every pull request.
 Considered Options says why no gate holds the pull request's register or the issue's.
 
@@ -122,7 +124,7 @@ These are titles for the parties to one pull request, and the roster in [an acto
 | location | its register | decidable | gated |
 |---|---|---|---|
 | commit message | [a commit message outlives its review](a-commit-outlives-its-review.md) | partly, and that record lists which rows | no, `commit-msg` hooks refuse at the commit |
-| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order | yes, `mise run lint:records` |
+| `docs/decisions/` | `docs/decisions/.template.md` | yes, four sections in order, and the refused prose rules in the register itself | yes, `mise run lint:records` |
 | `CONTEXT.md` | [a term belongs to the glossary](a-term-belongs-to-the-glossary.md) | yes, a heading, one or two sentences, and no link that leaves the file | no, and its record says ungated |
 | pull request | `.github/PULL_REQUEST_TEMPLATE.md` | yes | no, refused |
 | issue | `.github/ISSUE_TEMPLATE/` | yes | no, refused |

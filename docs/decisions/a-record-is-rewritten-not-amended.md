@@ -56,6 +56,7 @@ Consequences is optional. The downside is required, inside Decision Outcome.
 
 The title is a proposition.
 Filenames carry no numbers.
+A record keeps the file name it was born with, so each link to it holds.
 `ls`, `grep`, `mise run list:records` and the index of [a record names its area, and docs/README.md lists the records by area](a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md) are the whole interface.
 
 Records cite each other by proposition, never by number.
@@ -77,6 +78,7 @@ A programme is a set of issues, not a record.
 **Downside:**
 
 - **The structural cap is gone.** Four sections absorb twenty amendments where one sentence could not, so the 1,226-line record can happen again. What replaces the cap is weaker: a minimal template, a set of issues, a command that cannot see content, and [a new question gets a new record](a-new-question-gets-a-new-record.md).
+- **A file name can drift from its title.** `ls` then shows a proposition the record no longer states. The index shows the title.
 - **Making Consequences optional costs a real check.** Two prototype amendments found genuine drift in an audit of a large Consequences section.
 - **A record must be rewritten whenever an issue it waits on closes.** The [post pass](../../CONTEXT.md#post-pass) prompts that rewrite only on work an agent wrote, when a commit subject names the issue. The Confirmation states the obligation and says no check decides it. An issue can close for reasons that have nothing to do with the record that named it.
 
