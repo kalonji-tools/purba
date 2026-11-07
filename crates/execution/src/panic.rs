@@ -101,11 +101,7 @@ fn record(info: &PanicHookInfo<'_>) {
 /// from its root, and a file of a dependency by its full path:
 /// <https://github.com/rust-lang/cargo/blob/5f94df4/src/util/workspace.rs#L128-L146>
 fn part(file: &str) -> Option<String> {
-    const SEPARATORS: [char; 2] = ['/', '\\'];
-    let (part, _) = file
-        .strip_prefix("crates")?
-        .strip_prefix(SEPARATORS)?
-        .split_once(SEPARATORS)?;
+    let (part, _) = file.strip_prefix("crates/")?.split_once('/')?;
     // The crate `purba` builds the extension module, and is not a part.
     (part != "purba").then(|| part.to_owned())
 }
@@ -120,11 +116,6 @@ mod tests {
             part("crates/assertion/src/lib.rs"),
             Some("assertion".to_owned()),
             "a file of assertion"
-        );
-        assert_eq!(
-            part("crates\\assertion\\src\\lib.rs"),
-            Some("assertion".to_owned()),
-            "a file of assertion, as Windows separates it"
         );
     }
 

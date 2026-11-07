@@ -3,23 +3,21 @@
 //! It raises `KeyboardInterrupt` inside a test's call or a load, and while
 //! Python waits for threads after the command. After each call and each load,
 //! purba gives each interrupt signal purba's signal handler again, or the ignore
-//! that the parent gave it. On Unix, it then gives each interrupt signal the
-//! place in the thread's mask that it had when `install` ran. The first
-//! interrupt gives each interrupt signal its default action. On Unix, a native
-//! handler sits in front of the C handler of `CPython`. As the first interrupt
-//! signal arrives, it gives each interrupt signal that has the native handler its
-//! default action, and prints purba's interrupt line, even while purba or a test
-//! runs C code. The end of each later call or load gives each interrupt signal
-//! its default action again. Once Python finalizes, purba dies by the interrupt
-//! that it kept, or else by the one that arrived.
+//! that the parent gave it. It then gives each interrupt signal the place in the
+//! thread's mask that it had when `install` ran. The first interrupt gives each
+//! interrupt signal its default action. A native handler sits in front of the C
+//! handler of `CPython`. As the first interrupt signal arrives, it gives each
+//! interrupt signal that has the native handler its default action, and prints
+//! purba's interrupt line, even while purba or a test runs C code. The end of
+//! each later call or load gives each interrupt signal its default action again.
+//! Once Python finalizes, purba dies by the interrupt that it kept, or else by
+//! the one that arrived.
 //!
 //! `docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md`
 //! says what a second interrupt does.
 
 use std::io::{self, Write};
-#[cfg(unix)]
-use std::sync::atomic::AtomicUsize;
-use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
 use std::sync::{Mutex, PoisonError};
 
 use pyo3::exceptions::PyKeyboardInterrupt;
@@ -30,9 +28,9 @@ use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 /// The number of the first signal that the signal handler took, or 0.
 static KEPT: AtomicI32 = AtomicI32::new(0);
 
-/// The number of the first interrupt signal that arrived, or 0. On Unix, the
-/// native handler sets it as the signal arrives. `KEPT` waits for purba's
-/// signal handler, which runs at the next line of Python.
+/// The number of the first interrupt signal that arrived, or 0. The native
+/// handler sets it as the signal arrives. `KEPT` waits for purba's signal
+/// handler, which runs at the next line of Python.
 static ARRIVED: AtomicI32 = AtomicI32::new(0);
 
 /// Whether a handler printed purba's interrupt line.
@@ -52,12 +50,10 @@ static IGNORED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
 
 /// The number of each interrupt signal that the thread's mask did not hold
 /// when `install` ran.
-#[cfg(unix)]
 static UNMASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
 
 /// The number of each interrupt signal that the thread's mask held when
 /// `install` ran.
-#[cfg(unix)]
 static MASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
 
 /// The functions and the ignore of `_signal` that `install` found.
@@ -73,10 +69,7 @@ struct Functions {
 static FUNCTIONS: PyOnceLock<Functions> = PyOnceLock::new();
 
 /// The names of the interrupt signals in Python's `signal` module.
-#[cfg(not(windows))]
 const NAMES: [&str; 3] = ["SIGINT", "SIGTERM", "SIGHUP"];
-#[cfg(windows)]
-const NAMES: [&str; 3] = ["SIGINT", "SIGTERM", "SIGBREAK"];
 
 /// Takes the place of Python's own signal handler for each interrupt signal.
 #[pyclass(frozen)]
@@ -111,8 +104,7 @@ impl SignalHandler {
             // stderr may refuse the write. The run stops either way.
             let _ = writeln!(
                 io::stderr(),
-                "purba: interrupt: {}; a second interrupt exits at once",
-                shown(&name)
+                "purba: interrupt: {name}; a second interrupt exits at once"
             );
         }
         if CALLING.load(Ordering::SeqCst) || ENDED.load(Ordering::SeqCst) {
@@ -138,7 +130,6 @@ fn remember(list: &Mutex<Vec<i32>>, signum: i32) {
 }
 
 /// Whether the thread's mask holds `signum`.
-#[cfg(unix)]
 fn masked(signum: i32) -> bool {
     // SAFETY: `pthread_sigmask` with no new set only reads the mask into `mask`,
     // which `sigemptyset` initialized.
@@ -153,7 +144,6 @@ fn masked(signum: i32) -> bool {
 /// Gives each interrupt signal the place in the thread's mask that it had when
 /// `install` ran. A signal that only a test's mask held then reaches its signal
 /// handler.
-#[cfg(unix)]
 fn put_back_mask() {
     let read = |signals: &Mutex<Vec<i32>>| {
         signals
@@ -166,7 +156,6 @@ fn put_back_mask() {
 }
 
 /// Masks or unmasks, by `how`, each signal in `signals`.
-#[cfg(unix)]
 fn change_mask(how: libc::c_int, signals: &[i32]) {
     // SAFETY: each number is a signal that Python's `_signal` module named, or
     // that the kernel sent, and `sigemptyset` initialized `set`.
@@ -182,16 +171,13 @@ fn change_mask(how: libc::c_int, signals: &[i32]) {
 
 /// The C handler of `CPython`, which marks a signal as waiting for its Python
 /// handler, or 0 before `install`.
-#[cfg(unix)]
 static CPYTHON_HANDLER: AtomicUsize = AtomicUsize::new(0);
 
 /// The signals that `install` gave purba's signal handler, where the native
 /// handler can read them. A slot that holds 0 holds no signal.
-#[cfg(unix)]
 static NATIVE_GIVEN: [AtomicI32; NAMES.len()] = [const { AtomicI32::new(0) }; NAMES.len()];
 
 /// The handler that the operating system runs for `signum`.
-#[cfg(unix)]
 fn action(signum: i32) -> libc::sighandler_t {
     // SAFETY: `sigaction` with no new action only reads the current one into
     // `current`, which `zeroed` initialized.
@@ -207,7 +193,6 @@ fn action(signum: i32) -> libc::sighandler_t {
 /// <https://github.com/python/cpython/blob/v3.15.2/Python/pylifecycle.c#L4002-L4006>
 /// While `handler` runs, the operating system masks each interrupt signal. Two
 /// signals that wait at once then reach it one after the other.
-#[cfg(unix)]
 fn set_action(signum: i32, handler: libc::sighandler_t) {
     // SAFETY: `sigemptyset` initializes the mask of `new`, and each number is a
     // signal that Python's `_signal` module named, or that the kernel sent.
@@ -227,13 +212,11 @@ fn set_action(signum: i32, handler: libc::sighandler_t) {
 }
 
 /// The native handler, as the operating system holds it.
-#[cfg(unix)]
 fn native() -> libc::sighandler_t {
     native_handler as extern "C" fn(libc::c_int) as libc::sighandler_t
 }
 
 /// purba's interrupt line for `signum`, which the native handler writes.
-#[cfg(unix)]
 const fn interrupt_line(signum: i32) -> &'static [u8] {
     match signum {
         libc::SIGINT => b"purba: interrupt: SIGINT; a second interrupt exits at once\n",
@@ -253,7 +236,6 @@ const fn interrupt_line(signum: i32) -> &'static [u8] {
 /// So on the first interrupt, it gives each interrupt signal that has the native
 /// handler its default action, and a second one ends purba at once. It gives the
 /// interrupted code back its `errno`, as the C handler of `CPython` does.
-#[cfg(unix)]
 extern "C" fn native_handler(signum: libc::c_int) {
     let errno = errno();
     // SAFETY: `errno` is null or the address of this thread's `errno`.
@@ -298,7 +280,6 @@ extern "C" fn native_handler(signum: libc::c_int) {
 
 /// The address of this thread's `errno`, or null where purba does not know the
 /// function that gives it.
-#[cfg(unix)]
 fn errno() -> *mut libc::c_int {
     #[cfg(any(target_os = "linux", target_os = "android"))]
     // SAFETY: the function only returns the address of this thread's `errno`.
@@ -313,7 +294,6 @@ fn errno() -> *mut libc::c_int {
 /// Puts the native handler in front of the C handler of `CPython`, for each
 /// signal that has purba's signal handler. A test that calls `signal.signal`
 /// replaces the native handler.
-#[cfg(unix)]
 fn put_native_in_front(py: Python<'_>) {
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
@@ -334,32 +314,14 @@ fn put_native_in_front(py: Python<'_>) {
     }
 }
 
-/// The name that purba's interrupt line on stderr gives a signal: the key that
-/// sent it.
-#[cfg(windows)]
-fn shown(name: &str) -> &str {
-    match name {
-        "SIGINT" => "Ctrl-C",
-        "SIGBREAK" => "Ctrl-Break",
-        other => other,
-    }
-}
-
-/// The name that purba's interrupt line on stderr gives a signal: Python's name
-/// for it.
-#[cfg(not(windows))]
-const fn shown(name: &str) -> &str {
-    name
-}
-
 /// Gives each interrupt signal purba's signal handler, unless purba's parent
 /// ignores that signal.
 ///
 /// A parent that starts purba in the background ignores SIGINT for it. The first
 /// install also registers the function that makes purba die by the signal it
 /// kept, once Python finalizes. `install` keeps what `put_back` gives back: the
-/// signals that the parent ignores and, on Unix, the place of each signal in the
-/// thread's mask.
+/// signals that the parent ignores, and the place of each signal in the thread's
+/// mask.
 ///
 /// # Errors
 ///
@@ -383,7 +345,6 @@ pub fn install() -> PyResult<()> {
         let ignore = functions.ignore.bind(py);
         for name in NAMES {
             let signum = signal.getattr(name)?.extract::<i32>()?;
-            #[cfg(unix)]
             remember(if masked(signum) { &MASKED } else { &UNMASKED }, signum);
             if functions.getsignal.bind(py).call1((signum,))?.is(ignore) {
                 remember(&IGNORED, signum);
@@ -392,22 +353,19 @@ pub fn install() -> PyResult<()> {
             functions.signal.bind(py).call1((signum, handler))?;
             remember(&GIVEN, signum);
         }
-        #[cfg(unix)]
-        {
-            let given = given();
-            for (slot, &signum) in NATIVE_GIVEN.iter().zip(&given) {
-                slot.store(signum, Ordering::SeqCst);
-            }
-            if let Some(&signum) = given.first() {
-                let _ = CPYTHON_HANDLER.compare_exchange(
-                    0,
-                    action(signum),
-                    Ordering::SeqCst,
-                    Ordering::SeqCst,
-                );
-            }
-            put_native_in_front(py);
+        let given = given();
+        for (slot, &signum) in NATIVE_GIVEN.iter().zip(&given) {
+            slot.store(signum, Ordering::SeqCst);
         }
+        if let Some(&signum) = given.first() {
+            let _ = CPYTHON_HANDLER.compare_exchange(
+                0,
+                action(signum),
+                Ordering::SeqCst,
+                Ordering::SeqCst,
+            );
+        }
+        put_native_in_front(py);
         Ok(())
     })
 }
@@ -471,9 +429,9 @@ pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) 
 
 /// Gives purba's signal handler back to each signal that `install` gave it, and
 /// the ignore back to each signal that the parent ignores, when the signal has
-/// another signal handler now. On Unix, it then gives each signal the place in
-/// the mask that it had at `install`. After the first signal, it then gives each
-/// signal its default action again.
+/// another signal handler now. It then gives each signal the place in the mask
+/// that it had at `install`. After the first signal, it then gives each signal
+/// its default action again.
 fn put_back(py: Python<'_>) {
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
@@ -504,7 +462,6 @@ fn put_back(py: Python<'_>) {
     if give().is_err() {
         drop(give());
     }
-    #[cfg(unix)]
     put_back_mask();
     // A signal that arrived still waits for purba's signal handler, and it is
     // the first interrupt.
@@ -512,7 +469,6 @@ fn put_back(py: Python<'_>) {
         // Its error has no test to charge either.
         drop(give_default_actions(py));
     } else {
-        #[cfg(unix)]
         put_native_in_front(py);
     }
 }
@@ -554,46 +510,15 @@ extern "C" fn die() {
 
 /// Ends purba by the signal `signum`.
 fn die_by(signum: i32) -> ! {
-    #[cfg(not(windows))]
-    {
-        // SAFETY: `signal` takes a signal number that the kernel sent.
-        unsafe { libc::signal(signum, libc::SIG_DFL) };
-        // A mask can hold the signal: the parent's, which `put_back` gave back,
-        // or one that a test or its `atexit` function set. So purba unmasks it
-        // before `raise`.
-        #[cfg(unix)]
-        change_mask(libc::SIG_UNBLOCK, &[signum]);
-        // SAFETY: `raise` takes a signal number that the kernel sent.
-        unsafe { libc::raise(signum) };
-        // `raise` returns only when the unmask failed. purba then exits with the
-        // code that a shell reports for a death by the signal.
-        std::process::exit(128 + signum)
-    }
-    // CPython exits with this code after a Ctrl-C:
-    // <https://github.com/python/cpython/blob/v3.15.2/Modules/main.c#L793-L815>
-    #[cfg(windows)]
-    {
-        const STATUS_CONTROL_C_EXIT: u32 = 0xC000_013A;
-        // Windows ends purba by a code, the same for each signal.
-        let _ = signum;
-        #[expect(
-            clippy::cast_possible_wrap,
-            reason = "Windows reads the code as the unsigned value"
-        )]
-        std::process::exit(STATUS_CONTROL_C_EXIT as i32)
-    }
-}
-
-#[cfg(all(test, windows))]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn the_interrupt_line_names_a_ctrl_c_and_a_ctrl_break() {
-        assert_eq!(
-            [shown("SIGINT"), shown("SIGBREAK"), shown("SIGTERM")],
-            ["Ctrl-C", "Ctrl-Break", "SIGTERM"],
-            "on Windows, purba's interrupt line names the key that sent SIGINT or SIGBREAK"
-        );
-    }
+    // SAFETY: `signal` takes a signal number that the kernel sent.
+    unsafe { libc::signal(signum, libc::SIG_DFL) };
+    // A mask can hold the signal: the parent's, which `put_back` gave back, or
+    // one that a test or its `atexit` function set. So purba unmasks it before
+    // `raise`.
+    change_mask(libc::SIG_UNBLOCK, &[signum]);
+    // SAFETY: `raise` takes a signal number that the kernel sent.
+    unsafe { libc::raise(signum) };
+    // `raise` returns only when the unmask failed. purba then exits with the
+    // code that a shell reports for a death by the signal.
+    std::process::exit(128 + signum)
 }

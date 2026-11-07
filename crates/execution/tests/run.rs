@@ -220,7 +220,6 @@ fn a_test_runs_on_the_module_that_load_loaded() {
     );
 }
 
-#[cfg(unix)]
 #[test]
 fn a_forked_child_exits_with_its_own_code() {
     let test_fork = module(
