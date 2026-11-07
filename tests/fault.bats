@@ -173,3 +173,19 @@ LINES
   last=$(tail -n 2 <<<"${stderr}")
   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
 }
+
+@test "the report of an internal error keeps the flags read before a test changed sys.abiflags" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  run -125 --separate-stderr env PURBA_FAULT=assert "${fault_purba}" test_changes_abiflags.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_changes_abiflags.py::test_one internal error: assertion: PURBA_FAULT=assert
+1 test: 1 blocked; 1 internal error
+LINES
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}
