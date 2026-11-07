@@ -151,7 +151,7 @@ jobs:
           import importlib, pathlib, sys
           path = pathlib.Path(importlib.import_module("purba.purba").__file__)
           print(f"extension: {path}")
-          if path.suffix not in {".so", ".pyd", ".dylib"}:
+          if path.suffix not in {".so", ".dylib"}:
               sys.exit(f"the submodule is not the extension: {path}")
           PY
 
