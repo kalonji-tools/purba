@@ -66,6 +66,10 @@ A comment on an [issue](#issue) that states what a change must do and what was r
 
 A [candidate's](#candidate) tests, restated for purba before purba can run them. The person approves it before the build starts.
 
+### Entity
+
+A being that can take the role of an [actor](#actor). A person and an agent are each one.
+
 ### Gate
 
 A check that refuses a merge. A rule nothing refuses is a convention rather than a gate.

@@ -117,6 +117,7 @@
 - [A decision record is rewritten, not amended](decisions/a-record-is-rewritten-not-amended.md)
 - [A record names every location where it applies](decisions/a-record-names-every-location-where-it-applies.md)
 - [A record names its area, and docs/README.md lists the records by area](decisions/a-record-names-its-area-and-docs-readme-lists-the-records-by-area.md)
+- [A record names the role, not the kind of entity, unless the kind is what it decides](decisions/a-record-names-the-role-not-the-kind-of-entity.md)
 - [A refusal states the rule, why it holds, and where it was found](decisions/a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md)
 - [A register belongs to one location](decisions/a-register-belongs-to-one-location.md)
 - [A term belongs to the glossary](decisions/a-term-belongs-to-the-glossary.md)
