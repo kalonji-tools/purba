@@ -473,6 +473,32 @@ LINES
   [[ ! -e finally ]]
 }
 
+@test "a second Ctrl-C ends purba at once by SIGINT, when the first lands in a test's C code" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'from pathlib import Path' \
+    'def test_one():' '    Path("marker").touch()' '    sum(range(10**10))' \
+    'def test_two():' '    Path("two").touch()' >test_c_first.py
+
+  run -0 --separate-stderr interrupt test_c_first.py 0 INT INT
+
+  [[ -z "${output}" ]] || false
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+@test "SIGINT then SIGTERM end purba at once by SIGTERM, when the first lands in a test's C code" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'from pathlib import Path' \
+    'def test_one():' '    Path("marker").touch()' '    sum(range(10**10))' \
+    'def test_two():' '    Path("two").touch()' >test_c_then_term.py
+
+  run -0 --separate-stderr interrupt test_c_then_term.py 0 INT TERM
+
+  [[ -z "${output}" ]] || false
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGTERM' ]] || false
+  [[ ! -e two ]]
+}
+
 @test "two signals that wait at once make a second interrupt, and purba dies by the second" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal' \

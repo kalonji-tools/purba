@@ -5,14 +5,20 @@
 //! purba gives each interrupt signal purba's signal handler again, or the ignore
 //! that the parent gave it. On Unix, it then gives each interrupt signal the
 //! place in the thread's mask that it had when `install` ran. The first
-//! interrupt gives each interrupt signal its default action. The end of each
-//! later call or load gives each interrupt signal its default action again. Once
-//! Python finalizes, purba dies by the interrupt that it kept.
+//! interrupt gives each interrupt signal its default action. On Unix, a native
+//! handler sits in front of the C handler of `CPython`. As the first interrupt
+//! signal arrives, it gives each interrupt signal that has the native handler its
+//! default action, and prints purba's interrupt line, even while purba or a test
+//! runs C code. The end of each later call or load gives each interrupt signal
+//! its default action again. Once Python finalizes, purba dies by the interrupt
+//! that it kept, or else by the one that arrived.
 //!
 //! `docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md`
 //! says what a second interrupt does.
 
 use std::io::{self, Write};
+#[cfg(unix)]
+use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::sync::{Mutex, PoisonError};
 
@@ -23,6 +29,14 @@ use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 
 /// The number of the first signal that the signal handler took, or 0.
 static KEPT: AtomicI32 = AtomicI32::new(0);
+
+/// The number of the first interrupt signal that arrived, or 0. On Unix, the
+/// native handler sets it as the signal arrives. `KEPT` waits for purba's
+/// signal handler, which runs at the next line of Python.
+static ARRIVED: AtomicI32 = AtomicI32::new(0);
+
+/// Whether a handler printed purba's interrupt line.
+static PRINTED: AtomicBool = AtomicBool::new(false);
 
 /// Whether a test's call or a load runs now.
 static CALLING: AtomicBool = AtomicBool::new(false);
@@ -75,6 +89,9 @@ impl SignalHandler {
         reason = "Python calls the signal handler as an object"
     )]
     fn __call__(&self, py: Python<'_>, signum: i32, _frame: &Bound<'_, PyAny>) -> PyResult<()> {
+        // A signal that only the C handler of `CPython` took is noted as
+        // arrived here.
+        let _ = ARRIVED.compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst);
         if KEPT
             .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
             .is_err()
@@ -90,12 +107,14 @@ impl SignalHandler {
             .call1((signum,))?
             .getattr("name")?
             .extract::<String>()?;
-        // stderr may refuse the write. The run stops either way.
-        let _ = writeln!(
-            io::stderr(),
-            "purba: interrupt: {}; a second interrupt exits at once",
-            shown(&name)
-        );
+        if !PRINTED.swap(true, Ordering::SeqCst) {
+            // stderr may refuse the write. The run stops either way.
+            let _ = writeln!(
+                io::stderr(),
+                "purba: interrupt: {}; a second interrupt exits at once",
+                shown(&name)
+            );
+        }
         if CALLING.load(Ordering::SeqCst) || ENDED.load(Ordering::SeqCst) {
             return Err(PyKeyboardInterrupt::new_err(()));
         }
@@ -161,6 +180,160 @@ fn change_mask(how: libc::c_int, signals: &[i32]) {
     }
 }
 
+/// The C handler of `CPython`, which marks a signal as waiting for its Python
+/// handler, or 0 before `install`.
+#[cfg(unix)]
+static CPYTHON_HANDLER: AtomicUsize = AtomicUsize::new(0);
+
+/// The signals that `install` gave purba's signal handler, where the native
+/// handler can read them. A slot that holds 0 holds no signal.
+#[cfg(unix)]
+static NATIVE_GIVEN: [AtomicI32; NAMES.len()] = [const { AtomicI32::new(0) }; NAMES.len()];
+
+/// The handler that the operating system runs for `signum`.
+#[cfg(unix)]
+fn action(signum: i32) -> libc::sighandler_t {
+    // SAFETY: `sigaction` with no new action only reads the current one into
+    // `current`, which `zeroed` initialized.
+    unsafe {
+        let mut current = std::mem::zeroed::<libc::sigaction>();
+        libc::sigaction(signum, std::ptr::null(), &raw mut current);
+        current.sa_sigaction
+    }
+}
+
+/// Gives `signum` the handler `handler` in the operating system, with the flags
+/// that `CPython` gives its own C handler:
+/// <https://github.com/python/cpython/blob/v3.15.2/Python/pylifecycle.c#L4002-L4006>
+/// While `handler` runs, the operating system masks each interrupt signal. Two
+/// signals that wait at once then reach it one after the other.
+#[cfg(unix)]
+fn set_action(signum: i32, handler: libc::sighandler_t) {
+    // SAFETY: `sigemptyset` initializes the mask of `new`, and each number is a
+    // signal that Python's `_signal` module named, or that the kernel sent.
+    unsafe {
+        let mut new = std::mem::zeroed::<libc::sigaction>();
+        libc::sigemptyset(&raw mut new.sa_mask);
+        for given in &NATIVE_GIVEN {
+            let given = given.load(Ordering::SeqCst);
+            if given != 0 {
+                libc::sigaddset(&raw mut new.sa_mask, given);
+            }
+        }
+        new.sa_flags = libc::SA_ONSTACK;
+        new.sa_sigaction = handler;
+        libc::sigaction(signum, &raw const new, std::ptr::null_mut());
+    }
+}
+
+/// The native handler, as the operating system holds it.
+#[cfg(unix)]
+fn native() -> libc::sighandler_t {
+    native_handler as extern "C" fn(libc::c_int) as libc::sighandler_t
+}
+
+/// purba's interrupt line for `signum`, which the native handler writes.
+#[cfg(unix)]
+const fn interrupt_line(signum: i32) -> &'static [u8] {
+    match signum {
+        libc::SIGINT => b"purba: interrupt: SIGINT; a second interrupt exits at once\n",
+        libc::SIGTERM => b"purba: interrupt: SIGTERM; a second interrupt exits at once\n",
+        libc::SIGHUP => b"purba: interrupt: SIGHUP; a second interrupt exits at once\n",
+        _ => b"",
+    }
+}
+
+/// Runs as an interrupt signal arrives, even while purba or a test runs C code,
+/// and then calls the C handler of `CPython`. It runs no Python, and calls only
+/// functions that a signal handler may call.
+///
+/// The C handler of `CPython` only marks the signal as waiting, and purba's
+/// signal handler runs at the next line of Python:
+/// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L338-L369>
+/// So on the first interrupt, it gives each interrupt signal that has the native
+/// handler its default action, and a second one ends purba at once. It gives the
+/// interrupted code back its `errno`, as the C handler of `CPython` does.
+#[cfg(unix)]
+extern "C" fn native_handler(signum: libc::c_int) {
+    let errno = errno();
+    // SAFETY: `errno` is null or the address of this thread's `errno`.
+    let saved = unsafe { errno.as_ref().copied() };
+    if ARRIVED
+        .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
+        .is_err()
+    {
+        set_action(signum, libc::SIG_DFL);
+        change_mask(libc::SIG_UNBLOCK, &[signum]);
+        // SAFETY: `raise` takes a signal number that the kernel sent. `exit`
+        // may not run in a signal handler, and `_exit` may.
+        unsafe {
+            libc::raise(signum);
+            libc::_exit(128 + signum)
+        }
+    }
+    for given in &NATIVE_GIVEN {
+        let given = given.load(Ordering::SeqCst);
+        if given != 0 && action(given) == native() {
+            set_action(given, libc::SIG_DFL);
+        }
+    }
+    if !PRINTED.swap(true, Ordering::SeqCst) {
+        let line = interrupt_line(signum);
+        // SAFETY: `write` reads `line.len()` bytes of `line`. stderr may refuse
+        // the write, and the run stops either way.
+        unsafe { libc::write(libc::STDERR_FILENO, line.as_ptr().cast(), line.len()) };
+    }
+    let cpython = CPYTHON_HANDLER.load(Ordering::SeqCst);
+    if cpython != 0 {
+        // SAFETY: `install` read this address from `sigaction`, where `CPython`
+        // had put its C handler, which takes the number of the signal.
+        let cpython = unsafe { std::mem::transmute::<usize, extern "C" fn(libc::c_int)>(cpython) };
+        cpython(signum);
+    }
+    if let Some(saved) = saved {
+        // SAFETY: `saved` is `Some` only when `errno` is not null.
+        unsafe { *errno = saved };
+    }
+}
+
+/// The address of this thread's `errno`, or null where purba does not know the
+/// function that gives it.
+#[cfg(unix)]
+fn errno() -> *mut libc::c_int {
+    #[cfg(any(target_os = "linux", target_os = "android"))]
+    // SAFETY: the function only returns the address of this thread's `errno`.
+    return unsafe { libc::__errno_location() };
+    #[cfg(target_vendor = "apple")]
+    // SAFETY: the function only returns the address of this thread's `errno`.
+    return unsafe { libc::__error() };
+    #[cfg(not(any(target_os = "linux", target_os = "android", target_vendor = "apple")))]
+    return std::ptr::null_mut();
+}
+
+/// Puts the native handler in front of the C handler of `CPython`, for each
+/// signal that has purba's signal handler. A test that calls `signal.signal`
+/// replaces the native handler.
+#[cfg(unix)]
+fn put_native_in_front(py: Python<'_>) {
+    let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
+        return;
+    };
+    let cpython = CPYTHON_HANDLER.load(Ordering::SeqCst);
+    if cpython == 0 {
+        return;
+    }
+    for signum in given() {
+        let purbas = functions
+            .getsignal
+            .bind(py)
+            .call1((signum,))
+            .is_ok_and(|current| current.is(handler));
+        if purbas && action(signum) == cpython {
+            set_action(signum, native());
+        }
+    }
+}
+
 /// The name that purba's interrupt line on stderr gives a signal: the key that
 /// sent it.
 #[cfg(windows)]
@@ -218,6 +391,22 @@ pub fn install() -> PyResult<()> {
             }
             functions.signal.bind(py).call1((signum, handler))?;
             remember(&GIVEN, signum);
+        }
+        #[cfg(unix)]
+        {
+            let given = given();
+            for (slot, &signum) in NATIVE_GIVEN.iter().zip(&given) {
+                slot.store(signum, Ordering::SeqCst);
+            }
+            if let Some(&signum) = given.first() {
+                let _ = CPYTHON_HANDLER.compare_exchange(
+                    0,
+                    action(signum),
+                    Ordering::SeqCst,
+                    Ordering::SeqCst,
+                );
+            }
+            put_native_in_front(py);
         }
         Ok(())
     })
@@ -317,9 +506,14 @@ fn put_back(py: Python<'_>) {
     }
     #[cfg(unix)]
     put_back_mask();
-    if kept_now() {
+    // A signal that arrived still waits for purba's signal handler, and it is
+    // the first interrupt.
+    if kept_now() || ARRIVED.load(Ordering::SeqCst) != 0 {
         // Its error has no test to charge either.
         drop(give_default_actions(py));
+    } else {
+        #[cfg(unix)]
+        put_native_in_front(py);
     }
 }
 
@@ -346,8 +540,13 @@ fn give_default_actions(py: Python<'_>) -> PyResult<()> {
 /// Runs after finalization gives each signal its default action:
 /// <https://github.com/python/cpython/blob/v3.15.2/Python/pylifecycle.c#L2465-L2466>
 /// <https://github.com/python/cpython/blob/v3.15.2/Python/pylifecycle.c#L2598>
+/// It ends purba by the signal that purba's signal handler kept, or else by the
+/// one that arrived.
 extern "C" fn die() {
-    let signum = KEPT.load(Ordering::SeqCst);
+    let signum = match KEPT.load(Ordering::SeqCst) {
+        0 => ARRIVED.load(Ordering::SeqCst),
+        kept => kept,
+    };
     if signum != 0 {
         die_by(signum);
     }
