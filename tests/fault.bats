@@ -174,6 +174,26 @@ LINES
   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
 }
 
+@test "the report of an internal error names the flags when sys.abiflags is missing" {
+  local site="${BATS_TEST_TMPDIR:?set by bats}/site"
+  mkdir "${site}"
+  printf '%s\n' 'import sys' '' 'del sys.abiflags' >"${site}/sitecustomize.py"
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  run -125 --separate-stderr \
+    env PYTHONPATH="${site}" PURBA_FAULT=assert "${fault_purba}" test_pass.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_pass.py::test_one internal error: assertion: PURBA_FAULT=assert
+1 test: 1 blocked; 1 internal error
+LINES
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}
+
 @test "the report of an internal error keeps the flags read before a test changed sys.abiflags" {
   cd "${BATS_TEST_DIRNAME}/fault"
 
