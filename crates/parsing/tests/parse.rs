@@ -18,6 +18,33 @@ fn write(name: &str, text: &str) -> PathBuf {
     path
 }
 
+fn write_bytes(name: &str, bytes: &[u8]) -> PathBuf {
+    let path = module_at(name);
+    fs::write(&path, bytes).expect("the test writes its module");
+    path
+}
+
+fn assert_refused(name: &str, bytes: &[u8], encoding: &str) {
+    let error = match purba_parsing::parse(&write_bytes(name, bytes)) {
+        Err(Error::Read(error)) => error,
+        Err(Error::Syntax(error)) => {
+            panic!("{name}: the read refuses the module, not ruff: {error}")
+        }
+        Ok(_) => panic!("{name}: a module that declares an encoding other than UTF-8 is refused"),
+    };
+
+    assert_eq!(
+        error.kind(),
+        ErrorKind::InvalidData,
+        "{name}: the read refuses the data"
+    );
+    assert_eq!(
+        error.to_string(),
+        format!("it declares the encoding {encoding}, and purba reads only UTF-8"),
+        "{name}: the error names the declared encoding"
+    );
+}
+
 fn syntax_error(name: &str, text: &str) -> SyntaxError {
     match purba_parsing::parse(&write(name, text)) {
         Err(Error::Syntax(error)) => error,
@@ -104,6 +131,153 @@ fn a_byte_order_mark_is_not_part_of_the_text() {
         .expect("the module parses");
 
     assert_eq!(module.source(), text, "the text starts after the mark");
+}
+
+#[test]
+fn a_declaration_other_than_utf_8_refuses_the_module() {
+    for (name, bytes, encoding) in [
+        (
+            "test_latin_first.py",
+            &b"# -*- coding: latin-1 -*-\nx = '\xc3\xa9'\n"[..],
+            "latin-1",
+        ),
+        (
+            "test_latin_after_comment.py",
+            b"#!/usr/bin/env python\n# coding: latin-1\nx = '\xc3\xa9'\n",
+            "latin-1",
+        ),
+        (
+            "test_latin_after_blank.py",
+            b"\n# coding: latin-1\nx = '\xc3\xa9'\n",
+            "latin-1",
+        ),
+        (
+            "test_latin_vim.py",
+            b"# vim: set fileencoding=latin-1 :\nx = '\xc3\xa9'\n",
+            "latin-1",
+        ),
+        (
+            "test_latin_bom.py",
+            b"\xef\xbb\xbf# coding: latin-1\nx = '\xc3\xa9'\n",
+            "latin-1",
+        ),
+        ("test_ascii.py", b"# coding: ascii\nx = 'e'\n", "ascii"),
+        ("test_utf_dot_8.py", b"# coding: utf.8\nx = 'e'\n", "utf.8"),
+        (
+            "test_utf_dot_8_upper.py",
+            b"# coding: UTF.8\nx = 'e'\n",
+            "UTF.8",
+        ),
+        ("test_u_dot_8.py", b"# coding: u.8\nx = 'e'\n", "u.8"),
+        (
+            "test_utf8_sig.py",
+            b"# coding: utf8-sig\nx = 'e'\n",
+            "utf8-sig",
+        ),
+        (
+            "test_cp_dot_65001.py",
+            b"# coding: cp.65001\nx = 'e'\n",
+            "cp.65001",
+        ),
+        (
+            "test_bom_utf8.py",
+            b"\xef\xbb\xbf# coding: utf8\nx = 'e'\n",
+            "utf8",
+        ),
+        (
+            "test_bom_u8.py",
+            b"\xef\xbb\xbf# coding: u8\nx = 'e'\n",
+            "u8",
+        ),
+        (
+            "test_bom_cp65001.py",
+            b"\xef\xbb\xbf# coding: cp65001\nx = 'e'\n",
+            "cp65001",
+        ),
+        (
+            "test_cr_blank.py",
+            b"\r# coding: latin-1\rx = 'e'\r",
+            "latin-1",
+        ),
+        (
+            "test_cr_comment.py",
+            b"#!\r# coding: latin-1\rx = 'e'\r",
+            "latin-1",
+        ),
+        (
+            "test_crlf_comment.py",
+            b"#!\r\n# coding: latin-1\r\nx = 'e'\r\n",
+            "latin-1",
+        ),
+        (
+            "test_tab_before.py",
+            b"\t# coding: latin-1\nx = 'e'\n",
+            "latin-1",
+        ),
+        (
+            "test_form_feed_before.py",
+            b"\x0c# coding: latin-1\nx = 'e'\n",
+            "latin-1",
+        ),
+        (
+            "test_space_tab_form_feed_before.py",
+            b" \t\x0c# coding: latin-1\nx = 'e'\n",
+            "latin-1",
+        ),
+    ] {
+        assert_refused(name, bytes, encoding);
+    }
+}
+
+#[test]
+fn a_utf_8_declaration_or_a_comment_that_declares_nothing_keeps_the_module() {
+    for (name, text) in [
+        ("test_utf_8.py", "# coding: utf-8\nx = 'é'\n"),
+        ("test_utf8_upper.py", "# coding: UTF8\nx = 'é'\n"),
+        ("test_utf_8_underscore.py", "# coding=utf_8\nx = 'é'\n"),
+        (
+            "test_utf_8_unix.py",
+            "# -*- coding: utf-8-unix -*-\nx = 'é'\n",
+        ),
+        ("test_u8.py", "# coding: u8\nx = 'é'\n"),
+        ("test_cp65001.py", "# coding: cp65001\nx = 'é'\n"),
+        (
+            "test_utf_8_sig_doubled.py",
+            "# coding: utf__8__sig\nx = 'é'\n",
+        ),
+        ("test_utf_8_sig.py", "# coding: utf_8_sig\nx = 'é'\n"),
+        ("test_utf8_dot_ucs2.py", "# coding: utf8.ucs2\nx = 'é'\n"),
+        ("test_utf_8_doubled.py", "# coding: utf__8\nx = 'é'\n"),
+        ("test_bom_utf_8.py", "\u{feff}# coding: utf-8\nx = 'é'\n"),
+        (
+            "test_bom_utf_8_sig.py",
+            "\u{feff}# coding: utf_8_sig\nx = 'é'\n",
+        ),
+        (
+            "test_cr_third_line.py",
+            "#!\r\r# coding: latin-1\rx = 'é'\r",
+        ),
+        (
+            "test_cr_code_first.py",
+            "#a\rx = 1\n# coding: latin-1\nx = 'é'\n",
+        ),
+        ("test_form_feed_after.py", "# coding:\x0clatin-1\nx = 'é'\n"),
+        (
+            "test_after_code.py",
+            "import os\n# coding: latin-1\nx = 'é'\n",
+        ),
+        ("test_third_line.py", "#a\n#b\n# coding: latin-1\nx = 'é'\n"),
+        ("test_beside_code.py", "y = 1  # coding: latin-1\nx = 'é'\n"),
+    ] {
+        match purba_parsing::parse(&write(name, text)) {
+            Ok(module) => assert_eq!(
+                module.source(),
+                text.trim_start_matches('\u{feff}'),
+                "{name}: the text is the file's, after a byte order mark"
+            ),
+            Err(error) => panic!("{name}: the module parses, not {error:?}"),
+        }
+    }
 }
 
 #[test]
