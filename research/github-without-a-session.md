@@ -12,7 +12,7 @@ The GitHub token, retries, a cache, an accepted `504` and an exclude each fail a
 A finding that holds outside the outage: lychee 0.24.2 never checks a `#L` line anchor on a `/blob/` link. A built-in quirk deletes it before the request.
 
 Other projects split in two. 9 of 20 link gates fetch github.com on each pull request and fail it, as purba does. 11 of 20 keep github.com off the blocking path.
-GitHub publishes no limit and no status code for a reader of its web pages without a session, and its status page showed no incident.
+GitHub publishes no limit and no status code for a reader of its web pages without a session, and its status page opened an incident only at 10:36Z, 1 h 45 min after the failures began.
 
 The downloads failed on short retries: `setup-python` and CodeQL try 3 times, 10 to 20 s apart. Neither cached copy on the runner fits: it holds no free-threaded Python, and CodeQL 2.27.3 where the action wanted 2.27.4.
 Only mise falls back to `api.github.com` by itself, and only for a lockfile row that records that URL.
@@ -22,7 +22,7 @@ Only mise falls back to `api.github.com` by itself, and only for a lockfile row 
 | 1. What lychee does with a github.com link and the token | fetches the page without a session; asks the API only after a failure, and the API answer counts only for a bare repo link or a private repo | [A] source + probes |
 | 2. What lies between refuse and pass | only a remap to raw passes a live link and refuses a dead one; see the table | [A] probes on the live outage |
 | 3. Other projects | 0 of 20 accept a 5xx; 0 of 20 exclude `/blob/`; 9 of 20 fail a pull request on github.com; 11 of 20 keep it off that path | [A] |
-| 4. What GitHub documents | no limit and no status code for web pages; 0 incidents on githubstatus.com | [A] |
+| 4. What GitHub documents | no limit and no status code for web pages; githubstatus.com opened an incident at 10:36Z | [A] |
 | 5. The downloads | 3 tries, 10 to 20 s apart; the token does not change the URL; mise alone falls back to the API | [A] |
 
 ## 1. lychee, github.com and the token
@@ -120,7 +120,7 @@ purba's exclude of fixture links (`//github\.com/(o|owner)/`) stops matching aft
 | [changelog](https://github.blog/changelog/2025-05-08-updated-rate-limits-for-unauthenticated-requests/) | 2025-05-08 | new limits for HTTPS clones, the REST API and raw.githubusercontent.com; no numbers, no status code, no web pages | [A] |
 | [changelog](https://github.blog/changelog/2026-10-19-some-git-over-https-may-temporarily-require-authentication/) | 2026-10-19 | "During periods of unusual traffic, GitHub may temporarily require authentication for some clones and fetches of public repositories over HTTPS"; "Unrelated GitHub web and API traffic" is unaffected | [A] |
 | docs.github.com | — | numbers only for the REST API: 60 an hour without a token; `403` or `429` past a limit, never `504` | [A] |
-| githubstatus.com | 2026-11-07 to 09 | 0 incidents; "All Systems Operational" | [A] |
+| [githubstatus.com](https://www.githubstatus.com/api/v2/incidents.json) | 2026-11-08 | "All Systems Operational" until 10:36Z, then "Increase in timeouts for some unauthenticated users", status investigating | [A] |
 | other projects' reports | 2026-11-08 from about 08:40Z | at least 7 report the same `504`; 3 say `api.github.com/…/releases/assets/<id>` served the files while `github.com/…/releases/download/…` answered `504` | [B] |
 
 ## 5. The downloads
