@@ -42,7 +42,7 @@ Each part can check an exception class or a branch that it holds.
 The name of each error kind says where the tester fixes the error.
 
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
-- **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when the last assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
+- **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when an assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, a name bound again, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
