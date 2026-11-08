@@ -56,7 +56,7 @@ purba: internal error: <part>: <message>
 
 - **The line of an internal error names the part that found it, and the message.** The line names no place in purba's source. The tester learns the kind and the test, and Rust's panic hook gives the rest.
 - **A module that an internal error stops prints its line once, and each of its selected tests as blocked.** It takes the shape of a module's project error.
-- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The Python carries its ABI flags, so a free-threaded 3.14.0 reads `3.14.0t`. A tester's report then names the build that met the error. The second links the defect template. They follow the count, or the line that stopped the run. stdout keeps only the lines that name a test or a module, and the count.
+- **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The Python carries `t` when it is free-threaded, so a free-threaded 3.14.0 reads `3.14.0t`. A tester's report then shows that a free-threaded build met the error. The second links the defect template. They follow the count, or the line that stopped the run. stdout keeps only the lines that name a test or a module, and the count.
 - **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. purba writes none of that text. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps the hook.
 - **The count always names the tests, and names each other column only above 0.** When no semicolon follows the tests, no error happened. The columns keep their order: passed, failed, raised, unknown, interrupted, blocked and unreached, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
 
@@ -88,3 +88,4 @@ On the `fault` wheel, `mise run test:wheel` checks the line of an internal error
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
+[The report names only the free-threaded flag](the-report-names-only-the-free-threaded-flag.md#decision-outcome) says which ABI flag the first line on stderr names, and where purba reads it.
