@@ -35,6 +35,7 @@
 
 ### parsing
 
+- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [purba parses Python with ruff's parser](decisions/purba-parses-python-with-ruff.md)
 
@@ -45,6 +46,7 @@
 
 ### execution
 
+- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Execution calls a test by its function's name, and reporting prints the identity it is given](decisions/execution-calls-a-test-by-its-functions-name.md)
 
 ### fixtures
@@ -54,6 +56,7 @@
 
 ### assertion
 
+- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [A loaded module joins sys.modules under its file's name, without .py](decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md)
 - [A module that binds a name purba adds is a project error](decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md)
 - [A module whose load fails leaves sys.modules as it found it](decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md)

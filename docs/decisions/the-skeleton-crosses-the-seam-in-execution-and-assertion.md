@@ -31,14 +31,14 @@ Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that assertion's load makes from the rewritten source, the index of the last assert that ran, and whether it held | the module's namespace |
+| assertion | the module that assertion's load makes from the rewritten source, the index of the last assert that did not hold, or else of the last one that ran, and whether it held | the module's namespace |
 | execution | whether the call returned or raised `AssertionError`, and the type and message of each other exception, as text | the traceback |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
-- **A test fails only when the last assert that ran did not hold, and the test raised `AssertionError`.** The failed line quotes the source text of that assert. Assertion's rewrite copies that text from the module that command lends it. An `AssertionError` gives the outcome `raised` when no marked assert ran or the last one held.
+- **Assertion's rewrite copies the text of each assert from the module that command lends it.** [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes.
 - **Reporting writes to Rust's stdout.**
 
 [A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) holds where assertion's load puts the module.
@@ -47,20 +47,19 @@ Each other part takes data.
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
 - **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
-- **A test that catches the `AssertionError` of an assert that did not hold, and then raises `AssertionError` with no assert, fails on the caught assert.** The call records the last assert that ran, and not the error that the test raised.
 - **A test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.** A test that hides its own failure on purpose reads as clean.
 
 ## Confirmation
 
 `mise run test:rust` checks that assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.
-It also checks that the rewrite gives the source text of each assert at its index.
+It also checks that the rewrite gives the text of each assert at its index.
 It checks that assertion's load runs the rewritten text as a module that holds `_purba_ran`.
-It checks that assertion's loaded module gives the text of the last assert that ran in one call, if any ran, and whether it held.
+It checks that assertion's loaded module gives the text of the last assert that ran in one call, when each one held.
 It checks that an assert tests its value once.
 It checks that a call to `_purba_ran` with an index that names no assert raises `IndexError`.
 
-`mise run test:rust` also checks that execution makes a passed, failed or `unknown` outcome from the call and the last assert that ran.
-It checks that `AssertionError` gives the outcome `raised` when no assert ran or the last one held.
+`mise run test:rust` also checks that execution makes a passed, failed or `unknown` outcome from the call and the assert that assertion keeps.
+It checks that `AssertionError` gives the outcome `raised` when no assert ran or each one held.
 It checks that another exception gives `raised` after an assert that did not hold, from the assert's message or after the test caught the assert.
 It checks that a test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.
 
