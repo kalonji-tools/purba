@@ -169,7 +169,7 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 - **a test imports another directory's module of the same name.** Given two test directories that each hold `helper.py`, when both run, then a test reads the other directory's `helper`, and its outcome depends on which test ran first. Lands on execution; probability medium, impact high.
 - **a change in one part edits another part.** Given a change inside one part that leaves its interface unchanged, when the change is made, then a file of another part changes. Lands on command; probability high, impact medium.
 - **strictness refuses a test that checks.** Given a test that checks its result through a helper, when purba runs it, then purba does not report it as passed. Lands on strictness; probability medium, impact medium.
-- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing reports a project error and selection finds no test in it. Lands on parsing; probability low, impact high.
+- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing refuses it, and selection finds no test in it. Lands on parsing; probability low, impact high.
 
 ## The order of design
 
