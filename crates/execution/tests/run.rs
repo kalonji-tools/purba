@@ -317,6 +317,68 @@ fn a_caught_assert_that_did_not_hold_and_a_return_give_passed() {
     );
 }
 
+#[test]
+fn a_cleanup_assert_that_holds_keeps_the_assert_that_did_not() {
+    let test_cleanup = module(
+        "test_cleanup_assert.py",
+        "import contextlib\n\nopened = []\n\n\
+         @contextlib.contextmanager\ndef no_leaks():\n    try:\n        yield\n\
+         \x20   finally:\n        assert not opened, 'a handle leaked'\n\n\
+         def test_inside_a_checking_context():\n    with no_leaks():\n\
+         \x20       assert 1 + 1 == 3\n\n\
+         def test_with_a_finally_check():\n    try:\n        assert 1 + 1 == 3\n\
+         \x20   finally:\n        assert not opened\n",
+    );
+    let failed = Kind::Failed {
+        assert: "assert 1 + 1 == 3".to_owned(),
+    };
+    assert_eq!(
+        kinds(
+            &test_cleanup,
+            &[
+                "test_inside_a_checking_context",
+                "test_with_a_finally_check"
+            ]
+        ),
+        [failed.clone(), failed],
+        "the cleanup assert held after the assert that did not, so each test fails on that one"
+    );
+}
+
+#[test]
+fn a_cleanup_assert_that_does_not_hold_either_fails_the_test() {
+    let test_cleanup = module(
+        "test_cleanup_fails.py",
+        "def test_cleanup_fails():\n    try:\n        assert 1 + 1 == 3\n\
+         \x20   finally:\n        assert 2 + 2 == 5\n",
+    );
+    assert_eq!(
+        kinds(&test_cleanup, &["test_cleanup_fails"]),
+        [Kind::Failed {
+            assert: "assert 2 + 2 == 5".to_owned()
+        }],
+        "the cleanup assert is the last that did not hold"
+    );
+}
+
+#[test]
+fn an_assertion_error_after_a_caught_assert_and_one_that_held_fails_on_the_caught_one() {
+    let test_caught = module(
+        "test_caught_held_raise.py",
+        "def test_caught_held_raise():\n    try:\n        assert 1 == 2\n\
+         \x20   except AssertionError:\n        pass\n\
+         \x20   assert 2 == 2\n\
+         \x20   raise AssertionError('from a helper')\n",
+    );
+    assert_eq!(
+        kinds(&test_caught, &["test_caught_held_raise"]),
+        [Kind::Failed {
+            assert: "assert 1 == 2".to_owned()
+        }],
+        "an assert that held does not replace the caught assert that did not"
+    );
+}
+
 /// The text of a project error, or `internal error: <part>: <message>`.
 fn reason(error: &Error) -> String {
     match error.kind() {
