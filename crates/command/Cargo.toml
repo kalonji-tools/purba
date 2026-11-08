@@ -19,7 +19,7 @@ purba-selection = { path = "../selection" }
 pyo3.workspace = true
 
 [features]
-fault = ["purba-assertion/fault", "purba-selection/fault"]
+fault = ["purba-assertion/fault", "purba-parsing/fault", "purba-selection/fault"]
 
 [lints]
 workspace = true

@@ -63,8 +63,17 @@ impl<'a> StatementVisitor<'a> for Asserts<'a> {
 
 /// Marks each assert of `module`: `assert x` becomes `assert _purba_ran(i, x)`,
 /// where `i` counts the asserts of the module in source order, from 0.
+///
+/// # Panics
+///
+/// In a build with the feature `fault`, when `PURBA_FAULT` is `rewrite`.
 #[must_use]
 pub fn rewrite(module: &Module) -> Rewrite {
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "rewrite")
+    {
+        panic!("PURBA_FAULT=rewrite");
+    }
     let source = module.source();
     let mut visitor = Asserts { found: Vec::new() };
     visitor.visit_body(&module.syntax().body);
