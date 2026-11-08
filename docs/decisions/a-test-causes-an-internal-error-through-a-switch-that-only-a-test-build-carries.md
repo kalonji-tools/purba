@@ -15,7 +15,7 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 
 ## Considered Options
 
-- **A file of a tester that breaks purba.** `builtins.py` gives a project error, and the `latin-1` module gives `failed`. The fix of either defect turns the test red.
+- **A file of a tester that breaks purba.** `builtins.py` gives a project error. The fix of that defect turns the test red.
 - **A test of a part that hands the next part a broken value.** It never starts the console script, so it misses the exit code of a panic.
 - **A switch in the wheel that a tester installs.** The switch then adds to the public surface.
 
@@ -35,7 +35,7 @@ The switch causes the internal error through the console script that the wheel i
 
 - **`mise run test:wheel` builds two wheels.** Each local `mise run check` waits for both.
 - **The wheel under the test of an internal error differs from the wheel a tester installs.** The code that `fault` adds runs only in the test build.
-- **A wrong answer inside purba stays out of reach.** Execution sees only a failed assert, so the tests of each part guard it.
+- **The switch cannot cause a wrong answer inside purba.** No part sees a wrong answer during a run, so the tests of each part guard against a wrong answer.
 
 ## Confirmation
 
