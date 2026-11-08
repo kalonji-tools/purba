@@ -82,6 +82,7 @@
 ### interrupt handling
 
 - [A KeyboardInterrupt that no signal caused is the test's own raise](decisions/a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md)
+- [A process that a test forks has the signal handlers it has without purba](decisions/a-process-that-a-test-forks-has-the-signal-handlers-it-has-without-purba.md)
 - [An interrupt puts back no more than a normal end does](decisions/an-interrupt-puts-back-no-more-than-a-normal-end-does.md)
 - [An interrupt stops the run, and a second one exits at once](decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md)
 - [An interrupted run prints its count, and dies by the signal](decisions/an-interrupted-run-prints-its-count-and-dies-by-the-signal.md)

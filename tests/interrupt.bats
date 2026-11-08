@@ -1,6 +1,8 @@
 #   the decision:  docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md
 #   the decision:  docs/decisions/an-interrupted-run-prints-its-count-and-dies-by-the-signal.md
 #   the decision:  docs/decisions/an-interrupt-puts-back-no-more-than-a-normal-end-does.md
+#   the decision:
+# docs/decisions/a-process-that-a-test-forks-has-the-signal-handlers-it-has-without-purba.md
 #
 # A shell reads 130 both for a death by SIGINT and for an exit with the code
 # 130. So Python's `subprocess` starts purba and sends the signal. Its

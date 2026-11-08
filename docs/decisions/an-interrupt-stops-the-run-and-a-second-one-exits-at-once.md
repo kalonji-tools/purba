@@ -48,6 +48,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
 [An interrupt puts back no more than a normal end does](an-interrupt-puts-back-no-more-than-a-normal-end-does.md#decision-outcome) says what each part puts back.
+[A process that a test forks has the signal handlers it has without purba](a-process-that-a-test-forks-has-the-signal-handlers-it-has-without-purba.md#decision-outcome) says what a process that a test forks gets for a signal.
 
 **Downside:**
 
