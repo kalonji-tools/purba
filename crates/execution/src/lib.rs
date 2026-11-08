@@ -71,8 +71,8 @@ impl Outcome {
 pub enum Kind {
     /// An assert ran, and the test returned.
     Passed,
-    /// The last assert that ran did not hold, and the test raised
-    /// `AssertionError`. `assert` is the source text of that assert.
+    /// An assert that ran did not hold, and the test raised `AssertionError`.
+    /// `assert` is the text of the last assert that did not hold.
     Failed { assert: String },
     /// The test's call raised, and the outcome is not `Failed` or
     /// `Interrupted`. A call to `os._exit` during the call gives `Raised` too,

@@ -7,7 +7,7 @@ use pyo3::types::{PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods};
 use pyo3::{Bound, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{Expr, Stmt, StmtAssert};
-use ruff_text_size::Ranged;
+use ruff_text_size::{Ranged, TextRange};
 use std::panic::{self, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, PoisonError};
@@ -15,7 +15,7 @@ use std::sync::{Mutex, PoisonError};
 /// The name that each marked assert calls.
 const RAN: &str = "_purba_ran";
 
-/// The rewritten text of one module, and the source text of each of its asserts.
+/// The rewritten text of one module, and the text of each of its asserts.
 pub struct Rewrite {
     text: String,
     asserts: Vec<String>,
@@ -28,8 +28,9 @@ impl Rewrite {
         &self.text
     }
 
-    /// The source text of each assert, in source order. The index of an assert
-    /// here is the index that its mark records.
+    /// The text of each assert, without its comments and line continuations, in
+    /// source order. The index of an assert here is the index that its mark
+    /// records.
     #[must_use]
     pub fn asserts(&self) -> &[String] {
         &self.asserts
@@ -88,7 +89,7 @@ pub fn rewrite(module: &Module) -> Rewrite {
         rewritten.push_str(close);
         rewritten.push(')');
         copied = condition.end().to_usize();
-        asserts.push(source[assert.range()].to_owned());
+        asserts.push(without_trivia(module, assert.range()));
     }
     rewritten.push_str(&source[copied..]);
     Rewrite {
@@ -97,18 +98,38 @@ pub fn rewrite(module: &Module) -> Rewrite {
     }
 }
 
-/// The source text of each assert of one loaded module, the index of the last
-/// one that ran, and whether it held.
+/// The text of `range` in `module`, without its comments and the backslash of
+/// each line continuation.
+fn without_trivia(module: &Module, range: TextRange) -> String {
+    let source = module.source();
+    let mut text = String::with_capacity(range.len().to_usize());
+    let mut start = range.start();
+    for trivia in module
+        .trivia()
+        .iter()
+        .filter(|trivia| range.contains_range(**trivia))
+    {
+        text.push_str(&source[TextRange::new(start, trivia.start())]);
+        start = trivia.end();
+    }
+    text.push_str(&source[TextRange::new(start, range.end())]);
+    text
+}
+
+/// The text of each assert of one loaded module, and the index of the
+/// last one that did not hold, or else of the last one that ran, beside
+/// whether it held.
 #[pyclass(frozen)]
 struct Ran {
     asserts: Vec<String>,
-    last: Mutex<Option<(usize, bool)>>,
+    kept: Mutex<Option<(usize, bool)>>,
 }
 
 #[pymethods]
 impl Ran {
-    /// Tests `value` once, and records `index` and whether `value` held. Gives
-    /// that back, so that the assert tests a `bool`.
+    /// Tests `value` once, and records `index` and whether `value` held, unless
+    /// `value` held and an assert that did not hold is on record. Gives back
+    /// whether `value` held, so that the assert tests a `bool`.
     ///
     /// # Errors
     ///
@@ -131,14 +152,18 @@ impl Ran {
             )));
         }
         let held = value.is_truthy()?;
-        *self.last.lock().unwrap_or_else(PoisonError::into_inner) = Some((index, held));
+        let mut kept = self.kept.lock().unwrap_or_else(PoisonError::into_inner);
+        if !held || !matches!(*kept, Some((_, false))) {
+            *kept = Some((index, held));
+        }
+        drop(kept);
         Ok(held)
     }
 }
 
 impl Ran {
     fn take(&self) -> Option<(usize, bool)> {
-        self.last
+        self.kept
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .take()
@@ -159,8 +184,9 @@ impl<'py> Loaded<'py> {
         &self.module
     }
 
-    /// Runs `call` with no assert recorded. Gives its result, and the source
-    /// text of the last marked assert that ran inside it, beside whether it held.
+    /// Runs `call` with no assert recorded. Gives its result, and the text of
+    /// the last marked assert inside it that did not hold, or else of the last
+    /// one that ran, beside whether it held.
     ///
     /// When `call` bound `_purba_ran` to anything but the hook, the result is
     /// the error that [`load`] gives such a module, and the hook is back.
@@ -185,7 +211,7 @@ impl<'py> Loaded<'py> {
 ///
 /// 1. names the module after the file of `path`, without `.py`, and sets its
 ///    `__file__` to `path`;
-/// 2. gives it `_purba_ran`, which holds the source text of each assert of
+/// 2. gives it `_purba_ran`, which holds the text of each assert of
 ///    `rewrite` at the index that its mark records;
 /// 3. puts it in `sys.modules` under that name;
 /// 4. compiles the text, checks that no function holds `_purba_ran` as a local
@@ -211,7 +237,7 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
         py,
         Ran {
             asserts,
-            last: Mutex::new(None),
+            kept: Mutex::new(None),
         },
     )?;
     module.setattr(RAN, &ran)?;

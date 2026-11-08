@@ -7,6 +7,7 @@ use std::io;
 use std::mem;
 use std::path::Path;
 
+use ruff_python_ast::token::{Token, TokenKind};
 use ruff_python_ast::visitor::transformer::{
     Transformer, walk_expr, walk_interpolated_string_element, walk_pattern, walk_stmt,
 };
@@ -16,14 +17,15 @@ use ruff_python_ast::{
     StmtPass,
 };
 use ruff_source_file::LineIndex;
-use ruff_text_size::{TextRange, TextSize};
+use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
 const BYTE_ORDER_MARK: char = '\u{feff}';
 
-/// One module: its text, and ruff's tree of that text.
+/// One module: its text, ruff's tree of that text, and where its trivia is.
 pub struct Module {
     source: String,
     syntax: ModModule,
+    trivia: Vec<TextRange>,
 }
 
 impl Module {
@@ -38,6 +40,13 @@ impl Module {
     #[must_use]
     pub const fn syntax(&self) -> &ModModule {
         &self.syntax
+    }
+
+    /// The range of each comment, and of the backslash of each line
+    /// continuation, in source order. ruff's tree holds neither.
+    #[must_use]
+    pub fn trivia(&self) -> &[TextRange] {
+        &self.trivia
     }
 
     /// The place of `offset`, a byte offset into the text.
@@ -365,9 +374,11 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
         .errors()
         .first()
         .map(|error| (error.error.to_string(), error.location));
+    let trivia = trivia(&source, parsed.tokens());
     let module = Module {
         syntax: parsed.into_syntax(),
         source,
+        trivia,
     };
     match first {
         None => Ok(module),
@@ -377,4 +388,26 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
             end: module.position(location.end()),
         })),
     }
+}
+
+/// The range of each comment token, and of each backslash between two tokens.
+fn trivia(source: &str, tokens: &[Token]) -> Vec<TextRange> {
+    // Outside a token, a backslash can only start a line continuation.
+    // https://docs.python.org/3.12/reference/lexical_analysis.html#explicit-line-joining
+    let mut trivia = Vec::new();
+    let mut end = TextSize::default();
+    for token in tokens {
+        let gap = TextRange::new(end, token.start());
+        trivia.extend(source[gap].match_indices('\\').map(|(at, _)| {
+            TextRange::at(
+                gap.start() + TextSize::try_from(at).unwrap_or_default(),
+                '\\'.text_len(),
+            )
+        }));
+        if token.kind() == TokenKind::Comment {
+            trivia.push(token.range());
+        }
+        end = token.end();
+    }
+    trivia
 }
