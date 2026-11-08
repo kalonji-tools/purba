@@ -15,6 +15,7 @@ name = "purba"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+libc.workspace = true
 purba-command = { path = "../command" }
 purba-execution = { path = "../execution" }
 pyo3 = { workspace = true, features = ["abi3-py312"] }

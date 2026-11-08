@@ -173,6 +173,51 @@ jobs:
           FAULT_PURBA: ${{ github.workspace }}/target/fault-venv/bin/purba
         run: bats --print-output-on-failure tests
 
+  # PROBE for #854, never merges: a debug CPython, which setup-python cannot
+  # supply, so the report's `d` is checked on each OS.
+  debug:
+    name: debug ${{ matrix.os }} py${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.14+debug', '3.14+freethreaded+debug']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - name: Install CPython ${{ matrix.python }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # mise runs locked, so uv, which mise.toml does not pin, comes from pipx.
+          uv() { pipx run --spec uv==0.13.1 uv "$@"; }
+          uv python install "${{ matrix.python }}"
+          py=$(uv python find --managed-python "${{ matrix.python }}")
+          "${py}" -c 'import sys; print(sys.version, repr(sys.abiflags))'
+          echo "PROBE_PYTHON=${py}" >>"${GITHUB_ENV}"
+
+      - name: Build the fault wheel on ${{ matrix.python }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mise run build --interpreter "${PROBE_PYTHON}" \
+            --features extension-module,fault --out target/wheels-fault
+          "${PROBE_PYTHON}" -m venv target/fault-venv
+          target/fault-venv/bin/python -m pip install --quiet --no-index \
+            --find-links target/wheels-fault purba
+          target/fault-venv/bin/python -c 'import sys; print(sys.version, repr(sys.abiflags))'
+
+      - name: Run the report cases on ${{ matrix.python }}
+        env:
+          FAULT_PURBA: ${{ github.workspace }}/target/fault-venv/bin/purba
+        run: bats --print-output-on-failure tests/fault.bats
+
   Build:
     name: Build
     needs: [changed, rust, wheel]

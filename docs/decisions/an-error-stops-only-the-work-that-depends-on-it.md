@@ -48,7 +48,6 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
 
 - **The work that goes on after a panic trusts that the panic broke no state that another part reads.** The `UnwindSafe` bound of `catch_unwind` checks some of it. `AssertUnwindSafe` opts out of that check.
 - **An invocation error that reporting finds discards every outcome of the run.** Each test ran, and the tester reads no outcome.
-- **A Python with no `sys.abiflags` runs no test.** A test shares purba's interpreter, and can change the flags. So purba reads them before any test, for the report of an internal error. A missing `sys.abiflags` is an invocation error.
 - **A tester who knows pytest expects a module that raises at import to stop the run.** purba runs every other module.
 - **A runtime that puts a file that takes a write on fd 1 hides a closed stdout from purba.** macOS logs at each start of the free-threaded Python from python.org, because its `Python.app` lists an executable it does not hold. The log write opens a socket on the lowest free fd, which is then fd 1. purba writes its lines into that socket.
 
@@ -61,8 +60,6 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
 `mise run test:rust` checks that a panic while a module loads blocks the tests of that module.
 `mise run test:wheel` checks that a panic inside a test stops only that test, on the installed `purba`.
 On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module that selection reads an internal error, and runs no test.
-`mise run test:wheel` checks that a Python with no `sys.abiflags` stops the run before any test, with an invocation error.
-On the `fault` wheel, `mise run test:wheel` checks that a test that changes `sys.abiflags` leaves the report's flags as purba read them.
 No command checks the rest of this record.
 
 [A blocked test has no outcome](a-blocked-test-has-no-outcome.md#decision-outcome) says what each test that an error blocks prints.

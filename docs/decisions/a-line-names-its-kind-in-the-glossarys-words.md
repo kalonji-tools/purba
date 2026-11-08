@@ -83,6 +83,7 @@ purba: internal error: <part>: <message>
 On the `fault` wheel, `mise run test:wheel` checks the line of an internal error that stops the run, and the two lines after that line.
 `mise run test:rust` checks the line of an internal error for a test and for a module.
 On the `fault` wheel, `mise run test:wheel` checks the line of an internal error inside a test, and the line of each test after it.
+On the `fault` wheel, `mise run test:wheel` checks that a test that changes `sys.abiflags` leaves the flags of the report as the build names them.
 
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names its gate.
 

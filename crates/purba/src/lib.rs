@@ -18,8 +18,8 @@ use std::panic;
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 
-/// The console script `purba`. It copies `sys.argv` into a list of strings and
-/// `sys.abiflags` into a string, runs command on the list, and returns the exit
+/// The console script `purba`. It copies `sys.argv` into a list of strings,
+/// runs command on the list, and returns the exit
 /// code. For the error that stops the run, it writes one line to stderr, and
 /// returns 3, or 125 for a panic. A write that stdout refused once the report
 /// exists returns the code that reporting gives with it: 125 after an internal
@@ -33,15 +33,11 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 #[pyfunction]
 #[pyo3(name = "_main")]
 fn main(py: Python<'_>) -> u8 {
-    // A test shares this interpreter, and may change `sys`. So before any test
-    // runs, purba reads the ABI flags that the report of an internal error names.
-    let (argv, flags) = match py.import("sys").and_then(|sys| {
-        Ok((
-            sys.getattr("argv")?.extract::<Vec<String>>()?,
-            sys.getattr("abiflags")?.extract::<String>()?,
-        ))
-    }) {
-        Ok(read) => read,
+    let argv = match py
+        .import("sys")
+        .and_then(|sys| sys.getattr("argv")?.extract::<Vec<String>>())
+    {
+        Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
     purba_execution::panic::wrap_hook();
@@ -63,7 +59,7 @@ fn main(py: Python<'_>) -> u8 {
         Err(payload) => internal(payload.as_ref()),
     };
     if code == 125 {
-        ask_for_report(py, &flags);
+        ask_for_report(py);
     }
     // When purba cannot register its `atexit` function, the window in which a
     // first interrupt ends the wait for threads stays shut. That interrupt then
@@ -104,8 +100,9 @@ fn internal(payload: &(dyn Any + Send)) -> u8 {
 }
 
 /// Writes the two lines that ask for a report of an internal error.
-fn ask_for_report(py: Python<'_>, flags: &str) {
+fn ask_for_report(py: Python<'_>) {
     let version = py.version_info();
+    let flags = abi_flags();
     let mut stderr = io::stderr();
     // Each wheel of purba carries a `cp` tag, and pip gives it to CPython alone:
     // https://github.com/pypa/packaging/blob/26.2/src/packaging/tags.py#L875-L878
@@ -124,6 +121,24 @@ fn ask_for_report(py: Python<'_>, flags: &str) {
         stderr,
         "purba: report it at https://github.com/kalonji-tools/purba/issues/new?template=defect.md"
     );
+}
+
+/// The ABI flags of the build that runs purba, in the order of `sys.abiflags`:
+/// `t` for a free-threaded build, and `d` for a debug build. A test can change
+/// neither source.
+fn abi_flags() -> String {
+    // https://github.com/python/cpython/blob/v3.15.2/Python/getversion.c#L17-L23
+    let free_threaded = Python::version_str().contains(" free-threading build ");
+    // Only a debug build exports this function:
+    // https://github.com/python/cpython/blob/v3.15.0/Misc/stable_abi.toml#L2267-L2274
+    // SAFETY: the name is a C string, and `dlsym` only reads it.
+    let debug =
+        !unsafe { libc::dlsym(libc::RTLD_DEFAULT, c"_Py_NegativeRefcount".as_ptr()) }.is_null();
+    format!(
+        "{}{}",
+        if free_threaded { "t" } else { "" },
+        if debug { "d" } else { "" }
+    )
 }
 
 /// The extension module Python imports as `purba`.

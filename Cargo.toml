@@ -14,6 +14,7 @@ publish = false
 # `publish = false` means purba has none.
 
 [workspace.dependencies]
+libc = "0.2.189"
 pyo3 = "0.29.2"
 #   the decision:  docs/decisions/purba-parses-python-with-ruff.md
 ruff_python_ast = "=0.0.17"
