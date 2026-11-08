@@ -570,3 +570,82 @@ LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ -e finally ]]
 }
+
+@test "a child that a test forks dies by SIGTERM, and prints no report of its own" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, time' \
+    'def test_child_dies_by_sigterm():' '    pid = os.fork()' '    if pid == 0:' \
+    '        time.sleep(30)' '        os._exit(0)' '    time.sleep(0.5)' \
+    '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
+    '    assert os.waitstatus_to_exitcode(status) == -signal.SIGTERM' \
+    'def test_two():' '    assert True' >test_fork_term.py
+
+  run -0 --separate-stderr purba test_fork_term.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_fork_term.py::test_child_dies_by_sigterm passed
+test_fork_term.py::test_two passed
+2 tests: 2 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a child that multiprocessing forks dies by SIGTERM on terminate" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import multiprocessing, signal, time' \
+    'def sleep():' '    time.sleep(30)' \
+    'def test_terminate():' \
+    '    child = multiprocessing.get_context("fork").Process(target=sleep)' \
+    '    child.start()' '    time.sleep(0.5)' '    child.terminate()' '    child.join()' \
+    '    assert child.exitcode == -signal.SIGTERM' >test_fork_terminate.py
+
+  run -0 --separate-stderr purba test_fork_terminate.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_fork_terminate.py::test_terminate passed
+1 test: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a child that a test forks has the signal handlers that Python has without purba" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, subprocess, sys' \
+    'READ = ("import signal as s; "' \
+    '        "print([s.getsignal(n) for n in (s.SIGINT, s.SIGTERM, s.SIGHUP)])")' \
+    'def test_handlers():' \
+    '    python = [sys.executable, "-c", READ]' \
+    '    without = subprocess.run(python, capture_output=True, text=True).stdout' \
+    '    read, write = os.pipe()' '    pid = os.fork()' '    if pid == 0:' \
+    '        os.dup2(write, 1)' '        exec(READ)' \
+    '        sys.stdout.flush()' '        os._exit(0)' \
+    '    os.close(write)' '    os.waitpid(pid, 0)' \
+    '    with os.fdopen(read) as child:' \
+    '        assert child.read() == without' >test_fork_handlers.py
+
+  run -0 --separate-stderr purba test_fork_handlers.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_fork_handlers.py::test_handlers passed
+1 test: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a signal handler that a test gives SIGTERM before it forks runs in the child" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, time' \
+    'def test_own_handler():' \
+    '    signal.signal(signal.SIGTERM, lambda signum, frame: os._exit(9))' \
+    '    pid = os.fork()' '    if pid == 0:' '        time.sleep(30)' '        os._exit(0)' \
+    '    time.sleep(0.5)' '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
+    '    assert os.waitstatus_to_exitcode(status) == 9' >test_fork_own_handler.py
+
+  run -0 --separate-stderr purba test_fork_own_handler.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_fork_own_handler.py::test_own_handler passed
+1 test: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
