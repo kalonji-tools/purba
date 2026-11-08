@@ -156,6 +156,58 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "the fault wheel blocks the selected tests when PURBA_FAULT is rewrite" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  run -125 --separate-stderr env PURBA_FAULT=rewrite "${fault_purba}" test_rewrite_panic.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_rewrite_panic.py::test_refused project error: purba cannot run an async test yet
+test_rewrite_panic.py internal error: assertion: PURBA_FAULT=rewrite
+test_rewrite_panic.py::test_one blocked: test_rewrite_panic.py did not load
+2 tests: 2 blocked; 1 project error, 1 internal error
+LINES
+  grep -Fq -- 'panicked at crates/assertion/src/lib.rs:' <<<"${stderr}"
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}
+
+@test "the fault wheel gives the module an internal error when PURBA_FAULT is parse" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
+  run -125 --separate-stderr env PURBA_FAULT=parse "${fault_purba}" test_rewrite_panic.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_rewrite_panic.py internal error: parsing: PURBA_FAULT=parse
+0 tests; 1 internal error
+LINES
+  grep -Fq -- 'panicked at crates/parsing/src/lib.rs:' <<<"${stderr}"
+  local expected last
+  expected=$(report_lines "${fault_purba}")
+  last=$(tail -n 2 <<<"${stderr}")
+  diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
+}
+
+@test "the wheel without fault runs the module when PURBA_FAULT is rewrite or parse" {
+  cd "${BATS_TEST_DIRNAME}/fault"
+
+  local setting
+  for setting in rewrite parse; do
+    run -4 --separate-stderr env PURBA_FAULT="${setting}" purba test_rewrite_panic.py
+
+    diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_rewrite_panic.py::test_refused project error: purba cannot run an async test yet
+test_rewrite_panic.py::test_one passed
+2 tests: 1 passed, 1 blocked; 1 project error
+LINES
+    [[ -z "${stderr}" ]]
+  done
+}
+
 @test "a run that met an internal error exits 125 when stdout then refuses a write" {
   cd "${BATS_TEST_DIRNAME}/fault"
 
