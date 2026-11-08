@@ -59,7 +59,9 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
 
 `mise run test:rust` checks that a panic while a module loads blocks the tests of that module.
 `mise run test:wheel` checks that a panic inside a test stops only that test, on the installed `purba`.
-On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module that selection reads an internal error, and runs no test.
+On the `fault` wheel, `mise run test:wheel` checks that a panic in the parse or in selection gives the module an internal error, so no test runs.
+It checks that a panic in the rewrite gives the module an internal error after the line of each test that selection refuses.
+It checks that the error blocks each test that selection hands on.
 No command checks the rest of this record.
 
 [A blocked test has no outcome](a-blocked-test-has-no-outcome.md#decision-outcome) says what each test that an error blocks prints.
