@@ -114,9 +114,24 @@ Each plant is a one-line edit on top of the way's patch, listed in `run.sh` unde
 - The `d` plant passes both cases on mise's 3.12. So `mise run test` cannot see a lost `d`; only a debug interpreter can.
 - No CI arm runs a debug Python (`build.yml` L96: `3.12`, `3.13`, `3.14`, `3.14t`). The `t` plants would fail the `3.14t` arms; the `d` plants would pass every arm [A for the matrix line; the CI run itself is C].
 
-## macOS: what a probe would need to show [C]
+## macOS: the probe of W1 [A]
 
-I cannot run macOS. These are the jobs and lines a probe pull request would read.
+The draft [#855](https://github.com/kalonji-tools/purba/pull/855) ran W1 and its suite changes in CI, at `42990fe`, run [42459119624](https://github.com/kalonji-tools/purba/actions/runs/42459119624). It added a `debug` job: uv's debug CPython 3.14.8, built against it, and `bats tests/fault.bats`.
+
+| job | interpreter | report cases 1 and 12 |
+|---|---|---|
+| `wheel macos-latest` py3.12, py3.13, py3.14 | python.org framework, release | pass: no false `d` |
+| `wheel macos-latest py3.14t` | python.org framework, free-threaded | pass: `t` |
+| `debug macos-latest py3.14+debug` | uv, `sys.abiflags` `'d'` | pass: `d` |
+| `debug macos-latest py3.14+freethreaded+debug` | uv, `'td'` | pass: `td` |
+| the same 6 on `ubuntu-latest` | as above | pass |
+
+- Case 1 compares the report's last two lines with `tests/internal_error.sh`, which reads `sys.abiflags` from the venv's own Python. Case 12 has a test set `sys.abiflags = "x"` first.
+- Each `debug` job fails cases 4, 5 and 10. They run the wheel without `fault` from `PATH`, and the probe job never installed it: `env: purba: No such file or directory`. That is a gap of the probe, not of W1.
+- No planted bug ran on macOS. On Linux the plant `_Py_NegativeRefCount` fails case 1 on a debug Python (above), and a wrong `RTLD_DEFAULT` would print no `d` the same way.
+- The macOS debug builds are python-build-standalone, not framework builds. A debug framework build stays unmeasured [C].
+
+What a probe needed to show, written before it ran:
 
 - **`t` for W1 and W2.** The jobs `wheel macos-latest py3.14t` (build.yml L86-L174) run `bats tests` at L171-L174. The case at `tests/fault.bats:10` and the case at `:177` compare the report's last two lines to `report_lines`, which reads `sys.abiflags` of the venv. A pass there shows `3.14.Xt` on python.org's framework build.
 - **No false `d`.** The arms `py3.12`, `py3.13`, `py3.14` on macOS pass the same two cases only if `dlsym` finds nothing in a release build.
@@ -126,7 +141,7 @@ I cannot run macOS. These are the jobs and lines a probe pull request would read
 
 ## What I could not verify
 
-- macOS, for every way [C]. See above.
+- macOS for W2, W3 and W4 [C]. W1 ran on macOS in the probe above; W2's `d` is the same `dlsym`, and its `t` comes from the build.
 - A build with `Py_REF_DEBUG` and no `Py_DEBUG` [C]. W1 and W2 would name it `d`; `sys.abiflags` names it `''` [B].
 - Distribution Pythons (Debian, Fedora, Homebrew) [C]. The pairs here are python-build-standalone and mise's 3.12 [A].
 - The full `mise run lint` on the in-execution variant of W1: `lint:pins` stopped on GitHub's API rate limit, and I reran the others by hand. The variant changes no workflow, so the result of `lint:pins` should not depend on it [C].
