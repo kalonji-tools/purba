@@ -71,7 +71,7 @@ flowchart LR
 **Downside:**
 
 - **A test can call `_purba_ran` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
-- **A fault of purba that a part sees as a failed assert shows as failed.** A module that declares `coding: latin-1` and holds UTF-8 bytes is one. The tests of each part guard it.
+- **A fault of purba that a part sees as a failed assert shows as failed.** The tests of each part guard against it.
 - **A failure that no part sees has no kind.** A test that ends the process through `posix._exit` or a crash leaves no line for itself.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
 - **A thread that a left-over thread starts charges the test that runs then.** The test that left the first thread alive caused it.

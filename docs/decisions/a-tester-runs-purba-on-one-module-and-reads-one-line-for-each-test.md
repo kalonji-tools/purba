@@ -38,7 +38,7 @@ A console script adds one command and one private name, and the wheel keeps its 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
-- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`.
+- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`. A module that declares an encoding other than UTF-8 takes the `cannot read` line.
 - **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.**
 
   ```mermaid
