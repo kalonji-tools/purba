@@ -87,6 +87,35 @@ fn a_yield_keeps_its_parentheses() {
 }
 
 #[test]
+fn the_text_of_an_assert_leaves_out_its_comments_and_line_continuations() {
+    let rewritten = rewrite(
+        "test_shapes.py",
+        concat!(
+            "def test_comment():\n",
+            "    assert (1  # a comment\n",
+            "            and 0)\n",
+            "\n",
+            "def test_backslash():\n",
+            "    assert 1 and \\\n",
+            "        0\n",
+            "\n",
+            "def test_hash_in_a_string():\n",
+            "    assert \"a # b\" == \"c\"\n",
+        ),
+    );
+
+    assert_eq!(
+        rewritten.asserts(),
+        [
+            "assert (1  \n            and 0)",
+            "assert 1 and \n        0",
+            "assert \"a # b\" == \"c\"",
+        ],
+        "each assert without its comment and its backslash, and a # in a string kept"
+    );
+}
+
+#[test]
 fn a_module_with_no_assert_is_unchanged() {
     let text = "def test_three():\n    pass\n";
     let rewritten = rewrite("test_none.py", text);

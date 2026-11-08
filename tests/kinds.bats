@@ -25,6 +25,27 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test that fails before a cleanup assert that holds prints failed, and the run exits 1" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import contextlib' '' 'opened = []' '' '' \
+    '@contextlib.contextmanager' 'def no_leaks():' '    try:' '        yield' \
+    '    finally:' '        assert not opened, "a handle leaked"' '' '' \
+    'def test_inside_a_checking_context():' '    with no_leaks():' \
+    '        assert 1 + 1 == 3' '' '' \
+    'def test_with_a_finally_check():' '    try:' '        assert 1 + 1 == 3' \
+    '    finally:' '        assert not opened' >test_cleanup_assert.py
+
+  run -1 --separate-stderr purba test_cleanup_assert.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_cleanup_assert.py::test_inside_a_checking_context failed: assert 1 + 1 == 3
+test_cleanup_assert.py::test_with_a_finally_check failed: assert 1 + 1 == 3
+2 tests: 2 failed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a test that raises prints raised, and the run exits 4" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'def test_one():' '    raise KeyError("k")' >test_raise.py
