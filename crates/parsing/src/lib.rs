@@ -205,7 +205,16 @@ impl Position {
 /// When the file cannot be read, or declares an encoding other than UTF-8,
 /// the error is [`Error::Read`]. When ruff finds a syntax error in the file,
 /// the error is [`Error::Syntax`], and it holds the first one that ruff lists.
+///
+/// # Panics
+///
+/// In a build with the feature `fault`, when `PURBA_FAULT` is `parse`.
 pub fn parse(path: &Path) -> Result<Module, Error> {
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "parse")
+    {
+        panic!("PURBA_FAULT=parse");
+    }
     let bytes = fs::read(path).map_err(Error::Read)?;
     let marked = bytes.starts_with(b"\xef\xbb\xbf");
     if let Some(name) = declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {

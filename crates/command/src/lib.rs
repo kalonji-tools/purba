@@ -77,15 +77,16 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let parsed = match purba_parsing::parse(&path) {
-        Ok(module) => module,
-        Err(purba_parsing::Error::Read(error)) => return Err(Error::Read(path, error)),
-        Err(purba_parsing::Error::Syntax(error)) => {
+    let parsed = match purba_execution::catch("command", || Ok(purba_parsing::parse(&path))) {
+        Ok(Ok(module)) => module,
+        Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
+        Ok(Err(purba_parsing::Error::Syntax(error))) => {
             let error = purba_execution::Error::project(error.to_string());
             return stopped(report, &path, &error);
         }
+        Err(error) => return stopped(report, &path, &error),
     };
-    let (modules, refused_tests) = match modules(&path, &parsed) {
+    let (found, refused_tests) = match modules(&path, &parsed) {
         Ok(found) => found,
         Err(error) => return stopped(report, &path, &error),
     };
@@ -97,6 +98,16 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
             &Err(purba_execution::Error::project(refused.to_string())),
         )?;
     }
+    let modules = match found {
+        Found::Modules(modules) => modules,
+        Found::NotRewritten(error, tests) => {
+            report.error(&path.display(), &error)?;
+            for test in &tests {
+                report.blocked(test, &path.display())?;
+            }
+            return Ok(report.finish()?);
+        }
+    };
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result) => report.line(&test, &result),
@@ -153,9 +164,19 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
     }
 }
 
-/// The module at `path` with the tests that selection hands on, and each test
-/// that it refuses. A module with no test to hand on is neither rewritten nor
-/// loaded.
+/// What selection and the rewrite leave of one module.
+enum Found {
+    /// The rewritten module with the tests that selection hands on, or no
+    /// module when selection hands on no test.
+    Modules(Vec<Module<TestId>>),
+    /// The internal error of a panic in the rewrite, and each test that
+    /// selection hands on, which the panic blocks.
+    NotRewritten(purba_execution::Error, Vec<TestId>),
+}
+
+/// What selection and the rewrite leave of the module at `path`, and each test
+/// that selection refuses. A module with no test to hand on is neither
+/// rewritten nor loaded.
 ///
 /// # Errors
 ///
@@ -163,14 +184,17 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
 fn modules(
     path: &Path,
     module: &purba_parsing::Module,
-) -> Result<(Vec<Module<TestId>>, Vec<Refused>), purba_execution::Error> {
+) -> Result<(Found, Vec<Refused>), purba_execution::Error> {
     let (tests, refused) =
         purba_execution::catch("command", || Ok(purba_selection::select(path, module)))?;
     if tests.is_empty() {
-        return Ok((Vec::new(), refused));
+        return Ok((Found::Modules(Vec::new()), refused));
     }
-    let rewrite = purba_assertion::rewrite(module);
-    Ok((vec![Module::new(path.to_owned(), rewrite, tests)], refused))
+    let found = match purba_execution::catch("command", || Ok(purba_assertion::rewrite(module))) {
+        Ok(rewrite) => Found::Modules(vec![Module::new(path.to_owned(), rewrite, tests)]),
+        Err(error) => Found::NotRewritten(error, tests),
+    };
+    Ok((found, refused))
 }
 
 #[cfg(test)]
