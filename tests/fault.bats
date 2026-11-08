@@ -174,7 +174,7 @@ LINES
   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
 }
 
-@test "the report of an internal error names the flags when sys.abiflags is missing" {
+@test "the report of an internal error names the flag when sys.abiflags is missing" {
   local site="${BATS_TEST_TMPDIR:?set by bats}/site"
   mkdir "${site}"
   printf '%s\n' 'import sys' '' 'del sys.abiflags' >"${site}/sitecustomize.py"
@@ -194,7 +194,7 @@ LINES
   diff -u <(printf '%s\n' "${expected}") <(printf '%s\n' "${last}")
 }
 
-@test "the report of an internal error keeps the flags read before a test changed sys.abiflags" {
+@test "the report of an internal error ignores a test that changed sys.abiflags" {
   cd "${BATS_TEST_DIRNAME}/fault"
 
   local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
