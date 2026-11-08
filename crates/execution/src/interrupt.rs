@@ -13,6 +13,9 @@
 //! Once Python finalizes, purba dies by the interrupt that it kept, or else by
 //! the one that arrived.
 //!
+//! `docs/decisions/a-process-that-a-test-forks-has-the-signal-handlers-it-has-without-purba.md`
+//! says what a process that a test forks gets for a signal.
+//!
 //! `docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md`
 //! says what a second interrupt does.
 
@@ -22,7 +25,7 @@ use std::sync::{Mutex, PoisonError};
 
 use pyo3::exceptions::PyKeyboardInterrupt;
 use pyo3::sync::PyOnceLock;
-use pyo3::types::{PyAnyMethods, PyCFunction};
+use pyo3::types::{PyAnyMethods, PyCFunction, PyDict, PyDictMethods};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 
 /// The number of the first signal that the signal handler took, or 0.
@@ -55,6 +58,10 @@ static UNMASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
 /// The number of each interrupt signal that the thread's mask held when
 /// `install` ran.
 static MASKED: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+
+/// The Python signal handler that each interrupt signal that `install` did not
+/// find ignored had before `install` gave it purba's.
+static BEFORE: Mutex<Vec<(i32, Py<PyAny>)>> = Mutex::new(Vec::new());
 
 /// The functions and the ignore of `_signal` that `install` found.
 /// `signal.signal` calls `_signal.signal` by its name in the module `signal`, so
@@ -319,13 +326,15 @@ fn put_native_in_front(py: Python<'_>) {
 ///
 /// A parent that starts purba in the background ignores SIGINT for it. The first
 /// install also registers the function that makes purba die by the signal it
-/// kept, once Python finalizes. `install` keeps what `put_back` gives back: the
-/// signals that the parent ignores, and the place of each signal in the thread's
-/// mask.
+/// kept, once Python finalizes, and the function that gives a forked child back
+/// the signal handlers that `install` kept. `install` keeps what `put_back` gives
+/// back: the signals that the parent ignores, and the place of each signal in the
+/// thread's mask.
 ///
 /// # Errors
 ///
-/// `signal` refused the signal handler.
+/// `signal` refused the signal handler, or `os.register_at_fork` refused the
+/// function.
 pub fn install() -> PyResult<()> {
     Python::initialize();
     Python::attach(|py| {
@@ -333,6 +342,14 @@ pub fn install() -> PyResult<()> {
         let handler = SIGNAL_HANDLER.get_or_try_init(py, || {
             // SAFETY: `die` runs no Python, so it may run after finalization.
             unsafe { pyo3::ffi::Py_AtExit(Some(die)) };
+            let in_child = PyCFunction::new_closure(py, None, None, |args, _kwargs| {
+                give_back_in_child(args.py())
+            })?;
+            let kwargs = PyDict::new(py);
+            kwargs.set_item("after_in_child", in_child)?;
+            py.import("os")?
+                .getattr("register_at_fork")?
+                .call((), Some(&kwargs))?;
             Py::new(py, SignalHandler)
         })?;
         let functions = FUNCTIONS.get_or_try_init(py, || -> PyResult<_> {
@@ -346,9 +363,16 @@ pub fn install() -> PyResult<()> {
         for name in NAMES {
             let signum = signal.getattr(name)?.extract::<i32>()?;
             remember(if masked(signum) { &MASKED } else { &UNMASKED }, signum);
-            if functions.getsignal.bind(py).call1((signum,))?.is(ignore) {
+            let before = functions.getsignal.bind(py).call1((signum,))?;
+            if before.is(ignore) {
                 remember(&IGNORED, signum);
                 continue;
+            }
+            if !before.is(handler) {
+                let mut kept = BEFORE.lock().unwrap_or_else(PoisonError::into_inner);
+                if !kept.iter().any(|(kept, _)| *kept == signum) {
+                    kept.push((signum, before.unbind()));
+                }
             }
             functions.signal.bind(py).call1((signum, handler))?;
             remember(&GIVEN, signum);
@@ -368,6 +392,36 @@ pub fn install() -> PyResult<()> {
         put_native_in_front(py);
         Ok(())
     })
+}
+
+/// Runs in each process that `os.fork` makes. It gives each interrupt signal
+/// that still has purba's signal handler the Python signal handler that the
+/// signal had before `install`. `_signal.signal` also gives the operating system
+/// the C handler of `CPython`, or the default action, so the operating system
+/// drops purba's native handler too:
+/// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L509-L529>
+///
+/// A signal whose handler Python did not install has no Python signal handler
+/// to give back, and keeps purba's.
+fn give_back_in_child(py: Python<'_>) -> PyResult<()> {
+    let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
+        return Ok(());
+    };
+    let before: Vec<(i32, Py<PyAny>)> = BEFORE
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .iter()
+        .map(|(signum, before)| (*signum, before.clone_ref(py)))
+        .collect();
+    for (signum, before) in before {
+        if before.is_none(py) {
+            continue;
+        }
+        if functions.getsignal.bind(py).call1((signum,))?.is(handler) {
+            functions.signal.bind(py).call1((signum, before))?;
+        }
+    }
+    Ok(())
 }
 
 /// Opens the window in which a first interrupt ends Python's wait for threads.
