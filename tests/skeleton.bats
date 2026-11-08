@@ -47,6 +47,19 @@ LINES
   [[ "${stderr}" == "${refused}" ]]
 }
 
+@test "purba with a module that declares latin-1 exits 3, and says why on stderr" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '# -*- coding: latin-1 -*-\ndef test_cookie():\n    assert len("\303\251") == 1\n' \
+    >test_cookie.py
+
+  run -3 --separate-stderr purba test_cookie.py
+
+  local refused='purba: invocation error: cannot read test_cookie.py: '
+  refused+='it declares the encoding latin-1, and purba reads only UTF-8'
+  [[ "${stderr}" == "${refused}" ]] || false
+  [[ -z "${output}" ]]
+}
+
 @test "purba with no sys.abiflags runs its tests" {
   local site="${BATS_TEST_TMPDIR:?set by bats}/site"
   mkdir "${site}"
