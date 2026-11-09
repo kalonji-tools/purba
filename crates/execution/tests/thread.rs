@@ -63,23 +63,57 @@ const TEST_LOAD_THREAD: &str = "import threading\n\n\
     thread.start()\nthread.join()\n\n\
     def test_one():\n    assert True\n";
 
+/// A thread that `_thread` starts in a test, which waits for `_thread._count()`
+/// to fall, as `tests/skeleton.bats` does.
+const TEST_RAW_THREAD: &str = "import _thread\nimport time\n\nstarted = []\n\n\
+    def body():\n    started.append(1)\n    raise ValueError(\"raw\")\n\n\
+    def test_raw():\n    before = _thread._count()\n    _thread.start_new_thread(body, ())\n\
+    \x20   while not started or _thread._count() > before:\n        time.sleep(0.01)\n\
+    \x20   assert True\n";
+
+/// A thread that `_thread` starts in `test_leaves`, and that raises during
+/// `test_releases`, which waits for `_thread._count()` to fall.
+const TEST_RAW_LATE: &str = "import _thread\nimport time\n\n\
+    go = _thread.allocate_lock()\ngo.acquire()\nstarted = []\nbefore = []\n\n\
+    def late():\n    started.append(1)\n    go.acquire()\n    raise ValueError(\"late raw\")\n\n\
+    def test_leaves():\n    before.append(_thread._count())\n\
+    \x20   _thread.start_new_thread(late, ())\n    while not started:\n        time.sleep(0.01)\n\
+    \x20   assert True\n\n\
+    def test_releases():\n    go.release()\n    while _thread._count() > before[0]:\n\
+    \x20       time.sleep(0.01)\n    assert True\n";
+
+/// `text` with the number that names a thread `_thread` started replaced, so
+/// that two runs compare equal.
+fn without_ident(text: String) -> String {
+    let Some(rest) = text.strip_prefix("thread ") else {
+        return text;
+    };
+    let digits = rest.bytes().take_while(u8::is_ascii_digit).count();
+    if digits == 0 || !rest[digits..].starts_with(" raised") {
+        return text;
+    }
+    format!("thread <ident>{}", &rest[digits..])
+}
+
 /// A thread that the load leaves alive, and that raises during the test.
 const TEST_LOAD_LEAVES: &str = "import threading\n\ngo = threading.Event()\n\n\
     def late():\n    go.wait()\n    raise ValueError(\"late\")\n\n\
     thread = threading.Thread(target=late, name=\"M\", daemon=True)\nthread.start()\n\n\
     def test_releases():\n    go.set()\n    thread.join()\n    assert True\n";
 
-// The hook on `threading.excepthook` keeps one record for the process, and
-// cargo runs the tests of one binary on several threads. The `threads` of
-// another test could take the record of an exception raised here. So each
-// thread that raises in this process lives in this one test, alone in its
-// binary.
+// The hooks on `threading.excepthook` and `sys.unraisablehook` keep one record
+// for the process, and cargo runs the tests of one binary on several threads.
+// The `threads` of another test could take the record of an exception raised
+// here. So each thread that raises in this process lives in this one test,
+// alone in its binary.
 #[test]
 fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
     let test_thread = module("test_thread.py", TEST_THREAD);
     let test_late = module("test_late.py", TEST_LATE);
     let test_load_thread = module("test_load_thread.py", TEST_LOAD_THREAD);
     let test_load_leaves = module("test_load_leaves.py", TEST_LOAD_LEAVES);
+    let test_raw_thread = module("test_raw_thread.py", TEST_RAW_THREAD);
+    let test_raw_late = module("test_raw_late.py", TEST_RAW_LATE);
     // A step with no function is a `load` alone, as dispatch makes it.
     let steps: Vec<Step> = purba_execution::attach(|worker| {
         [
@@ -93,6 +127,11 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
             (&test_load_thread, None),
             (&test_load_leaves, None),
             (&test_load_leaves, Some("test_releases")),
+            (&test_raw_thread, None),
+            (&test_raw_thread, Some("test_raw")),
+            (&test_raw_late, None),
+            (&test_raw_late, Some("test_leaves")),
+            (&test_raw_late, Some("test_releases")),
         ]
         .iter()
         .map(|(module, function)| {
@@ -106,7 +145,7 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
             let threads = worker
                 .threads()
                 .into_iter()
-                .map(|(owner, error)| (owner, error.to_string()))
+                .map(|(owner, error)| (owner, without_ident(error.to_string())))
                 .collect();
             (result, threads)
         })
@@ -135,6 +174,17 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
             step(
                 passed(),
                 &[(load("test_load_leaves.py"), "M", "ValueError: late")]
+            ),
+            step(None, &[]),
+            step(
+                passed(),
+                &[(test("test_raw"), "<ident>", "ValueError: raw")]
+            ),
+            step(None, &[]),
+            step(passed(), &[]),
+            step(
+                passed(),
+                &[(test("test_releases"), "<ident>", "ValueError: late raw")]
             ),
         ],
         "each test keeps its outcome and each load its result. Each exception of a thread, \

@@ -185,6 +185,68 @@ test_late.py::test_a project error: thread T raised ValueError: late
 LINES
 }
 
+# A thread that `_thread` starts counts in `_thread._count()` before its
+# function runs, and leaves the count after `sys.unraisablehook` returns:
+# https://github.com/python/cpython/blob/v3.14.0/Modules/_threadmodule.c#L357-L375
+# So a test that waits for the count to fall waits for the hook too.
+raw_thread() {
+  printf '%s\n' \
+    'import _thread, os, time' \
+    'started = []' \
+    "def body():" '    started.append(1)' "    $1" \
+    'def test_one():' \
+    '    before = _thread._count()' \
+    '    _thread.start_new_thread(body, ())' \
+    '    while not started or _thread._count() > before:' \
+    '        time.sleep(0.01)' \
+    '    assert True' >test_raw.py
+}
+
+@test "an exception of a thread that _thread starts prints a project error, and CPython's text" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  raw_thread 'raise ValueError("from a raw thread")'
+
+  run -4 --separate-stderr purba test_raw.py
+
+  local lines
+  lines=$(sed -E 's/thread [0-9]+ raised/thread <id> raised/' <<<"${output}")
+  diff -u - <(printf '%s\n' "${lines}") <<'LINES'
+test_raw.py::test_one passed
+test_raw.py::test_one project error: thread <id> raised ValueError: from a raw thread
+1 test: 1 passed; 1 project error
+LINES
+  local ignored='Exception ignored in thread started by'
+  [[ "${stderr}" == *"${ignored}"*"ValueError: from a raw thread"* ]] || false
+}
+
+@test "a call to os._exit from a thread that _thread starts prints the test as raised alone" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  raw_thread 'os._exit(3)'
+
+  run -4 --separate-stderr purba test_raw.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_raw.py::test_one raised: ExitInsideATest: os._exit(3)
+1 test: 1 raised
+LINES
+}
+
+@test "an exception that a __del__ raises in a test gives no error, and CPython prints it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import gc' \
+    'class Leaky:' '    def __del__(self):' '        raise ValueError("from __del__")' \
+    'def test_one():' '    Leaky()' '    gc.collect()' '    assert True' >test_del.py
+
+  run -0 --separate-stderr purba test_del.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_del.py::test_one passed
+1 test: 1 passed
+LINES
+  [[ "${stderr}" == *"Exception ignored"*"ValueError: from __del__"* ]] || false
+}
+
 @test "a module that does not parse prints its error once, and no test of it" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
