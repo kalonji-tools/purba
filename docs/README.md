@@ -66,6 +66,7 @@
 
 - [A run exits 0 only when it checked something and every test passed](decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md)
 - [A test that selection refuses prints before any test runs](decisions/a-test-that-selection-refuses-prints-before-any-test-runs.md)
+- [Command hands reporting each line from before dispatch takes the module](decisions/command-hands-reporting-each-line-from-before-dispatch-takes-the-module.md)
 - [Reporting renders the exit code, and command returns it](decisions/reporting-renders-the-exit-code-and-command-returns-it.md)
 - [Reporting writes each line as dispatch hands it the test](decisions/reporting-writes-each-line-as-dispatch-hands-it-the-test.md)
 - [The report names only the free-threaded flag](decisions/the-report-names-only-the-free-threaded-flag.md)

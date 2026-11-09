@@ -49,7 +49,7 @@ A crash inside a test then left the tester no line, though the tests before it r
   ```
 
 - **Parsing and selection keep returning what they find, and command hands it on at once.**
-- **A test that selection refuses never reaches dispatch.** [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when its line prints.
+- **A line from the parse, selection or the rewrite never reaches dispatch.** [Command hands reporting each line from before dispatch takes the module](command-hands-reporting-each-line-from-before-dispatch-takes-the-module.md#decision-outcome) says which lines.
 - **Reporting writes and flushes each line as it takes it, and keeps only the tally until the count.**
 - **A refused write stops the run at once, and purba exits 3, or 125 when the run met an internal error.** [The record of the kinds](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names a refused write an invocation error, and [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) stops the run for one.
 
