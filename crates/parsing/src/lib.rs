@@ -215,6 +215,12 @@ pub fn parse(path: &Path) -> Result<Module, Error> {
     {
         panic!("PURBA_FAULT=parse");
     }
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "parse:interrupt")
+    {
+        // PROTOTYPE 868: SIGINT at the point that `PURBA_FAULT` names.
+        unsafe { libc::raise(libc::SIGINT) };
+    }
     let bytes = fs::read(path).map_err(Error::Read)?;
     let marked = bytes.starts_with(b"\xef\xbb\xbf");
     if let Some(name) = declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {

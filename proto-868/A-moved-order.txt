@@ -1,0 +1,8 @@
+     Running tests/proto_868_interrupt_in_rewrite.rs (target/debug/build/purba-command/4864d6af191a2d7b/out/proto_868_interrupt_in_rewrite-4864d6af191a2d7b)
+
+running 1 test
+purba: interrupt: SIGINT; a second interrupt exits at once
+test an_interrupt_in_the_rewrite_leaves_each_test_unreached_and_prints_the_count ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

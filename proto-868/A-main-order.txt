@@ -1,0 +1,20 @@
+
+running 1 test
+purba: interrupt: SIGINT; a second interrupt exits at once
+test an_interrupt_in_the_rewrite_leaves_each_test_unreached_and_prints_the_count ... FAILED
+
+failures:
+
+---- an_interrupt_in_the_rewrite_leaves_each_test_unreached_and_prints_the_count stdout ----
+
+thread 'an_interrupt_in_the_rewrite_leaves_each_test_unreached_and_prints_the_count' (1832441) panicked at crates/command/tests/proto_868_interrupt_in_rewrite.rs:38:5:
+an interrupt after selection does not stop the run before the count: Err(Interrupted)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    an_interrupt_in_the_rewrite_leaves_each_test_unreached_and_prints_the_count
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p purba-command --test proto_868_interrupt_in_rewrite`

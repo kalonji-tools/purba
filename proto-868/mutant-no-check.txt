@@ -1,0 +1,7 @@
+purba: interrupt: SIGINT; a second interrupt exits at once
+test an_interrupt_before_selection_ends_gives_no_count ... FAILED
+thread 'an_interrupt_before_selection_ends_gives_no_count' (1915347) panicked at crates/command/tests/interrupt.rs:41:9:
+test_interrupt.py: the run ends as interrupted: Ok(2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+error: test failed, to rerun pass `-p purba-command --test interrupt`

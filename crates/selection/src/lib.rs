@@ -170,6 +170,12 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     {
         panic!("PURBA_FAULT=selection");
     }
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "selection:interrupt")
+    {
+        // PROTOTYPE 868: SIGINT at the point that `PURBA_FAULT` names.
+        unsafe { libc::raise(libc::SIGINT) };
+    }
     let statements = &module.syntax().body;
     let top: HashSet<&str> = statements
         .iter()

@@ -1,0 +1,25 @@
+=== PURBA_FAULT=command:interrupt
+--stderr--
+purba: interrupt: SIGINT; a second interrupt exits at once
+--end-- ended by SIGINT
+=== PURBA_FAULT=parse:interrupt
+--stderr--
+purba: interrupt: SIGINT; a second interrupt exits at once
+--end-- ended by SIGINT
+=== PURBA_FAULT=selection:interrupt
+--stderr--
+purba: interrupt: SIGINT; a second interrupt exits at once
+--end-- ended by SIGINT
+=== PURBA_FAULT=rewrite:interrupt
+test_points.py::test_refused project error: purba cannot run an async test yet
+3 tests: 1 blocked, 2 unreached; 1 project error
+--stderr--
+purba: interrupt: SIGINT; a second interrupt exits at once
+--end-- ended by SIGINT
+=== PURBA_FAULT=assert:interrupt
+test_points.py::test_refused project error: purba cannot run an async test yet
+test_points.py::test_one interrupted
+3 tests: 1 interrupted, 1 blocked, 1 unreached; 1 project error
+--stderr--
+purba: interrupt: SIGINT; a second interrupt exits at once
+--end-- ended by SIGINT

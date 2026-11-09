@@ -466,6 +466,7 @@ dependencies = [
 name = "purba-assertion"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "proptest",
  "purba-parsing",
  "pyo3",
@@ -477,6 +478,7 @@ dependencies = [
 name = "purba-command"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "purba-assertion",
  "purba-dispatch",
  "purba-execution",
@@ -513,6 +515,7 @@ version = "0.0.0"
 name = "purba-parsing"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "ruff_python_ast",
  "ruff_python_parser",
  "ruff_source_file",
@@ -530,6 +533,7 @@ dependencies = [
 name = "purba-selection"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "purba-parsing",
  "ruff_python_ast",
  "ruff_text_size",

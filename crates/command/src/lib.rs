@@ -7,7 +7,7 @@ use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::{Charged, Handed, Module};
-use purba_selection::{Refused, TestId};
+use purba_selection::TestId;
 
 /// Why a run did not finish.
 #[derive(Debug)]
@@ -69,10 +69,27 @@ impl fmt::Display for Error {
 ///
 /// In a build with the feature `fault`, when `PURBA_FAULT` is `command`.
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
+    run_with(arguments, out, purba_assertion::rewrite)
+}
+
+/// PROTOTYPE #868, seam "a command test hands in the rewrite": `run` with the
+/// rewrite as an argument, so a test can put a signal inside it.
+#[doc(hidden)]
+pub fn run_with(
+    arguments: &[String],
+    out: io::Result<impl Write>,
+    rewrite: impl Fn(&purba_parsing::Module) -> purba_assertion::Rewrite,
+) -> Result<u8, Error> {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "command")
     {
         panic!("PURBA_FAULT=command");
+    }
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "command:interrupt")
+    {
+        // PROTOTYPE 868: SIGINT at the point that `PURBA_FAULT` names.
+        unsafe { libc::raise(libc::SIGINT) };
     }
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
@@ -86,11 +103,14 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
         }
         Err(error) => return stopped(report, &path, &error),
     };
-    let (found, refused_tests) = match modules(&path, &parsed) {
-        Ok(found) => found,
-        Err(error) => return stopped(report, &path, &error),
-    };
+    let (tests, refused_tests) =
+        match purba_execution::catch("command", || Ok(purba_selection::select(&path, &parsed))) {
+            Ok(selected) => selected,
+            Err(error) => return stopped(report, &path, &error),
+        };
+    // PROTOTYPE 868: the check moves from after the rewrite to before it.
     not_interrupted()?;
+    let found = rewritten(&path, &parsed, tests, &rewrite);
     drop(parsed);
     for refused in &refused_tests {
         report.line(
@@ -174,27 +194,22 @@ enum Found {
     NotRewritten(purba_execution::Error, Vec<TestId>),
 }
 
-/// What selection and the rewrite leave of the module at `path`, and each test
-/// that selection refuses. A module with no test to hand on is neither
-/// rewritten nor loaded.
-///
-/// # Errors
-///
-/// The internal error of a panic in selection.
-fn modules(
+/// What the rewrite leaves of the module at `path`, with the `tests` that
+/// selection hands on. A module with no test to hand on is neither rewritten
+/// nor loaded.
+fn rewritten(
     path: &Path,
     module: &purba_parsing::Module,
-) -> Result<(Found, Vec<Refused>), purba_execution::Error> {
-    let (tests, refused) =
-        purba_execution::catch("command", || Ok(purba_selection::select(path, module)))?;
+    tests: Vec<TestId>,
+    rewrite: &impl Fn(&purba_parsing::Module) -> purba_assertion::Rewrite,
+) -> Found {
     if tests.is_empty() {
-        return Ok((Found::Modules(Vec::new()), refused));
+        return Found::Modules(Vec::new());
     }
-    let found = match purba_execution::catch("command", || Ok(purba_assertion::rewrite(module))) {
+    match purba_execution::catch("command", || Ok(rewrite(module))) {
         Ok(rewrite) => Found::Modules(vec![Module::new(path.to_owned(), rewrite, tests)]),
         Err(error) => Found::NotRewritten(error, tests),
-    };
-    Ok((found, refused))
+    }
 }
 
 #[cfg(test)]

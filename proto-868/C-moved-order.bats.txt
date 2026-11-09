@@ -1,0 +1,20 @@
+1..2
+ok 1 PROTOTYPE: what the tester sees for an interrupt at each point
+not ok 2 an interrupt in the rewrite prints the refused line and the count, and purba dies by SIGINT
+# (in test file tests/proto_868_interrupt_points.bats, line 46)
+#   `diff -u - <(printf '%s\n' "${output}") <<'LINES'' failed
+# --- -	2026-11-09 10:17:04.414320183 +0100
+# +++ /dev/fd/63	2026-11-09 10:17:04.412658920 +0100
+# @@ -1,5 +1,5 @@
+#  test_points.py::test_refused project error: purba cannot run an async test yet
+# -3 tests: 2 unreached; 1 project error
+# +3 tests: 1 blocked, 2 unreached; 1 project error
+#  --stderr--
+#  purba: interrupt: SIGINT; a second interrupt exits at once
+#  --end-- ended by SIGINT
+# Last output:
+# test_points.py::test_refused project error: purba cannot run an async test yet
+# 3 tests: 1 blocked, 2 unreached; 1 project error
+# --stderr--
+# purba: interrupt: SIGINT; a second interrupt exits at once
+# --end-- ended by SIGINT

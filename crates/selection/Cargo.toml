@@ -8,6 +8,7 @@ repository.workspace = true
 publish.workspace = true
 
 [dependencies]
+libc = "0.2.189"
 purba-parsing = { path = "../parsing" }
 ruff_python_ast.workspace = true
 ruff_text_size.workspace = true

@@ -74,6 +74,12 @@ pub fn rewrite(module: &Module) -> Rewrite {
     {
         panic!("PURBA_FAULT=rewrite");
     }
+    if cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "rewrite:interrupt")
+    {
+        // PROTOTYPE 868: SIGINT at the point that `PURBA_FAULT` names.
+        unsafe { libc::raise(libc::SIGINT) };
+    }
     let source = module.source();
     let mut visitor = Asserts { found: Vec::new() };
     visitor.visit_body(&module.syntax().body);
@@ -153,6 +159,12 @@ impl Ran {
             && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "assert")
         {
             panic!("PURBA_FAULT=assert");
+        }
+        if cfg!(feature = "fault")
+            && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "assert:interrupt")
+        {
+            // PROTOTYPE 868: SIGINT at the point that `PURBA_FAULT` names.
+            unsafe { libc::raise(libc::SIGINT) };
         }
         if index >= self.asserts.len() {
             return Err(PyIndexError::new_err(format!(
