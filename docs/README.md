@@ -105,6 +105,7 @@
 
 - [A change is specified before it is built](decisions/a-change-is-specified-before-it-is-built.md)
 - [A commit message outlives its review](decisions/a-commit-outlives-its-review.md)
+- [A required check of `main` counts only from GitHub Actions](decisions/a-required-check-of-main-counts-only-from-github-actions.md)
 - [A standard a gate cannot decide does not become a gate](decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md)
 - [An artifact is rewritten until its direction is agreed](decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md)
 - [An implementation follows test-driven development](decisions/an-implementation-follows-test-driven-development.md)
