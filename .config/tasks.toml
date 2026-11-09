@@ -1,3 +1,4 @@
+# A probe of the review request that .github/CODEOWNERS makes. Never merged.
 # Every task purba runs. `.config/mise.toml` names which versions of a tool purba
 # accepts; this file names which tasks purba runs with them. The shell every task
 # runs through, and each `{{vars.x}}` below, are set in `.config/mise.toml`.
