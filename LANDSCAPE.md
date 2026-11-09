@@ -60,7 +60,7 @@ flowchart LR
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It loads each module on the worker before its tests. For a module that does not load, it hands on the error once, and each of its tests as blocked. For a load that the first interrupt lands in, it hands on no project error. After each load and each test, it hands on the error of each thread that the worker took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
-- **assertion.** Rewrites each assert in a selected module before the run, so that a failure shows its values, and loads the module when execution imports it.
+- **assertion.** Rewrites each assert in a selected module before the run, except a tuple assert, so that a failure shows its values, and loads the module when execution imports it.
 - **reporting.** Renders each outcome as text for a person, and as data for an agent or an integrator.
 
 In the parts diagram, an arrow points from a part to the part whose interface it uses.

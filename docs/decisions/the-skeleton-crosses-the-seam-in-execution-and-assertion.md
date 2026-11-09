@@ -38,7 +38,7 @@ Each other part takes data.
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
-- **Assertion's rewrite copies the text of each assert from the module that command lends it.** [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes.
+- **Assertion's rewrite copies the text of each assert that it marks from the module that command lends it.** [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes.
 - **Reporting writes to Rust's stdout.**
 
 [A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) holds where assertion's load puts the module.

@@ -60,6 +60,7 @@
 - [A loaded module joins sys.modules under its file's name, without .py](decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md)
 - [A module that binds a name purba adds is a project error](decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md)
 - [A module whose load fails leaves sys.modules as it found it](decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md)
+- [A tuple assert keeps CPython's warning and counts as no assert](decisions/a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md)
 - [Assertion's rewrite crosses each part whole, and only assertion opens it](decisions/assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md)
 
 ### reporting
