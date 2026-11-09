@@ -5,11 +5,12 @@
 //! purba gives each interrupt signal purba's signal handler again, or the ignore
 //! that the parent gave it. It then gives each interrupt signal the place in the
 //! thread's mask that it had when `install` ran. The first interrupt gives each
-//! interrupt signal its default action. A native handler sits in front of the C
-//! handler of `CPython`. As the first interrupt signal arrives, it gives each
-//! interrupt signal that has the native handler its default action, and prints
-//! purba's interrupt line, even while purba or a test runs C code. The end of
-//! each later call or load gives each interrupt signal its default action again.
+//! interrupt signal that has purba's signal handler its default action. A native
+//! handler sits in front of the C handler of `CPython`. As the first interrupt
+//! signal arrives, it gives each interrupt signal that has the native handler its
+//! default action, and prints purba's interrupt line, even while purba or a test
+//! runs C code. The end of each later call or load gives each interrupt signal
+//! that has purba's signal handler its default action again.
 //! Once Python finalizes, purba dies by the interrupt that it kept, or else by
 //! the one that arrived.
 //!
@@ -299,8 +300,11 @@ fn errno() -> *mut libc::c_int {
 }
 
 /// Puts the native handler in front of the C handler of `CPython`, for each
-/// signal that has purba's signal handler. A test that calls `signal.signal`
-/// replaces the native handler.
+/// signal that has purba's signal handler in Python's table. It replaces what
+/// the operating system holds for that signal: the C handler of `CPython`, a
+/// handler or an ignore that C code gave the signal, or the flag that
+/// `signal.siginterrupt` gave it. A test that calls `signal.signal` replaces the
+/// native handler.
 fn put_native_in_front(py: Python<'_>) {
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
@@ -315,7 +319,7 @@ fn put_native_in_front(py: Python<'_>) {
             .bind(py)
             .call1((signum,))
             .is_ok_and(|current| current.is(handler));
-        if purbas && action(signum) == cpython {
+        if purbas {
             set_action(signum, native());
         }
     }
@@ -483,9 +487,11 @@ pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) 
 
 /// Gives purba's signal handler back to each signal that `install` gave it, and
 /// the ignore back to each signal that the parent ignores, when the signal has
-/// another signal handler now. It then gives each signal the place in the mask
-/// that it had at `install`. After the first signal, it then gives each signal
-/// its default action again.
+/// another signal handler now. It also gives each signal that the parent ignores
+/// the ignore in the operating system, where C code can give the signal a
+/// handler that Python's table does not show. It then gives each signal the
+/// place in the mask that it had at `install`. After the first signal, it then
+/// gives each signal that has purba's signal handler its default action again.
 fn put_back(py: Python<'_>) {
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
@@ -515,6 +521,9 @@ fn put_back(py: Python<'_>) {
     // what it had. Its error has no test to charge.
     if give().is_err() {
         drop(give());
+    }
+    for &signum in &ignored {
+        set_action(signum, libc::SIG_IGN);
     }
     put_back_mask();
     // A signal that arrived still waits for purba's signal handler, and it is
