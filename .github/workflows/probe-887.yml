@@ -1,0 +1,32 @@
+# Probe for #887. Never merged: the branch and its draft pull request are
+# deleted after the measurement.
+name: probe-887
+
+on:
+  push:
+    branches: [probe/887-env-sign]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  # Expect: refused, because env `sign` lets only `main` in.
+  in-env:
+    environment: sign
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          S: ${{ secrets.PROBE_887 }}
+        run: |
+          echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF"
+          if [ -n "$S" ]; then echo "PROBE_887 is set"; else echo "PROBE_887 is empty"; fi
+
+  # Control: the same step with no environment runs on the same event.
+  control:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          S: ${{ secrets.PROBE_887 }}
+        run: |
+          echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF"
+          if [ -n "$S" ]; then echo "PROBE_887 is set"; else echo "PROBE_887 is empty"; fi
