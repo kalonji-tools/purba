@@ -92,7 +92,9 @@ order() {
     n=$((n + 1))
     lines+="${n}. **${name}.**"$'\n'
   done
-  awk -v lines="${lines}" '
+  # The awk of macOS refuses a newline in a value that `-v` passes.
+  lines="${lines}" awk '
+    BEGIN { lines = ENVIRON["lines"] }
     /^## / { section = ($0 == "## The order of design") }
     section && /^[0-9]+\. / { if (!written) printf "%s", lines; written = 1; next }
     { print }

@@ -30,8 +30,11 @@ attr_states() (
   unset "${handed[@]}"
   git init --quiet --template= "${scratch}/empty" ||
     cannot 'git cannot make the empty repository a pattern is matched in.'
-  GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.attributesFile="${attributes}" \
-    check-attr -z --stdin "${asked[@]}" ||
+  # `git init` sets `core.ignoreCase` on a filesystem that ignores case, such as
+  # the default one of macOS, and a pattern then matches a path in another case.
+  # https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreignoreCase
+  GIT_ATTR_NOSYSTEM=1 git -C "${scratch}/empty" -c core.ignoreCase=false \
+    -c core.attributesFile="${attributes}" check-attr -z --stdin "${asked[@]}" ||
     cannot "git cannot match the patterns in ${attributes}."
 )
 

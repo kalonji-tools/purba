@@ -69,3 +69,32 @@ jobs:
       # lockfile, and `.config/mise.toml` says it reports success either way.
       - name: Refuse a gate that rewrote the tree
         run: git diff --exit-code
+
+  # The lint on macOS.
+  #
+  #   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
+  #
+  # No cache of `target/scripts` here: `cargo-scripts.yml` fills it on Linux.
+  quality-macos:
+    # One word, because `sign.yml` splits its lists on spaces. A rename that
+    # does not reach its two lists there stops every branch from merging.
+    name: Quality-macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - name: Name the bash this job runs
+        run: mise exec -- bash --version
+
+      - name: Refuse a lint, a formatting difference or a broken record
+        run: mise run lint
+        env:
+          PURBA_BASE: HEAD^1
+          GITHUB_TOKEN: ${{ github.token }}
