@@ -76,6 +76,35 @@ fn a_nested_assert_is_marked_too() {
 }
 
 #[test]
+fn a_tuple_assert_stays_as_written_and_takes_no_index() {
+    let rewritten = rewrite(
+        "test_tuple.py",
+        concat!(
+            "def test_t():\n",
+            "    assert (1 == 2, \"msg\")\n",
+            "    assert 1 == 1\n",
+            "    assert ()\n",
+        ),
+    );
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_t():\n",
+            "    assert (1 == 2, \"msg\")\n",
+            "    assert _purba_ran(0, 1 == 1)\n",
+            "    assert _purba_ran(1, ())\n",
+        ),
+        "a tuple with items stays as written, so CPython warns; an empty tuple is marked"
+    );
+    assert_eq!(
+        rewritten.asserts(),
+        ["assert 1 == 1", "assert ()"],
+        "only the marked asserts, at their index"
+    );
+}
+
+#[test]
 fn a_yield_keeps_its_parentheses() {
     let rewritten = rewrite("test_yield.py", "def test_g():\n    assert (yield 1)\n");
 

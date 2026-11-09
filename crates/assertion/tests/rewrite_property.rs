@@ -146,20 +146,33 @@ proptest! {
     })]
 
     #[test]
-    fn the_rewrite_parses_and_marks_each_condition_as_it_was_written(text in module()) {
+    fn the_rewrite_parses_and_marks_each_condition_but_a_tuple_as_it_was_written(text in module()) {
         let original = parse(&text, "the module")?;
-        let conditions: Vec<&str> = asserts(&original)
+        let conditions: Vec<(&str, bool)> = asserts(&original)
             .iter()
-            .map(|assert| &original.source()[assert.test.range()])
+            .map(|assert| {
+                let tuple = matches!(&*assert.test, Expr::Tuple(tuple) if !tuple.elts.is_empty());
+                (&original.source()[assert.test.range()], tuple)
+            })
             .collect();
 
         let rewrite = purba_assertion::rewrite(&original);
         let rewritten = parse(rewrite.text(), "the rewrite")?;
 
-        let marked = asserts(&rewritten);
-        prop_assert_eq!(marked.len(), conditions.len(), "the rewrite holds as many asserts");
-        for (index, (assert, condition)) in marked.iter().zip(&conditions).enumerate() {
-            check_marked(&rewritten, assert, index, condition)?;
+        let found = asserts(&rewritten);
+        prop_assert_eq!(found.len(), conditions.len(), "the rewrite holds as many asserts");
+        let mut index = 0;
+        for (assert, (condition, tuple)) in found.iter().zip(&conditions) {
+            if *tuple {
+                prop_assert_eq!(
+                    &rewritten.source()[assert.test.range()],
+                    *condition,
+                    "an assert of a tuple with items stays as written"
+                );
+            } else {
+                check_marked(&rewritten, assert, index, condition)?;
+                index += 1;
+            }
         }
     }
 }

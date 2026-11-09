@@ -90,6 +90,34 @@ LINES
   [[ "${output}" == "test_abort.py::test_one passed" ]]
 }
 
+@test "a tuple assert keeps CPython's warning, and the test that holds only it is unknown" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def test_tuple():' '    assert (1 == 2, "msg")' >test_tup.py
+
+  run -2 --separate-stderr purba test_tup.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_tup.py::test_tuple unknown: no assert ran
+1 test: 1 unknown
+LINES
+  [[ "${stderr}" == *'test_tup.py:2: SyntaxWarning: assertion is always true'* ]]
+}
+
+@test "an assert of an empty tuple fails, and CPython does not warn" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def test_empty():' '    assert ()' >test_empty.py
+
+  run -1 --separate-stderr purba test_empty.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_empty.py::test_empty failed: assert ()
+1 test: 1 failed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a test that selection refuses prints above the tests that run, and is never called" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \

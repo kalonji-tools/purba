@@ -1,5 +1,5 @@
-//! Assertion: rewrites each assert of a module so that it records that it ran,
-//! and whether it held. It also loads the rewritten module.
+//! Assertion: rewrites each assert of a module, except a tuple assert, so that
+//! it records that it ran, and whether it held. It also loads the rewritten module.
 
 use purba_parsing::Module;
 use pyo3::exceptions::{PyIndexError, PyNameError};
@@ -15,20 +15,20 @@ use std::sync::{Mutex, PoisonError};
 /// The name that each marked assert calls.
 const RAN: &str = "_purba_ran";
 
-/// The rewritten text of one module, and the text of each of its asserts.
+/// The rewritten text of one module, and the text of each assert that it marks.
 pub struct Rewrite {
     text: String,
     asserts: Vec<String>,
 }
 
 impl Rewrite {
-    /// The module's text, with each assert marked.
+    /// The module's text, with each assert marked except a tuple assert.
     #[must_use]
     pub fn text(&self) -> &str {
         &self.text
     }
 
-    /// The text of each assert, without its comments and line continuations, in
+    /// The text of each marked assert, without its comments and line continuations, in
     /// source order. The index of an assert here is the index that its mark
     /// records.
     #[must_use]
@@ -47,14 +47,17 @@ impl Rewrite {
     }
 }
 
-/// Each assert of a module, in source order, at any depth.
+/// Each assert of a module that the rewrite marks, in source order, at any
+/// depth.
 struct Asserts<'a> {
     found: Vec<&'a StmtAssert>,
 }
 
 impl<'a> StatementVisitor<'a> for Asserts<'a> {
     fn visit_stmt(&mut self, statement: &'a Stmt) {
-        if let Stmt::Assert(assert) = statement {
+        if let Stmt::Assert(assert) = statement
+            && !matches!(&*assert.test, Expr::Tuple(tuple) if !tuple.elts.is_empty())
+        {
             self.found.push(assert);
         }
         walk_stmt(self, statement);
@@ -62,7 +65,10 @@ impl<'a> StatementVisitor<'a> for Asserts<'a> {
 }
 
 /// Marks each assert of `module`: `assert x` becomes `assert _purba_ran(i, x)`,
-/// where `i` counts the asserts of the module in source order, from 0.
+/// where `i` counts the marked asserts of the module in source order, from 0.
+///
+/// An assert of a tuple with items stays as written, so that the compiler warns
+/// that it is always true.
 ///
 /// # Panics
 ///
@@ -125,7 +131,7 @@ fn without_trivia(module: &Module, range: TextRange) -> String {
     text
 }
 
-/// The text of each assert of one loaded module, and the index of the
+/// The text of each marked assert of one loaded module, and the index of the
 /// last one that did not hold, or else of the last one that ran, beside
 /// whether it held.
 #[pyclass(frozen)]
@@ -156,7 +162,7 @@ impl Ran {
         }
         if index >= self.asserts.len() {
             return Err(PyIndexError::new_err(format!(
-                "{RAN}({index}): the module has {} asserts",
+                "{RAN}({index}): the module has {} marked asserts",
                 self.asserts.len()
             )));
         }
