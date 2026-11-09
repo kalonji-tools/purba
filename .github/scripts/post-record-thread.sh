@@ -5,8 +5,9 @@
 #                  docs/decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #
-# Exits 0 when no comment is owed and when one is already present, and 2 when
-# the files or the comments of the pull request cannot be read.
+# Posts the comment, edits it to the records the diff changes now, deletes it
+# when no record is left, and writes nothing when its body would not change.
+# Exits 2 when the files or the comments of the pull request cannot be read.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
@@ -26,28 +27,31 @@ fi
 decisions=$(LC_ALL=C sort <<<"${files}" | while IFS= read -r path; do
   is_record "${path}"
 done)
-if [[ -z "${decisions}" ]]; then
-  echo "the diff changes no decision record, so no comment is owed"
-  exit 0
-fi
 
 # An issue comment, never a review thread. The ruleset requires every review
 # thread to be resolved, so a thread here would block the merge on a click.
 # What this asks for is a judgement, and a click cannot show one was made.
 marker='<!-- purba:thread:decisions -->'
-# `ready_for_review` fires again every time a draft is re-readied, so without
-# this check one comment would become several.
+# Only the comment this job wrote counts. The marker renders as nothing, so any
+# other account could post it, and the comment would never be written or kept
+# current. `GITHUB_TOKEN` writes as `github-actions[bot]`.
 if ! answer=$(gh api "repos/${GH_REPO}/issues/${PR}/comments" --paginate) ||
-  ! existing=$(jq -r '.[].body' <<<"${answer}"); then
-  cannot "the comments of pull request ${PR} could not be read, so no comment was posted."
+  ! own=$(jq -cs --arg marker "${marker}" '[.[][] | select(.user.login == "github-actions[bot]"
+      and (.body | contains($marker)))] | first // {}' <<<"${answer}"); then
+  cannot "the comments of pull request ${PR} could not be read, so no comment was written."
 fi
-case "${existing}" in
-  *"${marker}"*)
-    echo "${marker} is already present, skipping"
-    exit 0
-    ;;
-  *) ;;
-esac
+own_id=$(jq -r '.id // empty' <<<"${own}")
+own_body=$(jq -r '.body // empty' <<<"${own}")
+
+if [[ -z "${decisions}" ]]; then
+  if [[ -n "${own_id}" ]]; then
+    gh api --method DELETE "repos/${GH_REPO}/issues/comments/${own_id}"
+    echo "the diff no longer changes a decision record, so the comment was deleted"
+  else
+    echo "the diff changes no decision record, so no comment is owed"
+  fi
+  exit 0
+fi
 
 # The sed program is single-quoted so the shell hands its `$` and its backticks
 # to sed, which is what turns each path into a Markdown list item.
@@ -60,8 +64,7 @@ record_list=$(sed 's|^|- \`|; s|$|\`|' <<<"${decisions}")
 # editorconfig-checker-disable-next-line
 record_link="[A record is rewritten, not amended](https://github.com/kalonji-tools/purba/blob/main/docs/decisions/a-record-is-rewritten-not-amended.md)"
 
-gh api "repos/${GH_REPO}/issues/${PR}/comments" \
-  -f body="**This pull request changes a decision record.**
+body="**This pull request changes a decision record.**
 
 ${record_list}
 
@@ -76,4 +79,13 @@ who can judge them:
 
 Nothing blocks on this. ${record_link} is where both come from.
 ${marker}"
-echo "posted the decision-record comment"
+
+if [[ -z "${own_id}" ]]; then
+  gh api "repos/${GH_REPO}/issues/${PR}/comments" -f body="${body}"
+  echo "posted the decision-record comment"
+elif [[ "${own_body}" == "${body}" ]]; then
+  echo "the comment already names these records, so nothing was written"
+else
+  gh api --method PATCH "repos/${GH_REPO}/issues/comments/${own_id}" -f body="${body}"
+  echo "edited the decision-record comment to name the records the diff changes now"
+fi
