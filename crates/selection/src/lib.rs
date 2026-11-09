@@ -98,6 +98,7 @@ enum Reason {
     ReturnsValue,
     NoDefault(Vec<String>),
     Rebound(String, Vec<usize>),
+    NoDef(String, Vec<usize>),
     Under(&'static str),
 }
 
@@ -144,6 +145,19 @@ impl fmt::Display for Reason {
                     lines.join(", ")
                 )
             }
+            Self::NoDef(name, lines) if lines.len() == 1 => write!(
+                formatter,
+                "line {} binds {name} with no def, and purba cannot see what the name holds",
+                lines[0]
+            ),
+            Self::NoDef(name, lines) => {
+                let lines: Vec<String> = lines.iter().map(ToString::to_string).collect();
+                write!(
+                    formatter,
+                    "lines {} bind {name} with no def, and purba cannot see what the name holds",
+                    lines.join(", ")
+                )
+            }
             Self::Under(keyword) => write!(
                 formatter,
                 "the def sits under `{keyword}`, and purba cannot see whether import binds it"
@@ -159,6 +173,9 @@ impl fmt::Display for Reason {
 /// binds the name there and binds it again at each later `def`, so selection
 /// judges the last body. A `def` under a statement at the module's level is a
 /// test that selection refuses, unless a `def` at the top binds the name.
+/// A `test` name that the module binds with no `def` is a test that selection
+/// refuses, where a binding of it can hold a function. A refused test sits at
+/// its first `def`, or else at its first binding that can hold one.
 ///
 /// # Panics
 ///
@@ -178,7 +195,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             _ => None,
         })
         .collect();
-    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef)> = Vec::new();
+    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef, TextSize)> = Vec::new();
     let mut places: HashMap<&str, usize> = HashMap::new();
     for statement in statements {
         let found = match (statement, keyword(statement)) {
@@ -198,7 +215,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
                 Entry::Occupied(place) => last[*place.get()].1 = function,
                 Entry::Vacant(place) => {
                     place.insert(last.len());
-                    last.push((under, function));
+                    last.push((under, function, function.range.start()));
                 }
             }
         }
@@ -206,7 +223,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     let bindings = bindings(module.syntax());
     let mut tests = Vec::new();
     let mut refused = Vec::new();
-    for (under, function) in last {
+    for (under, function, first) in last {
         let test = TestId {
             path: path.to_path_buf(),
             function: function.name.to_string(),
@@ -216,10 +233,117 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         if reasons.is_empty() {
             tests.push(test);
         } else {
-            refused.push(Refused { test, reasons });
+            refused.push((first, Refused { test, reasons }));
         }
     }
-    (tests, refused)
+    let never = never_a_function(module.syntax());
+    for (name, found) in &bindings {
+        if !name.starts_with("test") || places.contains_key(name) {
+            continue;
+        }
+        let mut offsets: Vec<TextSize> = found
+            .iter()
+            .map(|binding| binding.offset)
+            .filter(|offset| !never.contains(offset))
+            .collect();
+        if offsets.is_empty() {
+            continue;
+        }
+        offsets.sort_unstable();
+        let mut lines: Vec<usize> = offsets
+            .iter()
+            .map(|offset| module.position(*offset).line())
+            .collect();
+        lines.dedup();
+        let test = TestId {
+            path: path.to_path_buf(),
+            function: (*name).to_string(),
+        };
+        refused.push((
+            offsets[0],
+            Refused {
+                test,
+                reasons: vec![Reason::NoDef((*name).to_string(), lines)],
+            },
+        ));
+    }
+    refused.sort_by_key(|(offset, _)| *offset);
+    (
+        tests,
+        refused.into_iter().map(|(_, refused)| refused).collect(),
+    )
+}
+
+/// The offset of each binding at the module's level, or in a block there, that
+/// never holds a function: an assignment to the name alone of a literal, a
+/// comprehension or a generator expression; an `import` with no `from`; a
+/// `class` with no decorator; a `del`.
+fn never_a_function(module: &ModModule) -> HashSet<TextSize> {
+    let mut found = HashSet::new();
+    let mut pending: Vec<&Stmt> = module.body.iter().rev().collect();
+    while let Some(statement) = pending.pop() {
+        match statement {
+            Stmt::Assign(assign) if is_never_a_function(&assign.value) => {
+                for target in &assign.targets {
+                    if let Expr::Name(name) = target {
+                        found.insert(name.start());
+                    }
+                }
+            }
+            Stmt::AnnAssign(assign) if assign.value.as_deref().is_some_and(is_never_a_function) => {
+                if let Expr::Name(name) = &*assign.target {
+                    found.insert(name.start());
+                }
+            }
+            Stmt::Import(import) => {
+                for alias in &import.names {
+                    found.insert(
+                        alias
+                            .asname
+                            .as_ref()
+                            .map_or_else(|| alias.name.start(), Ranged::start),
+                    );
+                }
+            }
+            // A decorator can bind the name of its class to a function.
+            // https://docs.python.org/3/reference/compound_stmts.html#class-definitions
+            Stmt::ClassDef(class) if class.decorator_list.is_empty() => {
+                found.insert(class.name.start());
+            }
+            Stmt::Delete(delete) => {
+                for target in &delete.targets {
+                    if let Expr::Name(name) = target {
+                        found.insert(name.start());
+                    }
+                }
+            }
+            Stmt::FunctionDef(_) => {}
+            other => pending.extend(blocks(other).into_iter().flatten().rev()),
+        }
+    }
+    found
+}
+
+/// Whether `value` is never a function.
+const fn is_never_a_function(value: &Expr) -> bool {
+    matches!(
+        value,
+        Expr::List(_)
+            | Expr::Tuple(_)
+            | Expr::Dict(_)
+            | Expr::Set(_)
+            | Expr::StringLiteral(_)
+            | Expr::BytesLiteral(_)
+            | Expr::FString(_)
+            | Expr::NumberLiteral(_)
+            | Expr::BooleanLiteral(_)
+            | Expr::NoneLiteral(_)
+            | Expr::EllipsisLiteral(_)
+            | Expr::ListComp(_)
+            | Expr::SetComp(_)
+            | Expr::DictComp(_)
+            | Expr::Generator(_)
+    )
 }
 
 /// The keyword of a statement at the module's level whose blocks import may
@@ -244,39 +368,44 @@ fn defs_under(statement: &Stmt) -> Vec<&StmtFunctionDef> {
     // on statements that nest deeper than the stack.
     let mut pending = vec![statement];
     while let Some(statement) = pending.pop() {
-        let blocks: Vec<&[Stmt]> = match statement {
-            Stmt::FunctionDef(function) => {
-                found.push(function);
-                continue;
-            }
-            Stmt::If(branch) => iter::once(branch.body.as_slice())
-                .chain(
-                    branch
-                        .elif_else_clauses
-                        .iter()
-                        .map(|clause| clause.body.as_slice()),
-                )
-                .collect(),
-            Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
-                .chain(attempt.handlers.iter().map(|handler| {
-                    let ExceptHandler::ExceptHandler(clause) = handler;
-                    clause.body.as_slice()
-                }))
-                .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
-                .collect(),
-            Stmt::With(with) => vec![with.body.as_slice()],
-            Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-            Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-            Stmt::Match(choice) => choice
-                .cases
-                .iter()
-                .map(|case| case.body.as_slice())
-                .collect(),
-            _ => Vec::new(),
-        };
-        pending.extend(blocks.into_iter().flatten().rev());
+        if let Stmt::FunctionDef(function) = statement {
+            found.push(function);
+        } else {
+            pending.extend(blocks(statement).into_iter().flatten().rev());
+        }
     }
     found
+}
+
+/// The blocks of `statement` that import may run or skip, in source order. The
+/// body of a `def` or a `class` is not one of them.
+fn blocks(statement: &Stmt) -> Vec<&[Stmt]> {
+    match statement {
+        Stmt::If(branch) => iter::once(branch.body.as_slice())
+            .chain(
+                branch
+                    .elif_else_clauses
+                    .iter()
+                    .map(|clause| clause.body.as_slice()),
+            )
+            .collect(),
+        Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
+            .chain(attempt.handlers.iter().map(|handler| {
+                let ExceptHandler::ExceptHandler(clause) = handler;
+                clause.body.as_slice()
+            }))
+            .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
+            .collect(),
+        Stmt::With(with) => vec![with.body.as_slice()],
+        Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+        Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+        Stmt::Match(choice) => choice
+            .cases
+            .iter()
+            .map(|case| case.body.as_slice())
+            .collect(),
+        _ => Vec::new(),
+    }
 }
 
 /// Why purba cannot call `function`, from its `def` and its body.

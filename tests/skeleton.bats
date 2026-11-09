@@ -155,6 +155,47 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test name that the module binds with no def prints as refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def keep(f):' '    return f' '' \
+    'def helper():' '    assert False' '' \
+    'test_rebound = keep(lambda: "x")' \
+    'test_alias = helper' \
+    'from os.path import join as test_join' '' \
+    'def test_real():' '    assert True' >test_nodef.py
+
+  run -4 --separate-stderr purba test_nodef.py
+
+  local unseen='with no def, and purba cannot see what the name holds'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_nodef.py::test_rebound project error: line 7 binds test_rebound ${unseen}
+test_nodef.py::test_alias project error: line 8 binds test_alias ${unseen}
+test_nodef.py::test_join project error: line 9 binds test_join ${unseen}
+test_nodef.py::test_real passed
+4 tests: 1 passed, 3 blocked; 3 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test name that never holds a function prints no line" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import os.path as test_module' \
+    'test_cases = [(1, 2), (3, 4)]' \
+    'test_pairs = {k: k for k in range(2)}' \
+    'class test_thing:' '    pass' \
+    'def test_real():' '    assert True' >test_data.py
+
+  run -0 --separate-stderr purba test_data.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_data.py::test_real passed
+1 test: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a module that did not load prints its error once, and each of its tests as blocked" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
