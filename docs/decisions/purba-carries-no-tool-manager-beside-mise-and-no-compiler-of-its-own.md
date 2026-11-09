@@ -62,7 +62,7 @@ mise names the version of every package `.config/mise.toml` declares, in one com
 Both are committed.
 A lockfile is generated rather than authored, so `.gitattributes` marks it `linguist-generated` and a reviewer is not shown its diff.
 `.config/mise.lock` and every `Cargo.lock` in the tree carry that mark.
-mise chooses the platform list itself rather than being given one.
+`.config/mise.toml` names the platforms that the lockfile holds: those of Linux and macOS.
 
 **purba requires a C toolchain on the host and does not supply one.**
 This is a stated requirement rather than an omission, and `README.md` carries it.
