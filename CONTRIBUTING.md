@@ -156,8 +156,9 @@ Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather
 than the branch.
 
-Three checks are required. `Quality` refuses a lint, a formatting difference,
-a broken decision record, a dead link, a broken link in the Rust documentation,
+`main` requires three checks. Each counts only when GitHub Actions reports
+it. `Quality` refuses a lint, a formatting difference, a broken decision
+record, a dead link, a broken link in the Rust documentation,
 an action a workflow names by a tag and a dependency whose licence is not on
 the allowlist. A link in a file your branch changes is checked on the network,
 so a link that does not reach its target as written refuses your branch.

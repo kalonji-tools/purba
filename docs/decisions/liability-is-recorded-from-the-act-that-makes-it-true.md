@@ -211,6 +211,8 @@ The `sign` job in `.github/workflows/sign.yml` refuses a branch whose commits la
 It then writes the acceptance trailer and reports the required status check `Sign-off`.
 Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`, which parses the trailer and does not match it as text.
 
+[A required check of `main` counts only from GitHub Actions](a-required-check-of-main-counts-only-from-github-actions.md) says which reporter of `Sign-off` the ruleset accepts.
+
 The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103), and on [check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105).
 
 The exception above was measured on this repository, because the setting is a property of it, and it is recorded on [Two claims about bringing a branch current are false](https://github.com/kalonji-tools/purba/issues/166).
