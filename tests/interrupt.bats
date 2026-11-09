@@ -244,6 +244,72 @@ LINES
   [[ ! -e two ]]
 }
 
+@test "a signal handler that a test installs below Python lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import faulthandler, signal, time' 'from pathlib import Path' \
+    'def test_one():' '    faulthandler.register(signal.SIGINT)' '    assert True' \
+    'def test_two():' '    assert True' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    Path("three").touch()' >test_below.py
+
+  run -0 --separate-stderr interrupt test_below.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_below.py::test_one passed
+test_below.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e three ]]
+}
+
+@test "an ignore that a test gives SIGINT below Python lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import ctypes, signal, time' 'from pathlib import Path' \
+    'def test_one():' '    libc = ctypes.CDLL(None)' \
+    '    libc.signal.argtypes = (ctypes.c_int, ctypes.c_void_p)' \
+    '    libc.signal(signal.SIGINT, signal.SIG_IGN.value)' '    assert True' \
+    'def test_two():' '    assert True' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    Path("three").touch()' >test_ignore_below.py
+
+  run -0 --separate-stderr interrupt test_ignore_below.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ignore_below.py::test_one passed
+test_ignore_below.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e three ]]
+}
+
+@test "the flag that signal.siginterrupt gives SIGINT lives only for its call" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  # The writer starts in a session of its own, so the Ctrl-C does not reach it.
+  # It writes 5 seconds after it starts. A read that the signal does not end
+  # lasts until then, and the writer writes `wrote` first.
+  printf '%s\n' 'import os, signal, subprocess, sys' 'from pathlib import Path' \
+    'WRITE = ("import os, sys, time; time.sleep(5); open(\"wrote\", \"w\").close();"' \
+    '    " os.write(int(sys.argv[1]), b\"x\")")' \
+    'def test_one():' '    signal.siginterrupt(signal.SIGINT, False)' '    assert True' \
+    'def test_two():' '    assert True' '    read, write = os.pipe()' \
+    '    subprocess.Popen([sys.executable, "-c", WRITE, str(write)], pass_fds=(write,),' \
+    '        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,' \
+    '        stderr=subprocess.DEVNULL, start_new_session=True)' \
+    '    Path("marker").touch()' '    os.read(read, 1)' \
+    'def test_three():' '    Path("three").touch()' >test_siginterrupt.py
+
+  run -0 --separate-stderr interrupt test_siginterrupt.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_siginterrupt.py::test_one passed
+test_siginterrupt.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e wrote ]] || false
+  [[ ! -e three ]]
+}
+
 @test "a mask that a test puts on SIGINT lives only for its call" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
@@ -403,6 +469,26 @@ LINES
 test_ignored_handler.py::test_one passed
 test_ignored_handler.py::test_two passed
 test_ignored_handler.py::test_three passed
+3 tests: 3 passed
+LINES
+  [[ "${stderr}" == 'purba exited 0' ]]
+}
+
+@test "an ignore of the parent comes back after a test changes it below Python" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import ctypes, signal, time' 'from pathlib import Path' \
+    'def test_one():' '    libc = ctypes.CDLL(None)' \
+    '    libc.signal.argtypes = (ctypes.c_int, ctypes.c_void_p)' \
+    '    libc.signal(signal.SIGINT, signal.SIG_DFL.value)' '    assert True' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert True' \
+    'def test_three():' '    assert True' >test_ignored_below.py
+
+  run -0 --separate-stderr interrupt test_ignored_below.py 0 ignored
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ignored_below.py::test_one passed
+test_ignored_below.py::test_two passed
+test_ignored_below.py::test_three passed
 3 tests: 3 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
