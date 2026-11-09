@@ -52,7 +52,7 @@ Cargo misses some ruff crates that nothing calls, so the reviewer checks each on
 One module owns parsing and returns an AST, and everything else takes the AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 Holding that seam keeps even a late reversal a one-decision change.
-Parsing returns a syntax error as an error, and never panics, because a file that fails to parse is a project error, not a crash.
+Parsing returns a syntax error as an error, not a panic, because a file that fails to parse is a project error, not a crash.
 [Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) says what that error holds.
 MSRV is the upgrade clock, not the API.
 
