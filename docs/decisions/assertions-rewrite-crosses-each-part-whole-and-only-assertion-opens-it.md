@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-Assertion's rewrite of a module holds the rewritten text and the text of each assert.
+Assertion's rewrite of a module holds the rewritten text and the text of each assert that it marks.
 On `main` at `09618c5`, command split the rewrite in two.
 Dispatch and execution carried each half as a field.
 
@@ -33,7 +33,7 @@ flowchart LR
     rewrite["its rewrite"]
     load["its load"]
   end
-  rewrite -->|"one Rewrite, which holds the rewritten text and the text of each assert"| command
+  rewrite -->|"one Rewrite, which holds the rewritten text and the text of each marked assert"| command
   command -->|"the Rewrite, whole"| dispatch
   dispatch -->|"the Rewrite, whole"| execution
   execution -->|"the Rewrite, whole"| load
@@ -57,6 +57,6 @@ flowchart LR
 ## Confirmation
 
 `mise run test:rust` checks that dispatch and execution run a module that `Rewrite::of_source` built.
-It checks that assertion's `load` gives the hook the text of each assert.
+It checks that assertion's `load` gives the hook the text of each marked assert.
 `mise run lint:wiring` checks that no manifest of dispatch names assertion.
 No command checks that only assertion reads a rewrite.
