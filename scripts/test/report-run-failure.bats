@@ -38,7 +38,7 @@ runs=(
   for pair in "${runs[@]}"; do
     each=${pair%%=*}
     gh_answers issue-list "[{\"number\":6,\"title\":\"Another\"},
-      {\"number\":7,\"title\":\"${pair#*=}\"}]"
+      {\"number\":7,\"title\":\"${pair#*=}\",\"author\":{\"login\":\"app/github-actions\"}}]"
     rm -f "${BATS_TEST_TMPDIR}/calls.gh"
 
     run "${script}" "${each}" https://example.invalid/run 43
@@ -48,6 +48,22 @@ runs=(
     said="issue comment 7 --repo owner/name --body It failed again: https://example.invalid/run"
     [[ "${asked}" == *"${said}"* ]]
     [[ "${asked}" != *"issue create"* ]]
+  done
+}
+
+@test "for each run, an open issue with the same title that Actions did not open gets no comment" {
+  for pair in "${runs[@]}"; do
+    each=${pair%%=*}
+    gh_answers issue-list "[{\"number\":7,\"title\":\"${pair#*=}\",
+      \"author\":{\"login\":\"stranger\"}}]"
+    rm -f "${BATS_TEST_TMPDIR}/calls.gh"
+
+    run "${script}" "${each}" https://example.invalid/run 43
+
+    [[ "${status}" -eq 0 ]]
+    asked=$(calls gh)
+    [[ "${asked}" == *"issue create"*"--title ${pair#*=}"* ]]
+    [[ "${asked}" != *"issue comment"* ]]
   done
 }
 
@@ -118,7 +134,8 @@ runs=(
 }
 
 @test "a failed comment on the open issue exits 2, and says the failure was not recorded" {
-  gh_answers issue-list '[{"number":7,"title":"The nightly bump failed"}]'
+  gh_answers issue-list '[{"number":7,"title":"The nightly bump failed",
+    "author":{"login":"app/github-actions"}}]'
   gh_refuses issue-comment
 
   run "${script}" bump https://example.invalid/run 43
