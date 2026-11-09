@@ -255,14 +255,16 @@ fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
     })
 }
 
-/// Gives `work` a worker for as long as it runs. Before the first worker, it
-/// guards `os._exit`, and hooks `threading.excepthook`, for the life of the
+/// Gives `work` a worker for as long as it runs.
+///
+/// Before the first worker, it guards `os._exit`, and hooks
+/// `threading.excepthook` and `sys.unraisablehook`, for the life of the
 /// process. So each run imports `threading`.
 ///
 /// # Panics
 ///
 /// The guard could not take the place of `os._exit`, or the hook the place of
-/// `threading.excepthook`.
+/// `threading.excepthook` or `sys.unraisablehook`.
 pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
     Python::initialize();
     Python::attach(|py| {
@@ -270,7 +272,8 @@ pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
             py,
             loaded: HashMap::new(),
             guard: guard(py).expect("the guard takes the place of os._exit"),
-            hook: thread::hook(py).expect("the hook takes the place of threading.excepthook"),
+            hook: thread::hook(py)
+                .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
             owners: Vec::new(),
             last: None,
         })
