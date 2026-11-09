@@ -57,6 +57,8 @@ A workflow that named these two could open a pull request and do nothing else, w
 This identity may not do that, so each of those steps keeps `GITHUB_TOKEN`.
 A change that points one of them at the App token would stop the only thing that reports a failed run of its workflow.
 
+[A failure report comments only on an issue that `GITHUB_TOKEN` opened](a-failure-report-comments-only-on-an-issue-that-github-token-opened.md) says which issue the script comments on.
+
 **Downside:**
 
 - **An App can be uninstalled, and its key can be replaced.** Either fails the mint, which fails the run, which reports. That is the loud behaviour, and purba chose it rather than a quiet stand down. A bump that stands down quietly freezes the compiler and says nothing.
