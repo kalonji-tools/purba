@@ -13,9 +13,11 @@
 /docs/decisions/ @snregales
 /docs/README.md @snregales
 
-/.config/readers @snregales
-
-/.config/gates @snregales
+# What a gate runs, the tools a job installs and the marks that start a gate
+# are set here. A pull request that changes only one of these files changes a
+# gate and touches no other path this file names.
+/.config/ @snregales
+/.cargo/ @snregales
 
 # The gate lives here, and a pull request runs its own copy of it.
 #   docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
