@@ -76,8 +76,8 @@ struct Functions {
 
 static FUNCTIONS: PyOnceLock<Functions> = PyOnceLock::new();
 
-/// The names of the interrupt signals in Python's `signal` module.
-const NAMES: [&str; 3] = ["SIGINT", "SIGTERM", "SIGHUP"];
+/// The interrupt signals.
+const SIGNALS: [libc::c_int; 3] = [libc::SIGINT, libc::SIGTERM, libc::SIGHUP];
 
 /// Takes the place of Python's own signal handler for each interrupt signal.
 #[pyclass(frozen)]
@@ -102,18 +102,9 @@ impl SignalHandler {
             die_by(signum);
         }
         give_default_actions(py)?;
-        let name = py
-            .import("signal")?
-            .getattr("Signals")?
-            .call1((signum,))?
-            .getattr("name")?
-            .extract::<String>()?;
         if !PRINTED.swap(true, Ordering::SeqCst) {
             // stderr may refuse the write. The run stops either way.
-            let _ = writeln!(
-                io::stderr(),
-                "purba: interrupt: {name}; a second interrupt exits at once"
-            );
+            let _ = io::stderr().write_all(interrupt_line(signum));
         }
         if CALLING.load(Ordering::SeqCst) || ENDED.load(Ordering::SeqCst) {
             return Err(PyKeyboardInterrupt::new_err(()));
@@ -165,8 +156,8 @@ fn put_back_mask() {
 
 /// Masks or unmasks, by `how`, each signal in `signals`.
 fn change_mask(how: libc::c_int, signals: &[i32]) {
-    // SAFETY: each number is a signal that Python's `_signal` module named, or
-    // that the kernel sent, and `sigemptyset` initialized `set`.
+    // SAFETY: each number is one of `SIGNALS`, or a signal that the kernel sent,
+    // and `sigemptyset` initialized `set`.
     unsafe {
         let mut set = std::mem::zeroed::<libc::sigset_t>();
         libc::sigemptyset(&raw mut set);
@@ -183,7 +174,7 @@ static CPYTHON_HANDLER: AtomicUsize = AtomicUsize::new(0);
 
 /// The signals that `install` gave purba's signal handler, where the native
 /// handler can read them. A slot that holds 0 holds no signal.
-static NATIVE_GIVEN: [AtomicI32; NAMES.len()] = [const { AtomicI32::new(0) }; NAMES.len()];
+static NATIVE_GIVEN: [AtomicI32; SIGNALS.len()] = [const { AtomicI32::new(0) }; SIGNALS.len()];
 
 /// The handler that the operating system runs for `signum`.
 fn action(signum: i32) -> libc::sighandler_t {
@@ -202,8 +193,8 @@ fn action(signum: i32) -> libc::sighandler_t {
 /// While `handler` runs, the operating system masks each interrupt signal. Two
 /// signals that wait at once then reach it one after the other.
 fn set_action(signum: i32, handler: libc::sighandler_t) {
-    // SAFETY: `sigemptyset` initializes the mask of `new`, and each number is a
-    // signal that Python's `_signal` module named, or that the kernel sent.
+    // SAFETY: `sigemptyset` initializes the mask of `new`, and each number is one
+    // of `SIGNALS`, or a signal that the kernel sent.
     unsafe {
         let mut new = std::mem::zeroed::<libc::sigaction>();
         libc::sigemptyset(&raw mut new.sa_mask);
@@ -224,7 +215,8 @@ fn native() -> libc::sighandler_t {
     native_handler as extern "C" fn(libc::c_int) as libc::sighandler_t
 }
 
-/// purba's interrupt line for `signum`, which the native handler writes.
+/// purba's interrupt line for `signum`, which the native handler and purba's
+/// signal handler write.
 const fn interrupt_line(signum: i32) -> &'static [u8] {
     match signum {
         libc::SIGINT => b"purba: interrupt: SIGINT; a second interrupt exits at once\n",
@@ -246,8 +238,8 @@ const fn interrupt_line(signum: i32) -> &'static [u8] {
 /// interrupted code back its `errno`, as the C handler of `CPython` does.
 extern "C" fn native_handler(signum: libc::c_int) {
     let errno = errno();
-    // SAFETY: `errno` is null or the address of this thread's `errno`.
-    let saved = unsafe { errno.as_ref().copied() };
+    // SAFETY: `errno` is the address of this thread's `errno`.
+    let saved = unsafe { *errno };
     if ARRIVED
         .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
         .is_err()
@@ -280,23 +272,18 @@ extern "C" fn native_handler(signum: libc::c_int) {
         let cpython = unsafe { std::mem::transmute::<usize, extern "C" fn(libc::c_int)>(cpython) };
         cpython(signum);
     }
-    if let Some(saved) = saved {
-        // SAFETY: `saved` is `Some` only when `errno` is not null.
-        unsafe { *errno = saved };
-    }
+    // SAFETY: `errno` is the address of this thread's `errno`.
+    unsafe { *errno = saved };
 }
 
-/// The address of this thread's `errno`, or null where purba does not know the
-/// function that gives it.
+/// The address of this thread's `errno`.
 fn errno() -> *mut libc::c_int {
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_os = "linux")]
     // SAFETY: the function only returns the address of this thread's `errno`.
     return unsafe { libc::__errno_location() };
-    #[cfg(target_vendor = "apple")]
+    #[cfg(target_os = "macos")]
     // SAFETY: the function only returns the address of this thread's `errno`.
     return unsafe { libc::__error() };
-    #[cfg(not(any(target_os = "linux", target_os = "android", target_vendor = "apple")))]
-    return std::ptr::null_mut();
 }
 
 /// Puts the native handler in front of the C handler of `CPython`, for each
@@ -364,8 +351,7 @@ pub fn install() -> PyResult<()> {
             })
         })?;
         let ignore = functions.ignore.bind(py);
-        for name in NAMES {
-            let signum = signal.getattr(name)?.extract::<i32>()?;
+        for signum in SIGNALS {
             remember(if masked(signum) { &MASKED } else { &UNMASKED }, signum);
             let before = functions.getsignal.bind(py).call1((signum,))?;
             if before.is(ignore) {
@@ -549,7 +535,7 @@ fn give_default_actions(py: Python<'_>) -> PyResult<()> {
     };
     for signum in given() {
         if functions.getsignal.bind(py).call1((signum,))?.is(handler) {
-            // SAFETY: `signal` takes a number that Python's `_signal` module named.
+            // SAFETY: `signal` takes one of `SIGNALS`.
             unsafe { libc::signal(signum, libc::SIG_DFL) };
         }
     }
