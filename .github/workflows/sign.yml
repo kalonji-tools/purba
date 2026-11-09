@@ -4,6 +4,7 @@
 #                  scripts/check-replayable.sh
 #   the advisory:  .github/workflows/commits.yml
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#                  docs/decisions/a-finished-gate-runs-sign-with-the-scripts-of-main.md
 #   what you owe:  CONTRIBUTING.md
 #
 # Another workflow may name this one, so the workflow name is load-bearing

@@ -142,6 +142,7 @@
 ## Repository tooling
 
 - [A failure report comments only on an issue that `GITHUB_TOKEN` opened](decisions/a-failure-report-comments-only-on-an-issue-that-github-token-opened.md)
+- [A finished gate runs `sign` with the scripts of `main`](decisions/a-finished-gate-runs-sign-with-the-scripts-of-main.md)
 - [A gate owns the mechanical standard](decisions/a-gate-owns-the-mechanical.md)
 - [A gate reads its marks on the base branch](decisions/a-gate-reads-its-marks-on-the-base-branch.md)
 - [A gate refuses each invariant a tool can see, from the first code it reads](decisions/a-gate-refuses-each-invariant-a-tool-can-see.md)

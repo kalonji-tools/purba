@@ -4,6 +4,7 @@
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
+#                  docs/decisions/a-finished-gate-runs-sign-with-the-scripts-of-main.md
 #   what you owe:  CONTRIBUTING.md
 #
 # Exits 1 when it refuses, and 0 when there is nothing to accept yet. It exits 2
