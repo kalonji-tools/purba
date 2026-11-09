@@ -47,7 +47,8 @@ $ mise run build
 
 ## Working on purba
 
-`mise tasks ls` lists every task purba has, and `mise run <name>` runs one.
+`mise tasks ls` lists the tasks, and `mise run <name>` runs one.
+`mise tasks ls --hidden` lists every task, and adds two that a person runs: `apply-fork` and `sign-off`.
 That list is the roster, so this file does not repeat it.
 
 `mise run check` is what to run before you ask anyone to review a branch. It
