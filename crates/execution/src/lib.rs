@@ -1,7 +1,7 @@
 //! Execution: loads a module, runs a test, and makes its outcome. It keeps the
 //! first interrupt of the process.
 
-#[cfg(not(unix))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 compile_error!("purba runs on Linux and macOS. On Windows, run it under WSL2.");
 
 pub mod interrupt;

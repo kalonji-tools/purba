@@ -83,6 +83,18 @@ lockfile = true
 # https://mise.jdx.dev/configuration/settings.html
 locked = true
 
+# A lockfile that mise makes from nothing otherwise targets Windows too. mise
+# cannot solve conda's bash for Windows.
+# https://mise.jdx.dev/configuration/settings.html
+lockfile_platforms = [
+  "linux-arm64",
+  "linux-arm64-musl",
+  "linux-x64",
+  "linux-x64-musl",
+  "macos-arm64",
+  "macos-x64",
+]
+
 [settings.python]
 # Otherwise a machine with no precompiled build compiles CPython, and the
 # compiled entry splits the lockfile by the platform that produced it.
