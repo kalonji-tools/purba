@@ -294,6 +294,20 @@ origin_holds() {
   origin_holds "${pushed}"
 }
 
+@test "the checks it runs are the ones beside it, not the ones on the branch" {
+  mkdir -p scripts
+  for check in check-origin check-replayable; do
+    printf '#!/usr/bin/env bash\ntouch "%s/ran-%s"\n' "${BATS_TEST_TMPDIR}" "${check}" \
+      >"scripts/${check}.sh"
+    chmod +x "scripts/${check}.sh"
+  done
+
+  run "${script}"
+
+  [[ ! -e "${BATS_TEST_TMPDIR}/ran-check-origin" ]]
+  [[ ! -e "${BATS_TEST_TMPDIR}/ran-check-replayable" ]]
+}
+
 @test "a refusal whose check run cannot be written exits 2" {
   commit "feat: unsigned"
   refused=$(git rev-parse HEAD)
