@@ -4,7 +4,7 @@
 //! interrupt landed in. It prints no line for an unreached test. The count
 //! names it.
 
-use std::fmt::{self, Display};
+use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
 
 use purba_execution::{Error, ErrorKind, Kind, Outcome, Tally};
@@ -188,12 +188,30 @@ const fn exit_code(tally: &Tally) -> u8 {
     }
 }
 
+/// Each character that Python's `str.splitlines` reads as a line break.
+/// <https://docs.python.org/3.12/library/stdtypes.html#str.splitlines>
+const BREAKS: [char; 10] = [
+    '\n', '\r', '\u{b}', '\u{c}', '\u{1c}', '\u{1d}', '\u{1e}', '\u{85}', '\u{2028}', '\u{2029}',
+];
+
 fn one_line(text: &str) -> String {
-    text.split(['\n', '\r'])
+    let joined = text
+        .split(BREAKS)
         .map(str::trim)
         .filter(|line| !line.is_empty())
         .collect::<Vec<_>>()
-        .join(" ")
+        .join(" ");
+    let mut line = String::with_capacity(joined.len());
+    for character in joined.chars() {
+        match character {
+            '\t' => line.push_str("\\t"),
+            control if control.is_control() => {
+                let _ = write!(line, "\\x{:02x}", u32::from(control));
+            }
+            other => line.push(other),
+        }
+    }
+    line
 }
 
 const fn plural(count: usize) -> &'static str {
@@ -617,6 +635,52 @@ mod tests {
                 "test_a.py::test_five raised: ValueError: a b",
             ],
             "a lone \\r breaks a line too, and the ends of a reason lose their whitespace"
+        );
+    }
+
+    #[test]
+    fn a_reason_breaks_at_each_line_break_that_python_reads() {
+        let raised = Kind::Raised {
+            exception: "ValueError: a\x0bb\x0cc\u{2028}d\u{85}e".to_owned(),
+        };
+        let (text, _) = report_of(&[
+            ("test_a.py::test_one", Ok(&raised)),
+            ("test_a.py::test_two", Err("a\x1cb\x1dc\x1ed\u{2029}e")),
+        ]);
+        assert_eq!(
+            text.lines().take(2).collect::<Vec<_>>(),
+            [
+                "test_a.py::test_one raised: ValueError: a b c d e",
+                "test_a.py::test_two project error: a b c d e",
+            ],
+            "each character that str.splitlines reads as a line break joins as one space"
+        );
+    }
+
+    #[test]
+    fn a_reason_escapes_each_other_control_character_as_python_writes_it() {
+        let raised = Kind::Raised {
+            exception: "ValueError: \x1b[32mgreen\x1b[0m\x1b[1A\x1b[2K".to_owned(),
+        };
+        let failed = Kind::Failed {
+            assert: "assert x ==\t\"a\x00b\"".to_owned(),
+        };
+        let (text, _) = report_of(&[
+            ("test_a.py::test_one", Ok(&raised)),
+            ("test_a.py::test_two", Ok(&failed)),
+            (
+                "test_a.py::test_three",
+                Err("bs\x08x bel\x07 del\x7f csi\u{9b}1A"),
+            ),
+        ]);
+        assert_eq!(
+            text.lines().take(3).collect::<Vec<_>>(),
+            [
+                r"test_a.py::test_one raised: ValueError: \x1b[32mgreen\x1b[0m\x1b[1A\x1b[2K",
+                r#"test_a.py::test_two failed: assert x ==\t"a\x00b""#,
+                r"test_a.py::test_three project error: bs\x08x bel\x07 del\x7f csi\x9b1A",
+            ],
+            "a tab prints as \\t, and each other control character as \\x and two hex digits"
         );
     }
 
