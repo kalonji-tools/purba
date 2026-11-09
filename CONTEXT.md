@@ -202,7 +202,7 @@ A Markdown file under `docs/decisions/`, titled with a proposition, that reads a
 
 ### Refusal
 
-The [location](#location) a check writes into when it exits 1 on a contributor's work. What a check writes when it cannot run is not a refusal.
+The [location](#location) a check writes into when it turns down a contributor's work. What a check writes when it cannot run is not a refusal.
 
 ### Register
 
