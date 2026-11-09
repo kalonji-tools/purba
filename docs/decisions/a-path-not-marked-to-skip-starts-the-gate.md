@@ -47,7 +47,7 @@ So a `paths:` filter cannot narrow Build, and the workflow must start on every p
 
 `scripts/test/changed.bats` tests `changed.sh`, and `mise run test:shell` runs those tests.
 The `Build` job refuses a skipped matrix when the job `changed` failed.
-`.github/CODEOWNERS` names `/.config/gates`, so a change to a mark waits for the code owner.
+`.github/CODEOWNERS` names `/.config/`, so a change to a mark waits for the code owner.
 
 No command checks that a mark is right.
 The Downside above carries that cost.

@@ -23,7 +23,7 @@ A link in a file cannot name that, and a file that a change adds carries no link
 ## Considered Options
 
 - **A link in each file only.** It misses each rule about a kind of text, and it misses a file that the change adds.
-- **One map in `.config/records`.** It is an index, and a change to it escapes the code owner.
+- **One map in `.config/records`.** It is an index, and an index is not a source of truth.
 
 ## Decision Outcome
 
