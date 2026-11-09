@@ -33,6 +33,7 @@ In the child, `signal.getsignal` names the signal handler itself, and no handler
 **Downside:**
 
 - **A process that C code forks without `PyOS_AfterFork_Child` keeps purba's signal handler.** Python runs no at-fork function in it. On SIGTERM it prints a second count, and the tester reads two counts.
+- **A signal that had a signal handler from C code when Python started keeps purba's signal handler in the child.** `signal.getsignal` names no signal handler for it, so purba has none to give back.
 - **A change that makes purba fork must give the child purba's signal handler again.** Python runs the at-fork function in that child too. [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) decides that purba forks each test.
 
 ## Confirmation

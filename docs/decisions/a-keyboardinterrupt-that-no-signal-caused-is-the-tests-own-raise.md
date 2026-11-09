@@ -16,6 +16,7 @@ No record says whether a `KeyboardInterrupt` that a test raises with no signal s
 ## Considered Options
 
 - **A `KeyboardInterrupt` that no signal caused stops the run, as in pytest and unittest.** A test of code that lets a `KeyboardInterrupt` escape then hides each later test.
+- **purba stops the run on an interrupt that a test sends to its own process, even when the parent's ignore or mask holds it.** The parent asked for the ignore or the mask.
 
 ## Decision Outcome
 
@@ -29,7 +30,7 @@ Execution sees a raise, and no signal.
 - **A test whose call raises it, with no signal during the call, has the [outcome](../../CONTEXT.md#outcome) `raised`.** The next test runs.
 - **A subclass of `KeyboardInterrupt` counts the same.** The line names the subclass.
 - **A module whose load raises it with no signal is a [project error](../../CONTEXT.md#project-error).** Each of its tests is a [blocked test](../../CONTEXT.md#blocked-test).
-- **An interrupt that a test sends to its own process stops the run.** A call to `_thread.interrupt_main()` simulates a SIGINT, so it is an interrupt too. Each reaches purba's signal handler as a terminal's Ctrl-C does.
+- **An interrupt that a test sends to its own process stops the run, unless the parent's ignore or mask holds it.** A call to `_thread.interrupt_main()` simulates a SIGINT, so it is an interrupt too. Each reaches purba's signal handler as a terminal's Ctrl-C does.
 - **A `KeyboardInterrupt` from a thread is a thread's exception.** [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its kind.
 
 ```
@@ -42,7 +43,7 @@ test_a.py::test_two passed
 
 - **A tester who knows pytest expects the run to stop.** pytest ends its session on a `KeyboardInterrupt` from a test.
 - **A Ctrl-C that a signal handler of the test turns into a `KeyboardInterrupt` gives the test the outcome `raised`.** purba's signal handler never sees the signal.
-- **A test that sends its own process SIGINT stops the run.** A test of a program's Ctrl-C path must install its own signal handler for its call, or signal a child process.
+- **A test that sends its own process SIGINT stops the run, unless the parent's ignore or mask holds it.** A test of a program's Ctrl-C path must install its own signal handler for its call, or signal a child process. A held signal does not arrive during the call, so the test can pass, as it does without purba.
 
 ## Confirmation
 

@@ -52,7 +52,7 @@ test_a.py::test_three interrupted
 - **After the count, purba dies by the first signal.** A shell sees 130 for SIGINT, 143 for SIGTERM and 129 for SIGHUP. The signal comes ahead of each code of [the exit-code record](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome).
 - **An interrupt after the last test still ends the run by the signal.** The count names each test by its outcome.
 - **After an interrupt before selection finishes, purba prints no count.** It does not know the tests yet.
-- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. When the parent's ignore or mask holds the second signal, purba dies by the first signal after Python finalizes, as [an interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says.
+- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. A second signal that the parent's ignore or mask holds does not end purba. Neither does one that a signal handler of a test or a module takes. In both cases, purba dies by the first signal after Python finalizes.
 
 **Downside:**
 
