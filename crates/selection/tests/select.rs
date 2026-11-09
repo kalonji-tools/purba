@@ -449,6 +449,120 @@ fn a_test_whose_name_the_module_binds_again_is_refused() {
 }
 
 #[test]
+fn a_test_name_bound_with_no_def_is_refused() {
+    let (tests, refused) = judged(
+        "test_nodef.py",
+        concat!(
+            "def keep(f):\n    return f\n\n",
+            "def helper():\n    assert False\n\n",
+            "test_call = keep(lambda: \"x\")\n",
+            "test_name = helper\n",
+            "test_lambda = lambda: None\n",
+            "from os.path import join as test_from\n",
+            "for test_for in [helper]:\n    pass\n",
+            "if True:\n    test_under_if = helper\n",
+            "def setup():\n    global test_global\n    test_global = helper\n",
+            "test_mixed = []\n",
+            "test_mixed = helper\n",
+            "test_twice = helper\n",
+            "test_twice = keep(helper)\n",
+            "@keep\nclass test_decorated:\n    pass\n",
+            "def test_real():\n    assert True\n",
+        ),
+    );
+
+    assert_eq!(tests, ["test_m.py::test_real"], "only the def is a test");
+    let no_def = |name: &str, line: u32| {
+        format!(
+            "test_m.py::{name} line {line} binds {name} with no def, \
+             and purba cannot see what the name holds"
+        )
+    };
+    assert_eq!(
+        refused,
+        [
+            no_def("test_call", 7),
+            no_def("test_name", 8),
+            no_def("test_lambda", 9),
+            no_def("test_from", 10),
+            no_def("test_for", 11),
+            no_def("test_under_if", 14),
+            no_def("test_global", 17),
+            no_def("test_mixed", 19),
+            "test_m.py::test_twice lines 20, 21 bind test_twice with no def, \
+             and purba cannot see what the name holds"
+                .to_owned(),
+            no_def("test_decorated", 23),
+        ],
+        "each name bound with no def, in source order, with each line that may bind a function"
+    );
+}
+
+#[test]
+fn a_test_name_that_never_holds_a_function_is_not_a_test() {
+    let (tests, refused) = judged(
+        "test_never.py",
+        concat!(
+            "import test_plain\n",
+            "import test_package.module\n",
+            "import os.path as test_module\n",
+            "test_list = [(1, 2)]\n",
+            "test_tuple = (1,)\n",
+            "test_dict = {}\n",
+            "test_set = {1}\n",
+            "test_string = \"x\"\n",
+            "test_bytes = b\"x\"\n",
+            "test_fstring = f\"{1}\"\n",
+            "test_number = 1\n",
+            "test_bool = True\n",
+            "test_none = None\n",
+            "test_ellipsis = ...\n",
+            "test_annotated: int = 3\n",
+            "test_list_comprehension = [v for v in ()]\n",
+            "test_set_comprehension = {v for v in ()}\n",
+            "test_dict_comprehension = {v: v for v in ()}\n",
+            "test_generator = (v for v in ())\n",
+            "test_chained = test_other = []\n",
+            "class test_class:\n    pass\n",
+            "test_deleted = 1\n",
+            "del test_deleted\n",
+            "def test_real():\n    assert True\n",
+        ),
+    );
+
+    assert_eq!(tests, ["test_m.py::test_real"], "only the def is a test");
+    assert!(
+        refused.is_empty(),
+        "a binding that never holds a function is no test: {refused:?}"
+    );
+}
+
+#[test]
+fn a_name_bound_with_no_def_keeps_its_place_among_refused_tests() {
+    let (tests, refused) = judged(
+        "test_place.py",
+        concat!(
+            "async def test_a():\n    ...\n\n",
+            "test_b = len\n",
+            "def test_c(x):\n    ...\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            "test_m.py::test_a purba cannot run an async test yet",
+            "test_m.py::test_b line 4 binds test_b with no def, \
+             and purba cannot see what the name holds",
+            "test_m.py::test_c the parameter x has no default, \
+             and purba cannot see which fixture builds it",
+        ],
+        "the refused lines keep source order"
+    );
+}
+
+#[test]
 fn selection_judges_the_last_def_of_a_name_at_the_place_of_the_first() {
     let (tests, refused) = judged(
         "test_last.py",
