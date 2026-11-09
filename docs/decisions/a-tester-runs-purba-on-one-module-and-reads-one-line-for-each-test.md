@@ -25,6 +25,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 - **A test that raised prints as failed.** The tester cannot tell a defect that an assert found from an exception that stopped the test.
 - **A reason over several lines prints each line break as `\n`.** An escaped reason is hard to read.
 - **A reason over several lines prints only its first line.** A cut reason hides the rest of the assert or the error.
+- **A reason breaks only at `\n` and `\r`, and prints each other control character as it is.** Python's `str.splitlines` reads a vertical tab as a line break. An escape code moves the cursor of a terminal, so a reason can erase the line above it.
 
 ## Decision Outcome
 
@@ -68,7 +69,7 @@ tests/test_a.py::test_three unknown: no assert ran
 
 - **Each line holds the path as the tester typed it, then `::` and the name of the test function.** Then it names the test's outcome, `blocked`, or the kind of its error. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
 - **A line that is not `passed` or `interrupted` gives a reason.** A failed line quotes the text of its assert, with no values. [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes, and which part of its text. An `unknown` line says `no assert ran`. [A tuple assert keeps CPython's warning and counts as no assert](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
-- **A reason prints on one line.** Its lines join with one space, each without the whitespace at its ends. An empty line drops out.
+- **A reason prints on one line.** It breaks at each character that Python's `str.splitlines` reads as a line break. Its lines join with one space, each without the whitespace at its ends. An empty line drops out. Each other control character prints as Python's `repr` writes it, such as `\t` or `\x1b`.
 - **The count names the tests, then each outcome, `blocked`, `unreached` and each kind of error above 0.** `test` and each kind of error take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
@@ -77,6 +78,7 @@ tests/test_a.py::test_three unknown: no assert ran
 - **`python -m purba` fails.** CPython prints `No module named purba.__main__; 'purba' is a package and cannot be directly executed`.
 - **A failed line shows no values.** The tester reads them only after assertion shows them in its design in depth.
 - **A reason changes a string literal that spans several lines.** Each run of whitespace in it that holds a line break prints as one space.
+- **A reason that holds the text of an escape, such as `\x00` or `\t`, prints as one that holds that character.** purba does not escape a backslash, so the tester cannot tell the two apart.
 - **`from purba import *` imports `_main`.** PyO3 lists `_main` in `__all__`, and maturin's `__init__.py` imports each name on that list.
 - **The end-to-end test of the walking skeleton reads text.** Reporting rewrites the text in its design in depth, and that test with it.
 - **An integrator gets only the exit code until reporting decides a format.**
