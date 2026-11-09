@@ -58,10 +58,13 @@ jobs:
     # the acceptance trailer reports `Sign-off` on purpose instead.
     name: sign
     # A run that a finished gate starts reports on the head of `main`, so a
-    # refusal there marks `main` red. On the pull request's own events, the
-    # first step refuses the fork on its head.
+    # failed job there marks `main` red. That run skips a fork, and a pull
+    # request that closed before its gate finished, whose branch may be gone.
+    # On the pull request's own events, the first step refuses the fork on its
+    # head.
     if: github.event_name != 'workflow_run' ||
-      github.event.workflow_run.head_repository.full_name == github.repository
+      (github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0] != null)
     runs-on: ubuntu-latest
     # Bounded, because `cancel-in-progress` is false and a hung run would hold
     # the queue for six hours.

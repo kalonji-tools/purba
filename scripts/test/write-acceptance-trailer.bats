@@ -26,6 +26,7 @@ setup() {
   pushed=$(git rev-parse HEAD)
 
   export GH_REPO=owner/name PR=7 GATES="Quality Build" HEAD_REF=work
+  export GITHUB_EVENT_NAME=pull_request
   export RUNNER_TEMP="${BATS_TEST_TMPDIR}/runner" GITHUB_OUTPUT="${BATS_TEST_TMPDIR}/output"
   mkdir -p "${RUNNER_TEMP}"
   touch "${GITHUB_OUTPUT}"
@@ -231,6 +232,22 @@ origin_holds() {
   [[ "${asked}" == *"A commit is refused when it carries no Signed-off-by trailer"* ]]
 }
 
+@test "a branch refused when a gate finishes gets a failed Sign-off, and the script exits 0" {
+  commit "feat: unsigned"
+  git push --quiet origin work
+  refused=$(git rev-parse HEAD)
+
+  GITHUB_EVENT_NAME=workflow_run run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  origin_holds "${refused}"
+  [[ ! -s "${GITHUB_OUTPUT}" ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${refused} -f status=completed"* ]]
+  [[ "${asked}" == *"-f conclusion=failure"* ]]
+  [[ "${asked}" == *"-f output[title]=Refused before anything was rewritten"* ]]
+}
+
 @test "a commit that replays empty is refused before anything is rewritten" {
   git commit --quiet --allow-empty --message "feat: nothing" \
     --message "Signed-off-by: A Person <person@example.invalid>"
@@ -363,7 +380,7 @@ origin_holds() {
 }
 
 @test "a variable the workflow supplies stops it when absent" {
-  for name in GH_REPO PR GATES HEAD_REF RUNNER_TEMP GITHUB_OUTPUT; do
+  for name in GH_REPO PR GATES HEAD_REF GITHUB_EVENT_NAME RUNNER_TEMP GITHUB_OUTPUT; do
     run env -u "${name}" "${script}"
 
     [[ "${status}" -eq 1 ]]
