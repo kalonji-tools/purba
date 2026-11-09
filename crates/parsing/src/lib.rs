@@ -21,11 +21,13 @@ use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 
 const BYTE_ORDER_MARK: char = '\u{feff}';
 
-/// One module: its text, ruff's tree of that text, and where its trivia is.
+/// One module: its text, ruff's tree of that text, where its trivia is, and
+/// where each of its lines starts.
 pub struct Module {
     source: String,
     syntax: ModModule,
     trivia: Vec<TextRange>,
+    lines: LineIndex,
 }
 
 impl Module {
@@ -52,7 +54,7 @@ impl Module {
     /// The place of `offset`, a byte offset into the text.
     #[must_use]
     pub fn position(&self, offset: TextSize) -> Position {
-        let place = LineIndex::from_source_text(&self.source).line_column(offset, &self.source);
+        let place = self.lines.line_column(offset, &self.source);
         Position {
             line: place.line.get(),
             column: place.column.get(),
@@ -384,10 +386,12 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
         .first()
         .map(|error| (error.error.to_string(), error.location));
     let trivia = trivia(&source, parsed.tokens());
+    let lines = LineIndex::from_source_text(&source);
     let module = Module {
         syntax: parsed.into_syntax(),
         source,
         trivia,
+        lines,
     };
     match first {
         None => Ok(module),
