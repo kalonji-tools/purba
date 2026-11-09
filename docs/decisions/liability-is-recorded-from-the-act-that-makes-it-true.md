@@ -133,7 +133,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
-| a change to the gate reaches the code owner | strong, `.github/CODEOWNERS` covers `/.github/` and `/scripts/`, and a code owner review is required |
+| a change to the gate reaches the code owner | strong for `/.github/`, `/scripts/`, `/.config/` and `/.cargo/`, which `.github/CODEOWNERS` covers, and a code owner review is required. None for a file elsewhere that a gate reads, such as `prek.toml` or `.editorconfig`, because no check finds one |
 | a pull request from a fork never reaches the checkout in the signing job | strong, and measured on two of the three events. On the gate-completed event the job's `if:` skipped it, once for each of `Quality`, `Build` and `Scripts`. On the pull request event the first step refused it, and the review event takes the same step |
 | the contributor read what they signed | none, and no check can make it |
 

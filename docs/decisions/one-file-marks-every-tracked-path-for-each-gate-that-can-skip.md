@@ -44,4 +44,4 @@ A line such as `crates/**  build  -scripts` marks a path for both gates.
 `mise run lint:gates` refuses a tracked path that `.config/gates` leaves unmarked for a gate it names.
 Quality runs it on every pull request.
 `scripts/test/check-gates.bats` tests `scripts/check-gates.sh`, and `mise run test:shell` runs those tests.
-`.github/CODEOWNERS` names `/.config/gates`, so a change to a mark waits for the code owner.
+`.github/CODEOWNERS` names `/.config/`, so a change to a mark waits for the code owner.

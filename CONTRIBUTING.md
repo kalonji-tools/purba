@@ -150,7 +150,7 @@ These rules apply to the branch that merges, whichever path carried it.
 One approving review from an account with write access releases it. A code
 owner's review is required as well where `.github/CODEOWNERS` names the path,
 and it names `/docs/decisions/`, `/docs/README.md`, `/.github/`, `/scripts/`,
-`/.config/readers` and `/.config/gates`.
+`/.config/` and `/.cargo/`.
 
 Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather
