@@ -50,8 +50,10 @@ A console script adds one command and one private name, and the wheel keeps its 
     selected -- yes --> silent
     stopped -- no --> module["the module's line, and no line for a test"]
     selected -- no --> refused["the line of each test that selection refuses, in source order"]
-    refused --> others["each other test's line, in source order, as dispatch hands the test on"]
+    refused -- "the rewrite met an internal error" --> blocked["the module's line, then each other test's line as blocked"]
+    refused -- "the rewrite met none" --> others["each other test's line, in source order, as dispatch hands the test on"]
     module --> count["the count"]
+    blocked --> count
     others --> count
   ```
 

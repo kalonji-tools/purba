@@ -42,8 +42,10 @@ flowchart LR
   note --> test
   loadnote --> loaderror["<b>internal error</b> for that module and its tests"]
   dispatch --> either["<b>internal error</b> for that test, or for that module and its tests"]
-  selection["selection, while it reads a module"] -- "a panic" --> command["command catches it"]
-  command --> module["<b>internal error</b> for that module, and no test of it runs"]
+  before["the parse of a module, or selection while it reads one"] -- "a panic" --> command["command catches it"]
+  rewrite["the rewrite of a module"] -- "a panic" --> command
+  command -- "from the parse or selection" --> module["<b>internal error</b> for that module, and no test of it runs"]
+  command -- "from the rewrite" --> rewritten["each refused line, then the <b>internal error</b> for that module and its tests"]
 ```
 
 - **A wrap of Rust's panic hook records each panic, execution catches around the call, and dispatch catches the rest.** The next test keeps its line, and a test that catches the panic cannot hide it.
@@ -51,7 +53,7 @@ flowchart LR
 - **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** Dispatch reads the note through an arrow that the parts diagram already draws. `_main` installs the wrap.
 - **A panic in the source of a part names that part.** Any other panic names the part that catches it.
 - **Execution's module `panic` names the part of a panic.** Dispatch and command reach it through `catch`. `_main` calls `panic::caught` directly. The rule lives in one place. Only execution builds the internal error.
-- **Command catches a panic in selection, and gives the module that selection reads an internal error.**
+- **Command catches a panic in the parse, in selection and in the rewrite, and gives the module an internal error.** After a panic in the rewrite, the line of each test that selection refuses prints first. Then the module's internal error blocks each test that selection hands on.
 
 **Downside:**
 
@@ -71,7 +73,8 @@ It checks that a test that catches the panic of the assert hook still gets its i
 It checks that the next test, which raises purba's own `PanicException`, gets its own internal error, which names `execution`.
 
 `mise run test:rust` checks that dispatch gives an internal error to a module whose load panics, and to a test whose run panics outside the test's call.
-On the `fault` wheel, `mise run test:wheel` checks that a panic in selection gives the module an internal error that names `selection`.
+On the `fault` wheel, `mise run test:wheel` checks that a panic in the parse, in selection or in the rewrite gives the module an internal error.
+That error names the part that panicked: `parsing`, `selection` or `assertion`.
 It also checks that a module that catches the assert hook's panic while it loads gets an internal error that names `assertion`.
 It checks that each test of that module is blocked.
 
