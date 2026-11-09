@@ -13,9 +13,12 @@
 /docs/decisions/ @snregales
 /docs/README.md @snregales
 
-/.config/readers @snregales
-
-/.config/gates @snregales
+# The files under these directories set what a gate runs or reads, the tools a
+# job installs and the marks that start a gate. Without these lines, a pull
+# request that changes only a file under them would change a gate and wait for
+# no code owner.
+/.config/ @snregales
+/.cargo/ @snregales
 
 # The gate lives here, and a pull request runs its own copy of it.
 #   docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
