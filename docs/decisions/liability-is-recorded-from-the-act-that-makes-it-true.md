@@ -136,6 +136,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | a change under `/.github/`, `/scripts/`, `/.config/` or `/.cargo/` reaches the code owner | strong, `.github/CODEOWNERS` names each of them, and the ruleset requires the code owner's review |
 | a change to a file elsewhere that a gate reads, such as `prek.toml` or `.editorconfig`, reaches the code owner | none, and no check compares `.github/CODEOWNERS` with the files that a gate reads |
 | a pull request from a fork never reaches the checkout in the signing job | strong, and measured on two of the three events. On the gate-completed event the job's `if:` skipped it, once for each of `Quality`, `Build` and `Scripts`. On the pull request event the first step refused it, and the review event takes the same step |
+| a run that a finished gate starts leaves no failed check run on the head of `main` when its pull request closed before its gate finished, or when a rule refuses the branch | strong. The job's `if:` skips the closed pull request, as it skips a fork. `scripts/test/write-acceptance-trailer.bats` checks that, on the gate-completed event, the script writes a failed `Sign-off` for a refused branch and exits 0 |
 | the contributor read what they signed | none, and no check can make it |
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
@@ -226,6 +227,13 @@ There the `sign` job skips a pull request from a fork, because its own `if:` com
 A skipped job leaves no failed check run on the head of `main`.
 On the pull request's own events, the first step of the job refuses the fork before the checkout.
 [An outside contribution is applied, not merged](an-outside-contribution-is-applied-not-merged.md) carries such a contribution to a branch here first, where this mechanism writes the trailer as it does on any other branch.
+
+The `sign` job also skips a pull request that closed before its gate finished.
+The gate-completed event then names no pull request.
+The branch of that pull request may also no longer exist.
+On that event, the job writes a failed `Sign-off` on the head of the pull request when a rule refuses the branch or cannot run.
+The job then exits 0, because its own check run lands on the head of `main`.
+The measurement is recorded on [On the gate-completed event, sign marks main red when the branch is gone or a commit is unsigned](https://github.com/kalonji-tools/purba/issues/888).
 
 A pull request from a fork left three skipped `sign` runs on the head of `main`.
 The first step refused it on the head of the pull request.
