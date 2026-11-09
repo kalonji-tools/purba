@@ -62,8 +62,9 @@ impl<W: Write> Report<W> {
     }
 
     /// Adds an error to the tally, beside `subject`, counts no blocked test, and
-    /// writes its line and flushes it. `subject` is a module that did not load
-    /// or parse, or the test or the module that the error of a thread charges.
+    /// writes its line and flushes it. `subject` is a module that an error
+    /// stopped before any test of it ran, or the test or the module that the
+    /// error of a thread charges.
     ///
     /// # Errors
     ///
