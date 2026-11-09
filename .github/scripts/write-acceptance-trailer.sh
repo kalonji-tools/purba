@@ -87,7 +87,7 @@ anything a reader can use. The run log holds what it did.")
   exit 1
 }
 
-scripts/check-origin.sh "${base}" HEAD || post_refusal $?
+"$(dirname "$0")/../../scripts/check-origin.sh" "${base}" HEAD || post_refusal $?
 
 export GIT_COMMITTER_NAME="github-actions[bot]"
 export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
@@ -97,7 +97,7 @@ export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.co
 # shell paste it in as code, and that was measured running a command
 # hidden inside a login.
 status=0
-head_sha=$(scripts/check-replayable.sh "${base}" HEAD) || status=$?
+head_sha=$("$(dirname "$0")/../../scripts/check-replayable.sh" "${base}" HEAD) || status=$?
 if [[ "${status}" -ne 0 ]]; then
   post_refusal "${status}"
 fi

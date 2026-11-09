@@ -6,14 +6,16 @@ setup() {
   # shellcheck source=scripts/test/fixture.sh
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   tree="${BATS_TEST_DIRNAME}/../.."
-  script="${tree}/.github/scripts/write-acceptance-trailer.sh"
-  make_repo
-
-  mkdir -p scripts
+  # The job runs a copy of the scripts, and the working directory holds the
+  # branch. A test replaces a check in the copy.
+  main="${BATS_TEST_TMPDIR}/main"
+  mkdir -p "${main}/.github/scripts" "${main}/scripts"
+  cp "${tree}/.github/scripts/write-acceptance-trailer.sh" "${tree}/.github/scripts/check-run.sh" \
+    "${tree}/.github/scripts/standing-approver.sh" "${main}/.github/scripts/"
   cp "${tree}/scripts/check-origin.sh" "${tree}/scripts/check-replayable.sh" \
-    "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" scripts/
-  git add scripts
-  git commit --quiet --message "chore: hold the scripts the job calls"
+    "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" "${main}/scripts/"
+  script="${main}/.github/scripts/write-acceptance-trailer.sh"
+  make_repo
   branched=$(git rev-parse HEAD)
 
   git init --quiet --bare "${BATS_TEST_TMPDIR}/origin.git"
@@ -104,10 +106,8 @@ origin_holds() {
 
 @test "the head it pushes is the head the replay check printed" {
   # shellcheck disable=SC2016
-  printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' >scripts/check-replayable.sh
-  git commit --quiet --all --message "chore: a replay check that prints one head" \
-    --message "Signed-off-by: A Person <person@example.invalid>"
-  git push --quiet origin work
+  printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' \
+    >"${main}/scripts/check-replayable.sh"
   printed=$(git commit-tree -p HEAD -m "feat: as replayed" 'HEAD^{tree}')
   echo "${printed}" >"${BATS_TEST_TMPDIR}/printed"
 
@@ -283,7 +283,7 @@ origin_holds() {
 }
 
 @test "a rule that cannot run is reported as a check that could not run" {
-  printf '#!/usr/bin/env bash\nexit 2\n' >scripts/check-origin.sh
+  printf '#!/usr/bin/env bash\nexit 2\n' >"${main}/scripts/check-origin.sh"
 
   run "${script}"
 

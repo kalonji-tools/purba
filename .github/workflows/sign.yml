@@ -85,13 +85,27 @@ jobs:
           ref: ${{ env.HEAD_REF }}
           fetch-depth: 0
 
+      # A finished gate starts this run on `main`. Never run a script from the
+      # checkout there, because a cache that it saves is one that each gate and
+      # Publish restore:
+      # https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+      - name: Take the scripts from main
+        if: github.event_name == 'workflow_run'
+        run: |
+          set -euo pipefail
+          mkdir "${RUNNER_TEMP}/main"
+          git archive "${GITHUB_SHA}" .github/scripts scripts | tar -x -C "${RUNNER_TEMP}/main"
+          echo "SCRIPTS=${RUNNER_TEMP}/main" >>"${GITHUB_ENV}"
+
       - name: Write the acceptance trailer into every commit
         id: accept
-        run: .github/scripts/write-acceptance-trailer.sh
+        run: |
+          "${SCRIPTS:-.}/.github/scripts/write-acceptance-trailer.sh"
       - name: Carry the verdicts the content still answers for
         if: steps.accept.outputs.after != ''
         continue-on-error: true
         env:
           BEFORE: ${{ steps.accept.outputs.before }}
           AFTER: ${{ steps.accept.outputs.after }}
-        run: .github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE
+        run: |
+          "${SCRIPTS:-.}/.github/scripts/carry-verdicts.sh" "$BEFORE" "$AFTER" $CARRYABLE
