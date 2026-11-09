@@ -52,6 +52,14 @@ bats = "1"
 # https://jqlang.org
 jq = "1"
 
+#   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
+#
+# mise's own registry has neither tool, so both come from conda-forge.
+# https://github.com/conda-forge/bash-feedstock
+"conda:bash" = "5"
+# https://github.com/conda-forge/sed-feedstock
+"conda:sed" = "4"
+
 # https://embarkstudios.github.io/cargo-deny/
 "aqua:EmbarkStudios/cargo-deny" = "0"
 
@@ -79,6 +87,14 @@ locked = true
 # Otherwise a machine with no precompiled build compiles CPython, and the
 # compiled entry splits the lockfile by the platform that produced it.
 compile = false
+
+# https://mise.jdx.dev/environments/
+[env]
+# pyo3's build script takes `CONDA_PREFIX` as the active environment, ahead of
+# `PATH`, and the prefix of conda's bash holds no Python. `PYO3_PYTHON` comes
+# before both.
+# https://pyo3.rs/v0.29.2/building-and-distribution.html#configuring-the-python-version
+PYO3_PYTHON = "python3"
 
 # https://mise.jdx.dev/configuration/vars.html
 [vars]

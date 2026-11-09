@@ -315,7 +315,9 @@ if [[ ${#differs[@]} -gt 0 ]]; then
   [[ -n "${stated}" ]] ||
     cannot 'the order section holds no numbered list to rewrite.'
   lines=$(tagged calculated | awk '{ printf "%d. **%s.**\n", NR, $0 }')
-  written=$(awk -v lines="${lines}" '
+  # The awk of macOS refuses a newline in a value that `-v` passes.
+  written=$(lines="${lines}" awk '
+    BEGIN { lines = ENVIRON["lines"] }
     /^## / { section = ($0 == "## The order of design") }
     section && /^[0-9]+\. \*\*/ { if (!written && lines != "") print lines; written = 1; next }
     { print }

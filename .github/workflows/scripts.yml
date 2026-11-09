@@ -15,8 +15,9 @@
 # changes no commit, and `sign.yml` reads this check on the head commit,
 # whatever event made it.
 #
-# ⚠️ `sign.yml` names this workflow, and names its job in two more lists. A
-# rename here that does not reach all three stops every branch from merging.
+# ⚠️ `sign.yml` names this workflow, and names each of its jobs in two more
+# lists. A rename here that does not reach all three stops every branch from
+# merging.
 name: Scripts
 
 on:
@@ -62,6 +63,53 @@ jobs:
           path: target/scripts
           key: "cargo-scripts-\
             ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
+
+      - name: Refuse a script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:shell
+
+      - name: Refuse a cargo script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:cargo-scripts
+
+  # The same tests on macOS.
+  #
+  #   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
+  #
+  # No cache of `target/scripts` here: `cargo-scripts.yml` fills it on Linux.
+  scripts-macos:
+    # One word, because `sign.yml` splits its lists on spaces.
+    name: Scripts-macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      # `changed.sh` needs a bash newer than the one macOS ships.
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install_args: conda:bash
+
+      - name: Name whether this pull request changes a path that starts the script tests
+        id: changed
+        run: .github/scripts/changed.sh scripts HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
+      - name: Install the other tools
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise install
+        env:
+          # `mise-action` passes its token only inside itself. Without one,
+          # mise reads GitHub's API anonymously when a download falls back to it.
+          # editorconfig-checker-disable-next-line
+          # https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/action.yml#L119-L131
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Name the bash this job runs
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise exec -- bash --version
 
       - name: Refuse a script that fails its own test
         if: steps.changed.outputs.scripts == 'true'

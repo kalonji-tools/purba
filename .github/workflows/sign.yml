@@ -24,7 +24,8 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
   workflow_run:
     # The ruleset is not in the tree. It requires the jobs named Quality and
-    # Build, not Scripts. A red Scripts withholds Sign-off instead.
+    # Build, not Scripts, Quality-macOS or Scripts-macOS. A red one of those
+    # three withholds Sign-off instead.
     workflows: [Quality, Build, Scripts]
     types: [completed]
 
@@ -40,9 +41,9 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
   PR: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
-  GATES: Quality Build Scripts
+  GATES: Quality Build Scripts Quality-macOS Scripts-macOS
   # A subset of GATES. `carry-verdicts.sh` says why the two are not one list.
-  CARRYABLE: Quality Build Scripts
+  CARRYABLE: Quality Build Scripts Quality-macOS Scripts-macOS
 
 jobs:
   sign:

@@ -177,6 +177,10 @@ a cargo script. It reports on every pull request, and runs the tests unless
 purba does not sign a branch while `Scripts` is red, so it stops a merge
 through `Sign-off`.
 
+`Quality-macOS` runs the lint on macOS. `Scripts-macOS` runs the tests of the
+scripts on macOS, and skips them on the same paths as `Scripts`. purba does not
+sign a branch while either is red.
+
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
 added to one, so purba refuses it. The **Update with rebase** entry GitHub
@@ -184,11 +188,12 @@ offers on the pull request replays.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
 once an approval from a person whose account has write access stands and
-`Quality`, `Build` and `Scripts` are green. On a branch whose `Quality` is
-still running, your approval lands and nothing appears to happen until the
-gate finishes. Where an approval from a person whose account has write access
-stands, every gate is green and `Sign-off` is still absent, purba read the
-last gate before GitHub reported its verdict. Close the pull request and reopen it.
+`Quality`, `Build`, `Scripts`, `Quality-macOS` and `Scripts-macOS` are green.
+On a branch whose `Quality` is still running, your approval lands and nothing
+appears to happen until the gate finishes. Where an approval from a person
+whose account has write access stands, every gate is green and `Sign-off` is
+still absent, purba read the last gate before GitHub reported its verdict.
+Close the pull request and reopen it.
 
 Where purba refuses your branch instead, `Sign-off` turns red and names what
 it found. It is written before anything on your branch is rewritten, so the
