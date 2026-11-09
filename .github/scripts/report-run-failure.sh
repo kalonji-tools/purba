@@ -31,7 +31,7 @@ workflow=$1
 run=$2
 issue=$3
 
-# The title is the deduplication key, so it carries no date and no number.
+# The title is one half of the deduplication key, so it carries no date and no number.
 case "${workflow}" in
   bump)
     title="The nightly bump failed"
@@ -126,10 +126,13 @@ BODY
     ;;
 esac
 
+# `gh` reads the author that `GITHUB_TOKEN` writes as `app/github-actions`.
 # ⚠️ Never use `--search` here.
-if ! issues=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 --json number,title) ||
-  ! existing=$(jq -r --arg title "${title}" \
-    '[.[] | select(.title == $title)] | first | .number // empty' <<<"${issues}"); then
+if ! issues=$(gh issue list --repo "${GH_REPO}" --state open --limit 200 \
+  --json number,title,author) ||
+  ! existing=$(jq -r --arg title "${title}" --arg author app/github-actions \
+    '[.[] | select(.title == $title and .author.login == $author)] | first | .number // empty' \
+    <<<"${issues}"); then
   cannot "the open issues could not be read, so the failure of ${workflow} was not recorded."
 fi
 
