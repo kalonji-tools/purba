@@ -180,27 +180,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # A failed or cancelled `changed` skips the matrix too, so a skip passes
-      # only when `changed` succeeded and asked for none.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Refuse unless every job did what the job `changed` asked
-        shell: bash
         env:
-          RESULTS: >-
-            changed=${{ needs.changed.result }}
-            build=${{ needs.changed.outputs.build }}
-            rust=${{ needs.rust.result }}
-            wheel=${{ needs.wheel.result }}
-        run: |
-          set -euo pipefail
-          echo "$RESULTS"
-          case "$RESULTS" in
-            "changed=success build=true rust=success wheel=success")
-              echo "every job this gate reads reported success" ;;
-            "changed=success build= rust=skipped wheel=skipped")
-              echo "no path that starts Build changed, so its jobs did not run" ;;
-            *)
-              echo "::error::A branch is refused unless the job \`changed\` succeeded and every \
-          job it started succeeded, because Build stands for every Rust test and every wheel \
-          whenever a path that starts it changes. The results printed above say which."
-              exit 1 ;;
-          esac
+          NEEDS: ${{ toJSON(needs) }}
+        run: .github/scripts/require-jobs.sh changed build
