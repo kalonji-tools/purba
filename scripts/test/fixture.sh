@@ -23,8 +23,22 @@
 #   gh_answers <call> <json>       what that fake answers <call> with
 #   gh_refuses <call>              that fake fails <call> with exit 1, as gh does
 #   check_runs [<run>...]          `gh_answers check-runs`, one run for each
-#                                  `<name>=<conclusion>[@<day>]`. An empty
-#                                  conclusion is a run still going
+#                                  `<name>=<conclusion>[@<day>][~<source>]`. An
+#                                  empty conclusion is a run still going. It also
+#                                  answers `runs` with the workflow run behind
+#                                  each check run that one made, and `jobs` with
+#                                  the job behind it. <source> is:
+#                                    own     the job of the gate's own workflow,
+#                                            on this pull request (the default)
+#                                    suite   a post into that same run, listed
+#                                            as a job that ran on no runner
+#                                    api     a post, which no workflow run made
+#                                    push    the gate's workflow, on a push
+#                                    branch  the gate's workflow, on a pull
+#                                            request from another branch
+#                                    file    another workflow file, on this pull
+#                                            request
+#                                    sign    a post by `purba-sign`
 : "${BATS_TEST_TMPDIR:?set by bats}"
 
 # ⚠️ git hands a hook, and a command under `rebase --exec`, the repository it
@@ -145,22 +159,65 @@ gh_refuses() {
 }
 
 check_runs() {
-  local run name conclusion day one all=""
+  local run name conclusion day source file event branch app runner suite=0 one made \
+    job all="" workflows="" jobs=""
   for run in "$@"; do
     name=${run%%=*}
     conclusion=${run#*=}
+    source=own
+    if [[ "${conclusion}" == *~* ]]; then
+      source=${conclusion#*~}
+      conclusion=${conclusion%~*}
+    fi
     day=2026-01-01
     if [[ "${conclusion}" == *@* ]]; then
       day=${conclusion#*@}
       conclusion=${conclusion%@*}
     fi
+    suite=$((suite + 1))
+    file=${name%%-*}
+    file=${file,,}.yml
+    app=github-actions
+    made=""
+    runner=1
+    case "${source}" in
+      own) made="${file} pull_request ${HEAD_REF:-}" ;;
+      suite)
+        made="${file} pull_request ${HEAD_REF:-}"
+        runner=null
+        ;;
+      push) made="${file} push other" ;;
+      branch) made="${file} pull_request other" ;;
+      file) made="forge.yml pull_request ${HEAD_REF:-}" ;;
+      api) ;;
+      sign) app=purba-sign ;;
+      *) return 1 ;;
+    esac
+    if [[ -n "${made}" ]]; then
+      read -r file event branch <<<"${made}"
+      printf -v one '{"id":%d,"check_suite_id":%d,"path":".github/workflows/%s",' \
+        "$((100 + suite))" "${suite}" "${file}"
+      printf -v one '%s"event":"%s","head_branch":"%s"}' "${one}" "${event}" "${branch}"
+      workflows+="${workflows:+,}${one}"
+    fi
     if [[ -n "${conclusion}" ]]; then
-      printf -v one '{"name":"%s","conclusion":"%s","completed_at":"%sT00:00:00Z"}' \
+      printf -v one '"name":"%s","conclusion":"%s","completed_at":"%sT00:00:00Z"' \
         "${name}" "${conclusion}" "${day}"
     else
-      printf -v one '{"name":"%s","conclusion":null,"completed_at":null}' "${name}"
+      printf -v one '"name":"%s","conclusion":null,"completed_at":null' "${name}"
     fi
+    # A job's id is the id of its check run. Every run's read of its jobs gets
+    # them all here, so a job names its run.
+    if [[ -n "${made}" ]]; then
+      printf -v job '{"id":%d,"run_id":%d,%s,"runner_id":%s}' \
+        "$((1000 + suite))" "$((100 + suite))" "${one}" "${runner}"
+      jobs+="${jobs:+,}${job}"
+    fi
+    printf -v one '{"id":%d,%s,"app":{"slug":"%s"},"check_suite":{"id":%d}}' \
+      "$((1000 + suite))" "${one}" "${app}" "${suite}"
     all+="${all:+,}${one}"
   done
   gh_answers check-runs "{\"check_runs\":[${all}]}"
+  gh_answers runs "{\"workflow_runs\":[${workflows}]}"
+  gh_answers jobs "{\"jobs\":[${jobs}]}"
 }

@@ -6,7 +6,7 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   module="${BATS_TEST_DIRNAME}/../../.github/scripts/check-run.sh"
   isolate
-  export GH_REPO=owner/name
+  export GH_REPO=owner/name HEAD_REF=work GH_TOKEN=actions-token SIGN_TOKEN=sign-token
   fake_gh
   # shellcheck source=.github/scripts/check-run.sh
   . "${module}"
@@ -21,7 +21,138 @@ setup() {
   [[ "${output}" == *"Quality is green on abc123"* ]]
   [[ "${output}" == *"every gate named here is green on abc123"* ]]
   asked=$(calls gh)
-  [[ "${asked}" == "api repos/owner/name/commits/abc123/check-runs?per_page=100" ]]
+  [[ "${asked}" == *"api repos/owner/name/commits/abc123/check-runs?per_page=100"* ]]
+}
+
+@test "a gate counts only from a run of its own workflow on this pull request" {
+  for source in api push branch file; do
+    check_runs Quality=failure "Quality=success@2026-01-02~${source}"
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"Quality concluded failure on abc123"* ]]
+  done
+}
+
+@test "a run that no workflow of the gate made is no verdict" {
+  for source in api push branch file; do
+    check_runs "Quality=success~${source}"
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"Quality has no verdict on abc123 yet"* ]]
+  done
+}
+
+@test "a check run in the run of the gate's own file that ran on no runner is no verdict" {
+  check_runs Quality=failure "Quality=success@2026-01-02~suite"
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"Quality concluded failure on abc123"* ]]
+}
+
+@test "the jobs of each run on this branch are read with filter=latest" {
+  check_runs Quality=success Build=success Scripts=success~push
+
+  run verdicts abc123 Quality Build
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"api repos/owner/name/actions/runs/101/jobs?filter=latest&per_page=100"* ]]
+  [[ "${asked}" == *"api repos/owner/name/actions/runs/102/jobs?filter=latest&per_page=100"* ]]
+  [[ "${asked}" != *"runs/103/jobs"* ]]
+}
+
+@test "a read of the jobs the API refuses exits 2" {
+  check_runs Quality=success
+  gh_refuses jobs
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the jobs of the workflow run 101 could not be read."* ]]
+}
+
+@test "a verdict that purba-sign carried counts" {
+  check_runs Quality=success~sign
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"Quality is green on abc123"* ]]
+}
+
+@test "a gate is a job of the workflow file named for it, up to its first dash" {
+  gh_answers check-runs '{"check_runs":[{"id":9,"name":"Quality-macOS","conclusion":"success",
+    "completed_at":"2026-01-01T00:00:00Z","app":{"slug":"github-actions"},
+    "check_suite":{"id":5}}]}'
+  gh_answers runs '{"workflow_runs":[{"id":7,"check_suite_id":5,
+    "path":".github/workflows/quality.yml","event":"pull_request","head_branch":"work"}]}'
+  gh_answers jobs '{"jobs":[{"id":9,"run_id":7,"name":"Quality-macOS","conclusion":"success",
+    "completed_at":"2026-01-01T00:00:00Z","runner_id":1}]}'
+
+  run require_green abc123 Quality-macOS
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "the workflow runs are read for this head, its pull request event and its branch" {
+  check_runs Quality=success
+
+  run verdicts abc123 Quality
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  read_runs="api repos/owner/name/actions/runs?head_sha=abc123&event=pull_request&branch=work"
+  [[ "${asked}" == *"${read_runs}&per_page=100"* ]]
+}
+
+@test "a read of the workflow runs the API refuses exits 2" {
+  check_runs Quality=success
+  gh_refuses runs
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the workflow runs on abc123 could not be read."* ]]
+}
+
+@test "with no branch it exits 2, because no run can be matched to it" {
+  check_runs Quality=success
+  export HEAD_REF=
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"HEAD_REF is set by the workflow env, and it is empty here."* ]]
+}
+
+@test "a check run is posted with the token of purba-sign" {
+  fake gh <<'FAKE'
+printf '%s\n' "${GH_TOKEN}" >>"${BATS_TEST_TMPDIR}/token"
+echo https://example.invalid/run
+FAKE
+
+  run post_check_run Sign-off abc123 success title summary
+
+  [[ "${status}" -eq 0 ]]
+  token=$(<"${BATS_TEST_TMPDIR}/token")
+  [[ "${token}" == sign-token ]]
+}
+
+@test "with no token of purba-sign it posts nothing and exits 2" {
+  export SIGN_TOKEN=
+
+  run post_check_run Sign-off abc123 success title summary
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"SIGN_TOKEN is set by the workflow env, and it is empty here."* ]]
+  asked=$(calls gh)
+  [[ -z "${asked}" ]]
 }
 
 @test "a context with no run at all is refused" {

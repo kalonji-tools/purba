@@ -4,6 +4,7 @@
 #                  scripts/check-replayable.sh
 #   the advisory:  .github/workflows/commits.yml
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
+#   who reports:   docs/decisions/a-required-check-of-main-counts-only-from-github-actions.md
 #   what you owe:  CONTRIBUTING.md
 #
 # Another workflow may name this one, so the workflow name is load-bearing
@@ -27,9 +28,8 @@ on:
     # each gate is green. An approval after the last gate finished starts no
     # gate. So `Approved` runs on the review, and its finish starts this
     # workflow.
-    # The ruleset is not in the tree. It requires the jobs named Quality and
-    # Build, not Scripts, Quality-macOS or Scripts-macOS. A red one of those
-    # three withholds Sign-off instead.
+    # The ruleset is not in the tree. It requires only `Sign-off`, so a red
+    # gate withholds `Sign-off`.
     workflows: [Quality, Build, Scripts, Approved]
     types: [completed]
 
@@ -62,9 +62,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
-      # This job rewrites the commits, and the new commits have no check runs
-      # on them. So the job reports the required check itself.
-      checks: write
+      # `purba-sign` posts each check run, so this token only reads them, and
+      # reads the workflow runs behind them.
+      checks: read
+      actions: read
     # Never call this job `Sign-off`. A job writes a check run under its own
     # name, so that name must not be the required one. The step that writes
     # the acceptance trailer reports `Sign-off` on purpose instead.
@@ -76,6 +77,7 @@ jobs:
     if: github.event_name == 'workflow_run' &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
       github.event.workflow_run.pull_requests[0] != null
+    environment: sign
     # The concurrency group is on this job, not on the workflow. So a workflow
     # run that `pull_request` starts never cancels a pending `sign` job.
     concurrency:
@@ -104,15 +106,25 @@ jobs:
           path: branch
           fetch-depth: 0
 
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: purba-sign
+        with:
+          client-id: ${{ vars.SIGN_APP_CLIENT_ID }}
+          private-key: ${{ secrets.SIGN_APP_PRIVATE_KEY }}
+          permission-checks: write
+
       - name: Write the acceptance trailer into every commit
         id: accept
         working-directory: branch
+        env:
+          SIGN_TOKEN: ${{ steps.purba-sign.outputs.token }}
         run: ../trusted/.github/scripts/write-acceptance-trailer.sh
       - name: Carry the verdicts the content still answers for
         if: steps.accept.outputs.after != ''
         continue-on-error: true
         working-directory: branch
         env:
+          SIGN_TOKEN: ${{ steps.purba-sign.outputs.token }}
           BEFORE: ${{ steps.accept.outputs.before }}
           AFTER: ${{ steps.accept.outputs.after }}
         run: ../trusted/.github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE

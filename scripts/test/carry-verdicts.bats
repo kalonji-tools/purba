@@ -6,7 +6,7 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../../.github/scripts/carry-verdicts.sh"
   make_repo
-  export GH_REPO=owner/name
+  export GH_REPO=owner/name HEAD_REF=work SIGN_TOKEN=sign-token
   fake_gh
 
   # A rewrite that changed a message and no content: two commits, one tree.
