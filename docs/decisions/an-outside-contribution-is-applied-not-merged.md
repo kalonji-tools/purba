@@ -60,13 +60,15 @@ The maintainer closes the contribution after the merge, and the script prints th
 - **The contributor's pull request closes and does not merge.** GitHub records no merge against their account.
 - **Each outside contribution costs the maintainer two acts.** One command applies the work, and one closes the contribution after the merge.
 - **Nothing runs the script.** A maintainer who does not use it carries in work that no gate read.
-- **Until the gate rewrites the commits, the fork pull request and `accepted/pr-<n>` are one commit.** A check run belongs to a SHA, so the mirror's green `sign` appears on the fork pull request. The gate is honest and the display is not.
+- **Until the `sign` job rewrites the commits, the fork pull request and `accepted/pr-<n>` are one commit.** A check run belongs to a SHA, so the mirror's green gates appear on the fork pull request. Each gate is honest, and the display is not.
 - **Applying a contribution raises what its code is allowed to do.** A pull request from a fork runs a workflow with a read-only token. The job that holds this repository's own token skips such a pull request. A branch here runs a workflow with this repository's own token, from the head of the pull request and before anyone approves it. The workflows that hold that token run code from `.github/`, and source helpers from `scripts/`. A contribution that changes either directory can therefore gain that token the moment the maintainer applies it. The script warns and names each such file. It does not refuse, because a refusal would close this path to every contribution that improves the gate. `main` is unreachable from there, because its ruleset admits no bypass actor.
 
 ## Confirmation
 
 **A pull request from a fork cannot merge.**
-`sign.yml` refuses it before the step that posts `Sign-off`, the ruleset requires that context, and its `bypass_actors` is empty.
+The `fork` job of `sign.yml` refuses it.
+The `sign` job, which posts `Sign-off`, skips it.
+The ruleset requires `Sign-off`, and its `bypass_actors` is empty.
 Measured: `gh pr merge --admin` on such a pull request returns `Repository rule violations found` and merges nothing.
 
 **Nothing requires the script.**
