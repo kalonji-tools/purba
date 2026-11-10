@@ -51,7 +51,7 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 ## Confirmation
 
-The required `Build` check runs `cargo test --doc -p purba` on Linux and macOS.
+The `Build` check runs `cargo test --doc -p purba` on Linux and macOS.
 
 It does more than run examples.
 On a bare cdylib, `cargo test --doc -p purba` exits 101 with "no library targets found".
@@ -60,7 +60,7 @@ The same command that verifies the examples therefore guards the crate-type line
 | what reaches it | where |
 |---|---|
 | `mise run test:rust` | `.config/tasks.toml` |
-| the `Build` job, whose name the ruleset holds as a required context | `.github/workflows/build.yml` |
+| the `Build` job, whose verdict the `sign` job reads | `.github/workflows/build.yml` |
 
 Each member denies the rustdoc lint through `[lints] workspace = true`, which reads `[workspace.lints]` in the root `Cargo.toml`.
 No flag on a command line sets it.

@@ -48,9 +48,12 @@ The installation, not an account, bounds the App's token, and nobody rotates it.
 | may not | write contents, touch an issue, or approve anything |
 | lives | one hour, minted by `actions/create-github-app-token` in the job that uses it |
 
-**The narrowing is the boundary, and no rule sits over the secret.**
+**For `purba-bump`, the narrowing is the boundary, and no rule sits over the secret.**
 A secret cannot be bound to one workflow file, so a rule saying which workflow may name it would be a convention that nothing enforces.
 A workflow that named these two could open a pull request and do nothing else, which is the bound worth having.
+[`main` requires only `Sign-off`, and accepts it only from `purba-sign`](a-required-check-of-main-counts-only-from-github-actions.md) adds a second App, `purba-sign`.
+For `purba-sign`, the narrowing is no boundary, because a forger needs the one power it keeps: to write check runs.
+The environment `sign` holds the key of `purba-sign` instead.
 
 **The token that reports a failure is not this one.**
 `.github/scripts/report-run-failure.sh` opens or comments on an issue when `bump.yml`, `release.yml` or `publish.yml` fails.
@@ -83,7 +86,7 @@ The REST payload reports `purba-bump[bot]` and a type of `Bot`.
 The GraphQL payload, which `gh pr view` reads, reports `app/purba-bump` instead.
 A test asserts on the type.
 
-Nothing checks which workflow names the secret, and nothing needs to: the token carries its own limit.
+Nothing checks which workflow names the secret of `purba-bump`, and nothing needs to: the token carries its own limit.
 
 The weekly runs are what report on all of it.
 A pull request authored by the App is the working state, and a red run comments where somebody reads it.

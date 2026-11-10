@@ -59,7 +59,7 @@ That is the order `mise tasks ls` prints.
 **Downside:**
 
 - **A task that runs three tools stops at the first failure.** A clippy refusal in `lint:rust` hides a broken documentation link until clippy passes.
-- **Every lint joins the required check.** A `lint:` task that takes minutes slows `Quality` on every pull request from the day it is written.
+- **Every lint joins `Quality`, which every merge waits for.** A `lint:` task that takes minutes slows `Quality` on every pull request from the day it is written.
 - **A guard that runs code cannot be a lint.** `cargo test --doc` refuses a crate with no `rlib`, so `Build` holds that guard and `Quality` does not.
 - **No command refuses a name off the scheme.** The reviewer reads each new name.
 

@@ -18,7 +18,7 @@ These jobs run an action while they hold a credential:
 | `publish.yml` `wheel` | `contents: read`, and it builds the file that `upload` sends to PyPI | `actions/checkout`, `actions/upload-artifact`, `jdx/mise-action` |
 | `records.yml` `decision-records` | `pull-requests: write` | `actions/checkout` |
 | `release.yml` `release` | `contents: write`, `issues: write` and `actions: write`, then the App key | `actions/checkout`, `actions/create-github-app-token`, `jdx/mise-action` |
-| `sign.yml` `sign` | `contents: write` and `checks: write` | `actions/checkout` |
+| `sign.yml` `sign` | `contents: write`, then the App key | `actions/checkout`, `actions/create-github-app-token` |
 
 ## Considered Options
 

@@ -98,7 +98,9 @@ A programme is a set of issues, not a record.
 
 [A record names every location where it applies](a-record-names-every-location-where-it-applies.md) holds the rules of a reach.
 
-`mise run lint` runs the command, `Quality` runs `mise run lint` on each pull request, and `protect-main` requires `Quality`.
+`mise run lint` runs the command.
+`Quality` runs `mise run lint` on each pull request.
+`Quality` stops a merge through `Sign-off`.
 So the command refuses a broken record at a merge, and nothing runs it at a commit.
 Whether a sentence admits an unwired gate is a judgement, so the check that finds one may suggest and may not gate.
 The command lists each record whose Confirmation holds a phrase that admits one and names no issue, and refuses none of them.
