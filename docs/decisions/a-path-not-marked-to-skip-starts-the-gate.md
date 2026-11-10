@@ -19,7 +19,7 @@ So a `paths:` filter cannot narrow Build, and the workflow must start on every p
 
 ## Decision Outcome
 
-**Reach:** `/.config/gates` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/changed.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
+**Reach:** `/.config/gates` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/changed.sh` `scripts/test/changed.bats` `.github/scripts/require-jobs.sh` `scripts/test/require-jobs.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
 
 **Area:** tooling
 
@@ -46,7 +46,7 @@ So a `paths:` filter cannot narrow Build, and the workflow must start on every p
 ## Confirmation
 
 `scripts/test/changed.bats` tests `changed.sh`, and `mise run test:shell` runs those tests.
-The `Build` job refuses a skipped matrix when the job `changed` failed.
+`scripts/test/require-jobs.bats` tests that `require-jobs.sh` refuses a skipped job after a failed `changed`, and the job `Build` runs that script.
 `.github/CODEOWNERS` names `/.config/`, so a change to a mark waits for the code owner.
 
 No command checks that a mark is right.
