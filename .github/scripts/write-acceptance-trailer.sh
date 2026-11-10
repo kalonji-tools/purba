@@ -6,11 +6,10 @@
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
 #   what you owe:  CONTRIBUTING.md
 #
-# Exits 1 when a rule refuses the branch or cannot run, and 0 when there is
-# nothing to accept yet. When a finished gate or `Approved` started the
-# workflow run, both exit 0. That workflow run writes the job's own check run
-# onto the head of `main`, and the failed `Sign-off` it posts on the pull
-# request is the report. It exits 2
+# Exits 0 when there is nothing to accept yet, and when a rule refuses the
+# branch or cannot run. The workflow run writes the job's own check run onto
+# the head of `main`, so a failed job marks `main` red. The failed `Sign-off`
+# it posts on the pull request is the report instead. It exits 2
 # when it cannot read the pull request, its reviews or the permission of an
 # approver, or cannot read or write a check run. It also exits 2 when the reviews
 # are not ones the rule can read. Any other command that fails exits with its
@@ -23,7 +22,6 @@ set -euo pipefail
 : "${PR:?set by the workflow env}"
 : "${GATES:?set by the workflow env}"
 : "${HEAD_REF:?set by the workflow env}"
-: "${GITHUB_EVENT_NAME:?set by the runner}"
 : "${RUNNER_TEMP:?set by the runner}"
 : "${GITHUB_OUTPUT:?set by the runner}"
 
@@ -88,11 +86,7 @@ post_refusal() {
 anything a reader can use. The run log holds what it did.")
 
   post_check_run "Sign-off" "${before}" failure "${title}" "${summary}"
-
-  if [[ "${GITHUB_EVENT_NAME}" == workflow_run ]]; then
-    exit 0
-  fi
-  exit 1
+  exit 0
 }
 
 "$(dirname "$0")/../../scripts/check-origin.sh" "${base}" HEAD || post_refusal $?

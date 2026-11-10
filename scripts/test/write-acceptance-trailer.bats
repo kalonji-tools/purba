@@ -26,8 +26,7 @@ setup() {
   git push --quiet origin work
   pushed=$(git rev-parse HEAD)
 
-  export GH_REPO=owner/name PR=7 GATES="Quality Build" HEAD_REF=work
-  export GITHUB_EVENT_NAME=pull_request
+  export GH_REPO=owner/name PR=7 GATES="Quality Build" HEAD_REF=work SIGN_TOKEN=sign-token
   export RUNNER_TEMP="${BATS_TEST_TMPDIR}/runner" GITHUB_OUTPUT="${BATS_TEST_TMPDIR}/output"
   mkdir -p "${RUNNER_TEMP}"
   touch "${GITHUB_OUTPUT}"
@@ -238,7 +237,7 @@ origin_holds() {
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
+  [[ "${status}" -eq 0 ]]
   head=$(git rev-parse HEAD)
   [[ "${head}" == "${refused}" ]]
   origin_holds "${refused}"
@@ -250,22 +249,6 @@ origin_holds() {
   [[ "${asked}" == *"A commit is refused when it carries no Signed-off-by trailer"* ]]
 }
 
-@test "a branch refused when a gate finishes gets a failed Sign-off, and the script exits 0" {
-  commit "feat: unsigned"
-  git push --quiet origin work
-  refused=$(git rev-parse HEAD)
-
-  GITHUB_EVENT_NAME=workflow_run run "${script}"
-
-  [[ "${status}" -eq 0 ]]
-  origin_holds "${refused}"
-  [[ ! -s "${GITHUB_OUTPUT}" ]]
-  asked=$(calls gh)
-  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${refused} -f status=completed"* ]]
-  [[ "${asked}" == *"-f conclusion=failure"* ]]
-  [[ "${asked}" == *"-f output[title]=Refused before anything was rewritten"* ]]
-}
-
 @test "a commit that replays empty is refused before anything is rewritten" {
   git commit --quiet --allow-empty --message "feat: nothing" \
     --message "Signed-off-by: A Person <person@example.invalid>"
@@ -274,7 +257,7 @@ origin_holds() {
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
+  [[ "${status}" -eq 0 ]]
   head=$(git rev-parse HEAD)
   [[ "${head}" == "${refused}" ]]
   origin_holds "${refused}"
@@ -289,7 +272,7 @@ origin_holds() {
 
   GITHUB_ACTIONS=true run --separate-stderr "${script}"
 
-  [[ "${status}" -eq 1 ]]
+  [[ "${status}" -eq 0 ]]
   [[ "${output}" != *"::error::"* ]]
   refusals=$(grep -cF "::error::A commit is refused when it replays empty" <<<"${stderr}")
   [[ "${refusals}" -eq 1 ]]
@@ -309,7 +292,7 @@ origin_holds() {
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
+  [[ "${status}" -eq 0 ]]
   origin_holds "${refused}"
   [[ ! -s "${GITHUB_OUTPUT}" ]]
   asked=$(calls gh)
@@ -322,7 +305,7 @@ origin_holds() {
 
   run "${script}"
 
-  [[ "${status}" -eq 1 ]]
+  [[ "${status}" -eq 0 ]]
   asked=$(calls gh)
   [[ "${asked}" == *"-f conclusion=failure -f output[title]=This check could not run"* ]]
   [[ "${asked}" == *"This job stopped without writing anything a reader can use."* ]]
@@ -398,7 +381,7 @@ origin_holds() {
 }
 
 @test "a variable the workflow supplies stops it when absent" {
-  for name in GH_REPO PR GATES HEAD_REF GITHUB_EVENT_NAME RUNNER_TEMP GITHUB_OUTPUT; do
+  for name in GH_REPO PR GATES HEAD_REF RUNNER_TEMP GITHUB_OUTPUT; do
     run env -u "${name}" "${script}"
 
     [[ "${status}" -eq 1 ]]
