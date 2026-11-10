@@ -18,6 +18,8 @@
 # ⚠️ `sign.yml` names this workflow, and names each of its jobs in two more
 # lists. A rename here that does not reach all three stops every branch from
 # merging.
+# It reads each job only from the file named for the job, `scripts.yml`, so a
+# rename of this file stops every branch from merging too.
 name: Scripts
 
 on:

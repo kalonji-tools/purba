@@ -117,7 +117,6 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 - **A contribution from a fork costs a manual step.** Such a pull request gives the workflow a read-only token, the push is refused, and setting `maintainer_can_modify` does not change it. Each of those three was measured rather than reasoned. A gate finishing starts the same workflow from `main`, where the token is this repository's own. There the `sign` job skips the fork by its own `if:`. A maintainer therefore applies an outside contribution to a branch here before it merges. The mechanism covers it, and the cost is an act rather than a gap.
 - **A person with write access who is no code owner can stand as the acceptance.** When that approval is the newest from a person with write access, the trailer names that person. The ruleset still needs the code owner's approval, unless the pull request touches no path the code owner holds.
 - **Nothing separates a person from an agent holding that person's credentials.** An approval on a deployment environment was the one act an agent could not perform, and this decision removes it. Whoever gives an agent access to their credentials is answerable for what the agent does with them. No check replaces that, and the Confirmation section grades the row `none` and implies nothing else.
-- **A workflow that a pull request runs can still report its own required check.** On its own events, GitHub runs each workflow of the pull request. One that the pull request edits or adds can post a check run named `Sign-off`, and GitHub Actions reports that check run. The scripts of the `sign` job come from `main`, so a change to them reaches no `Sign-off`. `.github/CODEOWNERS` covers `/.github/` for this reason. The code owner then reads such a change. This way stays open until [A workflow on a branch with no pull request reports a required check of main](https://github.com/kalonji-tools/purba/issues/887) closes it.
 - **The mechanism forecloses commit signing.** It rewrites every commit the pull request adds, and an amended commit is a new commit object. A signature a contributor made does not survive it. The job holds no key, so nothing signs again. GitHub breaks it a second time at the merge, documenting that Rebase and Merge adds commits without commit signature verification. A signature would not separate a person from their agent in any case. It proves custody of a key, and a key kept where the agent runs is a key the agent uses. [purba records delegation and does not prevent it](purba-records-delegation-and-does-not-prevent-it.md) decides what follows from that.
 
 ## Confirmation
@@ -136,7 +135,8 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | a change under `/.github/`, `/scripts/`, `/.config/` or `/.cargo/` reaches the code owner | strong, `.github/CODEOWNERS` names each of them, and the ruleset requires the code owner's review |
 | a change to a file elsewhere that a gate reads, such as `prek.toml` or `.editorconfig`, reaches the code owner | none, and no check compares `.github/CODEOWNERS` with the files that a gate reads |
 | a pull request from a fork never reaches the checkout in the `sign` job | strong, and measured on `workflow_run`. The `sign` job runs only on `workflow_run`, when a gate or `Approved` finishes. On `workflow_run` its `if:` skipped a pull request from a fork, once for each of `Quality`, `Build` and `Scripts`. On `pull_request`, the `fork` job refuses the pull request |
-| a run that a finished gate starts leaves no failed check run on the head of `main` when its pull request closed before its gate finished, or when a rule refuses the branch | strong. The job's `if:` skips the closed pull request, as it skips a fork. `scripts/test/write-acceptance-trailer.bats` checks that, on the gate-completed event, the script writes a failed `Sign-off` for a refused branch and exits 0 |
+| the `sign` job reads the verdict of a gate only from a job that ran on a runner, in a run of the gate's workflow file, on `pull_request`, on the branch of the pull request, or from `purba-sign` | strong, `scripts/test/check-run.bats` checks each source of a verdict. A second pull request from the same branch still counts, and [`main` requires only `Sign-off`, and accepts it only from `purba-sign`](a-required-check-of-main-counts-only-from-github-actions.md) names it |
+| a run that a finished gate starts leaves no failed check run on the head of `main` when its pull request closed before its gate finished, or when a rule refuses the branch | strong. The job's `if:` skips the closed pull request, as it skips a fork. `scripts/test/write-acceptance-trailer.bats` checks that the script writes a failed `Sign-off` for a refused branch and exits 0 |
 | the contributor read what they signed | none, and no check can make it |
 
 The two origin rows are checked by the `sign` job, which stops before it rewrites anything.
@@ -171,7 +171,7 @@ Before it rewrites anything, the `sign` job refuses a branch whose replay change
 The two cases above, the trees matching and the trees differing, were the whole rule. A third case occurred twice: the verdict is not in yet.
 This job rewrote the branch before `Quality` concluded.
 It read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
-This job now waits for every required context it does not post itself before it rewrites anything, so it never carries a missing verdict.
+This job now waits for the verdict of every gate before it rewrites anything, so it never carries a missing verdict.
 `.github/scripts/check-run.sh` holds that rule, and a gate concluding is one of the events that starts this job.
 
 The job can read a gate before GitHub reports its verdict.
@@ -187,7 +187,7 @@ That is a property of such a gate and not a state to revisit.
 It is the second reason `Origin` stays advisory, beside the one that already stood.
 The `sign` job refuses on the origin rule before it rewrites anything, so the check would buy nothing as well.
 
-A required context is therefore possible beside this one, and the quality workflow holds one.
+A gate therefore keeps its verdict on the rewritten head, beside `Sign-off`, and a later run of this job reads it there.
 
 The row on who wrote the origin trailer is the ceiling of the whole mechanism.
 An agent can run `git commit -s` as easily as a person can, so the check reads a trailer and never the act behind it.
@@ -212,7 +212,7 @@ The `sign` job in `.github/workflows/sign.yml` refuses a branch whose commits la
 It then writes the acceptance trailer and reports the required status check `Sign-off`.
 Read it back with `git log --format='%(trailers:key=Accepted-by)' <base>..HEAD`, which parses the trailer and does not match it as text.
 
-[A required check of `main` counts only from GitHub Actions](a-required-check-of-main-counts-only-from-github-actions.md) says which reporter of `Sign-off` the ruleset accepts.
+[`main` requires only `Sign-off`, and accepts it only from `purba-sign`](a-required-check-of-main-counts-only-from-github-actions.md) says which reporter of `Sign-off` the ruleset accepts.
 
 The measurements behind the rows above were made in a throwaway repository, and they are recorded on [Does the sign-off land in git, and in what order do liability, review and merge happen?](https://github.com/kalonji-tools/purba/issues/80) and on [Write the sign job that records acceptance in the commit](https://github.com/kalonji-tools/purba/issues/103), and on [check that every commit carries the origin trailer its contributor owes](https://github.com/kalonji-tools/purba/issues/105).
 

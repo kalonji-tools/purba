@@ -156,8 +156,11 @@ Every review conversation must be resolved. A push that changes the tree
 dismisses an approval already given, so an approval follows the code rather
 than the branch.
 
-`main` requires three checks. Each counts only when GitHub Actions reports
-it. `Quality` refuses a lint, a formatting difference, a broken decision
+`main` requires one check, `Sign-off`, and it counts only when the App
+`purba-sign` reports it. purba signs no branch while `Quality` or `Build` is
+red, so each stops a merge through `Sign-off`.
+
+`Quality` refuses a lint, a formatting difference, a broken decision
 record, a dead link, a broken link in the Rust documentation,
 an action a workflow names by a tag and a dependency whose licence is not on
 the allowlist. A link in a file your branch changes is checked on the network,
@@ -172,8 +175,8 @@ path your branch changes `-build`, so a new mark takes effect once it merges.
 (`strict_required_status_checks_policy`), so a branch that has fallen behind is
 rebased and reviewed against what is there now.
 
-A fourth check, `Scripts`, refuses a failing test of purba's own scripts, or of
-a cargo script. It reports on every pull request, and runs the tests unless
+`Scripts` refuses a failing test of purba's own scripts, or of a cargo script.
+It reports on every pull request, and runs the tests unless
 `.config/gates` on `main` marks every path your branch changes `-scripts`.
 purba does not sign a branch while `Scripts` is red, so it stops a merge
 through `Sign-off`.

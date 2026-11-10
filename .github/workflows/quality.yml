@@ -5,14 +5,12 @@
 #   the doc lints:  docs/decisions/the-crate-carries-an-rlib.md
 #
 # Never add a `paths:` filter here. A check that never reports and a check that
-# refuses are the same thing to the ruleset, so a filtered run blocks forever.
+# refuses are the same thing to `sign.yml`, which waits for this one, so a
+# filtered run blocks forever.
 #
 # Never add `ready_for_review` to the types below. Marking a draft ready
-# changes no commit, and the ruleset reads this check on the head commit,
-# whatever event made it. The page below says so. Its address cannot be
-# wrapped, so the style check skips that line.
-# editorconfig-checker-disable-next-line
-# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/troubleshooting-rules#troubleshooting-required-status-checks
+# changes no commit, and `sign.yml` reads this check on the head commit,
+# whatever event made it.
 name: Quality
 
 on:
@@ -31,8 +29,9 @@ env:
 
 jobs:
   quality:
-    # The required status context is this name, and the ruleset holds a copy
-    # of it. Rename this and the gate reports nothing under the old name.
+    # `sign.yml` names this job in two lists, and reads it only from the file
+    # named for it, `quality.yml`. A rename of the job that does not reach those
+    # lists, or a rename of this file, stops every branch from merging.
     name: Quality
     runs-on: ubuntu-latest
     timeout-minutes: 20

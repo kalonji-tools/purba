@@ -10,7 +10,7 @@ Build ran its jobs on every pull request, and many of those pull requests change
 | jobs in a run | 15 |
 | runs on a pull request that changed only docs, of the last 100 | 43 |
 
-The ruleset requires `Build`, and a required check that never reports blocks the merge.
+The `sign` job signs no head until `Build` is green, so a `Build` that never reports blocks the merge through `Sign-off`.
 So a `paths:` filter cannot narrow Build, and the workflow must start on every pull request.
 
 ## Considered Options
