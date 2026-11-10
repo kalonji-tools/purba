@@ -6,14 +6,15 @@ setup() {
   # shellcheck source=scripts/test/fixture.sh
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   tree="${BATS_TEST_DIRNAME}/../.."
-  script="${tree}/.github/scripts/write-acceptance-trailer.sh"
-  make_repo
-
-  mkdir -p scripts
+  # The job runs the scripts of `main`, from a checkout apart from the branch.
+  trusted="${BATS_TEST_TMPDIR}/trusted"
+  mkdir -p "${trusted}/.github/scripts" "${trusted}/scripts"
+  cp "${tree}/.github/scripts/write-acceptance-trailer.sh" "${tree}/.github/scripts/check-run.sh" \
+    "${tree}/.github/scripts/standing-approver.sh" "${trusted}/.github/scripts/"
   cp "${tree}/scripts/check-origin.sh" "${tree}/scripts/check-replayable.sh" \
-    "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" scripts/
-  git add scripts
-  git commit --quiet --message "chore: hold the scripts the job calls"
+    "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" "${trusted}/scripts/"
+  script="${trusted}/.github/scripts/write-acceptance-trailer.sh"
+  make_repo
   branched=$(git rev-parse HEAD)
 
   git init --quiet --bare "${BATS_TEST_TMPDIR}/origin.git"
@@ -105,10 +106,8 @@ origin_holds() {
 
 @test "the head it pushes is the head the replay check printed" {
   # shellcheck disable=SC2016
-  printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' >scripts/check-replayable.sh
-  git commit --quiet --all --message "chore: a replay check that prints one head" \
-    --message "Signed-off-by: A Person <person@example.invalid>"
-  git push --quiet origin work
+  printf '#!/usr/bin/env bash\ncat "${BATS_TEST_TMPDIR}/printed"\n' \
+    >"${trusted}/scripts/check-replayable.sh"
   printed=$(git commit-tree -p HEAD -m "feat: as replayed" 'HEAD^{tree}')
   echo "${printed}" >"${BATS_TEST_TMPDIR}/printed"
 
@@ -118,6 +117,25 @@ origin_holds() {
   origin_holds "${printed}"
   asked=$(calls gh)
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${printed} -f status=completed"* ]]
+}
+
+@test "a rule that the branch holds is not the rule that runs" {
+  mkdir -p scripts
+  # shellcheck disable=SC2016
+  printf '#!/usr/bin/env bash\ntouch "${BATS_TEST_TMPDIR}/the branch ran ${0##*/}"\n' \
+    >scripts/check-origin.sh
+  cp scripts/check-origin.sh scripts/check-replayable.sh
+  chmod +x scripts/check-origin.sh scripts/check-replayable.sh
+  git add scripts
+  git commit --quiet --message "chore: rules of its own" \
+    --message "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet origin work
+
+  run "${script}"
+
+  ran=$(find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name 'the branch ran *')
+  [[ -z "${ran}" ]]
+  [[ "${status}" -eq 0 ]]
 }
 
 @test "a commit pushed after the checkout stays on the branch, and nothing is accepted" {
@@ -300,7 +318,7 @@ origin_holds() {
 }
 
 @test "a rule that cannot run is reported as a check that could not run" {
-  printf '#!/usr/bin/env bash\nexit 2\n' >scripts/check-origin.sh
+  printf '#!/usr/bin/env bash\nexit 2\n' >"${trusted}/scripts/check-origin.sh"
 
   run "${script}"
 

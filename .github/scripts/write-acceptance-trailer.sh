@@ -7,9 +7,10 @@
 #   what you owe:  CONTRIBUTING.md
 #
 # Exits 1 when a rule refuses the branch or cannot run, and 0 when there is
-# nothing to accept yet. When a finished gate started the run, both exit 0. That
-# run writes the job's own check run onto the head of `main`, and the failed
-# `Sign-off` it posts on the pull request is the report. It exits 2
+# nothing to accept yet. When a finished gate or `Approved` started the
+# workflow run, both exit 0. That workflow run writes the job's own check run
+# onto the head of `main`, and the failed `Sign-off` it posts on the pull
+# request is the report. It exits 2
 # when it cannot read the pull request, its reviews or the permission of an
 # approver, or cannot read or write a check run. It also exits 2 when the reviews
 # are not ones the rule can read. Any other command that fails exits with its
@@ -94,7 +95,7 @@ anything a reader can use. The run log holds what it did.")
   exit 1
 }
 
-scripts/check-origin.sh "${base}" HEAD || post_refusal $?
+"$(dirname "$0")/../../scripts/check-origin.sh" "${base}" HEAD || post_refusal $?
 
 export GIT_COMMITTER_NAME="github-actions[bot]"
 export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
@@ -104,7 +105,7 @@ export GIT_COMMITTER_EMAIL="41898282+github-actions[bot]@users.noreply.github.co
 # shell paste it in as code, and that was measured running a command
 # hidden inside a login.
 status=0
-head_sha=$(scripts/check-replayable.sh "${base}" HEAD) || status=$?
+head_sha=$("$(dirname "$0")/../../scripts/check-replayable.sh" "${base}" HEAD) || status=$?
 if [[ "${status}" -ne 0 ]]; then
   post_refusal "${status}"
 fi
