@@ -13,39 +13,51 @@
 name: Sign-off
 
 on:
-  # Keep all three triggers.
-  # Updating a branch writes new commits, and a new commit has no check runs
-  # on it. The approval stays, so no review event arrives. With only
-  # `pull_request_review`, nothing would report the check again and the pull
-  # request could never merge.
-  pull_request_review:
-    types: [submitted]
+  # On the pull request's own events, GitHub takes this file from the pull
+  # request, which can edit it, so the `sign` job never runs there. On
+  # `workflow_run`, GitHub takes it from `main`, as the page below says. Its
+  # address cannot be wrapped, so the style check skips that line.
+  # editorconfig-checker-disable-next-line
+  # https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
   workflow_run:
+    # A push brings new commits, and each gate runs on them. When a gate
+    # finishes, the `sign` job accepts the new head, if an approval stands and
+    # each gate is green. An approval after the last gate finished starts no
+    # gate. So `Approved` runs on the review, and its finish starts this
+    # workflow.
     # The ruleset is not in the tree. It requires the jobs named Quality and
     # Build, not Scripts, Quality-macOS or Scripts-macOS. A red one of those
     # three withholds Sign-off instead.
-    workflows: [Quality, Build, Scripts]
+    workflows: [Quality, Build, Scripts, Approved]
     types: [completed]
-
-concurrency:
-  group: sign-${{ github.event.pull_request.number ||
-    github.event.workflow_run.pull_requests[0].number }}
-  # Never `true`. This job pushes first and reports the check second. Cancel
-  # it in between, and the branch keeps the rewrite but loses the check.
-  # Nothing runs again to add one.
-  cancel-in-progress: false
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
-  PR: ${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number }}
+  PR: ${{ github.event.workflow_run.pull_requests[0].number }}
   GATES: Quality Build Scripts Quality-macOS Scripts-macOS
   # A subset of GATES. `carry-verdicts.sh` says why the two are not one list.
   CARRYABLE: Quality Build Scripts Quality-macOS Scripts-macOS
 
 jobs:
+  # The `sign` job skips a fork and leaves nothing on the pull request. This
+  # job refuses it there.
+  fork:
+    if: github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    permissions: {}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse a pull request from a fork
+        run: |
+          echo "::error::purba refuses a pull request from a fork, because no job here can write \
+          the acceptance trailer into it. purba takes your contribution another way: see \
+          CONTRIBUTING.md."
+          exit 1
+
   sign:
     permissions:
       contents: write
@@ -57,44 +69,50 @@ jobs:
     # name, so that name must not be the required one. The step that writes
     # the acceptance trailer reports `Sign-off` on purpose instead.
     name: sign
-    # A run that a finished gate starts reports on the head of `main`, so a
-    # failed job there marks `main` red. That run skips a fork, and a pull
-    # request that closed before its gate finished, whose branch may be gone.
-    # On the pull request's own events, the first step refuses the fork on its
-    # head.
-    if: github.event_name != 'workflow_run' ||
-      (github.event.workflow_run.head_repository.full_name == github.repository &&
-      github.event.workflow_run.pull_requests[0] != null)
+    # A workflow run that `workflow_run` starts reports on the head of `main`,
+    # so a failed job there marks `main` red. This job skips a pull request
+    # from a fork. It also skips a pull request that closed before its gate
+    # finished, because its branch may be gone.
+    if: github.event_name == 'workflow_run' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.pull_requests[0] != null
+    # The concurrency group is on this job, not on the workflow. So a workflow
+    # run that `pull_request` starts never cancels a pending `sign` job.
+    concurrency:
+      group: sign-${{ github.event.workflow_run.pull_requests[0].number }}
+      # Never `true`. This job pushes first and reports the check second.
+      # Cancel it in between, and the branch keeps the rewrite but loses the
+      # check. Nothing runs again to add one.
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     # Bounded, because `cancel-in-progress` is false and a hung run would hold
     # the queue for six hours.
     timeout-minutes: 10
     env:
-      HEAD_REF: ${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch }}
+      HEAD_REF: ${{ github.event.workflow_run.head_branch }}
     steps:
-      # This step must stay first. A fork's branch does not exist in this
-      # repository. The checkout below fails on it. Any step placed after the
-      # checkout would never run.
-      - name: Refuse a pull request from a fork
-        if: (github.event.pull_request.head.repo.full_name ||
-          github.event.workflow_run.head_repository.full_name) != github.repository
-        run: |
-          echo "::error::A pull request from a fork is refused, because this job may only read \
-          here and cannot sign it. purba takes your contribution another way: see CONTRIBUTING.md."
-          exit 1
-
+      # The scripts come from `main`, in `trusted/`. This job runs nothing from
+      # `branch/`, and only rewrites the commits there. So a pull request that
+      # changes a script changes nothing this job runs.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: trusted
+          persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.HEAD_REF }}
+          path: branch
           fetch-depth: 0
 
       - name: Write the acceptance trailer into every commit
         id: accept
-        run: .github/scripts/write-acceptance-trailer.sh
+        working-directory: branch
+        run: ../trusted/.github/scripts/write-acceptance-trailer.sh
       - name: Carry the verdicts the content still answers for
         if: steps.accept.outputs.after != ''
         continue-on-error: true
+        working-directory: branch
         env:
           BEFORE: ${{ steps.accept.outputs.before }}
           AFTER: ${{ steps.accept.outputs.after }}
-        run: .github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE
+        run: ../trusted/.github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE
