@@ -164,8 +164,10 @@ stops a merge through `Sign-off`. `CI` is the last job of
 `Quality` refuses a lint, a formatting difference, a broken decision
 record, a dead link, a broken link in the Rust documentation,
 an action a workflow names by a tag and a dependency whose licence is not on
-the allowlist. A link in a file your branch changes is checked on the network,
-so a link that does not reach its target as written refuses your branch.
+the allowlist. `Quality` reads each link in a file your branch changes on the
+network. A link that does not reach its target as written refuses your
+branch. A link whose server does not answer in time, or answers 503, passes,
+and a warning names it.
 The jobs `rust` and `wheel` refuse a failing Rust test, a failing example in
 the Rust documentation, and a wheel that does not build or does not load, on
 Linux and macOS, on every Python purba supports. They also refuse a
