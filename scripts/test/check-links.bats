@@ -23,6 +23,14 @@ setup() {
   online="A link in a file this branch changes is refused"
   cited="A path that a comment cites is refused"
   pypi="A link in the README is refused unless it names a full address or a heading of the README"
+  slow="A link whose server does not answer in time, or answers 503, passes unchecked"
+}
+
+# The block of output that starts at a summary, up to the blank line after it.
+block() {
+  local rest=${output#*"$1"}
+  [[ "${rest}" != "${output}" ]] || return 1
+  printf '%s' "${rest%%$'\n\n'*}"
 }
 
 # Each file is written whole, one argument to a line.
@@ -62,7 +70,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
+  [[ "${output}" == "${offline}"* ]]
   [[ "${output}" == *$'\n  [a.md]'* ]]
   [[ "${output}" == *"b.md#title"* ]]
 }
@@ -218,6 +226,78 @@ FAKE
   [[ "${output}" == *"because its reader must reach the address it names"* ]]
   [[ "${output}" == *"[404] https://example.invalid/gone"* ]]
   [[ "${output}" != *"${offline}"* ]]
+}
+
+@test "a link that times out and a link that answers 503 pass, and a warning names each" {
+  fake lychee <<'FAKE'
+cat >/dev/null
+[[ "$*" != *--offline* ]] || exit 0
+printf '[c.md]:\n'
+printf '[TIMEOUT] https://example.invalid/slow (at 1:1) | Request timed out\n'
+printf '[503] https://example.invalid/busy (at 2:1) | Rejected status code: 503\n'
+exit 2
+FAKE
+  write c.md 'new'
+  git add --all
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "${slow}"* ]]
+  warning=$(block "${slow}")
+  [[ "${warning}" == *"because the state of that server is no fault of this change"* ]]
+  [[ "${warning}" == *$'\n  [c.md]:'* ]]
+  [[ "${warning}" == *"[TIMEOUT] https://example.invalid/slow"* ]]
+  [[ "${warning}" == *"[503] https://example.invalid/busy"* ]]
+  [[ "${output}" != *"${online}"* ]]
+}
+
+@test "a dead link is refused beside a link that times out, and each is named under its own file" {
+  fake lychee <<'FAKE'
+cat >/dev/null
+[[ "$*" != *--offline* ]] || exit 0
+printf '[c.md]:\n'
+printf '[TIMEOUT] https://example.invalid/slow (at 1:1) | Request timed out\n'
+printf '[404] https://example.invalid/gone (at 2:1) | Rejected status code: 404\n'
+printf '[d.md]:\n'
+printf '[404] https://example.invalid/lost (at 1:1) | Rejected status code: 404\n'
+exit 2
+FAKE
+  write c.md 'new'
+  write d.md 'new'
+  git add --all
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  refusal=$(block "${online}")
+  [[ "${refusal}" == *"or its server does not answer in time or answers 503"* ]]
+  [[ "${refusal}" == *$'\n  [c.md]:'* && "${refusal}" == *$'\n  [d.md]:'* ]]
+  [[ "${refusal}" == *"[404] https://example.invalid/gone"* ]]
+  [[ "${refusal}" == *"[404] https://example.invalid/lost"* ]]
+  [[ "${refusal}" != *"[TIMEOUT]"* ]]
+  warning=$(block "${slow}")
+  [[ "${warning}" == *$'\n  [c.md]:'* && "${warning}" != *"[d.md]"* ]]
+  [[ "${warning}" == *"[TIMEOUT] https://example.invalid/slow"* ]]
+  [[ "${warning}" != *"[404]"* ]]
+}
+
+@test "a link that answers 503 alone passes, with a warning" {
+  fake lychee <<'FAKE'
+cat >/dev/null
+[[ "$*" != *--offline* ]] || exit 0
+printf '[c.md]:\n[503] https://example.invalid/busy (at 1:1) | Rejected status code: 503\n'
+exit 2
+FAKE
+  write c.md 'new'
+  git add --all
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  warning=$(block "${slow}")
+  [[ "${warning}" == *"[503] https://example.invalid/busy"* ]]
+  [[ "${output}" != *"${online}"* ]]
 }
 
 @test "a dead link to a file in a changed file is refused once" {

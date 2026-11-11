@@ -51,6 +51,36 @@ setup() {
 rule holds, because it has a reason."$'\n  c.md' ]]
 }
 
+@test "a warning and a refusal print with a blank line between them" {
+  both() {
+    warn "A link passes unchecked, because its server did not answer." a.md
+    refuse "A rule holds, because it has a reason." b.md
+  }
+
+  run both
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == "A link passes unchecked, because its server did not answer."$'\n  a.md\n\n'"A \
+rule holds, because it has a reason."$'\n  b.md' ]]
+}
+
+@test "on a runner, a warning is one annotation, sets no refusal, and leaves PURBA_REPORT alone" {
+  local report="${BATS_TEST_TMPDIR}/report"
+  printf 'before\n' >"${report}"
+  warn_and_finish() {
+    warn "A link passes unchecked, because its server did not answer." a.md
+    finish
+  }
+
+  PURBA_REPORT="${report}" GITHUB_ACTIONS=true run --separate-stderr warn_and_finish
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+  [[ "${stderr}" == "::warning::A link passes unchecked, because its server did not \
+answer.%0A  a.md" ]]
+  [[ "$(<"${report}")" == "before" ]]
+}
+
 @test "each line of a finding is indented, and an empty line stays empty" {
   run refuse "A rule holds, because it has a reason." $'a.md\n\nb.md'
 
