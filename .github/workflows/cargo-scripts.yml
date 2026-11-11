@@ -1,4 +1,5 @@
-# The build of each cargo script, cached on main for every pull request.
+# The build of each cargo script, and the tools that mise installs, cached on main
+# for every pull request, on Linux and on macOS.
 #
 #   the decision:  docs/decisions/a-script-that-needs-a-rust-library-is-a-cargo-script.md
 #   the tasks:     .config/tasks.toml, under `lint:records`, `lint:cargo-scripts`
@@ -7,6 +8,12 @@
 # A pull request restores a cache that its base branch saved, and never one
 # that another pull request saved.
 # https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+#
+# Each `mise-action` step of purba sets `cache_max_age_days: 0`, which leaves the
+# count of 30-day periods out of its key. So a key of main stays the same until
+# `MISE_VERSION`, the OS release of the runner or a config file of mise changes.
+# editorconfig-checker-disable-next-line
+# https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/src/cache-period.ts
 name: Cargo scripts
 
 on:
@@ -18,6 +25,10 @@ on:
       - ".github/**.rs"
       - ".github/**/Cargo.lock"
       - ".config/mise.toml"
+      # The key of each `mise` cache also hashes the lock.
+      # editorconfig-checker-disable-next-line
+      # https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/src/config-hash.ts
+      - ".config/mise.lock"
       # A change of this file runs the job. The job saves a cache only under a key
       # that no cache holds yet.
       - ".github/workflows/cargo-scripts.yml"
@@ -49,6 +60,22 @@ jobs:
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
         with:
           version: ${{ env.MISE_VERSION }}
+          cache_max_age_days: 0
+
+      # `Scripts-macOS` installs `conda:bash` alone first, and the key hashes
+      # `install_args`, so it asks for a key of its own. The step above installed
+      # every tool, and `mise-action` saves right after its install, so this entry
+      # holds every tool too.
+      # editorconfig-checker-disable-next-line
+      # https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/src/index.ts#L1709-L1717
+      # editorconfig-checker-disable-next-line
+      # https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/src/index.ts#L101-L108
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        if: runner.os == 'macOS'
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install_args: conda:bash
+          cache_max_age_days: 0
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

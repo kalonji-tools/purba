@@ -43,6 +43,8 @@ jobs:
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
         with:
           version: ${{ env.MISE_VERSION }}
+          # .github/workflows/cargo-scripts.yml says why the key holds no period.
+          cache_max_age_days: 0
 
       - name: Build the wheel
         run: mise run build --release
