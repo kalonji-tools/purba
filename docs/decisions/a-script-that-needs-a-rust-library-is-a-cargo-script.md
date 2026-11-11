@@ -16,12 +16,12 @@ The same check was built in each form, against harper-core and the records.
 
 ## Considered Options
 
-- **One named exception, like the Python inside `build.yml`.** The next script that needs a library would need a record of its own.
+- **One named exception, like the Python inside `ci.yml`.** The next script that needs a library would need a record of its own.
 - **A binary crate.** purba keeps it as the fallback. It builds a few seconds faster from cold, and a cache makes a cold build rare. It is a directory where a cargo script is one file.
 
 ## Decision Outcome
 
-**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/cargo-scripts.yml` `.github/workflows/scripts.yml` `/.config/tasks.toml` `/.config/mise.toml`
+**Reach:** `scripts/**` `.github/scripts/**` `.github/workflows/cargo-scripts.yml` `.github/workflows/ci.yml` `/.config/tasks.toml` `/.config/mise.toml`
 
 **Area:** tooling
 
@@ -52,6 +52,6 @@ It waits for the day `-Zscript` breaks on a nightly.
 | property | check |
 |---|---|
 | a cargo script is formatted and breaks no lint | `mise run lint:cargo-scripts` runs `rustfmt --edition 2024 --check` and `cargo clippy -Zscript --release --locked` over each one. `Quality` runs it on every pull request, through `mise run lint` |
-| a cargo script passes its own tests | `mise run test:cargo-scripts` runs `cargo -Zscript test --release --locked` over each one. `.github/workflows/scripts.yml` runs it when a pull request changes a script, and `mise run check` runs it |
+| a cargo script passes its own tests | `mise run test:cargo-scripts` runs `cargo -Zscript test --release --locked` over each one. `.github/workflows/ci.yml` runs it when a pull request changes a script, and `mise run check` runs it |
 | a cargo script sits where its callers are | `mise run lint:placement` reads `*.rs` under `scripts/` and `.github/` |
-| its cache key hashes the `Cargo.lock` of each script and `.config/mise.toml`, and no `.rs` file | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts` when the key changes. Quality and Scripts restore it with the same key, because a pull request reads the cache of its base branch |
+| its cache key hashes the `Cargo.lock` of each script and `.config/mise.toml`, and no `.rs` file | `.github/workflows/cargo-scripts.yml` builds, checks and tests each cargo script on `main` when one changes, and saves `target/scripts` for each OS when the key changes. `Quality`, `Quality-macOS`, `Scripts` and `Scripts-macOS` restore it with the key of their OS, because a pull request reads the cache of its base branch |

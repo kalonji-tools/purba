@@ -44,7 +44,7 @@ No record says which exceptions on `sys.unraisablehook` are a project error.
 It checks that stderr still holds CPython's message.
 It checks that purba prints the test as `raised`, and no project error, when such a thread calls `os._exit`.
 It checks that a `__del__` that raises in a test gives no error.
-The `wheel` job of `build.yml` runs these checks on each Python of its matrix.
+The `wheel` job of `ci.yml` runs these checks on each Python of its matrix.
 
 `mise run test:rust` checks that such an exception charges the test that runs when the thread raises, not the test that started it.
 No command checks that a `SystemExit` from such a thread gives no error.

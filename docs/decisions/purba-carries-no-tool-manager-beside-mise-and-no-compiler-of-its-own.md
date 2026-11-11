@@ -107,10 +107,10 @@ The toolchain is therefore named by a date, which resolves only to itself.
 
 | property | check |
 |---|---|
-| the extension loads, rather than merely linking | ✅ `.github/workflows/build.yml`, on Linux and macOS and on every interpreter above the floor |
+| the extension loads, rather than merely linking | ✅ `.github/workflows/ci.yml`, on Linux and macOS and on every interpreter above the floor |
 | a host compiler is present | nothing checks this. The build fails at the first build script, loudly |
 
-The `build.yml` check is worth naming precisely.
+The `ci.yml` check is worth naming precisely.
 `import purba` reaches a package whose first line is a star import of the extension.
 The package's own file attribute reports the `__init__.py` and proves nothing.
 A check written that way passes for a package with no Rust in it.

@@ -27,7 +27,7 @@ Its Rust workflow states in a comment that it excludes doc tests on purpose.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/tasks.toml` `.github/workflows/build.yml` `*.rs` `.github/workflows/quality.yml`
+**Reach:** `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/tasks.toml` `.github/workflows/ci.yml` `*.rs`
 
 **Area:** tooling
 
@@ -51,7 +51,7 @@ That matters, because the measured ecosystem failure is a policy nobody enforced
 
 ## Confirmation
 
-The `Build` check runs `cargo test --doc -p purba` on Linux and macOS.
+The job `rust` of `ci.yml` runs `cargo test --doc -p purba` on Linux and macOS.
 
 It does more than run examples.
 On a bare cdylib, `cargo test --doc -p purba` exits 101 with "no library targets found".
@@ -60,7 +60,7 @@ The same command that verifies the examples therefore guards the crate-type line
 | what reaches it | where |
 |---|---|
 | `mise run test:rust` | `.config/tasks.toml` |
-| the `Build` job, whose verdict the `sign` job reads | `.github/workflows/build.yml` |
+| the `CI` job, whose verdict the `sign` job reads | `.github/workflows/ci.yml` |
 
 Each member denies the rustdoc lint through `[lints] workspace = true`, which reads `[workspace.lints]` in the root `Cargo.toml`.
 No flag on a command line sets it.

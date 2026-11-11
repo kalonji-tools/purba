@@ -25,7 +25,7 @@ PEP 693 states the lifetime: security fixes run for five years after a version's
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) `/pyproject.toml` `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/mise.toml` `/.config/mise.lock` `/.config/cliff.toml` `.github/workflows/build.yml` `.github/workflows/publish.yml` `.github/scripts/require-abi3.sh`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `/pyproject.toml` `/Cargo.toml` `crates/purba/Cargo.toml` `/.config/mise.toml` `/.config/mise.lock` `/.config/cliff.toml` `.github/workflows/ci.yml` `.github/workflows/publish.yml` `.github/scripts/require-abi3.sh`
 
 **Area:** design, tooling
 
@@ -58,7 +58,7 @@ So the claim above the floor is true, and nothing tests every version that satis
 | `crates/purba/Cargo.toml` | the abi3 feature, which sets the wheel tag | `.github/workflows/publish.yml` refuses the next upload |
 | `.config/mise.toml` | the interpreter `mise run` builds against | `mise run check` refuses, because pyo3 compares the abi3 feature with that interpreter |
 | `.config/mise.lock` | the version that interpreter resolves to | mise refuses a version the lockfile does not hold |
-| `.github/workflows/build.yml` | the interpreters the wheel matrix builds on | the arm below the floor fails, because pip refuses its wheel |
+| `.github/workflows/ci.yml` | the interpreters the wheel matrix builds on | the arm below the floor fails, because pip refuses its wheel |
 
 **Downside:**
 
@@ -66,13 +66,13 @@ So the claim above the floor is true, and nothing tests every version that satis
 - **Nothing refuses a matrix without its floor arm.** No job then builds the wheel on the floor.
 - **Nothing refuses a build on an interpreter below the floor.** `maturin build --interpreter` writes a version-specific wheel and a warning. `mise run build` uses the interpreter mise supplies, so only a build that names another interpreter meets this.
 - **The span is a judgement and this record freezes it.** No measurement chose two years, so a later reader can only find the reasoning above, never a number that settles it.
-- **A free-threaded reader finds no wheel.** pip refuses an abi3 wheel on every free-threaded build, and `requires-python` still reads as yes. The free-threaded arm of `build.yml` loads a wheel built for that interpreter alone, and no release ships that wheel. The repair is the `abi3t` feature structure.
+- **A free-threaded reader finds no wheel.** pip refuses an abi3 wheel on every free-threaded build, and `requires-python` still reads as yes. The free-threaded arm of `ci.yml` loads a wheel built for that interpreter alone, and no release ships that wheel. The repair is the `abi3t` feature structure.
 
 ## Confirmation
 
 A floor is proved by a wheel that builds on it and then loads on it.
 
 [Does the wheel matrix carry free-threaded builds?](https://github.com/kalonji-tools/purba/issues/63) decided this floor and the arms that exercise it.
-`.github/workflows/build.yml` runs those arms. Its first arm is the floor.
+`.github/workflows/ci.yml` runs those arms. Its first arm is the floor.
 `.github/workflows/publish.yml` refuses to upload a wheel unless its tag is abi3 at the floor that `requires-python` names.
-`build.yml` reads no tag, so a wheel built without the abi3 feature passes it.
+`ci.yml` reads no tag, so a wheel built without the abi3 feature passes it.

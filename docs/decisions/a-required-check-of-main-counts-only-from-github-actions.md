@@ -16,7 +16,7 @@ The `sign` job also read a gate by its name alone, so such a check run could sta
 
 ## Decision Outcome
 
-**Reach:** `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/approved.yml` `.github/workflows/quality.yml` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/carry-verdicts.sh` `/CONTRIBUTING.md`
+**Reach:** `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/approved.yml` `.github/workflows/ci.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/carry-verdicts.sh` `/CONTRIBUTING.md`
 
 **Area:** workflow
 
@@ -25,8 +25,8 @@ The key of `purba-sign` is a secret of the environment `sign`, and that environm
 So a workflow on any other branch, or one that a pull request runs, cannot post a `Sign-off` that `protect-main` accepts.
 
 - **The `sign` job runs only when a gate or `Approved` finishes.** That run takes `sign.yml` from `main`. It also runs the scripts of `main`. Those scripts only rewrite the commits of the branch.
-- **The `sign` job reads the verdict of a gate only from a job that ran on a runner, or from `purba-sign`.** That job belongs to a run of the gate's workflow file, on `pull_request`, on the branch of the pull request. The name of the gate names that file: `Quality-macOS` is a job of `quality.yml`. A check run that a workflow posts through the API joins the jobs of a run, and it has no runner.
-- **`Quality` and `Build` stop a merge through `Sign-off`.** The `sign` job signs no head while a gate is red, as it does for `Scripts`.
+- **The `sign` job reads the verdict of a gate only from a job that ran on a runner, or from `purba-sign`.** That job belongs to a run of the gate's workflow file, on `pull_request`, on the branch of the pull request. The name of the gate names that file: `CI` is a job of `ci.yml`. A check run that a workflow posts through the API joins the jobs of a run, and it has no runner.
+- **`CI` stops a merge through `Sign-off`.** The `sign` job signs no head while `CI` is red, and `CI` is red while a job it requires is red.
 - **`purba-sign` may write checks and read metadata, and nothing else.** For `purba-sign`, the environment is the boundary, because a check run is the very thing a forger writes.
 
 [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) says what `Sign-off` records.
@@ -35,7 +35,7 @@ So a workflow on any other branch, or one that a pull request runs, cannot post 
 **Downside:**
 
 - **A second pull request from the reviewed branch makes a run that reads as a gate.** An account with write access pushes a base branch whose gate workflow always passes. It then opens a pull request from the reviewed branch into that base. Its jobs run on a runner, in a run of the gate's file, on `pull_request`, on the reviewed branch. The API lists each open pull request of a run, and does not say which one started it. So the `sign` job cannot tell the two apart. The approval and the acceptance trailer still hold. [A pull request from the reviewed branch into another base makes a run that counts as a gate](https://github.com/kalonji-tools/purba/issues/899) holds it.
-- **A pull request runs its own copy of each gate.** On `pull_request`, GitHub takes each workflow file from the pull request. A pull request that changes `quality.yml` changes its own `Quality`, and the `sign` job reads that job like any other. `.github/CODEOWNERS` covers `/.github/`, so the code owner reads such a change.
+- **A pull request runs its own copy of each gate.** On `pull_request`, GitHub takes each workflow file from the pull request. A pull request that changes `ci.yml` changes its own `CI`, and the `sign` job reads that job like any other. `.github/CODEOWNERS` covers `/.github/`, so the code owner reads such a change.
 - **Settings hold the rule, and a reader of the tree sees none of them.** An account with admin access can widen the environment or move the pin, and nothing in the tree contradicts it.
 - **A person keeps the key.** An owner of the organization can uninstall the App or replace its key. Either one fails the mint, which fails the run, so no `Sign-off` comes.
 - **Each `sign` run makes a deployment of the environment `sign`.** The deployments of the repository list one for each run.

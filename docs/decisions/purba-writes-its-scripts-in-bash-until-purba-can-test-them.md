@@ -61,8 +61,8 @@ The trigger above turns on which runner executes a script's tests, so the exclus
 A `shellspec` file ends in `.sh`, which is the glob every shell task already reads.
 The formatter therefore reaches every spec the moment it is written.
 
-**The Python inside `build.yml` is one standing exception.**
-A `run:` block there asserts the built extension is a real shared object, and no linter reads it.
+**The Python inside `ci.yml` is one standing exception.**
+Two `run:` blocks there assert the built extension is a real shared object, one for each Python of a job, and no linter reads them.
 
 **A script that needs a Rust library is the other.**
 [A script that needs a Rust library is a cargo script](a-script-that-needs-a-rust-library-is-a-cargo-script.md) says what that script is.
@@ -84,9 +84,9 @@ The Downside above carries that cost.
 `.config/mise.toml` names `bats`.
 `mise run test:shell` runs every test under `scripts/test`.
 `mise run check` runs that task.
-`.github/workflows/scripts.yml` runs `mise run test:shell` unless `.config/gates` on the base branch marks every path a pull request changes `-scripts`.
+`.github/workflows/ci.yml` runs `mise run test:shell` unless `.config/gates` on the base branch marks every path a pull request changes `-scripts`.
 [A path not marked to skip starts the gate](a-path-not-marked-to-skip-starts-the-gate.md) says when a gate skips.
-`.github/workflows/sign.yml` waits for the `Scripts` check, so purba does not sign a branch whose test fails.
+`.github/workflows/sign.yml` waits for `CI`, which requires `Scripts`, so purba does not sign a branch whose test fails.
 
 `shellcheck`, `shfmt` and `editorconfig-checker` gate the shell this record keeps, through `mise run lint`.
 The first two read a glob that names `*.sh` and `*.bats`, so both reach a test file.

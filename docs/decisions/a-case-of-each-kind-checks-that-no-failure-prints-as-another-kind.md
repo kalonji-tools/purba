@@ -25,7 +25,7 @@ It can also change into another kind in the line that reporting writes, or in th
 
 ## Decision Outcome
 
-**Reach:** `tests/**` `.github/workflows/build.yml`
+**Reach:** `tests/**` `.github/workflows/ci.yml`
 
 **Area:** errors
 
@@ -36,7 +36,7 @@ It can also change into another kind in the line that reporting writes, or in th
 - **`tests/kinds.bats` matches only the last two lines of the panic case's stderr.** It builds them from purba's version, the Python's version and ABI flags, the OS and the architecture of the run. Rust's hook and the Python traceback above them change with each edit and each Python version.
 - **The module of the panic case also holds a test that passes, one that fails and one that raises.** purba prints the line of each of them. The run exits 125.
 - **The panic case's test sets `PURBA_FAULT=assert` around its own assert, and takes it away after.** The switch needs no new code. The test runs second, so two tests run after it.
-- **The `wheel` job of Build builds the `fault` wheel and runs `tests/kinds.bats`, on each OS and each Python version.** Build stops a merge through `Sign-off`.
+- **The `wheel` job of `ci.yml` builds the `fault` wheel and runs `tests/kinds.bats`, on each OS and each Python version.** `CI` stops a merge through `Sign-off`.
 - **The panic case runs on the `fault` wheel, and every other case runs on the wheel without `fault`.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) decides each wheel.
 
 **Downside:**
@@ -49,7 +49,7 @@ It can also change into another kind in the line that reporting writes, or in th
 
 ## Confirmation
 
-`mise run test:wheel` and the `wheel` job of Build run `tests/kinds.bats` on Linux and macOS.
+`mise run test:wheel` and the `wheel` job of `ci.yml` run `tests/kinds.bats` on Linux and macOS.
 A mutant files purba's own `PanicException` as `raised`.
 `tests/kinds.bats` runs red under it.
 

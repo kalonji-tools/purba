@@ -29,7 +29,7 @@ No end-to-end test ran that answer.
 
 ## Decision Outcome
 
-**Reach:** `crates/**` `.github/workflows/build.yml` `.github/workflows/publish.yml` `.github/workflows/quality.yml` `.github/workflows/scripts.yml` `.github/workflows/sign.yml` `.config/tasks.toml` `.config/mise.toml` `/README.md` `/CONTRIBUTING.md` `/CONTEXT.md`
+**Reach:** `crates/**` `.github/workflows/ci.yml` `.github/workflows/publish.yml` `.github/workflows/sign.yml` `.config/tasks.toml` `.config/mise.toml` `/README.md` `/CONTRIBUTING.md` `/CONTEXT.md`
 
 **Area:** design, tooling
 
@@ -49,12 +49,12 @@ WSL2 runs a Linux kernel, so purba runs there as it does on Linux.
 
 ## Confirmation
 
-The matrices of `build.yml` and `publish.yml` name no Windows runner. No command checks that.
+The matrices of `ci.yml` and `publish.yml` name no Windows runner. No command checks that.
 
-`Quality-macOS` in `quality.yml` runs `mise run lint` on `macos-latest`.
-`Scripts-macOS` in `scripts.yml` runs the tests of the scripts on `macos-latest`.
+`Quality-macOS` in `ci.yml` runs `mise run lint` on `macos-latest`.
+`Scripts-macOS` in `ci.yml` runs the tests of the scripts on `macos-latest`.
 Like `Scripts`, it runs them only when a pull request changes a path that starts them.
-`sign.yml` waits for both jobs, so a failed one stops `Sign-off`.
+`CI` requires both jobs to succeed, so a failed one stops `Sign-off`.
 
 The bash of `macos-latest` is 3.2.
 The scripts need bash 4.4 or later and GNU sed, so `.config/mise.toml` supplies both from conda on every platform.
