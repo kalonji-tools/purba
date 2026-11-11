@@ -51,8 +51,9 @@ done <<<"${written}"
 
 # links <summary> <files> [<flag>...]
 #
-# Reports the dead links lychee finds, each path made relative to the top, and
-# stops the check when lychee cannot run. lychee exits 2 for a dead link and for
+# Reports the dead links lychee finds, and warns of each link whose server does
+# not answer, each path made relative to the top. It stops the check when
+# lychee cannot run. lychee exits 2 for a dead link and for
 # a mistake in how it was called, so a dead link is told apart by the line it
 # prints. In plain mode that line starts with `[`. The colour mode, lychee's
 # default whenever FORCE_COLOR turns colour on, can put spaces before it. The
@@ -60,18 +61,48 @@ done <<<"${written}"
 # editorconfig-checker-disable-next-line
 # https://github.com/lycheeverse/lychee/blob/lychee-v0.24.2/lychee-bin/src/formatters/response/color.rs#L44
 links() {
-  local summary=$1 files=$2 found dead status=0
+  local summary=$1 files=$2 found status=0
   shift 2
   found=$(lychee --no-progress --mode plain --format compact "$@" --files-from - \
     <<<"${files}" 2>&1) || status=$?
   [[ ${status} -ne 0 ]] || return 0
   found=${found//"file://${top}/"/}
   if [[ ${status} -eq 2 ]] && grep -q '^\[' <<<"${found}"; then
-    dead=$(grep '^\[' <<<"${found}")
-    refuse "${summary}" "${dead}"
+    sort_found "${found}"
+    [[ -z "${unanswered}" ]] || warn "A link whose server does not answer in time, or \
+answers 503, passes unchecked, because the state of that server is no fault of this change." \
+      "${unanswered}"
+    [[ -z "${dead}" ]] || refuse "${summary}" "${dead}"
     return 0
   fi
   cannot 'lychee could not run.' "${found}"
+}
+
+# sort_found <lychee's lines>
+#
+# Sets `unanswered` to each link that timed out or answered 503, for the warning,
+# and `dead` to each other line that lychee starts with `[`, for the refusal.
+# Each link sits under the line that names its file, and a file is named in each
+# list that holds a link of it.
+sort_found() {
+  local line file="" to
+  local -A named=()
+  unanswered=""
+  dead=""
+  while IFS= read -r line; do
+    case "${line}" in
+      \[*\]:) file=${line} named=() ;;
+      \[TIMEOUT\]\ * | \[503\]\ *) to=unanswered ;;
+      \[*) to=dead ;;
+      *) continue ;;
+    esac
+    [[ "${line}" != "${file}" ]] || continue
+    if [[ -n "${file}" && -z "${named[${to}]:-}" ]]; then
+      printf -v "${to}" '%s%s' "${!to:+${!to}$'\n'}" "${file}"
+      named[${to}]=1
+    fi
+    printf -v "${to}" '%s%s' "${!to:+${!to}$'\n'}" "${line}"
+  done <<<"$1"
 }
 
 links "A link to a file or a heading in this tree is refused when its target does not \
@@ -81,8 +112,9 @@ exist. A renamed file leaves every link to it dead." "${inputs}" --offline
 # address on the network, and never reports a dead file link a second time.
 if [[ -n "${changed}" ]]; then
   links "A link in a file this branch changes is refused unless it reaches its target as written, \
-because its reader must reach the address it names. A link in any other file is read only for a \
-target in this tree." "${changed}" --scheme https \
+or its server does not answer in time or answers 503, because its reader must reach the address \
+it names. A link in any other file is read only for a target in this tree." "${changed}" \
+    --scheme https \
     --scheme http
 fi
 

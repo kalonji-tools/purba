@@ -4,11 +4,13 @@
 #   the decision:  docs/decisions/a-refusal-states-the-rule-why-it-holds-and-where-it-was-found.md
 #
 #   refuse <summary> <finding>...   writes a refusal, each line of a finding indented 2 spaces
+#   warn <summary> <finding>...     writes a warning laid out as a refusal, and refuses nothing
 #   finish                          exits 1 after a refusal, and 0 with none
 #   cannot <message> [detail]       writes why the check cannot run, and exits 2
 #   report <summary> <detail>       writes the refusal that refuse lays out
 #
-#   PURBA_REPORT   a file the plain text is appended to as well, when set
+#   PURBA_REPORT   a file the plain text is appended to as well, when set. A
+#                  warning is not appended, because a warning stops no job.
 #
 # A refusal states the rule that must hold, and why it holds, in its summary. It
 # says what to do where the check knows the repair. Its detail says where the
@@ -21,18 +23,32 @@
 # that, or the decoder eats it.
 
 refused=0
+apart=0
 
 refuse() {
-  local finding line detail=""
-  # The blank line keeps one refusal apart from the next in a terminal.
-  [[ "${refused}" -eq 0 ]] || printf '\n' >&2
-  for finding in "${@:2}"; do
+  lay_out "${@:2}"
+  report "$1" "${laid}"
+  refused=1
+}
+
+warn() {
+  lay_out "${@:2}"
+  emit "$1" "${laid}" warning
+}
+
+# Sets `laid` to each line of each finding, indented 2 spaces. The blank line
+# keeps one message apart from the one before it in a terminal.
+lay_out() {
+  local finding line
+  [[ "${apart}" -eq 0 ]] || printf '\n' >&2
+  apart=1
+  laid=""
+  for finding in "$@"; do
     while IFS= read -r line; do
-      detail+="${line:+  ${line}}"$'\n'
+      laid+="${line:+  ${line}}"$'\n'
     done <<<"${finding}"
   done
-  report "$1" "${detail%$'\n'}"
-  refused=1
+  laid=${laid%$'\n'}
 }
 
 finish() {
@@ -54,8 +70,9 @@ report() {
 
 # A message with no detail gets no detail line on a terminal or in an annotation.
 emit() {
-  local summary=$1 detail=$2
-  [[ -z "${PURBA_REPORT:-}" ]] || printf '%s\n\n%s\n' "${summary}" "${detail}" >>"${PURBA_REPORT}"
+  local summary=$1 detail=$2 level=${3:-error}
+  [[ -z "${PURBA_REPORT:-}" || "${level}" != error ]] ||
+    printf '%s\n\n%s\n' "${summary}" "${detail}" >>"${PURBA_REPORT}"
 
   if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
     printf '%s\n' "${summary}" >&2
@@ -63,5 +80,5 @@ emit() {
     return
   fi
   [[ -z "${detail}" ]] || detail=%0A${detail//%/%25}
-  printf '::error::%s%s\n' "${summary}" "${detail//$'\n'/%0A}" >&2
+  printf '::%s::%s%s\n' "${level}" "${summary}" "${detail//$'\n'/%0A}" >&2
 }
