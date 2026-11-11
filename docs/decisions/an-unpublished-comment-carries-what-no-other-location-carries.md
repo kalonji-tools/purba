@@ -80,8 +80,8 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 
 - **The rule that decides is unenforceable.** Whether information belongs in another location is a judgement, so nothing gates the sentence this record exists to state.
 - **The recommended citation is the form most likely to fail the gate.** A digital object identifier resolves to a publisher, and a publisher blocks the checker. The gate refuses such a link until the change that adds it also adds an exception and its reason.
-- **A checked link is not a read link.** The gate proves a page answers with success, never that it still says what the comment claims.
-- **The online leg depends on a network.** It refuses a change for the state of somebody else's server, so it reads only the files a change touches.
+- **A checked link is not a read link.** The gate proves at most that a page answers with success, never that it still says what the comment claims.
+- **The online leg depends on a network.** A refused connection, or an error code other than 503, still refuses a change. So the leg reads only the files a change touches.
 - **A dead link in a file that no change touches stays dead.** The next change to that file meets it. Its author then repairs a link they did not write.
 
 ## Confirmation
@@ -91,10 +91,11 @@ Link liveness and the paths a comment cites are decidable, so those two are gate
 | leg | reads | refuses |
 |---|---|---|
 | offline | every tracked file that `.gitattributes` does not mark generated | a link to a file or a heading in the tree that does not exist |
-| online | the files a branch changes against its base, generated files left out | an address on the network that does not reach its target as written |
+| online | the files a branch changes against its base, generated files left out | an address on the network that does not reach its target as written, unless its server does not answer in time or answers 503 |
 | readme | the file `pyproject.toml` names as `readme`, which PyPI shows as purba's page | a link that names neither a full address nor a heading of that file |
 | cited paths | each comment line outside Markdown and generated files | a path under `crates/`, `docs/`, `scripts/`, `src/`, `.github/` or `.config/` that git does not track |
 
+[A link whose server does not answer passes the link gate with a warning](a-link-whose-server-does-not-answer-passes-the-link-gate-with-a-warning.md) holds that exception.
 `[tool.lychee]` in `pyproject.toml` holds the settings the checker reads in each leg that runs it, with the reason for each beside it.
 The script passes the flags that differ per leg.
 `scripts/test/check-links.bats` builds each shape the gate refuses offline.

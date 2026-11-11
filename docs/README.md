@@ -121,6 +121,7 @@
 
 - [A commit message outlives its review](decisions/a-commit-outlives-its-review.md)
 - [A figure in a record is a fence GitHub renders](decisions/a-figure-in-a-record-is-a-fence-github-renders.md)
+- [A link whose server does not answer passes the link gate with a warning](decisions/a-link-whose-server-does-not-answer-passes-the-link-gate-with-a-warning.md)
 - [A location inherits its readers](decisions/a-location-inherits-its-readers.md)
 - [A new question gets a new record](decisions/a-new-question-gets-a-new-record.md)
 - [A part-of-speech tagger decides the tense rule](decisions/a-part-of-speech-tagger-decides-the-tense-rule.md)
