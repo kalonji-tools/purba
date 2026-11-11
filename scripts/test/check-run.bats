@@ -284,14 +284,19 @@ FAKE
   [[ "${output}" == *"the check runs on abc123 could not be read."* ]]
 }
 
-# Pads the answer to <call> past 131072 bytes, the most one argument may hold on
-# Linux, with a field no rule reads. The padding goes through a file, because an
-# argument that long is the very thing under test.
+# Pads the answer to <call> past 131071 bytes, the most one argument may hold on
+# Linux with pages of 4 KiB, with a field no rule reads. <filter> says where the
+# field goes. The padding goes through a file, because an argument that long is
+# the very thing under test.
+#
+#   pad_answer <call> [filter]
 pad_answer() {
   local answer="${BATS_TEST_TMPDIR}/gh/$1.json" padding="${BATS_TEST_TMPDIR}/padding" pad=x
+  # shellcheck disable=SC2016 # jq expands $pad, not the shell
+  local filter=${2:-'. + {pad: $pad}'}
   while ((${#pad} < 140000)); do pad+=${pad}; done
   printf '%s' "${pad}" >"${padding}"
-  jq -c --rawfile pad "${padding}" '. + {pad: $pad}' "${answer}" >"${answer}.padded"
+  jq -c --rawfile pad "${padding}" "${filter}" "${answer}" >"${answer}.padded"
   mv "${answer}.padded" "${answer}"
 }
 
@@ -317,7 +322,9 @@ pad_answer() {
 
 @test "the jobs of a run larger than one argument may hold still give the verdict" {
   check_runs Quality=success
-  pad_answer jobs
+  # Inside a job, so the list of every job grows past the limit as well.
+  # shellcheck disable=SC2016 # jq expands $pad, not the shell
+  pad_answer jobs '.jobs[0] += {pad: $pad}'
 
   run require_green abc123 Quality
 

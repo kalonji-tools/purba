@@ -49,8 +49,9 @@ check_runs_of() {
   fi
   ids=$(jq -r --arg branch "${HEAD_REF}" '.workflow_runs[]
     | select(.event == "pull_request" and .head_branch == $branch) | .id' <<<"${made}")
-  # Each payload reaches jq on standard input, never as an argument: Linux
-  # refuses one argument longer than 131072 bytes, and the check runs of a head
+  # Each payload reaches jq on standard input, never as an argument. Linux
+  # refuses one argument of 32 pages or more, counting the null byte that ends
+  # it: 131071 bytes is the most with pages of 4 KiB. The check runs of a head
   # with many jobs grow past that.
   # https://man7.org/linux/man-pages/man2/execve.2.html
   # `filter=latest` reads the last attempt of a run, so a rerun replaces it.
