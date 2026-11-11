@@ -287,15 +287,26 @@ jobs:
       # A bundle that lists one executable and holds another:
       # https://github.com/python/cpython/blob/b703b2c5e7/Mac/Resources/app/Info.plist.in#L15-L16
       # https://github.com/python/cpython/blob/b703b2c5e7/Mac/Makefile.in#L226
+      # The step reads only the bundle of each Python that this job set up. A
+      # framework build keeps its bundle below its `sys.base_prefix`:
+      # https://github.com/python/cpython/blob/b703b2c5e7/Mac/Makefile.in#L33
       #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
       - name: Give each Python bundle the executable it lists
         if: runner.os == 'macOS'
         shell: bash
+        env:
+          FIRST: ${{ steps.first.outputs.python-path }}
+          SECOND: ${{ steps.second.outputs.python-path }}
         run: |
           set -euo pipefail
           shopt -s nullglob
-          bundles=(/Library/Frameworks/Python*.framework/Versions/*/Resources/Python.app/Contents)
-          for app in "${bundles[@]}"; do
+          for python in ${FIRST} ${SECOND}; do
+            prefix=$("${python}" -c 'import sys; print(sys.base_prefix)')
+            app="${prefix}/Resources/Python.app/Contents"
+            if [[ ! -r "${app}/Info.plist" ]]; then
+              echo "::error::${python} has no bundle at ${app}"
+              exit 1
+            fi
             exe=$(plutil -extract CFBundleExecutable raw "${app}/Info.plist")
             [[ -e "${app}/MacOS/${exe}" ]] && continue
             held=("${app}"/MacOS/*)

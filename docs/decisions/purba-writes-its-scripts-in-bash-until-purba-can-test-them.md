@@ -63,6 +63,7 @@ The formatter therefore reaches every spec the moment it is written.
 
 **The Python inside `ci.yml` is one standing exception.**
 Two `run:` blocks there assert the built extension is a real shared object, one for each Python of a job, and no linter reads them.
+A third line asks each Python for its `sys.base_prefix`.
 
 **A script that needs a Rust library is the other.**
 [A script that needs a Rust library is a cargo script](a-script-that-needs-a-rust-library-is-a-cargo-script.md) says what that script is.
