@@ -49,6 +49,10 @@ check_runs_of() {
   fi
   ids=$(jq -r --arg branch "${HEAD_REF}" '.workflow_runs[]
     | select(.event == "pull_request" and .head_branch == $branch) | .id' <<<"${made}")
+  # Each payload reaches jq on standard input, never as an argument: Linux
+  # refuses one argument longer than 131072 bytes, and the check runs of a head
+  # with many jobs grow past that.
+  # https://man7.org/linux/man-pages/man2/execve.2.html
   # `filter=latest` reads the last attempt of a run, so a rerun replaces it.
   while read -r id; do
     [[ -n "${id}" ]] || continue
@@ -57,11 +61,11 @@ check_runs_of() {
       echo "the jobs of the workflow run ${id} could not be read." >&2
       exit 2
     fi
-    jobs=$(jq -c --argjson one "${one}" '. + $one.jobs' <<<"${jobs}")
+    jobs=$(printf '%s\n%s' "${jobs}" "${one}" | jq -sc '.[0] + .[1].jobs')
   done <<<"${ids}"
-  jq -n --argjson runs "${runs}" --argjson made "${made}" --argjson jobs "${jobs}" \
-    --arg branch "${HEAD_REF}" '
-    [$made.workflow_runs[]
+  printf '%s\n%s\n%s' "${runs}" "${made}" "${jobs}" | jq -s --arg branch "${HEAD_REF}" '
+    .[0] as $runs | .[1] as $made | .[2] as $jobs
+    | [$made.workflow_runs[]
       | select(.event == "pull_request" and .head_branch == $branch)
       | {key: (.id | tostring), value: .path}]
     | from_entries as $file
