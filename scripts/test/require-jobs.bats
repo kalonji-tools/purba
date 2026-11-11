@@ -175,3 +175,60 @@ needs() {
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"usage"* ]]
 }
+
+@test "--success passes when each job it names succeeded" {
+  needs quality=success scripts=success changed=success
+
+  run "${script}" --success quality scripts
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"quality and scripts succeeded"* ]]
+}
+
+@test "--success refuses a job it names that failed, and names each job" {
+  needs quality=failure scripts=success
+
+  run "${script}" --success quality scripts
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *$'\n  quality: failure'* ]]
+  [[ "${output}" == *$'\n  scripts: success'* ]]
+  summary="A branch is refused unless each job that runs on every push succeeded. A skip or"
+  summary+=" a cancel of one is no success, because the job checked nothing."
+  [[ "${output}" == *"${summary}"* ]]
+}
+
+@test "--success refuses a job it names that skipped" {
+  needs quality=success scripts=skipped
+
+  run "${script}" --success quality scripts
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *$'\n  scripts: skipped'* ]]
+}
+
+@test "--success reads no job it does not name" {
+  needs quality=success changed=failure rust=skipped
+
+  run "${script}" --success quality
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "--success with a job that NEEDS does not hold exits 2" {
+  needs quality=success
+
+  run "${script}" --success quality lint
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"NEEDS holds no job named \`lint\`"* ]]
+}
+
+@test "--success with no job exits 2" {
+  needs quality=success
+
+  run "${script}" --success
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"usage: require-jobs.sh --success <job>..."* ]]
+}

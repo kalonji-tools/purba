@@ -7,6 +7,8 @@
 #
 #   check-records.sh [directory]
 #
+#   PURBA_CHECK_PROSE   a built check-prose, run in place of `cargo run`, when set
+#
 # Exits 1 when a record or the comment of the template breaks a rule, and 2
 # when this script cannot decide.
 #
@@ -41,6 +43,9 @@ here=$(cd "$(dirname "$0")" && pwd)
 read_prose=(cargo -Zscript --config "resolver.lockfile-path=\"${here}/check-prose/Cargo.lock\""
   run --quiet --release --locked --manifest-path "${here}/check-prose/check-prose.rs"
   --target-dir "${here}/../target/scripts" -- "${here}/check-prose/participles.txt")
+#   the decision:  docs/decisions/one-workflow-runs-every-gate-of-a-pull-request.md
+[[ -z "${PURBA_CHECK_PROSE:-}" ]] ||
+  read_prose=("${PURBA_CHECK_PROSE}" "${here}/check-prose/participles.txt")
 prose=$("${read_prose[@]}" "${records[@]}") ||
   cannot 'the prose of a record cannot be read.'
 

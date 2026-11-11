@@ -1,0 +1,397 @@
+# Every gate of a pull request, in one workflow. The job `CI` at the end is the
+# one gate that `sign.yml` waits for.
+#
+#   the decision:   docs/decisions/one-workflow-runs-every-gate-of-a-pull-request.md
+#
+# The gate refuses a merge on lint, format and record form; on a failing test
+# of purba's own scripts, of a cargo script or of the Rust crates; and on a wheel
+# that does not build, load or pass the end-to-end tests.
+#
+#   the tasks:      .config/tasks.toml, under `lint`, `test:shell`,
+#                   `test:cargo-scripts`, `test:rust` and `build`
+#   the tools:      .config/mise.toml
+#   the paths:      .config/gates
+#   the doc lints:  docs/decisions/the-crate-carries-an-rlib.md
+#   the scripts:    docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+#   the floor:      docs/decisions/purba-supports-a-python-with-two-years-left.md
+#
+# Never add a `paths:` filter here. A check that never reports and a check that
+# refuses are the same thing to `sign.yml`, which waits for this one, so a
+# filtered run blocks forever.
+# The jobs read what the pull request changes instead, and `CI` reports either
+# way.
+#
+# Never add `ready_for_review` to the types below. Marking a draft ready
+# changes no commit, and `sign.yml` reads this check on the head commit,
+# whatever event made it.
+#
+# ⚠️ Never add `continue-on-error` to a job here. A tolerated job reports
+# `failure` as its own conclusion while the matrix still reports `success` to
+# the rollup, so the gate passes with a failed job inside it. Nothing in the
+# rollup can recover that.
+name: CI
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  MISE_VERSION: 2026.9.14
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # A pull request is checked out as its merge commit, whose first parent
+      # is the base.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      # .github/workflows/cargo-scripts.yml fills this cache on main.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: target/scripts
+          key: "cargo-scripts-${{ runner.os }}-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
+
+      - name: Refuse a lint, a formatting difference or a broken record
+        run: mise run lint
+        env:
+          PURBA_BASE: HEAD^1
+          # Without it lychee and pinact read github.com anonymously, and a rate
+          # limit refuses a live link or a pinned action.
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Refuse what a commit already refuses
+        run: mise x -- prek run --all-files
+
+      # Nothing else in this job would see a tool installation rewrite a
+      # lockfile, and `.config/mise.toml` says it reports success either way.
+      - name: Refuse a gate that rewrote the tree
+        run: git diff --exit-code
+
+  # The lint on macOS.
+  #
+  #   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
+  #
+  quality-macos:
+    name: Quality-macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - name: Name the bash this job runs
+        run: mise exec -- bash --version
+
+      # .github/workflows/cargo-scripts.yml fills this cache on main, for each OS.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: target/scripts
+          key: "cargo-scripts-${{ runner.os }}-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
+
+      - name: Refuse a lint, a formatting difference or a broken record
+        run: mise run lint
+        env:
+          PURBA_BASE: HEAD^1
+          GITHUB_TOKEN: ${{ github.token }}
+
+  scripts:
+    name: Scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Name whether this pull request changes a path that starts the script tests
+        id: changed
+        run: .github/scripts/changed.sh scripts HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        if: steps.changed.outputs.scripts == 'true'
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      # .github/workflows/cargo-scripts.yml fills this cache on main.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: steps.changed.outputs.scripts == 'true'
+        with:
+          path: target/scripts
+          key: "cargo-scripts-${{ runner.os }}-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
+
+      - name: Refuse a script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:shell
+
+      - name: Refuse a cargo script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:cargo-scripts
+
+  # The same tests on macOS.
+  #
+  #   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
+  scripts-macos:
+    name: Scripts-macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      # `changed.sh` needs a bash newer than the one macOS ships.
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install_args: conda:bash
+
+      - name: Name whether this pull request changes a path that starts the script tests
+        id: changed
+        run: .github/scripts/changed.sh scripts HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
+      - name: Install the other tools
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise install
+        env:
+          # `mise-action` passes its token only inside itself. Without one,
+          # mise reads GitHub's API anonymously when a download falls back to it.
+          # editorconfig-checker-disable-next-line
+          # https://github.com/jdx/mise-action/blob/f5be966e4a917d54244728e6a5fdcd1d93a35e6c/action.yml#L119-L131
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Name the bash this job runs
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise exec -- bash --version
+
+      # .github/workflows/cargo-scripts.yml fills this cache on main, for each OS.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: steps.changed.outputs.scripts == 'true'
+        with:
+          path: target/scripts
+          key: "cargo-scripts-${{ runner.os }}-\
+            ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
+
+      - name: Refuse a script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:shell
+
+      - name: Refuse a cargo script that fails its own test
+        if: steps.changed.outputs.scripts == 'true'
+        run: mise run test:cargo-scripts
+
+  changed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      build: ${{ steps.changed.outputs.build }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Name whether this pull request changes a path that starts rust and wheel
+        id: changed
+        run: .github/scripts/changed.sh build HEAD^1 HEAD >>"$GITHUB_OUTPUT"
+
+  # Only this job exercises the library path that `.config/tasks.toml` sets for
+  # this task on Linux and macOS.
+  rust:
+    name: rust ${{ matrix.os }}
+    needs: changed
+    if: needs.changed.outputs.build == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+      - name: Name the compiler this job builds with
+        run: mise exec -- rustc --version
+      - name: Run the Rust tests
+        run: mise run test:rust
+
+  # Every interpreter purba supports builds the wheel and then loads it, so one
+  # matrix covers both halves of the claim.
+  #
+  # ⚠️ Every interpreter comes from `actions/setup-python`, the floor included.
+  # mise cannot supply a free-threaded build at all.
+  #
+  # A macOS job runs two Pythons, one after the other, so ci.yml asks for 5
+  # macOS jobs on one push: the cap of the Free plan, which `lint:macos-jobs`
+  # checks.
+  wheel:
+    name: wheel ${{ matrix.os }} py${{ matrix.label }}
+    needs: changed
+    if: needs.changed.outputs.build == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, label: '3.12', first: '3.12'}
+          - {os: ubuntu-latest, label: '3.13', first: '3.13'}
+          - {os: ubuntu-latest, label: '3.14', first: '3.14'}
+          - {os: ubuntu-latest, label: '3.14t', first: '3.14t'}
+          - {os: macos-latest, label: '3.12+3.14t', first: '3.12', second: '3.14t'}
+          - {os: macos-latest, label: '3.13+3.14', first: '3.13', second: '3.14'}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # mise supplies the Rust toolchain and maturin, and runs first so that the
+      # interpreters below win the PATH.
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+        with:
+          version: ${{ env.MISE_VERSION }}
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        id: first
+        with:
+          python-version: ${{ matrix.first }}
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        if: matrix.second
+        id: second
+        with:
+          python-version: ${{ matrix.second }}
+
+      # A bundle that lists one executable and holds another:
+      # https://github.com/python/cpython/blob/b703b2c5e7/Mac/Resources/app/Info.plist.in#L15-L16
+      # https://github.com/python/cpython/blob/b703b2c5e7/Mac/Makefile.in#L226
+      #   the decision:  docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+      - name: Give each Python bundle the executable it lists
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          bundles=(/Library/Frameworks/Python*.framework/Versions/*/Resources/Python.app/Contents)
+          for app in "${bundles[@]}"; do
+            exe=$(plutil -extract CFBundleExecutable raw "${app}/Info.plist")
+            [[ -e "${app}/MacOS/${exe}" ]] && continue
+            held=("${app}"/MacOS/*)
+            if ((${#held[@]} != 1)); then
+              echo "::error::${app}/MacOS holds ${#held[@]} files, and the bundle lists ${exe}"
+              exit 1
+            fi
+            sudo ln -s "$(basename "${held[0]}")" "${app}/MacOS/${exe}"
+            echo "linked ${app}/MacOS/${exe} -> $(basename "${held[0]}")"
+          done
+
+      # The two steps run the same commands: each builds the wheel, loads it,
+      # builds the fault wheel and runs the end-to-end tests, as a job of one
+      # Python does. Its own folders keep one interpreter's wheels from another's,
+      # and its own bin first on PATH names the `purba` that the tests run.
+      # `test:wheel` in .config/tasks.toml says why `--features` names both.
+      #   the decisions: docs/decisions/bats-tests-the-installed-wheel-from-outside-purba.md
+      #                  docs/decisions/one-workflow-runs-every-gate-of-a-pull-request.md
+      - name: Build, load and test the wheel on ${{ matrix.first }}
+        id: wheel-first
+        shell: bash
+        env:
+          PYTHON: ${{ steps.first.outputs.python-path }}
+          TAG: first
+        run: |
+          set -euo pipefail
+          "${PYTHON}" -VV
+          mise run build --interpreter "${PYTHON}" --out "target/wheels-${TAG}"
+          "${PYTHON}" -m pip install --quiet --no-index --find-links "target/wheels-${TAG}" purba
+          "${PYTHON}" - <<'PY'
+          import importlib, pathlib, sys
+          path = pathlib.Path(importlib.import_module("purba.purba").__file__)
+          print(f"extension: {path}")
+          if path.suffix != ".so":
+              sys.exit(f"the submodule is not the extension: {path}")
+          PY
+          mise run build --interpreter "${PYTHON}" \
+            --features extension-module,fault --out "target/wheels-fault-${TAG}"
+          "${PYTHON}" -m venv "target/fault-venv-${TAG}"
+          "target/fault-venv-${TAG}/bin/python" -m pip install --quiet --no-index \
+            --find-links "target/wheels-fault-${TAG}" purba
+          PATH="$(dirname "${PYTHON}"):${PATH}" \
+            FAULT_PURBA="${GITHUB_WORKSPACE}/target/fault-venv-${TAG}/bin/purba" \
+            bats --print-output-on-failure tests
+
+      - name: Build, load and test the wheel on ${{ matrix.second }}
+        if: ${{ !cancelled() && matrix.second && steps.wheel-first.outcome != 'skipped' }}
+        shell: bash
+        env:
+          PYTHON: ${{ steps.second.outputs.python-path }}
+          TAG: second
+        run: |
+          set -euo pipefail
+          "${PYTHON}" -VV
+          mise run build --interpreter "${PYTHON}" --out "target/wheels-${TAG}"
+          "${PYTHON}" -m pip install --quiet --no-index --find-links "target/wheels-${TAG}" purba
+          "${PYTHON}" - <<'PY'
+          import importlib, pathlib, sys
+          path = pathlib.Path(importlib.import_module("purba.purba").__file__)
+          print(f"extension: {path}")
+          if path.suffix != ".so":
+              sys.exit(f"the submodule is not the extension: {path}")
+          PY
+          mise run build --interpreter "${PYTHON}" \
+            --features extension-module,fault --out "target/wheels-fault-${TAG}"
+          "${PYTHON}" -m venv "target/fault-venv-${TAG}"
+          "target/fault-venv-${TAG}/bin/python" -m pip install --quiet --no-index \
+            --find-links "target/wheels-fault-${TAG}" purba
+          PATH="$(dirname "${PYTHON}"):${PATH}" \
+            FAULT_PURBA="${GITHUB_WORKSPACE}/target/fault-venv-${TAG}/bin/purba" \
+            bats --print-output-on-failure tests
+
+  CI:
+    # `sign.yml` names this job in two lists, and reads it only from the file
+    # named for it, `ci.yml`. A rename of the job that does not reach those
+    # lists, or a rename of this file, stops every branch from merging.
+    name: CI
+    needs: [quality, quality-macos, scripts, scripts-macos, changed, rust, wheel]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The jobs of the lint and of the script tests run on each push, so each
+      # must succeed.
+      - name: Refuse unless every job of the lint and of the script tests succeeded
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: .github/scripts/require-jobs.sh --success quality quality-macos scripts scripts-macos
+
+      - name: Refuse unless `rust` and `wheel` did what the job `changed` asked
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          NEEDS=$(jq -c '{changed, rust, wheel}' <<<"${NEEDS}") \
+            .github/scripts/require-jobs.sh changed build

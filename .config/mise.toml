@@ -52,6 +52,10 @@ bats = "1"
 # https://jqlang.org
 jq = "1"
 
+# `lint:macos-jobs` reads a workflow as JSON through it.
+# https://mikefarah.gitbook.io/yq
+yq = "4"
+
 #   the decision:  docs/decisions/purba-runs-on-linux-and-macos.md
 #
 # mise's own registry has neither tool, so both come from conda-forge.
@@ -59,6 +63,10 @@ jq = "1"
 "conda:bash" = "5"
 # https://github.com/conda-forge/sed-feedstock
 "conda:sed" = "4"
+
+# `bats --jobs` needs GNU parallel, and mise's own registry has none.
+# https://github.com/conda-forge/parallel-feedstock
+"conda:parallel" = "20260922"
 
 # https://embarkstudios.github.io/cargo-deny/
 "aqua:EmbarkStudios/cargo-deny" = "0"

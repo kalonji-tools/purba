@@ -57,7 +57,7 @@ echo "proposing ${now}, which replaces ${was}"
 
 ask_for_sign_off "chore: move the nightly to ${now#nightly-}" "a compiler" \
   "${was}" "${now}" \
-  "**If \`Build\` is red, this nightly broke purba.** Leave this pull request open and nothing \
+  "**If \`CI\` is red, this nightly broke purba.** Leave this pull request open and nothing \
 bumps until somebody closes it: the weekly run stands down while it is here, so the compiler that \
 broke keeps the head that refused it." \
   "${toml}" "${lock}"

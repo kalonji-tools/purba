@@ -565,6 +565,7 @@ words() {
 }
 
 @test "a tag that check-records.sh does not know exits 2" {
+  unset PURBA_CHECK_PROSE # it fakes cargo, which a built binary skips
   fake cargo <<'FAKE'
 printf 'unheard\tdocs/decisions/a-record-holds.md:1\n'
 FAKE
@@ -1045,4 +1046,19 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
+}
+
+@test "a built binary that PURBA_CHECK_PROSE names reads the prose, and no cargo starts" {
+  fake cargo <<'FAKE'
+exit 1
+FAKE
+  fake check-prose </dev/null
+  export PURBA_CHECK_PROSE="${BATS_TEST_TMPDIR}/bin/check-prose"
+
+  run "${script}"
+
+  started=$(calls cargo)
+  ran=$(calls check-prose)
+  [[ -z "${started}" ]]
+  [[ "${ran}" == *"participles.txt ${record}"* ]]
 }

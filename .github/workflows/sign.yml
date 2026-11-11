@@ -30,16 +30,16 @@ on:
     # workflow.
     # The ruleset is not in the tree. It requires only `Sign-off`, so a red
     # gate withholds `Sign-off`.
-    workflows: [Quality, Build, Scripts, Approved]
+    workflows: [CI, Approved]
     types: [completed]
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
   PR: ${{ github.event.workflow_run.pull_requests[0].number }}
-  GATES: Quality Build Scripts Quality-macOS Scripts-macOS
+  GATES: CI
   # A subset of GATES. `carry-verdicts.sh` says why the two are not one list.
-  CARRYABLE: Quality Build Scripts Quality-macOS Scripts-macOS
+  CARRYABLE: CI
 
 jobs:
   # The `sign` job skips a fork and leaves nothing on the pull request. This

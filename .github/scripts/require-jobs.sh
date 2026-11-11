@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Refuse a branch unless every job of a gate did what the job that decides the
-# gate asked.
+# Refuse a branch unless every job of a gate did what it was asked: what the job
+# that decides the gate asked, or, with --success, to succeed.
 #
-#   the caller:  .github/workflows/build.yml
+#   the callers:  .github/workflows/ci.yml
+#                 .github/workflows/build.yml
 #
 #   require-jobs.sh <job> <output>
+#   require-jobs.sh --success <job>...
 #
 #   NEEDS   the needs context of the gate's last job, as `toJSON(needs)` writes it
 #
@@ -14,17 +16,24 @@
 # skips every other job too, so a skip passes only when <job> succeeded and asked
 # no other job to run.
 #
-# Exits 0 when every job did what <job> asked, 1 when one did not, and 2 when it
-# cannot decide.
+# With --success, each job it names must succeed, and no other job is read. A
+# skip or a cancel checked nothing, so neither passes.
+#
+# Exits 0 when every job did what it was asked, 1 when one did not, and 2 when
+# it cannot decide.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/../../scripts/report.sh"
 
-if [[ $# -ne 2 ]]; then
+success=0
+if [[ "${1:-}" == --success ]]; then
+  success=1
+  shift
+  [[ $# -gt 0 ]] || cannot "usage: require-jobs.sh --success <job>..."
+elif [[ $# -ne 2 ]]; then
   cannot "usage: require-jobs.sh <job> <output>"
 fi
-job=$1 output=$2
 
 if [[ -z "${NEEDS:-}" ]]; then
   cannot "NEEDS is unset, so this check reads no job"
@@ -38,6 +47,26 @@ fi
 if ! jq -e 'all(.[]; .outputs // {} | type == "object")' >/dev/null <<<"${NEEDS}"; then
   cannot "NEEDS holds a job whose outputs are not a JSON object" "${NEEDS}"
 fi
+if ((success)); then
+  for job in "$@"; do
+    jq -e --arg job "${job}" 'has($job)' >/dev/null <<<"${NEEDS}" ||
+      cannot "NEEDS holds no job named \`${job}\`"
+  done
+  named=$(jq -c -n '$ARGS.positional' --args "$@")
+  results=$(jq -r --argjson named "${named}" '$named[] as $job | "\($job): \(.[$job].result)"' \
+    <<<"${NEEDS}")
+  if jq -e --argjson named "${named}" '. as $needs | all($named[]; $needs[.].result == "success")' \
+    >/dev/null <<<"${NEEDS}"; then
+    last=${*: -1} list=${*:1:$#-1}
+    echo "${list:+${list// /, } and }${last} succeeded"
+    exit 0
+  fi
+  refuse "A branch is refused unless each job that runs on every push succeeded. A skip or a \
+cancel of one is no success, because the job checked nothing." "${results}"
+  finish
+fi
+job=$1 output=$2
+
 if ! jq -e --arg job "${job}" 'has($job)' >/dev/null <<<"${NEEDS}"; then
   cannot "NEEDS holds no job named \`${job}\`"
 fi
