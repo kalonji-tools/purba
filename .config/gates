@@ -12,9 +12,7 @@
 #   the task:  mise run lint:gates
 
 .github/**                     -build  -scripts
-.github/workflows/build.yml    build   -scripts
 .github/workflows/ci.yml       build   scripts
-.github/workflows/scripts.yml  -build  scripts
 .github/scripts/**             -build  scripts
 .config/mise.toml              build   scripts
 .config/mise.lock              build   scripts
