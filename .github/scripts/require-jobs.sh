@@ -2,8 +2,7 @@
 # Refuse a branch unless every job of a gate did what it was asked: what the job
 # that decides the gate asked, or, with --success, to succeed.
 #
-#   the callers:  .github/workflows/ci.yml
-#                 .github/workflows/build.yml
+#   the caller:  .github/workflows/ci.yml
 #
 #   require-jobs.sh <job> <output>
 #   require-jobs.sh --success <job>...

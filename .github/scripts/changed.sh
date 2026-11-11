@@ -3,9 +3,7 @@
 # each tracked path for each gate that skips, and a path it leaves unmarked
 # starts the gate.
 #
-#   the callers:  .github/workflows/ci.yml
-#                 .github/workflows/build.yml
-#                 .github/workflows/scripts.yml
+#   the caller:   .github/workflows/ci.yml
 #   the paths:    .config/gates
 #
 #   changed.sh <attr> <base> <head>
