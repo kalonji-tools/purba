@@ -18,6 +18,9 @@ on:
       - ".github/**.rs"
       - ".github/**/Cargo.lock"
       - ".config/mise.toml"
+      # A change of this file runs the job. The job saves a cache only under a key
+      # that no cache holds yet.
+      - ".github/workflows/cargo-scripts.yml"
 
 permissions:
   contents: read
@@ -30,10 +33,16 @@ env:
   MISE_VERSION: 2026.9.14
 
 jobs:
+  # One cache for each OS, because a cargo script runs only on the OS that built
+  # it.
   cache:
-    name: Cache
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: Cache ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -44,7 +53,7 @@ jobs:
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: target/scripts
-          key: "cargo-scripts-\
+          key: "cargo-scripts-${{ runner.os }}-\
             ${{ hashFiles('scripts/**/Cargo.lock', '.github/**/Cargo.lock', '.config/mise.toml') }}"
 
       # `lint:records` builds each script to run it, `lint:cargo-scripts` checks each

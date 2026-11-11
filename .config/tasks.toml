@@ -90,6 +90,10 @@ run = "cargo-deny check licenses"
 description = "Refuse a dead link, and a path a comment cites that git does not track"
 run = "scripts/check-links.sh"
 
+["lint:macos-jobs"]
+description = "Refuse a ci.yml that asks for more macOS jobs on one push than the plan runs at once"
+run = "scripts/check-macos-jobs.sh"
+
 ["lint:manifests"]
 description = "Refuse a package that two manifests declare, and any in pyproject.toml"
 run = "scripts/check-manifests.sh"
@@ -180,11 +184,23 @@ cargo test --all-targets && cargo test --doc -p purba \
 
 ["test:shell"]
 description = "Run purba's own scripts against the shapes they refuse"
-#   the decision:  docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+#   the decisions: docs/decisions/purba-writes-its-scripts-in-bash-until-purba-can-test-them.md
+#                  docs/decisions/one-workflow-runs-every-gate-of-a-pull-request.md
 #
 # bats names the line that failed and never what the script wrote, so the flag
 # prints the script's output beside it.
-run = "bats --print-output-on-failure --recursive scripts/test"
+#
+# The tests wait more than they compute, so bats runs twice as many at once as
+# there are cores.
+run = '''
+git ls-files {{vars.cargo_scripts}} | while read -r s; do
+  cargo -Zscript build --release --locked --manifest-path "$s" --target-dir target/scripts \
+    --config "resolver.lockfile-path=\"$PWD/${s%/*}/Cargo.lock\"" || exit 1
+done
+export PURBA_CHECK_PROSE="$PWD/target/scripts/release/check-prose"
+jobs=$(($(getconf _NPROCESSORS_ONLN) * 2))
+bats --jobs "${jobs}" --print-output-on-failure --recursive scripts/test
+'''
 
 ["test:wheel"]
 description = "Run the end-to-end tests on the purba that the wheel installs"

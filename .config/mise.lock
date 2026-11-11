@@ -12,9 +12,17 @@ checksum = "sha256:eae7a3449d5a3b5351c5427137c076cc3fc826645c7bfc42dc10772b78382
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libgomp-16.2.0-h8acb6b2_7.conda"
 checksum = "sha256:4406fd67c5beeb99b9372f9bf07aa3e40ca141e337eceebac3ff64aa72799494"
 
+[conda-packages.linux-arm64."libxcrypt-4.4.38-h80f16a2_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libxcrypt-4.4.38-h80f16a2_0.conda"
+checksum = "sha256:d3514900e2121972e435f7803763c1843dad6709e48aa02a2b47c4d481f83be7"
+
 [conda-packages.linux-arm64."ncurses-6.6-h2b6f883_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/ncurses-6.6-h2b6f883_1.conda"
 checksum = "sha256:d69a04914139627f0a6bfd19412d6c7f1e37edc896af84a6011e07e8bc1e69fa"
+
+[conda-packages.linux-arm64."perl-5.44.0-1_h5bc82ec_perl5"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/perl-5.44.0-1_h5bc82ec_perl5.conda"
+checksum = "sha256:7cf91a128068608c731df55e9c452cccb179b84df086ebc95f70797092c55d73"
 
 [conda-packages.linux-arm64."readline-8.3-ha7194a6_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/readline-8.3-ha7194a6_1.conda"
@@ -32,9 +40,17 @@ checksum = "sha256:eae7a3449d5a3b5351c5427137c076cc3fc826645c7bfc42dc10772b78382
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libgomp-16.2.0-h8acb6b2_7.conda"
 checksum = "sha256:4406fd67c5beeb99b9372f9bf07aa3e40ca141e337eceebac3ff64aa72799494"
 
+[conda-packages.linux-arm64-musl."libxcrypt-4.4.38-h80f16a2_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/libxcrypt-4.4.38-h80f16a2_0.conda"
+checksum = "sha256:d3514900e2121972e435f7803763c1843dad6709e48aa02a2b47c4d481f83be7"
+
 [conda-packages.linux-arm64-musl."ncurses-6.6-h2b6f883_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/ncurses-6.6-h2b6f883_1.conda"
 checksum = "sha256:d69a04914139627f0a6bfd19412d6c7f1e37edc896af84a6011e07e8bc1e69fa"
+
+[conda-packages.linux-arm64-musl."perl-5.44.0-1_h5bc82ec_perl5"]
+url = "https://conda.anaconda.org/conda-forge/linux-aarch64/perl-5.44.0-1_h5bc82ec_perl5.conda"
+checksum = "sha256:7cf91a128068608c731df55e9c452cccb179b84df086ebc95f70797092c55d73"
 
 [conda-packages.linux-arm64-musl."readline-8.3-ha7194a6_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-aarch64/readline-8.3-ha7194a6_1.conda"
@@ -52,9 +68,17 @@ checksum = "sha256:e031634c3a928f9594eba868bc46ef5230d6571a364a0c63215b06c4563bf
 url = "https://conda.anaconda.org/conda-forge/linux-64/libgomp-16.2.0-he0feb66_7.conda"
 checksum = "sha256:92a0bb350c7be6a4eedcb4e111c60aefd176018e6b1c009a6e025dbe9bbcd758"
 
+[conda-packages.linux-x64."libxcrypt-4.4.38-h280c20c_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.38-h280c20c_0.conda"
+checksum = "sha256:f7e9292dd219a6435bbb1223da9586c3e70d66d169c5a92f08db3f2127df04e9"
+
 [conda-packages.linux-x64."ncurses-6.6-hdb14827_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.6-hdb14827_1.conda"
 checksum = "sha256:5d46557214ed184381dafe835b7c94a474a1c3b307a08a250b1ea4779b44ffb3"
+
+[conda-packages.linux-x64."perl-5.44.0-1_h7cc23a3_perl5"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/perl-5.44.0-1_h7cc23a3_perl5.conda"
+checksum = "sha256:43afad1c27c24ccc40d98461ab7e1648ccac876421a8783167861ae19c4edc83"
 
 [conda-packages.linux-x64."readline-8.3-hd6e31c0_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda"
@@ -72,9 +96,17 @@ checksum = "sha256:e031634c3a928f9594eba868bc46ef5230d6571a364a0c63215b06c4563bf
 url = "https://conda.anaconda.org/conda-forge/linux-64/libgomp-16.2.0-he0feb66_7.conda"
 checksum = "sha256:92a0bb350c7be6a4eedcb4e111c60aefd176018e6b1c009a6e025dbe9bbcd758"
 
+[conda-packages.linux-x64-musl."libxcrypt-4.4.38-h280c20c_0"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/libxcrypt-4.4.38-h280c20c_0.conda"
+checksum = "sha256:f7e9292dd219a6435bbb1223da9586c3e70d66d169c5a92f08db3f2127df04e9"
+
 [conda-packages.linux-x64-musl."ncurses-6.6-hdb14827_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.6-hdb14827_1.conda"
 checksum = "sha256:5d46557214ed184381dafe835b7c94a474a1c3b307a08a250b1ea4779b44ffb3"
+
+[conda-packages.linux-x64-musl."perl-5.44.0-1_h7cc23a3_perl5"]
+url = "https://conda.anaconda.org/conda-forge/linux-64/perl-5.44.0-1_h7cc23a3_perl5.conda"
+checksum = "sha256:43afad1c27c24ccc40d98461ab7e1648ccac876421a8783167861ae19c4edc83"
 
 [conda-packages.linux-x64-musl."readline-8.3-hd6e31c0_1"]
 url = "https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-hd6e31c0_1.conda"
@@ -92,6 +124,10 @@ checksum = "sha256:b43c6645e668f86d04d5c06d6dc17efe921bbd9244be4b77946d56fb950a3
 url = "https://conda.anaconda.org/conda-forge/osx-arm64/ncurses-6.6-he64c551_1.conda"
 checksum = "sha256:7024a48c8c0d0114ed4ab53c76bf9275d50e91ba7cea367a9aead638d3c29c68"
 
+[conda-packages.macos-arm64."perl-5.44.0-1_hb001647_perl5"]
+url = "https://conda.anaconda.org/conda-forge/osx-arm64/perl-5.44.0-1_hb001647_perl5.conda"
+checksum = "sha256:d68a8d9a8f329e46920d7750b495f613e093fa40736d00a227b727f5898804bb"
+
 [conda-packages.macos-arm64."readline-8.3-h8b90a29_1"]
 url = "https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.3-h8b90a29_1.conda"
 checksum = "sha256:d6782b430e6dce4fe8c7ac118cd988d5a193eb4a7f60741edfaede58016b6110"
@@ -107,6 +143,10 @@ checksum = "sha256:1fad645b88742ad51dbaf9a6709fa9663edd663a4fed6b27c9c4cbc42fa9c
 [conda-packages.macos-x64."ncurses-6.6-hcc0dc9a_1"]
 url = "https://conda.anaconda.org/conda-forge/osx-64/ncurses-6.6-hcc0dc9a_1.conda"
 checksum = "sha256:12c1d676b9a0e8109b576672519312c5428308f3f3d7706f8717e2f536d5d9e7"
+
+[conda-packages.macos-x64."perl-5.44.0-1_hd115831_perl5"]
+url = "https://conda.anaconda.org/conda-forge/osx-64/perl-5.44.0-1_hd115831_perl5.conda"
+checksum = "sha256:9af85b288f54b9da1b18c4c9c52acad4d94fe8b6915f5aaaef2c731624a3a747"
 
 [conda-packages.macos-x64."readline-8.3-h000c2f7_1"]
 url = "https://conda.anaconda.org/conda-forge/osx-64/readline-8.3-h000c2f7_1.conda"
@@ -240,6 +280,67 @@ conda_deps = [
     "readline-8.3-h000c2f7_1",
     "ncurses-6.6-hcc0dc9a_1",
 ]
+
+[[tools."conda:parallel"]]
+version = "20260922"
+backend = "conda:parallel"
+
+[tools."conda:parallel".options]
+channel = "conda-forge"
+
+[tools."conda:parallel"."platforms.linux-arm64"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = [
+    "perl-5.44.0-1_h5bc82ec_perl5",
+    "libxcrypt-4.4.38-h80f16a2_0",
+    "libgcc-16.2.0-h205dda4_7",
+    "_openmp_mutex-4.5-20_gnu",
+    "libgomp-16.2.0-h8acb6b2_7",
+]
+
+[tools."conda:parallel"."platforms.linux-arm64-musl"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = [
+    "perl-5.44.0-1_h5bc82ec_perl5",
+    "libxcrypt-4.4.38-h80f16a2_0",
+    "libgcc-16.2.0-h205dda4_7",
+    "_openmp_mutex-4.5-20_gnu",
+    "libgomp-16.2.0-h8acb6b2_7",
+]
+
+[tools."conda:parallel"."platforms.linux-x64"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = [
+    "perl-5.44.0-1_h7cc23a3_perl5",
+    "libxcrypt-4.4.38-h280c20c_0",
+    "libgcc-16.2.0-ha9f2e26_7",
+    "_openmp_mutex-4.5-20_gnu",
+    "libgomp-16.2.0-he0feb66_7",
+]
+
+[tools."conda:parallel"."platforms.linux-x64-musl"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = [
+    "perl-5.44.0-1_h7cc23a3_perl5",
+    "libxcrypt-4.4.38-h280c20c_0",
+    "libgcc-16.2.0-ha9f2e26_7",
+    "_openmp_mutex-4.5-20_gnu",
+    "libgomp-16.2.0-he0feb66_7",
+]
+
+[tools."conda:parallel"."platforms.macos-arm64"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = ["perl-5.44.0-1_hb001647_perl5"]
+
+[tools."conda:parallel"."platforms.macos-x64"]
+checksum = "sha256:5709a5f86eb1c1b7f0578275894860890a58b6c6753e13943cd1f877282e00df"
+url = "https://conda.anaconda.org/conda-forge/noarch/parallel-20260922-hd8ed1ab_0.conda"
+conda_deps = ["perl-5.44.0-1_hd115831_perl5"]
 
 [[tools."conda:sed"]]
 version = "4.10"
@@ -705,3 +806,43 @@ url_api = "https://api.github.com/repos/crate-ci/typos/releases/assets/565802016
 checksum = "sha256:7480a081e51d428d94f560ef8b855ae0decb7c35cc686925ed887c5f51b1ecf1"
 url = "https://github.com/crate-ci/typos/releases/download/v1.50.2/typos-v1.50.2-x86_64-apple-darwin.tar.gz"
 url_api = "https://api.github.com/repos/crate-ci/typos/releases/assets/565800683"
+
+[[tools.yq]]
+version = "4.54.3"
+backend = "aqua:mikefarah/yq"
+
+[tools.yq."platforms.linux-arm64"]
+checksum = "sha256:89f69310b61b68d1245065a1241d1fc843f7a36cd6103ffd77ad987613bd1b67"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219924"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-arm64-musl"]
+checksum = "sha256:89f69310b61b68d1245065a1241d1fc843f7a36cd6103ffd77ad987613bd1b67"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219924"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-x64"]
+checksum = "sha256:129534601871538efe0ba4c5e62a34fb1d5f469bcb975c4fddeb467d82974973"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219936"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-x64-musl"]
+checksum = "sha256:129534601871538efe0ba4c5e62a34fb1d5f469bcb975c4fddeb467d82974973"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219936"
+provenance = "cosign"
+
+[tools.yq."platforms.macos-arm64"]
+checksum = "sha256:a2aebb93b5bdcb61bb76f630e42a0ef6a3ee10842a6516cd7b9e4080786ec593"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_darwin_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219940"
+provenance = "cosign"
+
+[tools.yq."platforms.macos-x64"]
+checksum = "sha256:96d5105ffd693d6845c54fbd825b2d1bbdb8619e0a2ce6af95e5654e841e0984"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_darwin_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219934"
+provenance = "cosign"

@@ -29,7 +29,7 @@ env:
   ISSUE: 48
 
 jobs:
-  # The platforms `build.yml` builds and loads on, and no others.
+  # The platforms `ci.yml` builds and loads on, and no others.
   wheel:
     name: wheel ${{ matrix.os }}
     strategy:

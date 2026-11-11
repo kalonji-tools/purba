@@ -1,7 +1,8 @@
-# Each attribute names a gate. `build` marks a path whose change must start Build, and
-# `scripts` a path whose change must start the script tests. `-build` and `-scripts`
-# mark a path whose change need not. Quality, Records, Commits and Sign-off always
-# run, so none has an attribute.
+# Each attribute names work in `ci.yml` that can skip. `build` marks a path whose change
+# must start the jobs `rust` and `wheel`, and `scripts` a path whose change must run the
+# tests in `Scripts` and `Scripts-macOS`. `-build` and `-scripts` mark a path whose change
+# need not. `Quality`, `Quality-macOS`, `Records`, `Commits` and `Sign-off` always run, so
+# none has an attribute.
 #
 # A gate reads the marks on the base branch, so a mark takes effect once it merges.
 #
@@ -12,6 +13,7 @@
 
 .github/**                     -build  -scripts
 .github/workflows/build.yml    build   -scripts
+.github/workflows/ci.yml       build   scripts
 .github/workflows/scripts.yml  -build  scripts
 .github/scripts/**             -build  scripts
 .config/mise.toml              build   scripts
