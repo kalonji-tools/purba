@@ -157,33 +157,31 @@ dismisses an approval already given, so an approval follows the code rather
 than the branch.
 
 `main` requires one check, `Sign-off`, and it counts only when the App
-`purba-sign` reports it. purba signs no branch while `Quality` or `Build` is
-red, so each stops a merge through `Sign-off`.
+`purba-sign` reports it. purba signs no branch while `CI` is red, so `CI`
+stops a merge through `Sign-off`. `CI` is the last job of
+`.github/workflows/ci.yml`, and it is red while a job it requires is red.
 
 `Quality` refuses a lint, a formatting difference, a broken decision
 record, a dead link, a broken link in the Rust documentation,
 an action a workflow names by a tag and a dependency whose licence is not on
 the allowlist. A link in a file your branch changes is checked on the network,
 so a link that does not reach its target as written refuses your branch.
-`Build` refuses a failing Rust test, a failing example in the Rust
-documentation, and a wheel that does not build or does not load, on Linux and
-macOS, on every Python purba supports. It also refuses a
-failing end-to-end test. It reports on every
-pull request, and runs its jobs unless `.config/gates` on `main` marks every
+The jobs `rust` and `wheel` refuse a failing Rust test, a failing example in
+the Rust documentation, and a wheel that does not build or does not load, on
+Linux and macOS, on every Python purba supports. They also refuse a
+failing end-to-end test. They run unless `.config/gates` on `main` marks every
 path your branch changes `-build`, so a new mark takes effect once it merges.
 `Sign-off` records that purba accepted the branch. Your branch must also be current with `main`
 (`strict_required_status_checks_policy`), so a branch that has fallen behind is
 rebased and reviewed against what is there now.
 
 `Scripts` refuses a failing test of purba's own scripts, or of a cargo script.
-It reports on every pull request, and runs the tests unless
-`.config/gates` on `main` marks every path your branch changes `-scripts`.
-purba does not sign a branch while `Scripts` is red, so it stops a merge
-through `Sign-off`.
+It runs the tests unless `.config/gates` on `main` marks every path your
+branch changes `-scripts`. A red `Scripts` turns `CI` red.
 
 `Quality-macOS` runs the lint on macOS. `Scripts-macOS` runs the tests of the
-scripts on macOS, and skips them on the same paths as `Scripts`. purba does not
-sign a branch while either is red.
+scripts on macOS, and skips them on the same paths as `Scripts`. `CI` is red
+while either is red.
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
@@ -191,9 +189,8 @@ added to one, so purba refuses it. The **Update with rebase** entry GitHub
 offers on the pull request replays.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
-once an approval from a person whose account has write access stands and
-`Quality`, `Build`, `Scripts`, `Quality-macOS` and `Scripts-macOS` are green.
-On a branch whose `Quality` is still running, your approval lands and nothing
+once an approval from a person whose account has write access stands and `CI`
+is green. On a branch whose `CI` is still running, your approval lands and nothing
 appears to happen until the gate finishes. Where an approval from a person
 whose account has write access stands, every gate is green and `Sign-off` is
 still absent, purba read the last gate before GitHub reported its verdict.
@@ -214,7 +211,7 @@ so every commit on the branch must survive that replay. Three kinds do not:
 A `Replay` check reports this once your pull request is open, and the refusal
 names what it found.
 
-`Quality` needs nothing from you after the approval. purba rewrites your
+`CI` needs nothing from you after the approval. purba rewrites your
 commits at that point and pushes them, and GitHub creates the checks on
 that new commit without running them. A workflow here carries each verdict
 across, because the rewrite edits commit messages, and purba refuses any

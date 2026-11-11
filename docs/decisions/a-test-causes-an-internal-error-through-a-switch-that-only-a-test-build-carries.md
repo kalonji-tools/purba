@@ -21,7 +21,7 @@ No file of a tester causes one on demand, and the [public surface](../../CONTEXT
 
 ## Decision Outcome
 
-**Reach:** `crates/**` `/.config/tasks.toml` `tests/**` `.github/workflows/build.yml` `.github/workflows/publish.yml` `/pyproject.toml`
+**Reach:** `crates/**` `/.config/tasks.toml` `tests/**` `.github/workflows/ci.yml` `.github/workflows/publish.yml` `/pyproject.toml`
 
 **Area:** errors, tooling
 
@@ -39,7 +39,7 @@ The switch causes the internal error through the console script that the wheel i
 
 ## Confirmation
 
-`mise run test:wheel`, and the `wheel` job of Build on each Linux and macOS cell, run `tests/fault.bats`.
+`mise run test:wheel`, and the `wheel` job of `ci.yml` on each Linux and macOS cell, run `tests/fault.bats`.
 `tests/fault.bats` checks that the `fault` wheel panics under `PURBA_FAULT=assert`, `PURBA_FAULT=command`, `PURBA_FAULT=parse`, `PURBA_FAULT=rewrite` and `PURBA_FAULT=selection`.
 It checks that a test passes on the `fault` wheel without the variable.
 It checks that the wheel without `fault` panics under none of them.

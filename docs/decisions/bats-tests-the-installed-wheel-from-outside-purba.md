@@ -16,12 +16,12 @@ The walking skeleton needs a test that runs purba on a small project of two modu
 ## Considered Options
 
 - **A cargo test that calls `_main` in-process.** It skips the wheel and the console script, which the test must confirm.
-- **The test on `main` now, under `skip`.** A skipped test checks nothing, and Build reports it as a pass.
+- **The test on `main` now, under `skip`.** A skipped test checks nothing, and `CI` reports it as a pass.
 - **The test on `main` now, against a stub `_main`.** The stub turns the test green, and the test then proves nothing.
 
 ## Decision Outcome
 
-**Reach:** `/.config/tasks.toml` `.github/workflows/build.yml` `tests/**` `crates/**` `/pyproject.toml`
+**Reach:** `/.config/tasks.toml` `.github/workflows/ci.yml` `tests/**` `crates/**` `/pyproject.toml`
 
 **Area:** tooling
 
@@ -45,7 +45,7 @@ The test crosses the console script and the wheel.
 
 - **`mise run test:wheel` builds the wheel, installs it into a venv under `target/`, and runs `bats` over `tests/`.** `test` and `check` run it.
 - **The test that causes an internal error runs on a second wheel.** [A test causes an internal error through a switch that only a test build carries](a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md#decision-outcome) says why.
-- **Build's `wheel` job runs the end-to-end tests after it loads the wheel.** Every arm runs them.
+- **The `wheel` job of `ci.yml` runs the end-to-end tests after it loads the wheel.** Every arm runs them.
 - **The end-to-end tests stay in bats after purba runs its own tests.** A broken purba could report its own test as passed.
 - **The slice of the skeleton that turns the test green adds it.** `main` cannot hold the test red.
 
@@ -53,9 +53,9 @@ The test crosses the console script and the wheel.
 
 - **Every local `mise run check` builds and installs the wheel.**
 - **The sentinel sees an import, and nothing less.** A rewrite that reads `test_b.py` and never imports it passes the test.
-- **On the free-threaded Python from python.org on macOS, purba cannot see a closed stdout, and Build hides it.** That Python's `Python.app` lists the executable `Python`, and holds `PythonT`. So macOS logs at each start, through a socket on the lowest free fd. When the shell closed stdout, that fd is 1. Build links `Python` to `PythonT` before the end-to-end tests. A tester's Python keeps the missing executable.
+- **On the free-threaded Python from python.org on macOS, purba cannot see a closed stdout, and `ci.yml` hides it.** That Python's `Python.app` lists the executable `Python`, and holds `PythonT`. So macOS logs at each start, through a socket on the lowest free fd. When the shell closed stdout, that fd is 1. `ci.yml` links `Python` to `PythonT` before the end-to-end tests. A tester's Python keeps the missing executable.
 
 ## Confirmation
 
 `mise run test:wheel` runs `bats` over `tests/`, against the `purba` that the wheel installs.
-Build's `wheel` job runs `tests/skeleton.bats` on each Linux and macOS arm.
+The `wheel` job of `ci.yml` runs `tests/skeleton.bats` on each Linux and macOS arm.

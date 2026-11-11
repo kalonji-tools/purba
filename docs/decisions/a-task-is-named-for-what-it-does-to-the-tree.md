@@ -60,7 +60,7 @@ That is the order `mise tasks ls` prints.
 
 - **A task that runs three tools stops at the first failure.** A clippy refusal in `lint:rust` hides a broken documentation link until clippy passes.
 - **Every lint joins `Quality`, which every merge waits for.** A `lint:` task that takes minutes slows `Quality` on every pull request from the day it is written.
-- **A guard that runs code cannot be a lint.** `cargo test --doc` refuses a crate with no `rlib`, so `Build` holds that guard and `Quality` does not.
+- **A guard that runs code cannot be a lint.** `cargo test --doc` refuses a crate with no `rlib`, so the job `rust` of `ci.yml` holds that guard and `Quality` does not.
 - **No command refuses a name off the scheme.** The reviewer reads each new name.
 
 ## Confirmation
@@ -69,6 +69,6 @@ That is the order `mise tasks ls` prints.
 |---|---|
 | each visible task follows the scheme | `mise tasks ls` |
 | each group runs every task under its prefix | `mise tasks deps fmt lint test check` |
-| CI runs every lint | `.github/workflows/quality.yml` runs `mise run lint` |
+| `ci.yml` runs every lint | `.github/workflows/ci.yml` runs `mise run lint` |
 
 The measurements above were made on [Which naming scheme sorts the command roster?](https://github.com/kalonji-tools/purba/issues/341).

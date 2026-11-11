@@ -163,6 +163,7 @@
 - [Every crate lives under crates/](decisions/every-crate-lives-under-crates.md)
 - [One file marks every tracked path for each gate that can skip](decisions/one-file-marks-every-tracked-path-for-each-gate-that-can-skip.md)
 - [One manifest declares each package](decisions/one-manifest-declares-each-package.md)
+- [One workflow runs every gate of a pull request](decisions/one-workflow-runs-every-gate-of-a-pull-request.md)
 - [A script calculates the order of design, and only a changed input moves it](decisions/only-a-changed-input-moves-the-order-of-design.md)
 - [Only GitHub runs what lives under `.github`](decisions/only-github-runs-what-lives-under-github.md)
 - [purba carries no tool manager beside mise, and no compiler of its own](decisions/purba-carries-no-tool-manager-beside-mise-and-no-compiler-of-its-own.md)

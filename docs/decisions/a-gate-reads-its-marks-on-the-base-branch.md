@@ -13,7 +13,7 @@ So the base branch and the head can hold different marks, and the gate reads one
 
 ## Decision Outcome
 
-**Reach:** `/.config/gates` `.github/workflows/build.yml` `.github/workflows/scripts.yml` `.github/scripts/changed.sh` `scripts/attributes.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
+**Reach:** `/.config/gates` `.github/workflows/ci.yml` `.github/scripts/changed.sh` `scripts/attributes.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
 
 **Area:** tooling
 

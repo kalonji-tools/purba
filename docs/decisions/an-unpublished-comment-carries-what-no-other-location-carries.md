@@ -44,7 +44,7 @@ Each of the three cites the closed issue that produced the record, so the pointe
 
 ## Decision Outcome
 
-**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `scripts/check-links.sh` `scripts/test/check-links.bats` `/pyproject.toml` `/README.md` `/.gitattributes` `/.config/tasks.toml` `.github/workflows/quality.yml` `/AGENTS.md` `/.config/mise.toml`
+**Reach:** [unpublished comment](../../CONTEXT.md#unpublished-comment) `scripts/check-links.sh` `scripts/test/check-links.bats` `/pyproject.toml` `/README.md` `/.gitattributes` `/.config/tasks.toml` `.github/workflows/ci.yml` `/AGENTS.md` `/.config/mise.toml`
 
 **Area:** writing
 

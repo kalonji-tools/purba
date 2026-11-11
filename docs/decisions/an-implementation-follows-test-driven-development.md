@@ -26,7 +26,7 @@ So was a gate.
 
 ## Decision Outcome
 
-**Reach:** [implementation plan](../../CONTEXT.md#implementation-plan) [pull request](../../CONTEXT.md#pull-request) `scripts/**` `.github/scripts/**` `*.rs` `/AGENTS.md` `.github/workflows/scripts.yml` `.github/workflows/build.yml`
+**Reach:** [implementation plan](../../CONTEXT.md#implementation-plan) [pull request](../../CONTEXT.md#pull-request) `scripts/**` `.github/scripts/**` `*.rs` `/AGENTS.md` `.github/workflows/ci.yml`
 
 **Area:** workflow
 
@@ -46,7 +46,7 @@ Kent Beck's [Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd) defines the
 
 **The author pushes the test alone, and its run fails before the code follows.**
 CI runs on the head of a push, so only a push of its own runs the test alone.
-`Scripts` and `Build` cancel a run when a new push lands, and a cancelled run proves nothing.
+`ci.yml` cancels a run when a new push lands, and a cancelled run proves nothing.
 The failed head outlives a reduction of the commits, because each head that a force push replaced keeps the commits below it.
 No gate proves the order.
 
@@ -61,7 +61,7 @@ The plan says whether its first push fails or passes.
 - **Nothing refuses a skipped test.** Only the reviewer reads the history, and a reviewer who does not look finds nothing.
 - **A red run costs a wait.** The author waits for CI to report before the code is pushed.
 - **Whether a change adds behaviour is a judgement.** A change the author calls a refactor owes a pass instead of a failure.
-- **The proof stays on GitHub.** `Scripts` and `Build` run on a pull request only, so only the pull request shows the failed head.
+- **The proof stays on GitHub.** `ci.yml` runs on a pull request only, so only the pull request shows the failed head.
 - **Configuration that no gate reads owes no test.** A wrong value there waits for the change that first reads it.
 
 ## Confirmation
@@ -71,7 +71,7 @@ No command decides any of this, and none is planned.
 | step | what shows it |
 |---|---|
 | the test list came first | the implementation plan in the body of the pull request |
-| the test failed first | a head that holds only the test, with `Scripts` or `Build` at `FAILURE` |
+| the test failed first | a head that holds only the test, with the job that runs the test, such as `Scripts` or `rust`, at `FAILURE` |
 
 A head still on the pull request shows its checks there.
 This query reads up to 100 commits below each head that a force push replaced:

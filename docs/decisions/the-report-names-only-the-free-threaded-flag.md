@@ -27,7 +27,7 @@ So purba on a Python with no `sys.abiflags` ran no test.
 
 ## Decision Outcome
 
-**Reach:** `crates/purba/src/lib.rs` `tests/fault.bats` `tests/skeleton.bats` `tests/internal_error.sh` `tests/fault/test_changes_abiflags.py` `.github/workflows/build.yml`
+**Reach:** `crates/purba/src/lib.rs` `tests/fault.bats` `tests/skeleton.bats` `tests/internal_error.sh` `tests/fault/test_changes_abiflags.py` `.github/workflows/ci.yml`
 
 **Area:** reporting
 
@@ -49,7 +49,7 @@ purba runs the tests on a Python with no `sys.abiflags`.
 
 On the `fault` wheel, `tests/fault.bats` checks that a test that changes `sys.abiflags` leaves the flag of the report as `Py_GetVersion()` names it.
 On the `fault` wheel, `tests/fault.bats` checks the flag of the report on a Python with no `sys.abiflags`.
-Build's `wheel` job runs `tests/fault.bats` on `3.14t`, and is the only check that meets a `t`.
+The `wheel` job of `ci.yml` runs `tests/fault.bats` on `3.14t`, and is the only check that meets a `t`.
 `mise run test:wheel` runs `tests/fault.bats` on a Python with a GIL.
 `mise run test:wheel` checks that purba runs the tests on a Python with no `sys.abiflags`.
 
