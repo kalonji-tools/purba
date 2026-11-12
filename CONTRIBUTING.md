@@ -196,12 +196,11 @@ added to one, so purba refuses it. The **Update with rebase** entry GitHub
 offers on the pull request replays.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs
-once an approval from a person whose account has write access stands and `CI`
-is green. On a branch whose `CI` is still running, your approval lands and nothing
-appears to happen until the gate finishes. Where an approval from a person
-whose account has write access stands, every gate is green and `Sign-off` is
-still absent, purba read the last gate before GitHub reported its verdict.
-Close the pull request and reopen it.
+when `CI` turns green, if an approval from a person whose account has write
+access stands. An approval starts nothing by itself. Where such an approval
+stands, the gates are green and `Sign-off` is absent, close the pull request
+and reopen it. The approval may have come after `CI` finished, or purba may
+have read the last gate before GitHub reported its verdict.
 
 Where purba refuses your branch instead, `Sign-off` turns red and names what
 it found. It is written before anything on your branch is rewritten, so the
@@ -218,11 +217,11 @@ so every commit on the branch must survive that replay. Three kinds do not:
 A `Replay` check reports this once your pull request is open, and the refusal
 names what it found.
 
-`CI` needs nothing from you after the approval. purba rewrites your
-commits at that point and pushes them, and GitHub creates the checks on
-that new commit without running them. A workflow here carries each verdict
-across, because the rewrite edits commit messages, and purba refuses any
-branch whose replay would change your content.
+`CI` needs nothing from you after the approval. Once `CI` is green and the
+approval stands, purba rewrites your commits and pushes them. GitHub creates
+the checks on that new commit without running them. A workflow here carries
+each verdict across, because the rewrite edits commit messages, and purba
+refuses any branch whose replay would change your content.
 
 The runs GitHub holds on that commit carry no jobs, and a run with no jobs
 reports no check, so nothing waits on them. The pull request offers to approve

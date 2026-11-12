@@ -25,12 +25,12 @@ on:
   workflow_run:
     # A push brings new commits, and each gate runs on them. When a gate
     # finishes, the `sign` job accepts the new head, if an approval stands and
-    # each gate is green. An approval after the last gate finished starts no
-    # gate. So `Approved` runs on the review, and its finish starts this
-    # workflow.
+    # each gate is green. The page above lists no event that fires on a review
+    # and that takes this file from `main`. No workflow here runs on a review,
+    # so an approval starts nothing.
     # The ruleset is not in the tree. It requires only `Sign-off`, so a red
     # gate withholds `Sign-off`.
-    workflows: [CI, Approved]
+    workflows: [CI]
     types: [completed]
 
 env:
