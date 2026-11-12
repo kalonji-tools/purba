@@ -120,6 +120,10 @@ Whether an error is a [project error](#project-error), an [internal error](#inte
 
 purba seen whole, in one file, at the level of its parts. It states purba's purpose, surroundings, division, [invariants](#invariant), cross-cutting [concerns](#concern) and [risks](#risk), and the order in which each part and concern is designed in depth.
 
+### Lane
+
+A set of lints that `Quality` runs when a [pull request](#pull-request) changes a path that one of them reads. The lane `always` runs on every pull request.
+
 ### Liability
 
 A statement about who is answerable for a change. Each one is written from the act that makes it true.

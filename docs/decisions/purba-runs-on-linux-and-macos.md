@@ -51,10 +51,10 @@ WSL2 runs a Linux kernel, so purba runs there as it does on Linux.
 
 The matrices of `ci.yml` and `publish.yml` name no Windows runner. No command checks that.
 
-`Quality-macOS` in `ci.yml` runs `mise run lint` on `macos-latest`.
+`Quality-macOS` in `ci.yml` runs `mise run lint` on `macos-latest` when a pull request changes the code of a lint, the files of mise or what clippy compiles.
 `Scripts-macOS` in `ci.yml` runs the tests of the scripts on `macos-latest`.
 Like `Scripts`, it runs them only when a pull request changes a path that starts them.
-`CI` requires both jobs to succeed, so a failed one stops `Sign-off`.
+`CI` requires each job to do what the job `changed` asked, so a failed one stops `Sign-off`.
 
 The bash of `macos-latest` is 3.2.
 The scripts need bash 4.4 or later and GNU sed, so `.config/mise.toml` supplies both from conda on every platform.

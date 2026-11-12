@@ -57,4 +57,4 @@ A reader finds the decision in one place in each record, after the area.
 `mise run lint:records` refuses `Chosen` after the lead-in of an option in Considered Options, and it refuses any `Rejected` there too.
 It also refuses the first line after the area unless `**` wraps that line and its words end with `.`, `?` or `!`.
 `mise run fmt:records` strips each `Rejected.` that a space or the end of the line follows.
-`mise run lint` runs `lint:records`, and `Quality` runs `mise run lint` on each pull request.
+`mise run lint` runs `lint:records`, and `Quality` runs it whenever a pull request changes a path that the lint reads.

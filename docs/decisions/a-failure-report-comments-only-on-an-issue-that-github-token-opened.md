@@ -29,6 +29,6 @@ Each step that runs the script holds `GITHUB_TOKEN`, so the script opens each of
 
 For each of the three workflows, `scripts/test/report-run-failure.bats` gives the script an open issue with the title of that workflow and another author.
 It expects the script to open an issue of its own.
-`mise run test:shell` runs it, and `Scripts` runs that task on each pull request.
+`mise run test:shell` runs it, and `Scripts` runs that task on each pull request that changes a path not marked `-scripts`.
 
 [The failure report of a workflow goes to any open issue that carries its title](https://github.com/kalonji-tools/purba/issues/813) holds the reproduction on `78232b7`.

@@ -31,7 +31,7 @@ The lint runs in Quality, which runs on every pull request.
 
 **Each kind of work that `ci.yml` can skip takes one attribute in the file.**
 The gitattributes format carries more than one attribute on a line.
-A line such as `crates/**  build  -scripts` marks a path for both.
+A line such as `crates/**  build  -scripts` marks a path for two of them.
 
 **Downside:**
 

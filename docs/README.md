@@ -159,6 +159,7 @@
 - [A workflow is granted an identity, not a power](decisions/a-workflow-is-granted-an-identity-not-a-power.md)
 - [A workflow names each action by its commit](decisions/a-workflow-names-each-action-by-its-commit.md)
 - [bats tests the installed wheel from outside purba](decisions/bats-tests-the-installed-wheel-from-outside-purba.md)
+- [CI runs a lane of the lint only when a path it reads changes](decisions/ci-runs-a-lane-of-the-lint-only-when-a-path-it-reads-changes.md)
 - [Configuration takes the first location its tool reads](decisions/configuration-takes-the-first-location-its-tool-reads.md)
 - [Dependabot proposes each newer action](decisions/dependabot-proposes-each-newer-action.md)
 - [Every crate lives under crates/](decisions/every-crate-lives-under-crates.md)

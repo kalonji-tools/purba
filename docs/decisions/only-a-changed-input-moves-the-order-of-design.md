@@ -59,6 +59,6 @@ The order moves with its evidence.
 `mise run lint:order` calculates the order again, and refuses an order section that differs.
 It also refuses a risk with no row in the record.
 It refuses a risk whose row holds another probability, impact, part or concern.
-`lint` runs it, and `Quality` runs `lint` on each pull request.
+`lint` runs it, and `Quality` runs it whenever a pull request changes a path that the lint reads.
 `scripts/test/order-of-design.bats` runs it green and red.
 The reviewer decides whether a line became untrue, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies.
