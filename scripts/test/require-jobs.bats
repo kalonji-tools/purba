@@ -76,6 +76,14 @@ needs() {
   [[ "${status}" -eq 0 ]]
 }
 
+@test "every job that skipped passes when changed holds no outputs" {
+  NEEDS='{"changed": {"result": "success"}, "rust": {"result": "skipped"}}' \
+    run "${script}" changed build
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"changed set no build, and every other job skipped"* ]]
+}
+
 @test "a job that ran after changed asked for nothing is refused" {
   needs changed=success rust=success wheel=skipped
 
@@ -109,6 +117,17 @@ needs() {
   run "${script}" changed build
 
   [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *$'\n  changed: success, build=false'* ]]
+}
+
+@test "an output set to the boolean false is refused, and named" {
+  local needs='{"changed": {"result": "success", "outputs": {"build": false}},'
+  needs+=' "rust": {"result": "skipped", "outputs": {}}}'
+
+  NEEDS="${needs}" run "${script}" changed build
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *$'\n  changed: success, build=false'* ]]
 }
 
 @test "an unset NEEDS exits 2" {
@@ -143,6 +162,22 @@ needs() {
 
 @test "a NEEDS with a job whose outputs are not an object exits 2" {
   NEEDS='{"changed": {"result": "success", "outputs": 1}, "rust": {"result": "skipped"}}' \
+    run "${script}" changed build
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"NEEDS holds a job whose outputs are not a JSON object"* ]]
+}
+
+@test "a NEEDS with a job whose outputs are false exits 2" {
+  NEEDS='{"changed": {"result": "success", "outputs": false}, "rust": {"result": "skipped"}}' \
+    run "${script}" changed build
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"NEEDS holds a job whose outputs are not a JSON object"* ]]
+}
+
+@test "a NEEDS with a job whose outputs are null exits 2" {
+  NEEDS='{"changed": {"result": "success", "outputs": null}, "rust": {"result": "skipped"}}' \
     run "${script}" changed build
 
   [[ "${status}" -eq 2 ]]

@@ -43,7 +43,8 @@ fi
 if ! jq -e 'all(.[]; type == "object")' >/dev/null <<<"${NEEDS}"; then
   cannot "NEEDS holds a job that is not a JSON object" "${NEEDS}"
 fi
-if ! jq -e 'all(.[]; .outputs // {} | type == "object")' >/dev/null <<<"${NEEDS}"; then
+if ! jq -e 'all(.[]; (has("outputs") | not) or (.outputs | type == "object"))' \
+  >/dev/null <<<"${NEEDS}"; then
   cannot "NEEDS holds a job whose outputs are not a JSON object" "${NEEDS}"
 fi
 if ((success)); then
@@ -74,7 +75,8 @@ if ! jq -e --arg job "${job}" 'del(.[$job]) | length > 0' >/dev/null <<<"${NEEDS
 fi
 
 result=$(jq -r --arg job "${job}" '.[$job].result' <<<"${NEEDS}")
-value=$(jq -r --arg job "${job}" --arg out "${output}" '.[$job].outputs[$out] // ""' <<<"${NEEDS}")
+value=$(jq -r --arg job "${job}" --arg out "${output}" \
+  '.[$job].outputs | if has($out) then .[$out] else "" end' <<<"${NEEDS}")
 
 want="" passed=""
 if [[ "${result}" == success && "${value}" == true ]]; then
