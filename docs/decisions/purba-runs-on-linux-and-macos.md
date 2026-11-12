@@ -58,6 +58,7 @@ Like `Scripts`, it runs them only when a pull request changes a path that starts
 
 The bash of `macos-latest` is 3.2.
 The scripts need bash 4.4 or later and GNU sed, so `.config/mise.toml` supplies both from conda on every platform.
+It supplies OpenSSL 3 from conda too, so the tests of the scripts verify a token with one tool.
 Each of the two jobs names the bash it runs.
 mise runs that bash through a launcher that exports `CONDA_PREFIX`, so `.config/mise.toml` also sets `PYO3_PYTHON` for the build script of pyo3.
 

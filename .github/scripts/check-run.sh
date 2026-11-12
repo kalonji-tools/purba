@@ -3,6 +3,7 @@
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   who reports:   docs/decisions/a-required-check-of-main-counts-only-from-github-actions.md
+#   which counts:  docs/decisions/a-gate-counts-only-by-a-token-github-signed-for-its-run.md
 #
 #   verdicts <head> <context>...   prints `<context> <conclusion>` for each, in
 #                                  the order given, and `none` for no conclusion
@@ -14,6 +15,8 @@
 #   GH_REPO        the repository the check runs belong to. A caller that
 #                  sources this file without it exits 2
 #   HEAD_REF       the branch of the pull request. A read with none exits 2
+#   PR, BASE_REF   the number and the base of that pull request, which the token
+#                  of a gate must name. A read with either empty exits 2
 #   SIGN_TOKEN     the token of `purba-sign`, which posts each check run. A
 #                  write with none exits 2
 #
@@ -29,9 +32,17 @@ fi
 #
 # The shape is read here, once, so `last_conclusion` cannot fail on it.
 check_runs_of() {
-  local runs made jobs='[]' ids one id query
+  local runs made jobs='[]' ids one id query listed
   if [[ -z "${HEAD_REF:-}" ]]; then
     echo "HEAD_REF is set by the workflow env, and it is empty here." >&2
+    exit 2
+  fi
+  if [[ -z "${PR:-}" ]]; then
+    echo "PR is set by the workflow env, and it is empty here." >&2
+    exit 2
+  fi
+  if [[ -z "${BASE_REF:-}" ]]; then
+    echo "BASE_REF is set by write-acceptance-trailer.sh, and it is empty here." >&2
     exit 2
   fi
   if ! runs=$(gh api "repos/${GH_REPO}/commits/$1/check-runs?per_page=100") ||
@@ -64,7 +75,7 @@ check_runs_of() {
     fi
     jobs=$(printf '%s\n%s' "${jobs}" "${one}" | jq -sc '.[0] + .[1].jobs')
   done <<<"${ids}"
-  printf '%s\n%s\n%s' "${runs}" "${made}" "${jobs}" | jq -s --arg branch "${HEAD_REF}" '
+  listed=$(printf '%s\n%s\n%s' "${runs}" "${made}" "${jobs}" | jq -s --arg branch "${HEAD_REF}" '
     .[0] as $runs | .[1] as $made | .[2] as $jobs
     | [$made.workflow_runs[]
       | select(.event == "pull_request" and .head_branch == $branch)
@@ -74,7 +85,118 @@ check_runs_of() {
         + [$jobs[]
           | select(.runner_id != null
               and $file[(.run_id | tostring)]
-                == ".github/workflows/\(.name | split("-")[0] | ascii_downcase).yml")])}'
+                == ".github/workflows/\(.name | split("-")[0] | ascii_downcase).yml")])}')
+  proved "${listed}"
+}
+
+#   proved <listed>   prints <listed> with each job that no token proves taken out
+proved() {
+  local keys lines kept='[]' run attempt job token
+  lines=$(jq -r '.check_runs[] | select(.run_id != null)
+    | "\(.run_id) \(.run_attempt) \(.id)"' <<<"$1")
+  if [[ -n "${lines}" ]]; then
+    if ! keys=$(curl --silent --show-error --fail --location \
+      https://token.actions.githubusercontent.com/.well-known/jwks) ||
+      ! jq -e '.keys | type == "array" and all(.[]; type == "object")' \
+        >/dev/null <<<"${keys}"; then
+      echo "the key set of GitHub could not be read." >&2
+      exit 2
+    fi
+  fi
+  while read -r run attempt job; do
+    [[ -n "${run}" ]] || continue
+    token=$(token_of "${run}" "${attempt}") || exit 2
+    # shellcheck disable=SC2310 # `token_holds` returns 1 for a token that does not hold
+    if [[ -n "${token}" ]] && token_holds "${token}" "${keys}" "${run}" "${attempt}" "${job}"; then
+      kept=$(jq -c --argjson job "${job}" '. + [$job]' <<<"${kept}")
+    fi
+  done <<<"${lines}"
+  jq --argjson kept "${kept}" '.check_runs |= map(select(.run_id == null
+    or (.id as $id | $kept | index($id) != null)))' <<<"$1"
+}
+
+# Prints the token in the artifact that `CI` uploads for one attempt of its run.
+# It prints nothing when the run holds no such artifact, or when that artifact expired.
+#
+#   token_of <run> <attempt>
+token_of() {
+  local listed id zip query="name=gate-token-$2&per_page=100"
+  if ! listed=$(gh api "repos/${GH_REPO}/actions/runs/$1/artifacts?${query}") ||
+    ! id=$(jq -er --arg name "gate-token-$2" '[.artifacts[]
+      | select(.name == $name and .expired == false)][0].id // ""' <<<"${listed}"); then
+    echo "the token of the workflow run $1 could not be read." >&2
+    return 2
+  fi
+  [[ -n "${id}" ]] || return 0
+  zip=$(mktemp)
+  if ! gh api "repos/${GH_REPO}/actions/artifacts/${id}/zip" >"${zip}" ||
+    ! unzip -p "${zip}" gate-token; then
+    rm -f "${zip}"
+    echo "the token of the workflow run $1 could not be read." >&2
+    return 2
+  fi
+  rm -f "${zip}"
+}
+
+# Returns 0 when GitHub's key signed <token>, and each of its claims holds. The
+# record that the header of this file names under "which counts" lists them.
+# https://docs.github.com/en/actions/reference/security/oidc
+#
+#   token_holds <token> <keys> <run> <attempt> <job>
+token_holds() {
+  local header payload signature head kid modulus dir claims status=0
+  IFS=. read -r header payload signature <<<"$1"
+  [[ -n "${header}" && -n "${payload}" && -n "${signature}" ]] || return 1
+  head=$(from_b64url "${header}") || return 1
+  kid=$(jq -r 'select(.alg == "RS256") | .kid // empty' <<<"${head}" 2>/dev/null) || return 1
+  [[ -n "${kid}" ]] || return 1
+  modulus=$(jq -r --arg kid "${kid}" '[.keys[]
+    | select(.kid == $kid and .kty == "RSA" and .e == "AQAB")][0].n // empty' <<<"$2")
+  [[ -n "${modulus}" ]] || return 1
+  dir=$(mktemp -d)
+  if ! key_pem "${modulus}" "${dir}" ||
+    ! from_b64url "${signature}" >"${dir}/signature"; then
+    rm -r "${dir}"
+    return 1
+  fi
+  printf '%s.%s' "${header}" "${payload}" >"${dir}/signed"
+  openssl dgst -sha256 -verify "${dir}/key.pem" -signature "${dir}/signature" \
+    "${dir}/signed" >/dev/null 2>&1 || status=1
+  rm -r "${dir}"
+  [[ "${status}" -eq 0 ]] || return 1
+  claims=$(from_b64url "${payload}") || return 1
+  jq -e --arg repo "${GH_REPO}" --arg ref "refs/pull/${PR}/merge" --arg base "${BASE_REF}" \
+    --arg run "$3" --arg attempt "$4" --arg job "$5" '
+      .iss == "https://token.actions.githubusercontent.com" and .aud == "purba-gate"
+      and .repository == $repo and .event_name == "pull_request"
+      and .ref == $ref and .base_ref == $base
+      and (.run_id | tostring) == $run and (.run_attempt | tostring) == $attempt
+      and (.check_run_id | tostring) == $job' >/dev/null 2>&1 <<<"${claims}"
+}
+
+# Writes the public key whose modulus is <n>, in base64url, to <dir>/key.pem.
+# One key of GitHub's set carries no certificate, so this function builds each
+# key from a DER header. The header fits RSA of 2048 bits with the exponent
+# 65537, and `openssl` refuses a modulus of any other length.
+# https://www.rfc-editor.org/rfc/rfc3279.html#section-2.3.1
+#
+#   key_pem <n> <dir>
+key_pem() {
+  local hex escaped="" i
+  from_b64url "$1" >"$2/modulus" || return 1
+  hex=$(od -An -v -tx1 "$2/modulus")
+  hex=${hex//[$' \n']/}
+  hex="30820122300d06092a864886f70d01010105000382010f003082010a0282010100${hex}0203010001"
+  for ((i = 0; i < ${#hex}; i += 2)); do escaped+="\\x${hex:i:2}"; done
+  printf '%b' "${escaped}" >"$2/key.der"
+  openssl pkey -pubin -inform DER -in "$2/key.der" -out "$2/key.pem" 2>/dev/null
+}
+
+from_b64url() {
+  local encoded=${1//_//}
+  encoded=${encoded//-/+}
+  while ((${#encoded} % 4)); do encoded+='='; done
+  base64 -d <<<"${encoded}" 2>/dev/null
 }
 
 # The API promises no order, so the run that finished last is read rather than

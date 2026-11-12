@@ -41,7 +41,23 @@
 #                                    file    another workflow file, on this pull
 #                                            request
 #                                    sign    a post by `purba-sign`
+#                                  Each workflow run it makes holds the artifact
+#                                  `gate-token-1`, a token that `gate` signed. Its
+#                                  claims name that run, its job, `PR` and
+#                                  `BASE_REF` (7 and `main` when unset). A fake
+#                                  `curl` answers with the key set
+#   gate_token <run> <filter> [<key> [<alg> [<kid>]]]
+#                                  signs that token of <run> again, with its claims
+#                                  passed through the jq <filter>. <key> is `gate`,
+#                                  `other`, which no key set holds, or `short`, of
+#                                  1024 bits. An <alg> of `none` signs nothing.
+#                                  <kid> is the key that the header names.
+#                                  Without it, the header names <key>
+#
+# An answer of `gh_answers <call>-<id>` goes to a call whose path holds the
+# number <id>. The answer of `gh_answers <call>` goes to every other call.
 : "${BATS_TEST_TMPDIR:?set by bats}"
+: "${BATS_FILE_TMPDIR:?set by bats}"
 
 # ⚠️ git hands a hook, and a command under `rebase --exec`, the repository it
 # runs in. A test that keeps those variables commits into that repository.
@@ -121,7 +137,7 @@ fake_gh() {
   fake gh <<'FAKE'
 call="$1-$2"
 if [[ "$1" == api ]]; then
-  write="" path="" named=""
+  write="" path="" named="" id=""
   for argument in "$@"; do
     case "${argument}" in
       -f | --method) write=post- ;;
@@ -130,6 +146,7 @@ if [[ "$1" == api ]]; then
       *) ;;
     esac
   done
+  [[ ! "${path}" =~ /([0-9]+)(/[^/]*[^/0-9][^/]*)?$ ]] || id=${BASH_REMATCH[1]}
   [[ "${path##*/}" == *[!0-9]* ]] || path=${path%/*}
   call=${write}${path##*/}
 fi
@@ -141,11 +158,14 @@ fi
 case "${call}" in
   post-* | issue-create | issue-comment) echo "https://example.invalid/${call}" ;;
   *)
-    if [[ ! -e "${answers}/${call}.json" ]]; then
+    answer="${answers}/${call}.json"
+    keyed="${answers}/${call}-${id:-}.json"
+    [[ -z "${id:-}" || ! -e "${keyed}" ]] || answer=${keyed}
+    if [[ ! -e "${answer}" ]]; then
       echo "the fake does not answer ${call}: $*" >&2
       exit 9
     fi
-    cat "${answers}/${call}.json"
+    cat "${answer}"
     ;;
 esac
 FAKE
@@ -212,9 +232,10 @@ check_runs() {
     # A job's id is the id of its check run. Every run's read of its jobs gets
     # them all here, so a job names its run.
     if [[ -n "${made}" ]]; then
-      printf -v job '{"id":%d,"run_id":%d,%s,"runner_id":%s}' \
+      printf -v job '{"id":%d,"run_id":%d,"run_attempt":1,%s,"runner_id":%s}' \
         "$((1000 + suite))" "$((100 + suite))" "${one}" "${runner}"
       jobs+="${jobs:+,}${job}"
+      gate_token_for "$((100 + suite))" "$((1000 + suite))"
     fi
     printf -v one '{"id":%d,%s,"app":{"slug":"%s"},"check_suite":{"id":%d}}' \
       "$((1000 + suite))" "${one}" "${app}" "${suite}"
@@ -223,4 +244,105 @@ check_runs() {
   gh_answers check-runs "{\"check_runs\":[${all}]}"
   gh_answers runs "{\"workflow_runs\":[${workflows}]}"
   gh_answers jobs "{\"jobs\":[${jobs}]}"
+}
+
+# This function makes a key set like GitHub's. A fake `curl` answers with it.
+# The set holds `gate`, and `short`, a key of 1024 bits. The key `other` is
+# in no set. This function makes the keys once for each file of tests, because
+# a key of 2048 bits is slow to make.
+gate_keys() {
+  local dir="${BATS_FILE_TMPDIR}/gate-keys" name bits gate short
+  # `bats --jobs` runs the tests of one file at once, and each may come here
+  # first. `mkdir` is atomic, so one test makes the keys while the rest wait. That
+  # test writes the key set last.
+  if [[ ! -e "${dir}/jwks.json" ]]; then
+    until mkdir "${dir}.lock" 2>/dev/null; do sleep 0.1; done
+    if [[ ! -e "${dir}/jwks.json" ]]; then
+      mkdir -p "${dir}"
+      for name in gate:2048 other:2048 short:1024; do
+        bits=${name#*:}
+        name=${name%:*}
+        openssl genpkey -algorithm RSA -pkeyopt "rsa_keygen_bits:${bits}" \
+          -out "${dir}/${name}.pem" 2>/dev/null
+      done
+      gate=$(gate_modulus "${dir}/gate.pem")
+      short=$(gate_modulus "${dir}/short.pem")
+      jq -n --arg gate "${gate}" --arg short "${short}" '{keys: [
+          {kid: "gate", kty: "RSA", alg: "RS256", use: "sig", e: "AQAB", n: $gate},
+          {kid: "short", kty: "RSA", alg: "RS256", use: "sig", e: "AQAB", n: $short}]}' \
+        >"${dir}/jwks.partial"
+      mv "${dir}/jwks.partial" "${dir}/jwks.json"
+    fi
+    rmdir "${dir}.lock"
+  fi
+  fake curl <<FAKE
+cat "${dir}/jwks.json"
+FAKE
+  # An artifact reaches the script as a zip. Here it is the token itself.
+  fake unzip <<'FAKE'
+cat "$2"
+FAKE
+}
+
+# The modulus of a key, in base64url.
+gate_modulus() {
+  local hex escaped="" i
+  hex=$(openssl rsa -in "$1" -noout -modulus)
+  hex=${hex#Modulus=}
+  for ((i = 0; i < ${#hex}; i += 2)); do escaped+="\\x${hex:i:2}"; done
+  printf '%b' "${escaped}" >"$1.modulus"
+  gate_b64url "$1.modulus"
+}
+
+# The base64url of the bytes in a file, with no padding.
+gate_b64url() {
+  local encoded
+  encoded=$(base64 <"$1")
+  encoded=${encoded//$'\n'/}
+  encoded=${encoded//=/}
+  encoded=${encoded//+/-}
+  printf '%s' "${encoded//\//_}"
+}
+
+# gate_token_for <run> <job>
+#
+# Signs the token of the job <job> of the workflow run <run> by `gate`. It also
+# makes the fake `gh` answer with the artifact `gate-token-1` of that run, whose
+# id is <run> + 5000.
+# `gate_token` changes the claims.
+gate_token_for() {
+  local claims
+  gate_keys
+  claims=$(jq -nc --arg repo "${GH_REPO:-}" --arg ref "refs/pull/${PR:-7}/merge" \
+    --arg base "${BASE_REF:-main}" --arg run "$1" --arg job "$2" '{
+      iss: "https://token.actions.githubusercontent.com", aud: "purba-gate",
+      repository: $repo, event_name: "pull_request", ref: $ref, base_ref: $base,
+      run_id: $run, run_attempt: "1", check_run_id: $job}')
+  printf '%s\n' "${claims}" >"${BATS_TEST_TMPDIR}/claims-$1"
+  gh_answers "artifacts-$1" \
+    "{\"artifacts\":[{\"id\":$((5000 + $1)),\"name\":\"gate-token-1\",\"expired\":false}]}"
+  gate_sign "$1" gate RS256
+}
+
+gate_token() {
+  local claims
+  claims=$(jq -c "$2" "${BATS_TEST_TMPDIR}/claims-$1")
+  printf '%s\n' "${claims}" >"${BATS_TEST_TMPDIR}/claims-$1"
+  gate_sign "$1" "${3:-gate}" "${4:-RS256}" "${5:-${3:-gate}}"
+}
+
+gate_sign() {
+  local header payload signature="" key="${BATS_FILE_TMPDIR}/gate-keys/$2.pem"
+  local dir="${BATS_TEST_TMPDIR}/jwt-$1"
+  mkdir -p "${dir}"
+  printf '{"alg":"%s","kid":"%s","typ":"JWT"}' "$3" "${4:-$2}" >"${dir}/header"
+  tr -d '\n' <"${BATS_TEST_TMPDIR}/claims-$1" >"${dir}/payload"
+  header=$(gate_b64url "${dir}/header")
+  payload=$(gate_b64url "${dir}/payload")
+  if [[ "$3" != none ]]; then
+    printf '%s.%s' "${header}" "${payload}" >"${dir}/signed"
+    openssl dgst -sha256 -sign "${key}" -out "${dir}/signature" "${dir}/signed"
+    signature=$(gate_b64url "${dir}/signature")
+  fi
+  gh_answers "zip-$((5000 + $1))" "${header}.${payload}.${signature}"
 }
