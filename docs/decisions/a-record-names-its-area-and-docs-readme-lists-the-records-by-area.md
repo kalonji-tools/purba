@@ -59,4 +59,4 @@ A gate keeps the `**Area:**` line and the index true.
 
 `mise run lint:records` refuses a record with no `**Area:**` paragraph after its reach, and an area outside the list.
 `mise run lint:index` refuses a `docs/README.md` that differs from the page `fmt:index` writes.
-`mise run lint` runs both, and `Quality` runs `mise run lint` on each pull request.
+`mise run lint` runs both, and `Quality` runs each one whenever a pull request changes a path that the lint reads.

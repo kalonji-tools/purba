@@ -167,7 +167,10 @@ an action a workflow names by a tag and a dependency whose licence is not on
 the allowlist. `Quality` reads each link in a file your branch changes on the
 network. A link that does not reach its target as written refuses your
 branch. A link whose server does not answer in time, or answers 503, passes,
-and a warning names it.
+and a warning names it. `Quality` runs a lint only when your branch changes a
+path that the lint reads. A lint in the lane `always` of `.config/lanes`, or one
+that file does not name, runs on every branch. A notice names each lane that
+started.
 The jobs `rust` and `wheel` refuse a failing Rust test, a failing example in
 the Rust documentation, and a wheel that does not build or does not load, on
 Linux and macOS, on every Python purba supports. They also refuse a
@@ -178,12 +181,14 @@ path your branch changes `-build`, so a new mark takes effect once it merges.
 rebased and reviewed against what is there now.
 
 `Scripts` refuses a failing test of purba's own scripts, or of a cargo script.
-It runs the tests unless `.config/gates` on `main` marks every path your
+It runs unless `.config/gates` on `main` marks every path your
 branch changes `-scripts`. A red `Scripts` turns `CI` red.
 
-`Quality-macOS` runs the lint on macOS. `Scripts-macOS` runs the tests of the
-scripts on macOS, and skips them on the same paths as `Scripts`. `CI` is red
-while either is red.
+`Quality-macOS` runs the lint on macOS when your branch changes the code of a
+lint, a file of mise or what clippy compiles. Those are the paths that
+`.config/gates` on `main` does not mark `-lint-macos`. `Scripts-macOS` runs the tests of the
+scripts on macOS, on the same paths as `Scripts`. `CI` is red while either is
+red.
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be

@@ -69,6 +69,6 @@ That is the order `mise tasks ls` prints.
 |---|---|
 | each visible task follows the scheme | `mise tasks ls` |
 | each group runs every task under its prefix | `mise tasks deps fmt lint test check` |
-| `ci.yml` runs every lint | `.github/workflows/ci.yml` runs `mise run lint` |
+| `ci.yml` runs the lints by their group or their names | `Quality-macOS` runs `mise run lint`, and `Quality` runs the lints that `.github/scripts/lanes.sh` names |
 
 The measurements above were made on [Which naming scheme sorts the command roster?](https://github.com/kalonji-tools/purba/issues/341).

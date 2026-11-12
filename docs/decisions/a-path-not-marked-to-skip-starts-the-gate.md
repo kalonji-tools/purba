@@ -28,8 +28,8 @@ So a `paths:` filter cannot narrow `ci.yml`, and the workflow must start on ever
 
 | part | what it does |
 |---|---|
-| `.config/gates` | marks a path `<attribute>` or `-<attribute>` for each attribute, in the gitattributes format. `build` names the jobs `rust` and `wheel`, and `scripts` names the tests in `Scripts` and `Scripts-macOS` |
-| `changed.sh <attribute> <base> <head>` | runs first in `Scripts`, in `Scripts-macOS` and in the job `changed`, and prints `<attribute>=true` unless every changed path is marked `-<attribute>` |
+| `.config/gates` | marks a path `<attribute>` or `-<attribute>` for each attribute, in the gitattributes format. [CI runs a lane of the lint only when a path it reads changes](ci-runs-a-lane-of-the-lint-only-when-a-path-it-reads-changes.md) says what each attribute starts |
+| `changed.sh <attribute> <base> <head>` | runs in the job `changed`, once for each attribute, and prints `<attribute>=true` unless every changed path is marked `-<attribute>` |
 | the job `CI` | reports on every pull request, and refuses a skip that a failed `changed.sh` caused |
 
 **A mark says whether a change to the path must start the work its attribute names.**

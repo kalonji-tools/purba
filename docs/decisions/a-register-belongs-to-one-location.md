@@ -99,7 +99,7 @@ Both prototype wikis opened with neither, and wrote 0 pages in 4 months.
 `mise run lint:records` refuses a record that breaks a rule a command can decide.
 It also reads the register, the comment of `docs/decisions/.template.md`, by each prose rule it refuses in a record.
 It refuses a bare record name in that comment that no file holds.
-`Quality` runs it on every pull request.
+`Quality` runs it whenever a pull request changes a path that the lint reads.
 Considered Options says why no gate holds the pull request's register or the issue's.
 
 A gate also holds other registers, in whole or in part.
