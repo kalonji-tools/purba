@@ -21,7 +21,9 @@
 #                                  URL, and is `post-<call>`, `issue-create` or
 #                                  `issue-comment`
 #   gh_answers <call> <json>       what that fake answers <call> with
-#   gh_refuses <call>              that fake fails <call> with exit 1, as gh does
+#   gh_refuses <call>              that fake fails <call> with exit 1, as gh does.
+#                                  <call> may be `post-check-runs-<name>`, a post
+#                                  of the check run <name> alone
 #   check_runs [<run>...]          `gh_answers check-runs`, one run for each
 #                                  `<name>=<conclusion>[@<day>][~<source>]`. An
 #                                  empty conclusion is a run still going. It also
@@ -119,11 +121,12 @@ fake_gh() {
   fake gh <<'FAKE'
 call="$1-$2"
 if [[ "$1" == api ]]; then
-  write="" path=""
+  write="" path="" named=""
   for argument in "$@"; do
     case "${argument}" in
       -f | --method) write=post- ;;
       repos/*) path=${argument%%\?*} ;;
+      name=*) named=${argument#name=} ;;
       *) ;;
     esac
   done
@@ -131,7 +134,7 @@ if [[ "$1" == api ]]; then
   call=${write}${path##*/}
 fi
 answers="${BATS_TEST_TMPDIR}/gh"
-if [[ -e "${answers}/${call}.refused" ]]; then
+if [[ -e "${answers}/${call}.refused" || -e "${answers}/${call}-${named:-}.refused" ]]; then
   echo "HTTP 502: ${call}" >&2
   exit 1
 fi

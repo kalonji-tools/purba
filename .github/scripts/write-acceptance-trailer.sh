@@ -9,21 +9,23 @@
 # Exits 0 when there is nothing to accept yet, and when a rule refuses the
 # branch or cannot run. The workflow run writes the job's own check run onto
 # the head of `main`, so a failed job marks `main` red. The failed `Sign-off`
-# it posts on the pull request is the report instead. It exits 2
-# when it cannot read the pull request, its reviews or the permission of an
-# approver, or cannot read or write a check run. It also exits 2 when the reviews
-# are not ones the rule can read. Any other command that fails exits with its
-# own code, which can be 1.
+# it posts on the pull request is the report instead. Before it posts a
+# passing `Sign-off`, it exits 2 when it cannot read the pull request, its
+# reviews or the permission of an approver, or cannot read or write a check run.
+# It also exits 2 when the reviews are not ones the rule can read. After it
+# posts a passing `Sign-off`, it ends in `carry-verdicts.sh`, and exits as that
+# does. Any other command that fails exits with its own code, which can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
-# line that first reads one. `GATES` holds the contexts this job waits on.
+# line that first reads one. `GATES` holds the contexts this job waits on, and
+# `CARRYABLE` the ones it carries.
 : "${GH_REPO:?set by the workflow env}"
 : "${PR:?set by the workflow env}"
 : "${GATES:?set by the workflow env}"
+: "${CARRYABLE:?set by the workflow env}"
 : "${HEAD_REF:?set by the workflow env}"
 : "${RUNNER_TEMP:?set by the runner}"
-: "${GITHUB_OUTPUT:?set by the runner}"
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/../../scripts/report.sh"
@@ -117,7 +119,6 @@ post_check_run "Sign-off" "${head_sha}" success "Accepted by @${approver}" \
 
 echo "recorded acceptance by ${approver} on ${head_sha}"
 
-{
-  echo "before=${before}"
-  echo "after=${head_sha}"
-} >>"${GITHUB_OUTPUT}"
+# `CARRYABLE` holds one context per word, as `GATES` does.
+# shellcheck disable=SC2086
+exec "$(dirname "$0")/carry-verdicts.sh" "${before}" "${head_sha}" ${CARRYABLE}

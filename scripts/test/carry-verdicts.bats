@@ -115,10 +115,10 @@ setup() {
   [[ -z "${asked}" ]]
 }
 
-@test "a commit git does not hold exits 2 and reports a failed Carry on the rewritten head" {
+@test "a commit git does not hold reports a failed Carry on the rewritten head, and exits 0" {
   run "${script}" 0000000000000000000000000000000000000000 "${after}" Quality
 
-  [[ "${status}" -eq 2 ]]
+  [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"could not be read."* ]]
   asked=$(calls gh)
   [[ "${asked}" != *"check-runs?per_page"* ]]
@@ -127,7 +127,20 @@ setup() {
   [[ "${asked}" == *"-f conclusion=failure"*"close and reopen this pull request"* ]]
 }
 
-@test "a verdict the API refuses to take exits 2, and then asks for Carry" {
+@test "a verdict the API refuses to take is reported as a failed Carry, and exits 0" {
+  check_runs Quality=success
+  gh_refuses post-check-runs-Quality
+
+  run "${script}" "${before}" "${after}" Quality
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"the check run Quality could not be written onto ${after}."* ]]
+  [[ "${output}" != *"carried Quality"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"*"-f conclusion=failure"* ]]
+}
+
+@test "a Carry the API refuses too posts nothing, and exits 2" {
   check_runs Quality=success
   gh_refuses post-check-runs
 
@@ -135,17 +148,18 @@ setup() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"the check run Quality could not be written onto ${after}."* ]]
+  [[ "${output}" == *"the check run Carry could not be written onto ${after}."* ]]
   [[ "${output}" != *"carried Quality"* ]]
   asked=$(calls gh)
   [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]
 }
 
-@test "a read the API refuses reports a failed Carry on the rewritten head" {
+@test "a read the API refuses reports a failed Carry on the rewritten head, and exits 0" {
   gh_refuses check-runs
 
   run "${script}" "${before}" "${after}" Quality
 
-  [[ "${status}" -eq 2 ]]
+  [[ "${status}" -eq 0 ]]
   asked=$(calls gh)
   [[ "${asked}" == *"--method POST repos/owner/name/check-runs -f name=Carry"* ]]
   [[ "${asked}" == *"-f name=Carry -f head_sha=${after}"* ]]

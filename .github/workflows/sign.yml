@@ -113,18 +113,8 @@ jobs:
           private-key: ${{ secrets.SIGN_APP_PRIVATE_KEY }}
           permission-checks: write
 
-      - name: Write the acceptance trailer into every commit
-        id: accept
+      - name: Write the acceptance trailer into every commit, and carry the verdicts
         working-directory: branch
         env:
           SIGN_TOKEN: ${{ steps.purba-sign.outputs.token }}
         run: ../trusted/.github/scripts/write-acceptance-trailer.sh
-      - name: Carry the verdicts the content still answers for
-        if: steps.accept.outputs.after != ''
-        continue-on-error: true
-        working-directory: branch
-        env:
-          SIGN_TOKEN: ${{ steps.purba-sign.outputs.token }}
-          BEFORE: ${{ steps.accept.outputs.before }}
-          AFTER: ${{ steps.accept.outputs.after }}
-        run: ../trusted/.github/scripts/carry-verdicts.sh "$BEFORE" "$AFTER" $CARRYABLE

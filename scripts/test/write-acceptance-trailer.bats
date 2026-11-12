@@ -10,7 +10,8 @@ setup() {
   trusted="${BATS_TEST_TMPDIR}/trusted"
   mkdir -p "${trusted}/.github/scripts" "${trusted}/scripts"
   cp "${tree}/.github/scripts/write-acceptance-trailer.sh" "${tree}/.github/scripts/check-run.sh" \
-    "${tree}/.github/scripts/standing-approver.sh" "${trusted}/.github/scripts/"
+    "${tree}/.github/scripts/standing-approver.sh" "${tree}/.github/scripts/carry-verdicts.sh" \
+    "${trusted}/.github/scripts/"
   cp "${tree}/scripts/check-origin.sh" "${tree}/scripts/check-replayable.sh" \
     "${tree}/scripts/accept-one-commit.sh" "${tree}/scripts/report.sh" "${trusted}/scripts/"
   script="${trusted}/.github/scripts/write-acceptance-trailer.sh"
@@ -26,10 +27,10 @@ setup() {
   git push --quiet origin work
   pushed=$(git rev-parse HEAD)
 
-  export GH_REPO=owner/name PR=7 GATES="Quality Build" HEAD_REF=work SIGN_TOKEN=sign-token
-  export RUNNER_TEMP="${BATS_TEST_TMPDIR}/runner" GITHUB_OUTPUT="${BATS_TEST_TMPDIR}/output"
+  export GH_REPO=owner/name PR=7 GATES="Quality Build" CARRYABLE="Quality Build" HEAD_REF=work \
+    SIGN_TOKEN=sign-token
+  export RUNNER_TEMP="${BATS_TEST_TMPDIR}/runner"
   mkdir -p "${RUNNER_TEMP}"
-  touch "${GITHUB_OUTPUT}"
 
   reviews APPROVED:owner-1:42
   base main
@@ -81,12 +82,38 @@ origin_holds() {
   committer=$(git log -1 --format='%cn <%ce>' "${head}")
   bot="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
   [[ "${committer}" == "${bot}" ]]
-  written=$(cat "${GITHUB_OUTPUT}")
-  [[ "${written}" == "before=${pushed}"$'\n'"after=${head}" ]]
   asked=$(calls gh)
   [[ "${asked}" == *"api repos/owner/name/pulls/7/reviews --paginate"* ]]
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${head} -f status=completed"* ]]
   [[ "${asked}" == *"-f conclusion=success -f output[title]=Accepted by @owner-1"* ]]
+  [[ "${asked}" == *"-f name=Sign-off"*"-f name=Quality -f head_sha=${head}"* ]]
+  [[ "${asked}" == *"-f name=Build -f head_sha=${head}"* ]]
+  [[ "${output}" == *"before ${pushed} tree"* ]]
+}
+
+@test "an accepted branch whose carry cannot carry posts a failed Carry, and exits 0" {
+  gh_refuses post-check-runs-Quality
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  head=$(held)
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${head}"*"-f conclusion=success"* ]]
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${head}"*"-f conclusion=failure"* ]]
+}
+
+@test "an accepted branch whose carry cannot post Carry exits 2, after Sign-off" {
+  gh_refuses post-check-runs-Quality
+  gh_refuses post-check-runs-Carry
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  head=$(held)
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${head}"*"-f conclusion=success"* ]]
+  [[ "${output}" == *"the check run Carry could not be written onto ${head}."* ]]
 }
 
 @test "a base that moved on after the branch left it is not where the branch lands" {
@@ -148,7 +175,6 @@ origin_holds() {
 
   [[ "${status}" -eq 1 ]]
   origin_holds "${moved}"
-  [[ ! -s "${GITHUB_OUTPUT}" ]]
   asked=$(calls gh)
   [[ "${asked}" != *"--method POST"* ]]
 }
@@ -241,8 +267,8 @@ origin_holds() {
   head=$(git rev-parse HEAD)
   [[ "${head}" == "${refused}" ]]
   origin_holds "${refused}"
-  [[ ! -s "${GITHUB_OUTPUT}" ]]
   asked=$(calls gh)
+  [[ "${asked}" != *"-f name=Quality"* ]]
   [[ "${asked}" == *"-f name=Sign-off -f head_sha=${refused} -f status=completed"* ]]
   [[ "${asked}" == *"-f conclusion=failure"* ]]
   [[ "${asked}" == *"-f output[title]=Refused before anything was rewritten"* ]]
@@ -294,8 +320,8 @@ origin_holds() {
 
   [[ "${status}" -eq 0 ]]
   origin_holds "${refused}"
-  [[ ! -s "${GITHUB_OUTPUT}" ]]
   asked=$(calls gh)
+  [[ "${asked}" != *"-f name=Quality"* ]]
   [[ "${asked}" == *"-f head_sha=${refused} -f status=completed -f conclusion=failure"* ]]
   [[ "${asked}" == *"A branch is refused when its replay changes its content"* ]]
 }
@@ -331,8 +357,9 @@ origin_holds() {
   [[ "${status}" -eq 2 ]]
   head=$(held)
   [[ "${head}" != "${pushed}" ]]
-  [[ ! -s "${GITHUB_OUTPUT}" ]]
   [[ "${output}" == *"the check run Sign-off could not be written onto ${head}."* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"-f name=Quality"* ]]
   [[ "${output}" != *"recorded acceptance"* ]]
 }
 
@@ -341,7 +368,6 @@ origin_holds() {
   accepted=$(held)
   # The next run checks out the head this one pushed.
   git reset --quiet --hard "${accepted}"
-  : >"${GITHUB_OUTPUT}"
   git switch --quiet --create elsewhere
   commit "feat: three" "Signed-off-by: A Person <person@example.invalid>"
   git push --quiet origin elsewhere:work
@@ -352,8 +378,7 @@ origin_holds() {
 
   [[ "${status}" -eq 0 ]]
   origin_holds "${moved}"
-  written=$(cat "${GITHUB_OUTPUT}")
-  [[ "${written}" == "before=${accepted}"$'\n'"after=${accepted}" ]]
+  [[ "${output}" == *"the head did not move, so there is nothing to carry"* ]]
   asked=$(calls gh)
   last=${asked##*$'\n'}
   [[ "${last}" == *"-f head_sha=${accepted} -f status=completed -f conclusion=success"* ]]
@@ -381,7 +406,7 @@ origin_holds() {
 }
 
 @test "a variable the workflow supplies stops it when absent" {
-  for name in GH_REPO PR GATES HEAD_REF RUNNER_TEMP GITHUB_OUTPUT; do
+  for name in GH_REPO PR GATES CARRYABLE HEAD_REF RUNNER_TEMP; do
     run env -u "${name}" "${script}"
 
     [[ "${status}" -eq 1 ]]
