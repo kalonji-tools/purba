@@ -1,4 +1,4 @@
-# On a review, this workflow starts the job that accepts a branch.
+# On an approval, this workflow starts the job that accepts a branch.
 #
 #   the job:       .github/workflows/sign.yml
 #
@@ -19,7 +19,11 @@ permissions: {}
 
 jobs:
   approved:
+    # A job that its `if:` skips still writes a check run under its name, and
+    # that check run reads `skipped`. So a review that requests changes, or
+    # only comments, leaves no green `approved` on the head.
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - run: echo "A reviewer submitted a review, and the sign job from main reads it."
+      - run: echo "A reviewer approved, and the sign job from main reads the reviews."
