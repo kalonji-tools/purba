@@ -6,7 +6,8 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   module="${BATS_TEST_DIRNAME}/../../.github/scripts/check-run.sh"
   isolate
-  export GH_REPO=owner/name HEAD_REF=work GH_TOKEN=actions-token SIGN_TOKEN=sign-token
+  export GH_REPO=owner/name HEAD_REF=work PR=7 BASE_REF=main GH_TOKEN=actions-token \
+    SIGN_TOKEN=sign-token
   fake_gh
   # shellcheck source=.github/scripts/check-run.sh
   . "${module}"
@@ -86,14 +87,123 @@ setup() {
   [[ "${output}" == *"Quality is green on abc123"* ]]
 }
 
+@test "a job counts only by a token whose claims name its run, this pull request and its base" {
+  for filter in '.ref = "refs/pull/8/merge"' '.base_ref = "evil"' '.run_id = "102"' \
+    '.run_attempt = "2"' '.check_run_id = "1002"' '.aud = "sigstore"' \
+    '.iss = "https://example.invalid"' '.repository = "owner/other"' \
+    '.event_name = "push"'; do
+    check_runs Quality=success
+    gate_token 101 "${filter}"
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"Quality has no verdict on abc123 yet"* ]]
+  done
+}
+
+@test "a token that a key of the set did not sign by RS256 is no verdict" {
+  # The key `other` signs under the name `gate`, and the alg HS256 heads a
+  # signature that `gate` made by RS256.
+  for signer in "other RS256" "short RS256" "gate none" "other RS256 gate" "gate HS256"; do
+    check_runs Quality=success
+    # shellcheck disable=SC2086 # a key, an alg and a name, one per word
+    gate_token 101 . ${signer}
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"Quality has no verdict on abc123 yet"* ]]
+  done
+}
+
+@test "a job of a rerun counts only by the token of its own attempt" {
+  check_runs Quality=success
+  jq -c '.jobs[0].run_attempt = 2' "${BATS_TEST_TMPDIR}/gh/jobs.json" >"${BATS_TEST_TMPDIR}/jobs"
+  gh_answers jobs "$(<"${BATS_TEST_TMPDIR}/jobs")"
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"Quality has no verdict on abc123 yet"* ]]
+}
+
+@test "a run with no token is no verdict, and neither is one whose artifact expired" {
+  for artifacts in '[]' '[{"id":5101,"name":"gate-token-1","expired":true}]'; do
+    check_runs Quality=success
+    gh_answers artifacts-101 "{\"artifacts\":${artifacts}}"
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 1 ]]
+    [[ "${output}" == *"Quality has no verdict on abc123 yet"* ]]
+  done
+}
+
+@test "the token is read from the artifact of the job's attempt, and the key set from GitHub" {
+  check_runs Quality=success
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 0 ]]
+  asked=$(calls gh)
+  read_token="api repos/owner/name/actions/runs/101/artifacts?name=gate-token-1"
+  [[ "${asked}" == *"${read_token}&per_page=100"* ]]
+  [[ "${asked}" == *"api repos/owner/name/actions/artifacts/5101/zip"* ]]
+  fetched=$(calls curl)
+  [[ "${fetched}" == *"https://token.actions.githubusercontent.com/.well-known/jwks"* ]]
+}
+
+@test "a read of the token or of the key set that fails exits 2" {
+  for refused in artifacts zip; do
+    check_runs Quality=success
+    gh_refuses "${refused}"
+
+    run require_green abc123 Quality
+
+    [[ "${status}" -eq 2 ]]
+    [[ "${output}" == *"the token of the workflow run 101 could not be read."* ]]
+    rm "${BATS_TEST_TMPDIR}/gh/${refused}.refused"
+  done
+
+  check_runs Quality=success
+  fake curl <<<'echo "curl: (22) The requested URL returned error: 503" >&2; exit 22'
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the key set of GitHub could not be read."* ]]
+}
+
+@test "with no pull request it exits 2, because no token can be matched to it" {
+  check_runs Quality=success
+  export PR=
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"PR is set by the workflow env, and it is empty here."* ]]
+}
+
+@test "with no base it exits 2, and names the script that reads the base" {
+  check_runs Quality=success
+  export BASE_REF=
+
+  run require_green abc123 Quality
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"BASE_REF is set by write-acceptance-trailer.sh, and it is empty here."* ]]
+}
+
 @test "a gate is a job of the workflow file named for it, up to its first dash" {
   gh_answers check-runs '{"check_runs":[{"id":9,"name":"Quality-macOS","conclusion":"success",
     "completed_at":"2026-01-01T00:00:00Z","app":{"slug":"github-actions"},
     "check_suite":{"id":5}}]}'
   gh_answers runs '{"workflow_runs":[{"id":7,"check_suite_id":5,
     "path":".github/workflows/quality.yml","event":"pull_request","head_branch":"work"}]}'
-  gh_answers jobs '{"jobs":[{"id":9,"run_id":7,"name":"Quality-macOS","conclusion":"success",
-    "completed_at":"2026-01-01T00:00:00Z","runner_id":1}]}'
+  gh_answers jobs '{"jobs":[{"id":9,"run_id":7,"run_attempt":1,"name":"Quality-macOS",
+    "conclusion":"success","completed_at":"2026-01-01T00:00:00Z","runner_id":1}]}'
+  gate_token_for 7 9
 
   run require_green abc123 Quality-macOS
 

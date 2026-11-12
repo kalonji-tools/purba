@@ -11,7 +11,8 @@
 # the head of `main`, so a failed job marks `main` red. The failed `Sign-off`
 # it posts on the pull request is the report instead. Before it posts a
 # passing `Sign-off`, it exits 2 when it cannot read the pull request, its
-# reviews or the permission of an approver, or cannot read or write a check run.
+# reviews, the permission of an approver, the key set of GitHub or the token of
+# a gate, or cannot read or write a check run.
 # It also exits 2 when the reviews are not ones the rule can read. After it
 # posts a passing `Sign-off`, it ends in `carry-verdicts.sh`, and exits as that
 # does. Any other command that fails exits with its own code, which can be 1.
@@ -49,6 +50,16 @@ if [[ -z "${approver}" ]]; then
   exit 0
 fi
 
+# The branch this pull request targets, not `main`. Measuring from
+# `main` would make the job rewrite commits it does not own. Read it
+# from the API: a gate finishing carries no base branch. The token of a gate
+# must name it too, so it is read before the gates.
+if ! pull=$(gh api "repos/${GH_REPO}/pulls/${PR}") ||
+  ! base_ref=$(jq -er .base.ref <<<"${pull}"); then
+  cannot "pull request ${PR} could not be read, so the branch it targets is unknown."
+fi
+export BASE_REF="${base_ref}"
+
 current_head=$(git rev-parse HEAD)
 # `GATES` holds one context per word and this function takes one per argument,
 # so quoting it would ask for a single context named after all of them. A read
@@ -63,13 +74,6 @@ fi
 # does not.
 export TRAILER="Accepted-by: ${approver} <${approver_id}+${approver}@users.noreply.github.com>"
 
-# The branch this pull request targets, not `main`. Measuring from
-# `main` would make the job rewrite commits it does not own. Read it
-# from the API: a gate finishing carries no base branch.
-if ! pull=$(gh api "repos/${GH_REPO}/pulls/${PR}") ||
-  ! base_ref=$(jq -er .base.ref <<<"${pull}"); then
-  cannot "pull request ${PR} could not be read, so the branch it targets is unknown."
-fi
 git fetch --quiet origin "${base_ref}"
 base=$(git merge-base FETCH_HEAD HEAD)
 before=$(git rev-parse HEAD)

@@ -68,6 +68,11 @@ yq = "4"
 # https://github.com/conda-forge/parallel-feedstock
 "conda:parallel" = "20260922"
 
+# `check-run.sh` verifies the token of a gate with `openssl`.
+# mise's own registry has no OpenSSL.
+# https://github.com/conda-forge/openssl-feedstock
+"conda:openssl" = "3"
+
 # https://embarkstudios.github.io/cargo-deny/
 "aqua:EmbarkStudios/cargo-deny" = "0"
 

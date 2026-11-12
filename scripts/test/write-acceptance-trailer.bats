@@ -393,6 +393,8 @@ origin_holds() {
   git rebase --quiet below
   git push --quiet --force origin work
   base below
+  # The gates of a pull request into `below` ran against that base.
+  BASE_REF=below check_runs Quality=success Build=success
 
   run "${script}"
 

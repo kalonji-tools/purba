@@ -426,7 +426,24 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
     steps:
+      #   the decision:  docs/decisions/a-gate-counts-only-by-a-token-github-signed-for-its-run.md
+      #   the token:     https://docs.github.com/en/actions/reference/security/oidc
+      - name: Ask GitHub for a token that names this run
+        run: |
+          curl --silent --show-error --fail \
+            --header "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=purba-gate" |
+            jq --exit-status --raw-output .value >"${RUNNER_TEMP}/gate-token"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gate-token-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gate-token
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
