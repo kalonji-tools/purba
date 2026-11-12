@@ -13,7 +13,7 @@ So the base branch and the head can hold different marks, and the gate reads one
 
 ## Decision Outcome
 
-**Reach:** `/.config/gates` `/.config/lanes` `.github/workflows/ci.yml` `.github/scripts/changed.sh` `.github/scripts/lanes.sh` `scripts/attributes.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
+**Reach:** `/.config/gates` `/.config/lanes` `.github/workflows/ci.yml` `.github/scripts/changed.sh` `.github/scripts/lanes.sh` `.github/scripts/require-jobs.sh` `scripts/attributes.sh` `scripts/test/changed.bats` `/.github/CODEOWNERS` `/CONTRIBUTING.md`
 
 **Area:** tooling
 
@@ -26,10 +26,10 @@ A pull request to another branch reads the marks of that branch.
 **Downside:**
 
 - **A changed mark does not apply to the pull request that changes it.** The new mark applies from the next pull request.
-- **A pull request can change what decides its own skip.** The workflow, `changed.sh`, the scripts it sources and `lanes.sh` run from the head, and `lanes.sh` reads `.config/lanes` there. The code owner of `/.github/`, `/.config/` and `/scripts/` reads that change.
+- **A pull request can change what decides its own skip.** The workflow, `changed.sh`, the scripts it sources, `lanes.sh` and `require-jobs.sh` run from the head. `lanes.sh` reads `.config/lanes` there. `require-jobs.sh` decides whether the skip passes. The code owner of `/.github/`, `/.config/` and `/scripts/` reads a change to any of those.
 
 ## Confirmation
 
 `scripts/test/changed.bats` tests that a head which marks its own change to skip still starts the gate, and `mise run test:shell` runs those tests.
 `.github/CODEOWNERS` names `/.github/`, `/.config/` and `/scripts/`.
-So a change to the workflow, to `changed.sh`, to a script it sources or to `.config/lanes` waits for the code owner.
+So a change to the workflow, to a script it runs or one of those sources, or to `.config/lanes` waits for the code owner.
