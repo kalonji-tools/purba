@@ -162,7 +162,8 @@ flowchart TD
   trees -- yes --> conclusion{"the conclusion of each context on the head it replaced"}
   conclusion -- "success or failure: of the fixed set GitHub draws a conclusion from, the two that answer for the tree" --> again["reports the same conclusion again on the new head"]
   conclusion -- "any other member, which reports what happened to the run" --> absent["names the conclusion it refused, and leaves the context absent"]
-  absent --> blocked["the pull request stays blocked until somebody closes it and reopens it, which runs the gates on the rewritten head"]
+  absent --> stops["each time this job starts again on that head, it finds no verdict there and stops"]
+  stops --> reopen["the gates run on the rewritten head once somebody closes the pull request and reopens it"]
 ```
 
 Before it rewrites anything, the `sign` job refuses a branch whose replay changes the content, so it never reaches two trees that differ.
