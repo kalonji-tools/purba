@@ -1,8 +1,13 @@
 # Each attribute names work in `ci.yml` that can skip. `build` marks a path whose change
-# must start the jobs `rust` and `wheel`, and `scripts` a path whose change must run the
-# tests in `Scripts` and `Scripts-macOS`. `-build` and `-scripts` mark a path whose change
-# need not. `Quality`, `Quality-macOS`, `Records`, `Commits` and `Sign-off` always run, so
-# none has an attribute.
+# must start the jobs `rust` and `wheel`, and `scripts` a path whose change must start
+# `Scripts` and `Scripts-macOS`. `lint-<lane>` marks a path whose change must start that
+# lane of the lint in `Quality`, as .config/lanes names the lanes. For a lane, this file
+# marks what its lints read, their own code and the files of mise. `lint-macos` marks a
+# path whose change must start `Quality-macOS`: the code of a lint, the files of mise and
+# what clippy compiles. `-<attribute>` marks a path whose change need not. `Quality` always
+# runs, and only its lanes take an attribute. `Records`, `Commits` and `Sign-off` take none.
+#
+#   the decision:  docs/decisions/ci-runs-a-lane-of-the-lint-only-when-a-path-it-reads-changes.md
 #
 # A gate reads the marks on the base branch, so a mark takes effect once it merges.
 #
@@ -11,35 +16,40 @@
 #
 #   the task:  mise run lint:gates
 
-.github/**                     -build  -scripts
-.github/workflows/ci.yml       build   scripts
-.github/scripts/**             -build  scripts
-.config/mise.toml              build   scripts
-.config/mise.lock              build   scripts
-.config/tasks.toml             build   scripts
-.config/gates                  -build  -scripts
-.config/readers                -build  -scripts
-.config/cliff.toml             -build  scripts
-/Cargo.toml                    build   -scripts
-/Cargo.lock                    build   -scripts
-/.cargo/config.toml            build   scripts
-/.cargo/clippy.toml            build   scripts
-crates/**                      build   -scripts
-tests/**                       build   -scripts
-/pyproject.toml                build   scripts
-/README.md                     build   -scripts
-/LICENSE                       build   -scripts
-.gitignore                     build   -scripts
-.gitattributes                 build   scripts
+.github/**                     -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.github/workflows/**           -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
+.github/workflows/ci.yml        build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
+.github/scripts/**             -build   scripts   lint-rust   lint-scripts   lint-docs  -lint-macos
+.github/**/*.rs                -build   scripts   lint-rust   lint-scripts  -lint-docs   lint-macos
+.config/mise.toml               build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
+.config/mise.lock               build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
+.config/tasks.toml              build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
+.config/lanes                  -build  -scripts   lint-rust   lint-scripts   lint-docs  -lint-macos
+.config/gates                  -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.config/readers                -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.config/cliff.toml             -build   scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/Cargo.toml                     build  -scripts   lint-rust   lint-scripts  -lint-docs   lint-macos
+/Cargo.lock                     build  -scripts   lint-rust  -lint-scripts  -lint-docs   lint-macos
+/.cargo/config.toml             build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
+/.cargo/clippy.toml             build   scripts   lint-rust   lint-scripts  -lint-docs   lint-macos
+crates/**                       build  -scripts   lint-rust  -lint-scripts  -lint-docs   lint-macos
+tests/**                        build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
+/pyproject.toml                 build   scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
+/README.md                      build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/LICENSE                        build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.gitignore                      build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.gitattributes                  build   scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 
-/AGENTS.md                     -build  -scripts
-/CLAUDE.md                     -build  -scripts
-/CONTEXT.md                    -build  -scripts
-/CONTRIBUTING.md               -build  -scripts
-/LANDSCAPE.md                  -build  -scripts
-/.cargo/deny.toml              -build  -scripts
-/prek.toml                     -build  -scripts
-/.editorconfig                 -build  -scripts
-/.shellcheckrc                 -build  -scripts
-docs/**                        -build  -scripts
-scripts/**                     -build  scripts
+/AGENTS.md                     -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/CLAUDE.md                     -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/CONTEXT.md                    -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/CONTRIBUTING.md               -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/LANDSCAPE.md                  -build  -scripts   lint-rust  -lint-scripts   lint-docs  -lint-macos
+/.cargo/deny.toml              -build  -scripts   lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/prek.toml                     -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
+/.editorconfig                 -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
+/.shellcheckrc                 -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
+docs/**                        -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+docs/decisions/**              -build  -scripts  -lint-rust  -lint-scripts   lint-docs  -lint-macos
+docs/README.md                 -build  -scripts  -lint-rust  -lint-scripts   lint-docs  -lint-macos
+scripts/**                     -build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
