@@ -56,7 +56,7 @@ No signature is available as a third place: GitHub does not sign what a rebase m
 
 ## Decision Outcome
 
-**Reach:** [commit message](../../CONTEXT.md#commit-message) `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/approved.yml` `.github/workflows/commits.yml` `.github/scripts/standing-approver.sh` `.github/scripts/carry-verdicts.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/ask-for-sign-off.sh` `scripts/check-origin.sh` `scripts/check-replayable.sh` `scripts/sign-branch.sh` `/CONTRIBUTING.md` `/AGENTS.md` `.github/scripts/check-run.sh` `scripts/accept-one-commit.sh`
+**Reach:** [commit message](../../CONTEXT.md#commit-message) `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/commits.yml` `.github/scripts/standing-approver.sh` `.github/scripts/carry-verdicts.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/ask-for-sign-off.sh` `scripts/check-origin.sh` `scripts/check-replayable.sh` `scripts/sign-branch.sh` `/CONTRIBUTING.md` `/AGENTS.md` `.github/scripts/check-run.sh` `scripts/accept-one-commit.sh`
 
 **Area:** workflow
 
@@ -68,7 +68,7 @@ Every option that lost asks one party to certify something it cannot know, or st
 |---|---|---|---|
 | origin | the contributor | as the commit is made, or once the reviewer is satisfied | `Signed-off-by:` |
 | authorship | the agent | the moment the commit is made | the author field and `Assisted-by:` |
-| acceptance | a workflow, from the approval of a person whose account has write access | the moment that person approves | an `Accepted-by:` trailer on every commit |
+| acceptance | a workflow, from the approval of a person whose account has write access | once `CI` is green and that person's approval stands | an `Accepted-by:` trailer on every commit |
 | stewardship | the code owner | whenever ownership changes | `.github/CODEOWNERS` |
 
 **The contributor writes the origin trailer, and no workflow writes one.**
@@ -134,7 +134,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
 | a change under `/.github/`, `/scripts/`, `/.config/` or `/.cargo/` reaches the code owner | strong, `.github/CODEOWNERS` names each of them, and the ruleset requires the code owner's review |
 | a change to a file elsewhere that a gate reads, such as `prek.toml` or `.editorconfig`, reaches the code owner | none, and no check compares `.github/CODEOWNERS` with the files that a gate reads |
-| a pull request from a fork never reaches the checkout in the `sign` job | strong, and measured on `workflow_run`. The `sign` job runs only on `workflow_run`, when a gate or `Approved` finishes. On `workflow_run` its `if:` skipped a pull request from a fork, once for each of `Quality`, `Build` and `Scripts`. On `pull_request`, the `fork` job refuses the pull request |
+| a pull request from a fork never reaches the checkout in the `sign` job | strong, and measured on `workflow_run`. The `sign` job runs only on `workflow_run`, when a gate finishes. On `workflow_run` its `if:` skipped a pull request from a fork, once for each of `Quality`, `Build` and `Scripts`. On `pull_request`, the `fork` job refuses the pull request |
 | the `sign` job reads the verdict of a gate only from a job that ran on a runner, in a run of the gate's workflow file, on `pull_request`, on the branch of the pull request, or from `purba-sign` | strong, `scripts/test/check-run.bats` checks each source of a verdict. A second pull request from the same branch still counts, and [`main` requires only `Sign-off`, and accepts it only from `purba-sign`](a-required-check-of-main-counts-only-from-github-actions.md) names it |
 | a run that a finished gate starts leaves no failed check run on the head of `main` when its pull request closed before its gate finished, or when a rule refuses the branch | strong. The job's `if:` skips the closed pull request, as it skips a fork. `scripts/test/write-acceptance-trailer.bats` checks that the script writes a failed `Sign-off` for a refused branch and exits 0 |
 | the contributor read what they signed | none, and no check can make it |
@@ -173,7 +173,7 @@ The two cases above, the trees matching and the trees differing, were the whole 
 This job rewrote the branch before `Quality` concluded.
 It read a check with no verdict and carried nothing forward, although every step of `Quality` passed.
 This job now waits for the verdict of every gate before it rewrites anything, so it never carries a missing verdict.
-`.github/scripts/check-run.sh` holds that rule, and a gate concluding is one of the events that starts this job.
+`.github/scripts/check-run.sh` holds that rule, and a gate concluding is the event that starts this job.
 
 The job can read a gate before GitHub reports its verdict.
 The job once read no verdict for `Build` 13 seconds after `Build` concluded.

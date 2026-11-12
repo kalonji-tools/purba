@@ -16,7 +16,7 @@ The `sign` job also read a gate by its name alone, so such a check run could sta
 
 ## Decision Outcome
 
-**Reach:** `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/approved.yml` `.github/workflows/ci.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/carry-verdicts.sh` `/CONTRIBUTING.md`
+**Reach:** `.github/CODEOWNERS` `.github/workflows/sign.yml` `.github/workflows/ci.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `.github/scripts/carry-verdicts.sh` `/CONTRIBUTING.md`
 
 **Area:** workflow
 
@@ -24,7 +24,7 @@ The `sign` job also read a gate by its name alone, so such a check run could sta
 The key of `purba-sign` is a secret of the environment `sign`, and that environment lets in only a job that runs from `main`.
 So a workflow on any other branch, or one that a pull request runs, cannot post a `Sign-off` that `protect-main` accepts.
 
-- **The `sign` job runs only when a gate or `Approved` finishes.** That run takes `sign.yml` from `main`. It also runs the scripts of `main`. Those scripts only rewrite the commits of the branch.
+- **The `sign` job runs only when a gate finishes.** That run takes `sign.yml` from `main`. It also runs the scripts of `main`. Those scripts only rewrite the commits of the branch.
 - **The `sign` job reads the verdict of a gate only from a job that ran on a runner, or from `purba-sign`.** That job belongs to a run of the gate's workflow file, on `pull_request`, on the branch of the pull request. The name of the gate names that file: `CI` is a job of `ci.yml`. A check run that a workflow posts through the API joins the jobs of a run, and it has no runner.
 - **`CI` stops a merge through `Sign-off`.** The `sign` job signs no head while `CI` is red, and `CI` is red while a job it requires is red.
 - **`purba-sign` may write checks and read metadata, and nothing else.** For `purba-sign`, the environment is the boundary, because a check run is the very thing a forger writes.

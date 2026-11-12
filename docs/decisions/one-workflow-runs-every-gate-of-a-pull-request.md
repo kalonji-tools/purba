@@ -62,12 +62,11 @@ flowchart LR
   ch -- "a path not marked -build" --> r & w
   q -- "must succeed" --> gate
   ch & qm & s & sm & r & w -- "each did what changed asked" --> gate
-  ap[Approved] -- "finishes" --> sg[sign.yml, from main]
-  gate -- "finishes" --> sg
+  gate -- "finishes" --> sg[sign.yml, from main]
   sg -- "CI is green, and an approval stands" --> so([Sign-off, from purba-sign])
 ```
 
-- **One workflow.** `ci.yml` holds the jobs that the three workflows held. Its last job, `CI`, needs each other job and runs under `always()`. It requires `Quality` to succeed, and passes `changed` with each other job to `require-jobs.sh`. `sign.yml` waits for `CI` and `Approved`, and names `CI` alone as a gate and as carryable. `check-run.sh` reads the job `CI` from `ci.yml`, because the name of the gate names that file.
+- **One workflow.** `ci.yml` holds the jobs that the three workflows held. Its last job, `CI`, needs each other job and runs under `always()`. It requires `Quality` to succeed, and passes `changed` with each other job to `require-jobs.sh`. `sign.yml` waits for `CI` alone, and names it as the gate and as carryable. `check-run.sh` reads the job `CI` from `ci.yml`, because the name of the gate names that file.
 - **A macOS cache of the cargo scripts.** `cargo-scripts.yml` fills one cache for each OS on a push to `main`, and its key names the OS.
 - **bats in parallel.** `test:shell` runs `bats --jobs` at twice the cores. `.config/mise.toml` pins GNU parallel as `conda:parallel`.
 - **`ci.yml` asks for at most 5 macOS jobs on one push.** The Free plan runs 5 macOS jobs at once, so the macOS wheel matrix runs 2 jobs of 2 Pythons each. Each Python takes a step of its own, so a red step names its Python. The second step runs also when the first fails.
