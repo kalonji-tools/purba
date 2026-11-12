@@ -1,0 +1,23 @@
+# Each lint of `mise run lint`, and the lanes that start it. A lane starts when a pull
+# request changes a path that .config/gates marks `lint-<lane>`. The lane `always` runs on
+# every pull request, and so does a lint this file does not name.
+#
+#   the decision:  docs/decisions/ci-runs-a-lane-of-the-lint-only-when-a-path-it-reads-changes.md
+#   the caller:    .github/scripts/lanes.sh
+
+lint:rust            rust
+lint:licences        rust
+lint:wiring          rust
+lint:manifests       rust scripts
+lint:cargo-scripts   scripts
+lint:shell           scripts
+lint:placement       scripts
+lint:records         docs
+lint:index           docs
+lint:order           docs
+lint:links           always
+lint:readers         always
+lint:style           always
+lint:gates           always
+lint:pins            always
+lint:macos-jobs      always
