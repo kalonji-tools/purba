@@ -99,7 +99,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
@@ -151,7 +151,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
@@ -184,7 +184,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
@@ -219,7 +219,7 @@ jobs:
 
       # The key of this cache hashes `install_args`, and
       # .github/workflows/cargo-scripts.yml fills the entry of that key on main.
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
@@ -265,7 +265,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
@@ -305,7 +305,7 @@ jobs:
 
       # mise supplies the Rust toolchain and maturin, and runs first so that the
       # interpreters below win the PATH.
-      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           version: ${{ env.MISE_VERSION }}
           # .github/workflows/cargo-scripts.yml says why the key holds no period.
