@@ -38,11 +38,11 @@ check_runs_of() {
     exit 2
   fi
   if [[ -z "${PR:-}" ]]; then
-    echo "PR is set by the workflow env, and it is empty here." >&2
+    echo "PR is set by write-acceptance-trailer.sh, and it is empty here." >&2
     exit 2
   fi
   if [[ -z "${BASE_REF:-}" ]]; then
-    echo "BASE_REF is set by write-acceptance-trailer.sh, and it is empty here." >&2
+    echo "BASE_REF is set by the workflow env, and it is empty here." >&2
     exit 2
   fi
   if ! runs=$(gh api "repos/${GH_REPO}/commits/$1/check-runs?per_page=100") ||

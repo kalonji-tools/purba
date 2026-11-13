@@ -4,15 +4,17 @@
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #                  docs/decisions/only-github-runs-what-lives-under-github.md
+#   what it signs: docs/decisions/the-sign-job-signs-only-the-pull-request-into-main.md
 #   what you owe:  CONTRIBUTING.md
 #
 # Exits 0 when there is nothing to accept yet, and when a rule refuses the
 # branch or cannot run. The workflow run writes the job's own check run onto
 # the head of `main`, so a failed job marks `main` red. The failed `Sign-off`
 # it posts on the pull request is the report instead. Before it posts a
-# passing `Sign-off`, it exits 2 when it cannot read the pull request, its
-# reviews, the permission of an approver, the key set of GitHub or the token of
-# a gate, or cannot read or write a check run.
+# passing `Sign-off`, it exits 2 when it cannot read the open pull requests
+# from the branch, the pull requests that hold its head, the reviews, the
+# permission of an approver, the key set of GitHub or the token of a gate, or
+# cannot read or write a check run.
 # It also exits 2 when the reviews are not ones the rule can read. After it
 # posts a passing `Sign-off`, it ends in `carry-verdicts.sh`, and exits as that
 # does. Any other command that fails exits with its own code, which can be 1.
@@ -22,7 +24,7 @@ set -euo pipefail
 # line that first reads one. `GATES` holds the contexts this job waits on, and
 # `CARRYABLE` the ones it carries.
 : "${GH_REPO:?set by the workflow env}"
-: "${PR:?set by the workflow env}"
+: "${BASE_REF:?set by the workflow env}"
 : "${GATES:?set by the workflow env}"
 : "${CARRYABLE:?set by the workflow env}"
 : "${HEAD_REF:?set by the workflow env}"
@@ -34,6 +36,34 @@ set -euo pipefail
 . "$(dirname "$0")/check-run.sh"
 # shellcheck source=.github/scripts/standing-approver.sh
 . "$(dirname "$0")/standing-approver.sh"
+
+open_from="head=${GH_REPO%%/*}:${HEAD_REF}&base=${BASE_REF}&state=open"
+if ! open=$(gh api "repos/${GH_REPO}/pulls?${open_from}") ||
+  ! PR=$(jq -er 'if type == "array" then .[0].number // "" else error end' <<<"${open}"); then
+  cannot "the open pull requests from ${HEAD_REF} into ${BASE_REF} could not be read."
+fi
+if [[ -z "${PR}" ]]; then
+  echo "no open pull request from ${HEAD_REF} targets ${BASE_REF}, so there is nothing to accept"
+  exit 0
+fi
+export PR
+echo "pull request ${PR} from ${HEAD_REF} into ${BASE_REF} is the one this run reads"
+
+current_head=$(git rev-parse HEAD)
+if ! holders=$(gh api "repos/${GH_REPO}/commits/${current_head}/pulls") ||
+  ! sharing=$(jq -er --arg base "${BASE_REF}" --arg head "${current_head}" \
+    'if type == "array" then [.[] | select(.state == "open" and .base.ref == $base and
+    .head.sha == $head) | "#\(.number)"] | join(", ") else error end' <<<"${holders}"); then
+  cannot "the pull requests that hold ${current_head} could not be read."
+fi
+if [[ "${sharing}" == *,* ]]; then
+  post_check_run "Sign-off" "${current_head}" failure \
+    "More than one pull request into ${BASE_REF} holds this head" \
+    "Pull requests ${sharing} into ${BASE_REF} hold this commit. A \`Sign-off\` on it stands \
+on each. So purba signs none of them. Close all but one. Then close that one and reopen it."
+  echo "pull requests ${sharing} into ${BASE_REF} hold this head, so none is signed"
+  exit 0
+fi
 
 # Read the approval from the API, not from the event. A push event
 # carries no approval, and a push is what this job has to survive.
@@ -50,17 +80,6 @@ if [[ -z "${approver}" ]]; then
   exit 0
 fi
 
-# The branch this pull request targets, not `main`. Measuring from
-# `main` would make the job rewrite commits it does not own. Read it
-# from the API: a gate finishing carries no base branch. The token of a gate
-# must name it too, so it is read before the gates.
-if ! pull=$(gh api "repos/${GH_REPO}/pulls/${PR}") ||
-  ! base_ref=$(jq -er .base.ref <<<"${pull}"); then
-  cannot "pull request ${PR} could not be read, so the branch it targets is unknown."
-fi
-export BASE_REF="${base_ref}"
-
-current_head=$(git rev-parse HEAD)
 # `GATES` holds one context per word and this function takes one per argument,
 # so quoting it would ask for a single context named after all of them. A read
 # that fails exits 2 inside `require_green`, so `set -e` need not reach it.
@@ -74,7 +93,7 @@ fi
 # does not.
 export TRAILER="Accepted-by: ${approver} <${approver_id}+${approver}@users.noreply.github.com>"
 
-git fetch --quiet origin "${base_ref}"
+git fetch --quiet origin "${BASE_REF}"
 base=$(git merge-base FETCH_HEAD HEAD)
 before=$(git rev-parse HEAD)
 

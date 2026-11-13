@@ -149,6 +149,7 @@ if [[ "$1" == api ]]; then
   [[ ! "${path}" =~ /([0-9]+)(/[^/]*[^/0-9][^/]*)?$ ]] || id=${BASH_REMATCH[1]}
   [[ "${path##*/}" == *[!0-9]* ]] || path=${path%/*}
   call=${write}${path##*/}
+  [[ "${path}" != */commits/*/pulls ]] || call=${write}commit-pulls
 fi
 answers="${BATS_TEST_TMPDIR}/gh"
 if [[ -e "${answers}/${call}.refused" || -e "${answers}/${call}-${named:-}.refused" ]]; then

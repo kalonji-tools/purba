@@ -117,6 +117,7 @@
 - [Architectural significance is declared, not detected](decisions/significance-is-declared-not-detected.md)
 - [The agent that marks a pull request ready watches it](decisions/the-agent-that-marks-a-pull-request-ready-watches-it.md)
 - [The person owns the Decision Outcome](decisions/the-person-owns-the-decision-outcome.md)
+- [The `sign` job signs only the pull request into `main`](decisions/the-sign-job-signs-only-the-pull-request-into-main.md)
 
 ## How a record is written
 

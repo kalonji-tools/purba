@@ -61,7 +61,6 @@ So [a workflow is granted an identity, not a power](a-workflow-is-granted-an-ide
 - **A key of another shape gives no verdict.** GitHub may sign with a key of a shape that the table does not name. No gate then counts until `check-run.sh` builds that shape.
 - **The token sits in an artifact that anyone can read.** Its audience is `purba-gate`. Its claims name one run, so the `sign` job counts it for that run alone.
 - **The `sign` job trusts `token.actions.githubusercontent.com` at run time.** When that host does not answer, the `sign` job counts no gate. `write-acceptance-trailer.sh` then exits 2 before it writes anything, so the `sign` job fails. When `carry-verdicts.sh` cannot read the key set, it writes a failed `Carry`.
-- **A `Sign-off` belongs to the head, not to the pull request.** A `sign` run for one pull request leaves a `Sign-off` that stands on each pull request at that head. A `sign` run from before a base moved leaves one that stands after the move. [A Sign-off that the sign job writes for one pull request stands on each pull request at the same head](https://github.com/kalonji-tools/purba/issues/949) holds it.
 
 ## Confirmation
 
