@@ -1,0 +1,96 @@
+
+ex1_slugify.py
+  slug_of  (line 7)
+    ✓ plain › slug       'hello-world'
+    ✓ spaces › slug       'many-spaces'
+    ✗ accents › slug
+        expected  'creme-brulee'
+        reading   'crème-brûlée'
+        inputs    text='Crème Brûlée'
+    ✓ empty › raises  ValueError: empty text
+
+ex2_money.py
+  amount_of  (line 7)
+    ✓ euros › cents      1250
+    ✓ euros › unit       'EUR'
+    ✓ legacy › warns   DeprecationWarning: parse_amount without a currency is deprecated
+    ✓ legacy › cents      1250
+    ✓ legacy › unit       'USD'
+    ✓ negative › raises  ValueError: amount -5 is below zero
+    ✗ rounding › an unexpected warning   UserWarning: rounded 0.005 to cents
+        assays blocked: cents, unit
+
+ex3_sign_up.py
+  signed_up  (line 37)
+    ✓ first › user_id    1
+    ✓ first › stored     ['ann']
+    ✓ first › mailed     [('ann', 'welcome')]
+    ✓ second › user_id    2
+    ✓ second › stored     ['bob', 'ann']
+    ✓ second › mailed     [('ann', 'welcome')]
+    ✓ taken › raises  ValueError: name 'ann' is taken
+    ✓ taken › stored     ['ann']
+    ✓ taken › mailed     []
+
+ex4_cart.py
+  opened  (line 7)
+    ✓ ann › owner_seen 'ann'
+    ✓ ann › count      0
+  added  (line 25)
+    ✓ one_book › items      1
+    ✓ one_book › total      1200
+    ✓ two_books › items      2
+    ✓ two_books › total      2400
+    ✓ pens › items      3
+    ✗ pens › total
+        expected  300
+        reading   450
+        inputs    cart=<opened › ann>, sku='PEN-7', qty=3
+    ✓ unknown › raises  KeyError: 'NOPE'
+    ✓ unknown › items      0
+    ✓ unknown › total      0
+  checked_out  (line 46)
+    ✓ two_books › paid       2400
+    ✓ two_books › lines      1
+    ⊘ pens  blocked: step `added › pens` did not pass
+
+ex5_refused.py
+  branchy  (line 7)
+    ✗ REFUSED before the run: the reaction must be inputs + ONE act (`return act(inputs)`); found: If, Return
+  two_lines  (line 14)
+    ✗ REFUSED before the run: the reaction must be inputs + ONE act (`return act(inputs)`); found: Assign, Return
+  nested  (line 20)
+    ✗ REFUSED before the run: each argument of the act must be an input; found `text.strip()`
+  private_act  (line 25)
+    ✗ REFUSED before the run: the act calls a private name `_normalise` (give a reason to depart)
+  private_with_reason  (line 30)
+    ⚠ departure `private-name`: PEP 399: the C and the pure version must agree
+    ✓ a › slug       'a b'
+  no_assay  (line 39)
+    ✗ REFUSED before the run: an experiment needs at least one assay
+  typo_column  (line 44)
+    ✗ REFUSED before the run: column `slgu` is neither an input, an assay, `raises` nor `warns`
+    ✗ REFUSED before the run: `slug` has no column in the case table
+  slug_twice  (line 49)
+    ✗ REFUSED before the run: a second experiment named `slug_twice` in this module
+  slug_twice  (line 54)
+    ✗ REFUSED before the run: a second experiment named `slug_twice` in this module
+  logic_in_assay  (line 70)
+    ✗ REFUSED before the run: assay `slug` holds logic: `product or 'empty'`
+  mailed_typo  (line 91)
+    ✗ a  input `mailer`: TypoMailer is not a Mailer (missing: send)
+
+ex6_friction.py
+  round_tripped  (line 16)
+    ✓ ascii › back       'hello'
+    ✓ accent › back       'héllo'
+  pinged  (line 47)
+    ✓ local › pong       'pong'
+  sorted_big  (line 58)
+    ✓ big › first      1
+    ✓ big › last       300000
+    ✓ big › size       300000
+    ⚠ big  sealing cost: 3 copies of the product, 0.20 s
+
+────────────────────────────────────────────────────────────────────────
+19 passed  4 failed  1 blocked  0 skipped  9 refused
