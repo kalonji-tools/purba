@@ -175,24 +175,24 @@ setup() {
   [[ "${output}" == *"the key set of GitHub could not be read."* ]]
 }
 
-@test "with no pull request it exits 2, because no token can be matched to it" {
+@test "with no pull request it exits 2, and names the script that finds it" {
   check_runs Quality=success
   export PR=
 
   run require_green abc123 Quality
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"PR is set by the workflow env, and it is empty here."* ]]
+  [[ "${output}" == *"PR is set by write-acceptance-trailer.sh, and it is empty here."* ]]
 }
 
-@test "with no base it exits 2, and names the script that reads the base" {
+@test "with no base it exits 2, because no token can be matched to it" {
   check_runs Quality=success
   export BASE_REF=
 
   run require_green abc123 Quality
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"BASE_REF is set by write-acceptance-trailer.sh, and it is empty here."* ]]
+  [[ "${output}" == *"BASE_REF is set by the workflow env, and it is empty here."* ]]
 }
 
 @test "a gate is a job of the workflow file named for it, up to its first dash" {

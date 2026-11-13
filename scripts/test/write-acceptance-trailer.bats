@@ -27,13 +27,14 @@ setup() {
   git push --quiet origin work
   pushed=$(git rev-parse HEAD)
 
-  export GH_REPO=owner/name PR=7 GATES="Quality Build" CARRYABLE="Quality Build" HEAD_REF=work \
-    SIGN_TOKEN=sign-token
+  export GH_REPO=owner/name BASE_REF=main GATES="Quality Build" CARRYABLE="Quality Build" \
+    HEAD_REF=work SIGN_TOKEN=sign-token
   export RUNNER_TEMP="${BATS_TEST_TMPDIR}/runner"
   mkdir -p "${RUNNER_TEMP}"
 
   reviews APPROVED:owner-1:42
   base main
+  holders "7:open:main:${pushed}"
   check_runs Quality=success Build=success
   fake_gh
 }
@@ -50,9 +51,21 @@ reviews() {
   gh_answers permission '{"permission":"admin"}'
 }
 
-# The pull request, as the API returns it, targets <branch>.
+# The open pull request from the branch targets <branch>, as the API lists it.
 base() {
-  gh_answers pulls "{\"number\":7,\"base\":{\"ref\":\"$1\"}}"
+  gh_answers pulls "[{\"number\":7,\"base\":{\"ref\":\"$1\"}}]"
+}
+
+# One pull request that holds the head for each `<number>:<state>:<base>:<sha of its head>`.
+holders() {
+  local one number state base sha all=""
+  for one in "$@"; do
+    IFS=: read -r number state base sha <<<"${one}"
+    printf -v one '{"number":%s,"state":"%s","base":{"ref":"%s"},"head":{"sha":"%s"}}' \
+      "${number}" "${state}" "${base}" "${sha}"
+    all+="${all:+,}${one}"
+  done
+  gh_answers commit-pulls "[${all}]"
 }
 
 held() {
@@ -220,30 +233,48 @@ origin_holds() {
   origin_holds "${pushed}"
 }
 
-@test "a pull request that cannot be read exits 2, and nothing is accepted" {
-  for pair in "reviews=the reviews of pull request 7 could not be read, so no approval was read." \
-    "pulls=pull request 7 could not be read, so the branch it targets is unknown."; do
-    rm -f "${BATS_TEST_TMPDIR}"/gh/*.refused
-    gh_refuses "${pair%%=*}"
+@test "reviews that cannot be read exit 2, and nothing is accepted" {
+  gh_refuses reviews
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the reviews of pull request 7 could not be read, so no approval was read."* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"--method POST"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "open pull requests that cannot be read exit 2, and nothing is accepted" {
+  for answer in refused '{"message":"Not Found"}' '{"x":{"number":3,"base":{"ref":"main"}}}'; do
+    rm -f "${BATS_TEST_TMPDIR}"/gh/pulls.refused
+    if [[ "${answer}" == refused ]]; then
+      gh_refuses pulls
+    else
+      gh_answers pulls "${answer}"
+    fi
 
     run "${script}"
 
     [[ "${status}" -eq 2 ]]
-    [[ "${output}" == *"${pair#*=}"* ]]
+    [[ "${output}" == *"the open pull requests from work into main could not be read."* ]]
   done
   asked=$(calls gh)
   [[ "${asked}" != *"--method POST"* ]]
   origin_holds "${pushed}"
 }
 
-@test "a pull request with no base branch exits 2, and nothing is accepted" {
-  gh_answers pulls '{"number":7}'
+@test "a PR from the environment is not the one it signs" {
+  gh_answers pulls '[{"number":7,"base":{"ref":"main"}}]'
 
-  run "${script}"
+  PR=8 run "${script}"
 
-  [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *"pull request 7 could not be read"* ]]
-  origin_holds "${pushed}"
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"recorded acceptance by owner-1 on "* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"api repos/owner/name/pulls?head=owner:work&base=main&state=open"* ]]
+  [[ "${asked}" == *"api repos/owner/name/pulls/7/reviews --paginate"* ]]
+  [[ "${asked}" != *"pulls/8"* ]]
 }
 
 @test "a login GitHub would not write exits 1, and nothing is pushed" {
@@ -384,31 +415,73 @@ origin_holds() {
   [[ "${last}" == *"-f head_sha=${accepted} -f status=completed -f conclusion=success"* ]]
 }
 
-@test "a branch onto another branch rewrites only its own commits" {
-  git switch --quiet --create below main
-  commit "feat: below" "Signed-off-by: A Person <person@example.invalid>"
-  git push --quiet origin below
-  below=$(git rev-parse HEAD)
-  git switch --quiet work
-  git rebase --quiet below
-  git push --quiet --force origin work
-  base below
-  # The gates of a pull request into `below` ran against that base.
-  BASE_REF=below check_runs Quality=success Build=success
+@test "an accepted run names the pull request it reads" {
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"pull request 7 from work into main is the one this run reads"* ]]
+}
+
+@test "two open pull requests into the base at one head get a failed Sign-off, and nothing else" {
+  holders "7:open:main:${pushed}" "2:open:other:${pushed}" "5:closed:main:${pushed}" \
+    "11:open:main:1111111111111111111111111111111111111111" "9:open:main:${pushed}"
 
   run "${script}"
 
   [[ "${status}" -eq 0 ]]
-  head=$(held)
-  kept=$(git rev-parse "${head}~2")
-  [[ "${kept}" == "${below}" ]]
-  trailers=$(git log --format='%(trailers:key=Accepted-by)' "below..${head}")
-  carried=$(grep -c . <<<"${trailers}")
-  [[ "${carried}" -eq 2 ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"api repos/owner/name/commits/${pushed}/pulls"* ]]
+  [[ "${asked}" != *"reviews"* ]]
+  [[ "${asked}" == *"-f name=Sign-off -f head_sha=${pushed} -f status=completed"* ]]
+  [[ "${asked}" == *"-f conclusion=failure"* ]]
+  [[ "${asked}" == *"-f output[title]=More than one pull request into main holds this head"* ]]
+  [[ "${asked}" == *"#7, #9 into main"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "pull requests that hold the head that cannot be read exit 2, and nothing is accepted" {
+  for answer in refused '{"message":"Not Found"}'; do
+    rm -f "${BATS_TEST_TMPDIR}"/gh/commit-pulls.refused
+    if [[ "${answer}" == refused ]]; then
+      gh_refuses commit-pulls
+    else
+      gh_answers commit-pulls "${answer}"
+    fi
+
+    run "${script}"
+
+    [[ "${status}" -eq 2 ]]
+    [[ "${output}" == *"the pull requests that hold ${pushed} could not be read."* ]]
+  done
+  asked=$(calls gh)
+  [[ "${asked}" != *"--method POST"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "a pull request into the base whose branch only holds the head leaves the job to sign" {
+  holders "7:open:main:${pushed}" "11:open:main:1111111111111111111111111111111111111111"
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"recorded acceptance by owner-1 on "* ]]
+}
+
+@test "a pull request into another branch gets nothing" {
+  gh_answers pulls '[]'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"no open pull request from work targets main, so there is nothing"* ]]
+  asked=$(calls gh)
+  [[ "${asked}" != *"reviews"* ]]
+  [[ "${asked}" != *"--method POST"* ]]
+  origin_holds "${pushed}"
 }
 
 @test "a variable the workflow supplies stops it when absent" {
-  for name in GH_REPO PR GATES CARRYABLE HEAD_REF RUNNER_TEMP; do
+  for name in GH_REPO BASE_REF GATES CARRYABLE HEAD_REF RUNNER_TEMP; do
     run env -u "${name}" "${script}"
 
     [[ "${status}" -eq 1 ]]

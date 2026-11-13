@@ -31,6 +31,7 @@ So a workflow on any other branch, or one that a pull request runs, cannot post 
 
 [Liability is recorded from the act that makes it true](liability-is-recorded-from-the-act-that-makes-it-true.md) says what `Sign-off` records.
 [A workflow is granted an identity, not a power](a-workflow-is-granted-an-identity-not-a-power.md) says why an App is the identity.
+[The `sign` job signs only the pull request into `main`](the-sign-job-signs-only-the-pull-request-into-main.md) says which pull request the `sign` job signs.
 
 **Downside:**
 

@@ -195,12 +195,17 @@ base into them. A merge commit carries no sign-off, and no trailer can be
 added to one, so purba refuses it. The **Update with rebase** entry GitHub
 offers on the pull request replays.
 
-`Sign-off` arrives after the other checks rather than with them. purba signs
-when `CI` turns green, if an approval from a person whose account has write
-access stands. An approval starts nothing by itself. Where such an approval
-stands, the gates are green and `Sign-off` is absent, close the pull request
-and reopen it. The approval may have come after `CI` finished, or purba may
-have read the last gate before GitHub reported its verdict.
+`Sign-off` arrives after the other checks rather than with them. purba signs a
+pull request into `main` when `CI` turns green, if an approval from a person
+whose account has write access stands. A pull request into another branch gets
+no `Sign-off`. An approval starts nothing by itself. A move of the base of a
+pull request to `main` starts nothing either. Where an approval from a person
+whose account has write access stands, the gates are green and `Sign-off` is
+absent, close the pull request and reopen it. One of these may be the cause:
+
+- The approval came after `CI` finished.
+- The base moved to `main` after `CI` finished.
+- purba read the last gate before GitHub reported its verdict.
 
 Where purba refuses your branch instead, `Sign-off` turns red and names what
 it found. It is written before anything on your branch is rewritten, so the
