@@ -1,0 +1,295 @@
+══ form: stacked ════════════════════════════════════════
+
+── stacked/ex1_slug.py
+ slug_of  (stacked/ex1_slug.py:7)
+   ✓ plain › product  'hello-world'
+   ✓ spaces › product  'many-spaces'
+   ✗ accents › product
+       expected 'creme-brulee'
+       reading  'crème-brûlée'
+       inputs   text='Crème Brûlée'
+   ✓ underscore › product  'a_b'
+   ✓ empty › raises   ValueError: empty
+
+── stacked/ex2_money.py
+ amount_of  (stacked/ex2_money.py:7)
+   ✓ euros › cents    1250
+   ✓ euros › currency 'EUR'
+   ✓ legacy › warns    DeprecationWarning: no currency: USD is assumed
+   ✓ legacy › cents    1250
+   ✓ legacy › currency 'USD'
+   ✓ negative › raises   ValueError: below zero
+   ✗ rounding › warns
+       an unexpected UserWarning: rounded to a cent
+       inputs   text='0.005', currency='EUR'
+       assays blocked: the reaction failed
+
+── stacked/ex3_sign_up.py
+ signed_up  (stacked/ex3_sign_up.py:14)
+   ✓ first › user_id  1
+   ✓ first › stored   ['ann']
+   ✓ first › mailed   [('ann', 'welcome')]
+   ✓ fresh › user_id  1
+   ✓ fresh › stored   ['bob']
+   ✓ fresh › mailed   [('bob', 'welcome')]
+   ↻ taken  replayed signed_up › first
+   ✓ taken › raises   ValueError: name 'ann' is taken
+   ✓ taken › stored   ['ann']
+   ✗ taken › mailed
+       expected []
+       reading  [('ann', 'welcome')]
+       inputs   name='ann'
+
+── stacked/ex4_cart.py
+ opened  (stacked/ex4_cart.py:7)
+   ✓ ann › owner_seen 'ann'
+   ✓ ann › count    0
+ added  (stacked/ex4_cart.py:22)
+   ↻ one_book  replayed opened › ann
+   ✓ one_book › items    1
+   ✓ one_book › total    1200
+   ↻ two_books  replayed opened › ann
+   ✓ two_books › items    2
+   ✓ two_books › total    2400
+   ↻ pens  replayed opened › ann
+   ✓ pens › items    3
+   ✗ pens › total
+       expected 300
+       reading  450
+       inputs   sku='PEN-7', qty=3
+   ↻ unknown  replayed opened › ann
+   ✓ unknown › raises   KeyError: 'NOPE'
+   ✓ unknown › items    0
+   ✓ unknown › total    0
+ checked_out  (stacked/ex4_cart.py:41)
+   ↻ two_books  replayed opened › ann
+   ↻ two_books  replayed added › two_books
+   ✓ two_books › paid     2400
+   ✓ two_books › lines    1
+   ⊘ pens  blocked: its step added › pens failed
+
+── stacked/ex5_refused.py
+ nested  (stacked/ex5_refused.py:7)
+   ✗ REFUSED  the act nests the call `text.strip()`: one act per reaction
+ literal  (stacked/ex5_refused.py:12)
+   ✗ REFUSED  the act passes the literal `'_'`: make it an input, or a default of the act
+ typo_key  (stacked/ex5_refused.py:17)
+   ✗ REFUSED  case `a` (line 17) expects `slgu`, which is no assay
+ product_on_raise  (stacked/ex5_refused.py:22)
+   ✗ REFUSED  case `a` (line 22) expects a raise, so `product` has nothing to read
+ reads_literal  (stacked/ex5_refused.py:27)
+   ✗ REFUSED  case `a` (line 27): assay `echoed` reads `text`, a str that the act cannot change
+ missing_value  (stacked/ex5_refused.py:37)
+   ✗ REFUSED  case `a` (line 37) gives no expected value for the assay `unit`
+ reading_not_literal  (stacked/ex5_refused.py:52)
+   ✗ a › product
+       the reading is a Money, and no literal equals it
+       inputs   text='12.50', currency='EUR'
+
+── stacked/ex6_typo.py
+ opened  (stacked/ex6_typo.py:7)
+   ✓ ann › count    0
+ added  (stacked/ex6_typo.py:17)
+   ✗ REFUSED  case `one` (line 17): `cart` names the case `an` of `opened`, which has no such case; did you mean `ann`?
+ unrelated  (stacked/ex6_typo.py:27)
+   ✓ bob › product_owner 'bob'
+
+══ form: klass ════════════════════════════════════════
+
+── klass/ex1_slug.py
+ SlugOf  (klass/ex1_slug.py:7)
+   ✓ plain › product  'hello-world'
+   ✓ spaces › product  'many-spaces'
+   ✗ accents › product
+       expected 'creme-brulee'
+       reading  'crème-brûlée'
+       inputs   text='Crème Brûlée'
+   ✓ underscore › product  'a_b'
+   ✓ empty › raises   ValueError: empty
+
+── klass/ex2_money.py
+ AmountOf  (klass/ex2_money.py:7)
+   ✓ euros › cents    1250
+   ✓ euros › unit     'EUR'
+   ✓ legacy › warns    DeprecationWarning: no currency: USD is assumed
+   ✓ legacy › cents    1250
+   ✓ legacy › unit     'USD'
+   ✓ negative › raises   ValueError: below zero
+   ✗ rounding › warns
+       an unexpected UserWarning: rounded to a cent
+       inputs   text='0.005', currency='EUR'
+       assays blocked: the reaction failed
+
+── klass/ex3_sign_up.py
+ SignedUp  (klass/ex3_sign_up.py:13)
+   ✓ first › user_id  1
+   ✓ first › stored   ['ann']
+   ✓ first › mailed   [('ann', 'welcome')]
+   ✓ fresh › user_id  1
+   ✓ fresh › stored   ['bob']
+   ✓ fresh › mailed   [('bob', 'welcome')]
+   ↻ taken  replayed SignedUp › first
+   ✓ taken › raises   ValueError: name 'ann' is taken
+   ✓ taken › stored   ['ann']
+   ✗ taken › mailed
+       expected []
+       reading  [('ann', 'welcome')]
+       inputs   name='ann'
+
+── klass/ex4_cart.py
+ Opened  (klass/ex4_cart.py:7)
+   ✓ ann › owner_seen 'ann'
+   ✓ ann › count    0
+ Added  (klass/ex4_cart.py:20)
+   ↻ one_book  replayed Opened › ann
+   ✓ one_book › items    1
+   ✓ one_book › total    1200
+   ↻ two_books  replayed Opened › ann
+   ✓ two_books › items    2
+   ✓ two_books › total    2400
+   ↻ pens  replayed Opened › ann
+   ✓ pens › items    3
+   ✗ pens › total
+       expected 300
+       reading  450
+       inputs   sku='PEN-7', qty=3
+   ↻ unknown  replayed Opened › ann
+   ✓ unknown › raises   KeyError: 'NOPE'
+   ✓ unknown › items    0
+   ✓ unknown › total    0
+ CheckedOut  (klass/ex4_cart.py:36)
+   ↻ two_books  replayed Opened › ann
+   ↻ two_books  replayed Added › two_books
+   ✓ two_books › paid     2400
+   ✓ two_books › lines    1
+   ⊘ pens  blocked: its step Added › pens failed
+
+── klass/ex5_refused.py
+ Nested  (klass/ex5_refused.py:7)
+   ✗ REFUSED  the act nests the call `text.strip()`: one act per reaction
+ Literal  (klass/ex5_refused.py:14)
+   ✗ REFUSED  the act passes the literal `'_'`: make it an input, or a default of the act
+ TypoKey  (klass/ex5_refused.py:21)
+   ✗ REFUSED  case `a` (line 25) expects `slgu`, which is no assay
+ ProductOnRaise  (klass/ex5_refused.py:28)
+   ✗ REFUSED  case `a` (line 32) expects a raise, so `product` has nothing to read
+ ReadsLiteral  (klass/ex5_refused.py:35)
+   ✗ REFUSED  case `a` (line 42): assay `echoed` reads `text`, a str that the act cannot change
+ MissingValue  (klass/ex5_refused.py:45)
+   ✗ REFUSED  case `a` (line 55) gives no expected value for the assay `unit`
+ ReadingNotLiteral  (klass/ex5_refused.py:58)
+   ✗ a › product
+       the reading is a Money, and no literal equals it
+       inputs   text='12.50', currency='EUR'
+
+── klass/ex6_typo.py
+   ✗ THE MODULE CANNOT LOAD, so none of its experiments runs
+       AttributeError: type object 'Opened' has no attribute 'an'  (line 24)
+
+══ form: below ════════════════════════════════════════
+
+── below/ex1_slug.py
+ slug_of  (below/ex1_slug.py:7)
+   ✓ plain › product  'hello-world'
+   ✓ spaces › product  'many-spaces'
+   ✗ accents › product
+       expected 'creme-brulee'
+       reading  'crème-brûlée'
+       inputs   text='Crème Brûlée'
+   ✓ underscore › product  'a_b'
+   ✓ empty › raises   ValueError: empty
+
+── below/ex2_money.py
+ amount_of  (below/ex2_money.py:7)
+   ✓ euros › cents    1250
+   ✓ euros › currency 'EUR'
+   ✓ legacy › warns    DeprecationWarning: no currency: USD is assumed
+   ✓ legacy › cents    1250
+   ✓ legacy › currency 'USD'
+   ✓ negative › raises   ValueError: below zero
+   ✗ rounding › warns
+       an unexpected UserWarning: rounded to a cent
+       inputs   text='0.005', currency='EUR'
+       assays blocked: the reaction failed
+
+── below/ex3_sign_up.py
+ signed_up  (below/ex3_sign_up.py:13)
+   ✓ first › user_id  1
+   ✓ first › stored   ['ann']
+   ✓ first › mailed   [('ann', 'welcome')]
+   ✓ fresh › user_id  1
+   ✓ fresh › stored   ['bob']
+   ✓ fresh › mailed   [('bob', 'welcome')]
+   ↻ taken  replayed signed_up › first
+   ✓ taken › raises   ValueError: name 'ann' is taken
+   ✓ taken › stored   ['ann']
+   ✗ taken › mailed
+       expected []
+       reading  [('ann', 'welcome')]
+       inputs   name='ann'
+
+── below/ex4_cart.py
+ opened  (below/ex4_cart.py:7)
+   ✓ ann › owner_seen 'ann'
+   ✓ ann › count    0
+ added  (below/ex4_cart.py:25)
+   ↻ one_book  replayed opened › ann
+   ✓ one_book › items    1
+   ✓ one_book › total    1200
+   ↻ two_books  replayed opened › ann
+   ✓ two_books › items    2
+   ✓ two_books › total    2400
+   ↻ pens  replayed opened › ann
+   ✓ pens › items    3
+   ✗ pens › total
+       expected 300
+       reading  450
+       inputs   sku='PEN-7', qty=3
+   ↻ unknown  replayed opened › ann
+   ✓ unknown › raises   KeyError: 'NOPE'
+   ✓ unknown › items    0
+   ✓ unknown › total    0
+ checked_out  (below/ex4_cart.py:46)
+   ↻ two_books  replayed opened › ann
+   ↻ two_books  replayed added › two_books
+   ✓ two_books › paid     2400
+   ✓ two_books › lines    1
+   ⊘ pens  blocked: its step added › pens failed
+
+── below/ex5_refused.py
+ nested  (below/ex5_refused.py:7)
+   ✗ REFUSED  the act nests the call `text.strip()`: one act per reaction
+ literal  (below/ex5_refused.py:15)
+   ✗ REFUSED  the act passes the literal `'_'`: make it an input, or a default of the act
+ typo_key  (below/ex5_refused.py:23)
+   ✗ REFUSED  case `a` (line 28) expects `slgu`, which is no assay
+ product_on_raise  (below/ex5_refused.py:31)
+   ✗ REFUSED  case `a` (line 36) expects a raise, so `product` has nothing to read
+ reads_literal  (below/ex5_refused.py:39)
+   ✗ REFUSED  case `a` (line 49): assay `echoed` reads `text`, a str that the act cannot change
+ missing_value  (below/ex5_refused.py:52)
+   ✗ REFUSED  case `a` (line 67) gives no expected value for the assay `unit`
+ reading_not_literal  (below/ex5_refused.py:70)
+   ✗ a › product
+       the reading is a Money, and no literal equals it
+       inputs   text='12.50', currency='EUR'
+
+── below/ex6_typo.py
+   ✗ THE MODULE CANNOT LOAD, so none of its experiments runs
+       NameError: name 'an' is not defined  (line 30)
+
+══ measure ══════════════════════════════════════════════════
+form       lines   chars  widest  >100   (ex1-ex4, blank lines and docstrings left out)
+stacked       68    3488     117    11
+klass         59    3069     121     3
+below         70    3123     129     6
+
+── the type checker (ty) on ex6_typo.py of each form
+   stacked  no diagnostic
+   klass    24:27: error[unresolved-attribute] Class `Opened` has no attribute `an`
+   below    30:30: error[unresolved-reference] Name `an` used when not defined
+
+── the type checker (ty) on ex1-ex5 of each form: diagnostics per file
+   stacked  0 diagnostics
+   klass    0 diagnostics
+   below    0 diagnostics
