@@ -1,0 +1,13 @@
+rater1 key: stacked=C klass=A below=H call=F record=G module=E klasscall=B record_strict=D
+scores (Read Clarity Ease CxTester CxImpl MinTest):
+A klass 4 2 2 4 3 4
+B klasscall 3 4 4 4 3 3
+C stacked 2 4 2 3 4 4
+D record_strict 2 4 3 1 1 1
+E module 4 2 2 4 4 5
+F call 4 4 5 4 3 4
+G record 4 4 4 4 2 3
+H below 3 5 3 5 5 4
+ranking (Ease25 Read20 Clar20 CxT15 CxI10 Min10): F call 4.15 > H below 4.00 > G record 3.70 > B klasscall 3.60 > E module 3.20 > A klass 3.00 > C stacked 2.95 > D record_strict 2.30
+min test lines: pytest 3, C 5, E 5, A 6, B 6, F 6, H 6, G 7, D 10
+rough edges: case name twice -> A,B,G silent loss; F wrong msg "no name"; C,H run both under one label; only D refuses. missing act: A,G load fail w/ form line; E KeyError crash. F unnamed-case also prints "no assay". E ex5 has 3/7 refusals. D ex5 typo `prodcut` vs others `slgu`. E screen ':1' + abs path. measure ex1-4 only.

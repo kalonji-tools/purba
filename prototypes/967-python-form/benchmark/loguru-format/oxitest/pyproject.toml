@@ -1,0 +1,6 @@
+[tool.oxitest]
+testpaths = ["tests"]
+# Refuse to run at all if a test breaks oxitest's authoring rules:
+# every assert carries a message, parametrize cases are frozen dataclasses,
+# fixtures are annotated, no single-case parametrize, no stray helpers.
+strict = "abort"

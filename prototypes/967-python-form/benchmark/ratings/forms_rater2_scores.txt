@@ -1,0 +1,13 @@
+rater2 key: stacked=E klass=G below=F call=H record=D module=A klasscall=B record_strict=C
+scores (Read Clarity Ease CxTester CxImpl MinTest):
+A module 4 2 2 3 4 4
+B klasscall 3 4 4 3 3 3
+C record_strict 2 4 4 1 1 1
+D record 4 5 5 4 3 3
+E stacked 2 4 2 3 5 4
+F below 3 4 3 4 5 4
+G klass 4 2 3 3 4 3
+H call 4 4 5 4 4 4
+ranking (Clar25 Ease25 Read20 CxT15 CxI10 Min5): D record 4.35 > H call 4.25 > F below 3.65 > B klasscall 3.50 > G klass 3.05 = E stacked 3.05 > A module 2.85 > C record_strict 2.70
+min test lines: pytest 3, A module 5, E stacked 5, B 6, F 6, G 6, H 6, D record 7, C record_strict 10
+rough edges: unequal ex sets (module ex5 3/7; record_strict ex5 9, ex7 +fed_wrong); dup case names: module, klasscall, record, klass silent loss; stacked + below run two same-name; record_strict refuses; call refuses as "no name" (wrong msg) + extra "no assay"; module chains import bare module names (collide in a real tree); --literals/--shared undocumented in blind README.

@@ -1,0 +1,9 @@
+rater2 key: K=prototype M=oxitest
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest    5 4 4 4 4 5 ref
+oxitest   4 5 4 3 3 4 5
+prototype 2 2 2 1 1 1 3
+weighted (Clar20 Ease20 Read15 Fid15 CxT10 CxI10 Min10): pytest 4.40 > oxitest 4.15 > prototype 1.85
+min: pytest 5, oxitest 6, prototype 22 (34 self-contained); run.py EXAMPLES hard-coded; Added must expect a handler id or whole experiment refused
+prototype: exit 0 on failure; loguru Message (str subclass) vs str -> "expected ['a\n'] (list) reading ['a\n'] (list)" identical-looking, no reason; "".join(...) refused "not one read"; one refused case drops all 21 Added cases yet chained Logged still ran; fresh writer per case reads '' in 12 cases.
+oxitest: teardown error -> warning, exit 0 (22 passed · 22 warnings).

@@ -1,0 +1,13 @@
+$ ty --version
+ty 0.0.87
+$ ty check --python ../.venv/bin/python --extra-search-path . --extra-search-path record_strict record_strict/ex_loguru_format.py record_strict/loguru_lab.py
+All checks passed!
+(exit 0)
+
+$ pyright --version
+pyright 1.1.411
+$ pyright -p pyrightconfig.json record_strict/ex_loguru_format.py record_strict/loguru_lab.py
+eval2/proto/record_strict/loguru_lab.py
+  eval2/proto/record_strict/loguru_lab.py:47:9 - warning: Expression value is unused (reportUnusedExpression)
+0 errors, 1 warning, 0 informations
+(exit 0)

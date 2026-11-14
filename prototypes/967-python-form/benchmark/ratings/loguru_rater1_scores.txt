@@ -1,0 +1,10 @@
+rater1 key: K=oxitest M=prototype
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest    5 4 4 4 4 5 ref
+oxitest   4 5 4 3 3 4 5
+prototype 2 3 2 1 2 1 2
+weighted (Clar20 Fid20 Read15 Ease15 CxT15 Min10 CxI5; original renormalised): pytest 4.31 > oxitest 4.20 > prototype 1.95
+min test lines: pytest 6, oxitest 6, prototype 30 (3 attempts: Logger ImportError; refused "checks nothing" w/o .expect(product=1); debug("a") refused "the act passes the literal")
+prototype: runner exits 0 on fail + refusal, no summary count; one bad case drops whole experiment (30 of 50 ✓); runner ignores files not in EXAMPLES (ex_min.py ran nothing, exit 0); measure crashes IndexError line 117; loguru default stderr handler leaked in min test; failure lacks line number + upstream format.
+oxitest: strict aborted on bare assert (exit 3); case typo at run = whole-file collection error w/ raw traceback; 3 single-field dataclasses; FormatFunction stand-in preamble.
+pytest: ids `test_format[e-<lambda>-e]`, `format2`; writer injected by name; checkers useless (conftest 9 pyright errors).

@@ -1,0 +1,32 @@
+── ty
+conftest.py:12:13: error[too-many-positional-arguments] Too many positional arguments to `object.__init__`: expected 1, got 11
+conftest.py:12:13: warning[possibly-missing-submodule] Submodule `_logger` might not have been imported
+conftest.py:14:9: warning[possibly-missing-submodule] Submodule `_logger` might not have been imported
+conftest.py:24:9: error[unresolved-attribute] Function `w` has no attribute `written`
+conftest.py:26:5: error[unresolved-attribute] Unresolved attribute `written` on type `def w(message) -> Unknown`
+conftest.py:27:5: error[unresolved-attribute] Unresolved attribute `read` on type `def w(message) -> Unknown`
+conftest.py:27:30: error[unresolved-attribute] Function `w` has no attribute `written`
+conftest.py:28:5: error[unresolved-attribute] Unresolved attribute `clear` on type `def w(message) -> Unknown`
+conftest.py:28:23: error[unresolved-attribute] Function `w` has no attribute `written`
+Found 9 diagnostics
+── pyright
+conftest.py
+  conftest.py:12:13 - error: Expected 0 positional arguments (reportCallIssue)
+  conftest.py:12:20 - error: "_logger" is not a known attribute of module "loguru" (reportAttributeAccessIssue)
+  conftest.py:14:16 - error: "_logger" is not a known attribute of module "loguru" (reportAttributeAccessIssue)
+  conftest.py:24:11 - error: Cannot access attribute "written" for class "FunctionType"
+    Attribute "written" is unknown (reportFunctionMemberAccess)
+  conftest.py:26:7 - error: Cannot assign to attribute "written" for class "FunctionType"
+    Attribute "written" is unknown (reportFunctionMemberAccess)
+  conftest.py:27:7 - error: Cannot assign to attribute "read" for class "FunctionType"
+    Attribute "read" is unknown (reportFunctionMemberAccess)
+  conftest.py:27:32 - error: Cannot access attribute "written" for class "FunctionType"
+    Attribute "written" is unknown (reportFunctionMemberAccess)
+  conftest.py:28:7 - error: Cannot assign to attribute "clear" for class "FunctionType"
+    Attribute "clear" is unknown (reportFunctionMemberAccess)
+  conftest.py:28:25 - error: Cannot access attribute "written" for class "FunctionType"
+    Attribute "written" is unknown (reportFunctionMemberAccess)
+test_add_option_format.py
+  test_add_option_format.py:42:9 - warning: Expression value is unused (reportUnusedExpression)
+  test_add_option_format.py:51:9 - warning: Expression value is unused (reportUnusedExpression)
+9 errors, 2 warnings, 0 informations

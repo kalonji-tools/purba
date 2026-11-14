@@ -1,0 +1,37 @@
+collected 20 items from 8 functions
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 40ms <= spawn overhead 250ms x 22 workers)
+....................
+
+════════════════════════════════════════════════════════════════════════════════
+  20 passed
+════════════════════════════════════════════════════════════════════════════════
+exit=0
+
+$ ../.venv/bin/oxitest --color=never --json results.json  # then: per-test status from the CTRF file
+════════════════════════════════════════════════════════════════════════════════
+  20 passed
+════════════════════════════════════════════════════════════════════════════════
+exit=0
+passed  tests/test_add_option_format.py::test_format[function_constant]
+passed  tests/test_add_option_format.py::test_format[function_reads_record]
+passed  tests/test_add_option_format.py::test_format[level_attributes]
+passed  tests/test_add_option_format.py::test_format[level_twice]
+passed  tests/test_add_option_format.py::test_format[message_field]
+passed  tests/test_add_option_format.py::test_format[no_fields]
+passed  tests/test_add_option_format.py::test_function_format_with_exception
+passed  tests/test_add_option_format.py::test_function_format_without_exception
+passed  tests/test_add_option_format.py::test_invalid_format[float]
+passed  tests/test_add_option_format.py::test_invalid_format[negative_int]
+passed  tests/test_add_option_format.py::test_invalid_format[plain_object]
+passed  tests/test_add_option_format.py::test_invalid_format_builtin
+passed  tests/test_add_option_format.py::test_invalid_markups[bare_close]
+passed  tests/test_add_option_format.py::test_invalid_markups[close_before_open]
+passed  tests/test_add_option_format.py::test_invalid_markups[close_without_open]
+passed  tests/test_add_option_format.py::test_invalid_markups[unclosed_tag]
+passed  tests/test_add_option_format.py::test_invalid_markups[unknown_tag]
+passed  tests/test_add_option_format.py::test_markup_in_field[colorized]
+passed  tests/test_add_option_format.py::test_markup_in_field[plain]
+passed  tests/test_add_option_format.py::test_progressive_format
+count=20

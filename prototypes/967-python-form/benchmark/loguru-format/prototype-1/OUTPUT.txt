@@ -1,0 +1,55 @@
+══ form: record_strict ════════════════════════════════════════
+
+── record_strict/ex_loguru_format.py
+ Added  (record_strict/ex_loguru_format.py:18)
+   ✓ message_fmt › product  0
+   ✓ nope_fmt › product  0
+   ✓ levels_fmt › product  0
+   ✓ fields_fmt › product  0
+   ✓ fn_fmt › product  0
+   ✓ fn_name_fmt › product  0
+   ✓ progressive_fmt › product  0
+   ✓ no_exc_fmt › product  0
+   ✓ exc_fmt › product  0
+   ✓ minus_one › raises   TypeError: Invalid format, it should be a string or a function, not: 'int'
+   ✓ a_float › raises   TypeError: Invalid format, it should be a string or a function, not: 'float'
+   ✓ an_object › raises   TypeError: Invalid format, it should be a string or a function, not: 'object'
+   ✓ open_red › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ close_red › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ crossed_level › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ bare_close › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ unknown_tag › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ colored_fmt › product  0
+   ✓ plain_fmt › product  0
+   ✓ builtin_format › raises   ValueError: The built-in 'format()' function cannot be used as a 'format' parameter, this is most likely a mistake (please double-check the arguments passed to 'logger.add()').
+ Bound  (record_strict/ex_loguru_format.py:28)
+   ✓ colored_bound › written  ''
+   ✓ plain_bound › written  ''
+ Opted  (record_strict/ex_loguru_format.py:40)
+   ✓ raw › written  '[DEBUG] Start: '
+   ✓ cooked › written  '[DEBUG] Start: .....\n'
+ WithError  (record_strict/ex_loguru_format.py:52)
+   ✓ no_exc_error › written  ''
+   ✓ exc_error › written  ''
+ Logged  (record_strict/ex_loguru_format.py:64)
+   ✓ message_out › written  'Message: a\n'
+   ✓ nope_out › written  'Nope\n'
+   ✓ levels_out › written  'DEBUG c DEBUG\n'
+   ✓ fields_out › written  'd DEBUG 10 DEBUG\n'
+   ✓ fn_out › written  'e'
+   ✓ fn_name_out › written  'f DEBUG'
+   ✓ start › written  '[DEBUG] Start: '
+   ✓ dot_1 › written  '[DEBUG] Start: .'
+   ✓ dot_2 › written  '[DEBUG] Start: ..'
+   ✓ dot_3 › written  '[DEBUG] Start: ...'
+   ✓ dot_4 › written  '[DEBUG] Start: ....'
+   ✓ dot_5 › written  '[DEBUG] Start: .....'
+   ✓ newline › written  '[DEBUG] Start: .....\n'
+   ✓ end › written  '[DEBUG] Start: .....\n[DEBUG] End\n'
+   ✓ no_exc_out › written  'Error!\n'
+   ✓ colored_out › written  '</>  <blue>  Test\n'
+   ✓ plain_out › written  '</>  <blue>  Test\n'
+ LoggedLines  (record_strict/ex_loguru_format.py:81)
+   ✓ exc_out › first_line 'Error!'
+   ✓ exc_out › last_line 'ZeroDivisionError: division by zero'
+

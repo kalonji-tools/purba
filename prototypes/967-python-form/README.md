@@ -39,6 +39,7 @@ nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 | `ex8_refused_typed.py` | `record_strict/` only: the refusals of a declared `expect`, a field named like an assay, and a case name bound twice |
 | `ex9_generated.py` | `record_strict/` only: cases that a loop builds, and a family of cases through a subclass |
 | `ex11_levels.py` | `record_strict/` only: one experiment at the small level and at the typed level |
+| `ex_loguru_format.py` | `record_strict/` only: loguru's `test_add_option_format.py`, ported; see `benchmark/` |
 | `ex10_stocks.py` | `record_strict/` only: a stock with a misspelled offer, a stock that offers nothing, and two readers of a stock with no checkpoint |
 | `lab.py` | the fixtures every form shares; `UsersDb` declares a sample, a checkpoint and a fingerprint as its bases |
 
@@ -67,3 +68,7 @@ Weighed and not built:
 - **An assay's reading is compared in the assay's process, by type first, then by value.** Only a verdict crosses back, or the two texts of a failure. `True` is not `1`, `1.0` is not `1`, and `nan` equals `nan`.
 
 On `ex1`-`ex4`, ty and pyright report nothing. On `ex5` and `ex8`, each line they report is a line written to be refused.
+
+## Prototype 1, measured
+
+`record_strict/` is prototype 1. [`LEARNINGS.md`](LEARNINGS.md) says what held and what failed, and [`benchmark/`](benchmark/README.md) holds a real loguru test in pytest, oxitest and this form, with the scores a later prototype is measured against.

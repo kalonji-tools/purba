@@ -1,0 +1,12 @@
+rater3 key: stacked=G klass=C below=H call=F record=A module=D klasscall=B record_strict=E
+scores (Read Clarity Ease CxTester CxImpl MinTest):
+A record 4 4 4 3 3 3
+B klasscall 3 4 3 3 3 3
+C klass 4 3 2 3 4 4
+D module 3 2 2 3 4 4
+E record_strict 2 4 4 1 1 1
+F call 4 4 5 4 4 4
+G stacked 2 4 2 3 5 4
+H below 3 4 3 4 5 4
+ranking (Clar25 Ease25 Read15 CxT15 CxI10 Min10): F call 4.25 > H below 3.70 > A record 3.65 > B klasscall 3.25 > G stacked 3.15 > C klass 3.10 > D module 2.70 > E record_strict 2.65
+dup case name: record, klasscall, klass, module drop silently; record_strict + call refuse; stacked, below run both under one label.

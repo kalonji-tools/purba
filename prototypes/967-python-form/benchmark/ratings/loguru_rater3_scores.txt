@@ -1,0 +1,10 @@
+rater3 key: K=oxitest M=prototype
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest    5 4 4 4 3 5 5(ref)
+oxitest   4 5 4 3 2 4 5
+prototype 2 3 2 1 2 1 3
+weighted (Read15 Clar20 Ease20 CxT15 CxI5 Min10 Fid15): pytest 4.35 > oxitest 4.10 > prototype 2.10
+min test lines: pytest 5, oxitest 6, prototype 22 (two classes, two cases; one-class add+debug refused "act is ONE call"; `from loguru import Logger` ImportError at runtime)
+prototype findings: a typo in one case refused the whole Logged experiment (50 -> 31 checks) and run EXITS 0; forgotten .expect(product=0) dropped all 22 Added cases; real failures exit 0; progressive = 11-step chain; failure inputs line omits the format (lives in an earlier step); exact-type compare means a sink of loguru Message objects can never equal a str (inferred).
+oxitest findings: 186+33 lines; a dataclass per parametrized test; strict abort on one bare assert (exit 3); -vv prints only dots, names only via --json; typo mesage= + expected=1 -> ty 3 errors, pyright 2.
+pytest findings: ty passes a malformed case tuple; ids like format2; conftest 9 errors in both checkers.
