@@ -840,6 +840,14 @@
  SlugUnderscore  (record_strict/ex9_generated.py:24)
    ✗ REFUSED  `SlugUnderscore` subclasses the experiment `SlugOf`, so its act and assays sit in another class: give the shared value as a field default
 
+── record_strict/ex10_stocks.py
+ Shelved  (record_strict/ex10_stocks.py:39)
+   ✗ REFUSED  the stock `Misspelled` of `shelf` writes no `sample`, which its bases ask for
+ Bare  (record_strict/ex10_stocks.py:56)
+   ✗ REFUSED  the stock `NoOffer` of `shelf` offers neither a sample nor a checkpoint
+ TwoReaders  (record_strict/ex10_stocks.py:73)
+   ✗ REFUSED  assays `count`, `titles` read the stock `shelf`, and `SampleOnly` offers no checkpoint to restore between them
+
 ══ measure ══════════════════════════════════════════════════
 form      files  lines   chars  widest  >100   (ex1-ex4; blank lines, imports and docstrings left out)
 stacked       4     67    3402     117    11

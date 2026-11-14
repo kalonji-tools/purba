@@ -37,7 +37,8 @@ nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 | `ex7_inputs.py` | a misspelled input, and an input of the wrong type: who catches each |
 | `ex8_refused_typed.py` | `record_strict/` only: the refusals of a declared `expect`, a field named like an assay, and a case name bound twice |
 | `ex9_generated.py` | `record_strict/` only: cases that a loop builds, and a family of cases through a subclass |
-| `lab.py` | the fixtures every form shares; `UsersDb` offers a sample, a checkpoint and a fingerprint |
+| `ex10_stocks.py` | `record_strict/` only: a stock with a misspelled offer, a stock that offers nothing, and two readers of a stock with no checkpoint |
+| `lab.py` | the fixtures every form shares; `UsersDb` declares a sample, a checkpoint and a fingerprint as its bases |
 
 `module/` holds a folder for each example, one file for each experiment, and `ORDER` lists the files.
 
@@ -59,6 +60,7 @@ Weighed and not built:
 - **`self.` stays.** pyright warns on any other name for it.
 - **A literal that the act needs is a field with a default.** Every case shares it, any case may vary it, and the screen prints it with the inputs. A nested call is refused: each call is a step of a chain. A function of the test file as the act is refused, unless a reason is given; the form of the reason is open.
 - **Cases are written one by one.** A loop or a list that builds cases is refused, and so is a subclass of an experiment.
+- **The fixture of a stock declares each offer as a base:** `Samples`, `Checkpoints`, `Fingerprints`. A type checker sees a method of the wrong type. purba refuses a stock that leaves an offer's method unwritten, such as a misspelled one, a stock that offers neither a sample nor a checkpoint, and two assays that read a stock with no checkpoint. The bases take their parameters by position, so a stock names them freely.
 - **An assay's reading is compared in the assay's process, by type first, then by value.** Only a verdict crosses back, or the two texts of a failure. `True` is not `1`, `1.0` is not `1`, and `nan` equals `nan`.
 
 On `ex1`-`ex4`, ty and pyright report nothing. On `ex5` and `ex8`, each line they report is a line written to be refused.

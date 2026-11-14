@@ -25,9 +25,11 @@ import textwrap
 import traceback
 import warnings
 from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, TypeVar, overload
 
 T = TypeVar("T")
+M = TypeVar("M")
 LITERALS = (str, int, float, bool, bytes, type(None))
 OPTS = {"literals": False}
 
@@ -35,11 +37,38 @@ OPTS = {"literals": False}
 # ── what a tester writes in every form ────────────────────────────────────────
 
 
-class Stock(Generic[T]):
-    """The fixture of a stock. `open` is required; sample/discard, checkpoint/restore and fingerprint are optional."""
+class Stock(ABC, Generic[T]):
+    """The fixture of a stock: an input whose state lives outside the process. It declares each offer as a base (#967 Q6)."""
 
-    def open(self) -> T:
-        raise NotImplementedError
+    @abstractmethod
+    def open(self) -> T: ...
+
+
+class Samples(ABC, Generic[T]):
+    """Offers a sample: drawn for one case, discarded after it."""
+
+    @abstractmethod
+    def sample(self, value: T, /) -> T: ...
+
+    @abstractmethod
+    def discard(self, value: T, /) -> None: ...
+
+
+class Checkpoints(ABC, Generic[T, M]):
+    """Offers a checkpoint: a point in the stock's state, and a restore to it."""
+
+    @abstractmethod
+    def checkpoint(self, value: T, /) -> M: ...
+
+    @abstractmethod
+    def restore(self, value: T, mark: M, /) -> None: ...
+
+
+class Fingerprints(ABC, Generic[T]):
+    """Offers a fingerprint: purba compares it before and after the case."""
+
+    @abstractmethod
+    def fingerprint(self, value: T, /) -> object: ...
 
 
 @dataclass
@@ -48,7 +77,9 @@ class Use:
 
 
 @overload
-def use(fixture: type[Stock[T]]) -> T: ...
+def use(fixture: type[Samples[T]]) -> T: ...
+@overload
+def use(fixture: type[Checkpoints[T, Any]]) -> T: ...
 @overload
 def use(fixture: Callable[[], T]) -> T: ...
 def use(fixture: Any) -> Any:
@@ -268,9 +299,19 @@ def check_cases(e: Experiment, stocks: set[str]) -> None:
         for k, v in c.given.items():
             if isinstance(v, After):
                 check_after(e, c, k, v)
-    stock_readers = [k for k, fn in e.assays.items() if reads(fn) in stocks]
-    if len(stock_readers) > 1:
-        pass  # the stock here offers a checkpoint, so two readers are fine
+    for p in e.params:
+        if not (isinstance(p.default, Use) and isinstance(p.default.fixture, type) and issubclass(p.default.fixture, Stock)):
+            continue
+        stock = p.default.fixture
+        if inspect.isabstract(stock):
+            missing = ", ".join(f"`{m}`" for m in sorted(stock.__abstractmethods__))
+            e.refused.append(f"the stock `{stock.__name__}` of `{p.name}` writes no {missing}, which its bases ask for")
+        if not issubclass(stock, (Samples, Checkpoints)):
+            e.refused.append(f"the stock `{stock.__name__}` of `{p.name}` offers neither a sample nor a checkpoint")
+        readers = [k for k, fn in e.assays.items() if reads(fn) == p.name]
+        if len(readers) > 1 and not issubclass(stock, Checkpoints):
+            e.refused.append(f"assays {', '.join(f'`{r}`' for r in readers)} read the stock `{p.name}`,"
+                             f" and `{stock.__name__}` offers no checkpoint to restore between them")
 
 
 def resolve_step(a: After) -> Case | str:
@@ -374,8 +415,8 @@ class CaseRun:
         if isinstance(fixture, type) and issubclass(fixture, Stock):
             st = fixture()
             raw = st.open()
-            fp = st.fingerprint(raw) if hasattr(st, "fingerprint") else None
-            if hasattr(st, "sample"):
+            fp = st.fingerprint(raw) if isinstance(st, Fingerprints) else None
+            if isinstance(st, Samples):
                 value, mark = st.sample(raw), None
             else:
                 value, mark = raw, st.checkpoint(raw)
@@ -388,7 +429,7 @@ class CaseRun:
     def end(self) -> list[str]:
         fails = []
         for st, value, mark, fp in self.stocks:
-            if hasattr(st, "sample"):
+            if isinstance(st, Samples):
                 st.discard(value)
                 after = st.fingerprint(st.open()) if fp is not None else None
             else:
@@ -462,7 +503,7 @@ def run_assays(e: Experiment, c: Case, product: Any, args: dict[str, Any], raise
     for k, fn in stock:
         db = args[reads(fn)]
         owner = next(st for st, v, *_ in CURRENT.stocks if v is db)
-        mark = owner.checkpoint(db) if hasattr(owner, "checkpoint") else None
+        mark = owner.checkpoint(db) if isinstance(owner, Checkpoints) else None
         results.append((k, compare(c.expect[k], fn(db))))
         if mark is not None:
             owner.restore(db, mark)

@@ -2,7 +2,7 @@
 
 `outbox` is a plain fixture: a function that builds a value inside the process.
 `UsersDb` is the fixture of a stock: its state lives outside the process, in a sqlite file.
-It offers a sample, a checkpoint and a fingerprint, each as an optional method.
+It declares each offer as a base: a sample, a checkpoint and a fingerprint (#967 Q6).
 """
 
 import os
@@ -11,14 +11,15 @@ import sqlite3
 import tempfile
 
 from app import Outbox
-from engine import Stock
+from engine import Checkpoints, Fingerprints, Samples, Stock
 
 
 def outbox() -> Outbox:
     return Outbox()
 
 
-class UsersDb(Stock[sqlite3.Connection]):
+class UsersDb(Stock[sqlite3.Connection], Samples[sqlite3.Connection],
+              Checkpoints[sqlite3.Connection, str], Fingerprints[sqlite3.Connection]):
     """The stock: one sqlite file that every case would share without a sample."""
 
     path = os.environ.get("PROTO967_DB", "")
@@ -28,7 +29,7 @@ class UsersDb(Stock[sqlite3.Connection]):
         db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT UNIQUE)")
         return db
 
-    # optional: draw a sample for one case; purba discards it after the case
+    # Samples: draw a sample for one case; purba discards it after the case
     def sample(self, db: sqlite3.Connection) -> sqlite3.Connection:
         db.close()
         fd, copy = tempfile.mkstemp(suffix=".sqlite", prefix="PROTOTYPE-wipe-me-")
@@ -41,7 +42,7 @@ class UsersDb(Stock[sqlite3.Connection]):
         db.close()
         os.remove(self._copy)
 
-    # optional: a point in the stock's state, and a return to it
+    # Checkpoints: a point in the stock's state, and a return to it
     def checkpoint(self, db: sqlite3.Connection) -> str:
         db.execute("SAVEPOINT assay")
         return "assay"
@@ -50,6 +51,6 @@ class UsersDb(Stock[sqlite3.Connection]):
         db.execute(f"ROLLBACK TO {mark}")
         db.execute(f"RELEASE {mark}")
 
-    # optional: purba compares it before and after the case
+    # Fingerprints: purba compares it before and after the case
     def fingerprint(self, db: sqlite3.Connection) -> object:
         return db.execute("SELECT count(*), group_concat(name) FROM users").fetchone()
