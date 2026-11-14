@@ -2,6 +2,9 @@
  test_reading_calls_the_code  (pytest_twin/test_reading_calls_the_code.py:17)
    ✓ test_reading_calls_the_code › wrap(stream) is True   True
    ✓ test_reading_calls_the_code › stream.flush.called is False   False
+── test_catch_reads_the_tests_frame.py
+ test_catch_names_the_test  (test_catch_reads_the_tests_frame.py:8)
+   ✓ catch_names_the_test › lines[0].splitlines()[0] == 'test_catch_names_the_test:13'   'test_catch_names_the_test:13'
 ── test_guard_line.py
  test_library_mutes_inside_one_call  (test_guard_line.py:19)
    ✓ library_mutes_inside_one_call › got == 1   1
@@ -118,5 +121,5 @@
    ! refused:
        line 293: `raises`, `warns` and `handling` each take a `with` of their own
      so none of its 1 case(s) runs
-══ 26 cases: 12 passed · 12 failed · 2 refused · 0 blocked   (31 checks held)
+══ 27 cases: 13 passed · 12 failed · 2 refused · 0 blocked   (32 checks held)
 exit 1

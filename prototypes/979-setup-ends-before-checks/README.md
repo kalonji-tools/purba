@@ -21,7 +21,7 @@ The probe run found two defects. One is a false fail, where freezegun's own `cat
 | Q8 | A setup whose entry or undo raises fails the case, and names it. | `setup_at()` |
 | Q9 | Nested setups, and several items in one `with`, are allowed. | `read_with` recursion |
 
-The markers add no frame to a setup's `__exit__`, so a library that reads its caller's frame (loguru's `logger.catch()`) still sees the test's frame.
+The markers add no frame to a setup's `__exit__`, so a library that reads its caller's frame (loguru's `logger.catch()`) still sees the test's frame. `probes/test_catch_reads_the_tests_frame.py` shows it.
 
 ## Run it
 
@@ -35,7 +35,7 @@ FORM_GUARD=swap ../.venv/bin/python ../run.py test_guard_line.py   # the guard a
 
 | folder | what | cases | passed | notes |
 |---|---|---|---|---|
-| `probes/` | each answer, falsified on purpose | 26 | 12 | every verdict matches its docstring; 2 refused on purpose |
+| `probes/` | each answer, falsified on purpose | 27 | 13 | every verdict matches its docstring; 2 refused on purpose |
 | `ports/filesink-delay/` | prototype 5's port, 3 `with freeze_time(…)` back | 10 | 10 | `FORM_GUARD=swap`: 3 fail on freezegun's window |
 | `ports/add-option-catch/` | prototype 5's port, 3 `with` back, + 1 item without the hook swap | 12 | 11 | the thread-hook swap fails (Q2); without it, it passes |
 | `porters/defaults/` | an independent porter, `test_defaults.py` | 14 | 14 | 7 of 7 tests on the first natural attempt |
