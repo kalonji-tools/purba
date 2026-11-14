@@ -18,7 +18,7 @@ import traceback
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FORMS = ("stacked", "klass", "below", "call", "record", "module", "klasscall", "record_strict")
-EXAMPLES = ("ex1_slug", "ex2_money", "ex3_sign_up", "ex4_cart", "ex5_refused", "ex6_typo", "ex7_inputs", "ex8_refused_typed")
+EXAMPLES = ("ex1_slug", "ex2_money", "ex3_sign_up", "ex4_cart", "ex5_refused", "ex6_typo", "ex7_inputs", "ex8_refused_typed", "ex9_generated")
 
 
 def files_of(form: str, ex: str) -> list[str]:

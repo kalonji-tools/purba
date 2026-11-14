@@ -36,6 +36,7 @@ nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 | `ex6_typo.py` | a typo in the name of a step: who catches it |
 | `ex7_inputs.py` | a misspelled input, and an input of the wrong type: who catches each |
 | `ex8_refused_typed.py` | `record_strict/` only: the refusals of a declared `expect`, a field named like an assay, and a case name bound twice |
+| `ex9_generated.py` | `record_strict/` only: cases that a loop builds, and a family of cases through a subclass |
 | `lab.py` | the fixtures every form shares; `UsersDb` offers a sample, a checkpoint and a fingerprint |
 
 `module/` holds a folder for each example, one file for each experiment, and `ORDER` lists the files.

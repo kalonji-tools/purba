@@ -66,15 +66,22 @@ def _name(tp: Any) -> str:
 @dataclass_transform(kw_only_default=True)
 class Experiment(ABC, Generic[T]):
     def __init_subclass__(cls) -> None:
-        notes = cls.__dict__.get("__annotations__", {})
+        parents = [b for b in cls.__mro__[1:] if b is not Experiment and isinstance(b, type) and issubclass(b, Experiment)]
+        notes: dict[str, Any] = {}
+        for b in [*reversed(parents), cls]:
+            notes.update(b.__dict__.get("__annotations__", {}))
         fields = [k for k in notes if not k.startswith("_")]
         params = [inspect.Parameter(k, inspect.Parameter.KEYWORD_ONLY,
-                                    default=cls.__dict__.get(k, inspect.Parameter.empty)) for k in fields]
-        method = cls.__dict__.get("act")
+                                    default=getattr(cls, k, inspect.Parameter.empty)) for k in fields]
+        method = cls.__dict__.get("act") or (getattr(cls, "act") if parents else None)
         refused: list[str] = []
+        if parents:
+            refused.append(f"`{cls.__name__}` subclasses the experiment `{parents[0].__name__}`, so its act and"
+                           " assays sit in another class: give the shared value as a field default")
         if method is None:
             refused.append("the experiment has no `act`")
             method = lambda self: None  # noqa: E731
+        cls.__purba_made__ = []  # type: ignore[attr-defined]
 
         def act(**kw: Any) -> Any:
             obj = object.__new__(cls)
@@ -100,7 +107,8 @@ class Experiment(ABC, Generic[T]):
                 e.assays[k] = assay
         for k in sorted(set(fields) & set(e.assays)):
             e.refused.append(f"`{k}` is a field and an assay: name the assay for its question")
-        _check_expect(cls, e)
+        if not parents:  # a subclass is refused already, and its `expect` sits in the parent
+            _check_expect(cls, e)
         cls.__purba__ = e  # type: ignore[attr-defined]
         cls.__purba_fields__ = set(fields)  # type: ignore[attr-defined]
         setattr(cls, "expect", _record_expect)  # setattr: a type checker must not see a base `expect`
@@ -109,6 +117,7 @@ class Experiment(ABC, Generic[T]):
     def __init__(self, **given: Any) -> None:
         self.__dict__["__case__"] = Case("", given, {}, line=caller_line())
         self.__dict__["__case__"].exp = type(self).__purba__  # type: ignore[attr-defined]
+        type(self).__purba_made__.append(self.__dict__["__case__"])  # type: ignore[attr-defined]
 
     @abstractmethod
     def act(self) -> T: ...
@@ -190,6 +199,14 @@ def collect(mod: ModuleType) -> None:
                         " a chain takes the step's `.product` or one of its fields")
     for e in REGISTRY:
         e.cases.sort(key=lambda c: c.line)
+    for v in vars(mod).values():
+        if isinstance(v, type) and issubclass(v, Experiment) and v is not Experiment and v.__module__ == mod.__name__:
+            named = {id(c) for c in v.__purba__.cases}  # type: ignore[attr-defined]
+            lines = sorted({c.line for c in v.__purba_made__ if id(c) not in named})  # type: ignore[attr-defined]
+            if lines:
+                v.__purba__.refused.append(  # type: ignore[attr-defined]
+                    f"line {', '.join(map(str, lines))} builds cases with no name, as a loop or a list does:"
+                    " each case is one line that names it")
     _refuse_a_name_bound_twice(mod)
 
 

@@ -823,7 +823,14 @@
    ✗ REFUSED  `expect` gives `seen` a default: it reads an input, so every case gives it a value
    ✗ REFUSED  `expect` must default `product` to UNREAD: it reads the product, and a case that raises has none
  Twice  (record_strict/ex8_refused_typed.py:76)
+   ✗ REFUSED  line 86 builds cases with no name, as a loop or a list does: each case is one line that names it
    ✗ REFUSED  the case name `same` is bound 2 times in this file, at lines 86 and 87: one case is lost
+
+── record_strict/ex9_generated.py
+ SlugOf  (record_strict/ex9_generated.py:9)
+   ✗ REFUSED  line 21 builds cases with no name, as a loop or a list does: each case is one line that names it
+ SlugUnderscore  (record_strict/ex9_generated.py:24)
+   ✗ REFUSED  `SlugUnderscore` subclasses the experiment `SlugOf`, so its act and assays sit in another class: give the shared value as a field default
 
 ══ measure ══════════════════════════════════════════════════
 form      files  lines   chars  widest  >100   (ex1-ex4; blank lines, imports and docstrings left out)
