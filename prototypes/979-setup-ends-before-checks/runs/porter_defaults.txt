@@ -1,0 +1,24 @@
+── test_defaults.py
+ test_string  (test_defaults.py:12)
+   ✓ string_test › env(key, str) == value   'test'
+   ✓ string_empty › env(key, str) == value   ''
+ test_bool_positive  (test_defaults.py:23)
+   ✓ bool_positive_y › env(key, bool) is True   True
+   ✓ bool_positive_1 › env(key, bool) is True   True
+   ✓ bool_positive_TRUE › env(key, bool) is True   True
+ test_bool_negative  (test_defaults.py:35)
+   ✓ bool_negative_NO › env(key, bool) is False   False
+   ✓ bool_negative_0 › env(key, bool) is False   False
+   ✓ bool_negative_false › env(key, bool) is False   False
+ test_int  (test_defaults.py:47)
+   ✓ test_int › env(key, int) == 42   42
+ test_invalid_int  (test_defaults.py:54)
+   ✓ invalid_int_empty › raises   ValueError: Invalid environment variable 'INVALID_INT' (expected an integer): ''
+   ✓ invalid_int_a › raises   ValueError: Invalid environment variable 'INVALID_INT' (expected an integer): 'a'
+ test_invalid_bool  (test_defaults.py:69)
+   ✓ invalid_bool_empty › raises   ValueError: Invalid environment variable 'INVALID_BOOL' (expected a boolean): ''
+   ✓ invalid_bool_a › raises   ValueError: Invalid environment variable 'INVALID_BOOL' (expected a boolean): 'a'
+ test_invalid_type  (test_defaults.py:84)
+   ✓ test_invalid_type › raises   ValueError: The requested type 'float' is not supported
+══ 14 cases: 14 passed · 0 failed · 0 refused · 0 blocked   (14 checks held)
+exit 0

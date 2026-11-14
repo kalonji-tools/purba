@@ -1,0 +1,15 @@
+── test_guard_line.py
+ test_library_mutes_inside_one_call  (test_guard_line.py:19)
+   ✗ library_mutes_inside_one_call › hook   test_guard_line.py:25
+       what      the act replaced warnings.filters; the runner sees a warning that the test does not expect through it, so while it is replaced the case cannot show one
+                 at probe_lib.py:8  with warnings.catch_warnings():
+       inputs    (none)
+   ✓ library_mutes_inside_one_call › got == 1   1
+ test_swap_undone_by_a_later_line  (test_guard_line.py:28)
+   ✗ swap_undone_by_a_later_line › hook   test_guard_line.py:39
+       what      the act replaced threading.excepthook; the runner sees an error that no code sees in a thread through it, so while it is replaced the case cannot show one
+                 at test_guard_line.py:31  threading.excepthook = lambda args: None
+       inputs    (none)
+   ✓ swap_undone_by_a_later_line › worker.is_alive() is False   False
+══ 2 cases: 0 passed · 2 failed · 0 refused · 0 blocked   (2 checks held)
+exit 1

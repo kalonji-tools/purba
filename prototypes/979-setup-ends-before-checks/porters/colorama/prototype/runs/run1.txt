@@ -1,0 +1,142 @@
+── test_colorama.py
+ test_stream_wrapped_on_windows_if_no_vt_support  (test_colorama.py:45)
+   ! refused:
+       line 45: a test takes no decorator; give its cases with `name = case(test_stream_wrapped_on_windows_if_no_vt_support, …)`
+       line 54: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_stream_not_wrapped_on_windows_if_vt_support  (test_colorama.py:66)
+   ! refused:
+       line 66: a test takes no decorator; give its cases with `name = case(test_stream_not_wrapped_on_windows_if_vt_support, …)`
+       line 75: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_stream_is_none  (test_colorama.py:86)
+   ! refused:
+       line 87: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_is_a_tty  (test_colorama.py:90)
+   ! refused:
+       line 91: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_is_not_a_tty  (test_colorama.py:94)
+   ! refused:
+       line 95: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_is_a_tty_exception  (test_colorama.py:98)
+   ! refused:
+       line 99: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_pycharm_fixed  (test_colorama.py:102)
+   ✓ pycharm_fixed__stdout__ › should_colorize(stream) is expected   True
+   ✓ pycharm_fixed__stderr__ › should_colorize(stream) is expected   True
+   ✓ pycharm_fixed_stdout › should_colorize(stream) is expected   False
+   ✓ pycharm_fixed_stderr › should_colorize(stream) is expected   False
+   ✓ pycharm_fixed_none › should_colorize(stream) is expected   False
+ test_github_actions_fixed  (test_colorama.py:117)
+   ✓ github_actions_fixed__stdout__ › should_colorize(stream) is expected   True
+   ✓ github_actions_fixed__stderr__ › should_colorize(stream) is expected   True
+   ✓ github_actions_fixed_stdout › should_colorize(stream) is expected   False
+   ✓ github_actions_fixed_stderr › should_colorize(stream) is expected   False
+   ✓ github_actions_fixed_none › should_colorize(stream) is expected   False
+ test_mintty_fixed_windows  (test_colorama.py:134)
+   ! refused:
+       line 134: a test takes no decorator; give its cases with `name = case(test_mintty_fixed_windows, …)`
+     so none of its 5 case(s) runs
+ test_dumb_term_not_colored  (test_colorama.py:149)
+   ✓ dumb_term_not_colored__stdout__ › should_colorize(stream) is expected   False
+   ✓ dumb_term_not_colored__stderr__ › should_colorize(stream) is expected   False
+   ✓ dumb_term_not_colored_stdout › should_colorize(stream) is expected   True
+   ✓ dumb_term_not_colored_stderr › should_colorize(stream) is expected   True
+   ✓ dumb_term_not_colored_none › should_colorize(stream) is expected   True
+ test_honor_no_color_standard  (test_colorama.py:164)
+   ✓ honor_no_color_1__stdout__ › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1__stderr__ › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_stdout › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_stderr › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_none › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty__stdout__ › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty__stderr__ › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_stdout › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_stderr › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_none › should_colorize(stream) is expected   True
+ test_honor_force_color_standard  (test_colorama.py:186)
+   ✓ honor_force_color_1__stdout__ › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1__stderr__ › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_stdout › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_stderr › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_none › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty__stdout__ › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty__stderr__ › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_stdout › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_stderr › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_none › should_colorize(stream) is expected   False
+ test_no_color_takes_precedence_over_force_color  (test_colorama.py:208)
+   ! refused:
+       line 217 holds an assert inside the act: the act ends at the first check, and every check comes after it, at the end of the test or at the end of a `with`
+       line 220: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_mintty_not_fixed_linux  (test_colorama.py:224)
+   ! refused:
+       line 224: a test takes no decorator; give its cases with `name = case(test_mintty_not_fixed_linux, …)`
+     so none of its 5 case(s) runs
+ test_jupyter_fixed  (test_colorama.py:239)
+   ✓ jupyter_fixed_stdout_false › should_colorize(stream) is expected   True
+   ✓ jupyter_fixed_stderr_false › should_colorize(stream) is expected   True
+   ✓ jupyter_fixed__stdout___false › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed__stderr___false › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_stdout_true › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_stderr_true › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_none_false › should_colorize(stream) is expected   False
+ test_jupyter_missing_lib  (test_colorama.py:270)
+   ✓ test_jupyter_missing_lib › should_colorize(stream) is False   False
+ test_dont_wrap_on_linux  (test_colorama.py:280)
+   ! refused:
+       line 280: a test takes no decorator; give its cases with `name = case(test_dont_wrap_on_linux, …)`
+       line 284: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 285: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_dont_wrap_if_not_original_stdout_or_stderr  (test_colorama.py:293)
+   ! refused:
+       line 293: a test takes no decorator; give its cases with `name = case(test_dont_wrap_if_not_original_stdout_or_stderr, …)`
+       line 299: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 300: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 3 case(s) runs
+ test_dont_wrap_if_terminal_has_vt_support  (test_colorama.py:309)
+   ! refused:
+       line 309: a test takes no decorator; give its cases with `name = case(test_dont_wrap_if_terminal_has_vt_support, …)`
+       line 317: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 318: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_dont_wrap_if_winapi_false  (test_colorama.py:326)
+   ! refused:
+       line 326: a test takes no decorator; give its cases with `name = case(test_dont_wrap_if_winapi_false, …)`
+       line 332: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 333: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_wrap_if_winapi_true_and_no_vt_support  (test_colorama.py:341)
+   ! refused:
+       line 341: a test takes no decorator; give its cases with `name = case(test_wrap_if_winapi_true_and_no_vt_support, …)`
+       line 349: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 350: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 351: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_wrap_if_winapi_true_and_vt_check_fails  (test_colorama.py:359)
+   ! refused:
+       line 359: a test takes no decorator; give its cases with `name = case(test_wrap_if_winapi_true_and_vt_check_fails, …)`
+       line 367: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 368: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 369: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_wrap_if_winapi_true_and_stream_has_no_fileno  (test_colorama.py:377)
+   ! refused:
+       line 377: a test takes no decorator; give its cases with `name = case(test_wrap_if_winapi_true_and_stream_has_no_fileno, …)`
+       line 384: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 385: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 386: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+ test_wrap_if_winapi_true_and_old_colorama_version  (test_colorama.py:398)
+   ! refused:
+       line 398: a test takes no decorator; give its cases with `name = case(test_wrap_if_winapi_true_and_old_colorama_version, …)`
+       line 406: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+       line 407: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 2 case(s) runs
+══ 79 cases: 43 passed · 0 failed · 36 refused · 0 blocked   (43 checks held)

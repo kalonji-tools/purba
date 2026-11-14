@@ -1,0 +1,57 @@
+── test_add_option_catch.py
+ test_catch_is_true  (test_add_option_catch.py:24)
+   ✓ catch_is_true › out == ''   ''
+   ✓ catch_is_true › err != ''   '--- Logging error in Loguru Handler #0 ---\nRecord was: {\'elapsed\': datetime.timedelta(microseconds=24813), \'exception\': None, \'extra\': {}, \'file\': (name=\'test_add_option_catch.py\', path=\' … ks.py", line 234, in write\n    self._function(message)\n  File "test_add_option_catch.py", line 21, in broken_sink\n    raise ValueError("Error!")\nValueError: Error!\n--- End of logging error ---\n'
+ test_catch_is_false  (test_add_option_catch.py:35)
+   ✓ catch_is_false › raises   ValueError: Error!
+   ✓ catch_is_false › capsys.readouterr() == ('', '')   ('', '')
+ test_no_sys_stderr  (test_add_option_catch.py:45)
+   ✓ no_sys_stderr › (out, err) == ('', '')   ('', '')
+ test_broken_sys_stderr  (test_add_option_catch.py:57)
+   ✓ broken_sys_stderr › (out, err) == ('', '')   ('', '')
+ test_encoding_error  (test_add_option_catch.py:72)
+   ✓ encoding_error › out == ''   ''
+   ✓ encoding_error › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ encoding_error › lines[1][:13] == 'Record was: {'   'Record was: {'
+   ✓ encoding_error › lines[1][-1] == '}'   '}'
+   ✓ encoding_error › lines[-2][:19] == 'UnicodeEncodeError:'   'UnicodeEncodeError:'
+   ✓ encoding_error › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_unprintable_record  (test_add_option_catch.py:93)
+   ✓ unprintable_record › writer.read() == 'a 1\nc 2\n'   'a 1\nc 2\n'
+   ✓ unprintable_record › out == ''   ''
+   ✓ unprintable_record › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ unprintable_record › lines[1] == 'Record was: /!\\ Unprintable record /!\\'   'Record was: /!\\ Unprintable record /!\\'
+   ✓ unprintable_record › lines[-2] == 'ValueError: Failed'   'ValueError: Failed'
+   ✓ unprintable_record › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_broken_sink_message  (test_add_option_catch.py:117)
+   ✓ broken_sink_message_direct › out == ''   ''
+   ✓ broken_sink_message_direct › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ broken_sink_message_direct › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 587), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✓ broken_sink_message_direct › lines[-2][:18] == 'ValueError: Error!'   'ValueError: Error!'
+   ✓ broken_sink_message_direct › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+   ✓ broken_sink_message_enqueued › out == ''   ''
+   ✓ broken_sink_message_enqueued › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ broken_sink_message_enqueued › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 587), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✓ broken_sink_message_enqueued › lines[-2][:18] == 'ValueError: Error!'   'ValueError: Error!'
+   ✓ broken_sink_message_enqueued › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_broken_sink_caught_keep_working  (test_add_option_catch.py:137)
+   ✓ broken_sink_caught_keep_working_direct › output == 'A\nB\n'   'A\nB\n'
+   ✓ broken_sink_caught_keep_working_enqueued › output == 'A\nB\n'   'A\nB\n'
+ test_broken_sink_not_caught_enqueue  (test_add_option_catch.py:159)
+   ✗ broken_sink_not_caught_enqueue › hook   test_add_option_catch.py:177
+       what      the act replaced threading.excepthook; the runner sees an error that no code sees in a thread through it, so while it is replaced the case cannot show one
+                 at loguru_lab.py:72  threading.excepthook = _print_thread_exception
+       inputs    (none)
+   ✓ broken_sink_not_caught_enqueue › called == 2   2
+       output      File "venv979/lib/python3.12/site-packages/loguru/_handler.py", line 338, in _queued_writer
+                     self._sink.write(message)
+                   File "venv979/lib/python3.12/site-packages/loguru/_simple_sinks.py", line 234, in write
+                     self._function(message)
+                   File "test_add_option_catch.py", line 165, in broken_sink
+                     raise ValueError("Nop")
+                 ValueError: Nop
+                 --- End of logging error ---
+ test_broken_sink_not_caught_enqueue_no_swap  (test_add_option_catch.py:180)
+   ✓ broken_sink_not_caught_enqueue_no_swap › called == 2   2
+══ 12 cases: 11 passed · 1 failed · 0 refused · 0 blocked   (32 checks held)
+exit 1

@@ -1,0 +1,16 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________________ test_reading_calls_the_code __________________________
+
+    def test_reading_calls_the_code():
+        stream = MagicMock()
+        assert wrap(stream) is True
+>       assert stream.flush.called is False
+E       AssertionError: assert True is False
+E        +  where True = <MagicMock name='mock.flush' id='132798625842672'>.called
+E        +    where <MagicMock name='mock.flush' id='132798625842672'> = <MagicMock id='132798628184912'>.flush
+
+test_reading_calls_the_code.py:20: AssertionError
+=========================== short test summary info ============================
+FAILED test_reading_calls_the_code.py::test_reading_calls_the_code - Assertio...
+1 failed in 0.04s

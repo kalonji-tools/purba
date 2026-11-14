@@ -1,0 +1,129 @@
+── test_colorama.py
+ test_stream_wrapped_on_windows_if_no_vt_support  (test_colorama.py:44)
+   ✓ stream_wrapped_on_windows_if_no_vt_support__stdout__ › patch_colorama.AnsiToWin32.called is True   True
+   ✓ stream_wrapped_on_windows_if_no_vt_support__stderr__ › patch_colorama.AnsiToWin32.called is True   True
+ test_stream_not_wrapped_on_windows_if_vt_support  (test_colorama.py:65)
+   ✓ stream_not_wrapped_on_windows_if_vt_support__stdout__ › patch_colorama.AnsiToWin32.called is False   False
+   ✓ stream_not_wrapped_on_windows_if_vt_support__stderr__ › patch_colorama.AnsiToWin32.called is False   False
+ test_stream_is_none  (test_colorama.py:86)
+   ✓ test_stream_is_none › should_colorize(None) is False   False
+ test_is_a_tty  (test_colorama.py:90)
+   ✓ test_is_a_tty › should_colorize(StreamIsattyTrue()) is True   True
+ test_is_not_a_tty  (test_colorama.py:94)
+   ✓ test_is_not_a_tty › should_colorize(StreamIsattyFalse()) is False   False
+ test_is_a_tty_exception  (test_colorama.py:98)
+   ✓ test_is_a_tty_exception › should_colorize(StreamIsattyException()) is False   False
+ test_pycharm_fixed  (test_colorama.py:102)
+   ✓ pycharm_fixed__stdout__ › should_colorize(stream) is expected   True
+   ✓ pycharm_fixed__stderr__ › should_colorize(stream) is expected   True
+   ✓ pycharm_fixed_stdout › should_colorize(stream) is expected   False
+   ✓ pycharm_fixed_stderr › should_colorize(stream) is expected   False
+   ✓ pycharm_fixed_none › should_colorize(stream) is expected   False
+ test_github_actions_fixed  (test_colorama.py:117)
+   ✓ github_actions_fixed__stdout__ › should_colorize(stream) is expected   True
+   ✓ github_actions_fixed__stderr__ › should_colorize(stream) is expected   True
+   ✓ github_actions_fixed_stdout › should_colorize(stream) is expected   False
+   ✓ github_actions_fixed_stderr › should_colorize(stream) is expected   False
+   ✓ github_actions_fixed_none › should_colorize(stream) is expected   False
+ test_mintty_fixed_windows  (test_colorama.py:133)
+   ✓ mintty_fixed_windows__stdout__ › should_colorize(stream) is expected   True
+   ✓ mintty_fixed_windows__stderr__ › should_colorize(stream) is expected   True
+   ✓ mintty_fixed_windows_stdout › should_colorize(stream) is expected   False
+   ✓ mintty_fixed_windows_stderr › should_colorize(stream) is expected   False
+   ✓ mintty_fixed_windows_none › should_colorize(stream) is expected   False
+ test_dumb_term_not_colored  (test_colorama.py:149)
+   ✓ dumb_term_not_colored__stdout__ › should_colorize(stream) is expected   False
+   ✓ dumb_term_not_colored__stderr__ › should_colorize(stream) is expected   False
+   ✓ dumb_term_not_colored_stdout › should_colorize(stream) is expected   True
+   ✓ dumb_term_not_colored_stderr › should_colorize(stream) is expected   True
+   ✓ dumb_term_not_colored_none › should_colorize(stream) is expected   True
+ test_honor_no_color_standard  (test_colorama.py:164)
+   ✓ honor_no_color_1__stdout__ › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1__stderr__ › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_stdout › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_stderr › should_colorize(stream) is expected   False
+   ✓ honor_no_color_1_none › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty__stdout__ › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty__stderr__ › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_stdout › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_stderr › should_colorize(stream) is expected   True
+   ✓ honor_no_color_empty_none › should_colorize(stream) is expected   True
+ test_honor_force_color_standard  (test_colorama.py:186)
+   ✓ honor_force_color_1__stdout__ › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1__stderr__ › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_stdout › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_stderr › should_colorize(stream) is expected   True
+   ✓ honor_force_color_1_none › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty__stdout__ › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty__stderr__ › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_stdout › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_stderr › should_colorize(stream) is expected   False
+   ✓ honor_force_color_empty_none › should_colorize(stream) is expected   False
+ test_no_color_takes_precedence_over_force_color  (test_colorama.py:208)
+   ✓ test_no_color_takes_precedence_over_force_color › tty_colored is False   False
+   ✓ test_no_color_takes_precedence_over_force_color › not_tty_colored is False   False
+ test_mintty_not_fixed_linux  (test_colorama.py:225)
+   ✓ mintty_not_fixed_linux__stdout__ › should_colorize(stream) is expected   False
+   ✓ mintty_not_fixed_linux__stderr__ › should_colorize(stream) is expected   False
+   ✓ mintty_not_fixed_linux_stdout › should_colorize(stream) is expected   False
+   ✓ mintty_not_fixed_linux_stderr › should_colorize(stream) is expected   False
+   ✓ mintty_not_fixed_linux_none › should_colorize(stream) is expected   False
+ test_jupyter_fixed  (test_colorama.py:240)
+   ✓ jupyter_fixed_stdout_false › should_colorize(stream) is expected   True
+   ✓ jupyter_fixed_stderr_false › should_colorize(stream) is expected   True
+   ✓ jupyter_fixed__stdout___false › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed__stderr___false › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_stdout_true › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_stderr_true › should_colorize(stream) is expected   False
+   ✓ jupyter_fixed_none_false › should_colorize(stream) is expected   False
+ test_jupyter_missing_lib  (test_colorama.py:271)
+   ✓ test_jupyter_missing_lib › should_colorize(stream) is False   False
+ test_dont_wrap_on_linux  (test_colorama.py:280)
+   ✓ dont_wrap_on_linux__stdout__ › wrapped is False   False
+   ✓ dont_wrap_on_linux__stdout__ › patch_colorama.win32.winapi_test.called is False   False
+   ✓ dont_wrap_on_linux__stderr__ › wrapped is False   False
+   ✓ dont_wrap_on_linux__stderr__ › patch_colorama.win32.winapi_test.called is False   False
+ test_dont_wrap_if_not_original_stdout_or_stderr  (test_colorama.py:293)
+   ✓ dont_wrap_if_not_original_stdout › wrapped is False   False
+   ✓ dont_wrap_if_not_original_stdout › patch_colorama.win32.winapi_test.called is False   False
+   ✓ dont_wrap_if_not_original_stderr › wrapped is False   False
+   ✓ dont_wrap_if_not_original_stderr › patch_colorama.win32.winapi_test.called is False   False
+   ✓ dont_wrap_if_not_original_none › wrapped is False   False
+   ✓ dont_wrap_if_not_original_none › patch_colorama.win32.winapi_test.called is False   False
+ test_dont_wrap_if_terminal_has_vt_support  (test_colorama.py:310)
+   ✓ dont_wrap_if_terminal_has_vt_support__stdout__ › wrapped is False   False
+   ✓ dont_wrap_if_terminal_has_vt_support__stdout__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+   ✓ dont_wrap_if_terminal_has_vt_support__stderr__ › wrapped is False   False
+   ✓ dont_wrap_if_terminal_has_vt_support__stderr__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+ test_dont_wrap_if_winapi_false  (test_colorama.py:328)
+   ✓ dont_wrap_if_winapi_false__stdout__ › wrapped is False   False
+   ✓ dont_wrap_if_winapi_false__stdout__ › patch_colorama.win32.winapi_test.called is True   True
+   ✓ dont_wrap_if_winapi_false__stderr__ › wrapped is False   False
+   ✓ dont_wrap_if_winapi_false__stderr__ › patch_colorama.win32.winapi_test.called is True   True
+ test_wrap_if_winapi_true_and_no_vt_support  (test_colorama.py:344)
+   ✓ wrap_if_winapi_true_and_no_vt_support__stdout__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_no_vt_support__stdout__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+   ✓ wrap_if_winapi_true_and_no_vt_support__stdout__ › patch_colorama.win32.winapi_test.called is True   True
+   ✓ wrap_if_winapi_true_and_no_vt_support__stderr__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_no_vt_support__stderr__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+   ✓ wrap_if_winapi_true_and_no_vt_support__stderr__ › patch_colorama.win32.winapi_test.called is True   True
+ test_wrap_if_winapi_true_and_vt_check_fails  (test_colorama.py:363)
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stdout__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stdout__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stdout__ › patch_colorama.win32.winapi_test.called is True   True
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stderr__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stderr__ › patch_colorama.winterm.enable_vt_processing.called is True   True
+   ✓ wrap_if_winapi_true_and_vt_check_fails__stderr__ › patch_colorama.win32.winapi_test.called is True   True
+ test_wrap_if_winapi_true_and_stream_has_no_fileno  (test_colorama.py:382)
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stdout__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stdout__ › patch_colorama.winterm.enable_vt_processing.called is False   False
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stdout__ › patch_colorama.win32.winapi_test.called is True   True
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stderr__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stderr__ › patch_colorama.winterm.enable_vt_processing.called is False   False
+   ✓ wrap_if_winapi_true_and_stream_has_no_fileno__stderr__ › patch_colorama.win32.winapi_test.called is True   True
+ test_wrap_if_winapi_true_and_old_colorama_version  (test_colorama.py:404)
+   ✓ wrap_if_winapi_true_and_old_colorama_version__stdout__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_old_colorama_version__stdout__ › patch_colorama.win32.winapi_test.called is True   True
+   ✓ wrap_if_winapi_true_and_old_colorama_version__stderr__ › wrapped is True   True
+   ✓ wrap_if_winapi_true_and_old_colorama_version__stderr__ › patch_colorama.win32.winapi_test.called is True   True
+══ 79 cases: 79 passed · 0 failed · 0 refused · 0 blocked   (103 checks held)
