@@ -19,6 +19,7 @@ parent exits at once, by the signal.
 import json, os, signal, struct, sys, threading, time, traceback
 
 THREADS = "join"
+FLAT = False  # --flat: the parent loads the module and forks each test, one fork deep
 INTERRUPTS = 0
 
 
@@ -145,6 +146,11 @@ def zygote(path):
 
 
 def run_module(path):
+    if FLAT:
+        verdict, names = zygote(path)
+        if verdict == "thread":
+            print(f"{os.path.basename(path)}: thread alive after load", flush=True)
+        return
     rfd, wfd = os.pipe()
     pid = os.fork()
     if pid == 0:
@@ -178,10 +184,13 @@ def run_module(path):
 
 
 def main():
-    global THREADS
+    global THREADS, FLAT
     args = sys.argv[1:]
     if args and args[0].startswith("--threads="):
         THREADS = args.pop(0).split("=", 1)[1]
+    if args and args[0] == "--flat":
+        args.pop(0)
+        FLAT = True
     signal.signal(signal.SIGINT, on_sigint)
     start = time.perf_counter()
     for path in args:
