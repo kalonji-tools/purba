@@ -56,7 +56,7 @@ Its refusals print under the tense rule, so one rule still gives one message.
 
 | part | decided |
 |---|---|
-| the version | harper-core at a git tag |
+| the version | harper-core from crates.io |
 | a participle the dictionary lacks | a list of purba's own beside the script, merged over Harper's dictionary |
 | continuous integration | a run on `main` caches the build directory, keyed on the `Cargo.lock` of the script and on `.config/mise.toml` |
 | when review refuses the Rust check | the Weir rule, run by `harper-cli`, and never beside the library |
@@ -82,7 +82,7 @@ A tag does not separate `is refused` from `is closed`, so the passive count gain
 - **The tagger passes a question whose subject is a determiner alone.** `Has each refused it?` is one. No line of the measured prose holds one.
 - **A participle that Harper's dictionary lacks passes until purba's list holds it.** `grown` is the one such word the measurement found.
 - **purba cannot fix a word the tagger reads wrong.** A trained model assigns the tag, and a word list took one line to fix.
-- **A new Harper version can change a verdict on text that did not change.** The version moves only through a pull request that edits the tag, and the records gate runs on that pull request.
+- **A new Harper version can change a verdict on text that did not change.** The version moves only through a pull request that edits the `Cargo.lock` of the script, and the records gate runs on that pull request.
 
 ## Confirmation
 
