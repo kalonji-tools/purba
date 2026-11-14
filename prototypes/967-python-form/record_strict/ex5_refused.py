@@ -2,7 +2,7 @@
 
 from typing import Self
 
-from app import Money, parse_amount, slugify
+from app import Money, adult_count, check_age, parse_amount, slugify
 from form_record_strict import UNREAD, Experiment
 
 
@@ -106,3 +106,34 @@ class ReadingNotLiteral(Experiment[Money]):
 
 
 a7 = ReadingNotLiteral(text="12.50", currency="EUR").expect(product="12.50 EUR")  # ty
+
+
+def age_of(text: str) -> int:  # a helper of this test file: logic the parse never reads
+    return check_age(int(text))
+
+
+class Aged(Experiment[int]):
+    text: str
+
+    def act(self) -> int:
+        return age_of(self.text)
+
+    def expect(self, *, product: int = UNREAD) -> Self:
+        return self
+
+
+a8 = Aged(text="30").expect(product=30)
+
+
+class Adults(Experiment[int]):
+    ages: list[int]
+
+    def act(self) -> int:
+        return adult_count(self.ages)
+
+    def expect(self, *, product: int = UNREAD) -> Self:
+        return self
+
+
+two = Adults(ages=[30, 40]).expect(product=2)
+one = Adults(ages=[30]).expect(product=1)  # app returns True: == passes it, the same-type compare does not

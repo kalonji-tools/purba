@@ -7,7 +7,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -113,7 +113,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -215,7 +215,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -317,7 +317,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -422,7 +422,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -524,7 +524,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -620,7 +620,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -722,7 +722,7 @@
    ✗ accents › product
        expected 'creme-brulee'
        reading  'crème-brûlée'
-       inputs   text='Crème Brûlée'
+       inputs   text='Crème Brûlée', sep='-'
    ✓ underscore › product  'a_b'
    ✓ empty › raises   ValueError: empty
 
@@ -798,6 +798,14 @@
    ✗ REFUSED  case `a6` (line 94) gives no expected value for the assay `unit`
  ReadingNotLiteral  (record_strict/ex5_refused.py:97)
    ✗ REFUSED  assay `product` hands a Money: an expected value is a literal, so hand a str, int, … or a collection of them
+ Aged  (record_strict/ex5_refused.py:115)
+   ✗ REFUSED  the act calls `age_of`, a function of this test file: logic purba cannot read. Give a reason to depart
+ Adults  (record_strict/ex5_refused.py:128)
+   ✓ two › product  2
+   ✗ one › product
+       expected 1  (int)
+       reading  True  (bool)
+       inputs   ages=[30]
 
 ── record_strict/ex6_typo.py
    ✗ record_strict/ex6_typo.py CANNOT LOAD, so none of its experiments runs

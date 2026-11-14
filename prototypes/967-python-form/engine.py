@@ -18,6 +18,7 @@ import ast
 import difflib
 import inspect
 import json
+import math
 import os
 import sys
 import textwrap
@@ -169,6 +170,12 @@ def check_act(e: Experiment) -> None:
         e.refused.append(f"the act calls `{ast.unparse(call.func)}`: a name or a method of an input")
     elif any(p.startswith("_") for p in func) and "private-name" not in e.allow:
         e.refused.append(f"the act calls the private name `{'.'.join(func)}`")
+    else:
+        src = getattr(e.act, "__purba_src__", e.act)
+        target = src.__globals__.get(func[0])
+        if inspect.isfunction(target) and target.__module__ == src.__module__ and "helper" not in e.allow:
+            e.refused.append(f"the act calls `{func[0]}`, a function of this test file: logic purba cannot read."
+                             " Give a reason to depart")
     for arg in [*call.args, *(k.value for k in call.keywords)]:
         if isinstance(arg, ast.Name) and arg.id in names:
             continue
@@ -306,10 +313,33 @@ def literal_type(v: Any) -> bool:
     return False
 
 
+def same(expected: Any, reading: Any) -> bool:
+    """Same type, then equal, all the way down: True is not 1, 1.0 is not 1, and nan equals nan (#967 Q5)."""
+    if type(expected) is not type(reading):
+        return False
+    if isinstance(expected, (list, tuple)):
+        return len(expected) == len(reading) and all(same(a, b) for a, b in zip(expected, reading))
+    if isinstance(expected, dict):
+        return expected.keys() == reading.keys() and all(same(expected[k], reading[k]) for k in expected)
+    if isinstance(expected, (set, frozenset)):
+        return expected == reading and all(type(a) is type(next(b for b in reading if b == a)) for a in expected)
+    if isinstance(expected, float) and math.isnan(expected):
+        return math.isnan(reading)
+    return expected == reading
+
+
 def compare(expected: Any, reading: Any) -> dict[str, Any]:
+    """Runs in the assay's process: only a verdict, or the two texts of a failure, cross back (#967 Q5)."""
     if not literal_type(reading):
         return {"ok": False, "why": f"the reading is a {type(reading).__name__}, and no literal equals it", "reading": repr(reading)}
-    return {"ok": reading == expected, "reading": repr(reading), "expected": repr(expected)}
+    ok = same(expected, reading)
+    if ok:
+        return {"ok": True, "reading": repr(reading)}
+    out = {"ok": False, "reading": repr(reading), "expected": repr(expected)}
+    if expected == reading or type(expected) is not type(reading):  # equal to Python, or another type: name both
+        out["reading"] += f"  ({type(reading).__name__})"
+        out["expected"] += f"  ({type(expected).__name__})"
+    return out
 
 
 def in_fork(fn: Callable[[], dict[str, Any]]) -> dict[str, Any]:
@@ -450,7 +480,8 @@ def run_case(e: Experiment, c: Case) -> dict[str, Any]:
         args = cr.inputs(e, c)
     except Blocked as b:
         return {"blocked": str(b)}
-    shown = {k: v for k, v in args.items() if k in c.given and not isinstance(c.given[k], After)}
+    shown = {p.name: args[p.name] for p in e.params  # the screen prints every input but a chain's and a fixture's
+             if not isinstance(c.given.get(p.name), After) and (p.name in c.given or not isinstance(p.default, Use))}
     product, raised, caught = react(e, args)
     out: dict[str, Any] = {"inputs": ", ".join(f"{k}={v!r}" for k, v in shown.items()), "rows": [], "replayed": cr.replayed}
     for w in caught:

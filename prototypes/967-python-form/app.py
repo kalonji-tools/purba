@@ -95,3 +95,13 @@ def open_cart(owner: str) -> Cart:
 
 def user_names(db: sqlite3.Connection) -> list[str]:
     return [n for (n,) in db.execute("SELECT name FROM users ORDER BY id")]
+
+
+def check_age(age: int) -> int:
+    if age < 18:
+        raise ValueError("too young")
+    return age
+
+
+def adult_count(ages: list[int]) -> int:
+    return sum(a >= 18 for a in ages) if len(ages) > 1 else ages[0] >= 18  # a bug: one age gives a bool

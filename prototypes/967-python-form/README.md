@@ -57,5 +57,8 @@ Weighed and not built:
 - **Each experiment declares `expect` once, with a typed keyword for each assay.** An assay that reads an input is required. An assay that reads the product defaults to `UNREAD`, because a case that raises has no product. A type checker sees a misspelled assay, a value of the wrong type, and a missing value for an assay that reads an input.
 - **purba's parse refuses what a type checker does not see:** an `expect` out of step with the assays, a field and an assay with one name, an assay whose type no literal can write, and a case name that the file binds twice, which loses a case without a word.
 - **`self.` stays.** pyright warns on any other name for it.
+- **A literal that the act needs is a field with a default.** Every case shares it, any case may vary it, and the screen prints it with the inputs. A nested call is refused: each call is a step of a chain. A function of the test file as the act is refused, unless a reason is given; the form of the reason is open.
+- **Cases are written one by one.** A loop or a list that builds cases is refused, and so is a subclass of an experiment.
+- **An assay's reading is compared in the assay's process, by type first, then by value.** Only a verdict crosses back, or the two texts of a failure. `True` is not `1`, `1.0` is not `1`, and `nan` equals `nan`.
 
 On `ex1`-`ex4`, ty and pyright report nothing. On `ex5` and `ex8`, each line they report is a line written to be refused.
