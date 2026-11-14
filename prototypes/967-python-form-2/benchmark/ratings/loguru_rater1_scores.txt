@@ -1,0 +1,12 @@
+rater1 key: K=oxitest M=prototype-2
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest      4 3 4 4 2 5 ref
+oxitest     3 4 3 3 2 4 5
+prototype-2 3 4 4 2 4 3 4
+weighted (Read15 Clar20 Ease20 CxT15 CxI5 Min5 Fid20; original fid counted 5): pytest 3.95 > oxitest 3.60 > prototype-2 3.50; without fidelity: pytest 3.69 > prototype-2 3.38 > oxitest 3.25
+min test lines (non-blank): pytest 6, oxitest 6, prototype-2 8 (2 imports; experiment, .expect, product=, named case, act returns product, named inputs only)
+ease: pytest 1 run; oxitest 2 runs (first aborted on bare assert, exit 3, none of 22 ran); prototype-2 1 run, case + 7-line experiment passed first time, ty+pyright clean.
+prototype-2: clearest one-line cases; errors name the line and suggest a fix ("gives 'mesage' ... did you mean 'message'?"); failure screen expected/reading/inputs with the case line. Weak: vocabulary (experiment, use, handling, .expect(product=), @.assay) + 14+ banned constructs + literal rule; lines to 156 chars (8 over 100). Fidelity: handling(ZeroDivisionError("division by zero"), ...) checks a message the test wrote.
+prototype-2 rough edges: one loop in an act refuses all 7 cases of that experiment; refusals come one at a time per case (last_line=1 type error hidden behind the first_lin typo); bare `# type: ignore` on lines 85-87 hides typos; POSIX fork; needs source on disk.
+oxitest: real 1/0, same asserts plus messages, named cases; frozen dataclass per parametrize; TYPE_CHECKING/else stand-in; bare assert aborts all; colorize/colorise field mismatch caught by neither ty nor strict, fails inside oxitest/_bridge/_runners.py:160; case-field typo = "collected 0 items"; teardown raise -> "22 warnings", exit 0; RUN.md ../.venv path fails.
+pytest: 67 non-blank, no line over 100; writer from conftest invisible; id format2; `format` at line 87 is the builtin; conftest 9 ty, 9+2 pyright.

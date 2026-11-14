@@ -1,0 +1,96 @@
+── examples/ex1_slug.py
+ slug_of  (examples/ex1_slug.py:7)
+   ✓ plain › product  'hello-world'
+   ✓ under › product  'hello_world'
+   ✗ accents › product   examples/ex1_slug.py:14
+       expected  'creme-brulee' (str)
+       reading   'crème-brûlée' (str)
+       inputs    text='Crème Brûlée'
+   ✓ empty › raises  ValueError: empty
+── examples/ex2_money.py
+ amount_of  (examples/ex2_money.py:7)
+   ✓ euros › cents  1250
+   ✓ euros › currency  'EUR'
+   ✓ legacy › warns  DeprecationWarning: no currency: USD is assumed
+   ✓ legacy › cents  1250
+   ✓ legacy › currency  'USD'
+   ✓ negative › raises  ValueError: below zero
+   ✗ rounding › warned   examples/ex2_money.py:25
+       what      a warning that the case does not expect: UserWarning: rounded to a cent
+                 at examples/ex2_money.py:9
+       inputs    text='0.005' currency='EUR'
+   ✓ rounding › cents  0
+   ✓ rounding › currency  'EUR'
+── examples/ex3_cart.py
+ bought  (examples/ex3_cart.py:7)
+   ✓ two_books › paid  2550
+   ✓ two_books › lines  2
+   ✓ pens › paid  600
+   ✓ pens › lines  1
+   ✓ unknown › raises  KeyError: 'NOPE'
+ opened  (examples/ex3_cart.py:32)
+   ✓ ann › count  0
+   ✗ bob › count   examples/ex3_cart.py:54
+       expected  1 (int)
+       reading   0 (int)
+       inputs    owner='bob'
+ filled  (examples/ex3_cart.py:45)
+   ✓ both_inputs_one_cart › product  2400
+   ⊘ from_wrong › product  blocked: the step bob replayed differently: count read 0, not 1
+── examples/ex4_compare.py
+ message_of  (examples/ex4_compare.py:11)
+   ✓ subclass › product  ['a\n']
+ adults  (examples/ex4_compare.py:16)
+   ✓ two › product  2
+   ✗ one › product   examples/ex4_compare.py:28
+       expected  1 (int)
+       reading   True (bool)
+       why       a bool is not an int
+       inputs    ages=[20]
+ halved  (examples/ex4_compare.py:21)
+   ✓ half › product  1.5
+   ✓ whole › product  2.0
+── examples/ex5_handling.py
+ logged  (examples/ex5_handling.py:24)
+   ✓ division › product  ['failed | ZeroDivisionError']
+── examples/ex6_refused.py
+   ! a case of slug_of at line 25 is named 'again', and line 26 binds 'again' again, so this case would be lost
+   ! a case of slug_of at line 27 has no name; bind it to a variable, `name = experiment(…).expect(…)`
+   ! a case of slug_of at line 28 is built by a loop; write each case on a line of its own, `name = experiment(…).expect(…)`
+   ! a case of slug_of at line 28 is built by a loop; write each case on a line of its own, `name = experiment(…).expect(…)`
+ slug_of  (examples/ex6_refused.py:7)
+   ✓ fine › product  'a-b'
+   ! typo_in refused   examples/ex6_refused.py:18
+       gives 'txt', which is no input of slug_of; did you mean 'text'?
+   ! typo_out refused   examples/ex6_refused.py:19
+       expects lenght=…, which is no assay of slug_of; did you mean 'length'?
+   ! computed refused   examples/ex6_refused.py:20
+       expects product=…, which computes `slugify('a b')`; an expected value is a literal, so the test cannot compute what the code computes
+   ! wrong refused   examples/ex6_refused.py:21
+       expects length='3' (str), and the assay length returns int
+   ! float_for refused   examples/ex6_refused.py:22
+       expects product=1 (int), and the act returns str
+   ! nothing refused   examples/ex6_refused.py:23
+       checks nothing; add .expect(…) or .raises(…)
+   ! by_place refused   examples/ex6_refused.py:24
+       passes 1 input(s) by position; name each input, as `slug_of(name=…)`
+   ✓ again › product  'y'
+ branchy  (examples/ex6_refused.py:31)
+   ! refused: the act branchy is a straight line of calls; line 33 holds an `if`: make each branch a case of its own
+     so none of its 1 case(s) runs
+ looped  (examples/ex6_refused.py:41)
+   ! refused: the act looped is a straight line of calls; line 44 holds a loop: write each call on a line of its own, or make each round a case
+     so none of its 1 case(s) runs
+── examples/ex7_typed.py
+ slug_of  (examples/ex7_typed.py:7)
+   ! misspelled refused   examples/ex7_typed.py:12
+       gives 'txt', which is no input of slug_of; did you mean 'text'?
+   ✗ wrong_type › act   examples/ex7_typed.py:13
+       what      the act raised AttributeError: 'int' object has no attribute 'split'
+                 at examples/ex7_typed.py:9  return slugify(text, sep)
+       inputs    text=42
+   ⊘ wrong_type › product  blocked: the act raised
+   ! wrong_prod refused   examples/ex7_typed.py:14
+       expects product=5 (int), and the act returns str
+══ 39 cases: 18 passed · 5 failed · 15 refused · 1 blocked   (25 checks held)
+exit=1

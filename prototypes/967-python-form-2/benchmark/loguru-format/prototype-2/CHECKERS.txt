@@ -1,0 +1,11 @@
+$ ty --version
+ty 0.0.87
+$ ty check --python ../.venv/bin/python --extra-search-path . --extra-search-path experiments experiments
+All checks passed!
+exit=0
+
+$ pyright --version
+pyright 1.1.411
+$ pyright   (pyrightconfig.json: include experiments)
+0 errors, 0 warnings, 0 informations
+exit=0

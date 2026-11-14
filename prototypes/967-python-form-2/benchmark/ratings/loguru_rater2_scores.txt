@@ -1,0 +1,12 @@
+rater2 key: K=prototype-2 M=oxitest
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest      5 3 4 4 2 5 ref
+oxitest     3 5 3 3 2 5 5
+prototype-2 3 4 4 2 4 3 4
+weighted (Clar20 Ease20 Fid20 Read15 CxT10 Min10 CxI5; original fid counted 5): pytest 4.15 > oxitest 3.95 > prototype-2 3.55
+min test lines (non-blank): pytest 6, oxitest 6, prototype-2 9 (2 imports; experiment, @experiment, return as product, named case, .expect(product=), -> str; no assert)
+ease: case "g" +1 line in all three; new test pytest +5, oxitest +6 (assert message mandatory), prototype-2 +9 (decorator, signature with use() defaults, act, case).
+prototype-2: best pre-run catches with fixes (typo "did you mean 'message'?", missing input, bytes expected "the act returns str", no check, assert in act); ty+pyright caught 4 of these; one case per line. Weak: new vocabulary (experiment, act, case, product, assay, use, handling, step) + ~25 banned constructs (run.py:42-68); loop unrolled; lines to 156 chars, 8 over 100. Fidelity probed: test supplies the ZeroDivisionError message, so last_line reads back text the test wrote ('ZeroDivisionError: anything').
+prototype-2 rough edges: bare `# type: ignore` on case lines hides unrelated typos; POSIX fork; inspect.getsourcelines.
+oxitest: clearest (assert reasons, failure screen with inputs + caret diff); 3 single-field frozen dataclasses; get_type_hints stand-in; oxi.Yields fails both checkers; case-field typo = raw TypeError traceback through _bridge/_loader.py; strict refusal "bare-assert line 40" no fix; teardown raise -> "20 warnings", exit 0; reset_logger removal still 20 pass; RUN.md ../.venv path fails.
+pytest: most compact; great runtime errors (fixture typo lists fixtures; diff); intent implicit (positional tuples, no messages); ty passed b"g!\n".

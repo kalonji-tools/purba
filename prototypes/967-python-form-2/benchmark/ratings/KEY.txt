@@ -1,0 +1,3 @@
+rater1: K=oxitest M=prototype-2
+rater2: K=prototype-2 M=oxitest
+rater3: K=oxitest M=prototype-2

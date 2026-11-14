@@ -1,0 +1,29 @@
+── experiments/ex_loguru_format.py
+ logged  (experiments/ex_loguru_format.py:15)
+   ✓ message_field › product  'Message: a\n'
+   ✓ no_field › product  'Nope\n'
+   ✓ level_twice › product  'DEBUG c DEBUG\n'
+   ✓ level_parts › product  'd DEBUG 10 DEBUG\n'
+   ✓ function_format › product  'e'
+   ✓ function_record › product  'f DEBUG'
+ logged_progressively  (experiments/ex_loguru_format.py:38)
+   ✓ progressive › product  '[DEBUG] Start: .....\n[DEBUG] End\n'
+ logged_in_except  (experiments/ex_loguru_format.py:56)
+   ✓ without_exception › product  'Error!\n'
+   ✓ with_exception › first_line  'Error!'
+   ✓ with_exception › last_line  'ZeroDivisionError: division by zero'
+ added  (experiments/ex_loguru_format.py:78)
+   ✓ int_format › raises  TypeError: Invalid format, it should be a string or a function, not: 'int'
+   ✓ float_format › raises  TypeError: Invalid format, it should be a string or a function, not: 'float'
+   ✓ object_format › raises  TypeError: Invalid format, it should be a string or a function, not: 'object'
+   ✓ open_tag › raises  ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ close_tag › raises  ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ crossed_tags › raises  ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ bare_close › raises  ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ unknown_tag › raises  ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ builtin_format › raises  ValueError: The built-in 'format()' function cannot be used as a 'format' parameter, this is most likely a mistake (please double-check the arguments passed to 'logger.add()').
+ logged_with_field  (experiments/ex_loguru_format.py:102)
+   ✓ markup_in_field_colorized › product  '</>  <blue>  Test\n'
+   ✓ markup_in_field_plain › product  '</>  <blue>  Test\n'
+══ 20 cases: 20 passed · 0 failed · 0 refused · 0 blocked   (21 checks held)
+exit=0

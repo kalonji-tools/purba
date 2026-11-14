@@ -1,0 +1,62 @@
+$ ty check experiment.py run.py examples
+ty 0.0.87
+error[missing-argument]: No argument provided for required parameter `text` of bound method `Experiment.__call__`
+  --> examples/ex7_typed.py:12:14
+   |
+12 | misspelled = slug_of(txt="Hello").expect(product="hello")
+   |              ^^^^^^^^^^^^^^^^^^^^
+info: Parameter declared here
+  --> experiment.py:99:24
+   |
+99 |     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |                        ^^^^^^^^^^^^^
+
+error[unknown-argument]: Argument `txt` does not match any known parameter of bound method `Experiment.__call__`
+  --> examples/ex7_typed.py:12:22
+   |
+12 | misspelled = slug_of(txt="Hello").expect(product="hello")
+   |                      ^^^^^^^^^^^
+info: Method signature here
+  --> experiment.py:99:9
+   |
+99 |     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[invalid-argument-type]: Argument to bound method `Experiment.__call__` is incorrect
+  --> examples/ex7_typed.py:13:22
+   |
+13 | wrong_type = slug_of(text=42).expect(product="42")
+   |                      ^^^^^^^ Expected `str`, found `Literal[42]`
+info: Method defined here
+  --> experiment.py:99:9
+   |
+99 |     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |         ^^^^^^^^       ------------- Parameter declared here
+
+error[invalid-argument-type]: Argument to bound method `Case.expect` is incorrect
+  --> examples/ex7_typed.py:14:43
+   |
+14 | wrong_prod = slug_of(text="Hello").expect(product=5)
+   |                                           ^^^^^^^^^ Expected `str | _Unset`, found `Literal[5]`
+info: Method defined here
+  --> experiment.py:68:9
+   |
+68 |     def expect(self, product: R | _Unset = UNSET, **readings: object) -> Case[R]:
+   |         ^^^^^^       --------------------------- Parameter declared here
+
+Found 4 diagnostics
+exit=1
+
+$ pyright
+pyright 1.1.411
+examples/ex7_typed.py
+  examples/ex7_typed.py:12:14 - error: Argument missing for parameter "text" (reportCallIssue)
+  examples/ex7_typed.py:12:22 - error: No parameter named "txt" (reportCallIssue)
+  examples/ex7_typed.py:13:27 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__call__"
+    "Literal[42]" is not assignable to "str" (reportArgumentType)
+  examples/ex7_typed.py:14:51 - error: Argument of type "Literal[5]" cannot be assigned to parameter "product" of type "str | _Unset" in function "expect"
+    Type "Literal[5]" is not assignable to type "str | _Unset"
+      "Literal[5]" is not assignable to "str"
+      "Literal[5]" is not assignable to "_Unset" (reportArgumentType)
+4 errors, 0 warnings, 0 informations
+exit=1

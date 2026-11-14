@@ -1,0 +1,11 @@
+rater3 key: K=oxitest M=prototype-2
+scores (Read Clar Ease CxT CxI Min Fid):
+pytest      5 3 4 4 2 5 ref
+oxitest     3 5 3 2 2 4 5
+prototype-2 4 4 4 3 4 3 4
+weighted (Read15 Clar20 Ease20 CxT15 CxI5 Min10 Fid15): pytest 4.10 > prototype-2 3.75 > oxitest 3.60
+min test lines (non-blank): pytest 6, oxitest 6, prototype-2 9 (2 imports; @experiment, act returns product, named case, .expect(product=))
+prototype-2: case lines read as a table; failure screen points at the case line with expected/reading/inputs; refusals carry fixes ("did you mean 'user'?", "line 128 holds an `assert`: ..."). Weak: 15 rules (FORM.md 570 words); loop unrolled to 5 lines; try/except -> handling(ZeroDivisionError("division by zero"), ...) so last_line partly checks a string the test supplied; 8 lines over 100 chars; bare `# type: ignore` hides typos. Runner 83+512 non-blank, POSIX-only (fork), AST heuristics.
+prototype-2 rough edges: a reading is cut at 300 chars on the failure screen, so with_exception's traceback lost its last line (the line under test); lambda refused in an act but accepted on case lines.
+oxitest: clearest (named cases, assert messages); 142 non-blank; TYPE_CHECKING/else stand-in for FormatFunction; oxi.Yields fails both checkers; strict abort on one bare assert (exit 3) with no hint; teardown error -> "22 passed", exit 0; RUN.md ../.venv path does not exist.
+pytest: shortest, familiar; opaque ids (format2); no types (malformed tuple passes ty); conftest 9 ty errors, 9+2 pyright.
