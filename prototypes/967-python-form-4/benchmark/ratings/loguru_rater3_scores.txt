@@ -1,0 +1,19 @@
+Rater 3, round 5 (prototype 4). Key: PORT_K = oxitest, PORT_M = prototype 4.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype4
+readability        4       3        4
+clarity            3       5        4
+ease of use        4       2        4
+tester cx          4       2        3
+impl cx            3       2        3
+min test           5       4        5
+fidelity           ref     5        4
+Weights: clarity 20, ease 20, fidelity 20, readability 15, tester cx 10, min test 10, impl cx 5.
+Rater's own figures: prototype4 3.95 · pytest 3.81 (no fidelity score) · oxitest 3.55; without fidelity: prototype4 3.94 · pytest 3.81 · oxitest 3.19.
+Ranking: 1 prototype4, 2 pytest, 3 oxitest.
+Min test: 6 · 6 · 6 non-blank lines, 1 import each; prototype4 needs no form import ("1 case: 1 passed"); oxitest needs an assert message under strict abort + pyproject.toml.
+Ease log: case "g" 1 line, first try in all three; new 2-case test: pytest 5 lines, prototype4 9 (first try), oxitest 17 (first run aborted, bare-assert exit 3).
+Findings on prototype 4: best feedback (refuses only the 2 bad cases: "did you mean 'message'?", "gives expected=1 (int), and test_format declares str"); each check shown by its text when it passes; refuses natural code (computed expected `level + ": x\n"`, `if`, `and` in an assert), each refusal says how to fix it; 5 names + ~15 rules; run.py 975 + cases.py 211 (AST control-flow analysis, fork per case and per check); 6 lines >100 chars; `handling` hides the `except`; FIDELITY: under handling, loguru's record names the form's code, `cases:__exit__:157`, where `try` gives `__main__:with_try:15` (not read by the ported tests, not in NOTES); confirmed the traceback is now the same as with `try`; confirmed the post-port alias and in-class `if` fixes; CHECKERS.txt shows E/proto4 path.
+Findings on oxitest: most faithful, intent message on every assert; +75 non-blank lines; strict abort on a bare assert; one typo -> collected 0 items; teardown error = warning, exit 0; -vv only dots; `oxitest tests` with no pyproject collects 0; no run-time type check of case fields.
+
+Recomputed with pytest fidelity = 5, as in rounds 2-4: pytest 4.05 · oxitest 3.55 · prototype4 3.95.

@@ -1,0 +1,11 @@
+$ ty --version
+ty 0.0.87
+$ ty check --python E/.venv/bin/python --extra-search-path E/proto4 --extra-search-path E/proto4/tests E/proto4/tests
+All checks passed!
+exit=0
+
+$ pyright --version
+pyright 1.1.411
+$ pyright   (cd E/proto4, pyrightconfig.json)
+0 errors, 0 warnings, 0 informations
+exit=0

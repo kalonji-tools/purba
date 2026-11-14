@@ -1,0 +1,18 @@
+Rater 1, round 5 (prototype 4). Key: PORT_K = oxitest, PORT_M = prototype 4.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype4
+readability        4       3        4
+clarity            3       4        5
+ease of use        4       3        4
+tester cx          4       3        2
+impl cx            4       3        2
+min test           5       4        4
+fidelity           ref     5        4
+Weights: clarity 20, fidelity 20, readability 15, ease 15, tester cx 15, impl cx 10, min test 5.
+Rater's own figures: without fidelity (/80): pytest 3.81 · prototype4 3.63 · oxitest 3.31; with fidelity (ports): prototype4 3.70 · oxitest 3.65.
+Ranking: 1 pytest, 2 prototype4 (close), 3 oxitest.
+Min test: 6 · 6 · 6 non-blank lines, 1 import each, no form name (list sink `written.append`).
+Findings on prototype 4: clearest failure screen (case line, assert line, expected, reading, first differing character, inputs); refusals per case with hints ("did you mean 'message'?"); case lines read as a table the checkers read; 71 non-blank lines, 6 lines >100 chars; FORM.md "28 dense lines of rules"; `try` and `and` inside an assert refused; run.py 975 + cases.py 211 (assert rewrite, static path checks, fork per case and per check); verified the handling traceback now has one `>` frame on `_ = 1 / 0`; CHECKERS.txt cites E/proto4 paths; RUN.md gives no ty command; could not verify the pre-fix state the NOTES describe.
+Findings on oxitest: case-class field/parameter mismatch passes both checkers, fails at run time pointing into oxitest's _runners.py; teardown exception = warning, exit 0; RUN.md's ../.venv/bin/oxitest path does not exist from the folder.
+
+Recomputed with pytest fidelity = 5, as in rounds 2-4: pytest 4.05 · oxitest 3.65 · prototype4 3.70.

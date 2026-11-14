@@ -1,0 +1,19 @@
+Rater 2, round 5 (prototype 4). Key: PORT_K = prototype 4, PORT_M = oxitest.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype4
+readability        4       3        4
+clarity            3       5        4
+ease of use        4       3        4
+tester cx          4       3        2
+impl cx            4       3        2
+min test           5       4        5
+fidelity           ref(5)  4        4
+Weights: clarity 20, ease 20, fidelity 20, readability 15, tester cx 10, min test 10, impl cx 5 (original fidelity 5).
+Weighted: pytest 4.10 · prototype4 3.80 · oxitest 3.70 (without fidelity: 3.88 / 3.75 / 3.63).
+Ranking: 1 pytest, 2 prototype4, 3 oxitest.
+Min test: 6 · 6 · 6 non-blank lines, 1 import each; prototype4 = the original's text; oxitest needs an assert message under strict abort + a 3-line pyproject.toml.
+Findings on prototype 4: best errors (mesage= refused with "did you mean 'message'?" + ty unknown/missing-argument, only that case stopped; message=7 refused "declares str"; renamed parameter -> 14 ty errors + a refusal per case); failure shows expected, reading, first differing character, inputs; FORM.md "28 dense rules"; `try` refused at line 115; `with handling(...)` "turns try/except inside out"; signature at line 18 >120 chars; verified the `{exception}` > frame is the test's own line; RUN.md gives no ty command; CHECKERS/NOTES cite E/proto4 probes not in the folder; did not re-probe the post-port fixes; os.fork = POSIX only.
+Findings on oxitest: every assert has a message (clearest intent); 142 non-blank lines, 4 frozen dataclasses, stub-only FormatFunction stand-in; renamed field passes ty, fails at run time in oxitest/_bridge/_runners.py:160; a typo in one case collects 0 items; bare assert aborts the run (exit 3); teardown error = warning ("22 passed, 22 warnings" vs pytest "22 errors"); -vv shows only dots.
+Disclosure by the rater: listed file sizes in the shared venv's site-packages (outside the folder), not used for any score.
+
+Recomputed with pytest fidelity = 5, as in rounds 2-4: pytest 4.10 · oxitest 3.70 · prototype4 3.80 (matches the rater's own).

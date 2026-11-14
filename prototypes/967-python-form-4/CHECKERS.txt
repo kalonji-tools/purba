@@ -1,0 +1,62 @@
+$ ty --version
+ty 0.0.87
+$ ty check --extra-search-path . --extra-search-path examples cases.py run.py examples
+error[missing-argument]: No argument provided for required parameter `text` of function `case`
+  --> examples/test_7_typed.py:16:14
+   |
+16 | misspelled = case(test_slug, txt="a b", expected="a-b")
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+info: Parameter declared here
+  --> cases.py:56:10
+   |
+56 | def case(test: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |          ^^^^^^^^^^^^^^^^^^^^
+
+error[unknown-argument]: Argument `txt` does not match any known parameter of function `case`
+  --> examples/test_7_typed.py:16:30
+   |
+16 | misspelled = case(test_slug, txt="a b", expected="a-b")
+   |                              ^^^^^^^^^
+info: Function signature here
+  --> cases.py:56:5
+   |
+56 | def case(test: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[invalid-argument-type]: Argument to function `case` is incorrect
+  --> examples/test_7_typed.py:17:42
+   |
+17 | wrong_type = case(test_slug, text="a b", expected=3)
+   |                                          ^^^^^^^^^^ Expected `str`, found `Literal[3]`
+info: Function defined here
+  --> examples/test_7_typed.py:11:5
+   |
+11 | def test_slug(text: str, expected: str) -> None:
+   |     ^^^^^^^^^            ------------- Parameter declared here
+
+error[missing-argument]: No argument provided for required parameter `expected` of function `case`
+  --> examples/test_7_typed.py:18:14
+   |
+18 | missing    = case(test_slug, text="a b")
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+info: Parameter declared here
+  --> cases.py:56:35
+   |
+56 | def case(test: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+   |                                   ^^^^^^^^^^^^^
+
+Found 4 diagnostics
+exit=1
+
+$ nix-shell -p pyright --run pyright
+pyright 1.1.411
+examples/test_6_refused.py
+  examples/test_6_refused.py:58:5 - error: Function declaration "test_twice" is obscured by a declaration of the same name (reportRedeclaration)
+examples/test_7_typed.py
+  examples/test_7_typed.py:16:14 - error: Argument missing for parameter "text" (reportCallIssue)
+  examples/test_7_typed.py:16:30 - error: No parameter named "txt" (reportCallIssue)
+  examples/test_7_typed.py:17:51 - error: Argument of type "Literal[3]" cannot be assigned to parameter "expected" of type "str"
+    "Literal[3]" is not assignable to "str" (reportArgumentType)
+  examples/test_7_typed.py:18:14 - error: Argument missing for parameter "expected" (reportCallIssue)
+5 errors, 0 warnings, 0 informations
+exit=1
