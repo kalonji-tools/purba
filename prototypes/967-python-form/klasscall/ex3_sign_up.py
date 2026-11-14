@@ -11,16 +11,16 @@ from lab import UsersDb, outbox
 
 
 class SignedUp(Experiment):
-    def act(name: str, db: Connection = use(UsersDb), mailer: Outbox = use(outbox)) -> User:
+    def act(self, name: str, db: Connection = use(UsersDb), mailer: Outbox = use(outbox)) -> User:
         return sign_up(db, mailer, name)
 
-    def user_id(product: User) -> int:
+    def user_id(self, product: User) -> int:
         return product.id
 
-    def stored(db: Connection) -> list[str]:
+    def stored(self, db: Connection) -> list[str]:
         return user_names(db)
 
-    def mailed(mailer: Outbox) -> list[tuple[str, str]]:
+    def mailed(self, mailer: Outbox) -> list[tuple[str, str]]:
         return mailer.sent
 
     first = case(act, name="ann").expect(user_id=1, stored=["ann"], mailed=[("ann", "welcome")])

@@ -5,13 +5,13 @@ from form_klass import Experiment, case, raises, warns
 
 
 class AmountOf(Experiment):
-    def act(text: str, currency: str | None) -> Money:
+    def act(self, text: str, currency: str | None) -> Money:
         return parse_amount(text, currency)
 
-    def cents(product: Money) -> int:
+    def cents(self, product: Money) -> int:
         return product.cents
 
-    def unit(product: Money) -> str:  # `currency` is the input's name
+    def unit(self, product: Money) -> str:  # `currency` is the input's name
         return product.currency
 
     euros    = case(text="12.50", currency="EUR", cents=1250, unit="EUR")

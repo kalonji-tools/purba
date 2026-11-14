@@ -1,7 +1,7 @@
 """PROTOTYPE (#967). Form KLASSCALL: a class per experiment, and each case a typed call of its act. Never merge.
 
     class SlugOf(Experiment):
-        def act(text: str) -> str:
+        def act(self, text: str) -> str:
             return slugify(text)
 
         plain = case(act, text="Hi").expect(product="hi")
@@ -12,7 +12,7 @@ A step of a chain is an attribute: `after(Opened.ann)`.
 """
 
 import inspect
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, Callable, Concatenate, ParamSpec, TypeVar
 
 from engine import REGISTRY, After, Case, Raises, Warns, caller_line, use
 from engine import Experiment as _Exp
@@ -39,7 +39,7 @@ class Step:
         return self
 
 
-def case(act: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Step:
+def case(act: Callable[Concatenate[Any, P], R], /, *args: P.args, **kwargs: P.kwargs) -> Step:
     try:
         given = dict(inspect.signature(act).bind_partial(*args, **kwargs).arguments)
     except TypeError:  # a misspelled input: purba refuses this experiment, not the module
@@ -47,13 +47,28 @@ def case(act: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Step:
     return Step(Case("", given, {}, line=caller_line()))
 
 
+def _drop_self(fn: Any, assay: bool = False) -> Any:
+    """The runner calls an act or an assay with no instance: purba builds none, so `self` stays unused."""
+    params = list(inspect.signature(fn).parameters.values())[1:]
+
+    def call(*args: Any, **kwargs: Any) -> Any:
+        return fn(None, *args, **kwargs)
+
+    call.__signature__ = inspect.Signature(params)  # type: ignore[attr-defined]
+    call.__purba_src__ = fn  # type: ignore[attr-defined]
+    call.__name__ = fn.__name__
+    if assay:
+        call.__purba_reads__ = params[0].name if params else "self"  # type: ignore[attr-defined]
+    return call
+
+
 class Experiment:
     def __init_subclass__(cls) -> None:
-        act = cls.__dict__["act"]
-        e = _Exp(cls.__name__, act, inspect.getsourcefile(act) or "", inspect.getsourcelines(cls)[1])
+        act = _drop_self(cls.__dict__["act"])
+        e = _Exp(cls.__name__, act, inspect.getsourcefile(act.__purba_src__) or "", inspect.getsourcelines(cls)[1])
         for k, v in cls.__dict__.items():
             if inspect.isfunction(v) and k != "act" and not k.startswith("_"):
-                e.assays[k] = v
+                e.assays[k] = _drop_self(v, assay=True)
         for k, v in cls.__dict__.items():
             if isinstance(v, Step):
                 v.c.name = k

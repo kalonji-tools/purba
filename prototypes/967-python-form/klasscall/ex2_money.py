@@ -5,13 +5,13 @@ from form_klasscall import Experiment, case
 
 
 class AmountOf(Experiment):
-    def act(text: str, currency: str | None) -> Money:
+    def act(self, text: str, currency: str | None) -> Money:
         return parse_amount(text, currency)
 
-    def cents(product: Money) -> int:
+    def cents(self, product: Money) -> int:
         return product.cents
 
-    def currency(product: Money) -> str:
+    def currency(self, product: Money) -> str:
         return product.currency
 
     euros    = case(act, text="12.50", currency="EUR").expect(cents=1250, currency="EUR")

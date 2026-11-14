@@ -5,7 +5,7 @@ from form_klasscall import Experiment, case
 
 
 class SlugOf(Experiment):
-    def act(text: str, sep: str = "-") -> str:
+    def act(self, text: str, sep: str = "-") -> str:
         return slugify(text, sep)
 
     plain      = case(act, text="Hello World").expect(product="hello-world")

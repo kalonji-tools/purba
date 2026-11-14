@@ -5,7 +5,7 @@ from form_klass import Experiment, case, raises
 
 
 class SlugOf(Experiment):
-    def act(text: str, sep: str = "-") -> str:
+    def act(self, text: str, sep: str = "-") -> str:
         return slugify(text, sep)
 
     plain      = case(text="Hello World",      product="hello-world")

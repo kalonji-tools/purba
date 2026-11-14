@@ -5,26 +5,26 @@ from form_klass import Experiment, after, case, raises
 
 
 class Opened(Experiment):
-    def act(owner: str) -> Cart:
+    def act(self, owner: str) -> Cart:
         return open_cart(owner)
 
-    def owner_seen(product: Cart) -> str:
+    def owner_seen(self, product: Cart) -> str:
         return product.owner
 
-    def count(product: Cart) -> int:
+    def count(self, product: Cart) -> int:
         return product.count()
 
     ann = case(owner="ann", owner_seen="ann", count=0)
 
 
 class Added(Experiment):
-    def act(cart: Cart, sku: str, qty: int) -> None:
+    def act(self, cart: Cart, sku: str, qty: int) -> None:
         return cart.add(sku, qty)
 
-    def items(cart: Cart) -> int:
+    def items(self, cart: Cart) -> int:
         return cart.count()
 
-    def total(cart: Cart) -> int:
+    def total(self, cart: Cart) -> int:
         return cart.total()
 
     one_book  = case(cart=after(Opened.ann), sku="BOOK-1", qty=1, items=1, total=1200)
@@ -34,13 +34,13 @@ class Added(Experiment):
 
 
 class CheckedOut(Experiment):
-    def act(cart: Cart) -> Receipt:
+    def act(self, cart: Cart) -> Receipt:
         return cart.checkout()
 
-    def paid(product: Receipt) -> int:
+    def paid(self, product: Receipt) -> int:
         return product.total
 
-    def lines(product: Receipt) -> int:
+    def lines(self, product: Receipt) -> int:
         return product.lines
 
     two_books = case(cart=after(Added.two_books, "cart"), paid=2400, lines=1)
