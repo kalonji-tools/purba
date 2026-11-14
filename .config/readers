@@ -18,6 +18,7 @@ pyproject.toml                    stem packager toolsmith
 /Cargo.lock                       packager
 LICENSE                           packager
 .cargo/deny.toml                  toolsmith packager
+.cargo/check-prose.deny.toml      toolsmith
 .cargo/config.toml                toolsmith
 .cargo/clippy.toml                coder toolsmith
 CHANGELOG.md                      user

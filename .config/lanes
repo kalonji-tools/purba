@@ -8,6 +8,7 @@
 lint:rust            rust
 lint:licences        rust
 lint:wiring          rust
+lint:crates          rust scripts
 lint:manifests       rust scripts
 lint:cargo-scripts   scripts
 lint:shell           scripts

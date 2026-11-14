@@ -19,3 +19,12 @@ exceptions = [
   { crate = "ar_archive_writer", allow = ["Apache-2.0 WITH LLVM-exception"] },
   { crate = "ruff_unicode_names2", allow = ["Unicode-DFS-2016"] },
 ]
+
+# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+[advisories]
+unused-ignored-advisory = "deny"
+
+# https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

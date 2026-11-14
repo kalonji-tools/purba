@@ -1,0 +1,169 @@
+# `judged` is a string, because yq cannot read a TOML date.
+#
+#   the decision:  docs/decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md
+#   the task:      mise run lint:crates
+
+[pyo3]
+version = "0.29.2"
+owners = ["davidhewitt (user)", "fafhrd91 (user)", "github:pyo3:admins (team)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 3
+api-churn = 3
+owner-in-purba = 3
+relief = 3
+
+[ruff_python_ast]
+version = "0.0.17"
+owners = ["charliermarsh (user)", "astral-crates-bot (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 2
+api-churn = 3
+owner-in-purba = 2
+relief = 3
+
+[ruff_python_parser]
+version = "0.0.17"
+owners = ["charliermarsh (user)", "astral-crates-bot (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 1
+api-churn = 3
+owner-in-purba = 2
+relief = 3
+
+[ruff_text_size]
+version = "0.0.17"
+owners = ["charliermarsh (user)", "astral-crates-bot (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 1
+api-churn = 3
+owner-in-purba = 2
+relief = 3
+
+[ruff_source_file]
+version = "0.0.17"
+owners = ["charliermarsh (user)", "astral-crates-bot (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 2
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 1
+api-churn = 3
+owner-in-purba = 2
+relief = 2
+
+[serde]
+version = "1.0.229"
+owners = ["dtolnay (user)", "github:serde-rs:publish (team)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 1
+upkeep = 1
+maintainers = 1
+upstream-review = 3
+tests = 1
+unsafe = 3
+api-churn = 1
+owner-in-purba = 3
+relief = 2
+
+[libc]
+version = "0.2.189"
+owners = ["rust-lang-owner (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 1
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 3
+api-churn = 2
+owner-in-purba = 3
+relief = 3
+
+[proptest]
+version = "1.12.0"
+owners = ["Centril (user)", "AltSysrq (user)", "github:proptest-rs:publish (team)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 2
+upkeep = 1
+maintainers = 1
+upstream-review = 1
+tests = 1
+unsafe = 1
+api-churn = 1
+owner-in-purba = 3
+relief = 3
+
+[harper-core]
+version = "3.2.0"
+owners = ["elijah-potter (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 1
+unsafe = 1
+api-churn = 3
+owner-in-purba = 3
+relief = 3
+
+[harper-pos-utils]
+version = "3.2.0"
+owners = ["elijah-potter (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 3
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 1
+unsafe = 1
+api-churn = 3
+owner-in-purba = 3
+relief = 3
+
+[pulldown-cmark]
+version = "0.13.6"
+owners = ["marcusklaas (user)", "raphlinus (user)", "Martin1887 (user)"]
+judged = "2026-11-14"
+scored = "https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
+blast-area = 1
+upkeep = 1
+maintainers = 1
+upstream-review = 2
+tests = 1
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+relief = 3
