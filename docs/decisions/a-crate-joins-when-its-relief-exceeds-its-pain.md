@@ -34,8 +34,9 @@ A probe measured upkeep and API churn again for each past week.
 - **No criteria: a crate joins with its own record, or with none, and only the licence gate checks it.** Nothing says what a crate must meet.
 - **A person reviews each crate and decides, as the organisations do.** The architect chose a formula: "this will keep the ruling consistent".
 - **A blast area that is too small also counts as pain.** A crate that reaches little also spares little, and relief already scores that.
-- **No trigger: an entry holds the date a person judged it, and nothing judges it again.** A crate that its maintainers leave has no new release, so no pull request changes its lock, and its upkeep stays at level 1.
+- **A weekly workflow measures upkeep, maintainers, upstream review, tests and API churn again.** It opens an issue when a verdict would move or the owners change. It judges only the crates that purba already holds. [The comment that closed it](https://github.com/kalonji-tools/purba/issues/981#issuecomment-6883556794) gives the reason: [the map](https://github.com/kalonji-tools/purba/issues/957) looked for crates that can make purba better. In 52 weeks, no verdict moved.
 - **A fixed interval: `lint:crates` refuses an entry whose `judged` date passes a fixed age.** Today's date becomes an input of the lint, and a pull request turns red on the date alone.
+- **A change to the lock judges only what the change moves: `unsafe`, blast area and the checks.** `judged` no longer dates every level. Nobody reads `owners` again.
 
 ## Decision Outcome
 
@@ -151,31 +152,18 @@ The reviewer checks that relief on the shortlists by hand, against [`research/fu
 - A design may pick a crate that is not on the shortlist. It measures that crate by the same criteria.
 - The shortlist stays as [Which crates go on the shortlist of each part not designed yet?](https://github.com/kalonji-tools/purba/issues/962#issuecomment-6876192563) froze it. No pick edits it.
 
-**Each change judges again what it moves.**
+**Each change judges again what it moves. Nothing judges an entry on a schedule.**
 
 | what moves | the criteria it moves | who judges it again |
 |---|---|---|
 | each run | advisory, licence, source | `mise run lint`, on each pull request |
-| a change to the lock | `unsafe`, blast area, and the checks | the pull request that changes the lock, because `lint:crates` refuses a `version` that differs |
+| a change to the lock | each factor, and the checks | the pull request that changes the lock, because `lint:crates` refuses a `version` that differs |
 | a new part that names the crate | blast area, relief | the pull request that adds the part, as the reviewer judges |
-| time passes | upkeep, API churn | the weekly run |
-| upstream acts | maintainers, upstream review, tests, trust | the weekly run |
+| time passes | upkeep, API churn | the next pull request that changes the lock; otherwise nobody |
+| upstream acts | maintainers, upstream review, tests, trust | the next pull request that changes the lock; otherwise nobody |
 
-The weekly run measures upkeep, maintainers, upstream review, tests and API churn again.
-It runs the advisory, licence and source checks on `main`.
-It reads the owners from crates.io.
-It calculates the verdict with the stored blast area, `unsafe`, owner in purba and relief.
-
-| the run finds | the run does |
-|---|---|
-| the same verdict and the same owners | nothing |
-| a verdict that flips, or a check that fails | it opens one issue for the crate: "`<crate>` would leave purba" |
-| owners that differ from `owners` | it opens one issue for the crate: "the owners of `<crate>` changed". A person confirms trust again. |
-
-The title of the issue carries no date, so the run finds the open issue by its title and opens no second one.
-Its body shows each level that moved, the pain before and after, and the verdict.
-The pull request that closes it judges the whole entry again.
-Then the crate joins again, or it leaves, or the steps under "The formula comes first" apply.
+The pull request that changes the lock measures each factor again.
+It updates `version`, `owners`, `judged` and `scored`.
 
 **Four criteria stay out.**
 
@@ -189,7 +177,7 @@ Then the crate joins again, or it leaves, or the steps under "The formula comes 
 **Downside:**
 
 - **Relief and trust are a person's score.** A wrong score carries into the verdict until a pull request corrects it.
-- **A person measures each factor until the weekly run runs.**
+- **No tool measures a factor.** The author of a pull request measures each one by hand.
 - **On the crates of `2790c1e`, the score drops none.** Only the checks drop a crate.
 - **Equal weights are a judgement.** A waiver can show that one factor weighs more.
 - **`unsafe` is a Rust factor.** A record that applies this one to another kind of dependency must replace it.
@@ -199,15 +187,12 @@ Then the crate joins again, or it leaves, or the steps under "The formula comes 
 - **A reworded check can need a person to judge it.** Then [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies to it.
 - **`lint:crates` cannot open an issue comment.** For an entry whose `scored` links a comment, it checks only that the field is there.
 - **A new advisory turns a pull request red, even when it does not touch the crate.** The checks run on each pull request.
-- **A level in `.config/crates.toml` can be out of date.** The weekly run reports only a verdict that flips, or new owners. `judged` says when a person judged the level.
-- **The Scorecard API has no result for ruff, proptest, harper and pulldown-cmark.** For these, the weekly run needs the `scorecard` tool and a token.
-- **`lint:crates` and the weekly run need the network.** `cargo-deny` fetches the advisory database.
-- **The weekly run misses a change of owner that keeps the same logins.** It compares the logins only.
+- **A level in `.config/crates.toml` can be out of date.** A crate that its authors leave has no new release. Its version in the lock never changes, so its upkeep stays at level 1. `judged` says when a person judged the levels.
+- **`lint:crates` needs the network.** `cargo-deny` fetches the advisory database.
 
 ## Confirmation
 
 `mise run lint:crates` refuses each case above.
 `bats` tests each refusal.
 No check judges relief or trust, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies.
-
-The weekly run does not run yet. [Build the weekly run that reports a crate whose verdict would flip](https://github.com/kalonji-tools/purba/issues/981) builds it.
+No check reads whether the pull request that changes the lock measured each factor again. The reviewer reads it.
