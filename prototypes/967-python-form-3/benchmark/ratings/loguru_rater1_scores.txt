@@ -1,0 +1,15 @@
+Rater 1, round 4 (prototype 3). Key: PORT_K = oxitest, PORT_M = prototype 3.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype3
+readability        4       3        4
+clarity            3       5        4
+ease of use        4       3        4
+tester cx          4       3        2
+impl cx            2       2        3
+min test           5       4        5
+fidelity           ref(5)  5        4
+Weights: readability 15, clarity 20, ease 20, tester cx 15, impl cx 10, min test 5, fidelity 15 (original fidelity 5).
+Weighted: pytest 3.80 · oxitest 3.65 · prototype3 3.65 (tie; broken on fidelity -> oxitest 2nd, prototype3 3rd).
+Min test: 6 · 6 · 6 non-blank lines, 1 import each; prototype3 names: test_ prefix + `assert reading == literal`.
+Ease log: pytest 1 try · oxitest 2 tries (bare assert abort) · prototype3 1 try for both additions; two other natural tests refused (`in` check, loop).
+Findings on prototype 3: best errors; aligned case table; 13 rules; `in` refused; formatter moved to loguru_lab; use() signatures, 12 lines >100 chars; hint "make each side a case" does not fit a callback; runner 777 + 102 non-blank lines; verified `..` and {function} fixes; run time same as others (0.14-0.18 s).

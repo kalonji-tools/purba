@@ -1,0 +1,17 @@
+Rater 3, round 4 (prototype 3). Key: PORT_K = oxitest, PORT_M = prototype 3.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype3
+readability        4       3        4
+clarity            3       5        4
+ease of use        3       3        4
+tester cx          4       3        2
+impl cx            3       2        3
+min test           5       4        4
+fidelity           ref     5        4
+Weights: clarity x2, ease x2, fidelity x2, readability x1, tester cx x1, impl cx x0.5, min test x0.5 (original fidelity counted 5).
+Weighted: pytest 3.85 (raw, free 5 on fidelity) · oxitest 3.75 · prototype3 3.70.
+Rater's own ranking: prototype3 >= oxitest > pytest ("M's errors were actionable every time ... refused only the faulty case").
+Min test: pytest 5 · oxitest 6 · prototype3 6 (list sink, no form import) / 7 (with loguru_lab.Writer).
+Findings on prototype 3: runner errors best (did-you-mean + type, only that case refused); formatter moved out of test; for-loop -> 5 lines; 12 lines >100 chars (use() signatures); map(lambda) loop hole passes; run.py 896 lines + cases.py 149, test as written never runs ("deep magic"); RUN.md lacks a type-checker command.
+
+Recomputed from the scores and weights above (pytest fidelity = 5, as in rounds 2 and 3): pytest 3.78 · oxitest 3.89 · prototype3 3.72. The rater's own figures differ.

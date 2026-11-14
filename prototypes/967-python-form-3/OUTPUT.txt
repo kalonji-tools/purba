@@ -1,0 +1,129 @@
+── examples/test_1_slug.py
+ test_two_words  (examples/test_1_slug.py:7)
+   ✓ test_two_words › slug == 'hello-world'   'hello-world'
+ test_slug  (examples/test_1_slug.py:12)
+   ✓ plain › slug == expected   'hello-world'
+   ✓ under › slug == expected   'a_b_c'
+   ✗ accents › slug == expected   examples/test_1_slug.py:19 · assert at line 14
+       asks      words are lowered and joined by the separator
+       expected  'creme-brulee' (str)
+       reading   'crème-brûlée' (str)
+       why       they differ from character 2: expected 'eme-brulee', read 'ème-brûlée'
+       inputs    text='Crème Brûlée' sep='-' expected='creme-brulee'
+ test_empty  (examples/test_1_slug.py:22)
+   ✓ nothing › raises   ValueError: empty
+   ✓ blanks › raises   ValueError: empty
+── examples/test_2_money.py
+ test_amount  (examples/test_2_money.py:7)
+   ✓ euros › money.cents == cents   1250
+   ✓ euros › money.currency == currency   'EUR'
+   ✗ rounded › warning   examples/test_2_money.py:14
+       what      a warning that the test does not expect: UserWarning: rounded to a cent
+                 at examples/test_2_money.py:8
+       inputs    text='0.125' currency='EUR' cents=12
+   ✓ rounded › money.cents == cents   12
+   ✓ rounded › money.currency == currency   'EUR'
+ test_no_currency  (examples/test_2_money.py:17)
+   ✓ test_no_currency › warns   DeprecationWarning: no currency: USD is assumed
+   ✓ test_no_currency › money.currency == 'USD'   'USD'
+ test_below_zero  (examples/test_2_money.py:23)
+   ✓ test_below_zero › raises   ValueError: below zero
+── examples/test_3_cart.py
+ test_checkout  (examples/test_3_cart.py:7)
+   ✓ two_books › receipt.total == total   2550
+   ✓ two_books › receipt.lines == lines   2
+   ✓ pens › receipt.total == total   600
+   ✓ pens › receipt.lines == lines   1
+ test_unknown_sku  (examples/test_3_cart.py:20)
+   ✓ test_unknown_sku › raises   KeyError: 'NOPE'
+ test_open  (examples/test_3_cart.py:27)
+   ✓ ann › cart.count() == count   0
+   ✗ bob › cart.count() == count   examples/test_3_cart.py:41 · assert at line 29
+       expected  1 (int)
+       reading   0 (int)
+       inputs    owner='bob' count=1
+ test_fill  (examples/test_3_cart.py:33)
+   ✓ both_ann › cart.total() == total   2400
+   ⊘ from_wrong › cart.total() == total   blocked: bob › cart.count() == count diverged on replay: expected 1, read 0
+── examples/test_4_compare.py
+ test_name  (examples/test_4_compare.py:11)
+   ✓ test_name › name == 'ann'   'ann'
+ test_adults  (examples/test_4_compare.py:16)
+   ✓ two › count == expected   2
+   ✗ one › count == expected   examples/test_4_compare.py:22 · assert at line 18
+       expected  1 (int)
+       reading   True (bool)
+       why       a bool is not an int
+       inputs    ages=[20] expected=1
+── examples/test_5_except.py
+ test_logged_inside_except  (examples/test_5_except.py:17)
+   ✓ by_zero › seen.lines == [expected]   ['Error! | division by zero']
+   ✗ by_one › act   examples/test_5_except.py:29
+       what      line 21: the body of the `try` did not raise ZeroDivisionError, so its `except` never ran
+                 at examples/test_5_except.py:21  try:
+       inputs    divisor=1 expected='Error! | division by zero'
+   ⊘ by_one › seen.lines == [expected]   blocked: the act did not end as the test says
+── examples/test_6_refused.py
+   ! test_twice is defined at lines 56, 61; Python keeps only the last, so the test at line 56 would be lost
+   ! a case of test_slug at line 17 is named 'again', and line 18 binds 'again' again, so this case would be lost
+   ! a case of test_slug at line 19 has no name; bind it to a variable, `name = case(test, …)`
+   ! 2 cases of test_slug at line 20 are built by a loop; write each case on a line of its own, `name = case(test, …)`
+ test_slug  (examples/test_6_refused.py:7)
+   ✓ fine › slug == expected   'a-b'
+   ! typo refused   examples/test_6_refused.py:13
+       gives 'txt', which is no input of test_slug; did you mean 'text'?
+       gives no 'text', an input of test_slug with no default
+   ! computed refused   examples/test_6_refused.py:14
+       gives expected=…, an expected value, which computes `slugify('a b')`; an expected value is a literal, so the test cannot compute what the code computes
+   ! two refused   examples/test_6_refused.py:15
+       gives 'txt', which is no input of test_slug; did you mean 'text'?
+       gives no 'text', an input of test_slug with no default
+       gives expected=…, an expected value, which computes `slugify('a b')`; an expected value is a literal, so the test cannot compute what the code computes
+   ! by_place refused   examples/test_6_refused.py:16
+       passes 2 input(s) by position; name each input, as `case(test_slug, name=…)`
+       gives no 'text', an input of test_slug with no default
+       gives no 'expected', an input of test_slug with no default
+   ✓ again › slug == expected   'y'
+ test_branchy  (examples/test_6_refused.py:23)
+   ! refused:
+       line 24 holds a branch: make each side a case of its own
+       line 25 holds a loop: write each call on a line of its own, or make each round a case
+     so none of its 1 case(s) runs
+ test_checks_badly  (examples/test_6_refused.py:33)
+   ! refused:
+       line 35: an assert compares a reading with the value you expect: `assert reading == expected`
+       line 36: compare with `==`, and write the value you expect; the runner compares by type, then by value
+       line 37: the reading goes on the left, and the expected value on the right
+     so none of its 1 case(s) runs
+ test_reads_an_input  (examples/test_6_refused.py:44)
+   ! only_input refused   examples/test_6_refused.py:49
+       line 46 reads only text, a value the act cannot change; read what the act made
+ test_checks_nothing  (examples/test_6_refused.py:52)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_twice  (examples/test_6_refused.py:61)
+   ✓ test_twice › slug == 'c-d'   'c-d'
+── examples/test_7_typed.py
+ test_slug  (examples/test_7_typed.py:11)
+   ! misspelled refused   examples/test_7_typed.py:16
+       gives 'txt', which is no input of test_slug; did you mean 'text'?
+       gives no 'text', an input of test_slug with no default
+   ! wrong_type refused   examples/test_7_typed.py:17
+       gives expected=3 (int), and test_slug declares str
+   ! missing refused   examples/test_7_typed.py:18
+       gives no 'expected', an input of test_slug with no default
+ test_not_a_str  (examples/test_7_typed.py:21)
+   ✓ number › raises   AttributeError: 'int' object has no attribute 'split'
+── examples/test_8_stock.py
+ test_sign_up  (examples/test_8_stock.py:53)
+   ✓ ann › user_names(db) == names   ['old', 'ann']
+   ✓ ann › outbox.sent == [(name, 'welcome')]   [('ann', 'welcome')]
+   ✓ bob › user_names(db) == names   ['old', 'bob']
+   ✓ bob › outbox.sent == [(name, 'welcome')]   [('bob', 'welcome')]
+ test_taken  (examples/test_8_stock.py:64)
+   ✓ old › raises   ValueError: name 'old' is taken
+   ✓ old › user_names(db) == names   ['old']
+   ✓ old › outbox.sent == []   []
+══ 45 cases: 23 passed · 5 failed · 16 refused · 1 blocked   (33 checks held)
+exit=1

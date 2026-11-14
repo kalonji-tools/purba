@@ -1,0 +1,17 @@
+Rater 2, round 4 (prototype 3). Key: PORT_K = prototype 3, PORT_M = oxitest.
+Scores (5 best; complexity rows 5 = simplest):
+                 pytest  oxitest  prototype3
+readability        4       3        4
+clarity            3       4        4
+ease of use        4       3        4
+tester cx          4       2        3
+impl cx            2       2        3
+min test           5       4        5
+fidelity           ref     5        4
+Weights: readability 15, clarity 20, ease 20, tester cx 15, impl cx 5, min test 5, fidelity 20.
+Rater's own figures: without fidelity (rescaled to 80): prototype3 3.81 · pytest 3.69 · oxitest 3.06; with fidelity (ports only): prototype3 3.85 · oxitest 3.45.
+Ranking: 1 prototype3, 2 pytest (close), 3 oxitest.
+Min test: 6 · 6 · 6 (prototype3 byte-identical to pytest; 10 with the port's own helpers use/Writer/fresh_logger/Logger).
+Findings on prototype 3: cases checked by ty + pyright + runner (did-you-mean); best failure output; case table scans like a spreadsheet; if/loops banned -> formatter moved, loop unrolled; long signatures (7-line test_format, one-liners 102-117 chars); helpers must sit in tests/; NOTES cites probes not in the folder; runner 896 + 149 lines.
+
+Recomputed with pytest fidelity = 5, as in rounds 2 and 3: pytest 3.95 · oxitest 3.45 · prototype3 3.85.

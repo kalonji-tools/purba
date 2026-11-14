@@ -1,0 +1,10 @@
+$ ty --version
+ty 0.0.87
+$ ty check --python E/.venv/bin/python --extra-search-path E/proto3 --extra-search-path E/proto3/tests E/proto3/tests
+All checks passed!
+exit=0
+
+$ cd E/proto3 && nix-shell -p pyright --run "pyright --version; pyright"
+pyright 1.1.411
+0 errors, 0 warnings, 0 informations
+exit=0

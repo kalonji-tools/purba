@@ -1,0 +1,21 @@
+$ ty check --extra-search-path . --extra-search-path examples cases.py run.py examples
+ty 0.0.87
+examples/test_7_typed.py:16:14: error[missing-argument] No argument provided for required parameter `text` of function `case`
+examples/test_7_typed.py:16:30: error[unknown-argument] Argument `txt` does not match any known parameter of function `case`
+examples/test_7_typed.py:17:42: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `str`, found `Literal[3]`
+examples/test_7_typed.py:18:14: error[missing-argument] No argument provided for required parameter `expected` of function `case`
+Found 4 diagnostics
+exit=1
+
+$ nix-shell -p pyright --run pyright
+pyright 1.1.411
+examples/test_6_refused.py
+  examples/test_6_refused.py:56:5 - error: Function declaration "test_twice" is obscured by a declaration of the same name (reportRedeclaration)
+examples/test_7_typed.py
+  examples/test_7_typed.py:16:14 - error: Argument missing for parameter "text" (reportCallIssue)
+  examples/test_7_typed.py:16:30 - error: No parameter named "txt" (reportCallIssue)
+  examples/test_7_typed.py:17:51 - error: Argument of type "Literal[3]" cannot be assigned to parameter "expected" of type "str"
+    "Literal[3]" is not assignable to "str" (reportArgumentType)
+  examples/test_7_typed.py:18:14 - error: Argument missing for parameter "expected" (reportCallIssue)
+5 errors, 0 warnings, 0 informations
+exit=1
