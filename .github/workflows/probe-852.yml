@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   interpreters:
+    if: false
     name: interpreters ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -73,4 +74,39 @@ jobs:
           name: probe-${{ matrix.os }}-py${{ matrix.python }}
           path: |
             probe.txt
+            crashes/
+
+  # #694: the zygote stand-in. Does a test's fork crash when the module's load
+  # made the call, and not when only the test makes it?
+  zygote:
+    name: zygote ${{ matrix.os }} py${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, ubuntu-latest]
+        python: ["3.12", "3.14"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: bash research/macos-start/zygote/run.sh 2>&1 | tee zygote.txt
+        env:
+          REPEATS: "10"
+      - if: always() && runner.os == 'macOS'
+        run: |
+          mkdir -p crashes
+          sleep 20
+          cp ~/Library/Logs/DiagnosticReports/*.ips crashes/ 2>/dev/null || true
+          ls crashes | wc -l
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: zygote-${{ matrix.os }}-py${{ matrix.python }}
+          path: |
+            zygote.txt
             crashes/
