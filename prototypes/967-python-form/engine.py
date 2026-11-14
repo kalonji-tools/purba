@@ -120,10 +120,23 @@ def caller_line(depth: int = 2) -> int:
 # ── parse: nothing runs yet ───────────────────────────────────────────────────
 
 
+class _Unself(ast.NodeTransformer):
+    """A method form writes `self.cart`; the checks read it as the input `cart`."""
+
+    def visit_Attribute(self, node: ast.Attribute) -> ast.expr:
+        if isinstance(node.value, ast.Name) and node.value.id == "self":
+            return ast.copy_location(ast.Name(node.attr, ast.Load()), node)
+        self.generic_visit(node)
+        return node
+
+
 def _src(fn: Callable[..., Any]) -> ast.FunctionDef:
+    fn = getattr(fn, "__purba_src__", fn)
     tree = ast.parse(textwrap.dedent(inspect.getsource(fn)))
     node = tree.body[0]
     assert isinstance(node, ast.FunctionDef), "a function"
+    if node.args.args and node.args.args[0].arg == "self":
+        node = _Unself().visit(node)
     return node
 
 
@@ -183,7 +196,7 @@ def _read_ok(node: ast.expr, param: str) -> bool:
 
 
 def check_assay(e: Experiment, name: str, fn: Callable[..., Any]) -> None:
-    ps = list(inspect.signature(fn).parameters)
+    ps = [fn.__purba_reads__] if hasattr(fn, "__purba_reads__") else list(inspect.signature(fn).parameters)
     inputs = {p.name for p in e.params}
     if len(ps) != 1 or (ps[0] != "product" and ps[0] not in inputs):
         e.refused.append(f"assay `{name}` reads one value: `product` or an input of the act")
@@ -195,7 +208,7 @@ def check_assay(e: Experiment, name: str, fn: Callable[..., Any]) -> None:
 
 
 def reads(fn: Callable[..., Any]) -> str:
-    return next(iter(inspect.signature(fn).parameters))
+    return getattr(fn, "__purba_reads__", None) or next(iter(inspect.signature(fn).parameters))
 
 
 def all_assays(e: Experiment) -> dict[str, Callable[..., Any]]:
