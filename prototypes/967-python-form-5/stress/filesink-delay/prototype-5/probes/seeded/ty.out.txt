@@ -1,0 +1,7 @@
+test_seeded.py:59:17: error[missing-argument] No argument provided for required parameter `tmp_path` of function `case`
+test_seeded.py:59:46: error[unknown-argument] Argument `tmp_pth` does not match any known parameter of function `case`
+test_seeded.py:60:46: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `Path`, found `Literal["/nonexistent"]`
+test_seeded.py:65:17: error[invalid-argument-type] Argument to function `freeze_time` is incorrect: Expected `str`, found `date`
+test_seeded.py:81:20: error[unresolved-reference] Name `tmp_pth` used when not defined
+test_seeded.py:87:24: error[invalid-parameter-default] Default value of type `<class 'TmpPath'>` is not assignable to annotated parameter type `Path`
+Found 6 diagnostics

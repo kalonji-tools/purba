@@ -1,0 +1,23 @@
+── test_fork_warning.py
+ test_two_checks_with_a_live_thread  (test_fork_warning.py:12)
+   ✗ two_checks_with_a_live_thread › warning   test_fork_warning.py:20
+       what      a warning that the test does not expect: DeprecationWarning: This process (pid=2073856) is multi-threaded, use of fork() may lead to deadlocks in the child.
+                 at ../../../../../run.py:667
+       inputs    (none)
+   ✓ two_checks_with_a_live_thread › seen[0] == 1   1
+   ✓ two_checks_with_a_live_thread › seen[1] == 2   2
+ test_one_check_with_a_live_thread  (test_fork_warning.py:23)
+   ✓ one_check_with_a_live_thread › seen == [1, 2]   [1, 2]
+ test_two_checks_after_the_thread_ends  (test_fork_warning.py:33)
+   ✓ two_checks_after_the_thread_ends › seen[0] == 1   1
+   ✓ two_checks_after_the_thread_ends › seen[1] == 2   2
+── test_fork_warning_expected.py
+ test_expect_the_fork_warning  (test_fork_warning_expected.py:12)
+   ✗ expect_the_fork_warning › warns   test_fork_warning_expected.py:22
+       what      expected DeprecationWarning matching 'multi-threaded'; no warning
+                 at test_fork_warning_expected.py:15  with warns(DeprecationWarning, match=r"multi-threaded"):
+       inputs    (none)
+   ⊘ expect_the_fork_warning › seen[0] == 1   blocked: the act did not end as the test says
+   ⊘ expect_the_fork_warning › seen[1] == 2   blocked: the act did not end as the test says
+══ 4 cases: 2 passed · 2 failed · 0 refused · 0 blocked   (5 checks held)
+exit 1

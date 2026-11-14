@@ -1,0 +1,15 @@
+── test_stock_two_checks.py
+ test_two_checks_name  (test_stock_two_checks.py:13)
+   ! test_two_checks_name › (d / 'a').read_text() == '1'   test_stock_two_checks.py:13 · assert at line 15
+       what      d is a stock with no checkpoint, and more than one check reads it
+   ! test_two_checks_name › (d / 'a').exists() is True   test_stock_two_checks.py:13 · assert at line 16
+       what      d is a stock with no checkpoint, and more than one check reads it
+ test_two_checks_alias  (test_stock_two_checks.py:19)
+   ✓ test_two_checks_alias › (same / 'a').read_text() == '1'   '1'
+   ✓ test_two_checks_alias › (same / 'a').exists() is True   True
+ test_two_checks_derived  (test_stock_two_checks.py:26)
+   ✓ test_two_checks_derived › f.read_text() == '1'   '1'
+   ✓ test_two_checks_derived › f.exists() is True   True
+ test_both_which_value  (test_stock_two_checks.py:33)
+   ✓ test_both_which_value › name[:12] == 'probe-sample'   'probe-sample'
+══ 4 cases: 3 passed · 1 failed · 0 refused · 0 blocked   (5 checks held)

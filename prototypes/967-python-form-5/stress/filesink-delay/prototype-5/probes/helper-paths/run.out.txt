@@ -1,0 +1,11 @@
+── test_helper_paths.py
+ test_imported_helper_with_if_and_assert  (test_helper_paths.py:15)
+   ✗ test_imported_helper_with_if_and_assert › act   test_helper_paths.py:15
+       what      the act raised AssertionError: 
+                 at test_helper_paths.py:17  check_dir_like(names, size=2)
+   ⊘ test_imported_helper_with_if_and_assert › names == ['a']   blocked: the act did not end as the test says
+ test_imported_helper_with_if  (test_helper_paths.py:21)
+   ✓ test_imported_helper_with_if › got == 3   3
+ test_local_helper_with_if  (test_helper_paths.py:26)
+   ✓ test_local_helper_with_if › got == 3   3
+══ 3 cases: 2 passed · 1 failed · 0 refused · 0 blocked   (2 checks held)

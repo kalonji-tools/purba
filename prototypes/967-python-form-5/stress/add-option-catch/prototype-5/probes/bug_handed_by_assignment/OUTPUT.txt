@@ -1,0 +1,9 @@
+── test_handed_by_assignment.py
+ test_handed_by_assignment  (test_handed_by_assignment.py:13)
+   ! refused:
+       line 17 holds a `raise`: expect the code's own raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_handed_by_setattr  (test_handed_by_assignment.py:26)
+   ✓ handed_by_setattr › stream.getvalue() == ''   ''
+══ 2 cases: 1 passed · 0 failed · 1 refused · 0 blocked   (1 checks held)
+exit 1

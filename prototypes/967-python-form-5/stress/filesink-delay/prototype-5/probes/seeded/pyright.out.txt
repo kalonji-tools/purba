@@ -1,0 +1,11 @@
+/tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:59:17 - error: Argument missing for parameter "tmp_path" (reportCallIssue)
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:59:46 - error: No parameter named "tmp_pth" (reportCallIssue)
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:60:55 - error: Argument of type "Literal['/nonexistent']" cannot be assigned to parameter "tmp_path" of type "Path"
+    "Literal['/nonexistent']" is not assignable to "Path" (reportArgumentType)
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:65:17 - error: Argument of type "date" cannot be assigned to parameter "date" of type "str" in function "freeze_time"
+    "date" is not assignable to "str" (reportArgumentType)
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:81:20 - error: "tmp_pth" is not defined (reportUndefinedVariable)
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/filesink-delay/prototype-5/probes/seeded/test_seeded.py:87:41 - error: Expression of type "type[TmpPath]" cannot be assigned to parameter of type "Path"
+    Type "type[TmpPath]" is not assignable to type "Path" (reportArgumentType)
+6 errors, 0 warnings, 0 informations

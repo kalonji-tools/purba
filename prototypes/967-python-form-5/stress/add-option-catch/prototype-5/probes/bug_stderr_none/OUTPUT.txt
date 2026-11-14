@@ -1,0 +1,18 @@
+── test_stderr_none.py
+ test_stderr_none_one_check  (test_stderr_none.py:15)
+   ✓ stderr_none_one_check › seen is None   None
+ test_stderr_none_two_checks  (test_stderr_none.py:27)
+   ✗ stderr_none_two_checks › act   test_stderr_none.py:34
+       what      the act raised AttributeError: 'NoneType' object has no attribute 'flush'
+                 at test_stderr_none.py:30  assert seen[0] is None
+       inputs    (none)
+   ⊘ stderr_none_two_checks › seen[1] == 1   blocked: the act did not end as the test says
+ test_after  (test_stderr_none.py:37)
+   ✓ after › ledger.closed is True   True
+── test_stderr_none_atexit.py
+ test_atexit_with_stderr  (test_stderr_none_atexit.py:22)
+   ✓ control › seen == [label]   ['control: stderr kept']
+ test_atexit_without_stderr  (test_stderr_none_atexit.py:28)
+   ✓ stderr_none › seen == [label]   ['stderr None']
+══ 5 cases: 4 passed · 1 failed · 0 refused · 0 blocked   (4 checks held)
+exit 1

@@ -1,0 +1,16 @@
+### ty
+test_m2_misspelled_input.py:18:26: error[unknown-argument] Argument `capsis` does not match any known parameter of function `case`
+test_m3_wrong_type_input.py:16:28: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `Writer`, found `Literal["writer"]`
+test_m6_readouterr_not_called.py:13:16: error[not-iterable] Object of type `bound method Capsys.readouterr() -> tuple[str, str]` is not iterable
+Found 3 diagnostics
+exit 1
+### pyright
+probes/test_m2_misspelled_input.py
+  probes/test_m2_misspelled_input.py:18:26 - error: No parameter named "capsis" (reportCallIssue)
+probes/test_m3_wrong_type_input.py
+  probes/test_m3_wrong_type_input.py:16:35 - error: Argument of type "Literal['writer']" cannot be assigned to parameter "writer" of type "Writer"
+    "Literal['writer']" is not assignable to "Writer" (reportArgumentType)
+probes/test_m6_readouterr_not_called.py
+  probes/test_m6_readouterr_not_called.py:13:16 - error: "() -> tuple[str, str]" is not iterable (reportGeneralTypeIssues)
+3 errors, 0 warnings, 0 informations
+exit 1

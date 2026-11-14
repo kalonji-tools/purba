@@ -1,0 +1,34 @@
+$ cd prototype-5/tests && python ../../../../run.py .
+── test_filesink_delay.py
+ test_file_not_delayed  (test_filesink_delay.py:18)
+   ✓ test_file_not_delayed › before == ''   ''
+   ✓ test_file_not_delayed › file.read_text() == 'Not delayed\n'   'Not delayed\n'
+ test_file_delayed  (test_filesink_delay.py:27)
+   ✓ test_file_delayed › existed is False   False
+   ✓ test_file_delayed › file.read_text() == 'Delayed\n'   'Delayed\n'
+ test_compression  (test_filesink_delay.py:36)
+   ✓ test_compression › sorted(os.listdir(tmp_path)) == ['file.log.gz']   ['file.log.gz']
+ test_compression_early_remove  (test_filesink_delay.py:44)
+   ✓ test_compression_early_remove › list(tmp_path.iterdir()) == []   []
+ test_retention  (test_filesink_delay.py:50)
+   ✓ test_retention › list(tmp_path.iterdir()) == []   []
+ test_retention_early_remove  (test_filesink_delay.py:61)
+   ✓ test_retention_early_remove › list(tmp_path.iterdir()) == []   []
+ test_rotation  (test_filesink_delay.py:71)
+   ✓ test_rotation › sorted(os.listdir(tmp_path)) == ['file.2001-02-03_00-00-00_…   ['file.2001-02-03_00-00-00_000000.log', 'file.log']
+   ✓ test_rotation › (tmp_path / 'file.2001-02-03_00-00-00_000000.log').read_tex…   ''
+   ✓ test_rotation › (tmp_path / 'file.log').read_text() == 'a\n'   'a\n'
+ test_rotation_early_remove  (test_filesink_delay.py:82)
+   ✓ test_rotation_early_remove › list(tmp_path.iterdir()) == []   []
+ test_rotation_and_retention  (test_filesink_delay.py:89)
+   ✓ test_rotation_and_retention › sorted(os.listdir(tmp_path)) == ['file.1999-12-12_00-00-00_…   ['file.1999-12-12_00-00-00_350000.log', 'file.1999-12-12_00-00-00_400000.log', 'file.log']
+   ✓ test_rotation_and_retention › (tmp_path / 'file.1999-12-12_00-00-00_350000.log').read_tex…   '77777777777777777777\n'
+   ✓ test_rotation_and_retention › (tmp_path / 'file.1999-12-12_00-00-00_400000.log').read_tex…   '88888888888888888888\n'
+   ✓ test_rotation_and_retention › (tmp_path / 'file.log').read_text() == '9999999999999999999…   '99999999999999999999\n'
+ test_rotation_and_retention_timed_file  (test_filesink_delay.py:108)
+   ✓ test_rotation_and_retention_timed_file › sorted(os.listdir(tmp_path)) == ['file.1999-12-12_00-00-00_…   ['file.1999-12-12_00-00-00_350000.log', 'file.1999-12-12_00-00-00_400000.log', 'file.1999-12-12_00-00-00_450000.log']
+   ✓ test_rotation_and_retention_timed_file › (tmp_path / 'file.1999-12-12_00-00-00_350000.log').read_tex…   '77777777777777777777\n'
+   ✓ test_rotation_and_retention_timed_file › (tmp_path / 'file.1999-12-12_00-00-00_400000.log').read_tex…   '88888888888888888888\n'
+   ✓ test_rotation_and_retention_timed_file › (tmp_path / 'file.1999-12-12_00-00-00_450000.log').read_tex…   '99999999999999999999\n'
+══ 10 cases: 10 passed · 0 failed · 0 refused · 0 blocked   (20 checks held)
+exit 0

@@ -1,0 +1,13 @@
+$ ty --version
+ty 0.0.87
+$ ty check --python /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/venv5/bin/python --extra-search-path /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5 --extra-search-path /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/add-option-catch/prototype-5/tests /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/add-option-catch/prototype-5/tests
+All checks passed!
+exit 0
+
+$ cat /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/add-option-catch/prototype-5/pyrightconfig.json
+{"include": ["tests"], "extraPaths": ["/tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5", "tests"], "pythonVersion": "3.12"}
+$ nix-shell -p pyright --run 'pyright --pythonpath /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/venv5/bin/python --version'
+pyright 1.1.411
+$ nix-shell -p pyright --run 'pyright --pythonpath /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/venv5/bin/python -p /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/add-option-catch/prototype-5/pyrightconfig.json'
+0 errors, 0 warnings, 0 informations
+exit 0

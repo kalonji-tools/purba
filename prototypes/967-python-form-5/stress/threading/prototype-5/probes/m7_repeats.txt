@@ -1,0 +1,6 @@
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)

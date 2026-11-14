@@ -1,0 +1,180 @@
+Each probe run as: cd probes && PYTHONPATH=../tests python F/run.py <file>
+=================== test_e1_thread_error.py
+── test_e1_thread_error.py
+ test_stopped_sink  (test_e1_thread_error.py:13)
+   ✗ stopped_sink › lost error   test_e1_thread_error.py:30
+       what      an error that no code saw: in a thread, RuntimeError: Can't write on stopped sink
+       inputs    (none)
+   ✓ stopped_sink › out == ''   ''
+   ✓ stopped_sink › err == ''   ''
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (2 checks held)
+exit 1
+=================== test_e2_stderr_in_thread.py
+── test_e2_stderr_in_thread.py
+ test_noisy  (test_e2_stderr_in_thread.py:12)
+   ✓ noisy › out == ''   ''
+   ✗ noisy › err == ''   test_e2_stderr_in_thread.py:25 · assert at line 22
+       expected  '' (str)
+       reading   'noise\n' (str)
+       why       they differ from character 0: expected '', read 'noise\n'
+       inputs    (none)
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (1 checks held)
+exit 1
+=================== test_e3b_nested_helper_loop.py
+── test_e3b_nested_helper_loop.py
+ test_threads  (test_e3b_nested_helper_loop.py:8)
+   ! refused:
+       line 10 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 12 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+══ 1 case: 0 passed · 0 failed · 1 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_e3_local_helper_loop.py
+── test_e3_local_helper_loop.py
+ test_threads  (test_e3_local_helper_loop.py:18)
+   ✓ two_threads › seen == [1, 1]   [1, 1]
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+exit 0
+=================== test_e4_imported_helper_loop.py
+── test_e4_imported_helper_loop.py
+ test_threads  (test_e4_imported_helper_loop.py:9)
+   ✓ two_threads › seen == [1, 1]   [1, 1]
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+exit 0
+=================== test_e5_method_with_if.py
+── test_e5_method_with_if.py
+ test_write  (test_e5_method_with_if.py:23)
+   ✓ write › sink.written == 'abc'   'abc'
+ test_write_inner_class  (test_e5_method_with_if.py:32)
+   ! refused:
+       line 36 holds an `if`: the act has one path
+       line 41 holds an `if`: the act has one path
+       line 42 holds a `raise`: expect the code's own raise with `with raises(…):`
+     so none of its 1 case(s) runs
+══ 2 cases: 1 passed · 0 failed · 1 refused · 0 blocked   (1 checks held)
+exit 1
+=================== test_e6_tuple_loop.py
+── test_e6_tuple_loop.py
+ test_tuple_loop  (test_e6_tuple_loop.py:8)
+   ! refused:
+       line 12 holds a loop over `(first, second)`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 14 holds a loop over `(first, second)`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_comprehension  (test_e6_tuple_loop.py:22)
+   ! refused:
+       line 25 holds a comprehension over `threads`: the act has one path, so it runs over literal data, with no `if`
+       line 26 holds a comprehension over `threads`: the act has one path, so it runs over literal data, with no `if`
+     so none of its 1 case(s) runs
+══ 2 cases: 0 passed · 0 failed · 2 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_m1_wrong_counter.py
+── test_m1_wrong_counter.py
+ test_safe_adding_while_logging  (test_m1_wrong_counter.py:15)
+   ✓ safe_adding_while_logging › sink_1.written == 'aaa0bbb\nccc1ddd\n'   'aaa0bbb\nccc1ddd\n'
+   ✗ safe_adding_while_logging › sink_2.written == 'ccc0ddd\n'   test_m1_wrong_counter.py:43 · assert at line 40
+       expected  'ccc0ddd\n' (str)
+       reading   'ccc1ddd\n' (str)
+       why       they differ from character 3: expected '0ddd\n', read '1ddd\n'
+       inputs    (none)
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (1 checks held)
+exit 1
+=================== test_m2b_fixture_built_in_case.py
+exit 1
+=================== test_m2_misspelled_input.py
+── test_m2_misspelled_input.py
+ test_quiet  (test_m2_misspelled_input.py:10)
+   ! quiet refused   test_m2_misspelled_input.py:18
+       gives 'capsis', which is no input of test_quiet; did you mean 'capsys'?
+══ 1 case: 0 passed · 0 failed · 1 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_m3_wrong_type_input.py
+── test_m3_wrong_type_input.py
+ test_writes  (test_m3_wrong_type_input.py:10)
+   ! writes refused   test_m3_wrong_type_input.py:16
+       gives writer='writer' (str), and test_writes declares Writer
+       line 13 reads only writer, a value the act cannot change; read what the act made
+══ 1 case: 0 passed · 0 failed · 1 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_m4_forgot_join.py
+── test_m4_forgot_join.py
+ test_safe_logging  (test_m4_forgot_join.py:14)
+   ✗ safe_logging › sink.written in ('___0___\n___1___\n', '___1___\n___0___\n')   test_m4_forgot_join.py:32 · assert at line 29
+       expected  ('___0___\n___1___\n', '___1___\n___0___\n') (tuple)
+       reading   '___0___\n' (str)
+       why       `'___0___\n' in ('___0___\n___1___\n', '___1___\n___0___\n')` does not hold
+       inputs    (none)
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_m5_forgot_reset.py
+── test_m5_forgot_reset.py
+ test_quiet  (test_m5_forgot_reset.py:11)
+   ✓ quiet › out == ''   ''
+   ✓ quiet › err == ''   ''
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (2 checks held)
+exit 0
+=================== test_m6_readouterr_not_called.py
+── test_m6_readouterr_not_called.py
+ test_quiet  (test_m6_readouterr_not_called.py:10)
+   ✗ quiet › act   test_m6_readouterr_not_called.py:18
+       what      the act raised TypeError: cannot unpack non-iterable method object
+                 at test_m6_readouterr_not_called.py:13  out, err = capsys.readouterr
+       inputs    (none)
+   ⊘ quiet › out == ''   blocked: the act did not end as the test says
+   ⊘ quiet › err == ''   blocked: the act did not end as the test says
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (0 checks held)
+exit 1
+=================== test_m7_one_order_only.py
+── test_m7_one_order_only.py
+ test_safe_logging  (test_m7_one_order_only.py:14)
+   ✓ safe_logging › sink.written == '___0___\n___1___\n'   '___0___\n___1___\n'
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+exit 0
+=================== test_m2b via show_swallowed_report.py
+--- swallowed stdout ---
+── test_m2b_fixture_built_in_case.py
+ test_quiet  (test_m2b_fixture_built_in_case.py:13)
+   ✗ quiet › out == ''   test_m2b_fixture_built_in_case.py:21 · assert at line 17
+       expected  '' (str)
+       reading   '── test_m2b_fixture_built_in_case.py\n test_quiet  (test_m2b_fixture_built_in_case.py:13)\n' (str)
+       why       they differ from character 0: expected '', read '── test_m2b_fixture_'
+       inputs    capsys=<loguru_lab.Capsys object at 0x7036d1930980>
+   ✓ quiet › err == ''   ''
+══ 1 case: 0 passed · 1 failed · 0 refused · 0 blocked   (1 checks held)
+--- swallowed stderr ---
+--- exit 1
+=================== pytest_twin (pytest 9.2.0, original conftest)
+.                                                                        [100%]
+=============================== warnings summary ===============================
+prototypes/967-python-form-5/stress/threading/prototype-5/probes/pytest_twin/test_twin.py::test_stopped_sink
+  <site-packages>/_pytest/threadexception.py:54: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-1 (threaded)
+  
+  Traceback (most recent call last):
+    File "/home/snregales/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/home/snregales/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "probes/pytest_twin/test_twin.py", line 29, in threaded
+      logger.info("Some message")
+    File "<site-packages>/loguru/_logger.py", line 2220, in info
+      __self._log("INFO", False, __self._options, __message, args, kwargs)
+    File "<site-packages>/loguru/_logger.py", line 2208, in _log
+      handler.emit(log_record, level_id, from_decorator, raw, colored_message)
+    File "<site-packages>/loguru/_handler.py", line 206, in emit
+      self._sink.write(str_record)
+    File "<site-packages>/loguru/_simple_sinks.py", line 31, in write
+      self._stream.write(message)
+    File "probes/pytest_twin/test_twin.py", line 18, in write
+      raise RuntimeError("Can't write on stopped sink")
+  RuntimeError: Can't write on stopped sink
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 0.01s
+=================== test_m8_join_range_too_short.py (3 runs: m8_repeats.txt)
+── test_m8_join_range_too_short.py
+ test_safe_logging  (test_m8_join_range_too_short.py:14)
+   ✓ safe_logging › sink.written in ('___0___\n___1___\n', '___1___\n___0___\n')   '___0___\n___1___\n'
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)

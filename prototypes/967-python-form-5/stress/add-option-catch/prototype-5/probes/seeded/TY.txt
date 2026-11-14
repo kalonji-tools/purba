@@ -1,0 +1,7 @@
+test_s01_misspelled_input.py:34:32: error[missing-argument] No argument provided for required parameter `enqueue` of function `case`
+test_s01_misspelled_input.py:34:63: error[unknown-argument] Argument `enqeue` does not match any known parameter of function `case`
+test_s02_wrong_type.py:34:63: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `bool`, found `Literal["True"]`
+test_s03_missing_input.py:34:32: error[missing-argument] No argument provided for required parameter `enqueue` of function `case`
+test_s07_assign_monkeypatch.py:21:5: error[invalid-assignment] Object of type `def broken_write(...) -> Unknown` is not assignable to attribute `write` on type `TextIO | Any`
+test_s13_fixture_instance.py:17:46: error[no-matching-overload] No overload of function `use` matches arguments
+Found 6 diagnostics

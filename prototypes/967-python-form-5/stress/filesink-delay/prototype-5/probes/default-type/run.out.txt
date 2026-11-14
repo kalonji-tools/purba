@@ -1,0 +1,14 @@
+── test_default_type.py
+ test_default_of_wrong_type  (test_default_type.py:16)
+   ✗ test_default_of_wrong_type › got == 6   test_default_type.py:16 · assert at line 18
+       expected  6 (int)
+       reading   '33' (str)
+       why       a str is not an int
+ test_fixture_of_wrong_type  (test_default_type.py:21)
+   ✗ test_fixture_of_wrong_type › inputs   test_default_type.py:21
+       what      the fixture of p gives a str, and the test declares Path
+   ⊘ test_fixture_of_wrong_type › got == 'not a path'   blocked: an input was not built
+ test_case_of_wrong_type  (test_default_type.py:26)
+   ! given_wrong refused   test_default_type.py:31
+       gives n='3' (str), and test_case_of_wrong_type declares int
+══ 3 cases: 0 passed · 2 failed · 1 refused · 0 blocked   (0 checks held)

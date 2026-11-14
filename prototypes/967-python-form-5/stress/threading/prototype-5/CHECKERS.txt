@@ -1,0 +1,9 @@
+$ ty check --python <venv5 python> --extra-search-path F --extra-search-path tests tests
+ty 0.0.87
+All checks passed!
+exit 0
+
+$ pyright --pythonpath <venv5 python> tests   (pyrightconfig.json in prototype-5/: extraPaths F, tests, probes)
+pyright 1.1.411
+0 errors, 0 warnings, 0 informations
+exit 0

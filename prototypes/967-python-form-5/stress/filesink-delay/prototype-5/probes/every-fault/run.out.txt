@@ -1,0 +1,11 @@
+── test_every_fault.py
+ test_with_and_no_check  (test_every_fault.py:9)
+   ! refused:
+       line 10 holds a `with` other than `raises`, `warns` or `handling`: call what it sets up, or make it a fixture with use(…)
+     so none of its 1 case(s) runs
+ test_mid_assert_and_not_form  (test_every_fault.py:15)
+   ! refused:
+       line 17 holds an assert before the end: every check goes at the end of the test
+       line 19: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+══ 2 cases: 0 passed · 0 failed · 2 refused · 0 blocked   (0 checks held)

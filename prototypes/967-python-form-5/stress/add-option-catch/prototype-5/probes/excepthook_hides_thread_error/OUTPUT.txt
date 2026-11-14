@@ -1,0 +1,10 @@
+── test_excepthook.py
+ test_thread_error  (test_excepthook.py:17)
+   ✗ thread_error › lost error   test_excepthook.py:24
+       what      an error that no code saw: in a thread, ValueError: in the thread
+       inputs    (none)
+   ✓ thread_error › worker.is_alive() is False   False
+ test_thread_error_with_the_originals_hook  (test_excepthook.py:27)
+   ✓ thread_error_with_the_originals_hook › worker.is_alive() is False   False
+══ 2 cases: 1 passed · 1 failed · 0 refused · 0 blocked   (2 checks held)
+exit 1

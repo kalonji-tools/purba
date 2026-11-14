@@ -1,0 +1,95 @@
+── test_s01_misspelled_input.py
+ test_broken_sink_message  (test_s01_misspelled_input.py:18)
+   ! broken_sink_message_enqueued refused   test_s01_misspelled_input.py:34
+       gives 'enqeue', which is no input of test_broken_sink_message; did you mean 'enqueue'?
+       gives no 'enqueue', an input of test_broken_sink_message with no default
+── test_s02_wrong_type.py
+ test_broken_sink_message  (test_s02_wrong_type.py:18)
+   ! broken_sink_message_enqueued refused   test_s02_wrong_type.py:34
+       gives enqueue='True' (str), and test_broken_sink_message declares bool
+── test_s03_missing_input.py
+ test_broken_sink_message  (test_s03_missing_input.py:18)
+   ! broken_sink_message_enqueued refused   test_s03_missing_input.py:34
+       gives no 'enqueue', an input of test_broken_sink_message with no default
+── test_s04_wrong_slice.py
+ test_broken_sink_message  (test_s04_wrong_slice.py:18)
+   ✓ broken_sink_message_direct › out == ''   ''
+   ✓ broken_sink_message_direct › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ broken_sink_message_direct › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 583), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✗ broken_sink_message_direct › lines[-2][:17] == 'ValueError: Error!'   test_s04_wrong_slice.py:34 · assert at line 30
+       expected  'ValueError: Error!' (str)
+       reading   'ValueError: Error' (str)
+       why       they differ from character 17: expected '!', read ''
+       inputs    enqueue=False
+   ✓ broken_sink_message_direct › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+── test_s05_wrong_handler_id.py
+ test_broken_sink_message  (test_s05_wrong_handler_id.py:18)
+   ✓ broken_sink_message_direct › out == ''   ''
+   ✗ broken_sink_message_direct › lines[0] == '--- Logging error in Loguru Handler #1 ---'   test_s05_wrong_handler_id.py:34 · assert at line 28
+       expected  '--- Logging error in Loguru Handler #1 ---' (str)
+       reading   '--- Logging error in Loguru Handler #0 ---' (str)
+       why       they differ from character 37: expected '1 ---', read '0 ---'
+       inputs    enqueue=False
+   ✓ broken_sink_message_direct › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 604), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✓ broken_sink_message_direct › lines[-2][:18] == 'ValueError: Error!'   'ValueError: Error!'
+   ✓ broken_sink_message_direct › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+── test_s06_input_by_position.py
+ test_broken_sink_message  (test_s06_input_by_position.py:18)
+   ! broken_sink_message_direct refused   test_s06_input_by_position.py:34
+       passes 1 input(s) by position; name each input, as `case(test_broken_sink_message, name=…)`
+       gives no 'enqueue', an input of test_broken_sink_message with no default
+── test_s07_assign_monkeypatch.py
+ test_broken_sys_stderr  (test_s07_assign_monkeypatch.py:17)
+   ! refused:
+       line 19 holds a `raise`: expect the code's own raise with `with raises(…):`
+     so none of its 1 case(s) runs
+── test_s08_forgot_stderr_none.py
+ test_no_sys_stderr  (test_s08_forgot_stderr_none.py:17)
+   ✗ no_sys_stderr › (out, err) == ('', '')   test_s08_forgot_stderr_none.py:25 · assert at line 22
+       expected  ('', '') (tuple)
+       reading   ('', '--- Logging error in Loguru Handler #0 ---\nRecord was: {\'elapsed\': datetime.timedelta(microseconds=255534), \'exception\': None, \'extra\': {}, \'file\': (name=\'test_s08_forgot_stderr_none.p …  line 234, in write\n    self._function(message)\n  File "test_s08_forgot_stderr_none.py", line 14, in broken_sink\n    raise ValueError("Error!")\nValueError: Error!\n--- End of logging error ---\n') (tuple)
+       why       [1]: they differ from character 0: expected '', read '--- Logging error in'
+       inputs    (none)
+── test_s09_wrong_exception.py
+ test_catch_is_false  (test_s09_wrong_exception.py:17)
+   ✗ catch_is_false › act   test_s09_wrong_exception.py:24
+       what      the act raised ValueError: Error!
+                 at test_s09_wrong_exception.py:20  logger.debug("Fail")
+                 at test_s09_wrong_exception.py:14  raise ValueError("Error!")
+       inputs    (none)
+   ⊘ catch_is_false › capsys.readouterr() == ('', '')   blocked: the act did not end as the test says
+── test_s10_no_remove_enqueued.py
+ test_broken_sink_message  (test_s10_no_remove_enqueued.py:17)
+   ✗ broken_sink_message_enqueued › warning   test_s10_no_remove_enqueued.py:29
+       what      a warning that the test does not expect: DeprecationWarning: This process (pid=2077243) is multi-threaded, use of fork() may lead to deadlocks in the child.
+                 at ../../../../../run.py:667
+       inputs    enqueue=True
+   ✓ broken_sink_message_enqueued › out == ''   ''
+   ✓ broken_sink_message_enqueued › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+── test_s11_no_sleep_enqueued.py
+ test_broken_sink_caught_keep_working  (test_s11_no_sleep_enqueued.py:17)
+   ✗ broken_sink_caught_keep_working_enqueued › output == 'A\nB\n'   test_s11_no_sleep_enqueued.py:34 · assert at line 31
+       expected  'A\nB\n' (str)
+       reading   '' (str)
+       why       they differ from character 0: expected 'A\nB\n', read ''
+       inputs    enqueue=True
+── test_s12_truthy_match.py
+ test_broken_sink_message  (test_s12_truthy_match.py:17)
+   ! refused:
+       line 25: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+── test_s13_fixture_instance.py
+ test_unprintable_record  (test_s13_fixture_instance.py:17)
+   ✗ unprintable_record › inputs   test_s13_fixture_instance.py:23
+       what      building an input raised TypeError: Writer.__call__() missing 1 required positional argument: 'message'
+       inputs    (none)
+   ⊘ unprintable_record › writer.read() == 'a 1\n'   blocked: an input was not built
+── test_s14_setattr_wrong_name.py
+ test_broken_sys_stderr  (test_s14_setattr_wrong_name.py:18)
+   ✗ broken_sys_stderr › (out, err) == ('', '')   test_s14_setattr_wrong_name.py:30 · assert at line 27
+       expected  ('', '') (tuple)
+       reading   ('', '--- Logging error in Loguru Handler #0 ---\nRecord was: {\'elapsed\': datetime.timedelta(microseconds=408730), \'exception\': None, \'extra\': {}, \'file\': (name=\'test_s14_setattr_wrong_name.p …  line 234, in write\n    self._function(message)\n  File "test_s14_setattr_wrong_name.py", line 14, in broken_sink\n    raise ValueError("Error!")\nValueError: Error!\n--- End of logging error ---\n') (tuple)
+       why       [1]: they differ from character 0: expected '', read '--- Logging error in'
+       inputs    (none)
+══ 14 cases: 0 passed · 8 failed · 6 refused · 0 blocked   (10 checks held)
+exit 1

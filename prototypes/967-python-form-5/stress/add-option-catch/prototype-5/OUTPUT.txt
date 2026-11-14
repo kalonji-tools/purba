@@ -1,0 +1,44 @@
+$ cd /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/stress/add-option-catch/prototype-5/tests && /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/venv5/bin/python /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/8192f0c6-e3cc-40dd-a7b2-5532412fdde1/scratchpad/proto-967-5/prototypes/967-python-form-5/run.py .
+── test_add_option_catch.py
+ test_catch_is_true  (test_add_option_catch.py:17)
+   ✓ catch_is_true › out == ''   ''
+   ✓ catch_is_true › err != ''   '--- Logging error in Loguru Handler #0 ---\nRecord was: {\'elapsed\': datetime.timedelta(microseconds=10264), \'exception\': None, \'extra\': {}, \'file\': (name=\'test_add_option_catch.py\', path=\' … ks.py", line 234, in write\n    self._function(message)\n  File "test_add_option_catch.py", line 14, in broken_sink\n    raise ValueError("Error!")\nValueError: Error!\n--- End of logging error ---\n'
+ test_catch_is_false  (test_add_option_catch.py:28)
+   ✓ catch_is_false › raises   ValueError: Error!
+   ✓ catch_is_false › capsys.readouterr() == ('', '')   ('', '')
+ test_no_sys_stderr  (test_add_option_catch.py:38)
+   ✓ no_sys_stderr › (out, err) == ('', '')   ('', '')
+ test_broken_sys_stderr  (test_add_option_catch.py:50)
+   ✓ broken_sys_stderr › (out, err) == ('', '')   ('', '')
+ test_encoding_error  (test_add_option_catch.py:65)
+   ✓ encoding_error › out == ''   ''
+   ✓ encoding_error › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ encoding_error › lines[1][:13] == 'Record was: {'   'Record was: {'
+   ✓ encoding_error › lines[1][-1] == '}'   '}'
+   ✓ encoding_error › lines[-2][:19] == 'UnicodeEncodeError:'   'UnicodeEncodeError:'
+   ✓ encoding_error › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_unprintable_record  (test_add_option_catch.py:86)
+   ✓ unprintable_record › writer.read() == 'a 1\nc 2\n'   'a 1\nc 2\n'
+   ✓ unprintable_record › out == ''   ''
+   ✓ unprintable_record › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ unprintable_record › lines[1] == 'Record was: /!\\ Unprintable record /!\\'   'Record was: /!\\ Unprintable record /!\\'
+   ✓ unprintable_record › lines[-2] == 'ValueError: Failed'   'ValueError: Failed'
+   ✓ unprintable_record › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_broken_sink_message  (test_add_option_catch.py:110)
+   ✓ broken_sink_message_direct › out == ''   ''
+   ✓ broken_sink_message_direct › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ broken_sink_message_direct › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 587), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✓ broken_sink_message_direct › lines[-2][:18] == 'ValueError: Error!'   'ValueError: Error!'
+   ✓ broken_sink_message_direct › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+   ✓ broken_sink_message_enqueued › out == ''   ''
+   ✓ broken_sink_message_enqueued › lines[0] == '--- Logging error in Loguru Handler #0 ---'   '--- Logging error in Loguru Handler #0 ---'
+   ✓ broken_sink_message_enqueued › re.match('Record was: \\{.*Oops.*\\}', lines[1]) is not None   <re.Match object; span=(0, 588), match="Record was: {'elapsed': datetime.timedelta(micros>
+   ✓ broken_sink_message_enqueued › lines[-2][:18] == 'ValueError: Error!'   'ValueError: Error!'
+   ✓ broken_sink_message_enqueued › lines[-1] == '--- End of logging error ---'   '--- End of logging error ---'
+ test_broken_sink_caught_keep_working  (test_add_option_catch.py:130)
+   ✓ broken_sink_caught_keep_working_direct › output == 'A\nB\n'   'A\nB\n'
+   ✓ broken_sink_caught_keep_working_enqueued › output == 'A\nB\n'   'A\nB\n'
+ test_broken_sink_not_caught_enqueue  (test_add_option_catch.py:152)
+   ✓ broken_sink_not_caught_enqueue › called == 2   2
+══ 11 cases: 11 passed · 0 failed · 0 refused · 0 blocked   (31 checks held)
+exit 0

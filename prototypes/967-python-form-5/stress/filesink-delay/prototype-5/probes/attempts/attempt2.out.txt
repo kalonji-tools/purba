@@ -1,0 +1,39 @@
+── test_filesink_delay.py
+ test_file_not_delayed  (test_filesink_delay.py:17)
+   ✓ test_file_not_delayed › before == ''   ''
+   ✓ test_file_not_delayed › file.read_text() == 'Not delayed\n'   'Not delayed\n'
+ test_file_delayed  (test_filesink_delay.py:26)
+   ! refused:
+       line 31: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`
+     so none of its 1 case(s) runs
+ test_compression  (test_filesink_delay.py:35)
+   ! refused:
+       line 40: the reading a comprehension over `tmp_path.iterdir()`: the act has one path, so it runs over literal data, with no `if`
+     so none of its 1 case(s) runs
+ test_compression_early_remove  (test_filesink_delay.py:43)
+   ✓ test_compression_early_remove › list(tmp_path.iterdir()) == []   []
+ test_retention  (test_filesink_delay.py:49)
+   ✓ test_retention › list(tmp_path.iterdir()) == []   []
+ test_retention_early_remove  (test_filesink_delay.py:60)
+   ✓ test_retention_early_remove › list(tmp_path.iterdir()) == []   []
+ test_rotation  (test_filesink_delay.py:70)
+   ! refused:
+       line 76: the reading a comprehension over `tmp_path.iterdir()`: the act has one path, so it runs over literal data, with no `if`
+     so none of its 1 case(s) runs
+ test_rotation_early_remove  (test_filesink_delay.py:81)
+   ✓ test_rotation_early_remove › list(tmp_path.iterdir()) == []   []
+ test_rotation_and_retention  (test_filesink_delay.py:88)
+   ! refused:
+       line 97: the reading a comprehension over `tmp_path.iterdir()`: the act has one path, so it runs over literal data, with no `if`
+       line 102: the expected value computes `'7' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+       line 103: the expected value computes `'8' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+       line 104: the expected value computes `'9' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_rotation_and_retention_timed_file  (test_filesink_delay.py:107)
+   ! refused:
+       line 116: the reading a comprehension over `tmp_path.iterdir()`: the act has one path, so it runs over literal data, with no `if`
+       line 121: the expected value computes `'7' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+       line 122: the expected value computes `'8' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+       line 123: the expected value computes `'9' * 20 + '\n'`; an expected value is a literal, so the test cannot compute what the code computes; write a literal, or take it as an input of the case
+     so none of its 1 case(s) runs
+══ 10 cases: 5 passed · 0 failed · 5 refused · 0 blocked   (6 checks held)

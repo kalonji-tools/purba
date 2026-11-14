@@ -1,0 +1,12 @@
+── test_m8_join_range_too_short.py
+ test_safe_logging  (test_m8_join_range_too_short.py:14)
+   ✓ safe_logging › sink.written in ('___0___\n___1___\n', '___1___\n___0___\n')   '___0___\n___1___\n'
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+── test_m8_join_range_too_short.py
+ test_safe_logging  (test_m8_join_range_too_short.py:14)
+   ✓ safe_logging › sink.written in ('___0___\n___1___\n', '___1___\n___0___\n')   '___0___\n___1___\n'
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
+── test_m8_join_range_too_short.py
+ test_safe_logging  (test_m8_join_range_too_short.py:14)
+   ✓ safe_logging › sink.written in ('___0___\n___1___\n', '___1___\n___0___\n')   '___0___\n___1___\n'
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (1 checks held)
