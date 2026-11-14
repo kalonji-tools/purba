@@ -4,8 +4,8 @@
 edition = "2024"
 
 [dependencies]
-harper-core = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
-harper-pos-utils = { git = "https://github.com/Automattic/harper", tag = "v2.3.0" }
+harper-core = "3.2.0"
+harper-pos-utils = "3.2.0"
 pulldown-cmark = "0.13.4"
 
 [lints.rust]

@@ -12,14 +12,13 @@ Only `zip` 9 fixes each one.
 | [GHSA-9hj8-73fh-9963](https://github.com/advisories/GHSA-9hj8-73fh-9963), [GHSA-hjqx-j4rw-g7xv](https://github.com/advisories/GHSA-hjqx-j4rw-g7xv) and [GHSA-q7v9-x93c-xqv3](https://github.com/advisories/GHSA-q7v9-x93c-xqv3), high, and [GHSA-8hxf-qr8p-62x4](https://github.com/advisories/GHSA-8hxf-qr8p-62x4), moderate, are fixed in 9.0.0 | the advisories |
 | the lockfile holds `zip` 7.2.0 and 8.6.0, and `cargo tree -i zip@7.2.0 -e normal` prints nothing | the command of Confirmation, with `zip@7.2.0` |
 | `zip` 7.2.0 comes from `candle-core`, whose `npy` module reads an archive | [`candle-core/src/npy.rs`](https://docs.rs/crate/candle-core/0.9.2/source/src/npy.rs) |
-| `zip` 8.6.0 comes from `harper-core`, and no feature of `harper-core` drops it | [`harper-core/Cargo.toml`](https://github.com/Automattic/harper/blob/v2.3.0/harper-core/Cargo.toml#L37) |
-| in `harper-core`, only the `weirpack` module calls `zip`, and only `harper-cli` and `harper-wasm` call that module | [`harper-core/src/weirpack/mod.rs`](https://github.com/Automattic/harper/blob/v2.3.0/harper-core/src/weirpack/mod.rs#L126) |
-| `harper-core` 3.0.0 requires `zip` 8.6.0 | [`harper-core/Cargo.toml` at 3.0.0](https://github.com/Automattic/harper/blob/v3.0.0/harper-core/Cargo.toml) |
+| `zip` 8.6.0 comes from `harper-core`, and no feature of `harper-core` drops it | [`harper-core/Cargo.toml`](https://github.com/Automattic/harper/blob/v3.2.0/harper-core/Cargo.toml#L38) |
+| in `harper-core`, only the `weirpack` module calls `zip`, and only `harper-cli` and `harper-wasm` call that module | [`harper-core/src/weirpack/mod.rs`](https://github.com/Automattic/harper/blob/v3.2.0/harper-core/src/weirpack/mod.rs#L126) |
 | an alert dismissed by hand is reopened by hand | [GitHub's page on Dependabot alerts](https://docs.github.com/en/code-security/how-tos/manage-security-alerts/manage-dependabot-alerts/view-dependabot-alerts) |
 
 ## Considered Options
 
-- **Wait for a harper tag that requires `zip` 9.** No tag requires it, so the critical alert and the high ones stay open with no end.
+- **Wait for a harper version that requires `zip` 9.** No version requires it, so the critical alert and the high ones stay open with no end.
 
 ## Decision Outcome
 
@@ -37,7 +36,7 @@ A change in the reach runs this check:
 
 1. For each `zip` in the lockfile, run the `cargo tree` command of Confirmation.
 2. When the command prints a crate for `zip` 7.2.0, reopen the alerts.
-3. Search the harper source at the tag of `check-prose.rs` for each caller of `weirpack`.
+3. Search the harper source for each caller of `weirpack`, at the `harper-core` version in the lockfile.
 4. When a crate that check-prose builds calls `weirpack`, reopen the alerts.
 5. When the lockfile holds no `zip` below 9.0.5, the same change deletes this record.
 
