@@ -6,6 +6,7 @@
 """
 
 import importlib
+import json
 import importlib.util
 import os
 import shutil
@@ -16,8 +17,8 @@ import tempfile
 import traceback
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FORMS = ("stacked", "klass", "below", "call", "record", "module", "klasscall")
-EXAMPLES = ("ex1_slug", "ex2_money", "ex3_sign_up", "ex4_cart", "ex5_refused", "ex6_typo", "ex7_inputs")
+FORMS = ("stacked", "klass", "below", "call", "record", "module", "klasscall", "record_strict")
+EXAMPLES = ("ex1_slug", "ex2_money", "ex3_sign_up", "ex4_cart", "ex5_refused", "ex6_typo", "ex7_inputs", "ex8_refused_typed")
 
 
 def files_of(form: str, ex: str) -> list[str]:
@@ -25,7 +26,7 @@ def files_of(form: str, ex: str) -> list[str]:
     if os.path.isdir(path):  # the module form: one file for each experiment, in the order of ORDER
         order = open(os.path.join(path, "ORDER"), encoding="utf-8").read().split()
         return [os.path.join(path, n + ".py") for n in order]
-    return [path + ".py"]
+    return [path + ".py"] if os.path.exists(path + ".py") else []
 
 
 def load(form: str, path: str) -> object:
@@ -47,6 +48,8 @@ def run(form: str) -> None:
     print(f"══ form: {form}{'  (--literals)' if engine.OPTS['literals'] else ''} " + "═" * 40)
     for ex in EXAMPLES:
         paths = files_of(form, ex)
+        if not paths:
+            continue
         folder = os.path.dirname(paths[0])
         local = [os.path.basename(p)[:-3] for p in paths]
         for n in local:
@@ -82,7 +85,15 @@ def ty(paths: list[str], extra: list[str]) -> list[str]:
     for x in [HERE, *extra]:
         cmd += ["--extra-search-path", x]
     out = subprocess.run([*cmd, *paths], cwd=HERE, capture_output=True, text=True)
-    return [ln for ln in out.stdout.splitlines() if ".py:" in ln]
+    hits = [ln for ln in out.stdout.splitlines() if ".py:" in ln]
+    if shutil.which("pyright"):  # run under `nix-shell -p pyright` to add it
+        cfg = os.path.join(os.environ["PROTO967_TMP"], "pyrightconfig.json")
+        with open(cfg, "w", encoding="utf-8") as f:
+            json.dump({"extraPaths": [HERE, *extra]}, f)
+        out = subprocess.run(["pyright", "-p", cfg, *paths], cwd=HERE, capture_output=True, text=True)
+        hits += ["pyright " + ln.strip().replace(os.path.dirname(ln.strip().split(":")[0]) + "/", "")
+                 for ln in out.stdout.splitlines() if ".py:" in ln and " - " in ln]
+    return hits
 
 
 def measure() -> None:
@@ -99,20 +110,20 @@ def measure() -> None:
                 lines += [ln for ln in src.split("\n") if ln.strip() and not ln.startswith(("from ", "import "))]
         print(f"{form:<9}{nfiles:>6}{len(lines):>7}{sum(map(len, lines)):>8}{max(map(len, lines)):>8}{sum(len(ln) > 100 for ln in lines):>6}")
     for ex, what in (("ex6_typo", "a typo in the name of a step"), ("ex7_inputs", "a misspelled input, and an input of the wrong type")):
-        print(f"\n── the type checker (ty) on {ex}: {what}")
+        print(f"\n── the type checkers on {ex}: {what}")
         for form in FORMS:
             paths = files_of(form, ex)
             hits = ty(paths, [os.path.dirname(paths[0])])
-            short = [h.split(os.path.basename(h.split(":")[0]) + ":", 1)[-1] for h in hits]
-            short = [f"{os.path.basename(h.split(':')[0])}:{s}" for h, s in zip(hits, short)]
+            short = [h if h.startswith("pyright ") else "ty      " + os.path.basename(h) for h in hits]
             print(f"   {form:<8} " + ("\n            ".join(short) if short else "no diagnostic"))
-    print("\n── the type checker (ty) on ex1-ex5: diagnostics")
+    print("\n── the type checkers on ex1-ex5 and ex8: diagnostics (ex5 and ex8 hold refusals on purpose)")
     for form in FORMS:
-        paths = [p for ex in EXAMPLES[:5] for p in files_of(form, ex)]
+        paths = [p for ex in (*EXAMPLES[:5], EXAMPLES[7]) for p in files_of(form, ex)]
         hits = []
-        for ex in EXAMPLES[:5]:
+        for ex in (*EXAMPLES[:5], EXAMPLES[7]):
             ps = files_of(form, ex)
-            hits += ty(ps, [os.path.dirname(ps[0])])
+            if ps:
+                hits += ty(ps, [os.path.dirname(ps[0])])
         print(f"   {form:<8} {len(hits)} diagnostics in {len(paths)} files")
         for h in hits:
             print(f"            {h.split(form + '/')[-1]}")
@@ -126,6 +137,7 @@ def main() -> None:
         db = os.path.join(tmp, "users.sqlite")
         sqlite3.connect(db).execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT UNIQUE)").connection.commit()
         os.environ["PROTO967_DB"] = db
+        os.environ["PROTO967_TMP"] = tmp
         import engine
 
         engine.OPTS["literals"] = "--literals" in args

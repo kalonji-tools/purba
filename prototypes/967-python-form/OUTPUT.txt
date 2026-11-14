@@ -713,6 +713,118 @@
        inputs   text=42
        assays blocked: the reaction failed
 
+══ form: record_strict ════════════════════════════════════════
+
+── record_strict/ex1_slug.py
+ SlugOf  (record_strict/ex1_slug.py:9)
+   ✓ plain › product  'hello-world'
+   ✓ spaces › product  'many-spaces'
+   ✗ accents › product
+       expected 'creme-brulee'
+       reading  'crème-brûlée'
+       inputs   text='Crème Brûlée'
+   ✓ underscore › product  'a_b'
+   ✓ empty › raises   ValueError: empty
+
+── record_strict/ex2_money.py
+ AmountOf  (record_strict/ex2_money.py:9)
+   ✓ euros › cents    1250
+   ✓ euros › unit     'EUR'
+   ✓ legacy › warns    DeprecationWarning: no currency: USD is assumed
+   ✓ legacy › cents    1250
+   ✓ legacy › unit     'USD'
+   ✓ negative › raises   ValueError: below zero
+   ✗ rounding › warns
+       an unexpected UserWarning: rounded to a cent
+       inputs   text='0.005', currency='EUR'
+       assays blocked: the reaction failed
+
+── record_strict/ex3_sign_up.py
+ SignedUp  (record_strict/ex3_sign_up.py:11)
+   ✓ first › user_id  1
+   ✓ first › stored   ['ann']
+   ✓ first › mailed   [('ann', 'welcome')]
+   ✓ fresh › user_id  1
+   ✓ fresh › stored   ['bob']
+   ✓ fresh › mailed   [('bob', 'welcome')]
+   ↻ taken  replayed SignedUp › first
+   ✓ taken › raises   ValueError: name 'ann' is taken
+   ✓ taken › stored   ['ann']
+   ✗ taken › mailed
+       expected []
+       reading  [('ann', 'welcome')]
+       inputs   name='ann'
+
+── record_strict/ex4_cart.py
+ Opened  (record_strict/ex4_cart.py:9)
+   ✓ ann › owner_seen 'ann'
+   ✓ ann › count    0
+ Added  (record_strict/ex4_cart.py:28)
+   ↻ one_book  replayed Opened › ann
+   ✓ one_book › items    1
+   ✓ one_book › total    1200
+   ↻ two_books  replayed Opened › ann
+   ✓ two_books › items    2
+   ✓ two_books › total    2400
+   ↻ pens  replayed Opened › ann
+   ✓ pens › items    3
+   ✗ pens › total
+       expected 300
+       reading  450
+       inputs   sku='PEN-7', qty=3
+   ↻ unknown  replayed Opened › ann
+   ✓ unknown › raises   KeyError: 'NOPE'
+   ✓ unknown › items    0
+   ✓ unknown › total    0
+ CheckedOut  (record_strict/ex4_cart.py:52)
+   ↻ two_books_paid  replayed Opened › ann
+   ↻ two_books_paid  replayed Added › two_books
+   ✓ two_books_paid › paid     2400
+   ✓ two_books_paid › lines    1
+   ⊘ pens_paid  blocked: its step Added › pens failed
+
+── record_strict/ex5_refused.py
+ Nested  (record_strict/ex5_refused.py:9)
+   ✗ REFUSED  the act nests the call `text.strip()`: one act per reaction
+ Literal  (record_strict/ex5_refused.py:22)
+   ✗ REFUSED  the act passes the literal `'_'`: make it an input, or a default of the act
+ TypoKey  (record_strict/ex5_refused.py:35)
+   ✗ REFUSED  case `a3` (line 45) expects `prodcut`, which is no assay; did you mean `product`?
+ ProductOnRaise  (record_strict/ex5_refused.py:48)
+   ✗ REFUSED  case `a4` (line 58) expects a raise, so `product` has nothing to read
+ ReadsLiteral  (record_strict/ex5_refused.py:61)
+   ✗ REFUSED  case `a5` (line 74): assay `echoed` reads `text`, a str that the act cannot change
+ MissingValue  (record_strict/ex5_refused.py:77)
+   ✗ REFUSED  case `a6` (line 94) gives no expected value for the assay `unit`
+ ReadingNotLiteral  (record_strict/ex5_refused.py:97)
+   ✗ REFUSED  assay `product` hands a Money: an expected value is a literal, so hand a str, int, … or a collection of them
+
+── record_strict/ex6_typo.py
+   ✗ record_strict/ex6_typo.py CANNOT LOAD, so none of its experiments runs
+       NameError: name 'an' is not defined  (line 40)
+
+── record_strict/ex7_inputs.py
+ SlugOf  (record_strict/ex7_inputs.py:9)
+   ✗ REFUSED  case `typo` (line 23) gives `txt`, which is no input; did you mean `text`?
+   ✗ REFUSED  case `typo` (line 23) gives no value for the input `text`
+ SlugAgain  (record_strict/ex7_inputs.py:27)
+   ✗ REFUSED  case `fed_wrong` (line 38) gives `text` the assay `size` of a case: a chain takes the step's `.product` or one of its fields
+
+── record_strict/ex8_refused_typed.py
+ NoExpect  (record_strict/ex8_refused_typed.py:9)
+   ✗ REFUSED  the experiment declares no `expect`: one typed keyword for each assay
+ Clash  (record_strict/ex8_refused_typed.py:22)
+   ✗ REFUSED  `currency` is a field and an assay: name the assay for its question
+ OutOfStep  (record_strict/ex8_refused_typed.py:39)
+   ✗ REFUSED  `expect` types `cents` as str, and the assay hands int
+   ✗ REFUSED  `expect` names `unti`, which is no assay
+   ✗ REFUSED  `expect` has no keyword for the assay `unit`
+ Defaults  (record_strict/ex8_refused_typed.py:59)
+   ✗ REFUSED  `expect` gives `seen` a default: it reads an input, so every case gives it a value
+   ✗ REFUSED  `expect` must default `product` to UNREAD: it reads the product, and a case that raises has none
+ Twice  (record_strict/ex8_refused_typed.py:76)
+   ✗ REFUSED  the case name `same` is bound 2 times in this file, at lines 86 and 87: one case is lost
+
 ══ measure ══════════════════════════════════════════════════
 form      files  lines   chars  widest  >100   (ex1-ex4; blank lines, imports and docstrings left out)
 stacked       4     67    3402     117    11
@@ -722,39 +834,222 @@ call          4     70    3021     125     4
 record        4     71    3168     120     3
 module        6     53    2670     117     3
 klasscall     4     59    3184     129     5
+record_strict     4     83    3663     120     4
 
-── the type checker (ty) on ex6_typo: a typo in the name of a step
+── the type checkers on ex6_typo: a typo in the name of a step
    stacked  no diagnostic
-   klass    ex6_typo.py:24:27: error[unresolved-attribute] Class `Opened` has no attribute `an`
-   below    ex6_typo.py:30:30: error[unresolved-reference] Name `an` used when not defined
-   call     ex6_typo.py:30:24: error[unresolved-reference] Name `an` used when not defined
-   record   ex6_typo.py:32:24: error[unresolved-reference] Name `an` used when not defined
-   module   added.py:5:20: error[unresolved-import] Module `opened` has no member `an`
-   klasscall ex6_typo.py:24:32: error[unresolved-attribute] Class `Opened` has no attribute `an`
+   klass    ty      ex6_typo.py:24:27: error[unresolved-attribute] Class `Opened` has no attribute `an`
+            pyright ex6_typo.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:8:20 - error: Type of parameter "owner" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:11:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:11:24 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:18:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:18:19 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:21:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:21:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:24:34 - error: Cannot access attribute "an" for class "type[Opened]"
+            pyright ex6_typo.py:28:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:28:20 - error: Type of parameter "owner" must be a supertype of its class "Unrelated" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:31:23 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:31:32 - error: Type of parameter "product" must be a supertype of its class "Unrelated" (reportGeneralTypeIssues)
+   below    ty      ex6_typo.py:30:30: error[unresolved-reference] Name `an` used when not defined
+            pyright ex6_typo.py:30:30 - error: "an" is not defined (reportUndefinedVariable)
+   call     ty      ex6_typo.py:30:24: error[unresolved-reference] Name `an` used when not defined
+            pyright ex6_typo.py:30:24 - error: "an" is not defined (reportUndefinedVariable)
+   record   ty      ex6_typo.py:32:24: error[unresolved-reference] Name `an` used when not defined
+            pyright ex6_typo.py:32:24 - error: "an" is not defined (reportUndefinedVariable)
+   module   ty      added.py:5:20: error[unresolved-import] Module `opened` has no member `an`
+            pyright added.py:5:20 - error: "an" is unknown import symbol (reportAttributeAccessIssue)
+   klasscall ty      ex6_typo.py:24:32: error[unresolved-attribute] Class `Opened` has no attribute `an`
+            pyright ex6_typo.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:8:20 - error: Type of parameter "owner" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:11:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:11:24 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:18:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:18:19 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:21:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:21:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:24:39 - error: Cannot access attribute "an" for class "type[Opened]"
+            pyright ex6_typo.py:28:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:28:20 - error: Type of parameter "owner" must be a supertype of its class "Unrelated" (reportGeneralTypeIssues)
+            pyright ex6_typo.py:31:23 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex6_typo.py:31:32 - error: Type of parameter "product" must be a supertype of its class "Unrelated" (reportGeneralTypeIssues)
+   record_strict ty      ex6_typo.py:40:18: error[unresolved-reference] Name `an` used when not defined
+            pyright ex6_typo.py:40:18 - error: "an" is not defined (reportUndefinedVariable)
 
-── the type checker (ty) on ex7_inputs: a misspelled input, and an input of the wrong type
+── the type checkers on ex7_inputs: a misspelled input, and an input of the wrong type
    stacked  no diagnostic
-   klass    no diagnostic
+   klass    pyright ex7_inputs.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex7_inputs.py:8:19 - error: Type of parameter "text" must be a supertype of its class "SlugOf" (reportGeneralTypeIssues)
+            pyright ex7_inputs.py:17:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex7_inputs.py:17:19 - error: Type of parameter "text" must be a supertype of its class "SlugAgain" (reportGeneralTypeIssues)
    below    no diagnostic
-   call     ex7_inputs.py:13:9: error[missing-argument] No argument provided for required parameter `text` of bound method `Exp.__call__`
-            ex7_inputs.py:13:17: error[unknown-argument] Argument `txt` does not match any known parameter of bound method `Exp.__call__`
-            ex7_inputs.py:14:17: error[invalid-argument-type] Argument to bound method `Exp.__call__` is incorrect: Expected `str`, found `Literal[42]`
-            ex7_inputs.py:22:26: error[invalid-argument-type] Argument to bound method `Exp.__call__` is incorrect: Expected `str`, found `Literal[42]`
-   record   ex7_inputs.py:15:9: error[missing-argument] No argument provided for required parameter `text`
-            ex7_inputs.py:15:16: error[unknown-argument] Argument `txt` does not match any known parameter
-            ex7_inputs.py:16:16: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
-            ex7_inputs.py:26:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+   call     ty      ex7_inputs.py:13:9: error[missing-argument] No argument provided for required parameter `text` of bound method `Exp.__call__`
+            ty      ex7_inputs.py:13:17: error[unknown-argument] Argument `txt` does not match any known parameter of bound method `Exp.__call__`
+            ty      ex7_inputs.py:14:17: error[invalid-argument-type] Argument to bound method `Exp.__call__` is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:22:26: error[invalid-argument-type] Argument to bound method `Exp.__call__` is incorrect: Expected `str`, found `Literal[42]`
+            pyright ex7_inputs.py:13:9 - error: Argument missing for parameter "text" (reportCallIssue)
+            pyright ex7_inputs.py:13:17 - error: No parameter named "txt" (reportCallIssue)
+            pyright ex7_inputs.py:14:22 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__call__"
+            pyright ex7_inputs.py:22:31 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__call__"
+   record   ty      ex7_inputs.py:15:9: error[missing-argument] No argument provided for required parameter `text`
+            ty      ex7_inputs.py:15:16: error[unknown-argument] Argument `txt` does not match any known parameter
+            ty      ex7_inputs.py:16:16: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:26:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            pyright ex7_inputs.py:15:9 - error: Argument missing for parameter "text" (reportCallIssue)
+            pyright ex7_inputs.py:15:16 - error: No parameter named "txt" (reportCallIssue)
+            pyright ex7_inputs.py:16:21 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
+            pyright ex7_inputs.py:26:30 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
    module   no diagnostic
-   klasscall ex7_inputs.py:12:13: error[missing-argument] No argument provided for required parameter `text` of function `case`
-            ex7_inputs.py:12:23: error[unknown-argument] Argument `txt` does not match any known parameter of function `case`
-            ex7_inputs.py:13:23: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `str`, found `Literal[42]`
-            ex7_inputs.py:20:23: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `str`, found `Literal[42]`
+   klasscall ty      ex7_inputs.py:12:13: error[missing-argument] No argument provided for required parameter `text` of function `case`
+            ty      ex7_inputs.py:12:23: error[unknown-argument] Argument `txt` does not match any known parameter of function `case`
+            ty      ex7_inputs.py:13:23: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:20:23: error[invalid-argument-type] Argument to function `case` is incorrect: Expected `str`, found `Literal[42]`
+            pyright ex7_inputs.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex7_inputs.py:8:19 - error: Type of parameter "text" must be a supertype of its class "SlugOf" (reportGeneralTypeIssues)
+            pyright ex7_inputs.py:12:13 - error: Argument missing for parameter "text" (reportCallIssue)
+            pyright ex7_inputs.py:12:23 - error: No parameter named "txt" (reportCallIssue)
+            pyright ex7_inputs.py:13:28 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str"
+            pyright ex7_inputs.py:17:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex7_inputs.py:17:19 - error: Type of parameter "text" must be a supertype of its class "SlugAgain" (reportGeneralTypeIssues)
+            pyright ex7_inputs.py:20:28 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str"
+   record_strict ty      ex7_inputs.py:23:9: error[missing-argument] No argument provided for required parameter `text`
+            ty      ex7_inputs.py:23:16: error[unknown-argument] Argument `txt` does not match any known parameter
+            ty      ex7_inputs.py:24:16: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:37:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:38:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `bound method SlugOf.size() -> int`
+            pyright ex7_inputs.py:23:9 - error: Argument missing for parameter "text" (reportCallIssue)
+            pyright ex7_inputs.py:23:16 - error: No parameter named "txt" (reportCallIssue)
+            pyright ex7_inputs.py:24:21 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
+            pyright ex7_inputs.py:37:30 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
+            pyright ex7_inputs.py:38:30 - error: Argument of type "() -> int" cannot be assigned to parameter "text" of type "str" in function "__init__"
 
-── the type checker (ty) on ex1-ex5: diagnostics
+── the type checkers on ex1-ex5 and ex8: diagnostics (ex5 and ex8 hold refusals on purpose)
    stacked  0 diagnostics in 5 files
-   klass    0 diagnostics in 5 files
+   klass    54 diagnostics in 5 files
+            pyright ex1_slug.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex1_slug.py:8:19 - error: Type of parameter "text" must be a supertype of its class "SlugOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:8:19 - error: Type of parameter "text" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:11:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:11:24 - error: Type of parameter "product" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:14:14 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:14:23 - error: Type of parameter "product" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:14:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:14:19 - error: Type of parameter "name" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:17:17 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:17:26 - error: Type of parameter "product" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:20:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:20:20 - error: Type of parameter "db" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:23:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:23:24 - error: Type of parameter "mailer" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:8:20 - error: Type of parameter "owner" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:11:20 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:11:29 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:14:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:14:24 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:21:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:21:19 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:24:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:24:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:27:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:27:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:37:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:37:19 - error: Type of parameter "cart" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:40:14 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:40:23 - error: Type of parameter "product" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:43:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:43:24 - error: Type of parameter "product" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:8:19 - error: Type of parameter "text" must be a supertype of its class "Nested" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:15:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:15:19 - error: Type of parameter "text" must be a supertype of its class "Literal" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:22:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:22:19 - error: Type of parameter "text" must be a supertype of its class "TypoKey" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:29:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:29:19 - error: Type of parameter "text" must be a supertype of its class "ProductOnRaise" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:36:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:36:19 - error: Type of parameter "text" must be a supertype of its class "ReadsLiteral" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:39:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:39:22 - error: Type of parameter "text" must be a supertype of its class "ReadsLiteral" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:46:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:46:19 - error: Type of parameter "text" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:49:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:49:24 - error: Type of parameter "product" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:52:14 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:52:23 - error: Type of parameter "product" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:59:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:59:19 - error: Type of parameter "text" must be a supertype of its class "ReadingNotLiteral" (reportGeneralTypeIssues)
    below    0 diagnostics in 5 files
    call     0 diagnostics in 5 files
    record   0 diagnostics in 5 files
    module   0 diagnostics in 9 files
-   klasscall 0 diagnostics in 5 files
+   klasscall 54 diagnostics in 5 files
+            pyright ex1_slug.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex1_slug.py:8:19 - error: Type of parameter "text" must be a supertype of its class "SlugOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:8:19 - error: Type of parameter "text" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:11:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:11:24 - error: Type of parameter "product" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex2_money.py:14:18 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex2_money.py:14:27 - error: Type of parameter "product" must be a supertype of its class "AmountOf" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:14:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:14:19 - error: Type of parameter "name" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:17:17 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:17:26 - error: Type of parameter "product" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:20:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:20:20 - error: Type of parameter "db" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex3_sign_up.py:23:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex3_sign_up.py:23:24 - error: Type of parameter "mailer" must be a supertype of its class "SignedUp" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:8:20 - error: Type of parameter "owner" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:11:20 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:11:29 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:14:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:14:24 - error: Type of parameter "product" must be a supertype of its class "Opened" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:21:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:21:19 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:24:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:24:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:27:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:27:21 - error: Type of parameter "cart" must be a supertype of its class "Added" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:37:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:37:19 - error: Type of parameter "cart" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:40:14 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:40:23 - error: Type of parameter "product" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex4_cart.py:43:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex4_cart.py:43:24 - error: Type of parameter "product" must be a supertype of its class "CheckedOut" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:8:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:8:19 - error: Type of parameter "text" must be a supertype of its class "Nested" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:15:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:15:19 - error: Type of parameter "text" must be a supertype of its class "Literal" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:22:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:22:19 - error: Type of parameter "text" must be a supertype of its class "TypoKey" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:29:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:29:19 - error: Type of parameter "text" must be a supertype of its class "ProductOnRaise" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:36:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:36:19 - error: Type of parameter "text" must be a supertype of its class "ReadsLiteral" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:39:16 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:39:22 - error: Type of parameter "text" must be a supertype of its class "ReadsLiteral" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:46:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:46:19 - error: Type of parameter "text" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:49:15 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:49:24 - error: Type of parameter "product" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:52:14 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:52:23 - error: Type of parameter "product" must be a supertype of its class "MissingValue" (reportGeneralTypeIssues)
+            pyright ex5_refused.py:59:13 - warning: Instance methods should take a "self" parameter (reportSelfClsParameterName)
+            pyright ex5_refused.py:59:19 - error: Type of parameter "text" must be a supertype of its class "ReadingNotLiteral" (reportGeneralTypeIssues)
+   record_strict 12 diagnostics in 6 files
+            ex5_refused.py:45:32: error[unknown-argument] Argument `prodcut` does not match any known parameter of bound method `TypoKey.expect`
+            ex5_refused.py:108:61: error[invalid-argument-type] Argument to bound method `ReadingNotLiteral.expect` is incorrect: Expected `Money`, found `Literal["12.50 EUR"]`
+            pyright ex5_refused.py:45:32 - error: No parameter named "prodcut" (reportCallIssue)
+            pyright ex5_refused.py:108:69 - error: Argument of type "Literal['12.50 EUR']" cannot be assigned to parameter "product" of type "Money" in function "expect"
+            ex8_refused_typed.py:19:6: error[unresolved-attribute] Object of type `NoExpect` has no attribute `expect`
+            ex8_refused_typed.py:27:40: error[invalid-argument-type] Argument to function `parse_amount` is incorrect: Expected `str | None`, found `bound method Self@act.currency() -> str`
+            ex8_refused_typed.py:36:22: error[unknown-argument] Argument `currency` does not match any known parameter
+            ex8_refused_typed.py:56:62: error[unknown-argument] Argument `unit` does not match any known parameter of bound method `OutOfStep.expect`
+            pyright ex8_refused_typed.py:19:26 - error: Cannot access attribute "expect" for class "NoExpect"
+            pyright ex8_refused_typed.py:24:5 - error: Declaration "currency" is obscured by a declaration of the same name (reportRedeclaration)
+            pyright ex8_refused_typed.py:27:40 - error: Argument of type "(self: Self@Clash) -> str" cannot be assigned to parameter "currency" of type "str | None" in function "parse_amount"
+            pyright ex8_refused_typed.py:56:62 - error: No parameter named "unit" (reportCallIssue)
