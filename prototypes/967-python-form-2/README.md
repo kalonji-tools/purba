@@ -3,8 +3,9 @@
 Throwaway. A new form, designed from what prototype 1 taught, and measured on the same loguru test.
 
 - [`STRATEGY.md`](STRATEGY.md): the design, and the learning of prototype 1 that each rule answers.
+- [`LEARNINGS.md`](LEARNINGS.md): what held, what failed, and what the next design must answer.
 - [`FORM.md`](FORM.md): the rules sheet, as the porter and the raters got it.
-- [`benchmark/`](benchmark/README.md): the loguru port, and three blind ratings against pytest, oxitest and prototype 1.
+- [`benchmark/`](benchmark/README.md): the loguru port, three blind ratings beside pytest and oxitest, and the round of prototype 1 for comparison.
 - `experiment.py`: what a tester imports. `run.py`: the runner.
 - `examples/`: the form on small examples. Some cases fail or are refused on purpose; `OUTPUT.txt` and `CHECKERS.txt` hold one run of each.
 
