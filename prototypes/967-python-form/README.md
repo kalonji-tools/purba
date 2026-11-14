@@ -9,6 +9,7 @@ Run it from this directory with any Python 3.12 on Linux:
 ```text
 python run.py record_strict       # or stacked, klass, below, call, record, module, klasscall
 python run.py stacked --literals  # the act may pass a literal
+python run.py stacked --shared    # a replayed step shares the case's fixtures, as before #967 Q8
 python run.py measure             # line widths, and ty on each form
 nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 ```
@@ -61,6 +62,7 @@ Weighed and not built:
 - **A literal that the act needs is a field with a default.** Every case shares it, any case may vary it, and the screen prints it with the inputs. A nested call is refused: each call is a step of a chain. A function of the test file as the act is refused, unless a reason is given; the form of the reason is open.
 - **Cases are written one by one.** A loop or a list that builds cases is refused, and so is a subclass of an experiment.
 - **The fixture of a stock declares each offer as a base:** `Samples`, `Checkpoints`, `Fingerprints`. A type checker sees a method of the wrong type. purba refuses a stock that leaves an offer's method unwritten, such as a misspelled one, a stock that offers neither a sample nor a checkpoint, and two assays that read a stock with no checkpoint. The bases take their parameters by position, so a stock names them freely.
+- **A replayed step of a chain builds its own inputs.** A case gets only what its chain names, so `taken` reads no mail that the replay of `first` sent. A replay that agrees prints nothing; one that differs blocks the case.
 - **An assay's reading is compared in the assay's process, by type first, then by value.** Only a verdict crosses back, or the two texts of a failure. `True` is not `1`, `1.0` is not `1`, and `nan` equals `nan`.
 
 On `ex1`-`ex4`, ty and pyright report nothing. On `ex5` and `ex8`, each line they report is a line written to be refused.

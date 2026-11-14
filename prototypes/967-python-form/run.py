@@ -2,6 +2,7 @@
 
     python run.py stacked            # or klass, below, call, record, module
     python run.py stacked --literals # the act may pass a literal
+    python run.py stacked --shared   # a replayed step shares the case's fixtures (the earlier behaviour)
     python run.py measure            # line widths, and ty on each form
 """
 
@@ -141,6 +142,7 @@ def main() -> None:
         import engine
 
         engine.OPTS["literals"] = "--literals" in args
+        engine.OPTS["shared"] = "--shared" in args
         for a in args:
             if a == "measure":
                 measure()

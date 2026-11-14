@@ -32,38 +32,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed signed_up › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── stacked/ex4_cart.py
  opened  (stacked/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  added  (stacked/ex4_cart.py:22)
-   ↻ one_book  replayed opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  checked_out  (stacked/ex4_cart.py:41)
-   ↻ two_books  replayed opened › ann
-   ↻ two_books  replayed added › two_books
    ✓ two_books › paid     2400
    ✓ two_books › lines    1
    ⊘ pens  blocked: its step added › pens failed
@@ -138,38 +128,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed SignedUp › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── klass/ex4_cart.py
  Opened  (klass/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  Added  (klass/ex4_cart.py:20)
-   ↻ one_book  replayed Opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed Opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed Opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed Opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  CheckedOut  (klass/ex4_cart.py:36)
-   ↻ two_books  replayed Opened › ann
-   ↻ two_books  replayed Added › two_books
    ✓ two_books › paid     2400
    ✓ two_books › lines    1
    ⊘ pens  blocked: its step Added › pens failed
@@ -240,38 +220,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed signed_up › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── below/ex4_cart.py
  opened  (below/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  added  (below/ex4_cart.py:25)
-   ↻ one_book  replayed opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  checked_out  (below/ex4_cart.py:46)
-   ↻ two_books  replayed opened › ann
-   ↻ two_books  replayed added › two_books
    ✓ two_books › paid     2400
    ✓ two_books › lines    1
    ⊘ pens  blocked: its step added › pens failed
@@ -342,38 +312,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed signed_up › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── call/ex4_cart.py
  opened  (call/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  added  (call/ex4_cart.py:25)
-   ↻ one_book  replayed opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  checked_out  (call/ex4_cart.py:46)
-   ↻ two_books_paid  replayed opened › ann
-   ↻ two_books_paid  replayed added › two_books
    ✓ two_books_paid › paid     2400
    ✓ two_books_paid › lines    1
    ⊘ pens_paid  blocked: its step added › pens failed
@@ -447,38 +407,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed SignedUp › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── record/ex4_cart.py
  Opened  (record/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  Added  (record/ex4_cart.py:23)
-   ↻ one_book  replayed Opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed Opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed Opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed Opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  CheckedOut  (record/ex4_cart.py:44)
-   ↻ two_books_paid  replayed Opened › ann
-   ↻ two_books_paid  replayed Added › two_books
    ✓ two_books_paid › paid     2400
    ✓ two_books_paid › lines    1
    ⊘ pens_paid  blocked: its step Added › pens failed
@@ -549,38 +499,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed signed_up › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── module/ex4_cart/
  opened  (module/ex4_cart/opened.py:1)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  added  (module/ex4_cart/added.py:1)
-   ↻ one_book  replayed opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  checked_out  (module/ex4_cart/checked_out.py:1)
-   ↻ two_books_paid  replayed opened › ann
-   ↻ two_books_paid  replayed added › two_books
    ✓ two_books_paid › paid     2400
    ✓ two_books_paid › lines    1
    ⊘ pens_paid  blocked: its step added › pens failed
@@ -645,38 +585,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed SignedUp › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── klasscall/ex4_cart.py
  Opened  (klasscall/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  Added  (klasscall/ex4_cart.py:20)
-   ↻ one_book  replayed Opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed Opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed Opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed Opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  CheckedOut  (klasscall/ex4_cart.py:36)
-   ↻ two_books  replayed Opened › ann
-   ↻ two_books  replayed Added › two_books
    ✓ two_books › paid     2400
    ✓ two_books › lines    1
    ⊘ pens  blocked: its step Added › pens failed
@@ -747,38 +677,28 @@
    ✓ fresh › user_id  1
    ✓ fresh › stored   ['bob']
    ✓ fresh › mailed   [('bob', 'welcome')]
-   ↻ taken  replayed SignedUp › first
    ✓ taken › raises   ValueError: name 'ann' is taken
    ✓ taken › stored   ['ann']
-   ✗ taken › mailed
-       expected []
-       reading  [('ann', 'welcome')]
-       inputs   name='ann'
+   ✓ taken › mailed   []
 
 ── record_strict/ex4_cart.py
  Opened  (record_strict/ex4_cart.py:9)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
  Added  (record_strict/ex4_cart.py:28)
-   ↻ one_book  replayed Opened › ann
    ✓ one_book › items    1
    ✓ one_book › total    1200
-   ↻ two_books  replayed Opened › ann
    ✓ two_books › items    2
    ✓ two_books › total    2400
-   ↻ pens  replayed Opened › ann
    ✓ pens › items    3
    ✗ pens › total
        expected 300
        reading  450
        inputs   sku='PEN-7', qty=3
-   ↻ unknown  replayed Opened › ann
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
  CheckedOut  (record_strict/ex4_cart.py:52)
-   ↻ two_books_paid  replayed Opened › ann
-   ↻ two_books_paid  replayed Added › two_books
    ✓ two_books_paid › paid     2400
    ✓ two_books_paid › lines    1
    ⊘ pens_paid  blocked: its step Added › pens failed

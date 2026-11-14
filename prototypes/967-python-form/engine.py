@@ -455,7 +455,12 @@ class CaseRun:
         step = resolve_step(a)
         assert isinstance(step, Case) and step.exp is not None, "checked at parse"
         e = step.exp
-        args = self.inputs(e, step)
+        if not OPTS.get("shared"):  # a replayed step builds its own inputs; the case gets only what its chain names (#967 Q8)
+            sub = CaseRun()
+            sub.stocks, sub.replayed = self.stocks, self.replayed
+            args = sub.inputs(e, step)
+        else:  # --shared, the earlier behaviour: the case and its replayed steps share one build of each use(...)
+            args = self.inputs(e, step)
         product, raised, _w = react(e, args)
         label = f"{e.name} › {step.name}"
         got = _raise_text(raised)
@@ -590,8 +595,7 @@ def report(e: Experiment, failed_steps: set[tuple[str, str]]) -> list[str]:
             lines += [f"       {x}" for x in res["blocked"].splitlines()]
             failed_steps.add((e.name, c.name))
             continue
-        for label in res["replayed"]:
-            lines.append(f"   ↻ {c.name}  replayed {label}")
+        # a replay that agrees prints nothing; one that differs blocks the case (#967 Q7)
         bad = False
         for k, o in res["rows"]:
             if o["ok"] is None:
