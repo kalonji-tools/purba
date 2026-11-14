@@ -28,6 +28,7 @@
 .config/gates                  -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 .config/readers                -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 .config/cliff.toml             -build   scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
+.config/crates.toml            -build  -scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
 /Cargo.toml                     build  -scripts   lint-rust   lint-scripts  -lint-docs   lint-macos
 /Cargo.lock                     build  -scripts   lint-rust  -lint-scripts  -lint-docs   lint-macos
 /.cargo/config.toml             build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos
@@ -46,6 +47,7 @@ tests/**                        build  -scripts  -lint-rust   lint-scripts  -lin
 /CONTRIBUTING.md               -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 /LANDSCAPE.md                  -build  -scripts   lint-rust  -lint-scripts   lint-docs  -lint-macos
 /.cargo/deny.toml              -build  -scripts   lint-rust  -lint-scripts  -lint-docs  -lint-macos
+/.cargo/check-prose.deny.toml  -build  -scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
 /prek.toml                     -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
 /.editorconfig                 -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
 /.shellcheckrc                 -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos

@@ -1,0 +1,48 @@
+# The advisory and source checks of the crates of check-prose.
+#
+#   the task:       mise run lint:crates
+#   the decisions:  docs/decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md
+#                   docs/decisions/the-zip-alerts-of-check-prose-are-dismissed-as-unused.md
+
+# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+[advisories]
+unused-ignored-advisory = "deny"
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0367"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0368"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0369"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0429"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2025-0141"
+reason = """\
+bincode is unmaintained, and burn needs it under harper-pos-utils 3.2.0, the newest."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2024-0436"
+reason = """\
+paste is unmaintained, and burn needs it under harper-pos-utils 3.2.0, the newest."""
+
+# https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

@@ -26,6 +26,10 @@ The kind of work a [record](#record) decides something in: product design, one [
 
 Anything purba writes for a [reader](#reader), and never a file that a workflow uploads from a job. It is rewritten in place until its direction is agreed, and frozen after.
 
+### Blast area
+
+How far a crate reaches into purba: the [parts](#part) that name it, and the crates it brings with it.
+
 ### Blocked test
 
 A selected test that an error kept from running, so it has no [outcome](#outcome).
@@ -160,6 +164,10 @@ Work offered from a fork. It is applied to a branch in this repository rather th
 
 The [actor](#actor) that builds purba's distributions and ships them into environments it does not control.
 
+### Pain
+
+What a crate costs purba: its [blast area](#blast-area), and the other factors of keeping it.
+
 ### Part
 
 A division of purba with one responsibility and one interface. Each part is designed in depth on its own, and its code may be Rust, Python or both.
@@ -212,6 +220,10 @@ The [location](#location) a check writes into when it turns down a contributor's
 
 How information is distributed within one [location](#location). A register belongs to one location and is never compared across two.
 
+### Relief
+
+What a crate spares purba: the code purba would write without it, or the quality it serves.
+
 ### Repair
 
 A change that restores what a [record](#record), a [design spec](#design-spec) or a [gate](#gate) already requires. It carries no decision.
@@ -227,6 +239,10 @@ A failure scenario a test can check. It lands on one [part](#part) or [concern](
 ### Run
 
 One start of purba, from the command it reads to the exit code it sets.
+
+### Shortlist
+
+The crates that pass the checks for one need of a [part](#part) not designed yet, each with the [relief](#relief) it needs to join. The design in depth of the part starts from it.
 
 ### Significance
 
@@ -275,6 +291,10 @@ A comment that stays in the tree, read only by somebody who opens the file. It i
 ### Unreached test
 
 A selected test that the [run](#run) never reached, because an [interrupt](#interrupt) stopped the run first. It has no [outcome](#outcome).
+
+### Waiver
+
+A decision that lets one crate in despite the failures it names, and says why.
 
 ### Walking skeleton
 
