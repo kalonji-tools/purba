@@ -25,7 +25,7 @@ nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 | `record/` | `def act(self)` in a class whose fields are the inputs | `plain = SlugOf(text=…).expect(product=…)`: a typed instance | every other method, reading `self.product` or a field | `after(plain)`, a variable |
 | `module/` | `def act(…)` in a file of its own | `plain = case(text=…, product=…)`, flat keys | every other function the file defines | `from opened import ann`, then `after(ann)` |
 | `klasscall/` | `def act(…)` in a class | `plain = case(act, text=…).expect(product=…)`: a typed call | every other function in the class | `after(Opened.ann)`, an attribute |
-| `record_strict/` | `def act(self)`, abstract in the base | `plain = SlugOf(text=…).expect(product=…)`, and `expect` is declared once with a typed keyword for each assay | every other method | `ann.product` or `first.db`, typed |
+| `record_strict/` | `def act(self)`, abstract in the base | `plain = SlugOf(text=…).expect(product=…)`; a grown test subclasses `TypedExperiment` and declares `expect` once, with a typed keyword for each assay | every other method | `ann.product` or `first.db`, typed |
 
 | file | what it shows |
 |---|---|
@@ -38,6 +38,7 @@ nix-shell -p pyright --run 'python run.py measure'   # pyright beside ty
 | `ex7_inputs.py` | a misspelled input, and an input of the wrong type: who catches each |
 | `ex8_refused_typed.py` | `record_strict/` only: the refusals of a declared `expect`, a field named like an assay, and a case name bound twice |
 | `ex9_generated.py` | `record_strict/` only: cases that a loop builds, and a family of cases through a subclass |
+| `ex11_levels.py` | `record_strict/` only: one experiment at the small level and at the typed level |
 | `ex10_stocks.py` | `record_strict/` only: a stock with a misspelled offer, a stock that offers nothing, and two readers of a stock with no checkpoint |
 | `lab.py` | the fixtures every form shares; `UsersDb` declares a sample, a checkpoint and a fingerprint as its bases |
 
@@ -56,8 +57,8 @@ Weighed and not built:
 - **An experiment is a class whose fields are its inputs.** `act` is abstract in the base, so a type checker refuses an experiment without one, and an `act` whose type is not the product's.
 - **A case is an instance, named by its variable.** A type checker sees a misspelled input and an input of the wrong type.
 - **A step of a chain is `step.product` or `step.<field>`.** A type checker sees a chain that feeds the wrong type. `add()` returns `None`, so a checkout chains from the cart, an input: `two_books.cart`.
-- **Each experiment declares `expect` once, with a typed keyword for each assay.** An assay that reads an input is required. An assay that reads the product defaults to `UNREAD`, because a case that raises has no product. A type checker sees a misspelled assay, a value of the wrong type, and a missing value for an assay that reads an input.
-- **purba's parse refuses what a type checker does not see:** an `expect` out of step with the assays, a field and an assay with one name, an assay whose type no literal can write, and a case name that the file binds twice, which loses a case without a word.
+- **One form, two levels.** A small test subclasses `Experiment[P]` and writes no `expect`: purba checks each expected value against its assay's return type before the run. A test grows by subclassing `TypedExperiment[P]` instead and declaring `expect` once, with a typed keyword for each assay; nothing else changes. Then a type checker also sees a misspelled assay, a value of the wrong type, and a missing value for an assay that reads an input. At the typed level, an assay that reads an input is required, and an assay that reads the product defaults to `UNREAD`, because a case that raises has no product. Three blind raters put the typed-only form last of eight and the same form without `expect` third, which is why `expect` is a level and not a rule. `ex1`, `ex2`, `ex4`-`ex7` and `ex9` are small; `ex3`, `ex8` and `ex10` are typed; `ex11` shows both.
+- **purba's parse refuses what a type checker does not see:** an expected value that does not fit its assay's type, at either level; an `expect` out of step with the assays, a field and an assay with one name, an assay whose type no literal can write, and a case name that the file binds twice, which loses a case without a word.
 - **`self.` stays.** pyright warns on any other name for it.
 - **A literal that the act needs is a field with a default.** Every case shares it, any case may vary it, and the screen prints it with the inputs. A nested call is refused: each call is a step of a chain. A function of the test file as the act is refused, unless a reason is given; the form of the reason is open.
 - **Cases are written one by one.** A loop or a list that builds cases is refused, and so is a subclass of an experiment.

@@ -1,6 +1,10 @@
 """PROTOTYPE (#967). Form RECORD_STRICT: the form agreed on 2026-11-14. Never merge.
 
-    class AmountOf(Experiment[Money]):
+One form, two levels. A small test subclasses `Experiment[P]` and writes no `expect`: purba checks each
+expected value against its assay's return type before the run. A test grows by subclassing
+`TypedExperiment[P]` instead and declaring `expect`, and then the editor sees the expected values too:
+
+    class AmountOf(TypedExperiment[Money]):
         text: str                                # the inputs are fields
         currency: str | None
 
@@ -33,7 +37,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, dataclass_transfo
 from engine import REGISTRY, After, Case, Raises, Warns, caller_line, use
 from engine import Experiment as _Exp
 
-__all__ = ["UNREAD", "Experiment", "use"]
+__all__ = ["UNREAD", "Experiment", "TypedExperiment", "use"]
 T = TypeVar("T")
 UNREAD: Any = object()  # no value: only a case that raises may leave an assay of the product unread
 LITERAL_TYPES = (str, int, float, bool, bytes, type(None))
@@ -64,9 +68,11 @@ def _name(tp: Any) -> str:
 
 
 @dataclass_transform(kw_only_default=True)
-class Experiment(ABC, Generic[T]):
+class _Base(ABC, Generic[T]):
     def __init_subclass__(cls) -> None:
-        parents = [b for b in cls.__mro__[1:] if b is not Experiment and isinstance(b, type) and issubclass(b, Experiment)]
+        if cls.__module__ == __name__:  # the two levels themselves
+            return
+        parents = [b for b in cls.__mro__[1:] if isinstance(b, type) and issubclass(b, _Base) and b.__module__ != __name__]
         notes: dict[str, Any] = {}
         for b in [*reversed(parents), cls]:
             notes.update(b.__dict__.get("__annotations__", {}))
@@ -107,11 +113,15 @@ class Experiment(ABC, Generic[T]):
                 e.assays[k] = assay
         for k in sorted(set(fields) & set(e.assays)):
             e.refused.append(f"`{k}` is a field and an assay: name the assay for its question")
-        if not parents:  # a subclass is refused already, and its `expect` sits in the parent
+        typed = issubclass(cls, TypedExperiment)
+        if typed and not parents:  # a subclass is refused already, and its `expect` sits in the parent
             _check_expect(cls, e)
+        if not typed and "expect" in cls.__dict__:
+            e.refused.append("the experiment declares `expect`, so it subclasses `TypedExperiment`, not `Experiment`")
         cls.__purba__ = e  # type: ignore[attr-defined]
         cls.__purba_fields__ = set(fields)  # type: ignore[attr-defined]
-        setattr(cls, "expect", _record_expect)  # setattr: a type checker must not see a base `expect`
+        if typed:
+            setattr(cls, "expect", _record_expect)  # setattr: a type checker must not see a base `expect`
         REGISTRY.append(e)
 
     def __init__(self, **given: Any) -> None:
@@ -145,6 +155,54 @@ class Experiment(ABC, Generic[T]):
                 if name in type(self).__purba_fields__:
                     return After(d["__case__"], name, caller_line())
             return object.__getattribute__(self, name)
+
+
+class Experiment(_Base[T]):
+    """The small level: `expect` takes any keyword. purba checks each value against its assay's type before the run."""
+
+    def expect(self, **values: Any) -> Self:
+        return _record_expect(self, **values)
+
+
+class TypedExperiment(_Base[T]):
+    """The grown level: the experiment declares `expect`, one typed keyword for each assay, so the editor sees each value."""
+
+
+def _fits(value: Any, tp: Any) -> bool:
+    """Does a literal fit a type, by type all the way down: True does not fit int."""
+    origin, args = typing.get_origin(tp), typing.get_args(tp)
+    if origin is None:
+        return type(value) is (type(None) if tp is None else tp)
+    if origin in (list, set, frozenset):
+        return type(value) is origin and all(_fits(v, args[0]) for v in value)
+    if origin is tuple:
+        if len(args) == 2 and args[1] is Ellipsis:
+            return type(value) is tuple and all(_fits(v, args[0]) for v in value)
+        return type(value) is tuple and len(value) == len(args) and all(_fits(v, a) for v, a in zip(value, args))
+    if origin is dict:
+        return type(value) is dict and all(_fits(k, args[0]) and _fits(v, args[1]) for k, v in value.items())
+    if origin in (typing.Union, types.UnionType):
+        return any(_fits(value, a) for a in args)
+    return False
+
+
+def _check_values(cls: Any) -> None:
+    """Before the run, at either level: each expected value fits the type its assay hands."""
+    e = cls.__purba__
+    product_t = typing.get_args(cls.__orig_bases__[0])[0] if getattr(cls, "__orig_bases__", None) else Any
+    types_of = {k: typing.get_type_hints(fn.__purba_method__).get("return") for k, fn in e.assays.items()}
+    types_of["product"] = product_t
+    for c in e.cases:
+        for k, v in c.expect.items():
+            tp = types_of.get(k)
+            if tp is None or tp is Any:
+                continue  # an unknown assay is refused elsewhere
+            if not _literal_type(tp):
+                e.refused.append(f"assay `{k}` hands a {_name(tp)}: an expected value is a literal,"
+                                 " so hand a str, int, … or a collection of them")
+            elif not _fits(v, tp):
+                e.refused.append(f"case `{c.name}` (line {c.line}) expects `{k}` = {v!r}, a {type(v).__name__},"
+                                 f" and the assay hands {_name(tp)}")
 
 
 def _record_expect(self: Any, **values: Any) -> Any:
@@ -188,19 +246,19 @@ def _check_expect(cls: type, e: _Exp) -> None:
 
 def collect(mod: ModuleType) -> None:
     for k, v in vars(mod).items():
-        if isinstance(v, Experiment):
+        if isinstance(v, _Base):
             c = v.__dict__["__case__"]
             c.name = k
             type(v).__purba__.cases.append(c)  # type: ignore[attr-defined]
             for key, val in c.given.items():
-                if inspect.ismethod(val) and isinstance(val.__self__, Experiment):
+                if inspect.ismethod(val) and isinstance(val.__self__, _Base):
                     type(v).__purba__.refused.append(  # type: ignore[attr-defined]
                         f"case `{k}` (line {c.line}) gives `{key}` the assay `{val.__name__}` of a case:"
                         " a chain takes the step's `.product` or one of its fields")
     for e in REGISTRY:
         e.cases.sort(key=lambda c: c.line)
     for v in vars(mod).values():
-        if isinstance(v, type) and issubclass(v, Experiment) and v is not Experiment and v.__module__ == mod.__name__:
+        if isinstance(v, type) and issubclass(v, _Base) and v.__module__ == mod.__name__:
             named = {id(c) for c in v.__purba__.cases}  # type: ignore[attr-defined]
             lines = sorted({c.line for c in v.__purba_made__ if id(c) not in named})  # type: ignore[attr-defined]
             if lines:
@@ -208,11 +266,14 @@ def collect(mod: ModuleType) -> None:
                     f"line {', '.join(map(str, lines))} builds cases with no name, as a loop or a list does:"
                     " each case is one line that names it")
     _refuse_a_name_bound_twice(mod)
+    for v in vars(mod).values():
+        if isinstance(v, type) and issubclass(v, _Base) and v.__module__ == mod.__name__:
+            _check_values(v)
 
 
 def _refuse_a_name_bound_twice(mod: ModuleType) -> None:
     """A case whose name the file binds again is lost without a word, so purba refuses it."""
-    classes = {k: v for k, v in vars(mod).items() if isinstance(v, type) and issubclass(v, Experiment) and v is not Experiment}
+    classes = {k: v for k, v in vars(mod).items() if isinstance(v, type) and issubclass(v, _Base) and v.__module__ != __name__}
     tree = ast.parse(open(mod.__file__ or "", encoding="utf-8").read())
     seen: dict[str, list[tuple[int, str]]] = {}
     for node in tree.body:

@@ -1,9 +1,7 @@
 """ex7: a misspelled input, an input of the wrong type, and a chain that feeds the wrong type."""
 
-from typing import Self
-
 from app import slugify
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import Experiment
 
 
 class SlugOf(Experiment[str]):
@@ -14,9 +12,6 @@ class SlugOf(Experiment[str]):
 
     def size(self) -> int:
         return len(self.product)
-
-    def expect(self, *, size: int = UNREAD, product: str = UNREAD) -> Self:
-        return self
 
 
 plain = SlugOf(text="Hello World").expect(product="hello-world", size=11)
@@ -29,9 +24,6 @@ class SlugAgain(Experiment[str]):
 
     def act(self) -> str:
         return slugify(self.text)
-
-    def expect(self, *, product: str = UNREAD) -> Self:
-        return self
 
 
 wrong_again = SlugAgain(text=42).expect(product="42")  # ty

@@ -1,9 +1,7 @@
 """ex4: a chain of three steps. `add` returns None, so checkout chains from the cart INPUT of a step."""
 
-from typing import Self
-
 from app import Cart, Receipt, open_cart
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import Experiment
 
 
 class Opened(Experiment[Cart]):
@@ -17,9 +15,6 @@ class Opened(Experiment[Cart]):
 
     def count(self) -> int:
         return self.product.count()
-
-    def expect(self, *, owner_seen: str = UNREAD, count: int = UNREAD) -> Self:
-        return self
 
 
 ann = Opened(owner="ann").expect(owner_seen="ann", count=0)
@@ -39,9 +34,6 @@ class Added(Experiment[None]):
     def total(self) -> int:
         return self.cart.total()
 
-    def expect(self, *, items: int, total: int) -> Self:
-        return self
-
 
 one_book  = Added(cart=ann.product, sku="BOOK-1", qty=1).expect(items=1, total=1200)
 two_books = Added(cart=ann.product, sku="BOOK-1", qty=2).expect(items=2, total=2400)
@@ -60,9 +52,6 @@ class CheckedOut(Experiment[Receipt]):
 
     def lines(self) -> int:
         return self.product.lines
-
-    def expect(self, *, paid: int = UNREAD, lines: int = UNREAD) -> Self:
-        return self
 
 
 two_books_paid = CheckedOut(cart=two_books.cart).expect(paid=2400, lines=1)

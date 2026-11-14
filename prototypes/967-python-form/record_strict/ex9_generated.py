@@ -1,9 +1,7 @@
 """ex9: cases that a loop makes, and a family of cases through a subclass. What does purba see?"""
 
-from typing import Self
-
 from app import slugify
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import Experiment
 
 
 class SlugOf(Experiment[str]):
@@ -12,9 +10,6 @@ class SlugOf(Experiment[str]):
 
     def act(self) -> str:
         return slugify(self.text, self.sep)
-
-    def expect(self, *, product: str = UNREAD) -> Self:
-        return self
 
 
 plain = SlugOf(text="a b").expect(product="a-b")

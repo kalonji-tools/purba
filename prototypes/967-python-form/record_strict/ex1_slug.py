@@ -1,9 +1,7 @@
-"""ex1: a pure function. `product` is the built-in assay; `expect` types it as the product's type."""
-
-from typing import Self
+"""ex1: a pure function, at the small level. `product` is the built-in assay; purba checks its value against the product's type."""
 
 from app import slugify
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import Experiment
 
 
 class SlugOf(Experiment[str]):
@@ -12,9 +10,6 @@ class SlugOf(Experiment[str]):
 
     def act(self) -> str:
         return slugify(self.text, self.sep)
-
-    def expect(self, *, product: str = UNREAD) -> Self:
-        return self
 
 
 plain      = SlugOf(text="Hello World").expect(product="hello-world")

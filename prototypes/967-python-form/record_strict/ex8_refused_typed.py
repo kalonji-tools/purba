@@ -3,10 +3,10 @@
 from typing import Self
 
 from app import Money, parse_amount, slugify
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import UNREAD, TypedExperiment
 
 
-class NoExpect(Experiment[str]):
+class NoExpect(TypedExperiment[str]):
     text: str
 
     def act(self) -> str:
@@ -19,7 +19,7 @@ class NoExpect(Experiment[str]):
 b1 = NoExpect(text="Hi").expect(size=2)  # ty: no attribute `expect`
 
 
-class Clash(Experiment[Money]):
+class Clash(TypedExperiment[Money]):
     text: str
     currency: str
 
@@ -36,7 +36,7 @@ class Clash(Experiment[Money]):
 b2 = Clash(text="1", currency="EUR").expect(currency="EUR")
 
 
-class OutOfStep(Experiment[Money]):
+class OutOfStep(TypedExperiment[Money]):
     text: str
     currency: str
 
@@ -56,7 +56,7 @@ class OutOfStep(Experiment[Money]):
 b3 = OutOfStep(text="1", currency="EUR").expect(cents="100", unit="EUR")  # ty: no keyword `unit`
 
 
-class Defaults(Experiment[None]):
+class Defaults(TypedExperiment[None]):
     names: list[str]
     name: str
 
@@ -73,7 +73,7 @@ class Defaults(Experiment[None]):
 b4 = Defaults(names=[], name="ann").expect(seen=["ann"], product=None)
 
 
-class Twice(Experiment[str]):
+class Twice(TypedExperiment[str]):
     text: str
 
     def act(self) -> str:

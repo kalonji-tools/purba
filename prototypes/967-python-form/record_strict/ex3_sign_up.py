@@ -4,11 +4,11 @@ from sqlite3 import Connection
 from typing import Self
 
 from app import Outbox, User, sign_up, user_names
-from form_record_strict import UNREAD, Experiment, use
+from form_record_strict import UNREAD, TypedExperiment, use
 from lab import UsersDb, outbox
 
 
-class SignedUp(Experiment[User]):
+class SignedUp(TypedExperiment[User]):
     name: str
     db: Connection = use(UsersDb)
     mailer: Outbox = use(outbox)

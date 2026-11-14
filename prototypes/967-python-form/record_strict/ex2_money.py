@@ -1,9 +1,7 @@
 """ex2: an expected warning and an expected raise. A field and an assay cannot share a name."""
 
-from typing import Self
-
 from app import Money, parse_amount
-from form_record_strict import UNREAD, Experiment
+from form_record_strict import Experiment
 
 
 class AmountOf(Experiment[Money]):
@@ -18,9 +16,6 @@ class AmountOf(Experiment[Money]):
 
     def unit(self) -> str:
         return self.product.currency
-
-    def expect(self, *, cents: int = UNREAD, unit: str = UNREAD) -> Self:
-        return self
 
 
 euros    = AmountOf(text="12.50", currency="EUR").expect(cents=1250, unit="EUR")

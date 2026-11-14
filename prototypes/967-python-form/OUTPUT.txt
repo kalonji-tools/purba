@@ -646,7 +646,7 @@
 ══ form: record_strict ════════════════════════════════════════
 
 ── record_strict/ex1_slug.py
- SlugOf  (record_strict/ex1_slug.py:9)
+ SlugOf  (record_strict/ex1_slug.py:7)
    ✓ plain › product  'hello-world'
    ✓ spaces › product  'many-spaces'
    ✗ accents › product
@@ -657,7 +657,7 @@
    ✓ empty › raises   ValueError: empty
 
 ── record_strict/ex2_money.py
- AmountOf  (record_strict/ex2_money.py:9)
+ AmountOf  (record_strict/ex2_money.py:7)
    ✓ euros › cents    1250
    ✓ euros › unit     'EUR'
    ✓ legacy › warns    DeprecationWarning: no currency: USD is assumed
@@ -682,10 +682,10 @@
    ✓ taken › mailed   []
 
 ── record_strict/ex4_cart.py
- Opened  (record_strict/ex4_cart.py:9)
+ Opened  (record_strict/ex4_cart.py:7)
    ✓ ann › owner_seen 'ann'
    ✓ ann › count    0
- Added  (record_strict/ex4_cart.py:28)
+ Added  (record_strict/ex4_cart.py:23)
    ✓ one_book › items    1
    ✓ one_book › total    1200
    ✓ two_books › items    2
@@ -698,29 +698,29 @@
    ✓ unknown › raises   KeyError: 'NOPE'
    ✓ unknown › items    0
    ✓ unknown › total    0
- CheckedOut  (record_strict/ex4_cart.py:52)
+ CheckedOut  (record_strict/ex4_cart.py:44)
    ✓ two_books_paid › paid     2400
    ✓ two_books_paid › lines    1
    ⊘ pens_paid  blocked: its step Added › pens failed
 
 ── record_strict/ex5_refused.py
- Nested  (record_strict/ex5_refused.py:9)
+ Nested  (record_strict/ex5_refused.py:7)
    ✗ REFUSED  the act nests the call `text.strip()`: one act per reaction
- Literal  (record_strict/ex5_refused.py:22)
+ Literal  (record_strict/ex5_refused.py:17)
    ✗ REFUSED  the act passes the literal `'_'`: make it an input, or a default of the act
- TypoKey  (record_strict/ex5_refused.py:35)
-   ✗ REFUSED  case `a3` (line 45) expects `prodcut`, which is no assay; did you mean `product`?
- ProductOnRaise  (record_strict/ex5_refused.py:48)
-   ✗ REFUSED  case `a4` (line 58) expects a raise, so `product` has nothing to read
- ReadsLiteral  (record_strict/ex5_refused.py:61)
-   ✗ REFUSED  case `a5` (line 74): assay `echoed` reads `text`, a str that the act cannot change
- MissingValue  (record_strict/ex5_refused.py:77)
-   ✗ REFUSED  case `a6` (line 94) gives no expected value for the assay `unit`
- ReadingNotLiteral  (record_strict/ex5_refused.py:97)
+ TypoKey  (record_strict/ex5_refused.py:27)
+   ✗ REFUSED  case `a3` (line 34) expects `prodcut`, which is no assay; did you mean `product`?
+ ProductOnRaise  (record_strict/ex5_refused.py:37)
+   ✗ REFUSED  case `a4` (line 44) expects a raise, so `product` has nothing to read
+ ReadsLiteral  (record_strict/ex5_refused.py:47)
+   ✗ REFUSED  case `a5` (line 57): assay `echoed` reads `text`, a str that the act cannot change
+ MissingValue  (record_strict/ex5_refused.py:60)
+   ✗ REFUSED  case `a6` (line 74) gives no expected value for the assay `unit`
+ ReadingNotLiteral  (record_strict/ex5_refused.py:77)
    ✗ REFUSED  assay `product` hands a Money: an expected value is a literal, so hand a str, int, … or a collection of them
- Aged  (record_strict/ex5_refused.py:115)
+ Aged  (record_strict/ex5_refused.py:92)
    ✗ REFUSED  the act calls `age_of`, a function of this test file: logic purba cannot read. Give a reason to depart
- Adults  (record_strict/ex5_refused.py:128)
+ Adults  (record_strict/ex5_refused.py:102)
    ✓ two › product  2
    ✗ one › product
        expected 1  (int)
@@ -729,14 +729,14 @@
 
 ── record_strict/ex6_typo.py
    ✗ record_strict/ex6_typo.py CANNOT LOAD, so none of its experiments runs
-       NameError: name 'an' is not defined  (line 40)
+       NameError: name 'an' is not defined  (line 32)
 
 ── record_strict/ex7_inputs.py
- SlugOf  (record_strict/ex7_inputs.py:9)
-   ✗ REFUSED  case `typo` (line 23) gives `txt`, which is no input; did you mean `text`?
-   ✗ REFUSED  case `typo` (line 23) gives no value for the input `text`
- SlugAgain  (record_strict/ex7_inputs.py:27)
-   ✗ REFUSED  case `fed_wrong` (line 38) gives `text` the assay `size` of a case: a chain takes the step's `.product` or one of its fields
+ SlugOf  (record_strict/ex7_inputs.py:7)
+   ✗ REFUSED  case `typo` (line 18) gives `txt`, which is no input; did you mean `text`?
+   ✗ REFUSED  case `typo` (line 18) gives no value for the input `text`
+ SlugAgain  (record_strict/ex7_inputs.py:22)
+   ✗ REFUSED  case `fed_wrong` (line 30) gives `text` the assay `size` of a case: a chain takes the step's `.product` or one of its fields
 
 ── record_strict/ex8_refused_typed.py
  NoExpect  (record_strict/ex8_refused_typed.py:9)
@@ -747,6 +747,7 @@
    ✗ REFUSED  `expect` types `cents` as str, and the assay hands int
    ✗ REFUSED  `expect` names `unti`, which is no assay
    ✗ REFUSED  `expect` has no keyword for the assay `unit`
+   ✗ REFUSED  case `b3` (line 56) expects `cents` = '100', a str, and the assay hands int
  Defaults  (record_strict/ex8_refused_typed.py:59)
    ✗ REFUSED  `expect` gives `seen` a default: it reads an input, so every case gives it a value
    ✗ REFUSED  `expect` must default `product` to UNREAD: it reads the product, and a case that raises has none
@@ -755,9 +756,9 @@
    ✗ REFUSED  the case name `same` is bound 2 times in this file, at lines 86 and 87: one case is lost
 
 ── record_strict/ex9_generated.py
- SlugOf  (record_strict/ex9_generated.py:9)
-   ✗ REFUSED  line 21 builds cases with no name, as a loop or a list does: each case is one line that names it
- SlugUnderscore  (record_strict/ex9_generated.py:24)
+ SlugOf  (record_strict/ex9_generated.py:7)
+   ✗ REFUSED  line 16 builds cases with no name, as a loop or a list does: each case is one line that names it
+ SlugUnderscore  (record_strict/ex9_generated.py:19)
    ✗ REFUSED  `SlugUnderscore` subclasses the experiment `SlugOf`, so its act and assays sit in another class: give the shared value as a field default
 
 ── record_strict/ex10_stocks.py
@@ -768,6 +769,12 @@
  TwoReaders  (record_strict/ex10_stocks.py:73)
    ✗ REFUSED  assays `count`, `titles` read the stock `shelf`, and `SampleOnly` offers no checkpoint to restore between them
 
+── record_strict/ex11_levels.py
+ AmountOf  (record_strict/ex11_levels.py:9)
+   ✗ REFUSED  case `as_text` (line 21) expects `cents` = '1250', a str, and the assay hands int
+ TypedAmountOf  (record_strict/ex11_levels.py:24)
+   ✗ REFUSED  case `typed_as_text` (line 39) expects `cents` = '1250', a str, and the assay hands int
+
 ══ measure ══════════════════════════════════════════════════
 form      files  lines   chars  widest  >100   (ex1-ex4; blank lines, imports and docstrings left out)
 stacked       4     67    3402     117    11
@@ -777,7 +784,7 @@ call          4     70    3021     125     4
 record        4     71    3168     120     3
 module        6     53    2670     117     3
 klasscall     4     59    3286     129     5
-record_strict     4     83    3663     120     4
+record_strict     4     73    3237     120     4
 
 ── the type checkers on ex6_typo: a typo in the name of a step
    stacked  no diagnostic
@@ -793,8 +800,8 @@ record_strict     4     83    3663     120     4
             pyright added.py:5:20 - error: "an" is unknown import symbol (reportAttributeAccessIssue)
    klasscall ty      ex6_typo.py:24:32: error[unresolved-attribute] Class `Opened` has no attribute `an`
             pyright ex6_typo.py:24:39 - error: Cannot access attribute "an" for class "type[Opened]"
-   record_strict ty      ex6_typo.py:40:18: error[unresolved-reference] Name `an` used when not defined
-            pyright ex6_typo.py:40:18 - error: "an" is not defined (reportUndefinedVariable)
+   record_strict ty      ex6_typo.py:32:18: error[unresolved-reference] Name `an` used when not defined
+            pyright ex6_typo.py:32:18 - error: "an" is not defined (reportUndefinedVariable)
 
 ── the type checkers on ex7_inputs: a misspelled input, and an input of the wrong type
    stacked  no diagnostic
@@ -825,16 +832,16 @@ record_strict     4     83    3663     120     4
             pyright ex7_inputs.py:12:23 - error: No parameter named "txt" (reportCallIssue)
             pyright ex7_inputs.py:13:28 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str"
             pyright ex7_inputs.py:20:28 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str"
-   record_strict ty      ex7_inputs.py:23:9: error[missing-argument] No argument provided for required parameter `text`
-            ty      ex7_inputs.py:23:16: error[unknown-argument] Argument `txt` does not match any known parameter
-            ty      ex7_inputs.py:24:16: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
-            ty      ex7_inputs.py:37:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
-            ty      ex7_inputs.py:38:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `bound method SlugOf.size() -> int`
-            pyright ex7_inputs.py:23:9 - error: Argument missing for parameter "text" (reportCallIssue)
-            pyright ex7_inputs.py:23:16 - error: No parameter named "txt" (reportCallIssue)
-            pyright ex7_inputs.py:24:21 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
-            pyright ex7_inputs.py:37:30 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
-            pyright ex7_inputs.py:38:30 - error: Argument of type "() -> int" cannot be assigned to parameter "text" of type "str" in function "__init__"
+   record_strict ty      ex7_inputs.py:18:9: error[missing-argument] No argument provided for required parameter `text`
+            ty      ex7_inputs.py:18:16: error[unknown-argument] Argument `txt` does not match any known parameter
+            ty      ex7_inputs.py:19:16: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:29:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `Literal[42]`
+            ty      ex7_inputs.py:30:25: error[invalid-argument-type] Argument is incorrect: Expected `str`, found `bound method SlugOf.size() -> int`
+            pyright ex7_inputs.py:18:9 - error: Argument missing for parameter "text" (reportCallIssue)
+            pyright ex7_inputs.py:18:16 - error: No parameter named "txt" (reportCallIssue)
+            pyright ex7_inputs.py:19:21 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
+            pyright ex7_inputs.py:29:30 - error: Argument of type "Literal[42]" cannot be assigned to parameter "text" of type "str" in function "__init__"
+            pyright ex7_inputs.py:30:30 - error: Argument of type "() -> int" cannot be assigned to parameter "text" of type "str" in function "__init__"
 
 ── the type checkers on ex1-ex5 and ex8: diagnostics (ex5 and ex8 hold refusals on purpose)
    stacked  0 diagnostics in 5 files
@@ -844,11 +851,7 @@ record_strict     4     83    3663     120     4
    record   0 diagnostics in 5 files
    module   0 diagnostics in 9 files
    klasscall 0 diagnostics in 5 files
-   record_strict 12 diagnostics in 6 files
-            ex5_refused.py:45:32: error[unknown-argument] Argument `prodcut` does not match any known parameter of bound method `TypoKey.expect`
-            ex5_refused.py:108:61: error[invalid-argument-type] Argument to bound method `ReadingNotLiteral.expect` is incorrect: Expected `Money`, found `Literal["12.50 EUR"]`
-            pyright ex5_refused.py:45:32 - error: No parameter named "prodcut" (reportCallIssue)
-            pyright ex5_refused.py:108:69 - error: Argument of type "Literal['12.50 EUR']" cannot be assigned to parameter "product" of type "Money" in function "expect"
+   record_strict 8 diagnostics in 6 files
             ex8_refused_typed.py:19:6: error[unresolved-attribute] Object of type `NoExpect` has no attribute `expect`
             ex8_refused_typed.py:27:40: error[invalid-argument-type] Argument to function `parse_amount` is incorrect: Expected `str | None`, found `bound method Self@act.currency() -> str`
             ex8_refused_typed.py:36:22: error[unknown-argument] Argument `currency` does not match any known parameter

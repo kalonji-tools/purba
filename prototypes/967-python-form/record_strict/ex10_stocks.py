@@ -3,7 +3,7 @@
 from typing import Self
 
 from engine import Samples, Stock
-from form_record_strict import UNREAD, Experiment, use
+from form_record_strict import UNREAD, TypedExperiment, use
 
 
 class Shelf:
@@ -36,7 +36,7 @@ class SampleOnly(Stock[Shelf], Samples[Shelf]):
     def discard(self, value: Shelf) -> None: ...
 
 
-class Shelved(Experiment[None]):
+class Shelved(TypedExperiment[None]):
     title: str
     shelf: Shelf = use(Misspelled)
 
@@ -53,7 +53,7 @@ class Shelved(Experiment[None]):
 one = Shelved(title="Dune").expect(count=1)
 
 
-class Bare(Experiment[None]):
+class Bare(TypedExperiment[None]):
     title: str
     shelf: Shelf = use(NoOffer)  # ty: no overload of `use` matches
 
@@ -70,7 +70,7 @@ class Bare(Experiment[None]):
 two = Bare(title="Dune").expect(count=1)
 
 
-class TwoReaders(Experiment[None]):
+class TwoReaders(TypedExperiment[None]):
     title: str
     shelf: Shelf = use(SampleOnly)
 
