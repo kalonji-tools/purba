@@ -1,0 +1,128 @@
+── pytest_twin/test_reading_calls_the_code.py
+ test_reading_calls_the_code  (pytest_twin/test_reading_calls_the_code.py:17)
+   ✓ test_reading_calls_the_code › wrap(stream) is True   True
+   ! test_reading_calls_the_code › stream.flush.called is False   pytest_twin/test_reading_calls_the_code.py:17 · assert at line 20
+       what      it holds when read alone, and fails after the checks before it (line 19): a reading before it changed what it reads, and a check reads, it does not act
+── test_catch_reads_the_tests_frame.py
+ test_catch_names_the_test  (test_catch_reads_the_tests_frame.py:8)
+   ✓ catch_names_the_test › lines[0].splitlines()[0] == 'test_catch_names_the_test:13'   'test_catch_names_the_test:13'
+── test_guard_line.py
+ test_library_mutes_inside_one_call  (test_guard_line.py:19)
+   ✓ library_mutes_inside_one_call › got == 1   1
+ test_swap_undone_by_a_later_line  (test_guard_line.py:28)
+   ✗ swap_undone_by_a_later_line › hook   test_guard_line.py:39
+       what      the act replaced threading.excepthook; the runner sees an error that no code sees in a thread through it, so while it is replaced the case cannot show one
+                 at test_guard_line.py:31  threading.excepthook = lambda args: None
+       inputs    (none)
+   ✓ swap_undone_by_a_later_line › worker.is_alive() is False   False
+── test_guards_still_see.py
+ test_a_warning_is_seen  (test_guards_still_see.py:25)
+   ✗ a_warning_is_seen › warning   test_guards_still_see.py:31
+       what      a warning that the test does not expect: DeprecationWarning: old api
+                 at test_guards_still_see.py:17
+       inputs    (none)
+   ✓ a_warning_is_seen › got == 1   1
+ test_an_expected_warning_passes  (test_guards_still_see.py:34)
+   ✓ an_expected_warning_passes › warns   DeprecationWarning: old api
+   ✓ an_expected_warning_passes › got == 1   1
+ test_a_thread_error_is_seen  (test_guards_still_see.py:44)
+   ✗ a_thread_error_is_seen › lost error   test_guards_still_see.py:52
+       what      an error that no code saw: in a thread, ValueError: in the thread
+       inputs    (none)
+   ✓ a_thread_error_is_seen › worker.is_alive() is False   False
+── test_reading_calls_the_code.py
+ test_reading_calls_the_code  (test_reading_calls_the_code.py:18)
+   ✓ reading_calls_the_code › wrap(stream) is True   True
+   ! reading_calls_the_code › stream.flush.called is False   test_reading_calls_the_code.py:24 · assert at line 21
+       what      it holds when read alone, and fails after the checks before it (line 20): a reading before it changed what it reads, and a check reads, it does not act
+       inputs    (none)
+── test_setups.py
+ test_checks_after_the_undo  (test_setups.py:59)
+   ✓ checks_after_the_undo › inside == '1999-12-12'   '1999-12-12'
+   ✓ checks_after_the_undo › after == 'real'   'real'
+ test_checks_inside_the_setup  (test_setups.py:71)
+   ✓ checks_inside_the_setup › seen == '2001-02-03'   '2001-02-03'
+   ✓ checks_inside_the_setup › STATE['clock'] == '2001-02-03'   '2001-02-03'
+ test_checks_inside_and_after  (test_setups.py:82)
+   ✓ checks_inside_and_after › seen == '2001-02-03'   '2001-02-03'
+   ✓ checks_inside_and_after › STATE['clock'] == '2001-02-03'   '2001-02-03'
+   ✓ checks_inside_and_after › STATE['clock'] == 'real'   'real'
+ test_nested_and_multi_item  (test_setups.py:97)
+   ✓ nested_and_multi_item › seen == 'a'   'a'
+   ✓ nested_and_multi_item › STATE['clock'] == 'real'   'real'
+ test_raises_inside_a_setup  (test_setups.py:109)
+   ✓ raises_inside_a_setup › raises   KeyError: 'k'
+   ✓ raises_inside_a_setup › STATE['clock'] == 'real'   'real'
+ test_swallow_at_the_last_line  (test_setups.py:123)
+   ✓ swallow_at_the_last_line › STATE['clock'] == 'real'   'real'
+ test_swallow_skips_a_line  (test_setups.py:133)
+   ✗ swallow_skips_a_line › setup   test_setups.py:142
+       what      `with contextlib.suppress(KeyError)` swallowed a raise at line 137, so line 138 never ran
+                 at test_setups.py:136
+       inputs    (none)
+   ✓ swallow_skips_a_line › got == []   []
+ test_swallow_skips_a_check  (test_setups.py:145)
+   ✗ swallow_skips_a_check › setup   test_setups.py:152
+       what      `with Swallow()` swallowed a raise at line 148, so line 149 never ran
+                 at test_setups.py:147
+       inputs    (none)
+   ⊘ swallow_skips_a_check › value == 1   blocked: it never ran
+ test_undo_raises  (test_setups.py:158)
+   ✗ undo_raises › undo   test_setups.py:166
+       what      the undo of `with BadUndo()` at line 160 raised OSError: the undo broke
+                 at test_setups.py:160  with BadUndo():
+                 at test_setups.py:31  raise OSError("the undo broke")
+       inputs    (none)
+   ✓ undo_raises › seen == 'real'   'real'
+   ⊘ undo_raises › STATE['clock'] == 'real'   blocked: the act did not end as the test says
+ test_setup_raises  (test_setups.py:169)
+   ✗ setup_raises › setup   test_setups.py:176
+       what      setting up `with BadEntry()` at line 171 raised OSError: the setup broke
+                 at test_setups.py:171  with BadEntry():
+                 at test_setups.py:36  raise OSError("the setup broke")
+       inputs    (none)
+   ⊘ setup_raises › seen == 'real'   blocked: the act did not end as the test says
+ test_thread_hook_swapped_in_a_window  (test_setups.py:196)
+   ✗ thread_hook_swapped_in_a_window › hook   test_setups.py:205
+       what      the act replaced threading.excepthook; the runner sees an error that no code sees in a thread through it, so while it is replaced the case cannot show one
+                 at test_setups.py:185  threading.excepthook = lambda args: None
+       inputs    (none)
+   ✓ thread_hook_swapped_in_a_window › worker.is_alive() is False   False
+ test_warnings_muted_in_a_window  (test_setups.py:208)
+   ✗ warnings_muted_in_a_window › hook   test_setups.py:217
+       what      the act replaced warnings.filters; the runner sees a warning that the test does not expect through it, so while it is replaced the case cannot show one
+                 at test_setups.py:210  with warnings.catch_warnings():
+       inputs    (none)
+   ✓ warnings_muted_in_a_window › got == 1   1
+ test_warnings_muted_for_good  (test_setups.py:220)
+   ✗ warnings_muted_for_good › hook   test_setups.py:228
+       what      the act replaced warnings.filters (by warnings.simplefilter); the runner sees a warning that the test does not expect through it, so while it is replaced the case cannot show one
+                 at test_setups.py:222  warnings.simplefilter("ignore")
+       inputs    (none)
+   ✓ warnings_muted_for_good › got == 1   1
+ test_unraisable_swapped  (test_setups.py:231)
+   ✗ unraisable_swapped › hook   test_setups.py:238
+       what      the act replaced sys.unraisablehook; the runner sees an error that no code can catch, such as one in `__del__` through it, so while it is replaced the case cannot show one
+                 at test_setups.py:233  sys.unraisablehook = lambda u: None
+       inputs    (none)
+   ✓ unraisable_swapped › got == 1   1
+ test_alarm_cancelled  (test_setups.py:241)
+   ✗ alarm_cancelled › hook   test_setups.py:248
+       what      the act replaced signal.alarm; the runner sees a case that runs too long through it, so while it is replaced the case cannot show one
+                 at test_setups.py:243  signal.alarm(0)
+       inputs    (none)
+   ✓ alarm_cancelled › got == 1   1
+ test_stdout_redirected  (test_setups.py:254)
+   ✓ stdout_redirected › buffer.getvalue() == 'hello\n'   'hello\n'
+ test_stderr_none  (test_setups.py:265)
+   ✓ stderr_none › got is True   True
+ test_assert_inside_the_act  (test_setups.py:280)
+   ! assert_inside_the_act › path   test_setups.py:288
+       what      an assert ran in the act at test_setups.py:283: the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+       inputs    (none)
+   ✓ assert_inside_the_act › seen == 'a'   'a'
+ test_setup_mixed_with_raises  (test_setups.py:291)
+   ! refused:
+       line 293: `raises`, `warns` and `handling` each take a `with` of their own
+     so none of its 1 case(s) runs
+══ 27 cases: 11 passed · 12 failed · 4 refused · 0 blocked   (31 checks held)

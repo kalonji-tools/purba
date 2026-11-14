@@ -1,0 +1,124 @@
+"""loguru's test_filesink_delay.py, ported to the form of prototype 5 (#967), with #979's setups: the three `with freeze_time(…)` blocks are back as the original writes them.
+
+Adapted from loguru's tests/test_filesink_delay.py (MIT, Delgan/loguru@28349be); see LICENSE.loguru.
+"""
+
+import datetime
+import os
+import time
+from pathlib import Path
+
+from cases import before_each, use
+from loguru import logger
+from loguru_lab import TmpPath, freeze_time, reset_logger
+
+before_each(reset_logger)
+
+
+def test_file_not_delayed(tmp_path: Path = use(TmpPath)):
+    file = tmp_path / "test.log"
+    logger.add(file, format="{message}", delay=False)
+    before = file.read_text()
+    logger.debug("Not delayed")
+    assert before == ""
+    assert file.read_text() == "Not delayed\n"
+
+
+def test_file_delayed(tmp_path: Path = use(TmpPath)):
+    file = tmp_path / "test.log"
+    logger.add(file, format="{message}", delay=True)
+    existed = file.exists()
+    logger.debug("Delayed")
+    assert existed is False
+    assert file.read_text() == "Delayed\n"
+
+
+def test_compression(tmp_path: Path = use(TmpPath)):
+    i = logger.add(tmp_path / "file.log", compression="gz", delay=True)
+    logger.debug("a")
+    logger.remove(i)
+
+    assert sorted(os.listdir(tmp_path)) == ["file.log.gz"]
+
+
+def test_compression_early_remove(tmp_path: Path = use(TmpPath)):
+    i = logger.add(tmp_path / "file.log", compression="gz", delay=True)
+    logger.remove(i)
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_retention(tmp_path: Path = use(TmpPath)):
+    for i in range(5):
+        tmp_path.joinpath("test.2020-01-01_01-01-%d_000001.log" % i).write_text("test")
+
+    i = logger.add(tmp_path / "test.log", retention=0, delay=True)
+    logger.debug("a")
+    logger.remove(i)
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_retention_early_remove(tmp_path: Path = use(TmpPath)):
+    for i in range(5):
+        tmp_path.joinpath("test.2020-01-01_01-01-%d_000001.log" % i).write_text("test")
+
+    i = logger.add(tmp_path / "test.log", retention=0, delay=True)
+    logger.remove(i)
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_rotation(tmp_path: Path = use(TmpPath)):
+    with freeze_time("2001-02-03"):
+        i = logger.add(tmp_path / "file.log", rotation=0, delay=True, format="{message}")
+        logger.debug("a")
+        logger.remove(i)
+
+    assert sorted(os.listdir(tmp_path)) == ["file.2001-02-03_00-00-00_000000.log", "file.log"]
+    assert (tmp_path / "file.2001-02-03_00-00-00_000000.log").read_text() == ""
+    assert (tmp_path / "file.log").read_text() == "a\n"
+
+
+def test_rotation_early_remove(tmp_path: Path = use(TmpPath)):
+    i = logger.add(tmp_path / "file.log", rotation=0, delay=True, format="{message}")
+    logger.remove(i)
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_rotation_and_retention(tmp_path: Path = use(TmpPath)):
+    with freeze_time("1999-12-12") as frozen:
+        filepath = tmp_path / "file.log"
+        logger.add(filepath, rotation=30, retention=2, delay=True, format="{message}")
+        for i in range(1, 10):
+            time.sleep(0.05)  # Retention is based on mtime.
+            frozen.tick(datetime.timedelta(seconds=0.05))
+            logger.info(str(i) * 20)
+
+    assert sorted(os.listdir(tmp_path)) == [
+        "file.1999-12-12_00-00-00_350000.log",
+        "file.1999-12-12_00-00-00_400000.log",
+        "file.log",
+    ]
+    assert (tmp_path / "file.1999-12-12_00-00-00_350000.log").read_text() == "77777777777777777777\n"
+    assert (tmp_path / "file.1999-12-12_00-00-00_400000.log").read_text() == "88888888888888888888\n"
+    assert (tmp_path / "file.log").read_text() == "99999999999999999999\n"
+
+
+def test_rotation_and_retention_timed_file(tmp_path: Path = use(TmpPath)):
+    with freeze_time("1999-12-12") as frozen:
+        filepath = tmp_path / "file.{time}.log"
+        logger.add(filepath, rotation=30, retention=2, delay=True, format="{message}")
+        for i in range(1, 10):
+            time.sleep(0.05)  # Retention is based on mtime.
+            frozen.tick(datetime.timedelta(seconds=0.05))
+            logger.info(str(i) * 20)
+
+    assert sorted(os.listdir(tmp_path)) == [
+        "file.1999-12-12_00-00-00_350000.log",
+        "file.1999-12-12_00-00-00_400000.log",
+        "file.1999-12-12_00-00-00_450000.log",
+    ]
+    assert (tmp_path / "file.1999-12-12_00-00-00_350000.log").read_text() == "77777777777777777777\n"
+    assert (tmp_path / "file.1999-12-12_00-00-00_400000.log").read_text() == "88888888888888888888\n"
+    assert (tmp_path / "file.1999-12-12_00-00-00_450000.log").read_text() == "99999999999999999999\n"

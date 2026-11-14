@@ -1,0 +1,5 @@
+979             0.98 s
+980 all on      1.90 s
+980 watch off   1.03 s
+980 alone off   1.91 s
+980 both off    1.02 s

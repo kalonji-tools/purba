@@ -1,0 +1,12 @@
+1 first-attempts/threading 979 ══ 7 cases: 0 passed · 0 failed · 7 refused · 0 blocked   (0 · fork warnings: 0
+1 first-attempts/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+1 regress/threading 979 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+1 regress/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+2 first-attempts/threading 979 ══ 7 cases: 0 passed · 0 failed · 7 refused · 0 blocked   (0 · fork warnings: 0
+2 first-attempts/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+2 regress/threading 979 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+2 regress/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+3 first-attempts/threading 979 ══ 7 cases: 0 passed · 0 failed · 7 refused · 0 blocked   (0 · fork warnings: 0
+3 first-attempts/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+3 regress/threading 979 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0
+3 regress/threading 980 ══ 7 cases: 7 passed · 0 failed · 0 refused · 0 blocked   (1 · fork warnings: 0

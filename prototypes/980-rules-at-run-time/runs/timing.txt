@@ -1,0 +1,4 @@
+colorama        979:   0.93 s   980:   1.81 s   (best of 7, taking turns)
+defaults        979:   0.31 s   980:   0.36 s   (best of 7, taking turns)
+filesink-delay  979:   1.33 s   980:   1.51 s   (best of 7, taking turns)
+threading       979:  14.69 s   980:  14.79 s   (best of 3, taking turns)

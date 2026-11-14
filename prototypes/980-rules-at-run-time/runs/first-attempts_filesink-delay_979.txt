@@ -1,0 +1,42 @@
+── test_filesink_delay.py
+ test_file_not_delayed  (test_filesink_delay.py:17)
+   ! refused:
+       line 20 holds an assert inside the act: the act ends at the first check, and every check comes after it, at the end of the test or at the end of a `with`
+     so none of its 1 case(s) runs
+ test_file_delayed  (test_filesink_delay.py:25)
+   ! refused:
+       line 28 holds an assert inside the act: the act ends at the first check, and every check comes after it, at the end of the test or at the end of a `with`
+     so none of its 1 case(s) runs
+ test_compression  (test_filesink_delay.py:33)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_compression_early_remove  (test_filesink_delay.py:41)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_retention  (test_filesink_delay.py:47)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_retention_early_remove  (test_filesink_delay.py:58)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_rotation  (test_filesink_delay.py:68)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_rotation_early_remove  (test_filesink_delay.py:83)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_rotation_and_retention  (test_filesink_delay.py:90)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+ test_rotation_and_retention_timed_file  (test_filesink_delay.py:109)
+   ! refused:
+       checks nothing: end it with `assert reading == expected`, or expect a raise with `with raises(…):`
+     so none of its 1 case(s) runs
+══ 10 cases: 0 passed · 0 failed · 10 refused · 0 blocked   (0 checks held)

@@ -1,0 +1,37 @@
+── test_threading.py
+ test_safe_logging  (test_threading.py:35)
+   ! refused:
+       line 48 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 51 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_safe_adding_while_logging  (test_threading.py:62)
+   ! refused:
+       line 82 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 85 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_safe_removing_while_logging  (test_threading.py:97)
+   ! refused:
+       line 116 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 119 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_safe_removing_all_while_logging  (test_threading.py:131)
+   ! refused:
+       line 148 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 151 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_safe_slow_removing_all_while_logging  (test_threading.py:162)
+   ! refused:
+       line 180 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 183 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_safe_writing_after_removing  (test_threading.py:194)
+   ! refused:
+       line 211 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 214 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+ test_heavily_threaded_logging  (test_threading.py:227)
+   ! refused:
+       line 239 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+       line 242 holds a loop over `threads`: the act has one path, so a loop runs over literal data, such as `range(5)`, with no `else`; or make each round a case
+     so none of its 1 case(s) runs
+══ 7 cases: 0 passed · 0 failed · 7 refused · 0 blocked   (0 checks held)
