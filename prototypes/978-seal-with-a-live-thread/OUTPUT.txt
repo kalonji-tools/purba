@@ -1,0 +1,37 @@
+$ python fork_probe.py
+A. loguru enqueue worker alive, act wrote 'Oops', slept 0.1 s
+  child reads what the act wrote: 'Oops\n'  (warned, 0.011s) [threading=2 os=2]
+  child logs 'more', waits 0.2 s, reads: 'Oops\n'  (warned, 0.212s) [threading=2 os=2]
+  child calls logger.remove(): remove returned  (warned, 0.011s) [threading=2 os=2]
+B. act's write still in the queue at the fork (no sleep)
+  child reads count of lines: 1930 of 2000 lines  (warned, 0.011s) [threading=2 os=2]
+  parent after remove: 2000 of 2000 lines
+C. a test's own thread holds a plain lock in a loop
+  try 0: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 1: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 2: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 3: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 4: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 5: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 6: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 7: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 8: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+  try 9: child takes the lock: CHILD HUNG >3 s, killed  [threading=2 os=2]
+D. a thread that threading does not list (_thread.start_new_thread)
+  threading=1 os=2  enumerate=['MainThread']
+  child: ran  (warned, 0.011s) [threading=1 os=2]
+
+$ python replay_probe.py
+    check 3: ✓  threads alive at check=2
+    check 1: ✓  threads alive at check=2
+    check 0: ✓  threads alive at check=2
+    check 2: ✓  threads alive at check=2
+    check 0: ✓  threads alive at check=2
+    check 1: ✓  threads alive at check=2
+    check 2: ✓  threads alive at check=2
+    check 3: ✓  threads alive at check=2
+  replay, 4 case processes in parallel: 0.114s, exit codes [0, 0, 0, 0]
+  replay, 4 case processes one after another: 0.449s
+  one act, for scale: 0.114s
+
+Python 3.12.15, loguru 0.8.0, Linux
