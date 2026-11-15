@@ -849,6 +849,33 @@ fn an_expectation_that_is_not_one_comparison_is_refused() {
 }
 
 #[test]
+fn an_expectation_at_the_end_of_the_body_of_a_with_keeps_the_rules_of_an_expectation() {
+    let (tests, refused) = judged(
+        "test_with_rules.py",
+        concat!(
+            "def test_inside():\n    with x:\n        y = 1\n        assert y\n\n",
+            "def test_nested():\n    with x:\n        with z:\n            assert y == f()\n",
+            "    assert y == 1\n\n",
+            "def test_held():\n    with x:\n        assert y == 1\n    assert y == 2\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_held"],
+        "an expectation inside a with and one after it, each one comparison of a literal"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_inside {}", not_one(4)),
+            format!("test_m.py::test_nested {}", computes(9, "f()")),
+        ],
+        "an assert at the end of a with's body, at any depth, is an expectation"
+    );
+}
+
+#[test]
 fn an_expected_value_that_is_not_a_literal_is_refused() {
     let (tests, refused) = judged(
         "test_computed.py",

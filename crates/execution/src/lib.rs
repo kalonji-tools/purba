@@ -8,6 +8,7 @@ mod fork;
 mod frame;
 pub mod interrupt;
 pub mod panic;
+mod paths;
 mod reader;
 mod step;
 mod thread;
@@ -21,7 +22,7 @@ use std::path::PathBuf;
 
 /// Assertion's rewrite of a module, which a [`Module`] holds.
 pub use purba_assertion::Rewrite;
-use purba_assertion::{Loaded, Readings, Verdict};
+use purba_assertion::{Loaded, Readings, Swallowed, Verdict, Watched};
 use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Py, PyAny, PyErr, Python};
@@ -180,6 +181,7 @@ pub struct Worker<'py, T> {
     hook: &'static Py<thread::Hook>,
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
+    replays: Vec<(usize, bool, String)>,
 }
 
 /// What a load or a call meets, from before its first line of Python: whether
@@ -221,6 +223,7 @@ impl<'py, T> Worker<'py, T> {
                 .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
             owners: Vec::new(),
             last: None,
+            replays: Vec::new(),
         }
     }
 }
@@ -271,7 +274,16 @@ impl<'py, T: Clone> Worker<'py, T> {
             let (loaded, landed) = interrupt::calling(py, || {
                 purba_assertion::load(py, &module.path, &module.rewrite)
             });
-            (loaded.map(Some).map_err(|err| error(&err)), landed)
+            let own = loaded.map_err(|err| error(&err)).and_then(|loaded| {
+                if let Some(name) = thread::replaced(py) {
+                    return Err(Error::project(format!(
+                        "the module replaced {name} as it loaded, and a test keeps purba's hooks"
+                    )));
+                }
+                paths::arm(loaded.code()).map_err(|err| error(&err))?;
+                Ok(Some(loaded))
+            });
+            (own, landed)
         };
         let met = self.close(&window, Owner::Load(module.path.clone()), interrupted);
         let (kept, result) = match step::decide(own, met) {
@@ -365,15 +377,18 @@ impl<'py, T: Clone> Worker<'py, T> {
     }
 
     /// Looks `function` up in `module`. Calls it, unless the first interrupt
-    /// landed since `window` opened. Also says whether the first interrupt
-    /// landed in the step.
+    /// landed since `window` opened, and watches the paths of the call. Also
+    /// says whether the first interrupt landed in the step. When a thread was
+    /// alive at the first expectation and the outcome comes from the
+    /// expectations, it keeps each later expectation for a replay.
     fn call(
-        &self,
+        &mut self,
         window: &Window,
         module: &Module,
         function: &str,
     ) -> (Result<Kind, Error>, bool) {
         let py = self.py;
+        self.replays.clear();
         let loaded = match self.module(module) {
             Ok(loaded) => loaded,
             Err(error) => return (Err(error), window.landed()),
@@ -393,6 +408,10 @@ impl<'py, T: Clone> Worker<'py, T> {
         if window.landed() {
             return (Ok(Kind::Interrupted), true);
         }
+        let before = loaded.first_expectation(function).unwrap_or(usize::MAX);
+        if let Ok(code) = test.getattr("__code__") {
+            paths::start(py, &code, before);
+        }
         let mut landed = false;
         let watched = loaded.watch(&reader::READERS, || {
             let (called, inside) = interrupt::calling(py, || {
@@ -401,76 +420,195 @@ impl<'py, T: Clone> Worker<'py, T> {
             landed = inside;
             Ok(called)
         });
-        let result = match watched.result {
+        let path = paths::finish(py);
+        let Watched {
+            result,
+            mark,
+            readings,
+            form,
+            raised,
+            swallowed,
+        } = watched;
+        let result = match result {
             Ok(Ok(called)) => called.map(drop),
             Ok(Err(payload)) => {
                 return (Err(Error::caught(payload.as_ref(), "execution")), landed);
             }
             Err(err) => Err(err),
         };
-        let kind = decide(
-            py,
-            result,
-            watched.mark,
-            &watched.readings,
-            loaded,
-            function,
-        );
-        (kind, landed)
+        let with = result.as_ref().err().and_then(|err| {
+            let value = err.value(py);
+            raised
+                .iter()
+                .find(|(exception, _)| exception.bind(py).is(value))
+                .map(|(_, text)| text.clone())
+        });
+        let seen = Seen {
+            form,
+            with,
+            path: path_faults(path, &swallowed),
+        };
+        let decided = decide(py, result, mark, &readings, &seen, loaded, function);
+        let replays = if decided.1 {
+            readings
+                .replay
+                .iter()
+                .filter_map(|index| {
+                    let (_, held) = readings.in_order.iter().find(|(read, _)| read == index)?;
+                    Some((*index, *held, loaded.expectation(*index)?.to_owned()))
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+        self.replays = replays;
+        (decided.0, landed)
+    }
+
+    /// Runs `function` of `module` again as a replay that reads only the
+    /// expectation at `index`, and ends the process with its verdict. It
+    /// returns only when `module` did not load or has no `function`.
+    pub fn replay(&self, module: &Module, function: &str, index: usize) {
+        let py = self.py;
+        let Ok(loaded) = self.module(module) else {
+            return;
+        };
+        let Ok(test) = loaded.module().getattr(function) else {
+            return;
+        };
+        let _ = interrupt::calling(py, || {
+            loaded.replay(&reader::READERS, index, || test.call0())
+        });
+    }
+
+    /// Each later expectation of the last case that a replay must read alone:
+    /// its index, whether it held when read in order, and its text.
+    #[must_use]
+    pub fn replays(&self) -> &[(usize, bool, String)] {
+        &self.replays
     }
 }
 
-/// The outcome of the case of `function`, from what its call gave, the last
-/// marked assert, and the readings of its expectations, in this order: a
-/// project error when a fork to read a later expectation alone failed, or when
-/// the two readings of one expectation differ; `raised` when the call raised,
-/// unless a marked assert that did not hold raised `AssertionError`, which is
-/// `failed`; `failed` when an expectation did not hold; a project error when no
-/// expectation ran; and `passed`.
+/// What the run of a case saw besides its result, its mark and its readings:
+/// the first fault of the form, the text of a `with` whose entry or cleanup
+/// raised what the call raised, and the faults of the paths.
+struct Seen {
+    form: Option<String>,
+    with: Option<String>,
+    path: Vec<String>,
+}
+
+/// The faults of the paths of a case, in the order of their lines: each `with`
+/// that swallowed a raise and skipped a line, and each fault of `path` that
+/// no such `with` explains.
+fn path_faults(path: Vec<(usize, String)>, swallowed: &[Swallowed]) -> Vec<String> {
+    let mut faults: Vec<(usize, String)> = path
+        .into_iter()
+        .filter(|(line, _)| {
+            !swallowed
+                .iter()
+                .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
+        })
+        .chain(swallowed.iter().map(|swallow| {
+            (
+                swallow.with,
+                format!(
+                    "the with at line {} swallowed a raise, and line {} did not run",
+                    swallow.with, swallow.skipped
+                ),
+            )
+        }))
+        .collect();
+    faults.sort();
+    faults.dedup();
+    faults.into_iter().map(|(_, fault)| fault).collect()
+}
+
+/// The words of two readings of one expectation that differ, or `None` when
+/// they agree.
+#[must_use]
+pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
+    Some(match (alone, in_order) {
+        (Verdict::Holds, false) => {
+            "holds when read alone, and not after the expectations before it"
+        }
+        (Verdict::Fails, true) => "holds after the expectations before it, and not when read alone",
+        (Verdict::Raises, true) => {
+            "holds after the expectations before it, and raises when read alone"
+        }
+        (Verdict::Raises, false) => {
+            "does not hold after the expectations before it, and raises when read alone"
+        }
+        (Verdict::Holds, true) | (Verdict::Fails, false) => return None,
+    })
+}
+
+/// The outcome of the case of `function`, and whether its expectations gave
+/// it, from what its call gave, the last marked assert, the readings of its
+/// expectations, and what the run saw. The first of these wins:
+///
+/// 1. a project error for the first fault of the form;
+/// 2. `raised` when the call raised, unless a `with`'s entry or cleanup raised
+///    it, or a marked assert that did not hold raised `AssertionError`, which
+///    are `failed`;
+/// 3. a project error for the faults of the paths, joined by `; `;
+/// 4. a project error when a fork to read a later expectation alone failed, or
+///    when the two readings of one expectation differ;
+/// 5. `failed` when an expectation did not hold;
+/// 6. a project error when no expectation ran;
+/// 7. `passed`.
 fn decide(
     py: Python<'_>,
     result: Result<(), PyErr>,
     mark: Option<(&str, bool)>,
     readings: &Readings,
+    seen: &Seen,
     loaded: &Loaded<'_>,
     function: &str,
-) -> Result<Kind, Error> {
+) -> (Result<Kind, Error>, bool) {
+    if let Some(form) = &seen.form {
+        return (Err(Error::project(form.clone())), false);
+    }
+    if let Err(err) = result {
+        if let Some(with) = &seen.with {
+            return (
+                Ok(Kind::Failed {
+                    asserts: vec![with.clone()],
+                }),
+                false,
+            );
+        }
+        if let Some((assert, false)) = mark
+            && err.is_instance_of::<PyAssertionError>(py)
+        {
+            return (
+                Ok(Kind::Failed {
+                    asserts: vec![assert.to_owned()],
+                }),
+                false,
+            );
+        }
+        return (
+            Ok(Kind::Raised {
+                exception: err.to_string(),
+            }),
+            false,
+        );
+    }
+    if !seen.path.is_empty() {
+        return (Err(Error::project(seen.path.join("; "))), false);
+    }
     if let Some(refused) = &readings.refused {
-        return Err(Error::project(refused.clone()));
+        return (Err(Error::project(refused.clone())), false);
     }
     for &(index, alone) in &readings.alone {
         let Some(&(_, in_order)) = readings.in_order.iter().find(|(read, _)| *read == index) else {
             continue;
         };
-        let differs = match (alone, in_order) {
-            (Verdict::Holds, false) => {
-                "holds when read alone, and not after the expectations before it"
-            }
-            (Verdict::Fails, true) => {
-                "holds after the expectations before it, and not when read alone"
-            }
-            (Verdict::Raises, true) => {
-                "holds after the expectations before it, and raises when read alone"
-            }
-            (Verdict::Raises, false) => {
-                "does not hold after the expectations before it, and raises when read alone"
-            }
-            (Verdict::Holds, true) | (Verdict::Fails, false) => continue,
-        };
-        let text = loaded.expectation(index).unwrap_or_default();
-        return Err(Error::project(format!("{text} {differs}")));
-    }
-    if let Err(err) = result {
-        if let Some((assert, false)) = mark
-            && err.is_instance_of::<PyAssertionError>(py)
-        {
-            return Ok(Kind::Failed {
-                asserts: vec![assert.to_owned()],
-            });
+        if let Some(differ) = differs(alone, in_order) {
+            let text = loaded.expectation(index).unwrap_or_default();
+            return (Err(Error::project(format!("{text} {differ}"))), false);
         }
-        return Ok(Kind::Raised {
-            exception: err.to_string(),
-        });
     }
     let failed: Vec<String> = readings
         .in_order
@@ -479,13 +617,16 @@ fn decide(
         .filter_map(|(index, _)| loaded.expectation(*index).map(str::to_owned))
         .collect();
     if !failed.is_empty() {
-        Ok(Kind::Failed { asserts: failed })
+        (Ok(Kind::Failed { asserts: failed }), true)
     } else if !readings.in_order.is_empty() {
-        Ok(Kind::Passed)
+        (Ok(Kind::Passed), true)
     } else if !loaded.states_expectation(function) {
-        Err(Error::project("no expectation stated".to_owned()))
+        (
+            Err(Error::project("no expectation stated".to_owned())),
+            false,
+        )
     } else {
-        Err(Error::project("no expectation ran".to_owned()))
+        (Err(Error::project("no expectation ran".to_owned())), false)
     }
 }
 

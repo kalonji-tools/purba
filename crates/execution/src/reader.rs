@@ -1,6 +1,8 @@
 //! The readers of a case: a process that the case's process forks for each
 //! expectation after the first, before any reading, to read that expectation
-//! alone. A reader ends with its verdict as its exit code.
+//! alone. A reader ends with its verdict as its exit code. The steps of a case
+//! also ask here whether it replaced a hook, and the first expectation stops the
+//! watch of its paths.
 
 use std::io;
 
@@ -32,18 +34,8 @@ impl Readers for Forks {
         })
     }
 
-    /// A reader that a signal ends gives `Raises`, as does any exit code but
-    /// the three of a verdict.
     fn wait(&self, pid: i32) -> Verdict {
-        let status = zygote::wait(pid);
-        if !libc::WIFEXITED(status) {
-            return Verdict::Raises;
-        }
-        match libc::WEXITSTATUS(status) {
-            HOLDS => Verdict::Holds,
-            FAILS => Verdict::Fails,
-            _ => Verdict::Raises,
-        }
+        verdict(zygote::wait(pid))
     }
 
     fn end(&self, verdict: Verdict) -> ! {
@@ -55,5 +47,27 @@ impl Readers for Forks {
         // SAFETY: `_exit` takes any code, and ends the process with no
         // `finally` block, `atexit` function or wait for threads.
         unsafe { libc::_exit(code) }
+    }
+
+    fn replaced(&self, py: Python<'_>) -> Option<&'static str> {
+        crate::thread::replaced(py)
+    }
+
+    fn expecting(&self, _py: Python<'_>) {
+        crate::paths::stop();
+    }
+}
+
+/// The verdict of a reader or a replay that ended with the wait status
+/// `status`. One that a signal ends gives `Raises`, as does any exit code but
+/// the three of a verdict.
+pub const fn verdict(status: libc::c_int) -> Verdict {
+    if !libc::WIFEXITED(status) {
+        return Verdict::Raises;
+    }
+    match libc::WEXITSTATUS(status) {
+        HOLDS => Verdict::Holds,
+        FAILS => Verdict::Fails,
+        _ => Verdict::Raises,
     }
 }

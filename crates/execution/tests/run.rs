@@ -240,11 +240,11 @@ fn a_forked_child_exits_with_its_own_code() {
     let test_fork = module(
         "test_fork.py",
         "import os\n\n\
-         def test_forks():\n    pid = os.fork()\n    if pid == 0:\n        os._exit(7)\n\
+         def test_forks():\n    pid = os.fork()\n    {0: os._exit}.get(pid, int)(7)\n\
          \x20   _, status = os.waitpid(pid, 0)\n\
          \x20   assert os.waitstatus_to_exitcode(status) == 7\n\n\
-         def test_forks_with_a_keyword():\n    pid = os.fork()\n    if pid == 0:\n\
-         \x20       os._exit(status=7)\n\
+         def test_forks_with_a_keyword():\n    pid = os.fork()\n\
+         \x20   {0: os._exit}.get(pid, dict)(status=7)\n\
          \x20   _, status = os.waitpid(pid, 0)\n\
          \x20   assert os.waitstatus_to_exitcode(status) == 7\n",
     );
@@ -255,20 +255,56 @@ fn a_forked_child_exits_with_its_own_code() {
     );
 }
 
+/// The words of a refused assert before the first expectation, at `line`.
+fn asserts_before(line: usize) -> String {
+    format!("line {line} asserts before the first expectation, and only an expectation asserts")
+}
+
 #[test]
-fn an_assertion_error_after_an_assert_that_held_gives_raised() {
-    let test_helper = module(
-        "test_helper.py",
-        "def test_helper():\n    assert 1 == 1\n\
-         \x20   raise AssertionError('from a helper')\n",
-    );
-    assert_eq!(
-        kinds(&test_helper, &["test_helper"]),
-        [Kind::Raised {
-            exception: "AssertionError: from a helper".to_owned()
-        }],
-        "no assert failed, so the test raised"
-    );
+fn an_assert_before_the_first_expectation_is_refused_whatever_the_case_does_after_it() {
+    // Each row: the test, its body, and the line of its first assert.
+    let rows = [
+        (
+            "test_held_then_raise",
+            "    assert 1 == 1\n    raise AssertionError('from a helper')\n",
+            2,
+        ),
+        (
+            "test_message_raises",
+            "    assert 1 == 2, undefined_name\n    return\n",
+            2,
+        ),
+        (
+            "test_caught_then_raise",
+            "    try:\n        assert 1 == 2\n    except AssertionError:\n        pass\n\
+             \x20   raise ValueError('boom')\n",
+            3,
+        ),
+        (
+            "test_caught_then_return",
+            "    try:\n        assert 1 == 2\n    except AssertionError:\n        pass\n",
+            3,
+        ),
+        (
+            "test_cleanup_fails",
+            "    try:\n        assert 1 + 1 == 3\n    finally:\n        assert 2 + 2 == 5\n",
+            3,
+        ),
+        (
+            "test_caught_held_raise",
+            "    try:\n        assert 1 == 2\n    except AssertionError:\n        pass\n\
+             \x20   assert 2 == 2\n    raise AssertionError('from a helper')\n",
+            3,
+        ),
+    ];
+    for (name, body, line) in rows {
+        let test = module(&format!("{name}.py"), &format!("def {name}():\n{body}"));
+        assert_eq!(
+            results(&test, &[name]),
+            [Err(asserts_before(line))],
+            "{name}: the first assert that ran is refused, ahead of a raise or a later assert"
+        );
+    }
 }
 
 #[test]
@@ -283,21 +319,6 @@ fn an_assertion_error_before_any_assert_gives_raised() {
             exception: "AssertionError: no assert ran".to_owned()
         }],
         "no assert ran, so the test raised"
-    );
-}
-
-#[test]
-fn an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised() {
-    let test_message = module(
-        "test_message.py",
-        "def test_message():\n    assert 1 == 2, undefined_name\n    return\n",
-    );
-    assert_eq!(
-        kinds(&test_message, &["test_message"]),
-        [Kind::Raised {
-            exception: "NameError: name 'undefined_name' is not defined".to_owned()
-        }],
-        "the message raised NameError, so the test raised"
     );
 }
 
@@ -317,38 +338,7 @@ fn the_message_of_an_expectation_is_never_evaluated() {
 }
 
 #[test]
-fn an_exception_after_a_caught_assert_that_did_not_hold_gives_raised() {
-    let test_caught = module(
-        "test_caught_then_raise.py",
-        "def test_caught_then_raise():\n    try:\n        assert 1 == 2\n\
-         \x20   except AssertionError:\n        pass\n\
-         \x20   raise ValueError('boom')\n",
-    );
-    assert_eq!(
-        kinds(&test_caught, &["test_caught_then_raise"]),
-        [Kind::Raised {
-            exception: "ValueError: boom".to_owned()
-        }],
-        "the test raised ValueError after it caught its assert, so the test raised"
-    );
-}
-
-#[test]
-fn a_caught_assert_that_did_not_hold_and_a_return_state_no_expectation() {
-    let test_caught = module(
-        "test_caught_then_return.py",
-        "def test_caught_then_return():\n    try:\n        assert 1 == 2\n\
-         \x20   except AssertionError:\n        pass\n",
-    );
-    assert_eq!(
-        results(&test_caught, &["test_caught_then_return"]),
-        [Err("no expectation stated".to_owned())],
-        "the assert is marked, not an expectation, and the test returned"
-    );
-}
-
-#[test]
-fn a_cleanup_assert_that_holds_keeps_the_assert_that_did_not() {
+fn an_expectation_inside_a_checking_context_fails_and_an_assert_in_a_try_is_refused() {
     let test_cleanup = module(
         "test_cleanup_assert.py",
         "import contextlib\n\nopened = []\n\n\
@@ -359,53 +349,44 @@ fn a_cleanup_assert_that_holds_keeps_the_assert_that_did_not() {
          def test_with_a_finally_check():\n    try:\n        assert 1 + 1 == 3\n\
          \x20   finally:\n        assert not opened\n",
     );
-    let failed = Kind::Failed {
-        asserts: vec!["assert 1 + 1 == 3".to_owned()],
-    };
     assert_eq!(
-        kinds(
+        results(
             &test_cleanup,
             &[
                 "test_inside_a_checking_context",
                 "test_with_a_finally_check"
             ]
         ),
-        [failed.clone(), failed],
-        "the cleanup assert held after the assert that did not, so each test fails on that one"
+        [
+            Ok(Kind::Failed {
+                asserts: vec!["assert 1 + 1 == 3".to_owned()],
+            }),
+            Err(asserts_before(18)),
+        ],
+        "the assert at the end of the with's body is an expectation, and its cleanup's assert \
+         keeps its mark; the assert in the try runs before any expectation"
     );
 }
 
 #[test]
-fn a_cleanup_assert_that_does_not_hold_either_fails_the_test() {
-    let test_cleanup = module(
-        "test_cleanup_fails.py",
-        "def test_cleanup_fails():\n    try:\n        assert 1 + 1 == 3\n\
-         \x20   finally:\n        assert 2 + 2 == 5\n",
+fn a_with_whose_cleanup_raises_fails_and_names_the_with() {
+    let test_with = module(
+        "test_with_cleanup.py",
+        "import contextlib\n\nopened = ['a handle']\n\n\
+         @contextlib.contextmanager\ndef no_leaks():\n    yield\n\
+         \x20   assert opened == [], 'a handle leaked'\n\n\
+         def test_cleanup():\n    with no_leaks():\n        total = 1\n\
+         \x20   assert total == 1\n",
     );
     assert_eq!(
-        kinds(&test_cleanup, &["test_cleanup_fails"]),
+        kinds(&test_with, &["test_cleanup"]),
         [Kind::Failed {
-            asserts: vec!["assert 2 + 2 == 5".to_owned()],
+            asserts: vec![
+                "the cleanup of the with at line 11 raised AssertionError: a handle leaked"
+                    .to_owned()
+            ],
         }],
-        "the cleanup assert is the last that did not hold"
-    );
-}
-
-#[test]
-fn an_assertion_error_after_a_caught_assert_and_one_that_held_fails_on_the_caught_one() {
-    let test_caught = module(
-        "test_caught_held_raise.py",
-        "def test_caught_held_raise():\n    try:\n        assert 1 == 2\n\
-         \x20   except AssertionError:\n        pass\n\
-         \x20   assert 2 == 2\n\
-         \x20   raise AssertionError('from a helper')\n",
-    );
-    assert_eq!(
-        kinds(&test_caught, &["test_caught_held_raise"]),
-        [Kind::Failed {
-            asserts: vec!["assert 1 == 2".to_owned()],
-        }],
-        "an assert that held does not replace the caught assert that did not"
+        "the cleanup ran before the first expectation, and its assert keeps its mark"
     );
 }
 

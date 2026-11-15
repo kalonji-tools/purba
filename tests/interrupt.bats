@@ -765,8 +765,9 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal, time' \
     'def exit_now(code):' '    os._exit(code)' \
-    'def test_child_dies_by_sigterm():' '    pid = os.fork()' '    if pid == 0:' \
-    '        time.sleep(30)' '        exit_now(0)' '    time.sleep(0.5)' \
+    'def child():' '    time.sleep(30)' '    exit_now(0)' \
+    'def test_child_dies_by_sigterm():' '    pid = os.fork()' '    {0: child}.get(pid, int)()' \
+    '    time.sleep(0.5)' \
     '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
     '    assert os.waitstatus_to_exitcode(status) == -15' \
     'def test_two():' '    assert 1 == 1' >test_fork_term.py
@@ -805,10 +806,10 @@ LINES
     'def exit_now(code):' '    os._exit(code)' \
     'READ = ("import signal as s; "' \
     '        "print([s.getsignal(n) for n in (s.SIGINT, s.SIGTERM, s.SIGHUP)])")' \
+    'def in_child(write):' '    os.dup2(write, 1)' '    exec(READ)' \
+    '    sys.stdout.flush()' '    exit_now(0)' \
     'def test_handlers():' \
-    '    read, write = os.pipe()' '    pid = os.fork()' '    if pid == 0:' \
-    '        os.dup2(write, 1)' '        exec(READ)' \
-    '        sys.stdout.flush()' '        exit_now(0)' \
+    '    read, write = os.pipe()' '    pid = os.fork()' '    {0: in_child}.get(pid, int)(write)' \
     '    os.close(write)' '    os.waitpid(pid, 0)' \
     '    with os.fdopen(read) as child:' '        got = child.read()' \
     '    assert got == ("[<built-in function default_int_handler>, "' \
@@ -827,9 +828,10 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal, time' \
     'def exit_now(code):' '    os._exit(code)' \
+    'def child():' '    time.sleep(30)' '    exit_now(0)' \
     'def test_own_handler():' \
     '    signal.signal(signal.SIGTERM, lambda signum, frame: exit_now(9))' \
-    '    pid = os.fork()' '    if pid == 0:' '        time.sleep(30)' '        exit_now(0)' \
+    '    pid = os.fork()' '    {0: child}.get(pid, int)()' \
     '    time.sleep(0.5)' '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
     '    assert os.waitstatus_to_exitcode(status) == 9' >test_fork_own_handler.py
 
