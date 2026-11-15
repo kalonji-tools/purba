@@ -7,6 +7,7 @@
 - [A concern is what no part can own](decisions/a-concern-is-what-no-part-can-own.md)
 - [A crate joins when its relief exceeds its pain](decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md)
 - [A design in depth waits for what it assumes](decisions/a-design-in-depth-waits-for-what-it-assumes.md)
+- [A forecast finds the crates for each stated need](decisions/a-forecast-finds-the-crates-for-each-stated-need.md)
 - [A gate refuses each invariant a tool can see, from the first code it reads](decisions/a-gate-refuses-each-invariant-a-tool-can-see.md)
 - [A pinned candidate decides when a milestone is done](decisions/a-pinned-candidate-decides-when-a-milestone-is-done.md)
 - [An invariant needs no design of its own](decisions/an-invariant-needs-no-design-of-its-own.md)
@@ -149,6 +150,7 @@
 
 - [A crate joins when its relief exceeds its pain](decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md)
 - [A failure report comments only on an issue that `GITHUB_TOKEN` opened](decisions/a-failure-report-comments-only-on-an-issue-that-github-token-opened.md)
+- [A forecast finds the crates for each stated need](decisions/a-forecast-finds-the-crates-for-each-stated-need.md)
 - [A gate owns the mechanical standard](decisions/a-gate-owns-the-mechanical.md)
 - [A gate reads its marks on the base branch](decisions/a-gate-reads-its-marks-on-the-base-branch.md)
 - [A gate refuses each invariant a tool can see, from the first code it reads](decisions/a-gate-refuses-each-invariant-a-tool-can-see.md)
