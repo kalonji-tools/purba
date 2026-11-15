@@ -1,0 +1,28 @@
+── test_far.py
+ test_member  (test_far_home.py:18), a stage of test_far_home.py
+   ✓ member › shop.users == users   ['ann']
+   ✗ wrong_member › shop.users == users   test_far_home.py:26 · assert at line 21
+       expected  ['nobody'] (list)
+       reading   ['bob'] (list)
+       why       [0]: they differ from character 0: expected 'nobody', read 'bob'
+       inputs    name='bob' users=['nobody']
+ test_vip_member  (test_far_home.py:35), a stage of test_far_home.py
+   ! vip_member › path   test_far_home.py:43
+       what      line 32 of test_far_home.py (shown, reached from line 38 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+       inputs    name='cy'
+   ! vip_member › path   test_far_home.py:43
+       what      the branch at test_far_home.py:30 (shown, reached from line 38 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+       inputs    name='cy'
+   ✓ vip_member › shop.users == ['CY']   ['CY']
+ test_buy  (test_far.py:11)
+   ✓ test_buy › order.total == 2400   2400
+ test_after_far_wrong  (test_far.py:18)
+   ⊘ test_after_far_wrong  blocked: it takes the product of wrong_member (test_far_home.py:26),
+     which failed
+ test_after_far_refused  (test_far.py:24)
+   ⊘ test_after_far_refused  blocked: it takes the product of vip_member (test_far_home.py:43),
+     which was refused
+══ 6 cases: 2 passed · 1 failed · 1 refused · 2 blocked   (3 checks held)

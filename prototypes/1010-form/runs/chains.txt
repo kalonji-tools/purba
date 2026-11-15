@@ -1,0 +1,95 @@
+── test_logging.py
+ test_configure  (test_logging.py:21)
+   ✓ queued › lines == ['ready\n']   ['ready\n']
+   ✓ direct › lines == ['ready\n']   ['ready\n']
+ test_log  (test_logging.py:35)
+   ↺ queued_hello ran by replay: a thread other than the main one is alive after the act
+     (loguru-writer-1), and a fork copies only the thread that forks
+   ✓ queued_hello › logging.lines == lines   ['ready\n', 'hello\n']
+   ↺ queued_bye ran by replay: a thread other than the main one is alive after the act
+     (loguru-writer-1), and a fork copies only the thread that forks
+   ✓ queued_bye › logging.lines == lines   ['ready\n', 'bye\n']
+   ✓ direct_hello › logging.lines == lines   ['ready\n', 'hello\n']
+   ✓ direct_bye › logging.lines == lines   ['ready\n', 'bye\n']
+ test_removed  (test_logging.py:47)
+   ↺ queued_removed ran by replay: a thread other than the main one is alive after the act
+     (loguru-writer-1), and a fork copies only the thread that forks
+   ✓ queued_removed › logging.lines == ['ready\n']   ['ready\n']
+   ✓ direct_removed › logging.lines == ['ready\n']   ['ready\n']
+── test_store.py
+ test_schema  (test_store.py:31)
+   ✓ schema › tables(db) == ['users']   ['users']
+ test_add  (test_store.py:40)
+   ↺ ann_row ran by replay: the chain reads a stock (Db), whose state a fork does not copy
+   ✓ ann_row › users(db) == names   ['ann']
+   ↺ cy_row ran by replay: the chain reads a stock (Db), whose state a fork does not copy
+   ✓ cy_row › users(db) == names   ['cy']
+   ↺ bob_row ran by replay: the chain reads a stock (Db), whose state a fork does not copy
+   ✓ bob_row › users(db) == names   ['ann', 'bob']
+── test_web.py
+ test_app  (test_web.py:19)
+   ✓ app › app.config['TESTING'] == testing   True
+   ✓ prod_app › app.config['TESTING'] == testing   False
+ test_client  (test_web.py:29)
+   ✓ client › health.status == 200   200
+   ✓ prod_client › health.status == 200   200
+ test_health_body  (test_web.py:40)
+   ✓ health › body == {'ok': True, 'testing': testing}   {'ok': True, 'testing': True}
+   ✓ prod_health › body == {'ok': True, 'testing': testing}   {'ok': True, 'testing': False}
+ test_seed  (test_web.py:52)
+   ✓ seeded › [ann.status, bob.status, root.status] == [201, 201, 201]   [201, 201, 201]
+ test_sign_up_taken  (test_web.py:63)
+   ✓ ann_taken › again.status == 409   409
+   ✓ root_taken › again.status == 409   409
+ test_login  (test_web.py:81)
+   ✓ ann_in › response.status == 200   200
+   ✓ bob_in › response.status == 200   200
+   ✓ root_in › response.status == 200   200
+ test_bad_login  (test_web.py:93)
+   ✓ bad_password › response.status == 401   401
+   ✓ no_such_user › response.status == 401   401
+ test_get  (test_web.py:105)
+   ✓ ann_me › response.status == status   200
+   ✓ ann_admin › response.status == status   403
+   ✓ bob_me › response.status == status   200
+   ✓ root_admin › response.status == status   200
+   ✓ root_nowhere › response.status == status   404
+   ⊘ after_one_way  blocked: it takes the product of one_way_in (test_web.py:208), which was
+     refused
+ test_me  (test_web.py:117)
+   ✓ ann_body › body == {'name': name, 'admin': admin}   {'name': 'ann', 'admin': False}
+   ✓ root_body › body == {'name': name, 'admin': admin}   {'name': 'root', 'admin': True}
+ test_orders_listed  (test_web.py:126)
+   ✓ ann_no_orders › listed == ids   []
+ test_order  (test_web.py:143)
+   ✓ ann_book › response.status == 201   201
+   ✓ ann_book › response.body['total'] == total   2400
+   ✓ ann_pen › response.status == 201   201
+   ✓ ann_pen › response.body['total'] == total   200
+   ✓ bob_pen › response.status == 201   201
+   ✓ bob_pen › response.body['total'] == total   1000
+   ✓ wrong_total › response.status == 201   201
+   ✗ wrong_total › response.body['total'] == total   test_web.py:196 · assert at line 146
+       expected  999 (int)
+       reading   1200 (int)
+       inputs    session=<product of the case at line 89> sku='BOOK' qty=1 total=999
+ test_read_order  (test_web.py:155)
+   ✓ ann_book_open › body['state'] == state   'open'
+   ✓ bob_pen_open › body['state'] == state   'open'
+   ✓ cancelled_read › body['state'] == state   'cancelled'
+   ⊘ after_wrong  blocked: it takes the product of wrong_total (test_web.py:196), which failed
+ test_listed_after  (test_web.py:164)
+   ✓ ann_lists_book › listed == ids   [1]
+ test_cancel  (test_web.py:172)
+   ✓ ann_book_cancelled › response.body['state'] == 'cancelled'   'cancelled'
+   ✓ bob_pen_cancelled › response.body['state'] == 'cancelled'   'cancelled'
+ test_cannot_cancel_other  (test_web.py:186)
+   ✓ bob_cannot_cancel › response.status == 404   404
+ test_login_one_way  (test_web.py:200)
+   ! one_way_in › path   test_web.py:208
+       what      the branch at test_web.py:203 went one way: the act has one path, so each `if`, `x
+         if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not
+         there
+       inputs    app=<product of the case at line 60> name='bob' password='pw-bob'
+   ✓ one_way_in › token != ''   't1-bob'
+══ 48 cases: 44 passed · 1 failed · 1 refused · 2 blocked   (49 checks held)

@@ -1,0 +1,418 @@
+── test_before_each.py
+   ! the file is refused: importing it raised ImportError: cannot import name 'before_each' from
+     'cases'
+     (/home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/cases.py)
+     so none of its tests runs
+── test_blocked.py
+ test_stage  (test_blocked.py:11)
+   ✓ good › shop.users == users   ['ann']
+   ✗ wrong › shop.users == users   test_blocked.py:20 · assert at line 15
+       expected  ['bob'] (list)
+       reading   ['ann'] (list)
+       why       [0]: they differ from character 0: expected 'bob', read 'ann'
+       inputs    name='ann' users=['bob']
+ test_after_good  (test_blocked.py:23)
+   ✓ test_after_good › shop.users == ['ann', 'cy']   ['ann', 'cy']
+ test_after_wrong  (test_blocked.py:29)
+   ⊘ after_wrong  blocked: it takes the product of wrong (test_blocked.py:20), which failed
+ test_two_down  (test_blocked.py:39)
+   ⊘ test_two_down  blocked: it takes the product of after_wrong (test_blocked.py:36), which was
+     blocked
+ test_one_way  (test_blocked.py:46)
+   ! one_way › path   test_blocked.py:54
+       what      the branch at test_blocked.py:49 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+       inputs    name='dee'
+   ✓ one_way › shop.users == [name]   ['dee']
+ test_after_one_way  (test_blocked.py:57)
+   ⊘ test_after_one_way  blocked: it takes the product of one_way (test_blocked.py:54), which was
+     refused
+ test_computes  (test_blocked.py:63)
+   ! refused:
+       line 67: the expected value computes `name.upper()`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_after_computes  (test_blocked.py:74)
+   ⊘ test_after_computes  blocked: it takes the product of computed (test_blocked.py:71), which
+     was refused
+ test_threaded_stage  (test_blocked.py:80)
+   ✗ threaded_wrong › worker.thread.name == 'nobody'   test_blocked.py:87 · assert at line 83
+       expected  'nobody' (str)
+       reading   'worker' (str)
+       why       they differ from character 0: expected 'nobody', read 'worker'
+       inputs    name='worker'
+ test_after_threaded_wrong  (test_blocked.py:90)
+   ↺ test_after_threaded_wrong ran by replay: a thread other than the main one is alive after the
+     act (worker), and a fork copies only the thread that forks
+   ⊘ test_after_threaded_wrong  blocked: it takes the product of threaded_wrong
+     (test_blocked.py:87), which failed
+── test_case_names.py
+   ! a case of test_lower at line 21 has two names, first and second: give each case one name
+   ! a case of test_lower at line 18 has no name, so the run cannot show it: bind each case to a
+     name of its own, `name = case(test, …)`, once
+   ! 2 cases of test_lower at line 20 have no name, so the run cannot show them: bind each case to a
+     name of its own, `name = case(test, …)`, once
+   ! a case of test_lower at line 22 has no name, so the run cannot show it: bind each case to a
+     name of its own, `name = case(test, …)`, once
+ test_lower  (test_case_names.py:9)
+   ✓ plain › low.isupper() is False   False
+   ✓ twice › low.isupper() is False   False
+── test_far.py
+ test_member  (test_far_home.py:18), a stage of test_far_home.py
+   ✓ member › shop.users == users   ['ann']
+   ✗ wrong_member › shop.users == users   test_far_home.py:26 · assert at line 21
+       expected  ['nobody'] (list)
+       reading   ['bob'] (list)
+       why       [0]: they differ from character 0: expected 'nobody', read 'bob'
+       inputs    name='bob' users=['nobody']
+ test_vip_member  (test_far_home.py:35), a stage of test_far_home.py
+   ! vip_member › path   test_far_home.py:43
+       what      line 32 of test_far_home.py (shown, reached from line 38 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+       inputs    name='cy'
+   ! vip_member › path   test_far_home.py:43
+       what      the branch at test_far_home.py:30 (shown, reached from line 38 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+       inputs    name='cy'
+   ✓ vip_member › shop.users == ['CY']   ['CY']
+ test_buy  (test_far.py:11)
+   ✓ test_buy › order.total == 2400   2400
+ test_after_far_wrong  (test_far.py:18)
+   ⊘ test_after_far_wrong  blocked: it takes the product of wrong_member (test_far_home.py:26),
+     which failed
+ test_after_far_refused  (test_far.py:24)
+   ⊘ test_after_far_refused  blocked: it takes the product of vip_member (test_far_home.py:43),
+     which was refused
+── test_far_home.py
+ test_member  (test_far_home.py:18)
+   ✓ member › shop.users == users   ['ann']
+   ✗ wrong_member › shop.users == users   test_far_home.py:26 · assert at line 21
+       expected  ['nobody'] (list)
+       reading   ['bob'] (list)
+       why       [0]: they differ from character 0: expected 'nobody', read 'bob'
+       inputs    name='bob' users=['nobody']
+ test_vip_member  (test_far_home.py:35)
+   ! vip_member › path   test_far_home.py:43
+       what      line 32 of test_far_home.py (shown, reached from line 38 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+       inputs    name='cy'
+   ! vip_member › path   test_far_home.py:43
+       what      the branch at test_far_home.py:30 (shown, reached from line 38 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+       inputs    name='cy'
+   ✓ vip_member › shop.users == ['CY']   ['CY']
+── test_helper_lines.py
+ test_helper_branch  (test_helper_lines.py:17)
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      line 10 of test_helper_lines.py (pick, reached from line 21 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 21 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_branch › got == 1   1
+ test_helper_of_a_helper  (test_helper_lines.py:25)
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      line 9 of test_helper_lines.py (pick, reached from line 28 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 28 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_of_a_helper › total == 4   4
+ test_helper_in_a_reading  (test_helper_lines.py:32)
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      line 10 of test_helper_lines.py (pick, reached from line 37 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 37 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_in_a_reading › pick(flag) == 1   1
+── test_paths.py
+ test_join_threads  (test_paths.py:29)
+   ✓ two_threads › len(threads) == n   2
+   ! no_threads › path   test_paths.py:41
+       what      line 36 of test_paths.py never ran: the act has one path, so each line of it runs
+         in every case
+       inputs    n=0
+   ! no_threads › path   test_paths.py:41
+       what      the loop at test_paths.py:33 ran no round: the act has one path, so each line of it
+         runs in every case
+       inputs    n=0
+   ! no_threads › path   test_paths.py:41
+       what      the loop at test_paths.py:35 ran no round: the act has one path, so each line of it
+         runs in every case
+       inputs    n=0
+   ✓ no_threads › len(threads) == n   0
+ test_module_helper_branch  (test_paths.py:44)
+   ! test_module_helper_branch › path   test_paths.py:44
+       what      line 19 of test_paths.py (module_helper, reached from line 47 of the test) never
+         ran: the act has one path, so each line of it runs in every case
+   ! test_module_helper_branch › path   test_paths.py:44
+       what      the branch at test_paths.py:17 (module_helper, reached from line 47 of the test)
+         went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_module_helper_branch › got == 1   1
+ test_class_branch  (test_paths.py:51)
+   ! test_class_branch › path   test_paths.py:51
+       what      the branch at test_paths.py:24 (__init__, reached from line 53 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_class_branch › box.v == 0   0
+ test_ternary  (test_paths.py:57)
+   ! test_ternary › path   test_paths.py:57
+       what      the branch at test_paths.py:59 went one way: the act has one path, so each `if`, `x
+         if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not
+         there
+   ✓ test_ternary › y == 1   1
+ test_or_default  (test_paths.py:63)
+   ! test_or_default › path   test_paths.py:63
+       what      the branch at test_paths.py:65 went one way: the act has one path, so each `if`, `x
+         if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not
+         there
+   ✓ test_or_default › shown == 'anonymous'   'anonymous'
+ test_callback_branches  (test_paths.py:69)
+   ✓ test_callback_branches › seen == ['loud']   ['loud']
+ test_callback_by_assignment  (test_paths.py:83)
+   ✓ test_callback_by_assignment › sizes == [1]   [1]
+ test_branch_both_ways_in_a_loop  (test_paths.py:104)
+   ✓ both_ways › odd == [1]   [1]
+   ! one_way › path   test_paths.py:114
+       what      the branch at test_paths.py:108 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+       inputs    items=[1]
+   ✓ one_way › odd == [1]   [1]
+ test_comprehension_over_nothing  (test_paths.py:117)
+   ! empty › path   test_paths.py:123
+       what      the loop at test_paths.py:119 ran no round: the act has one path, so each line of
+         it runs in every case
+       inputs    items=[]
+   ✓ empty › doubled == []   []
+ test_try_in_the_act  (test_paths.py:126)
+   ! test_try_in_the_act › path   test_paths.py:126
+       what      line 131 of test_paths.py never ran: the act has one path, so each line of it runs
+         in every case
+   ! test_try_in_the_act › path   test_paths.py:126
+       what      the `except` at test_paths.py:132 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+   ✓ test_try_in_the_act › got == -1   -1
+ test_raise_swallowed_at_the_last_line  (test_paths.py:137)
+   ✓ test_raise_swallowed_at_the_last_line › log == ['before']   ['before']
+ test_assert_in_a_helper  (test_paths.py:146)
+   ✓ test_assert_in_a_helper › names == ['a.log']   ['a.log']
+ test_assert_in_a_callback  (test_paths.py:154)
+   ! test_assert_in_a_callback › path   test_paths.py:154
+       what      an assert ran in the act at test_paths.py:160 (sink, reached from line 163 of the
+         test): the act ends at the first check, and a function handed to the code may swallow an
+         assert; keep what it sees, and check that at the end
+   ✓ test_assert_in_a_callback › seen == ['x']   ['x']
+ test_line_after_the_raise  (test_paths.py:167)
+   ! test_line_after_the_raise › path   test_paths.py:167
+       what      line 172 ran after the expected raise: `with raises(…):` ends the act, since
+         after a raise the act has nothing left to run
+   ✓ test_line_after_the_raise › raises   ValueError: invalid literal for int() with base 10:
+     'x'
+   ✓ test_line_after_the_raise › str(caught.value) == "invalid literal for int() with base 1…
+      "invalid literal for int() with base 10: 'x'"
+ test_checks_nothing  (test_paths.py:176)
+   ! test_checks_nothing › checks   test_paths.py:176
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise
+         with `with raises(…):`
+ test_expected_by_operators  (test_paths.py:181)
+   ✓ test_expected_by_operators › text == '7' * 20 + '\n'   '77777777777777777777\n'
+ test_callback_called_by_c  (test_paths.py:187)
+   ! test_callback_called_by_c › path   test_paths.py:187
+       what      line 194 of test_paths.py (key, reached from line 197 of the test) never ran: the
+         act has one path, so each line of it runs in every case
+   ! test_callback_called_by_c › path   test_paths.py:187
+       what      the branch at test_paths.py:193 (key, reached from line 197 of the test) went one
+         way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except`
+         in it takes both ways in a case, or is not there
+   ✓ test_callback_called_by_c › ordered == ['a', 'bb']   ['a', 'bb']
+── test_reading_acts.py
+ test_reading_calls_the_code  (test_reading_acts.py:12)
+   ✓ test_reading_calls_the_code › wrap(stream) is True   True
+   ! test_reading_calls_the_code › stream.flush.called is False   test_reading_acts.py:12 ·
+     assert at line 16
+       what      it holds when read alone, and fails after the checks before it (line 15): a reading
+         before it changed what it reads, and a check reads, it does not act
+ test_reading_consumes_a_stream  (test_reading_acts.py:19)
+   ✓ test_reading_consumes_a_stream › stream.read() == 'x'   'x'
+   ! test_reading_consumes_a_stream › stream.read() == 'x'   test_reading_acts.py:19 · assert at
+     line 24
+       what      it holds when read alone, and fails after the checks before it (line 23): a reading
+         before it changed what it reads, and a check reads, it does not act
+ test_pure_readings  (test_reading_acts.py:27)
+   ✓ test_pure_readings › seen['a'] == 1   1
+   ✓ test_pure_readings › 'b' not in seen   {'a': 1}
+ test_the_act_flushes  (test_reading_acts.py:34)
+   ✓ test_the_act_flushes › wrapped is True   True
+   ✓ test_the_act_flushes › stream.flush.called is True   True
+── test_reading_assert.py
+ test_assert_in_a_reading  (test_reading_assert.py:19)
+   ! test_assert_in_a_reading › path   test_reading_assert.py:19
+       what      an assert ran inside the reading of the check at line 24, at
+         test_reading_assert.py:12 (check_paid, reached from line 24 of the test): a check is the
+         one comparison; let the helper return what it reads, and compare that in the check
+   ✓ test_assert_in_a_reading › check_paid(order) is None   None
+ test_failing_assert_in_a_reading  (test_reading_assert.py:27)
+   ! test_failing_assert_in_a_reading › path   test_reading_assert.py:27
+       what      an assert ran inside the reading of the check at line 31, at
+         test_reading_assert.py:12 (check_paid, reached from line 31 of the test): a check is the
+         one comparison; let the helper return what it reads, and compare that in the check
+   ✗ test_failing_assert_in_a_reading › check_paid(order) is None   test_reading_assert.py:27 ·
+     assert at line 31
+       what      reading it raised AssertionError:
+                 at test_reading_assert.py:31  assert check_paid(order) is None
+                 at test_reading_assert.py:12  assert order.state == "paid"
+ test_helper_that_returns  (test_reading_assert.py:34)
+   ✓ test_helper_that_returns › state_of(order) == 'paid'   'paid'
+ test_asserting_helper_of_another_module  (test_reading_assert.py:40)
+   ✓ test_asserting_helper_of_another_module › total_is(order, 0) is None   None
+── test_reset.py
+ test_register  (test_reset.py:9)
+   ✓ test_register › names() == ['ann']   ['ann']
+ test_register_without_reset  (test_reset.py:15)
+   ✗ test_register_without_reset › names() == ['ann']   test_reset.py:15 · assert at line 18
+       expected  ['ann'] (list)
+       reading   ['builtin', 'ann'] (list)
+       why       2 items, not 1
+── test_stock_fingerprint.py
+ test_reads_through_an_alias  (test_stock_fingerprint.py:42)
+   ✓ test_reads_through_an_alias › (same / 'a.log').read_text() == 'line\n'   'line\n'
+   ✓ test_reads_through_an_alias › log.exists() is True   True
+ test_a_reading_that_rotates  (test_stock_fingerprint.py:51)
+   ! test_a_reading_that_rotates › (d / 'a.log').rename(d / 'a.log.1').name == 'a.log.1'
+     test_stock_fingerprint.py:51 · assert at line 55
+       what      reading it changed the stock LogDir: a check reads what the act made, and changes
+         nothing
+   ! test_a_reading_that_rotates › sorted((p.name for p in d.iterdir())) == ['a.log.1']
+     test_stock_fingerprint.py:51 · assert at line 56
+       what      it fails when read alone, and holds after the checks before it (line 55): a reading
+         before it changed what it reads, and a check reads, it does not act
+ test_a_stock_with_no_watch  (test_stock_fingerprint.py:59)
+   ! refused:
+       the input d: the stock SampleOnly offers neither Fingerprints nor Checkpoints, so a check
+         that changes it cannot be seen
+     so none of its 1 case(s) runs
+── test_tree.py
+ test_open  (test_tree.py:20)
+   ✓ root › count(opened) == 1   1
+ test_next  (test_tree.py:30)
+   ✓ next_step › count(opened) == 1   1
+   ✓ next_step › count(step) == 1   1
+ test_leaf  (test_tree.py:41)
+   ✓ test_leaf › count('tree') == 1   1
+   ✓ test_leaf › count(step) == 1   1
+ test_sibling  (test_tree.py:47)
+   ✓ test_sibling › count(opened) == 1   1
+ test_with_thread  (test_tree.py:55)
+   ✓ threaded › worker.thread.is_alive() is True   True
+ test_after_thread  (test_tree.py:65)
+   ↺ test_after_thread ran by replay: a thread other than the main one is alive after the act
+     (thread), and a fork copies only the thread that forks
+   ✓ test_after_thread › count(worker.thread.name) == 2   2
+ test_with_stock  (test_tree.py:85)
+   ✓ stocked › (db / 'rows').read_text() == name   'stock'
+ test_after_stock  (test_tree.py:95)
+   ↺ test_after_stock ran by replay: the chain reads a stock (Db), whose state a fork does not
+     copy
+   ✓ test_after_stock › (db / 'rows').read_text() == 'stock'   'stock'
+   ✓ test_after_stock › count('stock') == 2   2
+ test_with_open_file  (test_tree.py:102)
+   ✓ journaled › journal.lines() == [name]   ['file']
+ test_after_open_file  (test_tree.py:112)
+   ↺ test_after_open_file ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.rvNJKoUSn5/#3713054 (deleted)), whose offset a fork shares
+   ✓ test_after_open_file › journal.lines() == ['file']   ['file']
+   ✓ test_after_open_file › count('file') == 2   2
+── test_two_acts.py
+ test_sign_up_add_and_check_out  (test_two_acts.py:9)
+   ✓ test_sign_up_add_and_check_out › order.total == 1200   1200
+   ✓ test_sign_up_add_and_check_out › shop.carts['ann'] == []   []
+── test_use_far.py
+ test_sign_up  (test_use_stage.py:25), a stage of test_use_stage.py
+   ✓ ann › shop.users == [name]   ['ann']
+ test_fill  (test_use_stage.py:36), a stage of test_use_stage.py
+   ✓ ann_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✗ wrong › len(signed.shop.carts[signed.user]) == lines   test_use_stage.py:44 · assert at
+     line 39
+       expected  9 (int)
+       reading   1 (int)
+       inputs    signed=<product of the case at line 32> sku='BOOK' qty=1 lines=9
+ test_far_checkout  (test_use_far.py:10)
+   ✓ test_far_checkout › order.total == 2400   2400
+ test_far_after_wrong  (test_use_far.py:16)
+   ⊘ test_far_after_wrong  blocked: it takes the product of wrong (test_use_stage.py:44), which
+     failed
+── test_use_stage.py
+ test_sign_up  (test_use_stage.py:25)
+   ✓ ann › shop.users == [name]   ['ann']
+   ✓ bob › shop.users == [name]   ['bob']
+ test_fill  (test_use_stage.py:36)
+   ✓ ann_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✗ wrong › len(signed.shop.carts[signed.user]) == lines   test_use_stage.py:44 · assert at
+     line 39
+       expected  9 (int)
+       reading   1 (int)
+       inputs    signed=<product of the case at line 32> sku='BOOK' qty=1 lines=9
+ test_signed_quietly  (test_use_stage.py:47)
+   ! quiet › checks   test_use_stage.py:54
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise
+         with `with raises(…):`
+       inputs    name='cy'
+ test_sign_up_only  (test_use_stage.py:57)
+   ✓ dee › shop.users == ['dee']   ['dee']
+ test_second_sign_up  (test_use_stage.py:66)
+   ✓ test_second_sign_up › signed.shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_add_one  (test_use_stage.py:72)
+   ✓ test_add_one › signed.shop.carts['ann'] == [('PEN', 1)]   [('PEN', 1)]
+ test_checkout  (test_use_stage.py:81)
+   ✓ test_checkout › order.total == 2400   2400
+ test_after_wrong  (test_use_stage.py:90)
+   ⊘ test_after_wrong  blocked: it takes the product of wrong (test_use_stage.py:44), which failed
+ test_after_quiet  (test_use_stage.py:99)
+   ⊘ test_after_quiet  blocked: it takes the product of quiet (test_use_stage.py:54), which was
+     refused
+ test_after_dee  (test_use_stage.py:111)
+   ! test_after_dee refused   test_use_stage.py:111
+       takes shop from use(<the case at line 108>), and test_sign_up_only returns nothing
+ test_two_shops  (test_use_stage.py:120)
+   ✓ test_two_shops › right.shop.carts['bob'] == []   []
+ test_fixture_that_acts  (test_use_stage.py:135)
+   ✓ test_fixture_that_acts › shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_fixture_that_acts_in_one_call  (test_use_stage.py:145)
+   ✓ test_fixture_that_acts_in_one_call › shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_fixture_of_one_call  (test_use_stage.py:151)
+   ✓ test_fixture_of_one_call › shop.users == ['bob']   ['bob']
+── test_watch.py
+ test_folder_code_is_not_watched  (test_watch.py:13)
+   ✓ test_folder_code_is_not_watched › box.v == 0   0
+ test_contextmanager_of_another_file  (test_watch.py:19)
+   ✓ test_contextmanager_of_another_file › box.v == 1   1
+ test_contextmanager_is_watched  (test_watch.py:33)
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      line 29 of test_watch.py (loud, reached from line 38 of the test) never ran: the
+         act has one path, so each line of it runs in every case
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at test_watch.py:28 (loud, reached from line 38 of the test) went one
+         way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except`
+         in it takes both ways in a case, or is not there
+   ✓ test_contextmanager_is_watched › shop.users == ['ann']   ['ann']
+ test_contextmanager_of_one_path  (test_watch.py:50)
+   ✓ test_contextmanager_of_one_path › shop.carts['ann'] == []   []
+ test_assert_in_a_contextmanager  (test_watch.py:64)
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      an assert ran in the act at test_watch.py:61 (checked, reached from line 68 of the
+         test): the act ends at the first check, and a function handed to the code may swallow an
+         assert; keep what it sees, and check that at the end
+   ✓ test_assert_in_a_contextmanager › shop.users == ['ann']   ['ann']
+══ 99 cases: 48 passed · 7 failed · 34 refused · 10 blocked · 1 file refused   (79 checks
+  held)
