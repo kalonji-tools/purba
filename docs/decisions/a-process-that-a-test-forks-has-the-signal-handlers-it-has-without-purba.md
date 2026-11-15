@@ -16,7 +16,7 @@ No record says what a process that a test forks gets for a signal.
 ## Considered Options
 
 - **A process that a test forks inherits purba's signal handler, as today.** A SIGTERM to it raises `KeyboardInterrupt`, and it prints a second count.
-- **purba's signal handler compares the process ID with purba's, as the guard that takes the place of `os._exit` does.** The child keeps purba's signal handler, and `signal.getsignal` names it there. That handler acts as the one that each signal had before purba gave it purba's.
+- **purba's signal handler compares the process ID with purba's.** The child keeps purba's signal handler, and `signal.getsignal` names it there. That handler acts as the one that each signal had before purba gave it purba's.
 
 ## Decision Outcome
 
@@ -29,12 +29,12 @@ In the child, `signal.getsignal` names the signal handler itself, and no handler
 
 - **In the child of `os.fork`, each interrupt signal gets back the signal handler it had before purba gave it purba's.** A function that purba registers with `os.register_at_fork` gives it back.
 - **A signal handler that the test set for a signal before the fork stays in the child.** The test asked for it.
+- **The [zygote](../../CONTEXT.md#zygote) and each test's process keep purba's signal handlers.** purba forks them itself. Its at-fork function gives nothing back in a fork of purba's own.
 
 **Downside:**
 
-- **A process that C code forks without `PyOS_AfterFork_Child` keeps purba's signal handler.** Python runs no at-fork function in it. On SIGTERM it prints a second count, and the tester reads two counts.
-- **A signal that had a signal handler from C code when Python started keeps purba's signal handler in the child.** `signal.getsignal` names no signal handler for it, so purba has none to give back.
-- **A change that makes purba fork must give the child purba's signal handler again.** Python runs the at-fork function in that child too. [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) decides that purba forks each test.
+- **A process that C code forks without `PyOS_AfterFork_Child` keeps purba's signal handler.** Python runs no at-fork function in it. A SIGTERM during the test's call raises `KeyboardInterrupt` in it, in place of its default action. It ignores each later interrupt signal, so a second SIGTERM cannot end it.
+- **A signal that had a signal handler from C code when Python started keeps purba's signal handler in the child.** `signal.getsignal` names no signal handler for it, so purba has none to give back. The child then ignores each interrupt signal after its first.
 
 ## Confirmation
 
@@ -42,3 +42,4 @@ In the child, `signal.getsignal` names the signal handler itself, and no handler
 It checks that a process that `multiprocessing` forks dies by SIGTERM on `terminate()`.
 It checks that the signal handlers of a process that a test forks equal those of a fresh `python`.
 It checks that a signal handler that a test sets for SIGTERM before it forks runs in the child.
+It checks that a Ctrl-C makes the test that it lands in `interrupted`. That outcome shows that each test's process keeps purba's signal handler.

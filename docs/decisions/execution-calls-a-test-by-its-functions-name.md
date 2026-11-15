@@ -39,10 +39,10 @@ sequenceDiagram
   Note over selection: constructs each identity alone, because its fields are private
   selection-->>command: each selected test, as its identity
   command->>dispatch: dispatch's input, which command builds
-  Note over dispatch: holds the in-process worker, a value of execution, and builds execution's module
-  Note over execution: its worker loads each module once, keyed by the path
+  Note over dispatch: builds execution's module, and forks a zygote for it
+  Note over execution: the zygote's worker loads the module once
   loop each selected test
-    dispatch->>execution: the module, the name of one function in it, and the test that it hands back as a thread's owner
+    dispatch->>execution: the name of one function in the module, and the test that it hands back as a thread's owner
     Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
     Note over execution: its worker looks the name up in the module it loaded
     execution-->>dispatch: an outcome or error, and an outcome holds no name of its test
@@ -63,7 +63,7 @@ The part that uses another part builds that part's input.
 - **Reporting prints any value that prints itself.** Command can hand it a name that command formatted. The gate for one identity misses it. The reviewer looks for it.
 - **Dispatch takes any value that implements its `Test`.** Command can hand dispatch a value of a type that command defines, in place of an identity. The gate for one identity misses it. The reviewer looks for it.
 - **Execution takes the name of one function.** A test method of a class needs more than one name. The design in depth of execution decides how such a test crosses.
-- **A module under two spellings of its path loads twice in one worker.** The design in depth of selection decides how an identity starts.
+- **A module under two spellings of its path loads twice, once in each zygote.** The design in depth of selection decides how an identity starts.
 - **Dispatch names assertion's `Rewrite` through execution's interface.** [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds the cost.
 
 ## Confirmation

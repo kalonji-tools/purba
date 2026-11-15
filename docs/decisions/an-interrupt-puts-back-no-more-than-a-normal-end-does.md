@@ -20,7 +20,7 @@ No record says what each part puts back, in what order, or how long purba's sign
 
 ## Considered Options
 
-- **Each part puts back what it changed in purba's process.** The process dies after the count. Execution installs its guard and its hooks once for the process.
+- **Each part puts back what it changed in purba's process.** The process dies after the count. Execution installs its hooks once for the process.
 - **A signal after the count reaches Python's own signal handler, as today.** Python reports a Ctrl-C in its wait for threads as ignored. The run then exits with the code of its count.
 - **purba hides the text that Python prints when an interrupt ends its wait for threads.** purba would replace `sys.unraisablehook` after the count. The new hook would hide the error of a test's `atexit` function too.
 
@@ -32,34 +32,32 @@ No record says what each part puts back, in what order, or how long purba's sign
 
 **An interrupt puts back no more than a normal end does.**
 
-- **Each part leaves the process as a normal end leaves it.** Nothing that a part changes outlives the process. `sys.modules` keeps each module that assertion loaded, and execution keeps its guard and its hooks.
-- **purba's signal handlers stay until the first interrupt, or finalization, gives each signal its default action.** They stay after a normal end too. A signal that comes later ends purba, unless the parent's ignore or mask holds it. A signal that a signal handler of a test or a module takes before its call or its load returns does not end purba either. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says when purba gives back the parent's ignore and mask.
+- **Each part leaves the process as a normal end leaves it.** Nothing that a part changes outlives the process. The zygote's `sys.modules` keeps each module that assertion loaded. Execution keeps its hooks.
+- **purba's signal handlers stay until finalization gives each signal its default action.** They stay after a normal end too. A signal that comes later ends purba, unless the parent's ignore or mask holds it. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says when purba gives back the parent's ignore and mask.
 - **The errors of the threads that the interrupted test left alive still print.** They print after the line of the test.
 
 After an interrupt in a test, the run ends in this order:
 
 ```mermaid
 flowchart TD
-  P1[Python] -- unwinds the test, so its finally runs --> E[execution]
-  E -- puts purba's signal handler back, and takes the errors of threads the test left alive --> R1[reporting]
-  R1 -- prints the line of the test, then the errors of its threads --> D[dispatch]
-  D -- hands on no further test --> R2[reporting]
-  R2 -- prints the count --> P2[Python]
-  P2 -- "finalizes: waits for each non-daemon thread, runs atexit, flushes sys.stdout" --> X([purba dies by the signal])
+  P1[Python in the test's process] -- unwinds the test, so its finally runs --> E[execution in the test's process]
+  E -- "writes the outcome, joins each thread that is not a daemon, runs the test's atexit functions, and writes the errors of its threads" --> D[dispatch]
+  D -- hands on the outcome and the errors, then no further test --> R1[reporting]
+  R1 -- "prints the line of the test, the errors of its threads, then the count" --> P2[Python in purba]
+  P2 -- "finalizes: flushes sys.stdout" --> X([purba dies by the signal])
 ```
 
 Each test after the interrupted one is an [unreached test](../../CONTEXT.md#unreached-test).
 
-- **A first interrupt during finalization ends only the wait for threads.** Python prints that it ignored the `KeyboardInterrupt`. The tester reads which wait the interrupt ended. The rest of finalization runs. Then purba dies by the signal. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says what a second one does.
-- **After the count, a first interrupt that the parent's mask holds arrives only when code that a test or a module left behind unmasks it.** An `atexit` function or a thread that a test or a module left alive can unmask it. purba then prints its interrupt line, and dies by the signal. When nothing unmasks it, or when the parent's ignore holds it, purba exits with the code of its count.
+- **A first interrupt while a test's process joins its threads ends only that wait.** That process then runs the test's `atexit` functions, and ends. Then purba prints the count, and dies by the signal. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says what a second one does.
+- **A first interrupt that the parent's mask holds arrives only in a zygote or a test's process that unmasks it.** That process writes to purba the interrupt that it kept. purba takes it as its own. purba then prints its interrupt line, and dies by the signal. When nothing unmasks it, or when the parent's ignore holds it, purba exits with the code of its count.
 
 **Downside:**
 
-- **A non-daemon thread that a test leaves alive holds the process after the count.** The tester reads the count, but purba does not end.
+- **A thread that is not a daemon and that a test leaves alive holds the run before the line of that test.** The tester reads no line for that test while the thread runs.
 - **A Ctrl-C that ends the wait for that thread makes a run whose tests all passed die by SIGINT.**
 - **A second interrupt skips the flush of `sys.stdout`.** The tester loses a line that a test printed to a pipe.
-- **A program that calls purba's `_main` and goes on keeps purba's signal handlers.** Its next Ctrl-C reaches purba's signal handler, not its own. After an interrupted run, its next interrupt ends it by the default action.
-- **After a Ctrl-C ends the wait for threads, Python's traceback reads like a crash.**
+- **A program that calls purba's `_main` and goes on keeps purba's signal handlers.** Its next Ctrl-C reaches purba's signal handler, not its own. After an interrupted run, its next interrupt ends it.
 
 ## Confirmation
 
@@ -68,4 +66,4 @@ It checks that the test the interrupt lands in is `interrupted`, and that an int
 It checks that a signal handler of a test or a module lives only for its call or its load.
 It checks that a second interrupt ends purba at once by that interrupt's signal, even while a cleanup runs C code.
 It checks that SIGTERM and SIGHUP do what SIGINT does.
-It checks that a Ctrl-C after the count ends Python's wait for threads, and lets a test's `atexit` function finish.
+It checks that a Ctrl-C ends the wait for a thread that a test left alive, and lets a test's `atexit` function finish.

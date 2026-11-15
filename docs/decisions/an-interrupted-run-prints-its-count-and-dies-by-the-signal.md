@@ -52,7 +52,7 @@ test_a.py::test_three interrupted
 - **After the count, purba dies by the first signal.** A shell sees 130 for SIGINT, 143 for SIGTERM and 129 for SIGHUP. The signal comes ahead of each code of [the exit-code record](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome).
 - **An interrupt after the last test still ends the run by the signal.** The count names each test by its outcome.
 - **After an interrupt before selection finishes, purba prints no count.** It does not know the tests yet.
-- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. A second signal that the parent's ignore or mask holds does not end purba. Neither does one that a signal handler of a test or a module takes. In both cases, purba dies by the first signal after Python finalizes.
+- **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. A second signal that the parent's ignore or mask holds does not end purba. purba then dies by the first signal after Python finalizes.
 
 **Downside:**
 
@@ -68,4 +68,4 @@ It checks that the test the interrupt lands in is `interrupted`, and that an int
 It checks that a signal handler of a test or a module lives only for its call or its load.
 It checks that a second interrupt ends purba at once by that interrupt's signal, even while a cleanup runs C code.
 It checks that SIGTERM and SIGHUP do what SIGINT does.
-It checks that a Ctrl-C after the count ends Python's wait for threads, and lets a test's `atexit` function finish.
+It checks that a Ctrl-C ends the wait for a thread that a test left alive, and lets a test's `atexit` function finish.

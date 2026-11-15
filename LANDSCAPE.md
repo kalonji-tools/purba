@@ -57,7 +57,7 @@ flowchart LR
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
-- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It loads each module on the worker before its tests. For a module that does not load, it hands on the error once, and each of its tests as blocked. For a load that the first interrupt lands in, it hands on no project error. After each load and each test, it hands on the error of each thread that the worker took.
+- **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It forks a zygote for each module. The zygote loads the module on its worker before its tests, and forks a process for each test. For a module that does not load, dispatch hands on the error once, and each of its tests as blocked. For a load that the first interrupt lands in, dispatch hands on no project error. After each load and each test, dispatch hands on the error of each thread that the zygote or the test's process took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
 - **assertion.** Rewrites each assert in a selected module before the run, except a tuple assert, so that a failure shows its values, and loads the module when execution imports it.
@@ -108,12 +108,13 @@ sequenceDiagram
     reporting ->> tester: its line
   end
   command ->> dispatch: test_a.py once, with its rewrite and its three tests
-  dispatch ->> execution: load test_a.py, with its rewrite
+  dispatch ->> execution: fork a zygote that loads test_a.py, with its rewrite
   execution ->> assertion: its rewrite
   assertion -->> execution: the loaded module
   execution -->> dispatch: it loaded
   loop each selected test
-    dispatch ->> execution: a function's name, its module, and the test that it hands back as a thread's owner
+    dispatch ->> execution: a function's name, and the test that it hands back as a thread's owner
+    Note over execution: the zygote forks the test's process
     execution ->> fixtures: the inputs the test names
     fixtures -->> execution: no inputs
     Note over execution: calls the test in Python
