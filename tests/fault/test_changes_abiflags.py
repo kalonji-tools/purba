@@ -3,4 +3,4 @@ import sys
 
 def test_one():
     sys.abiflags = "x"
-    assert True
+    assert 1 == 1
