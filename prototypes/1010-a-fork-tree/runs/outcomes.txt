@@ -1,0 +1,18 @@
+980_first-attempts_filesink-delay     10 cases,  0 chain cases   outcomes the same
+980_first-attempts_threading           7 cases,  0 chain cases   outcomes the same
+980_first-attempts_add-option-catch   11 cases,  0 chain cases   outcomes the same
+980_regress_filesink-delay            10 cases,  0 chain cases   outcomes the same
+980_regress_add-option-catch          12 cases,  0 chain cases   outcomes the same
+980_regress_threading                  7 cases,  0 chain cases   outcomes the same
+980_regress_defaults                  14 cases,  0 chain cases   outcomes the same
+980_regress_colorama                  79 cases,  0 chain cases   outcomes the same
+980_probes                            33 cases,  0 chain cases   outcomes the same
+pipeline                              15 cases,  9 chain cases   outcomes the same
+    replay ⊘ from_wrong › order.total == total   blocked: wrong › len(signed.shop.carts[signed.user])  →  a failed earlier check
+    replay ⊘ from_wrong › filled.shop.carts[filled.user] == []   blocked: wrong › len(signed.shop.car  →  a failed earlier check
+    tree   ⊘ from_wrong › order.total == total   blocked: wrong › len(signed.shop.carts[signed.user])  →  a failed earlier check
+    tree   ⊘ from_wrong › filled.shop.carts[filled.user] == []   blocked: wrong › len(signed.shop.car  →  a failed earlier check
+pipeline_part                          0 cases,  1 chain cases   outcomes the same
+chains                                48 cases, 43 chain cases   outcomes the same
+    replay ⊘ after_wrong › body['state'] == state   blocked: wrong_total › response.body['total'] ==   →  a failed earlier check
+    tree   ⊘ after_wrong › body['state'] == state   blocked: wrong_total › response.body['total'] ==   →  a failed earlier check

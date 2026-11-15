@@ -1,0 +1,128 @@
+── test_filesink_delay.py
+ test_file_not_delayed  (test_filesink_delay.py:17)
+   ! test_file_not_delayed › path   test_filesink_delay.py:17
+       what      an assert ran in the act at test_filesink_delay.py:20: the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ✓ test_file_not_delayed › file.read_text() == 'Not delayed\n'   'Not delayed\n'
+ test_file_delayed  (test_filesink_delay.py:25)
+   ! test_file_delayed › path   test_filesink_delay.py:25
+       what      an assert ran in the act at test_filesink_delay.py:28: the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ✓ test_file_delayed › file.read_text() == 'Delayed\n'   'Delayed\n'
+ test_compression  (test_filesink_delay.py:33)
+   ! test_compression › path   test_filesink_delay.py:33
+       what      an assert ran in the act at loguru_lab.py:42 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_compression › path   test_filesink_delay.py:33
+       what      an assert ran in the act at loguru_lab.py:45 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_compression › path   test_filesink_delay.py:33
+       what      an assert ran in the act at loguru_lab.py:46 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_compression › path   test_filesink_delay.py:33
+       what      lines 40, 48 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_compression › path   test_filesink_delay.py:33
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_compression › path   test_filesink_delay.py:33
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_compression › path   test_filesink_delay.py:33
+       what      the branch at loguru_lab.py:47 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_compression › checks   test_filesink_delay.py:33
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_compression_early_remove  (test_filesink_delay.py:41)
+   ! test_compression_early_remove › path   test_filesink_delay.py:41
+       what      an assert ran in the act at loguru_lab.py:40 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_compression_early_remove › path   test_filesink_delay.py:41
+       what      lines 42, 43, 44, 45, 46, 47, 48, 49 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_compression_early_remove › path   test_filesink_delay.py:41
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_compression_early_remove › path   test_filesink_delay.py:41
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_compression_early_remove › checks   test_filesink_delay.py:41
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_retention  (test_filesink_delay.py:47)
+   ! test_retention › path   test_filesink_delay.py:47
+       what      an assert ran in the act at loguru_lab.py:40 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_retention › path   test_filesink_delay.py:47
+       what      lines 42, 43, 44, 45, 46, 47, 48, 49 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_retention › path   test_filesink_delay.py:47
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_retention › path   test_filesink_delay.py:47
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_retention › checks   test_filesink_delay.py:47
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_retention_early_remove  (test_filesink_delay.py:58)
+   ! test_retention_early_remove › path   test_filesink_delay.py:58
+       what      an assert ran in the act at loguru_lab.py:40 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_retention_early_remove › path   test_filesink_delay.py:58
+       what      lines 42, 43, 44, 45, 46, 47, 48, 49 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_retention_early_remove › path   test_filesink_delay.py:58
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_retention_early_remove › path   test_filesink_delay.py:58
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_retention_early_remove › checks   test_filesink_delay.py:58
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_rotation  (test_filesink_delay.py:68)
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      an assert ran in the act at loguru_lab.py:42 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      an assert ran in the act at loguru_lab.py:45 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      an assert ran in the act at loguru_lab.py:46 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      an assert ran in the act at loguru_lab.py:48 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      line 40 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation › path   test_filesink_delay.py:68
+       what      the branch at loguru_lab.py:47 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation › checks   test_filesink_delay.py:68
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_rotation_early_remove  (test_filesink_delay.py:83)
+   ! test_rotation_early_remove › path   test_filesink_delay.py:83
+       what      an assert ran in the act at loguru_lab.py:40 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_early_remove › path   test_filesink_delay.py:83
+       what      lines 42, 43, 44, 45, 46, 47, 48, 49 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_rotation_early_remove › path   test_filesink_delay.py:83
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_early_remove › path   test_filesink_delay.py:83
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_early_remove › checks   test_filesink_delay.py:83
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_rotation_and_retention  (test_filesink_delay.py:90)
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      an assert ran in the act at loguru_lab.py:42 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      an assert ran in the act at loguru_lab.py:45 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      an assert ran in the act at loguru_lab.py:46 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      an assert ran in the act at loguru_lab.py:48 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      line 40 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention › path   test_filesink_delay.py:90
+       what      the branch at loguru_lab.py:47 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention › checks   test_filesink_delay.py:90
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+ test_rotation_and_retention_timed_file  (test_filesink_delay.py:109)
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      an assert ran in the act at loguru_lab.py:42 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      an assert ran in the act at loguru_lab.py:45 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      an assert ran in the act at loguru_lab.py:46 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      an assert ran in the act at loguru_lab.py:48 (check_dir): the act ends at the first check, and a function handed to the code may swallow an assert; keep what it sees, and check that at the end
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      line 40 of loguru_lab.py (check_dir) never ran: the act has one path, so each line of it runs in every case
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      the branch at loguru_lab.py:39 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      the branch at loguru_lab.py:41 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention_timed_file › path   test_filesink_delay.py:109
+       what      the branch at loguru_lab.py:47 (check_dir) went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not there
+   ! test_rotation_and_retention_timed_file › checks   test_filesink_delay.py:109
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+══ 10 cases: 0 passed · 0 failed · 10 refused · 0 blocked   (2 checks held)

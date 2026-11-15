@@ -1,0 +1,4 @@
+chains, create_app costing 0 ms                        replay   0.46 s   tree   0.47 s
+chains, create_app costing 1 ms                        replay   0.50 s   tree   0.45 s
+chains, create_app costing 5 ms                        replay   0.65 s   tree   0.48 s
+chains, create_app costing 20 ms                       replay   1.22 s   tree   0.50 s

@@ -1,0 +1,13 @@
+980-rules-at-run-time/first-attempts/filesink-delay    replay   1.16 s   tree   1.15 s
+980-rules-at-run-time/first-attempts/threading         replay  14.41 s   tree  14.38 s
+980-rules-at-run-time/first-attempts/add-option-catch  replay   0.46 s   tree   0.46 s
+980-rules-at-run-time/regress/filesink-delay           replay   1.23 s   tree   1.23 s
+980-rules-at-run-time/regress/add-option-catch         replay   0.90 s   tree   0.90 s
+980-rules-at-run-time/regress/threading                replay  14.39 s   tree  14.41 s
+980-rules-at-run-time/regress/defaults                 replay   0.20 s   tree   0.20 s
+980-rules-at-run-time/regress/colorama                 replay   0.95 s   tree   0.96 s
+980-rules-at-run-time/probes                           replay   0.23 s   tree   0.23 s
+1010-a-fork-tree/pipeline/test_pipeline.py             replay   0.11 s   tree   0.13 s
+1010-a-fork-tree/pipeline/test_part.py                 replay   0.05 s   tree   0.05 s
+1010-a-fork-tree/chains                                replay   0.46 s   tree   0.47 s
+sum of the bests                                       replay  34.53 s   tree  34.57 s

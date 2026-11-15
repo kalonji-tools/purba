@@ -1,0 +1,9 @@
+coin       14 replay tossed=fail called=blocked diverged
+coin        6 replay tossed=fail called=pass -
+coin       10 replay tossed=pass called=blocked diverged
+coin       10 replay tossed=pass called=pass -
+handle replay: ══ 3 cases: 3 passed · 0 failed · 0 refused · 0 blocked   (3 checks held)
+coin       19 tree tossed=fail called=blocked diverged
+coin       21 tree tossed=pass called=pass -
+handle tree: ══ 3 cases: 3 passed · 0 failed · 0 refused · 0 blocked   (3 checks held)
+handle tree, FORM_FDS=off: ══ 3 cases: 2 passed · 1 failed · 0 refused · 0 blocked   (2 checks held)

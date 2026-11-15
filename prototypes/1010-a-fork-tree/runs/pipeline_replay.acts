@@ -1,0 +1,27 @@
+2020939 sign_up ann
+2020941 sign_up ann
+2020941 sign_up bob
+2020942 sign_up ann
+2020943 sign_up bob
+2020944 sign_up ann
+2020944 add ann BOOK
+2020945 sign_up ann
+2020945 add ann PEN
+2020946 sign_up ann
+2020946 add ann BOOK
+2020947 sign_up ann
+2020947 add ann BOOK
+2020947 checkout ann
+2020949 sign_up ann
+2020949 add ann PEN
+2020949 checkout ann
+2020951 sign_up ann
+2020951 add ann BOOK
+2020952 sign_up ann
+2020952 add ann BOOK
+2020952 checkout ann
+2020952 refund ann
+2020953 sign_up ann
+2020953 sign_up bob
+2020953 add ann PEN
+2020954 sign_up cy

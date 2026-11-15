@@ -1,0 +1,14 @@
+2020960 sign_up ann
+2020962 sign_up ann
+2020962 sign_up bob
+2020963 sign_up bob
+2020964 sign_up ann
+2020966 add ann BOOK
+2020968 checkout ann
+2020971 refund ann
+2020972 add ann PEN
+2020974 checkout ann
+2020976 add ann BOOK
+2020978 sign_up bob
+2020978 add ann PEN
+2020979 sign_up cy

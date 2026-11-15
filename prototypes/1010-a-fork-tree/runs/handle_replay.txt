@@ -1,0 +1,7 @@
+── test_handle.py
+ test_open  (test_handle.py:16)
+   ✓ opened › f.tell() == 0   0
+ test_read  (test_handle.py:27)
+   ✓ first_read › got == text   'abc'
+   ✓ second_read › got == text   'abc'
+══ 3 cases: 3 passed · 0 failed · 0 refused · 0 blocked   (3 checks held)

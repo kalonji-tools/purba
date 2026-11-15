@@ -1,0 +1,11 @@
+── test_handle.py
+ test_open  (test_handle.py:16)
+   ✓ opened › f.tell() == 0   0
+ test_read  (test_handle.py:27)
+   ✓ first_read › got == text   'abc'
+   ✗ second_read › got == text   test_handle.py:33 · assert at line 29
+       expected  'abc' (str)
+       reading   '' (str)
+       why       they differ from character 0: expected 'abc', read ''
+       inputs    f=<product of the case at line 24> text='abc'
+══ 3 cases: 2 passed · 1 failed · 0 refused · 0 blocked   (2 checks held)

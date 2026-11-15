@@ -1,0 +1,10 @@
+── test_coin.py
+ test_toss  (test_coin.py:11)
+   ✗ tossed › side == 'heads'   test_coin.py:17 · assert at line 13
+       expected  'heads' (str)
+       reading   'tails' (str)
+       why       they differ from character 0: expected 'heads', read 'tails'
+       inputs    (none)
+ test_call  (test_coin.py:20)
+   ⊘ called › called == 'HEADS'   blocked: tossed › side == 'heads' diverged on replay: expected 'heads', read 'tails' (they differ from character 0: expected 'heads', read 'tails')
+══ 2 cases: 0 passed · 1 failed · 0 refused · 1 blocked   (0 checks held)

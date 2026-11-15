@@ -1,0 +1,9 @@
+── test_handle.py
+ test_open  (test_handle.py:16)
+   ✓ opened › f.tell() == 0   0
+ test_read  (test_handle.py:27)
+   ↺ first_read ran by replay: the act left a file, socket or pipe open (fd 6 → /tmp/#3712640 (deleted)), whose offset a fork shares
+   ✓ first_read › got == text   'abc'
+   ↺ second_read ran by replay: the act left a file, socket or pipe open (fd 6 → /tmp/#3712640 (deleted)), whose offset a fork shares
+   ✓ second_read › got == text   'abc'
+══ 3 cases: 3 passed · 0 failed · 0 refused · 0 blocked   (3 checks held)

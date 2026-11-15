@@ -1,0 +1,6 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [".", "undertest_lib"],
+  "include": ["cases.py", "run.py", "chains", "controls", "pipeline"]
+}

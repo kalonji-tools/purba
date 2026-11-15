@@ -1,0 +1,4 @@
+── test_part.py
+   ! the file is refused: importing it raised AttributeError: 'Step' object has no attribute 'shop'
+     so none of its tests runs
+══ 0 cases: 0 passed · 0 failed · 0 refused · 0 blocked · 1 file refused   (0 checks held)

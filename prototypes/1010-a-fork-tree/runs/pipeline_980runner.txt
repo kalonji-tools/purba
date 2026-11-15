@@ -1,0 +1,34 @@
+── test_pipeline.py
+ test_empty_shop_signs_up  (test_pipeline.py:16)
+   ✓ test_empty_shop_signs_up › shop.users == ['ann']   ['ann']
+ test_empty_shop_has_no_orders  (test_pipeline.py:21)
+   ✓ test_empty_shop_has_no_orders › shop.orders == []   []
+ test_second_sign_up  (test_pipeline.py:34)
+   ✓ test_second_sign_up › shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_sign_up  (test_pipeline.py:59)
+   ✓ ann › shop.users == [name]   ['ann']
+   ✓ bob › shop.users == [name]   ['bob']
+ test_fill  (test_pipeline.py:65)
+   ✓ ann_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✓ ann_pens › len(signed.shop.carts[signed.user]) == lines   1
+   ✓ quiet_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✗ wrong › len(signed.shop.carts[signed.user]) == lines   test_pipeline.py:117 · assert at line 67
+       expected  9 (int)
+       reading   1 (int)
+       inputs    signed=<product of the case at line 83> sku='BOOK' qty=1 lines=9
+ test_checkout  (test_pipeline.py:71)
+   ✓ ann_paid › order.total == total   2400
+   ✓ ann_paid › filled.shop.carts[filled.user] == []   []
+   ✓ pens_paid › order.total == total   600
+   ✓ pens_paid › filled.shop.carts[filled.user] == []   []
+   ⊘ from_wrong › order.total == total   blocked: wrong › len(signed.shop.carts[signed.user]) == lines diverged on replay: expected 9, read 1
+   ⊘ from_wrong › filled.shop.carts[filled.user] == []   blocked: wrong › len(signed.shop.carts[signed.user]) == lines diverged on replay: expected 9, read 1
+ test_refund  (test_pipeline.py:78)
+   ✓ ann_back › paid.order.state == 'refunded'   'refunded'
+ test_two_shops  (test_pipeline.py:96)
+   ✓ two_shops › right.shop.carts[right.user] == []   []
+ test_signed_quietly  (test_pipeline.py:107)
+   ! quiet › checks   test_pipeline.py:112
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise with `with raises(…):`
+       inputs    name='cy'
+══ 15 cases: 12 passed · 1 failed · 1 refused · 1 blocked   (14 checks held)
