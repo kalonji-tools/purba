@@ -46,7 +46,7 @@ sequenceDiagram
     command->>selection: lends the tree
     selection-->>command: each selected test
     opt selection selected a test
-      command->>assertion: lends the tree
+      command->>assertion: lends the tree, and the names of the selected tests
       assertion-->>command: the source text, spliced at node ranges, the tree unchanged
     end
   end

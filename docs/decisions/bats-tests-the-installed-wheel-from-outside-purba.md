@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 The walking skeleton needs a test that runs purba on a small project of two modules.
-[A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#confirmation) and [a run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#confirmation) each name that test as their check.
+[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#confirmation) and [a run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#confirmation) each name that test as their check.
 [purba writes its scripts in bash until purba can test them](purba-writes-its-scripts-in-bash-until-purba-can-test-them.md#decision-outcome) moves the scripts to Python when purba runs purba's own tests.
 
 | fact | source |
@@ -31,7 +31,7 @@ The test crosses the console script and the wheel.
 | file | holds |
 |---|---|
 | `tests/skeleton.bats` | the end-to-end tests |
-| `tests/skeleton/test_a.py` | `test_one` passes, `test_two` fails, and `test_three` is `unknown` |
+| `tests/skeleton/test_a.py` | `test_one` passes, `test_two` fails, and `test_three` states no expectation |
 | `tests/skeleton/test_b.py` | a module that writes the file `$PURBA_SENTINEL` names, then raises |
 
 - **`tests/skeleton.bats` runs `purba test_a.py` inside `tests/skeleton/`.** Each line then starts `test_a.py::`.

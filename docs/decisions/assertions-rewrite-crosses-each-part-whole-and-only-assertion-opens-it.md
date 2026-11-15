@@ -33,7 +33,7 @@ flowchart LR
     rewrite["its rewrite"]
     load["its load"]
   end
-  rewrite -->|"one Rewrite, which holds the rewritten text and the text of each marked assert"| command
+  rewrite -->|"one Rewrite, which holds the rewritten text, the text of each marked assert, and the text of each expectation of each test"| command
   command -->|"the Rewrite, whole"| dispatch
   dispatch -->|"the Rewrite, whole"| execution
   execution -->|"the Rewrite, whole"| load
@@ -42,7 +42,7 @@ flowchart LR
 | question | answer |
 |---|---|
 | how dispatch names its type | as `purba_execution::Rewrite`, because execution's interface takes it |
-| how a test of another part builds one | `Rewrite::of_source`, from the text of a module with a plain `assert` |
+| how a test of another part builds one | `Rewrite::of_source`, from the text of a module and the names of its tests |
 | how parsing reads a text that no file holds | `parse_source`. `parse` reads the file, then calls it |
 
 [Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds what a module holds.
@@ -51,12 +51,13 @@ flowchart LR
 
 - **Dispatch names a type of assertion, and the parts diagram draws no arrow between them.** `mise run lint:wiring` reads no Rust source, so it does not see the use. The reviewer looks for a use other than to carry the rewrite. [Each part is a crate](each-part-is-a-crate.md#decision-outcome) names this cost for each re-export.
 - **The tests of dispatch and execution build a rewrite through assertion's interface.** Parsing or the function `rewrite` can then fail them with a defect of its own.
-- **Any part that holds a rewrite can read it.** `text()` and `asserts()` stay public for assertion's own tests. Nothing refuses another part that calls them.
+- **Any part that holds a rewrite can read it.** `text()`, `asserts()` and `expectations()` stay public for assertion's own tests. Nothing refuses another part that calls them.
 - **Assertion gains a public function that only tests call.** This is `Rewrite::of_source`. It calls `parse_source`, which parsing makes public for it. `parse` also calls `parse_source`.
 
 ## Confirmation
 
 `mise run test:rust` checks that dispatch and execution run a module that `Rewrite::of_source` built.
 It checks that assertion's `load` gives the hook the text of each marked assert.
+It checks that execution reads the text of each expectation from assertion's loaded module.
 `mise run lint:wiring` checks that no manifest of dispatch names assertion.
 No command checks that only assertion reads a rewrite.

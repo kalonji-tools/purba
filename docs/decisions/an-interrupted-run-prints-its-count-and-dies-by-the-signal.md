@@ -7,7 +7,7 @@ No record says what an interrupted run prints, or which code it exits.
 
 | fact | source |
 |---|---|
-| the exit-code record takes 0, 1, 2, 3, 4 and 125, and gives 2 to `unknown`; pytest exits 2 for an interrupted run | [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) |
+| the exit-code record takes 0, 1, 2, 3, 4 and 125, and gives 2 to `unknown`; pytest exits 2 for an interrupted run | [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) |
 | a line for a test goes to stdout, and a line for the run goes to stderr | [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) |
 | a Ctrl-C in a test gives it `raised: KeyboardInterrupt:`, and the run exits 4; SIGTERM ends purba with no line and no count | [What purba does on an interrupt today](https://github.com/kalonji-tools/purba/issues/765#issuecomment-6626393301) |
 | after the last test, a Ctrl-C ends purba with a traceback and exit 130, after a count that promised exit 4 | [the research of signal delivery](https://github.com/kalonji-tools/purba/blob/20b90a1a220c4f3b78f1a3ccf5f364c91dede7a8/research/signal-delivery.md?plain=1#L12) |
@@ -38,19 +38,19 @@ A shell that runs purba then sees the interrupt, and `git bisect run` aborts.
 
 - **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names each second interrupt that does not exit at once.
 - **The test that the interrupt lands in has the [outcome](../../CONTEXT.md#outcome) `interrupted`.** The line names the test that ran, which is often the one that hangs. Its line prints in its place on stdout, after it unwinds. It has that outcome whether it then passes, fails or raises.
-- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
-- **The count names `interrupted` after `unknown`, and `unreached` after `blocked`.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
+- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
+- **The count names `interrupted` after `raised`, and `unreached` after `blocked`.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 
 ```
 test_a.py::test_one passed
 test_a.py::test_two passed
 purba: interrupt: SIGINT; a second interrupt exits at once
 test_a.py::test_three interrupted
-5 tests: 2 passed, 1 interrupted, 2 unreached
+5 cases: 2 passed, 1 interrupted, 2 unreached
 ```
 
 - **After the count, purba dies by the first signal.** A shell sees 130 for SIGINT, 143 for SIGTERM and 129 for SIGHUP. The signal comes ahead of each code of [the exit-code record](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome).
-- **An interrupt after the last test still ends the run by the signal.** The count names each test by its outcome.
+- **An interrupt after the last test still ends the run by the signal.** The count names each case by its outcome.
 - **After an interrupt before selection finishes, purba prints no count.** It does not know the tests yet.
 - **A second interrupt prints nothing more, and purba dies by that second signal.** The lines already written stay. A second signal that the parent's ignore or mask holds does not end purba. purba then dies by the first signal after Python finalizes.
 

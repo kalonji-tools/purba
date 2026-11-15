@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives each kind its line and its stream.
-[A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
+[A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
 On `main` at `77ed22a`, purba prints no line that names a project error, an internal error or an invocation error.
 A failure can change into another kind where a part sees it, or in the error that carries it.
 It can also change into another kind in the line that reporting writes, or in the exit code.
@@ -59,14 +59,15 @@ mise run test:wheel
 ```
 
 ```
-not ok 14 a panic stops only its test, each other test keeps its line, and the run exits 125
-# (in test file tests/kinds.bats, line 76)
+not ok 69 a panic stops only its test, each other test keeps its line, and the run exits 125
+# (in test file tests/kinds.bats, line 203)
 #   `run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_panic.py' failed, expected exit code 125, got 1
 # test_panic.py::test_passes passed
 # test_panic.py::test_panics raised: PURBA_FAULT=assert
-# test_panic.py::test_fails failed: assert 1 == 2
+# test_panic.py::test_fails failed
+#     assert 1 == 2
 # test_panic.py::test_raises raised: KeyError: 'k'
-# 4 tests: 1 passed, 1 failed, 2 raised
+# 4 cases: 1 passed, 1 failed, 2 raised
 ```
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.

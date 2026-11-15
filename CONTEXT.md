@@ -32,11 +32,15 @@ How far a crate reaches into purba: the [parts](#part) that name it, and the cra
 
 ### Blocked test
 
-A selected test that an error kept from running, so it has no [outcome](#outcome).
+A selected test that an error kept from running, or that gave a [project error](#project-error) as it ran, such as a case with no [expectation](#expectation), so it has no [outcome](#outcome).
 
 ### Candidate
 
 A third-party Python project, pinned to a commit, whose tests decide when a [milestone](#milestone) is done.
+
+### Case
+
+One call of a [test](#test), which a [run](#run) gives at most one [outcome](#outcome). A test with no [inputs](#input) is one case, under the test's own name.
 
 ### Catalyst
 
@@ -56,7 +60,7 @@ A rule or mechanism that two or more [parts](#part) follow, and that no part own
 
 ### Count
 
-What a [run](#run) met, in numbers: each selected test once, by its [outcome](#outcome) or as a [blocked](#blocked-test) or [unreached test](#unreached-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
+What a [run](#run) met, in numbers: each [case](#case) once, by its [outcome](#outcome) or as a [blocked](#blocked-test) or [unreached test](#unreached-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
 
 ### Debrief
 
@@ -73,6 +77,10 @@ A [candidate's](#candidate) tests, restated for purba before purba can run them.
 ### Entity
 
 A being that can take the role of an [actor](#actor). A person and an agent are each one.
+
+### Expectation
+
+An assert at the end of a [test's](#test) body, with only other expectations after it. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Gate
 
@@ -154,7 +162,7 @@ The statement that a contributor has the right to submit a contribution. Only a 
 
 ### Outcome
 
-What a [run](#run) says about one selected test that it reached and that no error blocked, such as passed, failed, raised, unknown or interrupted. A test is unknown when its call returned and purba cannot say that it checked a behaviour.
+What a [run](#run) says about one [case](#case) that it reached and that no error blocked: passed, failed, raised or interrupted. A case in which no [expectation](#expectation) ran has no outcome, and gives a [project error](#project-error).
 
 ### Outside contribution
 

@@ -26,7 +26,7 @@
 ### command
 
 - [A command test checks only command's rules](decisions/a-command-test-checks-only-commands-rules.md)
-- [A tester runs purba on one module, and reads one line for each test](decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md)
+- [A tester runs purba on one module, and reads a line for each case](decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md)
 - [Command lends one parse to selection and assertion](decisions/command-lends-one-parse-to-selection-and-assertion.md)
 
 ### selection
@@ -36,7 +36,7 @@
 
 ### parsing
 
-- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [purba parses Python with ruff's parser](decisions/purba-parses-python-with-ruff.md)
 
@@ -47,7 +47,7 @@
 
 ### execution
 
-- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Execution calls a test by its function's name, and reporting prints the identity it is given](decisions/execution-calls-a-test-by-its-functions-name.md)
 
 ### fixtures
@@ -57,7 +57,7 @@
 
 ### assertion
 
-- [A failed line quotes the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [A loaded module joins sys.modules under its file's name, without .py](decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md)
 - [A module that binds a name purba adds is a project error](decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md)
 - [A module whose load fails leaves sys.modules as it found it](decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md)
@@ -66,7 +66,8 @@
 
 ### reporting
 
-- [A run exits 0 only when it checked something and every test passed](decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md)
+- [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [A run exits 0 only when it checked something and every case passed](decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md)
 - [A test that selection refuses prints before any test runs](decisions/a-test-that-selection-refuses-prints-before-any-test-runs.md)
 - [Command hands reporting each line from before dispatch takes the module](decisions/command-hands-reporting-each-line-from-before-dispatch-takes-the-module.md)
 - [Reporting renders the exit code, and command returns it](decisions/reporting-renders-the-exit-code-and-command-returns-it.md)
