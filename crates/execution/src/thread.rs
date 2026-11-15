@@ -152,3 +152,31 @@ pub fn hook(py: Python<'_>) -> PyResult<&'static Py<Hook>> {
         Ok(hook)
     })
 }
+
+/// Puts the hook back in each place of `threading.excepthook` and
+/// `sys.unraisablehook` that holds anything else, and names the first such
+/// place. Gives `None` when both hold the hook, or before the hook takes them.
+pub fn replaced(py: Python<'_>) -> Option<&'static str> {
+    let hook = HOOK.get(py)?;
+    let threading = py.import("threading").ok()?;
+    let sys = py.import("sys").ok()?;
+    let unraisable = hook.getattr(py, "unraisable").ok()?;
+    let mut first = if threading
+        .getattr("excepthook")
+        .is_ok_and(|held| held.is(hook))
+    {
+        None
+    } else {
+        drop(threading.setattr("excepthook", hook));
+        Some("threading.excepthook")
+    };
+    if !sys
+        .getattr("unraisablehook")
+        .and_then(|held| held.eq(&unraisable))
+        .unwrap_or(false)
+    {
+        drop(sys.setattr("unraisablehook", &unraisable));
+        first.get_or_insert("sys.unraisablehook");
+    }
+    first
+}

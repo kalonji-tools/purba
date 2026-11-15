@@ -148,17 +148,17 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
-@test "an assert of an empty tuple fails, and CPython does not warn" {
+@test "an empty tuple asserted before the first expectation is refused, and CPython does not warn" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'def test_empty():' '    assert ()' '    x = 1' '    assert x == 1' >test_empty.py
 
-  run -1 --separate-stderr purba test_empty.py
+  run -4 --separate-stderr purba test_empty.py
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_empty.py::test_empty failed
-    assert ()
-1 case: 1 failed
+  local asserts='asserts before the first expectation, and only an expectation asserts'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_empty.py::test_empty project error: line 2 ${asserts}
+1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -317,10 +317,14 @@ LINES
 # A thread that `_thread` starts counts in `_thread._count()` before its
 # function runs, and leaves the count after `sys.unraisablehook` returns:
 # https://github.com/python/cpython/blob/v3.14.0/Modules/_threadmodule.c#L357-L375
-# So a test that waits for the count to fall waits for the hook too.
+# So a test that waits for the count to fall waits for the hook too. The wait
+# sits in a module that the test imports, whose paths purba does not watch.
 raw_thread() {
+  printf '%s\n' 'import time' 'def until(ready):' '    while not ready():' \
+    '        time.sleep(0.01)' >waits.py
   printf '%s\n' \
-    'import _thread, os, time' \
+    'import _thread, os' \
+    'import waits' \
     'started = []' \
     'def count():' '    return _thread._count()' \
     'def start(function):' '    _thread.start_new_thread(function, ())' \
@@ -328,8 +332,7 @@ raw_thread() {
     'def test_one():' \
     '    before = count()' \
     '    start(body)' \
-    '    while not started or count() > before:' \
-    '        time.sleep(0.01)' \
+    '    waits.until(lambda: started and count() <= before)' \
     '    assert 1 == 1' >test_raw.py
 }
 
@@ -337,7 +340,7 @@ raw_thread() {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   raw_thread 'raise ValueError("from a raw thread")'
 
-  run -4 --separate-stderr purba test_raw.py
+  run -4 --separate-stderr env PYTHONPATH=. purba test_raw.py
 
   local lines
   lines=$(sed -E 's/thread [0-9]+ raised/thread <id> raised/' <<<"${output}")
@@ -354,7 +357,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   raw_thread 'os._exit(3)'
 
-  run -4 --separate-stderr purba test_raw.py
+  run -4 --separate-stderr env PYTHONPATH=. purba test_raw.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_raw.py::test_one raised: its process exited 3 before its outcome

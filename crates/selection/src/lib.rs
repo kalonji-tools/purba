@@ -844,17 +844,7 @@ fn faults_of(
 ) -> Vec<Reason> {
     let line = |offset: TextSize| module.position(offset).line();
     let mut faults: Vec<(TextSize, Reason)> = Vec::new();
-    let mut expectations: Vec<&StmtAssert> = function
-        .body
-        .iter()
-        .rev()
-        .map_while(|statement| match statement {
-            Stmt::Assert(assert) => Some(assert),
-            _ => None,
-        })
-        .collect();
-    expectations.reverse();
-    for assert in expectations {
+    for assert in expectations(&function.body) {
         let start = assert.start();
         match &*assert.test {
             Expr::Compare(compare) if compare.ops.len() == 1 => {
@@ -1017,4 +1007,30 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
     fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
         self.pending.push(Node::Element(element));
     }
+}
+
+/// The expectations at the end of `body`: the asserts at its end, with no other
+/// statement after them, after those at the end of the body of a `with` just
+/// before them, at any depth. Each comes in source order.
+fn expectations(body: &[Stmt]) -> Vec<&StmtAssert> {
+    let mut segments: Vec<Vec<&StmtAssert>> = Vec::new();
+    let mut current = body;
+    loop {
+        let mut asserts: Vec<&StmtAssert> = current
+            .iter()
+            .rev()
+            .map_while(|statement| match statement {
+                Stmt::Assert(assert) => Some(assert),
+                _ => None,
+            })
+            .collect();
+        asserts.reverse();
+        let before = current.len() - asserts.len();
+        segments.push(asserts);
+        match before.checked_sub(1).map(|last| &current[last]) {
+            Some(Stmt::With(with)) if !with.is_async => current = &with.body,
+            _ => break,
+        }
+    }
+    segments.into_iter().rev().flatten().collect()
 }

@@ -16,12 +16,21 @@ use pyo3::Python;
 use pyo3::types::PyAnyMethods;
 
 use crate::fork::{Forked, fork};
-use crate::{Error, Kind, Module, Outcome, Owner, Reason, Worker, frame, interrupt, panic};
+use purba_assertion::{Readers, Verdict};
+
+use crate::{Error, Kind, Module, Outcome, Owner, Reason, Worker, frame, interrupt, panic, reader};
 
 /// The tags of the frames.
 mod tag {
     /// purba names the test to run: the name of its function.
     pub const TEST: u8 = b'n';
+    /// purba asks for a replay of a test: the name of its function, a NUL,
+    /// and the index of the expectation that the replay reads alone.
+    pub const REPLAY: u8 = b'y';
+    /// Each later expectation that a replay must read alone: its index, `1`
+    /// when it held in order or `0`, and its text, each after a NUL but the
+    /// first.
+    pub const LATER: u8 = b'q';
     /// The load ended, and the zygote forks each test from now on.
     pub const READY: u8 = b'g';
     /// A thread is alive after the load, and the zygote ends.
@@ -182,9 +191,11 @@ impl Zygote {
         }
         let before = interrupt::first();
         let mut result = None;
+        let mut later = Vec::new();
         let status = loop {
             match frame::read(&mut self.frames) {
                 Ok(Some((tag::ENDED, status))) => break status.parse().ok(),
+                Ok(Some((tag::LATER, text))) => later = later_of(&text),
                 Ok(Some((tag::FORKED, pid))) => {
                     interrupt::follow_test(pid.parse().unwrap_or(0));
                 }
@@ -227,7 +238,96 @@ impl Zygote {
             };
             Ok(Outcome { kind })
         });
+        let result = match result {
+            Ok(outcome)
+                if !later.is_empty()
+                    && matches!(outcome.kind, Kind::Passed | Kind::Failed { .. }) =>
+            {
+                self.replays(function, &later, &owner, &mut threads)
+                    .unwrap_or(Ok(outcome))
+            }
+            other => other,
+        };
         (result, threads)
+    }
+
+    /// Asks the zygote for a replay of `function` for each of `later`, in
+    /// order, and gives the result that the first replay whose reading differs
+    /// from the one in order makes: a project error. A replay that the zygote
+    /// could not fork gives a project error too, and an interrupt that lands
+    /// during the replays gives `Interrupted`. Gives `None` when every replay
+    /// agrees.
+    fn replays<T: Clone>(
+        &mut self,
+        function: &str,
+        later: &[(usize, bool, String)],
+        owner: &T,
+        threads: &mut Threads<T>,
+    ) -> Option<Result<Outcome, Error>> {
+        let before = interrupt::first();
+        for (index, held, text) in later {
+            let verdict = match self.replay(function, *index, owner, threads) {
+                Ok(verdict) => verdict,
+                Err(error) => return Some(Err(error)),
+            };
+            if before == 0 && interrupt::first() != 0 {
+                return Some(Ok(Outcome {
+                    kind: Kind::Interrupted,
+                }));
+            }
+            if let Some(differ) = crate::differs(verdict, *held) {
+                return Some(Err(Error::project(format!("{text} {differ}"))));
+            }
+        }
+        None
+    }
+
+    /// Asks the zygote for one replay of `function` that reads the expectation
+    /// at `index` alone, and gives its verdict.
+    fn replay<T: Clone>(
+        &mut self,
+        function: &str,
+        index: usize,
+        owner: &T,
+        threads: &mut Threads<T>,
+    ) -> Result<Verdict, Error> {
+        let asked = self.tests.as_mut().map_or_else(
+            || Err(ErrorKind::BrokenPipe.into()),
+            |tests| frame::write(tests, tag::REPLAY, &format!("{function}\0{index}")),
+        );
+        if asked.is_err() {
+            let ended = ended(self.wait());
+            return Err(Error::project(format!("the module's process {ended}")));
+        }
+        let mut refused = None;
+        loop {
+            match frame::read(&mut self.frames) {
+                Ok(Some((tag::ENDED, status))) => {
+                    interrupt::follow_test(0);
+                    return refused.map_or_else(
+                        || Ok(status.parse().map_or(Verdict::Raises, reader::verdict)),
+                        |text| Err(Error::project(text)),
+                    );
+                }
+                Ok(Some((tag::FORKED, pid))) => {
+                    interrupt::follow_test(pid.parse().unwrap_or(0));
+                }
+                Ok(Some((tag::TEST_THREAD, text))) => {
+                    threads.push((Owner::Test(owner.clone()), Error::project(text)));
+                }
+                Ok(Some((tag::LOAD_THREAD, text))) => {
+                    threads.push((Owner::Load(self.path.clone()), Error::project(text)));
+                }
+                Ok(Some((tag::KEPT, signum))) => interrupt::adopt(signum.parse().unwrap_or(0)),
+                Ok(Some((tag::PROJECT, text))) => refused = Some(text),
+                Ok(Some(_)) => {}
+                Ok(None) | Err(_) => {
+                    interrupt::follow_test(0);
+                    let ended = ended(self.wait());
+                    return Err(Error::project(format!("the module's process {ended}")));
+                }
+            }
+        }
     }
 
     /// Tells the zygote that no test is left, and waits for it to end.
@@ -445,22 +545,37 @@ fn live_as_zygote(
         }
     }
     send(&mut frames, (tag::READY, String::new()));
-    while let Ok(Some((tag::TEST, function))) = frame::read(&mut tests) {
+    while let Ok(Some((tag, text))) = frame::read(&mut tests) {
+        let (function, replay) = match tag {
+            tag::TEST => (text, None),
+            tag::REPLAY => match text.split_once('\0') {
+                Some((function, index)) => (function.to_owned(), index.parse().ok()),
+                None => break,
+            },
+            _ => break,
+        };
         flush(py);
         match fork(py) {
             Ok(Forked::Child) => {
                 drop(tests);
-                live_as_test(py, &mut worker, module, !load, &function, frames)
+                match replay {
+                    Some(index) => {
+                        live_as_replay(py, &mut worker, module, !load, &function, index, &frames)
+                    }
+                    None => live_as_test(py, &mut worker, module, !load, &function, frames),
+                }
             }
             Ok(Forked::Parent(pid)) => {
                 let status = wait(pid);
                 send(&mut frames, (tag::ENDED, status.to_string()));
             }
             Err(error) => {
-                send(
-                    &mut frames,
-                    (tag::PROJECT, format!("purba cannot fork: {error}")),
-                );
+                let text = if replay.is_some() {
+                    format!("purba cannot fork to read an expectation alone: {error}")
+                } else {
+                    format!("purba cannot fork: {error}")
+                };
+                send(&mut frames, (tag::PROJECT, text));
                 send(&mut frames, (tag::ENDED, "0".to_owned()));
             }
         }
@@ -518,6 +633,16 @@ fn live_as_test(
     if unsafe { libc::getpid() } != own {
         exit(0);
     }
+    if result.is_ok() && !worker.replays().is_empty() {
+        let later: Vec<String> = worker
+            .replays()
+            .iter()
+            .flat_map(|(index, held, text)| {
+                [index.to_string(), u8::from(*held).to_string(), text.clone()]
+            })
+            .collect();
+        send(&mut frames, (tag::LATER, later.join("\0")));
+    }
     send(&mut frames, outcome_frame(&result));
     interrupt::calling(py, || join(py, worker));
     call_atexit(py, "_run_exitfuncs");
@@ -565,4 +690,60 @@ fn send_threads(worker: &mut Worker<'_, String>, frames: &mut File) {
         };
         send(frames, (tag, error.to_string()));
     }
+}
+
+/// Each later expectation that a `LATER` frame names: its index, whether it
+/// held in order, and its text.
+fn later_of(text: &str) -> Vec<(usize, bool, String)> {
+    let parts: Vec<&str> = text.split('\0').collect();
+    let (triples, _) = parts.as_chunks::<3>();
+    triples
+        .iter()
+        .filter_map(|[index, held, text]| {
+            Some((index.parse().ok()?, *held == "1", (*text).to_owned()))
+        })
+        .collect()
+}
+
+/// The life of a replay, in the child of the zygote: it runs the test
+/// `function` again, and reads only the expectation at `index`. With `load`,
+/// it loads the module first. It ends with the verdict of that expectation as
+/// its exit code, and writes nothing to stdout or stderr: the case wrote what
+/// the test writes once.
+fn live_as_replay(
+    py: Python<'_>,
+    worker: &mut Worker<'_, String>,
+    module: &Module,
+    load: bool,
+    function: &str,
+    index: usize,
+    frames: &File,
+) -> ! {
+    // SAFETY: `getpid` only gives the pid of the process.
+    let own = unsafe { libc::getpid() };
+    let mut frames = frames.try_clone().unwrap_or_else(|_| exit(0));
+    send(&mut frames, (tag::FORKED, own.to_string()));
+    drop(frames);
+    if let Ok(null) = File::options().write(true).open("/dev/null") {
+        use std::os::fd::AsRawFd;
+        for target in [libc::STDOUT_FILENO, libc::STDERR_FILENO] {
+            // SAFETY: both descriptors are open, and `dup2` only points
+            // `target` at the file of `null`.
+            unsafe { libc::dup2(null.as_raw_fd(), target) };
+        }
+    }
+    call_atexit(py, "_clear");
+    drop(crate::catch("execution", || {
+        if load {
+            worker.load(module)?;
+            drop(worker.threads());
+        }
+        worker.replay(module, function, index);
+        Ok(())
+    }));
+    // SAFETY: `getpid` only gives the pid of the process.
+    if unsafe { libc::getpid() } != own {
+        exit(0);
+    }
+    reader::READERS.end(Verdict::Raises)
 }

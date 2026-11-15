@@ -63,24 +63,31 @@ const TEST_LOAD_THREAD: &str = "import threading\n\n\
     thread.start()\nthread.join()\n\n\
     def test_one():\n    assert True\n";
 
+/// A module that the test reads, which waits until a condition holds. `exec`
+/// makes it, so its loop is no code of the test module, as a module that the
+/// test imports is not.
+const WAITS: &str = "import types\n\nwaits = types.ModuleType(\"waits\")\n\
+    exec(\"import time\\n\\ndef until(ready):\\n    while not ready():\\n\
+    \x20       time.sleep(0.01)\\n\", waits.__dict__)\n\n";
+
 /// A thread that `_thread` starts in a test, which waits for `_thread._count()`
 /// to fall, as `tests/skeleton.bats` does.
-const TEST_RAW_THREAD: &str = "import _thread\nimport time\n\nstarted = []\n\n\
+const TEST_RAW_THREAD: &str = "import _thread\n\nstarted = []\n\n\
     def body():\n    started.append(1)\n    raise ValueError(\"raw\")\n\n\
     def test_raw():\n    before = _thread._count()\n    _thread.start_new_thread(body, ())\n\
-    \x20   while not started or _thread._count() > before:\n        time.sleep(0.01)\n\
+    \x20   waits.until(lambda: started and _thread._count() <= before)\n\
     \x20   assert True\n";
 
 /// A thread that `_thread` starts in `test_leaves`, and that raises during
 /// `test_releases`, which waits for `_thread._count()` to fall.
-const TEST_RAW_LATE: &str = "import _thread\nimport time\n\n\
+const TEST_RAW_LATE: &str = "import _thread\n\n\
     go = _thread.allocate_lock()\ngo.acquire()\nstarted = []\nbefore = []\n\n\
     def late():\n    started.append(1)\n    go.acquire()\n    raise ValueError(\"late raw\")\n\n\
     def test_leaves():\n    before.append(_thread._count())\n\
-    \x20   _thread.start_new_thread(late, ())\n    while not started:\n        time.sleep(0.01)\n\
+    \x20   _thread.start_new_thread(late, ())\n    waits.until(lambda: started)\n\
     \x20   assert True\n\n\
-    def test_releases():\n    go.release()\n    while _thread._count() > before[0]:\n\
-    \x20       time.sleep(0.01)\n    assert True\n";
+    def test_releases():\n    go.release()\n\
+    \x20   waits.until(lambda: _thread._count() <= before[0])\n    assert True\n";
 
 /// `text` with the number that names a thread `_thread` started replaced, so
 /// that two runs compare equal.
@@ -112,8 +119,8 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
     let test_late = module("test_late.py", TEST_LATE);
     let test_load_thread = module("test_load_thread.py", TEST_LOAD_THREAD);
     let test_load_leaves = module("test_load_leaves.py", TEST_LOAD_LEAVES);
-    let test_raw_thread = module("test_raw_thread.py", TEST_RAW_THREAD);
-    let test_raw_late = module("test_raw_late.py", TEST_RAW_LATE);
+    let test_raw_thread = module("test_raw_thread.py", &format!("{WAITS}{TEST_RAW_THREAD}"));
+    let test_raw_late = module("test_raw_late.py", &format!("{WAITS}{TEST_RAW_LATE}"));
     // A step with no function is a `load` alone, as dispatch makes it.
     let steps: Vec<Step> = purba_execution::attach(|worker| {
         [

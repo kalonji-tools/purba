@@ -26,7 +26,7 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
-@test "a test that fails before a cleanup assert that holds prints failed, and the run exits 1" {
+@test "an expectation inside a checking context fails, and an assert in a try is refused" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'import contextlib' '' 'opened = []' '' '' \
@@ -39,12 +39,12 @@ LINES
 
   run -1 --separate-stderr purba test_cleanup_assert.py
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+  local asserts='asserts before the first expectation, and only an expectation asserts'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
 test_cleanup_assert.py::test_inside_a_checking_context failed
     assert 1 + 1 == 3
-test_cleanup_assert.py::test_with_a_finally_check failed
-    assert 1 + 1 == 3
-2 cases: 2 failed
+test_cleanup_assert.py::test_with_a_finally_check project error: line 21 ${asserts}
+2 cases: 1 failed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -70,20 +70,6 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_none.py::test_one project error: no expectation stated
-1 case: 1 blocked; 1 project error
-LINES
-  [[ -z "${stderr}" ]]
-}
-
-@test "an assert inside a with is no expectation, and the run exits 4" {
-  cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'import contextlib' '' '' \
-    'def test_one():' '    with contextlib.nullcontext():' '        assert 1 == 1' >test_with.py
-
-  run -4 --separate-stderr purba test_with.py
-
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_with.py::test_one project error: no expectation stated
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -133,21 +119,6 @@ LINES
 test_reading.py::test_holds_alone project error: assert seen == [] ${alone}
 test_reading.py::test_fails_alone project error: assert seen == [1] ${after}
 2 cases: 2 blocked; 2 project errors
-LINES
-  [[ -z "${stderr}" ]]
-}
-
-@test "a thread alive at the first expectation leaves each expectation read in order only" {
-  cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'import threading' '' 'seen = []' '' '' 'def test_one():' \
-    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
-    '    assert seen.append(1) is None' '    assert seen == [1]' >test_thread.py
-
-  run -0 --separate-stderr purba test_thread.py
-
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_thread.py::test_one passed
-1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }

@@ -589,6 +589,7 @@ fn the_first_expectation_reads_each_later_one_alone_before_it_reads_in_order() {
             result,
             mark,
             readings,
+            ..
         } = loaded.watch(&FAILING, || test.call0());
         assert!(result.is_ok(), "the test returned: {result:?}");
         assert_eq!(mark, None, "an expectation keeps no mark");
@@ -598,6 +599,7 @@ fn the_first_expectation_reads_each_later_one_alone_before_it_reads_in_order() {
                 in_order: vec![(0, true), (1, true), (2, false)],
                 alone: vec![(1, Verdict::Fails), (2, Verdict::Fails)],
                 refused: None,
+                replay: Vec::new(),
             },
             "a reader for each expectation after the first, then each in order"
         );
