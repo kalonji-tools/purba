@@ -9,8 +9,6 @@ pub struct Met {
     pub panic: Option<panic::Panic>,
     /// Whether the first interrupt landed in the step.
     pub interrupted: bool,
-    /// The call to `os._exit` that the guard kept, as text.
-    pub exit: Option<String>,
 }
 
 /// The result that a step gives: its own, or the one that hides it.
@@ -18,12 +16,10 @@ pub struct Met {
 pub enum Gives<T> {
     Own(T),
     Interrupted,
-    Exit(String),
 }
 
-/// A panic, then an interrupt, then the step's own error, then a call to
-/// `os._exit`, hide each one after them. An internal error that the step gives
-/// itself ranks as a panic.
+/// A panic, then an interrupt, then the step's own error, hide each one after
+/// them. An internal error that the step gives itself ranks as a panic.
 pub fn decide<T>(own: Result<T, Error>, met: Met) -> Result<Gives<T>, Error> {
     if let Some(noted) = met.panic {
         Err(Error(crate::Reason::Internal(noted.caught_by("execution"))))
@@ -33,12 +29,8 @@ pub fn decide<T>(own: Result<T, Error>, met: Met) -> Result<Gives<T>, Error> {
         own.map(Gives::Own)
     } else if met.interrupted {
         Ok(Gives::Interrupted)
-    } else if let Err(error) = own {
-        Err(error)
-    } else if let Some(exit) = met.exit {
-        Ok(Gives::Exit(exit))
     } else {
-        Ok(Gives::Own(own?))
+        own.map(Gives::Own)
     }
 }
 
@@ -51,7 +43,6 @@ mod tests {
     const NOTHING: Met = Met {
         panic: None,
         interrupted: false,
-        exit: None,
     };
 
     /// The result that `decide` gives, as text a row can compare.
@@ -59,7 +50,6 @@ mod tests {
         match result {
             Ok(Gives::Own(kind)) => format!("own: {kind:?}"),
             Ok(Gives::Interrupted) => "interrupted".to_owned(),
-            Ok(Gives::Exit(call)) => format!("exit: {call}"),
             Err(error) => match error.kind() {
                 ErrorKind::Project => format!("project error: {error}"),
                 ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
@@ -68,7 +58,7 @@ mod tests {
     }
 
     #[test]
-    fn a_panic_an_interrupt_the_steps_own_error_and_a_call_to_os_exit_hide_each_one_after_them() {
+    fn a_panic_an_interrupt_and_the_steps_own_error_hide_each_one_after_them() {
         // Each row: what it checks, the step's own result, what the step met,
         // and what `decide` gives.
         let a_panic = Some(panic::Panic {
@@ -90,7 +80,6 @@ mod tests {
                 Met {
                     panic: a_panic.clone(),
                     interrupted: true,
-                    exit: None,
                 },
                 "internal error: execution: boom",
             ),
@@ -99,20 +88,8 @@ mod tests {
                 "a step that met panic and project error results in internal error",
                 Err(Error::project("...".to_owned())),
                 Met {
-                    panic: a_panic.clone(),
-                    interrupted: false,
-                    exit: None,
-                },
-                "internal error: execution: boom",
-            ),
-            // fails when: the check of the os._exit moves above the check of the panic
-            (
-                "a step that met panic and os._exit results in internal error",
-                Ok(Kind::Passed),
-                Met {
                     panic: a_panic,
                     interrupted: false,
-                    exit: Some("os._exit".to_string()),
                 },
                 "internal error: execution: boom",
             ),
@@ -123,31 +100,8 @@ mod tests {
                 Met {
                     panic: None,
                     interrupted: true,
-                    exit: None,
                 },
                 "interrupted",
-            ),
-            // fails when: the check of the os._exit moves above the check of the interrupted
-            (
-                "a step that met interrupt and os._exit gives interrupted",
-                Ok(Kind::Passed),
-                Met {
-                    panic: None,
-                    interrupted: true,
-                    exit: Some("os._exit".to_string()),
-                },
-                "interrupted",
-            ),
-            // fails when: the check of the os._exit moves above the project error
-            (
-                "a step that met os._exit and self error results in project error",
-                Err(Error::project("...".to_owned())),
-                Met {
-                    panic: None,
-                    interrupted: false,
-                    exit: Some("os._exit".to_string()),
-                },
-                "project error: ...",
             ),
             // fails when: the check of the interrupt moves above the check of the own internal
             // error
@@ -160,7 +114,6 @@ mod tests {
                 Met {
                     panic: None,
                     interrupted: true,
-                    exit: None,
                 },
                 "internal error: execution: crossed",
             ),

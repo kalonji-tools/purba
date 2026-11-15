@@ -77,7 +77,7 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
-@test "a test that aborts purba leaves the line of each test before it" {
+@test "a test whose process dies by a signal prints raised, and each other test keeps its line" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'import os' \
@@ -85,9 +85,14 @@ LINES
     'def test_two():' '    os.abort()' \
     'def test_three():' '    assert 1 == 1' >test_abort.py
 
-  run -134 --separate-stderr purba test_abort.py
+  run -4 --separate-stderr purba test_abort.py
 
-  [[ "${output}" == "test_abort.py::test_one passed" ]]
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_abort.py::test_one passed
+test_abort.py::test_two raised: its process died by SIGABRT
+test_abort.py::test_three passed
+3 tests: 2 passed, 1 raised
+LINES
 }
 
 @test "a tuple assert keeps CPython's warning, and the test that holds only it is unknown" {
@@ -232,25 +237,40 @@ LINES
   [[ "${stderr}" == *"Traceback"*"ZeroDivisionError: division by zero"* ]] || false
 }
 
-@test "a thread that outlives its test prints its error under the test that left it" {
+@test "a thread that is not a daemon and raises after its test returns charges that test" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'import threading' \
-    'go = threading.Event()' \
-    'left = []' \
-    'def late():' '    go.wait()' '    raise ValueError("late")' \
+    'import threading, time' \
+    'def late():' '    time.sleep(0.2)' '    raise ValueError("late")' \
     'def test_a():' \
-    '    thread = threading.Thread(target=late, name="T", daemon=True)' \
-    '    thread.start()' '    left.append(thread)' '    assert True' \
-    'def test_b():' '    go.set()' '    left[0].join()' '    assert True' >test_late.py
+    '    threading.Thread(target=late, name="T").start()' '    assert True' \
+    'def test_b():' '    assert True' >test_late.py
 
   run -4 --separate-stderr purba test_late.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_late.py::test_a passed
-test_late.py::test_b passed
 test_late.py::test_a project error: thread T raised ValueError: late
+test_late.py::test_b passed
 2 tests: 2 passed; 1 project error
+LINES
+}
+
+@test "a daemon thread that a test leaves ends with the test's process, and charges nothing" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import threading, time' \
+    'def late():' '    time.sleep(0.2)' '    raise ValueError("late")' \
+    'def test_a():' \
+    '    threading.Thread(target=late, name="T", daemon=True).start()' '    assert True' \
+    'def test_b():' '    time.sleep(0.5)' '    assert True' >test_late.py
+
+  run -0 --separate-stderr purba test_late.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_late.py::test_a passed
+test_late.py::test_b passed
+2 tests: 2 passed
 LINES
 }
 
@@ -295,7 +315,7 @@ LINES
   run -4 --separate-stderr purba test_raw.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_raw.py::test_one raised: ExitInsideATest: os._exit(3)
+test_raw.py::test_one raised: its process exited 3 before its outcome
 1 test: 1 raised
 LINES
 }

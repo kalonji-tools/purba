@@ -129,12 +129,12 @@ fn dispatch_calls_only_the_tests_it_is_handed() {
 }
 
 #[test]
-fn the_tests_of_a_module_share_one_worker() {
+fn each_test_reads_the_module_as_its_load_left_it() {
     let test_shared = module(
         "test_shared.py",
         "seen = []\n\n\
          def test_first():\n    seen.append(1)\n    assert seen == [1]\n\n\
-         def test_second():\n    seen.append(2)\n    assert seen == [1, 2]\n",
+         def test_second():\n    seen.append(2)\n    assert seen == [2]\n",
         &["test_first", "test_second"],
     );
     assert_eq!(
@@ -143,7 +143,7 @@ fn the_tests_of_a_module_share_one_worker() {
             test("test_first", Ok(Kind::Passed)),
             test("test_second", Ok(Kind::Passed))
         ],
-        "the module loaded once for both tests",
+        "test_second does not see what test_first appended",
     );
 }
 
@@ -225,6 +225,53 @@ fn a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked() 
 }
 
 #[test]
+fn a_load_that_leaves_a_thread_alive_hands_its_threads_error_once() {
+    let test_twice = module(
+        "test_twice.py",
+        "import threading\n\n\
+         loader = threading.Thread(target=lambda: 1 / 0, name=\"L\")\n\
+         loader.start()\nloader.join()\n\
+         threading.Thread(target=threading.Event().wait, daemon=True).start()\n\n\
+         def test_one():\n    assert True\n\n\
+         def test_two():\n    assert True\n",
+        &["test_one", "test_two"],
+    );
+    assert_eq!(
+        seen(test_twice),
+        [
+            Seen::Thread("thread L raised ZeroDivisionError: division by zero".to_owned()),
+            test("test_one", Ok(Kind::Passed)),
+            test("test_two", Ok(Kind::Passed)),
+        ],
+        "the zygote's load hands the error once, and the load in each test's process \
+         hands it again to no test",
+    );
+}
+
+#[test]
+fn a_module_whose_load_exits_hands_its_exit_code_once_then_each_test_as_blocked() {
+    let test_exits = module(
+        "test_load_exits.py",
+        "import os\n\n\
+         try:\n    os._exit(5)\nexcept BaseException:\n    pass\n\n\
+         def test_one():\n    pass\n",
+        &["test_one"],
+    );
+    let path = PathBuf::from("test_load_exits.py");
+    assert_eq!(
+        seen(test_exits),
+        [
+            Seen::NotLoaded(
+                path.clone(),
+                "its process exited 5 before its load ended".to_owned()
+            ),
+            Seen::Blocked("test_one", path),
+        ],
+        "a call to os._exit ends the zygote, though the module catches every exception",
+    );
+}
+
+#[test]
 fn a_break_at_a_module_that_does_not_load_hands_no_blocked_test() {
     let test_fails = module(
         "test_not_loaded_break.py",
@@ -283,12 +330,12 @@ fn a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blo
         [
             Seen::NotLoaded(
                 path.clone(),
-                "internal error: dispatch: raised while it loads".to_owned()
+                "internal error: execution: raised while it loads".to_owned()
             ),
             Seen::Blocked("test_one", path.clone()),
             Seen::Blocked("test_two", path),
         ],
-        "dispatch catches the panic of the load, and names itself",
+        "execution catches the panic of the load in the zygote, and names itself",
     );
 }
 
@@ -308,11 +355,11 @@ fn a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_t
         [
             test(
                 "test_gone",
-                Err("internal error: dispatch: raised by __getattr__")
+                Err("internal error: execution: raised by __getattr__")
             ),
             test("test_two", Ok(Kind::Passed)),
         ],
-        "the lookup of test_gone panics before its call, dispatch names itself, and \
+        "the lookup of test_gone panics before its call, execution names itself, and \
          test_two runs",
     );
 }

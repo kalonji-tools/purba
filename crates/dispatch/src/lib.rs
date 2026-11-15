@@ -1,12 +1,12 @@
-//! Dispatch: loads each module on one worker in-process, and hands it each
-//! selected test. It hands on what the worker returns, and the error of a module
-//! that did not load or of a thread. It also hands on each test that an
-//! interrupt left unreached.
+//! Dispatch: forks for each module a zygote that loads it once, and runs each
+//! selected test in a process that the zygote forks. It hands on what each test's
+//! process gives, and the error of a module that did not load or of a thread. It
+//! also hands on each test that an interrupt left unreached.
 
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{Error, Outcome, Owner, Rewrite, Worker};
+use purba_execution::{Error, Load, Outcome, Owner, Rewrite, Worker, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -67,16 +67,23 @@ pub enum Charged<T> {
     Module(PathBuf),
 }
 
-/// Loads each module of `modules` that has a test on one worker, hands each
-/// of its tests to it, in order, and calls `each` with what the worker returns.
+/// Forks a zygote for each module of `modules` that has a test, and runs each
+/// of its tests, in order, in a process that the zygote forks.
+///
+/// The zygote loads the module once. `each` takes what each test's process
+/// gives.
 ///
 /// When a module does not load, `each` takes its error once, then each of its
 /// tests as blocked, and no test of it runs. Once `each` breaks, nothing
 /// further runs, and `hand` returns the break.
 ///
 /// After each load and each test, `each` takes the error of each thread that
-/// the worker took, beside the test or the module that it charges. After a
-/// load, they come before the first test or the first blocked test.
+/// the load or the test's process took, beside the test or the module that it
+/// charges. After a load, they come before the first test or the first blocked
+/// test.
+///
+/// When a Python thread is alive after the load, purba forks a zygote that loads
+/// nothing, and each test's process loads the module again before its test.
 ///
 /// Before each load and each test, dispatch asks execution whether purba's
 /// signal handler kept an interrupt. Once it did, `each` takes each test left,
@@ -89,7 +96,7 @@ pub fn hand<T: Test + Clone, B>(
     modules: Vec<Module<T>>,
     mut each: impl FnMut(Handed<T>) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
-    purba_execution::attach(|worker| {
+    purba_execution::attach(|worker: &mut Worker<'_, T>| {
         for module in modules {
             if module.tests.is_empty() {
                 continue;
@@ -102,52 +109,82 @@ pub fn hand<T: Test + Clone, B>(
             }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.rewrite);
-            let (loaded, threads) = taken(worker, |worker| worker.load(&executable));
-            if let Err(error) = loaded {
+            let started = worker.zygote(&executable, true).map(|mut zygote| {
+                let load = zygote.loaded();
+                (zygote, load)
+            });
+            let (mut zygote, load) = match started {
+                Ok(started) => started,
+                Err(error) => {
+                    each(Handed::NotLoaded(path.clone(), error))?;
+                    for test in module.tests {
+                        each(Handed::Blocked(test, path.clone()))?;
+                    }
+                    continue;
+                }
+            };
+            let Load {
+                result,
+                threads,
+                threaded,
+            } = load;
+            if let Err(error) = result {
+                zygote.end();
                 each(Handed::NotLoaded(path.clone(), error))?;
-                for (owner, error) in threads {
-                    each(Handed::Thread(charged(owner), error))?;
+                for error in threads {
+                    each(Handed::Thread(Charged::Module(path.clone()), error))?;
                 }
                 for test in module.tests {
                     each(Handed::Blocked(test, path.clone()))?;
                 }
                 continue;
             }
-            for (owner, error) in threads {
-                each(Handed::Thread(charged(owner), error))?;
+            for error in threads {
+                each(Handed::Thread(Charged::Module(path.clone()), error))?;
             }
-            for test in module.tests {
-                if purba_execution::interrupted() {
-                    each(Handed::Unreached(test))?;
-                    continue;
-                }
-                let (result, threads) = taken(worker, |worker| {
-                    worker.run(&executable, test.function(), test.clone())
-                });
-                each(Handed::Test(test, result))?;
-                for (owner, error) in threads {
-                    each(Handed::Thread(charged(owner), error))?;
-                }
+            if threaded {
+                zygote.end();
+                zygote = match worker.zygote(&executable, false) {
+                    Ok(mut zygote) => {
+                        zygote.loaded();
+                        zygote
+                    }
+                    Err(error) => {
+                        let text = error.to_string();
+                        for test in module.tests {
+                            each(Handed::Test(test, Err(Error::project(text.clone()))))?;
+                        }
+                        continue;
+                    }
+                };
             }
+            let flow = run(&mut zygote, module.tests, &mut each);
+            zygote.end();
+            flow?;
         }
         ControlFlow::Continue(())
     })
 }
 
-/// The error of each thread that the worker took, beside its owner.
-type Threads<T> = Vec<(Owner<T>, Error)>;
-
-/// Runs `work`, then takes the errors of threads, inside one `catch`. A panic
-/// gives the internal error of `work`, and takes no error of a thread.
-fn taken<T: Clone, R>(
-    worker: &mut Worker<'_, T>,
-    work: impl FnOnce(&mut Worker<'_, T>) -> Result<R, Error>,
-) -> (Result<R, Error>, Threads<T>) {
-    purba_execution::catch("dispatch", || {
-        let result = work(worker);
-        Ok((result, worker.threads()))
-    })
-    .unwrap_or_else(|error| (Err(error), Vec::new()))
+/// Runs each of `tests` in a process that `zygote` forks, and hands `each` what
+/// it gives.
+fn run<T: Test + Clone, B>(
+    zygote: &mut Zygote,
+    tests: Vec<T>,
+    each: &mut impl FnMut(Handed<T>) -> ControlFlow<B>,
+) -> ControlFlow<B> {
+    for test in tests {
+        if purba_execution::interrupted() {
+            each(Handed::Unreached(test))?;
+            continue;
+        }
+        let (result, threads) = zygote.run(test.function(), test.clone());
+        each(Handed::Test(test, result))?;
+        for (owner, error) in threads {
+            each(Handed::Thread(charged(owner), error))?;
+        }
+    }
+    ControlFlow::Continue(())
 }
 
 /// The test or the module that `owner` names.

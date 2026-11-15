@@ -16,10 +16,8 @@ pub struct Raised {
 }
 
 /// Takes the place of `threading.excepthook`. It keeps each exception but
-/// `SystemExit` itself and `ExitInsideATest`, then calls
-/// `threading.__excepthook__`, which prints the traceback. The guard on
-/// `os._exit` keeps the first call, which gives the test that runs `raised`.
-/// It also holds the real `threading.enumerate`, so a test that replaces it
+/// `SystemExit` itself, then calls `threading.__excepthook__`, which prints the
+/// traceback. It also holds the real `threading.enumerate`, so a test that replaces it
 /// changes no owner.
 ///
 /// It also takes the place of `sys.unraisablehook`, where `CPython` sends the
@@ -87,9 +85,7 @@ impl Hook {
         thread: Bound<'_, PyAny>,
     ) -> PyResult<()> {
         let py = kind.py();
-        if kind.is(py.get_type::<PySystemExit>())
-            || kind.is(py.get_type::<crate::ExitInsideATest>())
-        {
+        if kind.is(py.get_type::<PySystemExit>()) {
             return Ok(());
         }
         let name = if thread.is_none() {

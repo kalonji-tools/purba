@@ -4,27 +4,29 @@
 #[cfg(not(any(target_os = "linux", target_os = "macos")))]
 compile_error!("purba runs on Linux and macOS. On Windows, run it under WSL2.");
 
+mod fork;
+mod frame;
 pub mod interrupt;
 pub mod panic;
 mod step;
 mod thread;
+mod zygote;
 
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
-use std::sync::{Mutex, PoisonError};
 
 use purba_assertion::Loaded;
 /// Assertion's rewrite of a module, which a [`Module`] holds.
 pub use purba_assertion::Rewrite;
 use pyo3::exceptions::PyAssertionError;
-use pyo3::sync::PyOnceLock;
 use pyo3::types::PyAnyMethods;
-use pyo3::{Bound, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
+use pyo3::{Py, PyAny, PyErr, Python};
 use serde::{Deserialize, Serialize};
 use step::{Gives, Met};
+pub use zygote::{Load, Zygote};
 
 /// A module that dispatch hands a worker.
 pub struct Module {
@@ -75,15 +77,14 @@ pub enum Kind {
     /// `assert` is the text of the last assert that did not hold.
     Failed { assert: String },
     /// The test's call raised, and the outcome is not `Failed` or
-    /// `Interrupted`. A call to `os._exit` during the call gives `Raised` too,
-    /// even when the test caught its error. `exception` is the type and the
-    /// message of the exception, as text.
+    /// `Interrupted`. A test whose process ends before its outcome gives
+    /// `Raised` too. `exception` is the type and the message of the exception,
+    /// or how the process ended, as text.
     Raised { exception: String },
     /// No assert ran, and the test returned.
     Unknown,
     /// The first interrupt landed during the test's step: its lookup or its
-    /// call. The test has this outcome whether it then passed, failed, raised or
-    /// called `os._exit`.
+    /// call. The test has this outcome whether it then passed, failed or raised.
     Interrupted,
 }
 
@@ -176,7 +177,6 @@ pub enum Owner<T> {
 pub struct Worker<'py, T> {
     py: Python<'py>,
     loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
-    guard: &'static Py<Guard>,
     hook: &'static Py<thread::Hook>,
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
@@ -196,98 +196,41 @@ impl Window {
     }
 }
 
-mod exit {
-    pyo3::create_exception!(purba, ExitInsideATest, pyo3::exceptions::PyBaseException);
-}
-
-use exit::ExitInsideATest;
-
-/// Takes the place of `os._exit`. In the process that installed it, it keeps its
-/// first call until a worker takes it, and raises `ExitInsideATest`. In a process
-/// that a test forks, it calls the real one.
-#[pyclass(frozen)]
-struct Guard {
-    exit: Py<PyAny>,
-    process: u32,
-    called: Mutex<Option<String>>,
-}
-
-#[pymethods]
-impl Guard {
-    fn __call__(&self, status: &Bound<'_, PyAny>) -> PyResult<()> {
-        if std::process::id() == self.process {
-            let call = format!("os._exit({status})");
-            self.called
-                .lock()
-                .unwrap_or_else(PoisonError::into_inner)
-                .get_or_insert_with(|| call.clone());
-            return Err(ExitInsideATest::new_err(call));
-        }
-        self.exit.call1(status.py(), (status,))?;
-        Ok(())
-    }
-}
-
-impl Guard {
-    fn take(&self) -> Option<String> {
-        self.called
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .take()
-    }
-}
-
-static GUARD: PyOnceLock<Py<Guard>> = PyOnceLock::new();
-
-fn guard(py: Python<'_>) -> PyResult<&'static Py<Guard>> {
-    GUARD.get_or_try_init(py, || {
-        let os = py.import("os")?;
-        let guard = Py::new(
-            py,
-            Guard {
-                exit: os.getattr("_exit")?.unbind(),
-                process: std::process::id(),
-                called: Mutex::new(None),
-            },
-        )?;
-        os.setattr("_exit", &guard)?;
-        Ok(guard)
-    })
-}
-
 /// Gives `work` a worker for as long as it runs.
 ///
-/// Before the first worker, it guards `os._exit`, and hooks
-/// `threading.excepthook` and `sys.unraisablehook`, for the life of the
-/// process. So each run imports `threading`.
+/// Before the first worker, it hooks `threading.excepthook` and
+/// `sys.unraisablehook`, for the life of the process. So each run imports
+/// `threading`.
 ///
 /// # Panics
 ///
-/// The guard could not take the place of `os._exit`, or the hook the place of
-/// `threading.excepthook` or `sys.unraisablehook`.
+/// The hook could not take the place of `threading.excepthook` or
+/// `sys.unraisablehook`.
 pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
     Python::initialize();
-    Python::attach(|py| {
-        work(&mut Worker {
+    Python::attach(|py| work(&mut Worker::new(py)))
+}
+
+impl<'py, T> Worker<'py, T> {
+    /// A worker that has loaded nothing.
+    fn new(py: Python<'py>) -> Self {
+        Self {
             py,
             loaded: HashMap::new(),
-            guard: guard(py).expect("the guard takes the place of os._exit"),
             hook: thread::hook(py)
                 .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
             owners: Vec::new(),
             last: None,
-        })
-    })
+        }
+    }
 }
 
 impl<'py, T: Clone> Worker<'py, T> {
     /// Calls `function` of `module`, which `load` loaded, and makes its
     /// outcome. When the first interrupt landed in the step, the outcome is
     /// `Interrupted`, and when it landed before the test's call, the call does
-    /// not run. When the guard recorded a call to `os._exit` since the worker
-    /// last took one, the outcome is `Raised`, and names that call to
-    /// `os._exit`, unless the step gave a project error of its own. Each thread
-    /// that the step leaves alive gets `test` as its owner, unless it has one.
+    /// not run. Each thread that the step leaves alive gets `test` as its owner,
+    /// unless it has one.
     ///
     /// # Errors
     ///
@@ -303,23 +246,18 @@ impl<'py, T: Clone> Worker<'py, T> {
             kind: match gives {
                 Gives::Own(kind) => kind,
                 Gives::Interrupted => Kind::Interrupted,
-                Gives::Exit(call) => Kind::Raised {
-                    exception: format!("ExitInsideATest: {call}"),
-                },
             },
         })
     }
 
     /// Loads `module` once, and keeps it, or keeps that its load failed. The
-    /// load takes the call to `os._exit` that the guard recorded and the note
-    /// of a panic, so no later test takes them. Each thread that the load
+    /// load takes the note of a panic, so no later test takes it. Each thread that the load
     /// leaves alive gets the load as its owner. When the first interrupt
     /// landed in the load, it gives no project error, and keeps no module.
     ///
     /// # Errors
     ///
-    /// The load raised, or it called `os._exit`, even when the module caught
-    /// the call. An internal error when the module caught a panic and the
+    /// The load raised. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
     pub fn load(&mut self, module: &Module) -> Result<(), Error> {
         if self.loaded.contains_key(&module.path) {
@@ -339,10 +277,6 @@ impl<'py, T: Clone> Worker<'py, T> {
         let (kept, result) = match step::decide(own, met) {
             Ok(Gives::Own(loaded)) => (loaded, Ok(())),
             Ok(Gives::Interrupted) => (None, Ok(())),
-            Ok(Gives::Exit(call)) => (
-                None,
-                Err(Error::project(format!("ExitInsideATest: {call}"))),
-            ),
             Err(error) => (None, Err(error)),
         };
         self.loaded.insert(module.path.clone(), kept);
@@ -374,15 +308,12 @@ impl<'py, T: Clone> Worker<'py, T> {
     }
 
     /// Closes the window of a step that `owner` ran. Gives `owner` each thread
-    /// that the step left alive, and takes the call to `os._exit` and the note
-    /// of a panic.
+    /// that the step left alive, and takes the note of a panic.
     fn close(&mut self, window: &Window, owner: Owner<T>, interrupted: bool) -> Met {
         self.own(&window.alive, owner);
-        let exit = self.guard.get().take();
         Met {
             panic: panic::take(),
             interrupted,
-            exit,
         }
     }
 
