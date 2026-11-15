@@ -1,0 +1,28 @@
+query($owner: String!, $name: String!, $until: GitTimestamp!) {
+  repository(owner: $owner, name: $name) {
+    nameWithOwner
+    isArchived
+    defaultBranchRef {
+      name
+      target {
+        ... on Commit {
+          history(first: 30, until: $until) {
+            nodes {
+              oid
+              committedDate
+              associatedPullRequests(first: 5) {
+                nodes {
+                  number
+                  merged
+                  author { login }
+                  mergedBy { login }
+                  reviews(states: APPROVED, first: 50) { nodes { author { login } } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

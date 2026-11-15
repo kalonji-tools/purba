@@ -1,0 +1,9 @@
+query($owner: String!, $name: String!, $expr: String!) {
+  repository(owner: $owner, name: $name) {
+    object(expression: $expr) {
+      ... on Tree {
+        entries { name path object { ... on Blob { text } } }
+      }
+    }
+  }
+}
