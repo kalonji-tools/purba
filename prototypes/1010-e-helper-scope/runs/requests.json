@@ -1,0 +1,5870 @@
+{
+ "summary": {
+  "project": "requests",
+  "test_files": 9,
+  "tests": 347,
+  "tests_without_check": 41,
+  "tests_calling_b": 34,
+  "b_helpers": 5,
+  "b_helpers_strict_branch": 3,
+  "b_helpers_branch_or_loop": 3,
+  "b_helpers_transitive": 5,
+  "b_helpers_in_folder": 5,
+  "b_helpers_asserting": 0,
+  "tests_calling_asserting_b": 0,
+  "b_helpers_driven": 1,
+  "tests_escape_arrange": 28,
+  "tests_escape_arrange_incl_driven": 34,
+  "tests_escape_assert_with_check": 0,
+  "tests_escape_strict": 23,
+  "tests_escape_transitive": 34,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 144,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 16,
+  "tests_calling_branching_a": 1,
+  "a_helpers": 17,
+  "a_helpers_strict_branch": 0,
+  "tests_calling_c": 0,
+  "tests_calling_branching_c": 0,
+  "c_callees": 0,
+  "c_callees_strict_branch": 0,
+  "folder_surface": {},
+  "calls": {
+   "d": 629,
+   "unresolved": 306,
+   "a": 17,
+   "b": 35
+  },
+  "unresolved_share": 0.31,
+  "unresolved_by_shape": {
+   "a parameter (fixture or input)": 153,
+   "a method of a value": 151,
+   "a local name": 1,
+   "a computed callee": 1
+  },
+  "syntax_errors": []
+ },
+ "surface": {},
+ "unresolved_samples": {
+  "a method of a value": [
+   "tests/test_adapters.py:7",
+   "tests/test_lowlevel.py:33",
+   "tests/test_lowlevel.py:60",
+   "tests/test_lowlevel.py:74",
+   "tests/test_lowlevel.py:76",
+   "tests/test_lowlevel.py:92",
+   "tests/test_lowlevel.py:94",
+   "tests/test_lowlevel.py:124",
+   "tests/test_lowlevel.py:425",
+   "tests/test_requests.py:126",
+   "tests/test_requests.py:126",
+   "tests/test_requests.py:131"
+  ],
+  "a parameter (fixture or input)": [
+   "tests/test_requests.py:126",
+   "tests/test_requests.py:131",
+   "tests/test_requests.py:136",
+   "tests/test_requests.py:141",
+   "tests/test_requests.py:199",
+   "tests/test_requests.py:206",
+   "tests/test_requests.py:215",
+   "tests/test_requests.py:221",
+   "tests/test_requests.py:230",
+   "tests/test_requests.py:242",
+   "tests/test_requests.py:253",
+   "tests/test_requests.py:255"
+  ],
+  "a local name": [
+   "tests/test_requests.py:2744"
+  ],
+  "a computed callee": [
+   "tests/test_utils.py:336"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "tests/test_help.py",
+   "name": "VersionedPackage",
+   "line": 11,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "TestStream",
+   "line": 842,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "CustomMapping",
+   "line": 900,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "ReadProxy",
+   "line": 1103,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "MyCookiePolicy",
+   "line": 1436,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "MyString",
+   "line": 1867,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "BadFileObj",
+   "line": 2040,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "BadFileObj",
+   "line": 2060,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "BadFileObj",
+   "line": 2083,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "AttrProxy",
+   "line": 2105,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "_patch_adapter_gzipped_redirect",
+   "line": 2117,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "CustomRedirectSession",
+   "line": 2309,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "RedirectSession",
+   "line": 2608,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_requests.py",
+   "name": "send",
+   "line": 2616,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_utils.py",
+   "name": "RegHandle",
+   "line": 894,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_utils.py",
+   "name": "RegHandle",
+   "line": 930,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_utils.py",
+   "name": "RegHandle",
+   "line": 991,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/testserver/server.py",
+   "name": "Server",
+   "line": 25,
+   "kind": "b",
+   "class": true,
+   "own": {
+    "boolop": 1,
+    "if": 3
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/testserver/server.py",
+   "name": "text_response_server",
+   "line": 52,
+   "kind": "b",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/testserver/server.py",
+   "name": "basic_response_server",
+   "line": 62,
+   "kind": "b",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/testserver/server.py",
+   "name": "TLSServer",
+   "line": 138,
+   "kind": "b",
+   "class": true,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/utils.py",
+   "name": "override_environ",
+   "line": 6,
+   "kind": "b",
+   "class": false,
+   "own": {
+    "for": 1,
+    "if": 1
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": true,
+   "asserts": false,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "tests/test_adapters.py",
+   "test": "tests/test_adapters.py:4",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_help.py",
+   "test": "tests/test_help.py:6",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_help.py",
+   "test": "tests/test_help.py:16",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_help.py",
+   "test": "tests/test_help.py:24",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_help.py",
+     "VersionedPackage",
+     11
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:17",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:21",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:24",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:39",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:63",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 2
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:81",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 2
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:99",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:127",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:192",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:238",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:290",
+   "has_check": true,
+   "calls": {
+    "b": 2,
+    "d": 2
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ],
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:308",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:342",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:364",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_lowlevel.py",
+   "test": "tests/test_lowlevel.py:407",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packages.py",
+   "test": "tests/test_packages.py:4",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packages.py",
+   "test": "tests/test_packages.py:8",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packages.py",
+   "test": "tests/test_packages.py:12",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:87",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:111",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:115",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:125",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:130",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:135",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:139",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:145",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:163",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:167",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:178",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:184",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:190",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:196",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:205",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:214",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:220",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:228",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:239",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:251",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:262",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:277",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:284",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:292",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:299",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:306",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:313",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:320",
+   "has_check": true,
+   "calls": {
+    "d": 6,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:337",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:360",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:368",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:376",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:384",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:390",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:396",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:406",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:411",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:417",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:425",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:431",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:442",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:450",
+   "has_check": true,
+   "calls": {
+    "d": 9,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:482",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:488",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:496",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:504",
+   "has_check": true,
+   "calls": {
+    "d": 6,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:525",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:531",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:535",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:539",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:563",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:572",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:593",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:597",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:604",
+   "has_check": false,
+   "calls": {
+    "d": 8,
+    "unresolved": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ],
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:617",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 5,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:624",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 5,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:632",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 6,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:641",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:647",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:653",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:669",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:683",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:718",
+   "has_check": true,
+   "calls": {
+    "unresolved": 9,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:748",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:765",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:775",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:783",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:794",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:810",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:818",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:835",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:841",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "TestStream",
+     842
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:882",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:899",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 3,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "CustomMapping",
+     900
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:924",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:930",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:934",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:942",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:956",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:959",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:966",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:969",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:978",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1018",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1026",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1034",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "nosan_server",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1059",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1068",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1073",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1080",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1090",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1101",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "ReadProxy",
+     1103
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1125",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1134",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1148",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1158",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1170",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1178",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1190",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1200",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1211",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1225",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1239",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1256",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1262",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1272",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1298",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1316",
+   "has_check": true,
+   "calls": {
+    "d": 8
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1336",
+   "has_check": true,
+   "calls": {
+    "d": 8
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1355",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1371",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1387",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1403",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1424",
+   "has_check": false,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1435",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "MyCookiePolicy",
+     1436
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1443",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1451",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1455",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1468",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1487",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1496",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1508",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1536",
+   "has_check": false,
+   "calls": {
+    "d": 5,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1546",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1558",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1572",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1588",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1604",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1609",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1619",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1629",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1640",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1647",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1685",
+   "has_check": true,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1709",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1719",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1731",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1744",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1757",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1764",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1770",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1779",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1789",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1809",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1835",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1854",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1861",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "MyString",
+     1867
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1887",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1894",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1902",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1910",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1921",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin_secure",
+     false
+    ],
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1933",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1940",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1946",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1950",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1969",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1984",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:1988",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2007",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2012",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2025",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2039",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "BadFileObj",
+     2040
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2059",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "BadFileObj",
+     2060
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2082",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "BadFileObj",
+     2083
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2102",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "AttrProxy",
+     2105
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2131",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "_patch_adapter_gzipped_redirect",
+     2117
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2148",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2153",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2161",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2167",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2177",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2185",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2191",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2201",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2209",
+   "has_check": false,
+   "calls": {
+    "d": 5,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2220",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2225",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2230",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2241",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2251",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2263",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2275",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2286",
+   "has_check": true,
+   "calls": {
+    "unresolved": 4,
+    "d": 2,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "CustomRedirectSession",
+     2309
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2340",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2345",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2351",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2356",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2361",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2372",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2379",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2388",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2397",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2408",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2413",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2418",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2427",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2432",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2443",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2455",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2469",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2485",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2500",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2507",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2519",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2527",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2537",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2550",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2556",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2571",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2581",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2592",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2599",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2641",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2649",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_requests.py",
+     "RedirectSession",
+     2608
+    ],
+    [
+     "tests/test_requests.py",
+     "send",
+     2616
+    ]
+   ],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2679",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "override_environ",
+     6
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2700",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2731",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2740",
+   "has_check": false,
+   "calls": {
+    "d": 5,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2750",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2792",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2814",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2820",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2849",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2885",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2894",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2899",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2907",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2913",
+   "has_check": true,
+   "calls": {
+    "d": 6
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2928",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "TLSServer",
+     138
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2959",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "TLSServer",
+     138
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:2992",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "TLSServer",
+     138
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:3024",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "TLSServer",
+     138
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:3064",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:3078",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": [
+    [
+     "tests/conftest.py",
+     "httpbin",
+     false
+    ]
+   ]
+  },
+  {
+   "file": "tests/test_requests.py",
+   "test": "tests/test_requests.py:3087",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:13",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:21",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:25",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:29",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:34",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:37",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:50",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:61",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:73",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:77",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:80",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:84",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_structures.py",
+   "test": "tests/test_structures.py:90",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:12",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 1,
+    "unresolved": 3
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "Server",
+     25
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:30",
+   "has_check": false,
+   "calls": {
+    "b": 1,
+    "d": 3,
+    "unresolved": 3
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:42",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "text_response_server",
+     52
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:55",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:63",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 4
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:78",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 2
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:95",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 2,
+    "unresolved": 6
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:117",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 2,
+    "unresolved": 3
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:130",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 2,
+    "unresolved": 3
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:144",
+   "has_check": true,
+   "calls": {
+    "b": 1,
+    "d": 2
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_testserver.py",
+   "test": "tests/test_testserver.py:156",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/testserver/server.py",
+     "basic_response_server",
+     62
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:61",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:66",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:73",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:86",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:98",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:108",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:115",
+   "has_check": true,
+   "calls": {
+    "unresolved": 5,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:127",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:132",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:139",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:145",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:151",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:157",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:165",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:173",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:194",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:197",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:213",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:216",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:241",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:252",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:263",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:277",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:286",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:290",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:295",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:308",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:313",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:316",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:325",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:335",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:352",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:355",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:371",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:377",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:394",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:399",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:422",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:426",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:438",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:472",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:491",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:511",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:523",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:563",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:575",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:635",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:654",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:669",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:696",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:713",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:725",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:740",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:759",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:787",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:803",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:821",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:838",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:861",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:886",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1,
+    "unresolved": 7
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_utils.py",
+     "RegHandle",
+     894
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:924",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 6
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_utils.py",
+     "RegHandle",
+     930
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:965",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:974",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:985",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_utils.py",
+     "RegHandle",
+     991
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  }
+ ]
+}

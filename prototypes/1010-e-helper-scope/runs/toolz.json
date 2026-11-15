@@ -1,0 +1,2262 @@
+{
+ "summary": {
+  "project": "toolz",
+  "test_files": 15,
+  "tests": 163,
+  "tests_without_check": 7,
+  "tests_calling_b": 0,
+  "b_helpers": 0,
+  "b_helpers_strict_branch": 0,
+  "b_helpers_branch_or_loop": 0,
+  "b_helpers_transitive": 0,
+  "b_helpers_in_folder": 0,
+  "b_helpers_asserting": 0,
+  "tests_calling_asserting_b": 0,
+  "b_helpers_driven": 0,
+  "tests_escape_arrange": 0,
+  "tests_escape_arrange_incl_driven": 0,
+  "tests_escape_assert_with_check": 0,
+  "tests_escape_strict": 0,
+  "tests_escape_transitive": 0,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 0,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 20,
+  "tests_calling_branching_a": 10,
+  "a_helpers": 18,
+  "a_helpers_strict_branch": 5,
+  "tests_calling_c": 0,
+  "tests_calling_branching_c": 0,
+  "c_callees": 0,
+  "c_callees_strict_branch": 0,
+  "folder_surface": {},
+  "calls": {
+   "d": 121,
+   "unresolved": 26,
+   "a": 30
+  },
+  "unresolved_share": 0.147,
+  "unresolved_by_shape": {
+   "a method of a value": 18,
+   "a local name": 6,
+   "a computed callee": 2
+  },
+  "syntax_errors": []
+ },
+ "surface": {},
+ "unresolved_samples": {
+  "a method of a value": [
+   "toolz/tests/test_curried.py:56",
+   "toolz/tests/test_curried.py:93",
+   "toolz/tests/test_curried.py:102",
+   "toolz/tests/test_curried.py:106",
+   "toolz/tests/test_curried.py:110",
+   "toolz/tests/test_curried.py:112",
+   "toolz/tests/test_curried.py:114",
+   "toolz/tests/test_curried.py:116",
+   "toolz/tests/test_curried.py:117",
+   "toolz/tests/test_curried_doctests.py:7",
+   "toolz/tests/test_functoolz.py:752",
+   "toolz/tests/test_inspect_args.py:424"
+  ],
+  "a local name": [
+   "toolz/tests/test_curried.py:63",
+   "toolz/tests/test_curried.py:66",
+   "toolz/tests/test_dicttoolz.py:39",
+   "toolz/tests/test_dicttoolz.py:39",
+   "toolz/tests/test_dicttoolz.py:51",
+   "toolz/tests/test_dicttoolz.py:51"
+  ],
+  "a computed callee": [
+   "toolz/tests/test_functoolz.py:269",
+   "toolz/tests/test_serialization.py:15"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "toolz/tests/test_curried.py",
+   "name": "should_curry",
+   "line": 44,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 2,
+    "boolop": 3
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "name": "curry_namespace",
+   "line": 85,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "ifexp": 1,
+    "comp-for": 1,
+    "comp-if": 1
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "name": "Foo",
+   "line": 254,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "f",
+   "line": 102,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "A",
+   "line": 381,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "A",
+   "line": 423,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "mycurry",
+   "line": 507,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "generate_compose_test_cases",
+   "line": 531,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "name": "generate_compose_left_test_cases",
+   "line": 789,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "comp-for": 1
+   },
+   "strict": false,
+   "loop": true,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "make_func",
+   "line": 14,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "test_is_valid",
+   "line": 50,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "test_is_valid_py3",
+   "line": 117,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "test_introspect_curry_valid_py3",
+   "line": 314,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "add_denylist",
+   "line": 393,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "is_missing",
+   "line": 402,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 3,
+    "boolop": 3,
+    "except": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "AddX",
+   "line": 443,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "name": "Wrapped",
+   "line": 472,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "toolz/tests/test_signatures.py",
+   "name": "test_is_valid",
+   "line": 6,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "toolz/sandbox/tests/test_core.py",
+   "test": "toolz/sandbox/tests/test_core.py:5",
+   "has_check": true,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/sandbox/tests/test_core.py",
+   "test": "toolz/sandbox/tests/test_core.py:40",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/sandbox/tests/test_core.py",
+   "test": "toolz/sandbox/tests/test_core.py:57",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/sandbox/tests/test_core.py",
+   "test": "toolz/sandbox/tests/test_core.py:77",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/sandbox/tests/test_parallel.py",
+   "test": "toolz/sandbox/tests/test_parallel.py:12",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_compatibility.py",
+   "test": "toolz/tests/test_compatibility.py:4",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:10",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:14",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:18",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:24",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:28",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:32",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:36",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:40",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:53",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried.py",
+   "test": "toolz/tests/test_curried.py:80",
+   "has_check": false,
+   "calls": {
+    "d": 19,
+    "a": 3,
+    "unresolved": 8
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_curried.py",
+     "curry_namespace",
+     85
+    ],
+    [
+     "toolz/tests/test_curried.py",
+     "should_curry",
+     44
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_curried_doctests.py",
+   "test": "toolz/tests/test_curried_doctests.py:5",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:29",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:33",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:37",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:49",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:56",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:60",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:64",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:68",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:72",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:76",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:81",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:93",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:108",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:122",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:145",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:246",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:253",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_dicttoolz.py",
+     "Foo",
+     254
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:273",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:282",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:289",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_dicttoolz.py",
+   "test": "toolz/tests/test_dicttoolz.py:294",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:51",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:57",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:65",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:71",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:86",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:100",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "f",
+     102
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:112",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:123",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:167",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:176",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:185",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:196",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:210",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:241",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:254",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:265",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:286",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:301",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:314",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:332",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:337",
+   "has_check": true,
+   "calls": {
+    "d": 6
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:369",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:380",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "A",
+     381
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:422",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "A",
+     423
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:467",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:476",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:487",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:502",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:506",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "mycurry",
+     507
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:573",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "generate_compose_test_cases",
+     531
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:578",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:667",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:739",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:803",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_functoolz.py",
+     "generate_compose_left_test_cases",
+     789
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:808",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:814",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:841",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:850",
+   "has_check": true,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:857",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_functoolz.py",
+   "test": "toolz/tests/test_functoolz.py:864",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:26",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "make_func",
+     14
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:50",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "make_func",
+     14
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:117",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "make_func",
+     14
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:203",
+   "has_check": false,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "test_is_valid",
+     50
+    ],
+    [
+     "toolz/tests/test_inspect_args.py",
+     "test_is_valid_py3",
+     117
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:208",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "a": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "test_is_valid",
+     50
+    ],
+    [
+     "toolz/tests/test_inspect_args.py",
+     "test_is_valid_py3",
+     117
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:232",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:245",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:271",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:281",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:294",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:302",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:314",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "make_func",
+     14
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:354",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "test_introspect_curry_valid_py3",
+     314
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:358",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "make_func",
+     14
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:387",
+   "has_check": false,
+   "calls": {
+    "d": 5,
+    "a": 5,
+    "unresolved": 7
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "add_denylist",
+     393
+    ],
+    [
+     "toolz/tests/test_inspect_args.py",
+     "is_missing",
+     402
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:438",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "AddX",
+     443
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_inspect_args.py",
+   "test": "toolz/tests/test_inspect_args.py:471",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_inspect_args.py",
+     "Wrapped",
+     472
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:44",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:50",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:54",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:68",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:97",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:102",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:108",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:139",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:150",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:160",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:166",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:172",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:178",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:183",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:188",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:194",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:199",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:203",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:223",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:235",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:239",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:245",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:251",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:258",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:262",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:271",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:290",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:296",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:305",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:310",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:324",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:328",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:333",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:338",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:346",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:377",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:386",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:405",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:427",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:433",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:449",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:467",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:478",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:485",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:492",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:500",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:531",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:547",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:551",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:560",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_itertoolz.py",
+   "test": "toolz/tests/test_itertoolz.py:571",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_package.py",
+   "test": "toolz/tests/test_package.py:4",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_recipes.py",
+   "test": "toolz/tests/test_recipes.py:8",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_recipes.py",
+   "test": "toolz/tests/test_recipes.py:14",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:8",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:14",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:20",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:27",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:36",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:51",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:62",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:115",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_serialization.py",
+   "test": "toolz/tests/test_serialization.py:187",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_signatures.py",
+   "test": "toolz/tests/test_signatures.py:6",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_signatures.py",
+   "test": "toolz/tests/test_signatures.py:76",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "toolz/tests/test_signatures.py",
+     "test_is_valid",
+     6
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_signatures.py",
+   "test": "toolz/tests/test_signatures.py:80",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_tlz.py",
+   "test": "toolz/tests/test_tlz.py:4",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "toolz/tests/test_utils.py",
+   "test": "toolz/tests/test_utils.py:4",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  }
+ ]
+}

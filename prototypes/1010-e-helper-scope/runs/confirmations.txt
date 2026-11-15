@@ -1,0 +1,69 @@
+# confirmations, not survey data (long lines folded)
+## escape: purba from main
+test_env.py::test_proxy_env_imported_helper passed
+test_env.py::test_proxy_env_module_helper passed
+test_env.py::test_markup_imported_helper passed
+test_env.py::test_markup_module_helper project error: line 47 went one way only, and the
+    lines
+before the first expectation take one path; line 48 did not run, and the lines before the
+    first
+expectation take one path
+4 cases: 3 passed, 1 blocked; 1 project error
+## escape: prototype 980
+── test_env.py
+ test_proxy_env_imported_helper  (test_env.py:32)
+   ✓ test_proxy_env_imported_helper › proxy == 'http://bad.invalid:3128'
+    'http://bad.invalid:3128'
+ test_proxy_env_module_helper  (test_env.py:39)
+   ✓ test_proxy_env_module_helper › proxy == 'http://bad.invalid:3128'
+    'http://bad.invalid:3128'
+ test_markup_imported_helper  (test_env.py:54)
+   ! test_markup_imported_helper › path   test_env.py:54
+       what      line 8 of markup_helpers.py (parse) never ran: the act has one path, so
+    each line
+of it runs in every case
+   ! test_markup_imported_helper › path   test_env.py:54
+       what      the branch at markup_helpers.py:7 (parse) went one way: the act has one
+    path, so
+each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a
+    case, or
+is not there
+   ✓ test_markup_imported_helper › colored == '\x1b[31mx\x1b[0m'   '\x1b[31mx\x1b[0m'
+ test_markup_module_helper  (test_env.py:60)
+   ! test_markup_module_helper › path   test_env.py:60
+       what      line 48 of test_env.py (parse) never ran: the act has one path, so each
+    line of it
+runs in every case
+   ! test_markup_module_helper › path   test_env.py:60
+       what      the branch at test_env.py:47 (parse) went one way: the act has one path,
+    so each
+`if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+    or is not
+there
+   ✓ test_markup_module_helper › colored == '\x1b[31mx\x1b[0m'   '\x1b[31mx\x1b[0m'
+══ 4 cases: 2 passed · 0 failed · 2 refused · 0 blocked   (4 checks held)
+## false positive, flat: prototype 980
+── test_weekdays.py
+ test_move_to_next_weekday_today  (test_weekdays.py:8)
+   ! test_move_to_next_weekday_today › path   test_weekdays.py:8
+       what      line 11 of weekdays.py (move_to_next_weekday) never ran: the act has one
+    path, so
+each line of it runs in every case
+   ! test_move_to_next_weekday_today › path   test_weekdays.py:8
+       what      the branch at weekdays.py:10 (move_to_next_weekday) went one way: the act
+    has one
+path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both
+    ways in a
+case, or is not there
+   ✓ test_move_to_next_weekday_today › moved.day == 13   13
+   ✓ test_move_to_next_weekday_today › moved.hour == 10   10
+══ 1 case: 0 passed · 0 failed · 1 refused · 0 blocked   (2 checks held)
+## false positive, split: prototype 980
+── test_weekdays.py
+ test_move_to_next_weekday_today  (test_weekdays.py:8)
+   ✓ test_move_to_next_weekday_today › moved.day == 13   13
+   ✓ test_move_to_next_weekday_today › moved.hour == 10   10
+══ 1 case: 1 passed · 0 failed · 0 refused · 0 blocked   (2 checks held)
+## false positive, flat: purba from main
+test_weekdays.py::test_move_to_next_weekday_today passed
+1 case: 1 passed

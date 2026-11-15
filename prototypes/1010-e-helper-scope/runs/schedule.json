@@ -1,0 +1,2505 @@
+{
+ "summary": {
+  "project": "schedule",
+  "test_files": 1,
+  "tests": 81,
+  "tests_without_check": 10,
+  "tests_calling_b": 0,
+  "b_helpers": 0,
+  "b_helpers_strict_branch": 0,
+  "b_helpers_branch_or_loop": 0,
+  "b_helpers_transitive": 0,
+  "b_helpers_in_folder": 0,
+  "b_helpers_asserting": 0,
+  "tests_calling_asserting_b": 0,
+  "b_helpers_driven": 0,
+  "tests_escape_arrange": 0,
+  "tests_escape_arrange_incl_driven": 0,
+  "tests_escape_assert_with_check": 0,
+  "tests_escape_strict": 0,
+  "tests_escape_transitive": 0,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 0,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 68,
+  "tests_calling_branching_a": 68,
+  "a_helpers": 6,
+  "a_helpers_strict_branch": 4,
+  "tests_calling_c": 58,
+  "tests_calling_branching_c": 4,
+  "c_callees": 9,
+  "c_callees_strict_branch": 2,
+  "folder_surface": {
+   ".": {
+    "modules": 1,
+    "functions": 57,
+    "branching_functions": 34
+   }
+  },
+  "calls": {
+   "a": 119,
+   "unresolved": 132,
+   "c": 100,
+   "d": 29
+  },
+  "unresolved_share": 0.347,
+  "unresolved_by_shape": {
+   "a method of a value": 132
+  },
+  "syntax_errors": []
+ },
+ "surface": {
+  ".": {
+   "modules": 1,
+   "functions": 57,
+   "branching_functions": 34,
+   "module_list": [
+    "schedule/__init__.py"
+   ]
+  }
+ },
+ "unresolved_samples": {
+  "a method of a value": [
+   "test_schedule.py:224",
+   "test_schedule.py:224",
+   "test_schedule.py:225",
+   "test_schedule.py:225",
+   "test_schedule.py:227",
+   "test_schedule.py:227",
+   "test_schedule.py:251",
+   "test_schedule.py:251",
+   "test_schedule.py:264",
+   "test_schedule.py:264",
+   "test_schedule.py:395",
+   "test_schedule.py:395"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "test_schedule.py",
+   "name": "make_mock_job",
+   "line": 33,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "boolop": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_schedule.py",
+   "name": "mock_datetime",
+   "line": 39,
+   "kind": "a",
+   "class": true,
+   "own": {
+    "if": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_schedule.py",
+   "name": "make_tz_mock_job",
+   "line": 100,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "except": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_schedule.py",
+   "name": "tst_next_run_time_hour_end",
+   "line": 538,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "test_schedule.py",
+   "name": "tst_next_run_time_minute_end",
+   "line": 576,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "test_schedule.py",
+   "name": "setup_utc_offset_test",
+   "line": 1162,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "except": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "Scheduler",
+   "line": 79,
+   "kind": "c",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "run_pending",
+   "line": 89,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "comp-for": 1,
+    "comp-if": 1,
+    "for": 1
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "every",
+   "line": 162,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "every",
+   "line": 843,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "run_pending",
+   "line": 850,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "run_all",
+   "line": 857,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "get_jobs",
+   "line": 864,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "clear",
+   "line": 871,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "schedule/__init__.py",
+   "name": "_move_to_next_weekday",
+   "line": 916,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:108",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:222",
+   "has_check": true,
+   "calls": {
+    "a": 4,
+    "unresolved": 6,
+    "c": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:236",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:243",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "d": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:260",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "d": 1,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:268",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:312",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:390",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:411",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:445",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:463",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:486",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:510",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_hour_end",
+     538
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:518",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_hour_end",
+     538
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:526",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_hour_end",
+     538
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:557",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_minute_end",
+     576
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:560",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_minute_end",
+     576
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:568",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "tst_next_run_time_minute_end",
+     576
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:598",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:610",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:622",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:633",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 3,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:647",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:666",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:685",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:700",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:721",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:734",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:749",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:762",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:774",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:787",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:800",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:814",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:830",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:845",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:857",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:871",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:885",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:901",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:917",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:936",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1045",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1063",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1083",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1103",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1125",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "c": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "clear",
+     871
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1146",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_tz_mock_job",
+     100
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1156",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "c": 1,
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1175",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1181",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1192",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 3,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1201",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1216",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1229",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "setup_utc_offset_test",
+     1162
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1242",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1252",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "_move_to_next_weekday",
+     916
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1259",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "_move_to_next_weekday",
+     916
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1266",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "_move_to_next_weekday",
+     916
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1273",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 4,
+    "c": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_all",
+     857
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1281",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "run_all",
+     857
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1299",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "c": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "run_all",
+     857
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1309",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "c": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "run_all",
+     857
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1319",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_all",
+     857
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1325",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1338",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1363",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1367",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1377",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1387",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 4,
+    "c": 5
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_pending",
+     850
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1427",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_pending",
+     850
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1438",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_pending",
+     850
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1453",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ],
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "run_pending",
+     850
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1480",
+   "has_check": true,
+   "calls": {
+    "a": 3,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "mock_datetime",
+     39
+    ],
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1491",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1503",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 2,
+    "c": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1525",
+   "has_check": true,
+   "calls": {
+    "unresolved": 3,
+    "c": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1537",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "c": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1544",
+   "has_check": true,
+   "calls": {
+    "unresolved": 6,
+    "c": 4,
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ],
+    [
+     "schedule/__init__.py",
+     "get_jobs",
+     864
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1572",
+   "has_check": true,
+   "calls": {
+    "unresolved": 6,
+    "c": 3,
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "test_schedule.py",
+     "make_mock_job",
+     33
+    ]
+   ],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "every",
+     843
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_schedule.py",
+   "test": "test_schedule.py:1591",
+   "has_check": false,
+   "calls": {
+    "c": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "schedule/__init__.py",
+     "Scheduler",
+     79
+    ],
+    [
+     "schedule/__init__.py",
+     "every",
+     162
+    ],
+    [
+     "schedule/__init__.py",
+     "run_pending",
+     89
+    ]
+   ],
+   "fixtures": []
+  }
+ ]
+}

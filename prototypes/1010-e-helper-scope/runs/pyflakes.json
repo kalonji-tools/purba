@@ -1,0 +1,10263 @@
+{
+ "summary": {
+  "project": "pyflakes",
+  "test_files": 13,
+  "tests": 564,
+  "tests_without_check": 488,
+  "tests_calling_b": 507,
+  "b_helpers": 1,
+  "b_helpers_strict_branch": 1,
+  "b_helpers_branch_or_loop": 1,
+  "b_helpers_transitive": 1,
+  "b_helpers_in_folder": 1,
+  "b_helpers_asserting": 1,
+  "tests_calling_asserting_b": 507,
+  "b_helpers_driven": 0,
+  "tests_escape_arrange": 0,
+  "tests_escape_arrange_incl_driven": 0,
+  "tests_escape_assert_with_check": 19,
+  "tests_escape_strict": 507,
+  "tests_escape_transitive": 507,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 0,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 32,
+  "tests_calling_branching_a": 1,
+  "a_helpers": 9,
+  "a_helpers_strict_branch": 2,
+  "tests_calling_c": 0,
+  "tests_calling_branching_c": 0,
+  "c_callees": 0,
+  "c_callees_strict_branch": 0,
+  "folder_surface": {},
+  "calls": {
+   "a": 42,
+   "d": 97,
+   "unresolved": 27,
+   "b": 799
+  },
+  "unresolved_share": 0.028,
+  "unresolved_by_shape": {
+   "a method of a value": 27
+  },
+  "syntax_errors": []
+ },
+ "surface": {},
+ "unresolved_samples": {
+  "a method of a value": [
+   "pyflakes/test/test_api.py:158",
+   "pyflakes/test/test_api.py:163",
+   "pyflakes/test/test_api.py:167",
+   "pyflakes/test/test_api.py:171",
+   "pyflakes/test/test_api.py:175",
+   "pyflakes/test/test_api.py:179",
+   "pyflakes/test/test_api.py:183",
+   "pyflakes/test/test_api.py:188",
+   "pyflakes/test/test_api.py:286",
+   "pyflakes/test/test_api.py:537",
+   "pyflakes/test/test_api.py:556",
+   "pyflakes/test/test_api.py:577"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "withStderrTo",
+   "line": 26,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "Node",
+   "line": 37,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "LoggingReporter",
+   "line": 75,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "makeEmptyFile",
+   "line": 109,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "makeTempFile",
+   "line": 320,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": true,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "getErrors",
+   "line": 346,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "name": "runPyflakes",
+   "line": 647,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_custom_builtins.py",
+   "name": "_clear_custom_builtins_cache",
+   "line": 10,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": true,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "name": "undefined_names_before_py314",
+   "line": 155,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "ifexp": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "pyflakes/test/harness.py",
+   "name": "flakes",
+   "line": 17,
+   "kind": "b",
+   "class": false,
+   "own": {
+    "if": 1,
+    "comp-for": 2
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:115",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:121",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:129",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:136",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "a": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:151",
+   "has_check": true,
+   "calls": {
+    "d": 16,
+    "unresolved": 8,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:197",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:212",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:221",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeEmptyFile",
+     109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:232",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:248",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:262",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:273",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:293",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:302",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "Node",
+     37
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:360",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:364",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:373",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "getErrors",
+     346
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:383",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:409",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:423",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:437",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:461",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:479",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:505",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ],
+    [
+     "pyflakes/test/test_api.py",
+     "getErrors",
+     346
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:521",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ],
+    [
+     "pyflakes/test/test_api.py",
+     "getErrors",
+     346
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:532",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:544",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:551",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:571",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "makeTempFile",
+     320
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:585",
+   "has_check": true,
+   "calls": {
+    "d": 8,
+    "unresolved": 2,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "LoggingReporter",
+     75
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:611",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "withStderrTo",
+     26
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:628",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "withStderrTo",
+     26
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:660",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "runPyflakes",
+     647
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:669",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "runPyflakes",
+     647
+    ],
+    [
+     "pyflakes/test/test_api.py",
+     "Node",
+     37
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:680",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "runPyflakes",
+     647
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:690",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "runPyflakes",
+     647
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_api.py",
+   "test": "pyflakes/test/test_api.py:708",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "pyflakes/test/test_api.py",
+     "runPyflakes",
+     647
+    ],
+    [
+     "pyflakes/test/test_api.py",
+     "Node",
+     37
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_builtin.py",
+   "test": "pyflakes/test/test_builtin.py:10",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_builtin.py",
+   "test": "pyflakes/test/test_builtin.py:22",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_code_segment.py",
+   "test": "pyflakes/test/test_code_segment.py:12",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_code_segment.py",
+   "test": "pyflakes/test/test_code_segment.py:25",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_code_segment.py",
+   "test": "pyflakes/test/test_code_segment.py:38",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_code_segment.py",
+   "test": "pyflakes/test/test_code_segment.py:82",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_code_segment.py",
+   "test": "pyflakes/test/test_code_segment.py:128",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_custom_builtins.py",
+   "test": "pyflakes/test/test_custom_builtins.py:19",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_custom_builtins.py",
+   "test": "pyflakes/test/test_custom_builtins.py:23",
+   "has_check": false,
+   "calls": {
+    "b": 2,
+    "a": 1,
+    "d": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [
+    [
+     "pyflakes/test/test_custom_builtins.py",
+     "_clear_custom_builtins_cache",
+     10
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:11",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:18",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:21",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:28",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:37",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:48",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:55",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:62",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:69",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:76",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:83",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:91",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:98",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:108",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:119",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:132",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:146",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:151",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:156",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:159",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:166",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:169",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:174",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:181",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_dict.py",
+   "test": "pyflakes/test/test_dict.py:186",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:52",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:92",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:135",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:178",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:188",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:203",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:224",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:236",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:247",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:260",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:272",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:284",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:296",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:310",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:343",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:354",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:372",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:380",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:392",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:411",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:424",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_doctests.py",
+   "test": "pyflakes/test/test_doctests.py:434",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:16",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:21",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:26",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:31",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:37",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:42",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:47",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:52",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:57",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:62",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:67",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:72",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:77",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:82",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:87",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:92",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:97",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:101",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:105",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:109",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:119",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:123",
+   "has_check": true,
+   "calls": {
+    "b": 10
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:146",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:152",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:158",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:163",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:169",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:174",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:186",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:199",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:212",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:224",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:238",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:251",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:262",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:274",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:285",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:299",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:306",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:319",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:335",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:353",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:360",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:371",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:383",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:399",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:406",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:420",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:423",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:427",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:430",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:436",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:442",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:449",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:456",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:459",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:466",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:473",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:481",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:488",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:497",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:504",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:516",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:535",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:542",
+   "has_check": false,
+   "calls": {
+    "b": 15
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:559",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:562",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:565",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:570",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:573",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:576",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:583",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:590",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:600",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:606",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:613",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:617",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:624",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:627",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:630",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:634",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:638",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:651",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:663",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:673",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:684",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:694",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:698",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:701",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:706",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:709",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:716",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:724",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:732",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:741",
+   "has_check": true,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:762",
+   "has_check": true,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:794",
+   "has_check": true,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:813",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:822",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:829",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:844",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:851",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:866",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:882",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:898",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:911",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:917",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:926",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:935",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:942",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:950",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:954",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:962",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:971",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:983",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:991",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1005",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1015",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1022",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1033",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1044",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1054",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1060",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1074",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1087",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1096",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1105",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1111",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1117",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1124",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1130",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1137",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1144",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1151",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1166",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1176",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1184",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1191",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1199",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_imports.py",
+   "test": "pyflakes/test/test_imports.py:1225",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:6",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:13",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:20",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:27",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:34",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:41",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:48",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:55",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:62",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:69",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:76",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:83",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:90",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:97",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:104",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:111",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:118",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:125",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:132",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:139",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:146",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:153",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:160",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:167",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:174",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:181",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:188",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:195",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:202",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:209",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_is_literal.py",
+   "test": "pyflakes/test/test_is_literal.py:216",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:9",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:15",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:20",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:28",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:55",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:66",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:87",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:94",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:101",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_lazy_imports.py",
+   "test": "pyflakes/test/test_lazy_imports.py:108",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:5",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:28",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:44",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:52",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:59",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:66",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:74",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_match.py",
+   "test": "pyflakes/test/test_match.py:82",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:13",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:16",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:24",
+   "has_check": false,
+   "calls": {
+    "b": 6
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:57",
+   "has_check": false,
+   "calls": {
+    "b": 5
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:86",
+   "has_check": false,
+   "calls": {
+    "b": 5
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:115",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:125",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:131",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:141",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:150",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:161",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:173",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:184",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:196",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:209",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:221",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:233",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:244",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:258",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:262",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:272",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:282",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:294",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:305",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:316",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:327",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:336",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:344",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:353",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:361",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:370",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:378",
+   "has_check": false,
+   "calls": {
+    "b": 6
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:416",
+   "has_check": false,
+   "calls": {
+    "b": 6
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:458",
+   "has_check": false,
+   "calls": {
+    "b": 7
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:503",
+   "has_check": false,
+   "calls": {
+    "b": 8
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:563",
+   "has_check": false,
+   "calls": {
+    "b": 6
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:637",
+   "has_check": false,
+   "calls": {
+    "b": 16
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:838",
+   "has_check": false,
+   "calls": {
+    "b": 12,
+    "unresolved": 3,
+    "d": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:891",
+   "has_check": false,
+   "calls": {
+    "unresolved": 6,
+    "d": 6,
+    "b": 15
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:963",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:973",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:984",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:995",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1011",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1023",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1035",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1048",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1056",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1065",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1075",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1085",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1094",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1105",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1119",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1128",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1141",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1149",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1158",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1182",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1194",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1204",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1214",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1224",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1237",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1248",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1260",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1272",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1284",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1299",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1309",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1319",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1329",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1342",
+   "has_check": false,
+   "calls": {
+    "b": 5
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1371",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1384",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1396",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1410",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1420",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1430",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1438",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1461",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1473",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1484",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1495",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1506",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1517",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1528",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1539",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1554",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1565",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1577",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1588",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1600",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1610",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1621",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1636",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1644",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1653",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1665",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1671",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1679",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1686",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1699",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1711",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1722",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1729",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1736",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1743",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1749",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1756",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1765",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1773",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1779",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1787",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1794",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1801",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1808",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1816",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1826",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1836",
+   "has_check": false,
+   "calls": {
+    "b": 7
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1868",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1876",
+   "has_check": false,
+   "calls": {
+    "b": 19
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1939",
+   "has_check": false,
+   "calls": {
+    "b": 16
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:1994",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2005",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2014",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2020",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2026",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2032",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2041",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2048",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2069",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2090",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2097",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2106",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2112",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2119",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2142",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2147",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2157",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2161",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2171",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2177",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_other.py",
+   "test": "pyflakes/test/test_other.py:2184",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:13",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:42",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:71",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:88",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:107",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:123",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:140",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:154",
+   "has_check": false,
+   "calls": {
+    "b": 36,
+    "a": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [
+    [
+     "pyflakes/test/test_type_annotations.py",
+     "undefined_names_before_py314",
+     155
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:305",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:310",
+   "has_check": false,
+   "calls": {
+    "b": 6
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:349",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:356",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:374",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:381",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:387",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:393",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:417",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:426",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:432",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:444",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:454",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:462",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:469",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:478",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:486",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:494",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:501",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:507",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:517",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:524",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:530",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:537",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:545",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:551",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:558",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:568",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:575",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:582",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:589",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:597",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:605",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:613",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:621",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:629",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:637",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:649",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:657",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:667",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:679",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:693",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:723",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:737",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:765",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:779",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:793",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:800",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:807",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:817",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:825",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:833",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:848",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:864",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:880",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:891",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:904",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:915",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:921",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_type_annotations.py",
+   "test": "pyflakes/test/test_type_annotations.py:932",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:8",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:11",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:14",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:17",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:21",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:28",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:40",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:54",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:70",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:85",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:100",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:109",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:128",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:146",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:166",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:183",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:203",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:211",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:214",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:221",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:228",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:235",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:242",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:249",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:257",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:273",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:289",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:294",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:308",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:317",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:327",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:340",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:350",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:354",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:364",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:368",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:380",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:394",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:407",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:420",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:436",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:442",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:451",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:464",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:480",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:498",
+   "has_check": true,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:523",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:538",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:556",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:569",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:580",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:587",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:602",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:619",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:636",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:649",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:656",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:670",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:676",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:685",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:696",
+   "has_check": false,
+   "calls": {
+    "b": 4
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:727",
+   "has_check": false,
+   "calls": {
+    "b": 2
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:748",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:757",
+   "has_check": false,
+   "calls": {
+    "b": 3
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:772",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:781",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:790",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:799",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:808",
+   "has_check": false,
+   "calls": {
+    "b": 1
+   },
+   "b": [
+    [
+     "pyflakes/test/harness.py",
+     "flakes",
+     17
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "pyflakes/test/test_undefined_names.py",
+   "test": "pyflakes/test/test_undefined_names.py:824",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  }
+ ]
+}

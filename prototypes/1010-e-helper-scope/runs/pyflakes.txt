@@ -1,0 +1,43 @@
+{
+ "project": "pyflakes",
+ "test_files": 13,
+ "tests": 564,
+ "tests_without_check": 488,
+ "tests_calling_b": 507,
+ "b_helpers": 1,
+ "b_helpers_strict_branch": 1,
+ "b_helpers_branch_or_loop": 1,
+ "b_helpers_transitive": 1,
+ "b_helpers_in_folder": 1,
+ "b_helpers_asserting": 1,
+ "tests_calling_asserting_b": 507,
+ "b_helpers_driven": 0,
+ "tests_escape_arrange": 0,
+ "tests_escape_arrange_incl_driven": 0,
+ "tests_escape_assert_with_check": 19,
+ "tests_escape_strict": 507,
+ "tests_escape_transitive": 507,
+ "tests_escape_outside_folder": 0,
+ "tests_using_b_fixture": 0,
+ "tests_using_branching_b_fixture": 0,
+ "tests_calling_a": 32,
+ "tests_calling_branching_a": 1,
+ "a_helpers": 9,
+ "a_helpers_strict_branch": 2,
+ "tests_calling_c": 0,
+ "tests_calling_branching_c": 0,
+ "c_callees": 0,
+ "c_callees_strict_branch": 0,
+ "folder_surface": {},
+ "calls": {
+  "a": 42,
+  "d": 97,
+  "unresolved": 27,
+  "b": 799
+ },
+ "unresolved_share": 0.028,
+ "unresolved_by_shape": {
+  "a method of a value": 27
+ },
+ "syntax_errors": []
+}

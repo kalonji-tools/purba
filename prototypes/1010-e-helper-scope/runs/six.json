@@ -1,0 +1,1541 @@
+{
+ "summary": {
+  "project": "six",
+  "test_files": 1,
+  "tests": 70,
+  "tests_without_check": 9,
+  "tests_calling_b": 0,
+  "b_helpers": 0,
+  "b_helpers_strict_branch": 0,
+  "b_helpers_branch_or_loop": 0,
+  "b_helpers_transitive": 0,
+  "b_helpers_in_folder": 0,
+  "b_helpers_asserting": 0,
+  "tests_calling_asserting_b": 0,
+  "b_helpers_driven": 0,
+  "tests_escape_arrange": 0,
+  "tests_escape_arrange_incl_driven": 0,
+  "tests_escape_assert_with_check": 0,
+  "tests_escape_strict": 0,
+  "tests_escape_transitive": 0,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 0,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 13,
+  "tests_calling_branching_a": 1,
+  "a_helpers": 14,
+  "a_helpers_strict_branch": 1,
+  "tests_calling_c": 18,
+  "tests_calling_branching_c": 7,
+  "c_callees": 16,
+  "c_callees_strict_branch": 6,
+  "folder_surface": {
+   ".": {
+    "modules": 1,
+    "functions": 69,
+    "branching_functions": 20
+   }
+  },
+  "calls": {
+   "c": 27,
+   "d": 41,
+   "unresolved": 16,
+   "a": 15
+  },
+  "unresolved_share": 0.162,
+  "unresolved_by_shape": {
+   "a method of a value": 8,
+   "a local name": 6,
+   "a computed callee": 2
+  },
+  "syntax_errors": []
+ },
+ "surface": {
+  ".": {
+   "modules": 1,
+   "functions": 69,
+   "branching_functions": 20,
+   "module_list": [
+    "six.py"
+   ]
+  }
+ },
+ "unresolved_samples": {
+  "a method of a value": [
+   "test_six.py:136",
+   "test_six.py:550",
+   "test_six.py:556",
+   "test_six.py:727",
+   "test_six.py:940",
+   "test_six.py:951",
+   "test_six.py:962",
+   "test_six.py:975"
+  ],
+  "a local name": [
+   "test_six.py:218",
+   "test_six.py:224",
+   "test_six.py:236",
+   "test_six.py:247",
+   "test_six.py:402",
+   "test_six.py:421"
+  ],
+  "a computed callee": [
+   "test_six.py:835",
+   "test_six.py:844"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "test_six.py",
+   "name": "X",
+   "line": 333,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "X",
+   "line": 342,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "f",
+   "line": 351,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "stock_method_name",
+   "line": 381,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "MyDict",
+   "line": 389,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "X",
+   "line": 463,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "f",
+   "line": 561,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "Fake",
+   "line": 748,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "f",
+   "line": 791,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "TestAssertCountEqual",
+   "line": 933,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "TestAssertRegex",
+   "line": 944,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "TestAssertNotRegex",
+   "line": 955,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "TestAssertRaisesRegex",
+   "line": 966,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "test_six.py",
+   "name": "MyTest",
+   "line": 980,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "_add_doc",
+   "line": 80,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "_import_module",
+   "line": 85,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "MovedModule",
+   "line": 108,
+   "kind": "c",
+   "class": true,
+   "own": {
+    "if": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "MovedAttribute",
+   "line": 144,
+   "kind": "c",
+   "class": true,
+   "own": {
+    "if": 5
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "add_move",
+   "line": 515,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "remove_move",
+   "line": 520,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "except": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "create_bound_method",
+   "line": 578,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "create_unbound_method",
+   "line": 581,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "b",
+   "line": 674,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "u",
+   "line": 678,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "reraise",
+   "line": 718,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "if": 2
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "exec_",
+   "line": 730,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "if": 3
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "raise_from",
+   "line": 758,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "print_",
+   "line": 820,
+   "kind": "c",
+   "class": false,
+   "own": {
+    "if": 1,
+    "boolop": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "wraps",
+   "line": 851,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "six.py",
+   "name": "add_metaclass",
+   "line": 885,
+   "kind": "c",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:32",
+   "has_check": true,
+   "calls": {
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "_add_doc",
+     80
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:40",
+   "has_check": true,
+   "calls": {
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "_import_module",
+     85
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:46",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:53",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:59",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:69",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:73",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:77",
+   "has_check": false,
+   "calls": {
+    "c": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:89",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:127",
+   "has_check": true,
+   "calls": {
+    "d": 9,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:151",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:159",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:167",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:175",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:183",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:189",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:196",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:203",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:209",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:216",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:222",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:229",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:234",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:240",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:245",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:266",
+   "has_check": true,
+   "calls": {
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "MovedAttribute",
+     144
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:282",
+   "has_check": true,
+   "calls": {
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "MovedModule",
+     108
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:295",
+   "has_check": true,
+   "calls": {
+    "c": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "MovedModule",
+     108
+    ],
+    [
+     "six.py",
+     "add_move",
+     515
+    ],
+    [
+     "six.py",
+     "remove_move",
+     520
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:308",
+   "has_check": true,
+   "calls": {
+    "c": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "MovedAttribute",
+     144
+    ],
+    [
+     "six.py",
+     "add_move",
+     515
+    ],
+    [
+     "six.py",
+     "remove_move",
+     520
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:321",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:325",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:332",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "X",
+     333
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:341",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "X",
+     342
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:350",
+   "has_check": true,
+   "calls": {
+    "c": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "f",
+     351
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:360",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:368",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:374",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:380",
+   "has_check": true,
+   "calls": {
+    "d": 6,
+    "a": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "stock_method_name",
+     381
+    ],
+    [
+     "test_six.py",
+     "MyDict",
+     389
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:417",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:425",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:435",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:446",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:462",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "X",
+     463
+    ]
+   ],
+   "c": [
+    [
+     "six.py",
+     "create_bound_method",
+     578
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:473",
+   "has_check": true,
+   "calls": {
+    "c": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "create_unbound_method",
+     581
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:516",
+   "has_check": true,
+   "calls": {
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "u",
+     678
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:521",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:526",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:531",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:537",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:541",
+   "has_check": true,
+   "calls": {
+    "c": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "b",
+     674
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:548",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "u",
+     678
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:554",
+   "has_check": true,
+   "calls": {
+    "c": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "b",
+     674
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:560",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "f",
+     561
+    ]
+   ],
+   "c": [
+    [
+     "six.py",
+     "exec_",
+     730
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:578",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "reraise",
+     718
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:620",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "raise_from",
+     758
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:640",
+   "has_check": true,
+   "calls": {
+    "c": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "print_",
+     820
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:679",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:685",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:716",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:741",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "Fake",
+     748
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:763",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:790",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "f",
+     791
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:823",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "wraps",
+     851
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:839",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "c": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [
+    [
+     "six.py",
+     "add_metaclass",
+     885
+    ]
+   ],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:913",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:932",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "TestAssertCountEqual",
+     933
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:943",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "TestAssertRegex",
+     944
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:954",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "TestAssertNotRegex",
+     955
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:965",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "TestAssertRaisesRegex",
+     966
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "test_six.py",
+   "test": "test_six.py:978",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "test_six.py",
+     "MyTest",
+     980
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  }
+ ]
+}

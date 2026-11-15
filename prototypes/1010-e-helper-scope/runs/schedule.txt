@@ -1,0 +1,49 @@
+{
+ "project": "schedule",
+ "test_files": 1,
+ "tests": 81,
+ "tests_without_check": 10,
+ "tests_calling_b": 0,
+ "b_helpers": 0,
+ "b_helpers_strict_branch": 0,
+ "b_helpers_branch_or_loop": 0,
+ "b_helpers_transitive": 0,
+ "b_helpers_in_folder": 0,
+ "b_helpers_asserting": 0,
+ "tests_calling_asserting_b": 0,
+ "b_helpers_driven": 0,
+ "tests_escape_arrange": 0,
+ "tests_escape_arrange_incl_driven": 0,
+ "tests_escape_assert_with_check": 0,
+ "tests_escape_strict": 0,
+ "tests_escape_transitive": 0,
+ "tests_escape_outside_folder": 0,
+ "tests_using_b_fixture": 0,
+ "tests_using_branching_b_fixture": 0,
+ "tests_calling_a": 68,
+ "tests_calling_branching_a": 68,
+ "a_helpers": 6,
+ "a_helpers_strict_branch": 4,
+ "tests_calling_c": 58,
+ "tests_calling_branching_c": 4,
+ "c_callees": 9,
+ "c_callees_strict_branch": 2,
+ "folder_surface": {
+  ".": {
+   "modules": 1,
+   "functions": 57,
+   "branching_functions": 34
+  }
+ },
+ "calls": {
+  "a": 119,
+  "unresolved": 132,
+  "c": 100,
+  "d": 29
+ },
+ "unresolved_share": 0.347,
+ "unresolved_by_shape": {
+  "a method of a value": 132
+ },
+ "syntax_errors": []
+}

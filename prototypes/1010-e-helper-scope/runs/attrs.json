@@ -1,0 +1,11272 @@
+{
+ "summary": {
+  "project": "attrs",
+  "test_files": 25,
+  "tests": 667,
+  "tests_without_check": 112,
+  "tests_calling_b": 44,
+  "b_helpers": 3,
+  "b_helpers_strict_branch": 2,
+  "b_helpers_branch_or_loop": 2,
+  "b_helpers_transitive": 2,
+  "b_helpers_in_folder": 3,
+  "b_helpers_asserting": 0,
+  "tests_calling_asserting_b": 0,
+  "b_helpers_driven": 0,
+  "tests_escape_arrange": 4,
+  "tests_escape_arrange_incl_driven": 4,
+  "tests_escape_assert_with_check": 0,
+  "tests_escape_strict": 4,
+  "tests_escape_transitive": 4,
+  "tests_escape_outside_folder": 0,
+  "tests_using_b_fixture": 0,
+  "tests_using_branching_b_fixture": 0,
+  "tests_calling_a": 154,
+  "tests_calling_branching_a": 8,
+  "a_helpers": 150,
+  "a_helpers_strict_branch": 6,
+  "tests_calling_c": 0,
+  "tests_calling_branching_c": 0,
+  "c_callees": 0,
+  "c_callees_strict_branch": 0,
+  "folder_surface": {},
+  "calls": {
+   "unresolved": 168,
+   "a": 207,
+   "d": 633,
+   "b": 44
+  },
+  "unresolved_share": 0.16,
+  "unresolved_by_shape": {
+   "a local name": 71,
+   "a parameter (fixture or input)": 61,
+   "a method of a value": 29,
+   "a computed callee": 7
+  },
+  "syntax_errors": []
+ },
+ "surface": {},
+ "unresolved_samples": {
+  "a parameter (fixture or input)": [
+   "tests/test_3rd_party.py:27",
+   "tests/test_cmp.py:110",
+   "tests/test_cmp.py:110",
+   "tests/test_cmp.py:143",
+   "tests/test_cmp.py:143",
+   "tests/test_cmp.py:159",
+   "tests/test_cmp.py:159",
+   "tests/test_cmp.py:194",
+   "tests/test_cmp.py:194",
+   "tests/test_cmp.py:211",
+   "tests/test_cmp.py:211",
+   "tests/test_cmp.py:244"
+  ],
+  "a method of a value": [
+   "tests/test_compat.py:46",
+   "tests/test_compat.py:49",
+   "tests/test_compat.py:52",
+   "tests/test_compat.py:55",
+   "tests/test_compat.py:58",
+   "tests/test_funcs.py:625",
+   "tests/test_funcs.py:626",
+   "tests/test_funcs.py:630",
+   "tests/test_funcs.py:699",
+   "tests/test_funcs.py:703",
+   "tests/test_funcs.py:703",
+   "tests/test_make.py:1528"
+  ],
+  "a computed callee": [
+   "tests/test_converters.py:77",
+   "tests/test_make.py:705",
+   "tests/test_make.py:719",
+   "tests/test_make.py:3040",
+   "tests/test_make.py:3043",
+   "tests/test_slots.py:116",
+   "tests/test_slots.py:210"
+  ],
+  "a local name": [
+   "tests/test_converters.py:163",
+   "tests/test_converters.py:251",
+   "tests/test_converters.py:255",
+   "tests/test_dunders.py:591",
+   "tests/test_dunders.py:631",
+   "tests/test_dunders.py:669",
+   "tests/test_dunders.py:670",
+   "tests/test_dunders.py:777",
+   "tests/test_dunders.py:800",
+   "tests/test_dunders.py:802",
+   "tests/test_dunders.py:804",
+   "tests/test_dunders.py:879"
+  ]
+ },
+ "helpers": [
+  {
+   "file": "tests/test_annotations.py",
+   "name": "assert_init_annotations",
+   "line": 20,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "name": "C",
+   "line": 107,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "name": "C",
+   "line": 460,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_converters.py",
+   "name": "C",
+   "line": 128,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_converters.py",
+   "name": "C",
+   "line": 263,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_converters.py",
+   "name": "C",
+   "line": 288,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_converters.py",
+   "name": "C",
+   "line": 329,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "_add_init",
+   "line": 93,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "ifexp": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "InitC",
+   "line": 126,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "Cycle",
+   "line": 386,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "LongCycle",
+   "line": 401,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 416,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "Error",
+   "line": 443,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "IncrementingHasher",
+   "line": 479,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 693,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 742,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "_roundtrip_pickle",
+   "line": 755,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 833,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 854,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "name": "C",
+   "line": 952,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Int",
+   "line": 75,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "assert_proper_dict_class",
+   "line": 111,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "for": 3,
+    "if": 5
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 229,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 247,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Coordinates",
+   "line": 261,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 266,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Coordinates",
+   "line": 285,
+   "kind": "a",
+   "class": true,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 292,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "assert_proper_tuple_class",
+   "line": 332,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "for": 1,
+    "if": 1
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "assert_proper_col_class",
+   "line": 352,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "for": 3,
+    "if": 6
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": true,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Coordinates",
+   "line": 467,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 472,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Coordinates",
+   "line": 491,
+   "kind": "a",
+   "class": true,
+   "own": {
+    "if": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "A",
+   "line": 498,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Int",
+   "line": 512,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "C",
+   "line": 596,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "C",
+   "line": 670,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "C",
+   "line": 735,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Cls1",
+   "line": 781,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Cls2",
+   "line": 785,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Cls1",
+   "line": 805,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "name": "Cls2",
+   "line": 809,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "C1",
+   "line": 26,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "SubFrozen",
+   "line": 84,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "Sub2",
+   "line": 246,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "C",
+   "line": 459,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "Sub",
+   "line": 530,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "FooError",
+   "line": 622,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_functional.py",
+   "name": "C",
+   "line": 633,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "name": "C",
+   "line": 66,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "name": "Child",
+   "line": 396,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "name": "Parent",
+   "line": 401,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "name": "Child",
+   "line": 433,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "name": "Parent",
+   "line": 437,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "make_tc",
+   "line": 208,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "D",
+   "line": 502,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 775,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 790,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 808,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 827,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "KWOnlyAndDefault",
+   "line": 845,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "MixtureClass",
+   "line": 871,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 906,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 924,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1029,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1048,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1064,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1080,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1097,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1130,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1145,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 1168,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "KwArgBeforeInitFalse",
+   "line": 1198,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "KwArgBeforeInitFalseChild",
+   "line": 1230,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 2333,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 2348,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "EvolveCase",
+   "line": 2439,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "A",
+   "line": 2573,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "B",
+   "line": 2577,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 2775,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 2857,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "D",
+   "line": 2867,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "assert_none_set",
+   "line": 2894,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_make.py",
+   "name": "C",
+   "line": 3025,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "C",
+   "line": 22,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "NoSlots",
+   "line": 50,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "Validated",
+   "line": 63,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "E",
+   "line": 195,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "F",
+   "line": 214,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "C",
+   "line": 230,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "MyException",
+   "line": 318,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "do_nothing",
+   "line": 352,
+   "kind": "a",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": true,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "C",
+   "line": 379,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "name": "D",
+   "line": 424,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_pattern_matching.py",
+   "name": "C",
+   "line": 43,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_pyright.py",
+   "name": "parse_pyright_output",
+   "line": 21,
+   "kind": "a",
+   "class": false,
+   "own": {
+    "comp-for": 1
+   },
+   "strict": false,
+   "loop": true,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "WithOnSetAttrHook",
+   "line": 21,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "Hooked",
+   "line": 36,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "Hooked",
+   "line": 60,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "Hooked",
+   "line": 83,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "PartiallyFrozen",
+   "line": 102,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "ValidatedAttribute",
+   "line": 127,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "Piped",
+   "line": 168,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "Hooked",
+   "line": 203,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 223,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 247,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 272,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 293,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 319,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 350,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 365,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "A",
+   "line": 496,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 521,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "name": "C",
+   "line": 641,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C1",
+   "line": 31,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C1Slots",
+   "line": 55,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2Slots",
+   "line": 152,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2Slots",
+   "line": 248,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2Slots",
+   "line": 294,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2Slots",
+   "line": 394,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2",
+   "line": 454,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C2Slots",
+   "line": 459,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C",
+   "line": 508,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C",
+   "line": 526,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C",
+   "line": 541,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "D",
+   "line": 573,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C",
+   "line": 589,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "C",
+   "line": 616,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 815,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 838,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 873,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "B",
+   "line": 901,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "B",
+   "line": 928,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "AB",
+   "line": 989,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 1068,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 1088,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 1109,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 1129,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_slots.py",
+   "name": "A",
+   "line": 1147,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "ReTester",
+   "line": 185,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "MatchTester",
+   "line": 202,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "RePatternTester",
+   "line": 214,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "SearchTester",
+   "line": 236,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "C",
+   "line": 464,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 925,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 944,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 1001,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 1019,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 1072,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/test_validators.py",
+   "name": "Tester",
+   "line": 1090,
+   "kind": "a",
+   "class": true,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/strategies.py",
+   "name": "gen_attr_names",
+   "line": 23,
+   "kind": "b",
+   "class": false,
+   "own": {
+    "for": 2,
+    "if": 1
+   },
+   "strict": true,
+   "loop": true,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/utils.py",
+   "name": "simple_class",
+   "line": 11,
+   "kind": "b",
+   "class": false,
+   "own": {
+    "boolop": 1
+   },
+   "strict": true,
+   "loop": false,
+   "transitive": true,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  },
+  {
+   "file": "tests/utils.py",
+   "name": "simple_attr",
+   "line": 40,
+   "kind": "b",
+   "class": false,
+   "own": {},
+   "strict": false,
+   "loop": false,
+   "transitive": false,
+   "driven": false,
+   "asserts": false,
+   "in_folder": true
+  }
+ ],
+ "tests": [
+  {
+   "file": "tests/test_3rd_party.py",
+   "test": "tests/test_3rd_party.py:23",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_abc.py",
+   "test": "tests/test_abc.py:14",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_abc.py",
+   "test": "tests/test_abc.py:36",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:36",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:53",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:67",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:82",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:100",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "C",
+     107
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:157",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:174",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:203",
+   "has_check": false,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "assert_init_annotations",
+     20
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:227",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "assert_init_annotations",
+     20
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:243",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:252",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:266",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:304",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:318",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:325",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:335",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:372",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:380",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:394",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "assert_init_annotations",
+     20
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:426",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "assert_init_annotations",
+     20
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:441",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:454",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "C",
+     460
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:475",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:490",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:507",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:522",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:544",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:568",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:587",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:603",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:618",
+   "has_check": true,
+   "calls": {
+    "d": 6
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:640",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_annotations.py",
+     "assert_init_annotations",
+     20
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:651",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:666",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:685",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_annotations.py",
+   "test": "tests/test_annotations.py:714",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:72",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:82",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:92",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:105",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:115",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:125",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:135",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:154",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:164",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:175",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:186",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:206",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:216",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:226",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:236",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:255",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:265",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:276",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:287",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:309",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:316",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:324",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:341",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:359",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:377",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:384",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:392",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:403",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:411",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:421",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:431",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:449",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:456",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:464",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:475",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:483",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:491",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_cmp.py",
+   "test": "tests/test_cmp.py:499",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:24",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:35",
+   "has_check": false,
+   "calls": {
+    "d": 7,
+    "unresolved": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:61",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:71",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:82",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_compat.py",
+   "test": "tests/test_compat.py:93",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_config.py",
+   "test": "tests/test_config.py:13",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_config.py",
+   "test": "tests/test_config.py:19",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_config.py",
+   "test": "tests/test_config.py:28",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_config.py",
+   "test": "tests/test_config.py:37",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:21",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:52",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:63",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:95",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:115",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_converters.py",
+     "C",
+     128
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:140",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:148",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:156",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:165",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:175",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:182",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:189",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:197",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:209",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:217",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:231",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:243",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:257",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_converters.py",
+     "C",
+     263
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:270",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:278",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_converters.py",
+     "C",
+     288
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:303",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:311",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:323",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_converters.py",
+     "C",
+     329
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:345",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:352",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_converters.py",
+   "test": "tests/test_converters.py:360",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:139",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:150",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:158",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:168",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:176",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:186",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:200",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:212",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:226",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:233",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:247",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:263",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:270",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:282",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:296",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:303",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:317",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:333",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:345",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:358",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:364",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:379",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "Cycle",
+     386
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:394",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "LongCycle",
+     401
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:411",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "C",
+     416
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:425",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:434",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "Error",
+     443
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:450",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_class",
+     11
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:494",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:511",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:539",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:555",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:570",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:585",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:613",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:624",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:638",
+   "has_check": true,
+   "calls": {
+    "d": 8,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:681",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "C",
+     693
+    ],
+    [
+     "tests/test_dunders.py",
+     "IncrementingHasher",
+     479
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:715",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "IncrementingHasher",
+     479
+    ],
+    [
+     "tests/test_dunders.py",
+     "_roundtrip_pickle",
+     755
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:734",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "C",
+     742
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:766",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:784",
+   "has_check": true,
+   "calls": {
+    "d": 7,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:808",
+   "has_check": false,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:820",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "InitC",
+     126
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:828",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "_add_init",
+     93
+    ],
+    [
+     "tests/test_dunders.py",
+     "C",
+     833
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:846",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "_add_init",
+     93
+    ],
+    [
+     "tests/test_dunders.py",
+     "C",
+     854
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:866",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:883",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:889",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:908",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:928",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:946",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_dunders.py",
+     "_add_init",
+     93
+    ],
+    [
+     "tests/test_dunders.py",
+     "C",
+     952
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:965",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:972",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:979",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:987",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_dunders.py",
+   "test": "tests/test_dunders.py:1022",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_filters.py",
+   "test": "tests/test_filters.py:26",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_filters.py",
+   "test": "tests/test_filters.py:55",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_filters.py",
+   "test": "tests/test_filters.py:75",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_filters.py",
+   "test": "tests/test_filters.py:101",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_filters.py",
+   "test": "tests/test_filters.py:121",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_forward_references.py",
+   "test": "tests/test_forward_references.py:8",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:52",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:61",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:69",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "Int",
+     75
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:85",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:94",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:104",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "assert_proper_dict_class",
+     111
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:139",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:150",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:160",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:174",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:187",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:197",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:214",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:223",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     229
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:238",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     247
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:254",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     266
+    ],
+    [
+     "tests/test_funcs.py",
+     "Coordinates",
+     261
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:275",
+   "has_check": false,
+   "calls": {
+    "a": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     292
+    ],
+    [
+     "tests/test_funcs.py",
+     "Coordinates",
+     285
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:307",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:316",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:325",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "assert_proper_tuple_class",
+     332
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:343",
+   "has_check": false,
+   "calls": {
+    "unresolved": 1,
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "assert_proper_col_class",
+     352
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:384",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:395",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:404",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:413",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:424",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:434",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:448",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:460",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     472
+    ],
+    [
+     "tests/test_funcs.py",
+     "Coordinates",
+     467
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:481",
+   "has_check": false,
+   "calls": {
+    "a": 2,
+    "d": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "A",
+     498
+    ],
+    [
+     "tests/test_funcs.py",
+     "Coordinates",
+     491
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:506",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 4,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "Int",
+     512
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:529",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:535",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:546",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:552",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:568",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:590",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "C",
+     596
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:606",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:617",
+   "has_check": true,
+   "calls": {
+    "d": 7,
+    "unresolved": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:634",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:645",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:664",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "C",
+     670
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:680",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:691",
+   "has_check": true,
+   "calls": {
+    "d": 7,
+    "unresolved": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:711",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:729",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "C",
+     735
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:744",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:761",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:773",
+   "has_check": true,
+   "calls": {
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "Cls2",
+     785
+    ],
+    [
+     "tests/test_funcs.py",
+     "Cls1",
+     781
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:797",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_funcs.py",
+     "Cls2",
+     809
+    ],
+    [
+     "tests/test_funcs.py",
+     "Cls1",
+     805
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:821",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:830",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_funcs.py",
+   "test": "tests/test_funcs.py:840",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:116",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:152",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:159",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:175",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:187",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:225",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:240",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "Sub2",
+     246
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:261",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:300",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:324",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:332",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "SubFrozen",
+     84
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:346",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:352",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:370",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:381",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:393",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:420",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:437",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:448",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:453",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "C",
+     459
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:470",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:503",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "Sub",
+     530
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:545",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:560",
+   "has_check": true,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:614",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "FooError",
+     622
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:627",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "C",
+     633
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:648",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:660",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:684",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:705",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:733",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:754",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:765",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:786",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "C1",
+     26
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:795",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:809",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "C1",
+     26
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_functional.py",
+   "test": "tests/test_functional.py:820",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_functional.py",
+     "C1",
+     26
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:17",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:37",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:56",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_hooks.py",
+     "C",
+     66
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:74",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:90",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:106",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:124",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:139",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:156",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:186",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:206",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:222",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:238",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:263",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:283",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:303",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:345",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:362",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:384",
+   "has_check": true,
+   "calls": {
+    "a": 4,
+    "d": 5
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_hooks.py",
+     "Parent",
+     401
+    ],
+    [
+     "tests/test_hooks.py",
+     "Child",
+     396
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_hooks.py",
+   "test": "tests/test_hooks.py:422",
+   "has_check": true,
+   "calls": {
+    "a": 4,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_hooks.py",
+     "Parent",
+     437
+    ],
+    [
+     "tests/test_hooks.py",
+     "Child",
+     433
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_import.py",
+   "test": "tests/test_import.py:8",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_import.py",
+   "test": "tests/test_import.py:18",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_import.py",
+   "test": "tests/test_import.py:27",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_init_subclass.py",
+   "test": "tests/test_init_subclass.py:10",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_init_subclass.py",
+   "test": "tests/test_init_subclass.py:28",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_init_subclass.py",
+   "test": "tests/test_init_subclass.py:46",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:84",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:92",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:107",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:125",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:142",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:162",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:181",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:194",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:223",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "make_tc",
+     208
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:232",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "make_tc",
+     208
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:243",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:256",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "make_tc",
+     208
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:269",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:295",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:343",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:361",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:373",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:387",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:424",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:439",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:476",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "D",
+     502
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:509",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:544",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:556",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:598",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:627",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:640",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:650",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:681",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:710",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:723",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:738",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:754",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:769",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     775
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:784",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     790
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:801",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     808
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:820",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     827
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:838",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "KWOnlyAndDefault",
+     845
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:857",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "MixtureClass",
+     871
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:900",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     906
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:918",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     924
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:937",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:952",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:965",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:976",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:986",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:997",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1023",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1029
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1042",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1048
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1057",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1064
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1074",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1080
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1088",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1097
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1119",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1130
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1138",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1145
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1157",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     1168
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1190",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "KwArgBeforeInitFalse",
+     1198
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1215",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "KwArgBeforeInitFalseChild",
+     1230
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1246",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1283",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1334",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1398",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1411",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1426",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1434",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1455",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1476",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1485",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1502",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1514",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1524",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1533",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1545",
+   "has_check": false,
+   "calls": {
+    "unresolved": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1560",
+   "has_check": true,
+   "calls": {
+    "d": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1576",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1595",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1601",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1611",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1622",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1639",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1646",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1653",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1678",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1687",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1699",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1715",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1727",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1746",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1767",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1785",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1804",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1824",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1842",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1855",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1864",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1880",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1903",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1931",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1954",
+   "has_check": true,
+   "calls": {
+    "d": 5,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/strategies.py",
+     "gen_attr_names",
+     23
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:1978",
+   "has_check": false,
+   "calls": {
+    "d": 8,
+    "unresolved": 5
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2003",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/strategies.py",
+     "gen_attr_names",
+     23
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2014",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2022",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/strategies.py",
+     "gen_attr_names",
+     23
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2036",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2054",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2066",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2101",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "unresolved": 7
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2161",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2186",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2248",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2262",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2281",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2327",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     2333
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2342",
+   "has_check": true,
+   "calls": {
+    "a": 2,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     2348
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2369",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2433",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "EvolveCase",
+     2439
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2464",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2485",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2530",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2565",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "A",
+     2573
+    ],
+    [
+     "tests/test_make.py",
+     "B",
+     2577
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2610",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2617",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2623",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2633",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2646",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2654",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2663",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2672",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2682",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2690",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2700",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2725",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2751",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2768",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     2775
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2790",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2804",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2818",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2837",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2851",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "a": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     2857
+    ],
+    [
+     "tests/test_make.py",
+     "D",
+     2867
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2876",
+   "has_check": false,
+   "calls": {
+    "a": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "assert_none_set",
+     2894
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2921",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2935",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2949",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2963",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:2989",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3017",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_make.py",
+     "C",
+     3025
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3064",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3102",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3113",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3128",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3142",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3162",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_make.py",
+   "test": "tests/test_make.py:3197",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:28",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     22
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:34",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:44",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "NoSlots",
+     50
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:57",
+   "has_check": false,
+   "calls": {
+    "a": 2,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "Validated",
+     63
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:74",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     22
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:87",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:100",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:114",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:132",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:152",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:171",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:189",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "E",
+     195
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:208",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "F",
+     214
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:222",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     230
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:237",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:270",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:310",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "MyException",
+     318
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:340",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "do_nothing",
+     352
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:373",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     379
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:398",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "D",
+     424
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:433",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     22
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:443",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_next_gen.py",
+     "C",
+     22
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:459",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:502",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:539",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:547",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:555",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:563",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:571",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_next_gen.py",
+   "test": "tests/test_next_gen.py:580",
+   "has_check": false,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packaging.py",
+   "test": "tests/test_packaging.py:18",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packaging.py",
+   "test": "tests/test_packaging.py:26",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_packaging.py",
+   "test": "tests/test_packaging.py:36",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pattern_matching.py",
+   "test": "tests/test_pattern_matching.py:14",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pattern_matching.py",
+   "test": "tests/test_pattern_matching.py:35",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_pattern_matching.py",
+     "C",
+     43
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pattern_matching.py",
+   "test": "tests/test_pattern_matching.py:55",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pyright.py",
+   "test": "tests/test_pyright.py:35",
+   "has_check": true,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_pyright.py",
+     "parse_pyright_output",
+     21
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pyright.py",
+   "test": "tests/test_pyright.py:89",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_pyright.py",
+     "parse_pyright_output",
+     21
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_pyright.py",
+   "test": "tests/test_pyright.py:117",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_pyright.py",
+     "parse_pyright_output",
+     21
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:26",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "Hooked",
+     36
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:51",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "Hooked",
+     60
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:71",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "Hooked",
+     83
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:96",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "PartiallyFrozen",
+     102
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:121",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "ValidatedAttribute",
+     127
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:151",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "Piped",
+     168
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:194",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "Hooked",
+     203
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:214",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     223
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:234",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     247
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:262",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     272
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:282",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     293
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:303",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     319
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:333",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:344",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     350
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:359",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     365
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:383",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:395",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:409",
+   "has_check": false,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:418",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:443",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:470",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "WithOnSetAttrHook",
+     21
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:487",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "A",
+     496
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:504",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     521
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:526",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:545",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:558",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:571",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:591",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:624",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_setattr.py",
+   "test": "tests/test_setattr.py:633",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_setattr.py",
+     "C",
+     641
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:78",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C1",
+     31
+    ],
+    [
+     "tests/test_slots.py",
+     "C1Slots",
+     55
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:107",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:121",
+   "has_check": true,
+   "calls": {
+    "a": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C1Slots",
+     55
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:143",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C2Slots",
+     152
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:186",
+   "has_check": true,
+   "calls": {
+    "unresolved": 2,
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:242",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C2Slots",
+     248
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:285",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C2Slots",
+     294
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:321",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:349",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C2Slots",
+     394
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:430",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C1",
+     31
+    ],
+    [
+     "tests/test_slots.py",
+     "C1Slots",
+     55
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:446",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C2",
+     454
+    ],
+    [
+     "tests/test_slots.py",
+     "C2Slots",
+     459
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:476",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:502",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C",
+     508
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:520",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C",
+     526
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:535",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C",
+     541
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:550",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:562",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "D",
+     573
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:582",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C",
+     589
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:600",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C",
+     616
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:637",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "C1Slots",
+     55
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:648",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:660",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:677",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:685",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:716",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:739",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:755",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:772",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:791",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:809",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     815
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:829",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     838
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:867",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     873
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:888",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "B",
+     901
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:911",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "B",
+     928
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:941",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:964",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "AB",
+     989
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:999",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1017",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1040",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1061",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1068
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1081",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1088
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1103",
+   "has_check": true,
+   "calls": {
+    "a": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1109
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1123",
+   "has_check": true,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1129
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1153",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1147
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1176",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "d": 2
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1147
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_slots.py",
+   "test": "tests/test_slots.py:1202",
+   "has_check": true,
+   "calls": {
+    "a": 1,
+    "unresolved": 1,
+    "d": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_slots.py",
+     "A",
+     1147
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:9",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_utils.py",
+   "test": "tests/test_utils.py:15",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:49",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:58",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:69",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:77",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:89",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:102",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:124",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:130",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:137",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:145",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:160",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:173",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:179",
+   "has_check": false,
+   "calls": {
+    "a": 4,
+    "d": 3
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "ReTester",
+     185
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:196",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "MatchTester",
+     202
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:207",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "RePatternTester",
+     214
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:219",
+   "has_check": false,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:230",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "SearchTester",
+     236
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:241",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:259",
+   "has_check": false,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:265",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:288",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:294",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:302",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:311",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:337",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:343",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:350",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:357",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:372",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:402",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:408",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:417",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:434",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:450",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:457",
+   "has_check": false,
+   "calls": {
+    "a": 1,
+    "d": 4
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "C",
+     464
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:494",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:500",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:509",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:529",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:547",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:556",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:567",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:578",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:591",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:608",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:624",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:646",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "unresolved": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:664",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:670",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:692",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:711",
+   "has_check": false,
+   "calls": {
+    "d": 5,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:723",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:734",
+   "has_check": false,
+   "calls": {
+    "d": 4,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:745",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:761",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:774",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:783",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:793",
+   "has_check": true,
+   "calls": {
+    "d": 7,
+    "unresolved": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:817",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:823",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:831",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 2
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:849",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:856",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:866",
+   "has_check": true,
+   "calls": {
+    "d": 4
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:886",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:896",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:921",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     925
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:940",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     944
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:951",
+   "has_check": true,
+   "calls": {
+    "unresolved": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:966",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:972",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:994",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     1001
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1013",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     1019
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1025",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1039",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1045",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1065",
+   "has_check": false,
+   "calls": {
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     1072
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1084",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "a": 1
+   },
+   "b": [],
+   "a": [
+    [
+     "tests/test_validators.py",
+     "Tester",
+     1090
+    ]
+   ],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1096",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1108",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1115",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1123",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1138",
+   "has_check": true,
+   "calls": {
+    "d": 1
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1153",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1159",
+   "has_check": true,
+   "calls": {
+    "d": 2
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1171",
+   "has_check": false,
+   "calls": {
+    "d": 1,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1185",
+   "has_check": true,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1210",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1220",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1242",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1252",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1274",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1284",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1306",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1315",
+   "has_check": true,
+   "calls": {
+    "d": 4,
+    "b": 1,
+    "unresolved": 2
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1336",
+   "has_check": true,
+   "calls": {
+    "d": 3,
+    "b": 1,
+    "unresolved": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1357",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1373",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1379",
+   "has_check": false,
+   "calls": {
+    "d": 2,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1387",
+   "has_check": false,
+   "calls": {
+    "d": 3,
+    "unresolved": 1,
+    "b": 1
+   },
+   "b": [
+    [
+     "tests/utils.py",
+     "simple_attr",
+     40
+    ]
+   ],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_validators.py",
+   "test": "tests/test_validators.py:1396",
+   "has_check": true,
+   "calls": {
+    "d": 3
+   },
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:15",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:21",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:31",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:41",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:47",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  },
+  {
+   "file": "tests/test_version_info.py",
+   "test": "tests/test_version_info.py:59",
+   "has_check": true,
+   "calls": {},
+   "b": [],
+   "a": [],
+   "c": [],
+   "fixtures": []
+  }
+ ]
+}
