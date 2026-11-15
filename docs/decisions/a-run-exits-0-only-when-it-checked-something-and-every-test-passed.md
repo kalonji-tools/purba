@@ -44,6 +44,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **Each kind has a code of its own.** No surveyed tool that reads an exit code tells a test that raised apart from a project error.
 - **Only the line that purba prints names the kind, and 3 and 4 each hold several kinds.** An internal error then reads as an invocation error or as a test that raised.
 - **A failed test comes first in the order.** A run with a failed test and a panic inside another test then exits 1, which reads as a failed test.
+- **Command reads its argument without clap.** Its reason, that clap exits 2 on a usage error, holds for `get_matches_from` only. [A probe of clap 4.6.7](https://github.com/kalonji-tools/purba/issues/962#issuecomment-6876192563) shows that `try_get_matches_from` returns the error, and command then chooses the code.
 
 ## Decision Outcome
 
@@ -70,7 +71,7 @@ flowchart TD
 - **An internal error has a code of its own, 125.** `git bisect run` and a system that retries each ask whether the tool itself failed. On 125, `git bisect run` skips the commit, and does not blame it. The line that purba prints names each kind.
 - **The order puts an internal error first, then an invocation error, then a failed test.** An internal error never comes after a failed test. A failed test still comes before what the run could not check.
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
-- **Command reads its argument without clap.** clap exits 2 on a usage error, and 2 means `unknown` here.
+- **Command's argument parser returns each error, and never ends the process.** A parser that ends the process picks its own code. The Context shows one that picks 2, which means `unknown` here.
 - **An interrupted run dies by its signal, and takes none of the codes 0, 1, 2, 3, 4 and 125.** [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds how it ends.
 - **A guard takes the place of `os._exit` in purba's process.**
 - **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the worker last took one. The worker takes that call when the test returns, and when the load of a module returns. So a call from a thread, or one whose error the test catches, counts too. A call while a module loads fails that load, whether the module catches it or not, unless the first interrupt landed in the load. In a process that a test forks, `os._exit` still exits. A test that the first interrupt lands in has the outcome `interrupted` instead, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
@@ -88,6 +89,7 @@ flowchart TD
 - **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
 - **A thread that calls `os._exit` after its test returned charges the test or the load that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
 - **A thread that calls `os._exit` while its test hangs does not end the run.** The run waits on the test. `faulthandler` with `exit=True` still ends it, because it exits from C.
+- **Nothing refuses a call of an argument parser that ends the process.** Only a reviewer finds a call such as `get_matches_from`.
 
 ## Confirmation
 
