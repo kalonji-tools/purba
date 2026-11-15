@@ -17,7 +17,7 @@ impl Test for Named {
 fn module(name: &str, source: &str, tests: &[&'static str]) -> Module<Named> {
     Module::new(
         PathBuf::from(name),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
         tests.iter().map(|&test| Named(test)).collect(),
     )
 }
@@ -104,10 +104,10 @@ fn each_outcome_stands_beside_its_test() {
             test(
                 "test_two",
                 Ok(Kind::Failed {
-                    assert: "assert 1 == 2".to_owned()
+                    asserts: vec!["assert 1 == 2".to_owned()]
                 })
             ),
-            test("test_three", Ok(Kind::Unknown)),
+            test("test_three", Err("no expectation stated")),
         ],
         "each outcome beside its test, in order",
     );
@@ -362,4 +362,14 @@ fn a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_t
         "the lookup of test_gone panics before its call, execution names itself, and \
          test_two runs",
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

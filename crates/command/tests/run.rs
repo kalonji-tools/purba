@@ -16,18 +16,18 @@ fn argv(path: &Path) -> [String; 2] {
 }
 
 /// Each kind that a line names after its test, in reporting's words.
-const KINDS: [&str; 7] = [
+const KINDS: [&str; 6] = [
     "passed",
     "failed",
     "raised",
-    "unknown",
     "blocked",
     "project error",
     "internal error",
 ];
 
-/// Runs purba on the module `source` at `name`. Gives its path, each line but
-/// the count as its test and its kind, and the exit code.
+/// Runs purba on the module `source` at `name`. Gives its path, each line of a
+/// case or a module as its subject and its kind, and the exit code. An indented
+/// line under a failed case, and the count, are not such lines.
 fn run_module(name: &str, source: &str) -> (PathBuf, Vec<(String, &'static str)>, u8) {
     let path = module_at(name);
     fs::write(&path, source).expect("the test writes its module");
@@ -39,6 +39,7 @@ fn run_module(name: &str, source: &str) -> (PathBuf, Vec<(String, &'static str)>
     let shown = path.display().to_string();
     let kinds = lines
         .into_iter()
+        .filter(|line| !line.starts_with(' '))
         .map(|line| {
             // The path can hold a space, and the name of a test cannot.
             let (name, rest) = line
@@ -110,14 +111,14 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
         [
             (id(&path, "test_one"), "passed"),
             (id(&path, "test_two"), "failed"),
-            (id(&path, "test_three"), "unknown"),
+            (id(&path, "test_three"), "project error"),
             (id(&path, "test_four"), "raised"),
         ],
-        "one line for each test, in order, to the writer"
+        "one line for each case, in order, to the writer"
     );
     assert_eq!(
         code, 1,
-        "a passed, a failed, an unknown and a raised test exit 1"
+        "a passed, a failed, a raised case and one with no expectation exit 1"
     );
 }
 

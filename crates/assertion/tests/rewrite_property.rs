@@ -156,7 +156,7 @@ proptest! {
             })
             .collect();
 
-        let rewrite = purba_assertion::rewrite(&original);
+        let rewrite = purba_assertion::rewrite(&original, &[]);
         let rewritten = parse(rewrite.text(), "the rewrite")?;
 
         let found = asserts(&rewritten);

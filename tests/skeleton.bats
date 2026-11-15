@@ -15,9 +15,10 @@ bats_require_minimum_version 1.5.0
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_a.py::test_one passed
-test_a.py::test_two failed: assert 1 == 2
-test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown
+test_a.py::test_two failed
+    assert 1 == 2
+test_a.py::test_three project error: no expectation stated
+3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
 }
@@ -70,9 +71,10 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_a.py::test_one passed
-test_a.py::test_two failed: assert 1 == 2
-test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown
+test_a.py::test_two failed
+    assert 1 == 2
+test_a.py::test_three project error: no expectation stated
+3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -91,20 +93,20 @@ LINES
 test_abort.py::test_one passed
 test_abort.py::test_two raised: its process died by SIGABRT
 test_abort.py::test_three passed
-3 tests: 2 passed, 1 raised
+3 cases: 2 passed, 1 raised
 LINES
 }
 
-@test "a tuple assert keeps CPython's warning, and the test that holds only it is unknown" {
+@test "a tuple assert keeps CPython's warning, and is no expectation" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'def test_tuple():' '    assert (1 == 2, "msg")' >test_tup.py
 
-  run -2 --separate-stderr purba test_tup.py
+  run -4 --separate-stderr purba test_tup.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_tup.py::test_tuple unknown: no assert ran
-1 test: 1 unknown
+test_tup.py::test_tuple project error: no expectation stated
+1 case: 1 blocked; 1 project error
 LINES
   [[ "${stderr}" == *'test_tup.py:2: SyntaxWarning: assertion is always true'* ]]
 }
@@ -117,8 +119,9 @@ LINES
   run -1 --separate-stderr purba test_empty.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_empty.py::test_empty failed: assert ()
-1 test: 1 failed
+test_empty.py::test_empty failed
+    assert ()
+1 case: 1 failed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -134,7 +137,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_refused.py::test_a project error: purba cannot run an async test yet
 test_refused.py::test_d passed
-2 tests: 1 passed, 1 blocked; 1 project error
+2 cases: 1 passed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -155,7 +158,7 @@ LINES
 test_nested.py::test_inside_if project error: the def sits under \`if\`, ${unseen}
 test_nested.py::test_inside_try project error: the def sits under \`try\`, ${unseen}
 test_nested.py::test_top passed
-3 tests: 1 passed, 2 blocked; 2 project errors
+3 cases: 1 passed, 2 blocked; 2 project errors
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -178,7 +181,7 @@ test_nodef.py::test_rebound project error: line 7 binds test_rebound ${unseen}
 test_nodef.py::test_alias project error: line 8 binds test_alias ${unseen}
 test_nodef.py::test_join project error: line 9 binds test_join ${unseen}
 test_nodef.py::test_real passed
-4 tests: 1 passed, 3 blocked; 3 project errors
+4 cases: 1 passed, 3 blocked; 3 project errors
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -196,7 +199,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_data.py::test_real passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -214,7 +217,7 @@ LINES
 test_load.py project error: ValueError: x
 test_load.py::test_one blocked: test_load.py did not load
 test_load.py::test_two blocked: test_load.py did not load
-2 tests: 2 blocked; 1 project error
+2 cases: 2 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -232,7 +235,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_thread.py::test_thread passed
 test_thread.py::test_thread project error: thread T raised ZeroDivisionError: division by zero
-1 test: 1 passed; 1 project error
+1 case: 1 passed; 1 project error
 LINES
   [[ "${stderr}" == *"Traceback"*"ZeroDivisionError: division by zero"* ]] || false
 }
@@ -252,7 +255,7 @@ LINES
 test_late.py::test_a passed
 test_late.py::test_a project error: thread T raised ValueError: late
 test_late.py::test_b passed
-2 tests: 2 passed; 1 project error
+2 cases: 2 passed; 1 project error
 LINES
 }
 
@@ -270,7 +273,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_late.py::test_a passed
 test_late.py::test_b passed
-2 tests: 2 passed
+2 cases: 2 passed
 LINES
 }
 
@@ -302,7 +305,7 @@ raw_thread() {
   diff -u - <(printf '%s\n' "${lines}") <<'LINES'
 test_raw.py::test_one passed
 test_raw.py::test_one project error: thread <id> raised ValueError: from a raw thread
-1 test: 1 passed; 1 project error
+1 case: 1 passed; 1 project error
 LINES
   local ignored='Exception ignored in thread started by'
   [[ "${stderr}" == *"${ignored}"*"ValueError: from a raw thread"* ]] || false
@@ -316,7 +319,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_raw.py::test_one raised: its process exited 3 before its outcome
-1 test: 1 raised
+1 case: 1 raised
 LINES
 }
 
@@ -331,7 +334,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_del.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ "${stderr}" == *"Exception ignored"*"ValueError: from __del__"* ]] || false
 }
@@ -347,7 +350,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_paren.py project error: SyntaxError: Expected a parameter or the end of the parameter list
-0 tests; 1 project error
+0 cases; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }

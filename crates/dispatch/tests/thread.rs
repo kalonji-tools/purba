@@ -33,7 +33,7 @@ fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
                   def test_after():\n    assert True\n";
     let module = Module::new(
         PathBuf::from("test_late.py"),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
         vec![Named("test_leaves"), Named("test_after")],
     );
     let mut seen = Vec::new();
@@ -69,4 +69,14 @@ fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
         "the load's thread error before the first test, and the error of a thread that \
          raises after its test returns under that test, before the next test"
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

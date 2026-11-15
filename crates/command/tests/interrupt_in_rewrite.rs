@@ -19,7 +19,7 @@ fn an_interrupt_in_the_rewrite_leaves_each_test_unreached() {
         path.to_str().expect("the path is UTF-8").to_owned(),
     ];
     let mut out = Vec::new();
-    let result = purba_command::run_with(&argv, Ok(&mut out), |module| {
+    let result = purba_command::run_with(&argv, Ok(&mut out), |module, tests| {
         Python::attach(|py| {
             py.run(
                 c"import signal\nsignal.raise_signal(signal.SIGINT)",
@@ -28,7 +28,7 @@ fn an_interrupt_in_the_rewrite_leaves_each_test_unreached() {
             )
         })
         .expect("purba's signal handler raises nothing outside a call");
-        purba_assertion::rewrite(module)
+        purba_assertion::rewrite(module, tests)
     });
     let stdout = String::from_utf8(out).expect("reporting writes UTF-8");
     assert!(

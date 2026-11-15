@@ -112,7 +112,7 @@ setup() {
 
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_gap.py::test_one raised: Exception: ${XS}
-2 tests: 1 raised, 1 unreached
+2 cases: 1 raised, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -127,7 +127,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_last.py::test_one raised: Exception: ${XS}
-1 test: 1 raised
+1 case: 1 raised
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
@@ -144,7 +144,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_str.py::test_one raised: Slow: slow
-2 tests: 1 raised, 1 unreached
+2 cases: 1 raised, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -163,7 +163,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_call.py::test_one passed
 test_call.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ -e finally ]] || false
@@ -183,7 +183,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_call.py::test_one passed
 test_call.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ -e finally ]] || false
@@ -207,7 +207,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_lookup.py::test_one passed
 test_lookup.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]] || false
@@ -228,7 +228,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_running.py::test_one interrupted
-2 tests: 1 interrupted, 1 unreached
+2 cases: 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ -e finally ]] || false
@@ -238,7 +238,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_idle.py::test_one raised: Exception: ${XS}
-2 tests: 1 raised, 1 unreached
+2 cases: 1 raised, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -253,7 +253,7 @@ LINES
 
   run -0 --separate-stderr interrupt test_load.py 0
 
-  [[ "${output}" == '2 tests: 2 unreached' ]] || false
+  [[ "${output}" == '2 cases: 2 unreached' ]] || false
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
 
@@ -265,7 +265,7 @@ LINES
 
   run -0 --separate-stderr interrupt test_load_exits.py 0
 
-  [[ "${output}" == '1 test: 1 unreached' ]] || false
+  [[ "${output}" == '1 case: 1 unreached' ]] || false
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
 
@@ -279,7 +279,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_bare.py::test_one raised: KeyboardInterrupt:
 test_bare.py::test_two passed
-2 tests: 1 passed, 1 raised
+2 cases: 1 passed, 1 raised
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -297,7 +297,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_handler.py::test_one passed
 test_handler.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
@@ -314,7 +314,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_module_handler.py::test_one interrupted
-2 tests: 1 interrupted, 1 unreached
+2 cases: 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -332,7 +332,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_below.py::test_one passed
 test_below.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
@@ -352,7 +352,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_ignore_below.py::test_one passed
 test_ignore_below.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
@@ -379,7 +379,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_siginterrupt.py::test_one passed
 test_siginterrupt.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e wrote ]] || false
@@ -399,7 +399,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_mask.py::test_one passed
 test_mask.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
@@ -416,7 +416,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_module_mask.py::test_one interrupted
-2 tests: 1 interrupted, 1 unreached
+2 cases: 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -436,7 +436,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_parent_mask.py::test_one passed
 test_parent_mask.py::test_two passed
-2 tests: 2 passed
+2 cases: 2 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
 }
@@ -452,7 +452,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_unmasked.py::test_one interrupted
-2 tests: 1 interrupted, 1 unreached
+2 cases: 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -470,7 +470,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_held_own.py::test_one passed
-2 tests: 1 passed, 1 unreached
+2 cases: 1 passed, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -490,7 +490,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_patched.py::test_one passed
 test_patched.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]
@@ -511,7 +511,7 @@ LINES
   for module in test_passes test_fails test_exits; do
     rm -f marker
     run -0 --separate-stderr interrupt "${module}.py" 0
-    [[ "${output}" == "${module}.py::test_one interrupted"$'\n1 test: 1 interrupted' ]] || false
+    [[ "${output}" == "${module}.py::test_one interrupted"$'\n1 case: 1 interrupted' ]] || false
     [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   done
 }
@@ -526,7 +526,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_ignored.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
 }
@@ -545,7 +545,7 @@ LINES
 test_ignored_handler.py::test_one passed
 test_ignored_handler.py::test_two passed
 test_ignored_handler.py::test_three passed
-3 tests: 3 passed
+3 cases: 3 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
 }
@@ -565,7 +565,7 @@ LINES
 test_ignored_below.py::test_one passed
 test_ignored_below.py::test_two passed
 test_ignored_below.py::test_three passed
-3 tests: 3 passed
+3 cases: 3 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
 }
@@ -581,7 +581,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_held.py::test_one passed
-2 tests: 1 passed, 1 unreached
+2 cases: 1 passed, 1 unreached
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e two ]]
@@ -601,7 +601,7 @@ LINES
     diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_term.py::test_one passed
 test_term.py::test_two interrupted
-3 tests: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached
 LINES
     local ended="purba ended by SIG${name}"
     [[ "${stderr}" == "purba: interrupt: SIG${name}${SECOND}"$'\n'"${ended}" ]] || false
@@ -697,7 +697,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_waiting.py::test_one interrupted
-2 tests: 1 interrupted, 1 unreached
+2 cases: 1 interrupted, 1 unreached
 LINES
   [[ "${stderr##*$'\n'}" =~ ^purba\ ended\ by\ SIG(INT|TERM)$ ]]
 }
@@ -713,7 +713,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_thread.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ "${stderr%%$'\n'*}" == "${SIGINT_LINE}" ]] || false
   [[ "${stderr##*$'\n'}" == 'purba ended by SIGINT' ]] || false
@@ -737,7 +737,7 @@ LINES
 test_thread_error.py::test_one passed
 test_thread_error.py::test_two interrupted
 test_thread_error.py::test_two project error: thread T raised ValueError: late
-3 tests: 1 passed, 1 interrupted, 1 unreached; 1 project error
+3 cases: 1 passed, 1 interrupted, 1 unreached; 1 project error
 LINES
   [[ "${stderr%%$'\n'*}" == "${SIGINT_LINE}" ]] || false
   [[ "${stderr##*$'\n'}" == 'purba ended by SIGINT' ]] || false
@@ -754,7 +754,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_atexit.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ -e finally ]]
@@ -774,7 +774,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_fork_term.py::test_child_dies_by_sigterm passed
 test_fork_term.py::test_two passed
-2 tests: 2 passed
+2 cases: 2 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -792,7 +792,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_fork_terminate.py::test_terminate passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -809,14 +809,14 @@ LINES
     '        os.dup2(write, 1)' '        exec(READ)' \
     '        sys.stdout.flush()' '        os._exit(0)' \
     '    os.close(write)' '    os.waitpid(pid, 0)' \
-    '    with os.fdopen(read) as child:' \
-    '        assert child.read() == without' >test_fork_handlers.py
+    '    with os.fdopen(read) as child:' '        got = child.read()' \
+    '    assert got == without' >test_fork_handlers.py
 
   run -0 --separate-stderr purba test_fork_handlers.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_fork_handlers.py::test_handlers passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -834,7 +834,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_fork_own_handler.py::test_own_handler passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }

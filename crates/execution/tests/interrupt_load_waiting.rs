@@ -15,7 +15,7 @@ const TEST_WAITING: &str = "import builtins\nbuiltins.purba_waiting_ran = True\n
 fn a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module_runs() {
     let module = Module::new(
         PathBuf::from("test_waiting.py"),
-        Rewrite::of_source(TEST_WAITING).expect("the source parses"),
+        Rewrite::of_source(TEST_WAITING, &tests_in(TEST_WAITING)).expect("the source parses"),
     );
     let (loaded, ran, kept) = purba_execution::attach(|worker: &mut Worker<'_, ()>| {
         purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
@@ -37,4 +37,14 @@ fn a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module
         "a SIGINT that waits as a load starts stops the load before the module's first line, \
          gives no error, and purba keeps it"
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

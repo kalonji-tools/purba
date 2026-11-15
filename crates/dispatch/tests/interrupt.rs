@@ -24,7 +24,7 @@ enum Seen {
 fn module(name: &str, source: &str, tests: Vec<Named>) -> Module<Named> {
     Module::new(
         PathBuf::from(name),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
         tests,
     )
 }
@@ -73,4 +73,14 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
         "the signal's test is interrupted. Each later test is unreached. The next \
          module never loads."
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

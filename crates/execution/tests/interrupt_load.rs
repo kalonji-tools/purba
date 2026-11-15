@@ -16,7 +16,7 @@ type Step = (Result<(), String>, bool);
 fn module(name: &str, source: &str) -> Module {
     Module::new(
         PathBuf::from(name),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
     )
 }
 
@@ -74,4 +74,14 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
         Err("test_load_signal.py did not load".to_owned()),
         "a load that the first interrupt lands in keeps no module, so a later run names it"
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }
