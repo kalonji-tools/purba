@@ -1,0 +1,7 @@
+ctl_bare#0.1.0	clippy::undocumented_unsafe_blocks	unsafe block missing a safety comment
+ctl_bare#0.1.0	clippy::undocumented_unsafe_blocks	unsafe impl missing a safety comment
+ctl_bare#0.1.0	dead_code	field `0` is never read
+ctl_bare#0.1.0	unsafe_code	declaration of an `unsafe` function
+ctl_bare#0.1.0	unsafe_code	implementation of an `unsafe` trait
+ctl_bare#0.1.0	unsafe_code	usage of an `unsafe` block
+ctl_doc#0.1.0	unsafe_code	usage of an `unsafe` block

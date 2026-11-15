@@ -1,0 +1,19 @@
+input	agree	differ	no level
+blast	41	0	0
+upkeep	41	0	0
+maintainers	41	0	0
+review	39	1	1
+tests	38	2	1
+unsafe	41	0	0
+churn	40	1	0
+owner	41	0	0
+all	322	4	2
+crates	41
+
+crate	input	file	script
+chumsky	review	3	-
+chumsky	tests	1	-
+nix	churn	2	3
+postcard	tests	1	2
+seccompiler	tests	1	2
+tokio	review	1	2

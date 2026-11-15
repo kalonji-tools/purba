@@ -1,0 +1,27 @@
+# need	parts (comma-separated)	candidates (space-separated)
+# Copied from research/future-crates.md at 8607015, § 1 (stated needs) and "Inferred needs".
+# A forecast script reads this table to count the parts of each crate. D5's part is the file's
+# "dispatch (no part owns it yet)", written here as dispatch.
+S2	strictness	nix rustix
+S3	strictness	serde_json postcard rmp-serde
+P1	parsing	encoding_rs encoding textcode
+C1	configuration	toml toml_edit pyproject-toml
+Sel1	selection	walkdir ignore
+Sel2	selection	winnow nom chumsky pest
+Sel3	selection	path-clean normpath
+F1	fixtures,execution	pyo3-async-runtimes
+E1	execution	gag os_pipe
+E2	execution	pyo3-async-runtimes
+D1	dispatch	nix rustix
+D2	dispatch	nix rustix polling tokio
+D3	dispatch	serde_json postcard rmp-serde
+D5	dispatch	petgraph
+R1	reporting	serde_json
+R2	reporting	quick-junit quick-xml junit-report
+Cmd1	command	lexopt pico-args bpaf clap
+I1	configuration	toml toml_edit pyproject-toml
+I2	assertion,reporting	similar imara-diff difflib
+I3	reporting	anstream owo-colors supports-color
+I4	selection	globset
+I5	configuration,selection	pep508_rs
+I6	strictness	seccompiler
