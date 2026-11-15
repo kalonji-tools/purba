@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Build three blind rater folders for the loguru file, laid out as round 5 was
 # (prototypes/967-python-form-4/benchmark/ratings/build_blind_loguru.sh on proto/980).
-# $1 = the eval folder to create. The ports are read from this benchmark folder.
+# $1 = the eval folder to create; $2 = the folder of the form port under loguru-format/ (default form).
+# The ports are read from this benchmark folder.
 set -euo pipefail
 E="$1"
+PORT="${2:-form}"
 B="$E/blind"
 H="$(cd "$(dirname "$0")/.." && pwd)" # benchmark/
 F="$(cd "${H}/.." && pwd)"            # the form: FORM.md, run.py, cases.py
@@ -23,9 +25,9 @@ build() { # $1 rater, $2 letter for oxitest, $3 letter for the form
   scrub "${F}/run.py" >"$P/run.py"
   scrub "${F}/cases.py" >"$P/cases.py"
   cp "${F}/FORM.md" "$P/FORM.md"
-  scrub "${H}/loguru-format/form/test_add_option_format.py" >"$P/tests/test_add_option_format.py"
-  cp "${H}/loguru-format/form/LICENSE.loguru" "$P/tests/"
-  for f in NOTES.md CHECKERS.txt; do scrub "${H}/loguru-format/form/$f" >"$P/$f"; done
+  scrub "${H}/loguru-format/${PORT}/test_add_option_format.py" >"$P/tests/test_add_option_format.py"
+  cp "${H}/loguru-format/${PORT}/LICENSE.loguru" "$P/tests/"
+  for f in NOTES.md CHECKERS.txt; do scrub "${H}/loguru-format/${PORT}/$f" >"$P/$f"; done
   printf '{"venvPath": "%s", "venv": ".venv", "extraPaths": [".", "tests"], "include": ["tests"]}\n' "$E" >"$P/pyrightconfig.json"
   printf 'Run from this folder:\n\n    %s/.venv/bin/python run.py tests\n\nRules of the form: FORM.md\n' "$E" >"$P/RUN.md"
   (cd "$P" && "$E/.venv/bin/python" run.py tests >OUTPUT.txt 2>&1 || true)

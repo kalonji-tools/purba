@@ -1,0 +1,5 @@
+Loguru round 2 (the form with @before, a92257f; port in loguru-format/form-before). Which letter was which, per rater:
+
+rater1: PORT_K = the form, PORT_M = oxitest
+rater2: PORT_K = oxitest, PORT_M = the form
+rater3: PORT_K = the form, PORT_M = oxitest

@@ -1,0 +1,33 @@
+── test_add_option_format.py
+ test_format  (test_add_option_format.py:37)
+   ✓ message_field › writer.read() == expected   'Message: a\n'
+   ✓ no_field › writer.read() == expected   'Nope\n'
+   ✓ level_twice › writer.read() == expected   'DEBUG c DEBUG\n'
+   ✓ level_attributes › writer.read() == expected   'd DEBUG 10 DEBUG\n'
+   ✓ function_without_newline › writer.read() == expected   'e'
+   ✓ function_reads_the_record › writer.read() == expected   'f DEBUG'
+ test_progressive_format  (test_add_option_format.py:64)
+   ✓ test_progressive_format › writer.read() == '[DEBUG] Start: .....\n[DEBUG] End\n'   '[DEBUG] Start: .....\n[DEBUG] End\n'
+ test_function_format_without_exception  (test_add_option_format.py:83)
+   ✓ test_function_format_without_exception › handling   ZeroDivisionError: division by zero
+   ✓ test_function_format_without_exception › writer.read() == 'Error!\n'   'Error!\n'
+ test_function_format_with_exception  (test_add_option_format.py:92)
+   ✓ test_function_format_with_exception › handling   ZeroDivisionError: division by zero
+   ✓ test_function_format_with_exception › lines[0] == 'Error!'   'Error!'
+   ✓ test_function_format_with_exception › lines[-1] == 'ZeroDivisionError: division by zero'   'ZeroDivisionError: division by zero'
+ test_invalid_format  (test_add_option_format.py:103)
+   ✓ format_int › raises   TypeError: Invalid format, it should be a string or a function, not: 'int'
+   ✓ format_float › raises   TypeError: Invalid format, it should be a string or a function, not: 'float'
+   ✓ format_object › raises   TypeError: Invalid format, it should be a string or a function, not: 'object'
+ test_invalid_markups  (test_add_option_format.py:115)
+   ✓ open_tag_alone › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ close_tag_alone › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ close_before_open › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ bare_close_tag_alone › raises   ValueError: Invalid format, color markups could not be parsed correctly
+   ✓ unknown_tag › raises   ValueError: Invalid format, color markups could not be parsed correctly
+ test_markup_in_field  (test_add_option_format.py:129)
+   ✓ colorized › writer.read() == '</>  <blue>  Test\n'   '</>  <blue>  Test\n'
+   ✓ not_colorized › writer.read() == '</>  <blue>  Test\n'   '</>  <blue>  Test\n'
+ test_invalid_format_builtin  (test_add_option_format.py:146)
+   ✓ test_invalid_format_builtin › raises   ValueError: The built-in 'format()' function cannot be used as a 'format' parameter, this is most likely a mistake (please double-check the arguments passed to 'logger.add()').
+══ 20 cases: 20 passed · 0 failed · 0 refused · 0 blocked   (23 checks held)

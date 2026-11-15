@@ -17,6 +17,21 @@ The same file as rounds 2 to 5. The form drops `before_each`, so each test names
 The gap to pytest is −0.65 and to oxitest −0.38. Prototype 4, with `before_each`, had −0.25 and +0.18 in round 5.
 Each rater named `_reset` and `use(Writer)` in all 8 signatures. Rater 2 found that a test without `_reset` still passes, because each case runs in a fork of its own.
 
+## Loguru again, with `@before`
+
+After the two rounds above, the person agreed: `@before(fn)` on each test replaces the reset in the signature, a fixture may use a fixture, and a stage is for a state under test (commit a92257f; `FORM.md` 165 lines, was 179).
+A new porter ported the file again (`loguru-format/form-before/`), and three new raters scored it with the same prompt (`ratings/KEY_loguru2.txt`).
+
+| | readability | clarity | ease of use | tester | implementation | smallest test | fidelity | weighted, rater 1 · 2 · 3 | mean |
+|---|--:|--:|--:|--:|--:|--:|--:|---|--:|
+| pytest | 5.0 | 3.0 | 4.0 | 4.0 | 3.0 | 5.0 | reference | 4.05 · 4.05 · 4.05 | 4.05 |
+| **the form, `@before`** | 4.0 | 4.67 | 3.67 | 2.0 | 1.33 | 4.67 | 4.0 | 3.40 · 3.75 · 3.45 | **3.53** |
+| oxitest | 3.0 | 4.0 | 3.0 | 3.0 | 2.0 | 4.0 | 4.67 | 3.25 · 3.45 · 3.45 | 3.38 |
+
+The gap to pytest is −0.52, and to oxitest +0.15; in the first loguru round they were −0.65 and −0.38.
+By the numbers the form came second for each rater (tied with oxitest for rater 3, who chose oxitest on fidelity).
+Each rater still counted against it the rules that refuse ordinary Python: a `try` that the act holds, a computed or named expected value. The build left the word "rating." on line 2 of `run.py`'s docstring in every blind folder of every round.
+
 ## Flaskr `test_blog.py`, a chain of fixtures
 
 The tutorial's `app` → `client` → `auth` fixtures, with 8 tests and 12 items. The form was ported twice: once by a porter who chose fixtures, once by a porter told to share each arrange that acts through stages.

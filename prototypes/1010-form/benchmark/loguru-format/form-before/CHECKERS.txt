@@ -1,0 +1,5 @@
+$ ty check --python ../../.venv/bin/python test_add_option_format.py
+All checks passed!
+
+$ nix-shell -p pyright --run 'pyright test_add_option_format.py'
+0 errors, 0 warnings, 0 information

@@ -1,0 +1,24 @@
+Loguru round 2, rater 3 (PORT_K = the form with @before, PORT_M = oxitest). Condensed from the rater's report.
+
+Criterion                        ORIGINAL   PORT_M  PORT_K
+Readability                      5          3       4
+Clarity                          3          4       5
+Ease of use                      4          3       3
+Complexity for the tester        4          3       2
+Complexity of the implementation 3          2       1
+Minimum working test             5          4       5
+Fidelity                         reference  5       4
+
+Weights: readability 15, clarity 20, ease of use 20, tester complexity 15, implementation 10, minimum
+test 5, fidelity 15 (the original counts as 5). Weighted (recomputed, matches the rater's): ORIGINAL 4.05,
+PORT_M 3.45, PORT_K 3.45. The rater broke the tie for PORT_M on fidelity.
+Rank by the numbers: ORIGINAL, then PORT_M and PORT_K tied. Rank the rater chose: ORIGINAL, PORT_M, PORT_K.
+
+PORT_K strongest: errors and output (typo hint, wrong type flagged, other cases still run; expected /
+reading / why / inputs). PORT_K weakest: the rules refuse ordinary code (`== level + "\n"` refused as
+computed; a plain try/except refused); a 2,960-line runner with 12 ty errors; a new test is 7 lines with
+`@before(reset_logger)` and `use(Writer)`.
+PORT_M strongest: a message of intent on each assert. Weakest: boilerplate and two typing workarounds; a
+case typo is a raw TypeError and the module collects 0 items; a teardown raise exits 0.
+Rough edges, PORT_K: run.py's docstring keeps a stray "rating." (the build's scrub left it, so the word
+was visible to raters); the runner's frames leak into loguru's traceback; "(1 checks held)"; POSIX only.

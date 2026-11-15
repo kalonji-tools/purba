@@ -1,0 +1,24 @@
+Loguru round 2, rater 1 (PORT_K = the form with @before, PORT_M = oxitest). Condensed from the rater's report.
+
+Criterion                        ORIGINAL  PORT_K  PORT_M
+Readability                      5         4       3
+Clarity                          3         4       4
+Ease of use                      4         4       3
+Complexity for the tester        4         2       3
+Complexity of the implementation 3         1       2
+Minimum working test             5         4       4
+Fidelity                         ref (5)   4       4
+
+Weights: readability 20, clarity 20, ease of use 20, tester complexity 15, implementation 10, fidelity 10,
+minimum test 5. Weighted (recomputed, matches the rater's): ORIGINAL 4.05, PORT_K 3.40, PORT_M 3.25.
+Rank by the numbers and by the rater: ORIGINAL, PORT_K, PORT_M.
+
+PORT_K strongest: errors and output (both checkers caught the typo and the wrong type; the runner refused
+only those cases with "did you mean 'message'?"; failures print expected / reading / why / inputs).
+PORT_K weakest: FORM.md, 165 lines and 17 "refused" rules; `@before(reset_logger)` repeated 8 times;
+`with handling(ZeroDivisionError, logger.exception, "Error!"): _ = 1 / 0` reads backwards; the runner is
+2,660 + 301 lines and fails ty with 12 errors.
+PORT_M weakest: bulk (4 frozen dataclasses, a runtime stand-in); a typo in one case stops the module;
+a bare assert aborts the run with a terse message; -vv names no tests; a teardown raise exits 0.
+Fidelity, PORT_K: reset before each case only (same isolation, each case forks); Writer.clear dropped;
+handling adds a check; == compares type first; an unexpected warning fails the case.

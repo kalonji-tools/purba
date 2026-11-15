@@ -1,0 +1,25 @@
+Loguru round 2, rater 2 (PORT_K = oxitest, PORT_M = the form with @before). Condensed from the rater's report.
+
+Criterion                   ORIGINAL   PORT_K  PORT_M
+Readability                 5          3       4
+Clarity                     3          4       5
+Ease of use                 4          3       4
+Tester complexity           4          3       2
+Implementation complexity   3          2       2
+Minimum working test        5          4       5
+Fidelity                    reference  5       4
+
+Weights: clarity 20, ease of use 20, readability 15, tester complexity 15, fidelity 15, implementation 10,
+minimum test 5. The rater's sums: ORIGINAL 3.88 (scored out of 85, no fidelity), PORT_M 3.75, PORT_K 3.45.
+Recomputed with the original's fidelity counted as 5: ORIGINAL 4.05, PORT_M 3.75, PORT_K 3.45.
+Rank by the numbers and by the rater: ORIGINAL, PORT_M, PORT_K. "The margins are small."
+
+PORT_M strongest: case(...) checked against the test's signature (typo caught by ty, pyright and the
+runner, "did you mean 'message'?"); each test has a docstring; failures show expected / reading / why /
+inputs; the case and new test passed first try.
+PORT_M weakest: refuses ordinary Python (try/except refused without pointing to handling; a named
+expected variable refused as computed); `@before(reset_logger)` on all 8 tests; `= use(Writer)` is an
+unusual idiom; handling(...) hides the call it makes.
+PORT_K weakest: boilerplate (4 dataclasses, a runtime stand-in, a 130-char ignore line); a bare assert
+aborts with a terse message; a renamed parameter caught only at run time inside oxitest.
+Disclosure: the rater listed the oxitest package directory once, outside its folder; not used in scoring.
