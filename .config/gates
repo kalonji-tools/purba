@@ -30,6 +30,7 @@
 .config/cliff.toml             -build   scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 .config/crates.toml            -build  -scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
 .config/shortlists.toml        -build  -scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
+.config/needs.toml             -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
 /Cargo.toml                     build  -scripts   lint-rust   lint-scripts  -lint-docs   lint-macos
 /Cargo.lock                     build  -scripts   lint-rust  -lint-scripts  -lint-docs   lint-macos
 /.cargo/config.toml             build   scripts   lint-rust   lint-scripts   lint-docs   lint-macos

@@ -105,6 +105,13 @@ run = "scripts/check-macos-jobs.sh"
 description = "Refuse a package that two manifests declare, and any in pyproject.toml"
 run = "scripts/check-manifests.sh"
 
+#   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
+["lint:needs"]
+description = """\
+Refuse a need line with no part to design, no words or no link, or that no issue, declined \
+list or shortlisted crate answers, and a shortlisted crate whose need has no line"""
+run = "scripts/check-needs.sh"
+
 #   the decision:  docs/decisions/only-a-changed-input-moves-the-order-of-design.md
 ["lint:order"]
 description = "Refuse an order of design the rule does not calculate, or a risk unlike its record"

@@ -1,0 +1,18 @@
+# Each line states a need of a part not designed yet, which no call to std or to a crate that
+# purba holds meets.
+#
+#   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
+#   the task:      mise run lint:needs
+
+carry-assay-reading = { part = "strictness", need = "carry an assay's reading from a forked process back to the case's process", words = ["serialization", "msgpack", "framing"], have = "std io::pipe or UnixStream::pair for the channel, and serde derives; no crate purba holds writes a wire format", stated = "https://github.com/kalonji-tools/purba/issues/964#issuecomment-6862174563" }
+decode-by-encoding = { part = "parsing", need = "decode a module by its encoding declaration, as CPython does", words = ["charset"], have = "std decodes UTF-8 only, and parsing finds the declaration", stated = "https://github.com/kalonji-tools/purba/issues/644" }
+read-config-file = { part = "configuration", need = "read a configuration file that holds keys", words = ["toml", "pyproject"], stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/a-suppression-is-an-outcome-and-not-a-switch.md#L40" }
+find-test-files = { part = "selection", need = "find the test files under a directory", words = ["walk", "gitignore"], have = "std fs::read_dir, with the recursion written by hand", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/purba-divides-by-responsibility-and-not-by-language.md#L40" }
+parse-test-query = { part = "selection", need = "parse the query language that names tests", words = ["parser-combinators", "grammar", "combinator"], have = "std, with a parser written by hand", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/LANDSCAPE.md#L58" }
+capture-output = { part = "execution", need = "capture a test's output", words = ["stdout", "pipe"], have = "libc pipe and dup2, and std io::pipe", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/a-concern-is-what-no-part-can-own.md#L55" }
+end-hung-test = { part = "dispatch", need = "end a test that hangs, on a timeout", words = ["epoll", "syscall", "async"], have = "libc kill, waitpid and poll, and std time::Instant", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/purba-divides-by-responsibility-and-not-by-language.md#L39" }
+hand-outcome = { part = "dispatch", need = "hand a worker's outcome to the parent, as data, over the worker protocol", words = ["serialization", "msgpack", "framing"], have = "serde derives on Outcome and Kind, and std gives the channel; no crate purba holds writes a format", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/LANDSCAPE.md#L60" }
+plan-as-graph = { part = "dispatch", need = "plan a run as a graph before running it", words = ["graph"], have = "std collections, with a graph written by hand", stated = "https://github.com/kalonji-tools/purba/issues/691" }
+write-outcome-data = { part = "reporting", need = "write outcomes as data for an agent or an integrator", words = ["json"], have = "serde derives the shape; no crate purba holds writes a format", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/LANDSCAPE.md#L64" }
+write-junit = { part = "reporting", need = "write JUnit XML", words = ["junit", "xml"], stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/purba-divides-by-responsibility-and-not-by-language.md#L55" }
+read-flags = { part = "command", need = "read the command's flags", words = ["args", "cli"], have = "pyo3 copies sys.argv, parsed by hand", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/CONTEXT.md#L181" }
