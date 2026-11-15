@@ -153,7 +153,7 @@ LINES
 @test "a Ctrl-C in a test's call makes the test interrupted, and its finally block runs" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        Path("finally").touch()' \
     'def test_three():' '    Path("three").touch()' >test_call.py
@@ -173,7 +173,7 @@ LINES
 @test "an interrupt sent to purba alone makes the test interrupted, and its finally block runs" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        Path("finally").touch()' \
     'def test_three():' '    Path("three").touch()' >test_call.py
@@ -198,7 +198,7 @@ LINES
     '            Path("marker").touch()' '            time.sleep(2)' \
     '        return super().__getattribute__(name)' \
     'sys.modules[__name__].__class__ = Slow' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    Path("two").touch()' \
     'def test_three():' '    Path("three").touch()' >test_lookup.py
 
@@ -248,8 +248,8 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'Path("marker").touch()' 'time.sleep(3)' \
-    'def test_one():' '    assert True' \
-    'def test_two():' '    assert True' >test_load.py
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' >test_load.py
 
   run -0 --separate-stderr interrupt test_load.py 0
 
@@ -261,7 +261,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, time' 'from pathlib import Path' \
     'try:' '    Path("marker").touch()' '    time.sleep(3)' 'finally:' '    os._exit(3)' \
-    'def test_one():' '    assert True' >test_load_exits.py
+    'def test_one():' '    assert 1 == 1' >test_load_exits.py
 
   run -0 --separate-stderr interrupt test_load_exits.py 0
 
@@ -272,7 +272,7 @@ LINES
 @test "a KeyboardInterrupt with no signal makes the test raised, and the next test runs" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'def test_one():' '    raise KeyboardInterrupt' \
-    'def test_two():' '    assert True' >test_bare.py
+    'def test_two():' '    assert 1 == 1' >test_bare.py
 
   run -4 --separate-stderr purba test_bare.py
 
@@ -288,7 +288,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
     'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
-    '    assert True' \
+    '    assert 1 == 1' \
     'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
     'def test_three():' '    Path("three").touch()' >test_handler.py
 
@@ -323,8 +323,8 @@ LINES
 @test "a signal handler that a test installs below Python lives only for its call" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import faulthandler, signal, time' 'from pathlib import Path' \
-    'def test_one():' '    faulthandler.register(signal.SIGINT)' '    assert True' \
-    'def test_two():' '    assert True' '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_one():' '    faulthandler.register(signal.SIGINT)' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' '    Path("marker").touch()' '    time.sleep(3)' \
     'def test_three():' '    Path("three").touch()' >test_below.py
 
   run -0 --separate-stderr interrupt test_below.py 0
@@ -343,8 +343,8 @@ LINES
   printf '%s\n' 'import ctypes, signal, time' 'from pathlib import Path' \
     'def test_one():' '    libc = ctypes.CDLL(None)' \
     '    libc.signal.argtypes = (ctypes.c_int, ctypes.c_void_p)' \
-    '    libc.signal(signal.SIGINT, signal.SIG_IGN.value)' '    assert True' \
-    'def test_two():' '    assert True' '    Path("marker").touch()' '    time.sleep(3)' \
+    '    libc.signal(signal.SIGINT, signal.SIG_IGN.value)' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' '    Path("marker").touch()' '    time.sleep(3)' \
     'def test_three():' '    Path("three").touch()' >test_ignore_below.py
 
   run -0 --separate-stderr interrupt test_ignore_below.py 0
@@ -366,8 +366,8 @@ LINES
   printf '%s\n' 'import os, signal, subprocess, sys' 'from pathlib import Path' \
     'WRITE = ("import os, sys, time; time.sleep(5); open(\"wrote\", \"w\").close();"' \
     '    " os.write(int(sys.argv[1]), b\"x\")")' \
-    'def test_one():' '    signal.siginterrupt(signal.SIGINT, False)' '    assert True' \
-    'def test_two():' '    assert True' '    read, write = os.pipe()' \
+    'def test_one():' '    signal.siginterrupt(signal.SIGINT, False)' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' '    read, write = os.pipe()' \
     '    subprocess.Popen([sys.executable, "-c", WRITE, str(write)], pass_fds=(write,),' \
     '        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,' \
     '        stderr=subprocess.DEVNULL, start_new_session=True)' \
@@ -390,7 +390,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
     'def test_one():' '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
-    '    assert True' \
+    '    assert 1 == 1' \
     'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
     'def test_three():' '    Path("three").touch()' >test_mask.py
 
@@ -426,9 +426,9 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal' \
     'def test_one():' '    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})' \
-    '    assert True' \
+    '    assert 1 == 1' \
     'def test_two():' \
-    '    assert signal.SIGINT in signal.pthread_sigmask(signal.SIG_BLOCK, set())' \
+    '    assert 2 in signal.pthread_sigmask(signal.SIG_BLOCK, set())' \
     >test_parent_mask.py
 
   run -0 --separate-stderr interrupt test_parent_mask.py 0 masked
@@ -463,7 +463,7 @@ LINES
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
     'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
     '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
-    '    Path("marker").touch()' '    time.sleep(2)' '    assert True' \
+    '    Path("marker").touch()' '    time.sleep(2)' '    assert 1 == 1' \
     'def test_two():' '    Path("two").touch()' >test_held_own.py
 
   run -0 --separate-stderr interrupt test_held_own.py 0
@@ -481,7 +481,7 @@ LINES
   printf '%s\n' 'import signal, time' 'from pathlib import Path' 'from unittest import mock' \
     'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
     '    mock.patch("signal.signal").start()' '    mock.patch("_signal.signal").start()' \
-    '    mock.patch("_signal.getsignal").start()' '    assert True' \
+    '    mock.patch("_signal.getsignal").start()' '    assert 1 == 1' \
     'def test_two():' '    Path("marker").touch()' '    time.sleep(3)' \
     'def test_three():' '    Path("three").touch()' >test_patched.py
 
@@ -500,13 +500,14 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
-    '    except KeyboardInterrupt:' '        pass' '    assert True' >test_passes.py
+    '    except KeyboardInterrupt:' '        pass' '    assert 1 == 1' >test_passes.py
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        assert 1 == 2' >test_fails.py
   printf '%s\n' 'import os, time' 'from pathlib import Path' \
+    'def exit_now(code):' '    os._exit(code)' \
     'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
-    '    finally:' '        os._exit(3)' >test_exits.py
+    '    finally:' '        exit_now(3)' >test_exits.py
 
   for module in test_passes test_fails test_exits; do
     rm -f marker
@@ -520,7 +521,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    Path("marker").touch()' \
-    '    time.sleep(1)' '    assert True' >test_ignored.py
+    '    time.sleep(1)' '    assert 1 == 1' >test_ignored.py
 
   run -0 --separate-stderr interrupt test_ignored.py 0 ignored
 
@@ -535,9 +536,9 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
     'def test_one():' '    signal.signal(signal.SIGINT, signal.default_int_handler)' \
-    '    assert True' \
-    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert True' \
-    'def test_three():' '    assert True' >test_ignored_handler.py
+    '    assert 1 == 1' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert 1 == 1' \
+    'def test_three():' '    assert 1 == 1' >test_ignored_handler.py
 
   run -0 --separate-stderr interrupt test_ignored_handler.py 0 ignored
 
@@ -555,9 +556,9 @@ LINES
   printf '%s\n' 'import ctypes, signal, time' 'from pathlib import Path' \
     'def test_one():' '    libc = ctypes.CDLL(None)' \
     '    libc.signal.argtypes = (ctypes.c_int, ctypes.c_void_p)' \
-    '    libc.signal(signal.SIGINT, signal.SIG_DFL.value)' '    assert True' \
-    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert True' \
-    'def test_three():' '    assert True' >test_ignored_below.py
+    '    libc.signal(signal.SIGINT, signal.SIG_DFL.value)' '    assert 1 == 1' \
+    'def test_two():' '    Path("marker").touch()' '    time.sleep(1)' '    assert 1 == 1' \
+    'def test_three():' '    assert 1 == 1' >test_ignored_below.py
 
   run -0 --separate-stderr interrupt test_ignored_below.py 0 ignored
 
@@ -574,7 +575,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
     'def test_one():' '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
-    '    Path("marker").touch()' '    time.sleep(2)' '    assert True' \
+    '    Path("marker").touch()' '    time.sleep(2)' '    assert 1 == 1' \
     'def test_two():' '    Path("two").touch()' >test_held.py
 
   run -0 --separate-stderr interrupt test_held.py 0
@@ -590,7 +591,7 @@ LINES
 @test "SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        Path("finally").touch()' \
     'def test_three():' '    Path("three").touch()' >test_term.py
@@ -613,7 +614,7 @@ LINES
 @test "a second Ctrl-C ends purba at once by SIGINT, even while a finally block runs C code" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        sum(range(10**10))' '        Path("finally").touch()' >test_second.py
 
@@ -691,7 +692,7 @@ LINES
     '    signal.pthread_sigmask(signal.SIG_BLOCK, both)' \
     '    os.kill(os.getpid(), signal.SIGINT)' '    os.kill(os.getpid(), signal.SIGTERM)' \
     '    signal.pthread_sigmask(signal.SIG_UNBLOCK, both)' \
-    'def test_two():' '    assert True' >test_waiting.py
+    'def test_two():' '    assert 1 == 1' >test_waiting.py
 
   run -0 --separate-stderr interrupt test_waiting.py 0 none
 
@@ -707,7 +708,7 @@ LINES
   printf '%s\n' 'import threading, time' 'from pathlib import Path' \
     'def linger():' '    time.sleep(10)' '    Path("thread").touch()' \
     'def test_one():' '    threading.Thread(target=linger).start()' \
-    '    Path("marker").touch()' '    assert True' >test_thread.py
+    '    Path("marker").touch()' '    assert 1 == 1' >test_thread.py
 
   run -0 --separate-stderr interrupt test_thread.py 0
 
@@ -725,7 +726,7 @@ LINES
   printf '%s\n' 'import threading, time' 'from pathlib import Path' \
     'go = threading.Event()' \
     'def late():' '    go.wait()' '    raise ValueError("late")' \
-    'def test_one():' '    assert True' \
+    'def test_one():' '    assert 1 == 1' \
     'def test_two():' '    thread = threading.Thread(target=late, name="T")' '    thread.start()' \
     '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        go.set()' '        thread.join()' \
@@ -748,7 +749,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import atexit, time' 'from pathlib import Path' \
     'def linger():' '    Path("marker").touch()' '    time.sleep(2)' '    Path("finally").touch()' \
-    'def test_one():' '    atexit.register(linger)' '    assert True' >test_atexit.py
+    'def test_one():' '    atexit.register(linger)' '    assert 1 == 1' >test_atexit.py
 
   run -0 --separate-stderr interrupt test_atexit.py 0
 
@@ -763,11 +764,12 @@ LINES
 @test "a child that a test forks dies by SIGTERM, and prints no report of its own" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal, time' \
+    'def exit_now(code):' '    os._exit(code)' \
     'def test_child_dies_by_sigterm():' '    pid = os.fork()' '    if pid == 0:' \
-    '        time.sleep(30)' '        os._exit(0)' '    time.sleep(0.5)' \
+    '        time.sleep(30)' '        exit_now(0)' '    time.sleep(0.5)' \
     '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
-    '    assert os.waitstatus_to_exitcode(status) == -signal.SIGTERM' \
-    'def test_two():' '    assert True' >test_fork_term.py
+    '    assert os.waitstatus_to_exitcode(status) == -15' \
+    'def test_two():' '    assert 1 == 1' >test_fork_term.py
 
   run -0 --separate-stderr purba test_fork_term.py
 
@@ -786,7 +788,7 @@ LINES
     'def test_terminate():' \
     '    child = multiprocessing.get_context("fork").Process(target=sleep)' \
     '    child.start()' '    time.sleep(0.5)' '    child.terminate()' '    child.join()' \
-    '    assert child.exitcode == -signal.SIGTERM' >test_fork_terminate.py
+    '    assert child.exitcode == -15' >test_fork_terminate.py
 
   run -0 --separate-stderr purba test_fork_terminate.py
 
@@ -799,18 +801,18 @@ LINES
 
 @test "a child that a test forks has the signal handlers that Python has without purba" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'import os, signal, subprocess, sys' \
+  printf '%s\n' 'import os, signal, sys' \
+    'def exit_now(code):' '    os._exit(code)' \
     'READ = ("import signal as s; "' \
     '        "print([s.getsignal(n) for n in (s.SIGINT, s.SIGTERM, s.SIGHUP)])")' \
     'def test_handlers():' \
-    '    python = [sys.executable, "-c", READ]' \
-    '    without = subprocess.run(python, capture_output=True, text=True).stdout' \
     '    read, write = os.pipe()' '    pid = os.fork()' '    if pid == 0:' \
     '        os.dup2(write, 1)' '        exec(READ)' \
-    '        sys.stdout.flush()' '        os._exit(0)' \
+    '        sys.stdout.flush()' '        exit_now(0)' \
     '    os.close(write)' '    os.waitpid(pid, 0)' \
     '    with os.fdopen(read) as child:' '        got = child.read()' \
-    '    assert got == without' >test_fork_handlers.py
+    '    assert got == ("[<built-in function default_int_handler>, "' \
+    '                   "<Handlers.SIG_DFL: 0>, <Handlers.SIG_DFL: 0>]\n")' >test_fork_handlers.py
 
   run -0 --separate-stderr purba test_fork_handlers.py
 
@@ -824,9 +826,10 @@ LINES
 @test "a signal handler that a test gives SIGTERM before it forks runs in the child" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal, time' \
+    'def exit_now(code):' '    os._exit(code)' \
     'def test_own_handler():' \
-    '    signal.signal(signal.SIGTERM, lambda signum, frame: os._exit(9))' \
-    '    pid = os.fork()' '    if pid == 0:' '        time.sleep(30)' '        os._exit(0)' \
+    '    signal.signal(signal.SIGTERM, lambda signum, frame: exit_now(9))' \
+    '    pid = os.fork()' '    if pid == 0:' '        time.sleep(30)' '        exit_now(0)' \
     '    time.sleep(0.5)' '    os.kill(pid, signal.SIGTERM)' '    _, status = os.waitpid(pid, 0)' \
     '    assert os.waitstatus_to_exitcode(status) == 9' >test_fork_own_handler.py
 

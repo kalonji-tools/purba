@@ -97,24 +97,61 @@ test_abort.py::test_three passed
 LINES
 }
 
-@test "a tuple assert keeps CPython's warning, and is no expectation" {
+@test "a tuple assert at a test's end is refused as an expectation that is not one comparison" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'def test_tuple():' '    assert (1 == 2, "msg")' >test_tup.py
+    'def test_tuple():' '    assert 1 == 1' '    assert (1 == 2, "msg")' >test_tup.py
 
   run -4 --separate-stderr purba test_tup.py
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_tup.py::test_tuple project error: no expectation stated
+  local one='and an expectation compares a reading by one operator'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_tup.py::test_tuple project error: line 3 is not one comparison, ${one}
 1 case: 1 blocked; 1 project error
 LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a tuple assert in a helper keeps CPython's warning" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def helper():' '    assert (1 == 2, "msg")' \
+    'def test_one():' '    helper()' '    assert 1 == 1' >test_tup.py
+
+  run -0 --separate-stderr purba test_tup.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_tup.py::test_one passed
+1 case: 1 passed
+LINES
   [[ "${stderr}" == *'test_tup.py:2: SyntaxWarning: assertion is always true'* ]]
+}
+
+@test "a test that breaks a rule of its code prints each fault by its line, and is never called" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'import io' 'N = 3' \
+    'def test_x():' '    w = io.StringIO()' '    w._checkClosed()' \
+    '    assert w.closed' '    assert w.tell() == N' \
+    'def test_y():' '    assert io.StringIO("ab").read() == "a" + "b"' >test_rules.py
+
+  run -4 --separate-stderr purba test_rules.py
+
+  local private='line 5 reads the private name _checkClosed, and a test reads no private name'
+  local one='line 6 is not one comparison, and an expectation compares a reading by one operator'
+  local literal='line 7 computes N, and an expected value is a literal'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_rules.py::test_x project error: ${private}; ${one}; ${literal}
+test_rules.py::test_y passed
+2 cases: 1 passed, 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
 }
 
 @test "an assert of an empty tuple fails, and CPython does not warn" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'def test_empty():' '    assert ()' >test_empty.py
+    'def test_empty():' '    assert ()' '    x = 1' '    assert x == 1' >test_empty.py
 
   run -1 --separate-stderr purba test_empty.py
 
@@ -129,7 +166,7 @@ LINES
 @test "a test that selection refuses prints above the tests that run, and is never called" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'def test_d():' '    assert True' \
+    'def test_d():' '    assert 1 == 1' \
     'async def test_a():' '    ...' >test_refused.py
 
   run -4 --separate-stderr purba test_refused.py
@@ -149,7 +186,7 @@ LINES
     'if sys.version_info >= (3, 0):' '    def test_inside_if():' '        assert 1 == 2' \
     'try:' '    def test_inside_try():' '        assert 1 == 2' \
     'except Exception:' '    pass' \
-    'def test_top():' '    assert True' >test_nested.py
+    'def test_top():' '    assert 1 == 1' >test_nested.py
 
   run -4 --separate-stderr purba test_nested.py
 
@@ -167,11 +204,11 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'def keep(f):' '    return f' '' \
-    'def helper():' '    assert False' '' \
+    'def helper():' '    assert 1 == 2' '' \
     'test_rebound = keep(lambda: "x")' \
     'test_alias = helper' \
     'from os.path import join as test_join' '' \
-    'def test_real():' '    assert True' >test_nodef.py
+    'def test_real():' '    assert 1 == 1' >test_nodef.py
 
   run -4 --separate-stderr purba test_nodef.py
 
@@ -193,7 +230,7 @@ LINES
     'test_cases = [(1, 2), (3, 4)]' \
     'test_pairs = {k: k for k in range(2)}' \
     'class test_thing:' '    pass' \
-    'def test_real():' '    assert True' >test_data.py
+    'def test_real():' '    assert 1 == 1' >test_data.py
 
   run -0 --separate-stderr purba test_data.py
 
@@ -228,7 +265,7 @@ LINES
     'import threading' \
     'def test_thread():' \
     '    t = threading.Thread(target=lambda: 1/0, name="T"); t.start(); t.join()' \
-    '    assert True' >test_thread.py
+    '    assert 1 == 1' >test_thread.py
 
   run -4 --separate-stderr purba test_thread.py
 
@@ -246,8 +283,8 @@ LINES
     'import threading, time' \
     'def late():' '    time.sleep(0.2)' '    raise ValueError("late")' \
     'def test_a():' \
-    '    threading.Thread(target=late, name="T").start()' '    assert True' \
-    'def test_b():' '    assert True' >test_late.py
+    '    threading.Thread(target=late, name="T").start()' '    assert 1 == 1' \
+    'def test_b():' '    assert 1 == 1' >test_late.py
 
   run -4 --separate-stderr purba test_late.py
 
@@ -265,8 +302,8 @@ LINES
     'import threading, time' \
     'def late():' '    time.sleep(0.2)' '    raise ValueError("late")' \
     'def test_a():' \
-    '    threading.Thread(target=late, name="T", daemon=True).start()' '    assert True' \
-    'def test_b():' '    time.sleep(0.5)' '    assert True' >test_late.py
+    '    threading.Thread(target=late, name="T", daemon=True).start()' '    assert 1 == 1' \
+    'def test_b():' '    time.sleep(0.5)' '    assert 1 == 1' >test_late.py
 
   run -0 --separate-stderr purba test_late.py
 
@@ -285,13 +322,15 @@ raw_thread() {
   printf '%s\n' \
     'import _thread, os, time' \
     'started = []' \
+    'def count():' '    return _thread._count()' \
+    'def start(function):' '    _thread.start_new_thread(function, ())' \
     "def body():" '    started.append(1)' "    $1" \
     'def test_one():' \
-    '    before = _thread._count()' \
-    '    _thread.start_new_thread(body, ())' \
-    '    while not started or _thread._count() > before:' \
+    '    before = count()' \
+    '    start(body)' \
+    '    while not started or count() > before:' \
     '        time.sleep(0.01)' \
-    '    assert True' >test_raw.py
+    '    assert 1 == 1' >test_raw.py
 }
 
 @test "an exception of a thread that _thread starts prints a project error, and CPython's text" {
@@ -328,7 +367,7 @@ LINES
   printf '%s\n' \
     'import gc' \
     'class Leaky:' '    def __del__(self):' '        raise ValueError("from __del__")' \
-    'def test_one():' '    Leaky()' '    gc.collect()' '    assert True' >test_del.py
+    'def test_one():' '    Leaky()' '    gc.collect()' '    assert 1 == 1' >test_del.py
 
   run -0 --separate-stderr purba test_del.py
 
@@ -342,7 +381,7 @@ LINES
 @test "a module that does not parse prints its error once, and no test of it" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'def test_ok():' '    assert True' \
+    'def test_ok():' '    assert 1 == 1' \
     'def test_bad1(:' '    pass' \
     'def test_bad2():' '    assert 1 == 1' >test_paren.py
 

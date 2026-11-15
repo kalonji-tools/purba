@@ -27,9 +27,9 @@ LINES
 
 @test "a test whose process exits 0 before its outcome prints raised, and the run exits 4" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'import posix' \
-    'def test_one():' '    posix._exit(0)' \
-    'def test_two():' '    assert True' >test_exit.py
+  printf '%s\n' 'import posix' 'def exit_now(code):' '    posix._exit(code)' \
+    'def test_one():' '    exit_now(0)' \
+    'def test_two():' '    assert 1 == 1' >test_exit.py
 
   run -4 --separate-stderr purba test_exit.py
 
@@ -44,8 +44,8 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'from pathlib import Path' \
     'with Path("body.log").open("a") as log:' '    log.write("body\n")' \
-    'def test_one():' '    assert True' \
-    'def test_two():' '    assert True' >test_body.py
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' >test_body.py
 
   run -0 --separate-stderr purba test_body.py
 
@@ -61,8 +61,8 @@ LINES
   printf '%s\n' 'import threading' 'from pathlib import Path' \
     'with Path("body.log").open("a") as log:' '    log.write("body\n")' \
     'threading.Thread(target=threading.Event().wait, daemon=True).start()' \
-    'def test_one():' '    assert True' \
-    'def test_two():' '    assert True' >test_body.py
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    assert 1 == 1' >test_body.py
 
   run -0 --separate-stderr purba test_body.py
 
@@ -76,7 +76,8 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import urllib.request' \
     'urllib.request.getproxies()' \
-    'def test_one():' '    assert isinstance(urllib.request.getproxies(), dict)' >test_proxies.py
+    'def test_one():' \
+    '    assert isinstance(urllib.request.getproxies(), dict) is True' >test_proxies.py
 
   run -0 --separate-stderr purba test_proxies.py
 

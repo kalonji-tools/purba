@@ -34,7 +34,7 @@ fn an_interrupt_before_selection_ends_gives_no_count() {
     })
     .expect("purba's signal handler raises nothing outside a call");
     for (name, source) in [
-        ("test_interrupt.py", "def test_one():\n    assert True\n"),
+        ("test_interrupt.py", "def test_one():\n    assert 1 == 1\n"),
         ("test_interrupt_syntax.py", "def test_one(:\n"),
     ] {
         let (result, stdout) = run_module(name, source);

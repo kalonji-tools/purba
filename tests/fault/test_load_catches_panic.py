@@ -3,15 +3,15 @@ import os
 
 os.environ["PURBA_FAULT"] = "assert"
 try:
-    assert True
+    assert 1 == 1
 except BaseException:
     pass
 del os.environ["PURBA_FAULT"]
 
 
 def test_one():
-    assert True
+    assert 1 == 1
 
 
 def test_two():
-    assert True
+    assert 1 == 1

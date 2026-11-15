@@ -191,10 +191,10 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'import os' '' '' \
-    'def test_passes():' '    assert True' '' '' \
+    'def test_passes():' '    assert 1 == 1' '' '' \
     'def test_panics():' \
     '    os.environ["PURBA_FAULT"] = "assert"' \
-    '    try:' '        assert True' \
+    '    try:' '        assert 1 == 1' \
     '    finally:' '        del os.environ["PURBA_FAULT"]' '' '' \
     'def test_fails():' '    assert 1 == 2' '' '' \
     'def test_raises():' '    raise KeyError("k")' >test_panic.py

@@ -190,7 +190,7 @@ fn a_write_refused_after_an_internal_error_returns_125() {
     let text = format!(
         "{PANIC_EXCEPTION}\
          def test_one():\n    raise panic_exception()('raised by the test')\n\n\
-         def test_two():\n    assert True\n"
+         def test_two():\n    assert 1 == 1\n"
     );
     fs::write(&path, text).expect("the test writes its module");
     let error = purba_command::run(&argv(&path), Ok(RefusesSecondLine::default()))
@@ -248,7 +248,7 @@ fn a_module_with_no_test_exits_2() {
 #[test]
 fn a_test_that_selection_refuses_prints_above_the_tests_that_run() {
     let text = concat!(
-        "def test_d():\n    assert True\n\n",
+        "def test_d():\n    assert 1 == 1\n\n",
         "async def test_a():\n    ...\n",
     );
     let (path, kinds, code) = run_module("test_command_selection_refuses.py", text);
@@ -269,7 +269,7 @@ fn a_refused_line_is_written_before_any_test_runs() {
     let ran = module_at("test_command_refused_first.ran");
     let _ = fs::remove_file(&ran);
     let text = format!(
-        "def test_d():\n    open({:?}, \"w\").close()\n    assert True\n\n\
+        "def test_d():\n    open({:?}, \"w\").close()\n    assert 1 == 1\n\n\
          async def test_a():\n    ...\n",
         ran.to_str().expect("the path is UTF-8")
     );
@@ -338,7 +338,7 @@ fn a_module_that_did_not_load_prints_its_error_once() {
 #[test]
 fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
     let text = concat!(
-        "def test_ok():\n    assert True\n\n",
+        "def test_ok():\n    assert 1 == 1\n\n",
         "async def test_async():\n    ...\n\n",
         "def test_five():\n    pass\n\n",
         "globals()[\"test_five\"] = 5\n",

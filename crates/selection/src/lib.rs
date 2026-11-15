@@ -1,5 +1,5 @@
 //! Selection: names the tests of a parsed module, refuses each one that purba
-//! cannot call, and imports nothing.
+//! cannot call or that breaks a rule of its code, and imports nothing.
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
@@ -15,7 +15,7 @@ use ruff_python_ast::visitor::{
 };
 use ruff_python_ast::{
     Alias, Comprehension, Decorator, ExceptHandler, Expr, ExprContext, Identifier,
-    InterpolatedStringElement, ModModule, Parameters, Pattern, Stmt, StmtFunctionDef,
+    InterpolatedStringElement, ModModule, Parameters, Pattern, Stmt, StmtAssert, StmtFunctionDef,
 };
 use ruff_text_size::{Ranged, TextSize};
 
@@ -100,6 +100,9 @@ enum Reason {
     Rebound(String, Vec<usize>),
     NoDef(String, Vec<usize>),
     Under(&'static str),
+    NotOneComparison(usize),
+    Computes(usize, String),
+    Private(usize, String),
 }
 
 impl fmt::Display for Reason {
@@ -162,6 +165,19 @@ impl fmt::Display for Reason {
                 formatter,
                 "the def sits under `{keyword}`, and purba cannot see whether import binds it"
             ),
+            Self::NotOneComparison(line) => write!(
+                formatter,
+                "line {line} is not one comparison, \
+                 and an expectation compares a reading by one operator"
+            ),
+            Self::Computes(line, text) => write!(
+                formatter,
+                "line {line} computes {text}, and an expected value is a literal"
+            ),
+            Self::Private(line, name) => write!(
+                formatter,
+                "line {line} reads the private name {name}, and a test reads no private name"
+            ),
         }
     }
 }
@@ -221,6 +237,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         }
     }
     let bindings = bindings(module.syntax());
+    let imported = private_imports(module.syntax());
     let mut tests = Vec::new();
     let mut refused = Vec::new();
     for (under, function, first) in last {
@@ -230,6 +247,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         };
         let mut reasons: Vec<Reason> = under.map(Reason::Under).into_iter().collect();
         reasons.extend(reasons_of(function, module, &bindings));
+        reasons.extend(faults_of(function, module, &imported));
         if reasons.is_empty() {
             tests.push(test);
         } else {
@@ -452,15 +470,14 @@ fn decorator_name(decorator: &Decorator, source: &str) -> String {
         expr = &call.func;
     }
     UnqualifiedName::from_expr(expr).map_or_else(
-        || {
-            source[expr.range()]
-                .lines()
-                .map(str::trim)
-                .collect::<Vec<_>>()
-                .join(" ")
-        },
+        || on_one_line(&source[expr.range()]),
         |name| name.to_string(),
     )
+}
+
+/// `text` on one line: each line trimmed, joined by a space.
+fn on_one_line(text: &str) -> String {
+    text.lines().map(str::trim).collect::<Vec<_>>().join(" ")
 }
 
 /// Each line that binds the name of `function` after its `def`, or under
@@ -736,6 +753,264 @@ impl<'a> Visitor<'a> for Scope<'a> {
         if let Some(name) = captured {
             self.bind(name);
         }
+        self.pending.push(Node::Pattern(pattern));
+    }
+
+    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
+        self.pending.push(Node::Element(element));
+    }
+}
+
+/// Whether `name` is private: it starts with `_`, and is not a dunder such as
+/// `__len__`.
+fn is_private(name: &str) -> bool {
+    name.starts_with('_') && !(name.len() > 4 && name.starts_with("__") && name.ends_with("__"))
+}
+
+/// Whether a part of the dotted `path` is private.
+fn of_a_private_path(path: &str) -> bool {
+    path.split('.').any(is_private)
+}
+
+/// Where each name of an `import` comes from, by the name it binds. `import a.b`
+/// binds `a`, which comes from `a`.
+/// <https://docs.python.org/3.12/reference/simple_stmts.html#the-import-statement>
+fn origins(statement: &Stmt) -> Vec<(&Identifier, String)> {
+    match statement {
+        Stmt::Import(import) => import
+            .names
+            .iter()
+            .map(|alias| {
+                alias.asname.as_ref().map_or_else(
+                    || {
+                        (
+                            &alias.name,
+                            alias.name.split('.').next().unwrap_or_default().to_owned(),
+                        )
+                    },
+                    |asname| (asname, alias.name.to_string()),
+                )
+            })
+            .collect(),
+        Stmt::ImportFrom(import) => {
+            let mut from = ".".repeat(import.level as usize);
+            from.push_str(import.module.as_ref().map_or("", Identifier::as_str));
+            import
+                .names
+                .iter()
+                .filter(|alias| alias.name.as_str() != "*")
+                .map(|alias| {
+                    let origin = if from.ends_with('.') || from.is_empty() {
+                        format!("{from}{}", alias.name)
+                    } else {
+                        format!("{from}.{}", alias.name)
+                    };
+                    (alias.asname.as_ref().unwrap_or(&alias.name), origin)
+                })
+                .collect()
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// Each name that an `import` at the module's level, or in a block there,
+/// binds from a private origin, by the name, beside that origin.
+fn private_imports(module: &ModModule) -> HashMap<&str, String> {
+    let mut found = HashMap::new();
+    let mut pending: Vec<&Stmt> = module.body.iter().rev().collect();
+    while let Some(statement) = pending.pop() {
+        match statement {
+            Stmt::Import(_) | Stmt::ImportFrom(_) => {
+                for (name, origin) in origins(statement) {
+                    if of_a_private_path(&origin) {
+                        found.insert(name.as_str(), origin);
+                    }
+                }
+            }
+            Stmt::FunctionDef(_) | Stmt::ClassDef(_) => {}
+            other => pending.extend(blocks(other).into_iter().flatten().rev()),
+        }
+    }
+    found
+}
+
+/// Each fault of the rules that selection reads from the body of `function`,
+/// in source order: an expectation that is not one comparison, an expected
+/// value that is not a literal, and a private name.
+fn faults_of(
+    function: &StmtFunctionDef,
+    module: &Module,
+    imported: &HashMap<&str, String>,
+) -> Vec<Reason> {
+    let line = |offset: TextSize| module.position(offset).line();
+    let mut faults: Vec<(TextSize, Reason)> = Vec::new();
+    let mut expectations: Vec<&StmtAssert> = function
+        .body
+        .iter()
+        .rev()
+        .map_while(|statement| match statement {
+            Stmt::Assert(assert) => Some(assert),
+            _ => None,
+        })
+        .collect();
+    expectations.reverse();
+    for assert in expectations {
+        let start = assert.start();
+        match &*assert.test {
+            Expr::Compare(compare) if compare.ops.len() == 1 => {
+                let [left, right] = &*compare.operands else {
+                    continue;
+                };
+                if !is_literal(left) && !is_literal(right) {
+                    let text = on_one_line(&module.source()[right.range()]);
+                    faults.push((start, Reason::Computes(line(start), text)));
+                }
+            }
+            _ => faults.push((start, Reason::NotOneComparison(line(start)))),
+        }
+    }
+    let mut locals: HashSet<&str> = Scope::of(&function.body)
+        .names
+        .into_iter()
+        .map(|(name, _)| name)
+        .collect();
+    let parameters = &function.parameters;
+    locals.extend(
+        parameters
+            .posonlyargs
+            .iter()
+            .chain(&parameters.args)
+            .chain(&parameters.kwonlyargs)
+            .map(|parameter| parameter.parameter.name.as_str())
+            .chain(parameters.vararg.iter().map(|vararg| vararg.name.as_str()))
+            .chain(parameters.kwarg.iter().map(|kwarg| kwarg.name.as_str())),
+    );
+    let mut seen = HashSet::new();
+    for (offset, name) in Names::of(&function.body, &locals, imported) {
+        if seen.insert((line(offset), name.clone())) {
+            faults.push((offset, Reason::Private(line(offset), name)));
+        }
+    }
+    faults.sort_by_key(|(offset, _)| *offset);
+    faults.into_iter().map(|(_, fault)| fault).collect()
+}
+
+/// Whether `expr` is a literal: a string, bytes, a number, `True`, `False`,
+/// `None`, `...`, an f-string with no placeholder, an operator on literals, or
+/// a list, tuple, set or dict of these.
+fn is_literal(expr: &Expr) -> bool {
+    // A walk that recurses once for each level of nesting overflows the stack
+    // on an expression that nests deeper than the stack.
+    let mut pending = vec![expr];
+    while let Some(expr) = pending.pop() {
+        match expr {
+            Expr::StringLiteral(_)
+            | Expr::BytesLiteral(_)
+            | Expr::NumberLiteral(_)
+            | Expr::BooleanLiteral(_)
+            | Expr::NoneLiteral(_)
+            | Expr::EllipsisLiteral(_) => {}
+            Expr::FString(string)
+                if string
+                    .value
+                    .f_strings()
+                    .all(|part| part.elements.interpolations().next().is_none()) => {}
+            Expr::UnaryOp(operation) => pending.push(&operation.operand),
+            Expr::BinOp(operation) => {
+                pending.push(&operation.left);
+                pending.push(&operation.right);
+            }
+            Expr::List(list) => pending.extend(&list.elts),
+            Expr::Tuple(tuple) => pending.extend(&tuple.elts),
+            Expr::Set(set) => pending.extend(&set.elts),
+            Expr::Dict(dict) => {
+                for item in &dict.items {
+                    let Some(key) = &item.key else {
+                        return false;
+                    };
+                    pending.push(key);
+                    pending.push(&item.value);
+                }
+            }
+            _ => return false,
+        }
+    }
+    true
+}
+
+/// Each private name that a test's body reads, by its offset: an attribute, a
+/// name that a private import at the module's level binds and the body does
+/// not, and a private origin of an `import` in the body. The body of a nested
+/// `def`, `lambda` or `class` is the test's too.
+struct Names<'a, 'b> {
+    locals: &'b HashSet<&'a str>,
+    imported: &'b HashMap<&'a str, String>,
+    found: Vec<(TextSize, String)>,
+    pending: Vec<Node<'a>>,
+}
+
+impl<'a, 'b> Names<'a, 'b> {
+    fn of(
+        statements: &'a [Stmt],
+        locals: &'b HashSet<&'a str>,
+        imported: &'b HashMap<&'a str, String>,
+    ) -> Vec<(TextSize, String)> {
+        let mut names = Self {
+            locals,
+            imported,
+            found: Vec::new(),
+            pending: Vec::new(),
+        };
+        for statement in statements {
+            names.visit_stmt(statement);
+        }
+        while let Some(node) = names.pending.pop() {
+            walk_node(&mut names, node);
+        }
+        names.found
+    }
+}
+
+// As in `Body`, each visit pushes its node, and `Names::of` walks each node it
+// pushed.
+impl<'a> Visitor<'a> for Names<'a, '_> {
+    fn visit_stmt(&mut self, statement: &'a Stmt) {
+        if let Stmt::Import(import) = statement {
+            // In the body, `import a._b` names `a._b`, though it binds `a`.
+            for alias in &import.names {
+                if of_a_private_path(&alias.name) {
+                    self.found.push((alias.start(), alias.name.to_string()));
+                }
+            }
+        } else {
+            for (name, origin) in origins(statement) {
+                if of_a_private_path(&origin) {
+                    self.found.push((name.start(), origin));
+                }
+            }
+        }
+        self.pending.push(Node::Stmt(statement));
+    }
+
+    fn visit_expr(&mut self, expr: &'a Expr) {
+        match expr {
+            Expr::Attribute(attribute) if is_private(&attribute.attr) => {
+                self.found
+                    .push((attribute.attr.start(), attribute.attr.to_string()));
+            }
+            Expr::Name(name) if name.ctx == ExprContext::Load => {
+                if let Some(origin) = self.imported.get(name.id.as_str())
+                    && !self.locals.contains(name.id.as_str())
+                {
+                    self.found.push((name.start(), origin.clone()));
+                }
+            }
+            _ => {}
+        }
+        self.pending.push(Node::Expr(expr));
+    }
+
+    fn visit_pattern(&mut self, pattern: &'a Pattern) {
         self.pending.push(Node::Pattern(pattern));
     }
 

@@ -14,7 +14,7 @@ def panic_exception():
 
 def test_catches():
     try:
-        assert True
+        assert 1 == 1
     except BaseException:
         pass
 

@@ -51,9 +51,9 @@ fn a_name_defined_twice_is_one_test_at_its_first_definition() {
         "test_twice.py",
         concat!(
             "def test_a():\n    pass\n\n",
-            "def test_dup():\n    assert False\n\n",
+            "def test_dup():\n    assert 1 == 2\n\n",
             "def test_b():\n    pass\n\n",
-            "def test_dup():\n    assert True\n",
+            "def test_dup():\n    assert 1 == 1\n",
         ),
     );
     let module = purba_parsing::parse(&file).expect("the module parses");
@@ -95,11 +95,11 @@ fn a_test_that_purba_cannot_call_is_refused_with_its_reason() {
     let (tests, refused) = judged(
         "test_uncallable.py",
         concat!(
-            "def test_d():\n    assert True\n\n",
+            "def test_d():\n    assert 1 == 1\n\n",
             "async def test_a():\n    ...\n\n",
             "def test_b():\n    yield\n\n",
             "def test_c(x):\n    ...\n\n",
-            "def test_e():\n    assert True\n    return False\n",
+            "def test_e():\n    assert 1 == 1\n    return False\n",
         ),
     );
 
@@ -122,13 +122,13 @@ fn a_yield_in_the_tests_own_body_makes_it_a_generator() {
     let (tests, refused) = judged(
         "test_yield.py",
         concat!(
-            "def test_never_runs():\n    assert True\n    if False:\n        yield\n\n",
+            "def test_never_runs():\n    assert 1 == 1\n    if False:\n        yield\n\n",
             "def test_from():\n    yield from ()\n\n",
             "def test_value():\n    x = yield\n\n",
-            "def test_nested_def():\n    def inner():\n        yield\n    assert True\n\n",
-            "def test_lambda():\n    f = lambda: (yield)\n    assert True\n\n",
+            "def test_nested_def():\n    def inner():\n        yield\n    assert 1 == 1\n\n",
+            "def test_lambda():\n    f = lambda: (yield)\n    assert 1 == 1\n\n",
             "def test_class():\n    class Inner:\n",
-            "        def method(self):\n            yield\n    assert True\n\n",
+            "        def method(self):\n            yield\n    assert 1 == 1\n\n",
             "async def test_async_generator():\n    yield\n",
         ),
     );
@@ -159,14 +159,14 @@ fn a_return_of_a_value_in_the_tests_own_body_is_refused() {
     let (tests, refused) = judged(
         "test_return.py",
         concat!(
-            "def test_false():\n    assert True\n    return False\n\n",
-            "def test_never_runs():\n    assert True\n    if False:\n        return 1\n\n",
-            "def test_bare():\n    assert True\n    return\n\n",
-            "def test_none():\n    assert True\n    return None\n\n",
+            "def test_false():\n    assert 1 == 1\n    return False\n\n",
+            "def test_never_runs():\n    assert 1 == 1\n    if False:\n        return 1\n\n",
+            "def test_bare():\n    assert 1 == 1\n    return\n\n",
+            "def test_none():\n    assert 1 == 1\n    return None\n\n",
             "def test_nested_def():\n    def inner():\n",
             "        return 1\n    assert inner() == 1\n\n",
             "def test_class():\n    class Inner:\n",
-            "        def method(self):\n            return 1\n    assert True\n",
+            "        def method(self):\n            return 1\n    assert 1 == 1\n",
         ),
     );
 
@@ -195,15 +195,15 @@ fn a_parameter_with_no_default_is_refused() {
     let (tests, refused) = judged(
         "test_parameters.py",
         concat!(
-            "def test_default(x=1):\n    assert True\n\n",
-            "def test_typed_default(x: int = 1):\n    assert True\n\n",
-            "def test_typed(db: Database):\n    assert True\n\n",
-            "def test_typed_two(src: Database, dst: Database):\n    assert True\n\n",
-            "def test_typed_keyword(*, k: int):\n    assert True\n\n",
-            "def test_star(*args, **kwargs):\n    assert True\n\n",
-            "def test_positional(a, /):\n    assert True\n\n",
-            "def test_keyword(*, k):\n    assert True\n\n",
-            "def test_two(x, y):\n    assert True\n\n",
+            "def test_default(x=1):\n    assert 1 == 1\n\n",
+            "def test_typed_default(x: int = 1):\n    assert 1 == 1\n\n",
+            "def test_typed(db: Database):\n    assert 1 == 1\n\n",
+            "def test_typed_two(src: Database, dst: Database):\n    assert 1 == 1\n\n",
+            "def test_typed_keyword(*, k: int):\n    assert 1 == 1\n\n",
+            "def test_star(*args, **kwargs):\n    assert 1 == 1\n\n",
+            "def test_positional(a, /):\n    assert 1 == 1\n\n",
+            "def test_keyword(*, k):\n    assert 1 == 1\n\n",
+            "def test_two(x, y):\n    assert 1 == 1\n\n",
             "async def test_async(x):\n    ...\n",
         ),
     );
@@ -245,16 +245,16 @@ fn a_test_that_carries_a_decorator_is_refused() {
         "test_decorated.py",
         concat!(
             "import purba\nimport purba as p\n\n",
-            "def test_plain():\n    assert True\n\n",
-            "@keep\ndef test_name():\n    assert True\n\n",
-            "@functools.cache\ndef test_attribute():\n    assert True\n\n",
+            "def test_plain():\n    assert 1 == 1\n\n",
+            "@keep\ndef test_name():\n    assert 1 == 1\n\n",
+            "@functools.cache\ndef test_attribute():\n    assert 1 == 1\n\n",
             "@pytest.mark.skipif(sys.platform == \"win32\", reason=\"fork\")\n",
-            "def test_call():\n    assert True\n\n",
-            "@table[0]\ndef test_subscript():\n    assert True\n\n",
-            "@(lambda function:\n        function)\ndef test_lambda():\n    assert True\n\n",
-            "@keep\n@mark(reason=\"slow\")\ndef test_two():\n    assert True\n\n",
-            "@p.skip\ndef test_alias():\n    assert True\n\n",
-            "@purba.skip\ndef test_purba():\n    assert True\n\n",
+            "def test_call():\n    assert 1 == 1\n\n",
+            "@table[0]\ndef test_subscript():\n    assert 1 == 1\n\n",
+            "@(lambda function:\n        function)\ndef test_lambda():\n    assert 1 == 1\n\n",
+            "@keep\n@mark(reason=\"slow\")\ndef test_two():\n    assert 1 == 1\n\n",
+            "@p.skip\ndef test_alias():\n    assert 1 == 1\n\n",
+            "@purba.skip\ndef test_purba():\n    assert 1 == 1\n\n",
             "@sync\nasync def test_async():\n    return 1\n\n",
             "@keep\ndef test_every(x):\n    yield\n    return 1\n",
         ),
@@ -317,36 +317,36 @@ class Holder:
 
 test_before = None
 
-def test_before(): assert True
-def test_global(): assert True
-def test_method(): assert True
-def test_assign(): assert True
-def test_augmented(): assert True
-def test_annotated(): assert True
-def test_deleted(): assert True
-def test_imported(): assert True
-def test_dotted(): assert True
-def test_from(): assert True
-def test_for(): assert True
-def test_with(): assert True
-def test_except(): assert True
-def test_walrus(): assert True
-def test_walrus_in_comprehension(): assert True
-def test_case(): assert True
-def test_type(): assert True
-def test_class(): assert True
-def test_def_in_if(): assert True
-def test_def_in_try(): assert True
-def test_def_in_for(): assert True
-def test_def_in_while(): assert True
-def test_def_in_with(): assert True
-def test_def_in_match(): assert True
-def test_never(): assert True
-def test_twice(): assert True
-def test_bare(): assert True
-def test_in_class(): assert True
-def test_comprehension(): assert True
-def test_local(): assert True
+def test_before(): assert 1 == 1
+def test_global(): assert 1 == 1
+def test_method(): assert 1 == 1
+def test_assign(): assert 1 == 1
+def test_augmented(): assert 1 == 1
+def test_annotated(): assert 1 == 1
+def test_deleted(): assert 1 == 1
+def test_imported(): assert 1 == 1
+def test_dotted(): assert 1 == 1
+def test_from(): assert 1 == 1
+def test_for(): assert 1 == 1
+def test_with(): assert 1 == 1
+def test_except(): assert 1 == 1
+def test_walrus(): assert 1 == 1
+def test_walrus_in_comprehension(): assert 1 == 1
+def test_case(): assert 1 == 1
+def test_type(): assert 1 == 1
+def test_class(): assert 1 == 1
+def test_def_in_if(): assert 1 == 1
+def test_def_in_try(): assert 1 == 1
+def test_def_in_for(): assert 1 == 1
+def test_def_in_while(): assert 1 == 1
+def test_def_in_with(): assert 1 == 1
+def test_def_in_match(): assert 1 == 1
+def test_never(): assert 1 == 1
+def test_twice(): assert 1 == 1
+def test_bare(): assert 1 == 1
+def test_in_class(): assert 1 == 1
+def test_comprehension(): assert 1 == 1
+def test_local(): assert 1 == 1
 
 test_assign = None
 test_augmented += 1
@@ -366,19 +366,19 @@ match 1:
 type test_type = int
 class test_class: pass
 if True:
-    def test_def_in_if(): assert True
+    def test_def_in_if(): assert 1 == 1
 try:
-    def test_def_in_try(): assert True
+    def test_def_in_try(): assert 1 == 1
 finally: pass
 for _ in []:
-    def test_def_in_for(): assert True
+    def test_def_in_for(): assert 1 == 1
 while False:
-    def test_def_in_while(): assert True
+    def test_def_in_while(): assert 1 == 1
 with open(__file__):
-    def test_def_in_with(): assert True
+    def test_def_in_with(): assert 1 == 1
 match 1:
     case _:
-        def test_def_in_match(): assert True
+        def test_def_in_match(): assert 1 == 1
 if False:
     test_never = None
 for test_twice in []: pass
@@ -454,7 +454,7 @@ fn a_test_name_bound_with_no_def_is_refused() {
         "test_nodef.py",
         concat!(
             "def keep(f):\n    return f\n\n",
-            "def helper():\n    assert False\n\n",
+            "def helper():\n    assert 1 == 2\n\n",
             "test_call = keep(lambda: \"x\")\n",
             "test_name = helper\n",
             "test_lambda = lambda: None\n",
@@ -467,7 +467,7 @@ fn a_test_name_bound_with_no_def_is_refused() {
             "test_twice = helper\n",
             "test_twice = keep(helper)\n",
             "@keep\nclass test_decorated:\n    pass\n",
-            "def test_real():\n    assert True\n",
+            "def test_real():\n    assert 1 == 1\n",
         ),
     );
 
@@ -526,7 +526,7 @@ fn a_test_name_that_never_holds_a_function_is_not_a_test() {
             "class test_class:\n    pass\n",
             "test_deleted = 1\n",
             "del test_deleted\n",
-            "def test_real():\n    assert True\n",
+            "def test_real():\n    assert 1 == 1\n",
         ),
     );
 
@@ -568,8 +568,8 @@ fn selection_judges_the_last_def_of_a_name_at_the_place_of_the_first() {
         "test_last.py",
         concat!(
             "def test_fixed(x):\n    ...\n\n",
-            "def test_broken():\n    assert True\n\n",
-            "def test_fixed():\n    assert True\n\n",
+            "def test_broken():\n    assert 1 == 1\n\n",
+            "def test_fixed():\n    assert 1 == 1\n\n",
             "def test_broken(x):\n    ...\n",
         ),
     );
@@ -605,7 +605,7 @@ fn a_body_that_nests_deeper_than_the_stack_does_not_crash_selection() {
             format!("x = f\"{}x{}\"", "{x:".repeat(3_000), "}".repeat(3_000)),
         ),
     ] {
-        let text = format!("def test_deep():\n    {statement}\n    assert True\n\n{statement}\n");
+        let text = format!("def test_deep():\n    {statement}\n    assert 1 == 1\n\n{statement}\n");
         let judged = thread::Builder::new()
             .name(name.to_owned())
             .stack_size(SMALL_STACK)
@@ -636,26 +636,26 @@ fn a_test_under_a_statement_at_the_modules_level_is_refused() {
         "test_under.py",
         concat!(
             "async def test_first():\n    ...\n\n",
-            "if c:\n    def test_if(): assert True\n",
-            "elif d:\n    def test_elif(): assert True\n",
-            "else:\n    def test_else(): assert True\n",
-            "try:\n    def test_try(): assert True\n",
-            "except E:\n    def test_except(): assert True\n",
-            "else:\n    def test_try_else(): assert True\n",
-            "finally:\n    def test_finally(): assert True\n",
-            "with m:\n    def test_with(): assert True\n",
-            "async with m:\n    def test_async_with(): assert True\n",
-            "for _ in []:\n    def test_for(): assert True\n",
-            "else:\n    def test_for_else(): assert True\n",
-            "async for _ in []:\n    def test_async_for(): assert True\n",
-            "while w:\n    def test_while(): assert True\n",
-            "else:\n    def test_while_else(): assert True\n",
-            "match v:\n    case 1:\n        def test_case(): assert True\n",
+            "if c:\n    def test_if(): assert 1 == 1\n",
+            "elif d:\n    def test_elif(): assert 1 == 1\n",
+            "else:\n    def test_else(): assert 1 == 1\n",
+            "try:\n    def test_try(): assert 1 == 1\n",
+            "except E:\n    def test_except(): assert 1 == 1\n",
+            "else:\n    def test_try_else(): assert 1 == 1\n",
+            "finally:\n    def test_finally(): assert 1 == 1\n",
+            "with m:\n    def test_with(): assert 1 == 1\n",
+            "async with m:\n    def test_async_with(): assert 1 == 1\n",
+            "for _ in []:\n    def test_for(): assert 1 == 1\n",
+            "else:\n    def test_for_else(): assert 1 == 1\n",
+            "async for _ in []:\n    def test_async_for(): assert 1 == 1\n",
+            "while w:\n    def test_while(): assert 1 == 1\n",
+            "else:\n    def test_while_else(): assert 1 == 1\n",
+            "match v:\n    case 1:\n        def test_case(): assert 1 == 1\n",
             "if c:\n    for _ in []:\n        with m:\n",
-            "            def test_deeper(): assert True\n",
+            "            def test_deeper(): assert 1 == 1\n",
             "if c:\n    def helper(): pass\n",
             "    async def test_body(x):\n        return 1\n\n",
-            "def test_last():\n    assert True\n",
+            "def test_last():\n    assert 1 == 1\n",
         ),
     );
 
@@ -701,10 +701,10 @@ fn a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test() {
     let (tests, refused) = judged(
         "test_own_body.py",
         concat!(
-            "if c:\n    class C:\n        def test_method(self): assert True\n",
-            "    def outer():\n        def test_inner(): assert True\n",
+            "if c:\n    class C:\n        def test_method(self): assert 1 == 1\n",
+            "    def outer():\n        def test_inner(): assert 1 == 1\n",
             "    f = lambda: 1\n",
-            "try:\n    class D:\n        def test_other(self): assert True\n",
+            "try:\n    class D:\n        def test_other(self): assert 1 == 1\n",
             "finally:\n    pass\n",
         ),
     );
@@ -721,10 +721,10 @@ fn a_def_at_the_top_decides_the_name_of_a_def_under_a_statement() {
     let (tests, refused) = judged(
         "test_top_decides.py",
         concat!(
-            "if c:\n    def test_later(): assert False\n\n",
-            "def test_later():\n    assert True\n\n",
-            "def test_earlier():\n    assert True\n\n",
-            "if c:\n    def test_earlier(): assert False\n",
+            "if c:\n    def test_later(): assert 1 == 2\n\n",
+            "def test_later():\n    assert 1 == 1\n\n",
+            "def test_earlier():\n    assert 1 == 1\n\n",
+            "if c:\n    def test_earlier(): assert 1 == 2\n",
         ),
     );
 
@@ -747,9 +747,9 @@ fn two_defs_of_one_name_under_statements_are_one_refused_test_at_the_first() {
     let (tests, refused) = judged(
         "test_under_twice.py",
         concat!(
-            "if c:\n    def test_twice(): assert True\n",
-            "if c:\n    def test_between(): assert True\n",
-            "try:\n    def test_twice(): assert True\n",
+            "if c:\n    def test_twice(): assert 1 == 1\n",
+            "if c:\n    def test_between(): assert 1 == 1\n",
+            "try:\n    def test_twice(): assert 1 == 1\n",
             "finally:\n    pass\n",
         ),
     );
@@ -772,7 +772,7 @@ fn a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selecti
         text.push_str("if c:\n");
     }
     text.push_str(&" ".repeat(DEPTH));
-    text.push_str("def test_deep(): assert True\n");
+    text.push_str("def test_deep(): assert 1 == 1\n");
     let name = "test_deep_statements.py";
     let judged = thread::Builder::new()
         .name(name.to_owned())
@@ -788,4 +788,208 @@ fn a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selecti
         [under("test_deep", "if")],
         "the def under the deepest statement is refused"
     );
+}
+
+/// The words of a fault of an expectation that is not one comparison.
+fn not_one(line: usize) -> String {
+    format!(
+        "line {line} is not one comparison, \
+         and an expectation compares a reading by one operator"
+    )
+}
+
+/// The words of a fault of an expected value that is not a literal.
+fn computes(line: usize, text: &str) -> String {
+    format!("line {line} computes {text}, and an expected value is a literal")
+}
+
+/// The words of a fault of a private name that a test reads.
+fn private(line: usize, name: &str) -> String {
+    format!("line {line} reads the private name {name}, and a test reads no private name")
+}
+
+#[test]
+fn an_expectation_that_is_not_one_comparison_is_refused() {
+    let (tests, refused) = judged(
+        "test_not_one.py",
+        concat!(
+            "def test_bare():\n    assert 1 == 1\n    assert x\n\n",
+            "def test_not():\n    assert not x\n\n",
+            "def test_call():\n    assert isinstance(x, int)\n\n",
+            "def test_chain():\n    assert 0 < x < 9\n\n",
+            "def test_and():\n    assert x == 1 and y == 2\n\n",
+            "def test_tuple():\n    assert x == 1\n    assert (x == 2, \"msg\")\n\n",
+            "def test_empty():\n    assert ()\n\n",
+            "def test_act():\n    assert x\n    y = 1\n    assert y == 1\n\n",
+            "def test_ops():\n",
+            "    assert x == 1\n    assert x != 1\n    assert x < 1\n    assert x <= 1\n",
+            "    assert x > 1\n    assert x >= 1\n    assert x in [1]\n    assert x not in [1]\n",
+            "    assert x is None\n    assert x is not None, \"with a message\"\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_act", "test_m.py::test_ops"],
+        "an assert in the act is no expectation, and each of the ten operators is one comparison"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_bare {}", not_one(3)),
+            format!("test_m.py::test_not {}", not_one(6)),
+            format!("test_m.py::test_call {}", not_one(9)),
+            format!("test_m.py::test_chain {}", not_one(12)),
+            format!("test_m.py::test_and {}", not_one(15)),
+            format!("test_m.py::test_tuple {}", not_one(19)),
+            format!("test_m.py::test_empty {}", not_one(22)),
+        ],
+        "a bare value, a not, a call, a chain, an and, and a tuple at the end are each refused"
+    );
+}
+
+#[test]
+fn an_expected_value_that_is_not_a_literal_is_refused() {
+    let (tests, refused) = judged(
+        "test_computed.py",
+        concat!(
+            "N = 3\n\n",
+            "def test_constant():\n    assert x == N\n\n",
+            "def test_call():\n    assert x == f()\n\n",
+            "def test_format():\n    assert x == f\"{y}\"\n\n",
+            "def test_input(n=3):\n    assert x == n\n\n",
+            "def test_both():\n    assert f() == g(\n        1)\n\n",
+            "def test_literals():\n",
+            "    assert x == \"7\" * 20 + \"\\n\"\n",
+            "    assert x == -1\n    assert x == ~1 + 1.5j\n    assert x == b\"x\"\n",
+            "    assert x is None\n    assert x is True\n    assert x == ...\n",
+            "    assert x == [1, (2, \"a\"), {3}, {\"k\": 4.5}]\n",
+            "    assert x == f\"plain\" \"joined\"\n    assert \"a\" in x\n    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_literals"],
+        "a literal on either side, operators on literals, and a container of them pass"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_constant {}", computes(4, "N")),
+            format!("test_m.py::test_call {}", computes(7, "f()")),
+            format!("test_m.py::test_format {}", computes(10, "f\"{y}\"")),
+            format!("test_m.py::test_input {}", computes(13, "n")),
+            format!("test_m.py::test_both {}", computes(16, "g( 1)")),
+        ],
+        "a constant, a call, an f-string with a placeholder, an input, and two readings \
+         are each refused, by the text on the right, on one line"
+    );
+}
+
+#[test]
+fn a_test_that_reads_a_private_name_is_refused() {
+    let (tests, refused) = judged(
+        "test_private.py",
+        concat!(
+            "import os\n",
+            "from lib import _hidden, shown\n",
+            "from lib._impl import Thing\n",
+            "import _thread\n",
+            "from gettext import gettext as _\n",
+            "from . import _sibling\n",
+            "\n",
+            "def _make():\n    return 1\n\n",
+            "def test_attribute():\n    w = os.getcwd()\n    w._flush()\n",
+            "    assert w.__len__() == 1\n\n",
+            "def test_imported():\n    _hidden()\n    assert Thing() == 1\n\n",
+            "def test_module():\n    assert _thread.get_ident() == 1\n\n",
+            "def test_relative():\n    _sibling()\n    assert 1 == 1\n\n",
+            "def test_inside():\n    from lib import _x\n    import lib._inner as inner\n",
+            "    assert 1 == 1\n\n",
+            "def test_store():\n    obj = shown()\n    obj._x = 1\n",
+            "    assert f\"{obj._y}\" == \"1\"\n\n",
+            "def test_free():\n    _local = _make()\n    _(\"text\")\n    shown()\n",
+            "    assert _local == 1\n\n",
+            "def test_once():\n    assert w._a + w._a == 2\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_free"],
+        "a name of the test's own module, a local, a dunder and a public import are free"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_attribute {}", private(13, "_flush")),
+            format!(
+                "test_m.py::test_imported {}; {}",
+                private(17, "lib._hidden"),
+                private(18, "lib._impl.Thing")
+            ),
+            format!("test_m.py::test_module {}", private(21, "_thread")),
+            format!("test_m.py::test_relative {}", private(24, "._sibling")),
+            format!(
+                "test_m.py::test_inside {}; {}",
+                private(28, "lib._x"),
+                private(29, "lib._inner")
+            ),
+            format!(
+                "test_m.py::test_store {}; {}",
+                private(34, "_x"),
+                private(35, "_y")
+            ),
+            format!("test_m.py::test_once {}", private(44, "_a")),
+        ],
+        "an attribute, an import from another module, and a private part of a module's path \
+         are each refused, once a line, in source order"
+    );
+}
+
+#[test]
+fn a_refused_line_names_the_reasons_of_the_def_then_each_fault_of_the_body_in_source_order() {
+    let (tests, refused) = judged(
+        "test_mixed.py",
+        concat!(
+            "@dec\n",
+            "def test_mixed():\n    w._a()\n    assert w == N\n    assert w\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [format!(
+            "test_m.py::test_mixed the decorator dec is not purba's, \
+             and purba cannot see what it does; {}; {}; {}",
+            private(3, "_a"),
+            computes(4, "N"),
+            not_one(5)
+        )],
+        "the decorator first, then each fault of the body by its line"
+    );
+}
+
+#[test]
+fn an_expectation_that_nests_deeper_than_the_stack_does_not_crash_selection() {
+    const SMALL_STACK: usize = 256 * 1024;
+    let deep = "-".repeat(20_000);
+    let nested = format!("{}1{}", "[".repeat(3_000), "]".repeat(3_000));
+    let text = format!(
+        "def test_deep():\n    assert x == {deep}1\n    assert {deep}x == 1\n    \
+         assert x == {nested}\n"
+    );
+    let name = "test_deep_expectation.py";
+    let judged = thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(SMALL_STACK)
+        .spawn(move || judged(name, &text))
+        .expect("the thread starts")
+        .join();
+    let (tests, refused) = judged.expect("selection returns");
+
+    assert_eq!(tests, ["test_m.py::test_deep"], "the test is handed on");
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
 }

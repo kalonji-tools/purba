@@ -11,7 +11,7 @@ fn an_interrupt_in_the_rewrite_leaves_each_test_unreached() {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("test_interrupt_in_rewrite.py");
     fs::write(
         &path,
-        "def test_one():\n    assert True\ndef test_two():\n    assert True\n",
+        "def test_one():\n    assert 1 == 1\ndef test_two():\n    assert 1 == 1\n",
     )
     .expect("the test writes its module");
     let argv = [
