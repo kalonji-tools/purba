@@ -18,6 +18,10 @@ Selection takes each `def test…`, and execution calls it.
 - **Two inputs that name one fixture share one object, and purba allows it.** A test that compares two inputs then compares one object with itself.
 - **Execution gives `unknown` to a test that returns a value.** Selection sees the `return` first.
 - **A test names a shared value whose content can change.** Each test that names it then carries the risk.
+- **Each assert at a test's end, except a tuple assert, is an expectation.** An `assert x` checks only that `x` is true. Its line shows no expected value.
+- **An expected value may be a name that the module binds once to a literal.** The assert then hides the value.
+- **Selection refuses a private name unless a [suppression](../../CONTEXT.md#suppression) gives a reason.** purba has no syntax for a suppression yet.
+- **The rules of a test's code judge only a test with no inputs.** An input would then free a test from them.
 
 ## Decision Outcome
 
@@ -37,9 +41,14 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | returns nothing | a `return` of a value in the test's own body | selection |
 | is not a generator | a `yield` in the test's own body | selection |
 | can be `async`, and purba cannot run one yet | an `async def` | selection |
+| states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side | an expectation that is no comparison, or a chained comparison | selection |
+| | an expectation with no literal on either side | selection |
+| writes no [private name](../../CONTEXT.md#private-name) in its body | a private name in the test's body, a nested `def`, `lambda` or `class` included | selection |
 
 - **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
+- **The rules of a test's code judge every test, with inputs or without.** An input on either side of the comparison is no literal.
+- **A refused line names each reason of the `def` first, then each reason of the body by its line number.** Selection names each private name once for each line.
 - **Selection leaves two inputs that name one fixture to execution.** Execution refuses such a test, so no test gets one object under two names. Only execution resolves the names in `use(…)`.
 - **The type of a [catalyst](../../CONTEXT.md#catalyst) proves it immutable.** Fixtures reads the type before it builds the value.
 - **A test reaches a stock only through a [reagent](../../CONTEXT.md#reagent) that a fixture draws from it.** The risk that a test changes what the next test sees sits in one fixture. That fixture undoes what the test changes, such as through one transaction that it rolls back.
@@ -49,10 +58,15 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **Selection refuses a `return` of a value in a branch that never runs.** The call would return nothing.
 - **purba cannot check what a fixture does with a stock.** A fixture that undoes nothing lets a test change what the next test sees.
 - **A value whose type does not prove it immutable is a stock.** click's `Command` is one, though no outcome of click depends on what a test leaves in it.
+- **Selection refuses a name that a library documents with a leading `_`, such as `os._exit`, too.** A tester calls it through a function of the test module, which selection does not read.
+- **Selection does not see a private name in a string, such as `getattr(w, "_flush")`.**
+- **Selection refuses a test that compares two computed values, because neither is a literal.** A test that compares a value with what CPython gives without purba writes that value as a literal.
 
 ## Confirmation
 
 `mise run test:rust` checks that selection refuses an `async def`, a `yield`, a `return` of a value and a parameter with no default.
+It checks that selection refuses an expectation that is not one comparison, one with no literal, and a private name.
+It checks that the refused line names each by its line number.
 The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.

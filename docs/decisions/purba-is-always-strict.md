@@ -29,7 +29,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
+**Reach:** `crates/**` `/LANDSCAPE.md` `/CONTEXT.md`
 
 **Area:** strictness
 
@@ -37,6 +37,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 - **A [strict check](../../CONTEXT.md#strict-check) blocks only when its predicate guarantees each violation or clean that it gives.** The bar is a property of the predicate, and the design of the check sets it. A check that blocks answers `unknown` where its predicate cannot guarantee the verdict.
 - **purba shows `unknown`, the verdict of a strict check that cannot guarantee clean, and never shows it as clean.**
+- **A strict check that judges only what a test's code writes guarantees each verdict, so it never answers `unknown`.** [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) names each strict check that selection runs: one comparison, a literal on one side, and no private name. A tester cannot suppress one until a [suppression](../../CONTEXT.md#suppression) has its syntax.
 - **A value that names a fact about the project is not a switch.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds that rule for configuration.
 - **Selection is not a switch.** Strictness judges only the tests that a run selects, so a tester can migrate one path at a time.
 - **A `skip` or an `xfail` with a reason is an outcome, and not a switch.** It shows as skipped or as an expected failure, and never as passed.

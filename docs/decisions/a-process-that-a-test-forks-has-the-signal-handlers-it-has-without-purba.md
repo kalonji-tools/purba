@@ -40,6 +40,6 @@ In the child, `signal.getsignal` names the signal handler itself, and no handler
 
 `mise run test:wheel` checks that a process that a test forks dies by SIGTERM and prints no count of its own.
 It checks that a process that `multiprocessing` forks dies by SIGTERM on `terminate()`.
-It checks that the signal handlers of a process that a test forks equal those of a fresh `python`.
+It checks that the signal handlers of a process that a test forks equal the ones that CPython prints without purba: `default_int_handler`, then `SIG_DFL` twice.
 It checks that a signal handler that a test sets for SIGTERM before it forks runs in the child.
 It checks that a Ctrl-C makes the test that it lands in `interrupted`. That outcome shows that each test's process keeps purba's signal handler.
