@@ -40,7 +40,7 @@ A probe measured upkeep and API churn again for each past week.
 
 ## Decision Outcome
 
-**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/needs.toml` `.config/shortlists.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/crate-pain.jq` `scripts/test/crate-verdict.bats` `scripts/test/crate-pain.bats`
+**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/needs.toml` `.config/shortlists.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/crate-pain.jq` `scripts/test/crate-verdict.bats` `scripts/test/crate-pain.bats` `scripts/forecast/levels.sh` `scripts/forecast/versions.jq`
 
 **Area:** design, tooling
 
@@ -121,8 +121,8 @@ No waiver lets a crate past the trust check.
 |---|---|
 | each factor except relief | the level of each |
 | `version` | the version that the levels judge |
-| `measured` | the date that a person measured the levels |
-| `unmeasured` | each factor whose level nobody could measure |
+| `measured` | the day of the measurement that gave the levels |
+| `unmeasured` | each factor that the measurement gave no level |
 | `needs` | the lowest relief that lets the crate join, or `"never"` |
 | `built` | the issue that adds the crate, once one exists |
 
@@ -159,13 +159,14 @@ Then the crate joins with no waiver.
 Otherwise the waiver stands, and its issue names the change that the pull request tried.
 
 `lint:crates` finds a moved verdict or a moved `needs`, because each trips one of its refusals.
-A pull request that changes a threshold of a level measures each entry of `.config/shortlists.toml` again.
-It cuts the data at the `measured` date of each entry.
-It rewrites the levels and `needs` that move.
+A pull request that changes a threshold of a level runs `mise run list:needs --shortlisted`.
+That measures each entry of `.config/shortlists.toml` again. It counts only the crates.io versions and the commits made before the `measured` day of each entry.
+The pull request rewrites the levels and `needs` that move.
 The reviewer checks that the pull request measured each entry again.
 
 **A design starts from its [shortlist](../../CONTEXT.md#shortlist).**
 
+- The design runs `mise run list:needs --part <part>` when it starts. For each line of the part with `declined`, the run prints each crate that its words find and that `declined` does not name.
 - The record of a part's design names each crate it picks, in its Decision Outcome. The pick needs no record of its own.
 - Its Considered Options lists each crate of the shortlist that the design scored, with the relief it scored and why the crate lost. A crate the design did not score stays out of Considered Options. A design that picks no crate follows the same rule.
 - A design may pick a crate that is not on the shortlist. It measures that crate by the same criteria.
@@ -196,7 +197,7 @@ It updates `version`, `owners`, `judged` and `scored`.
 **Downside:**
 
 - **Relief and trust are a person's score.** A wrong score carries into the verdict until a pull request corrects it.
-- **No tool measures a factor.** The author of a pull request measures each one by hand.
+- **No tool measures a factor of a crate in `.config/crates.toml`.** The author of a pull request measures each one by hand. `mise run list:needs` measures only the crates of a need.
 - **On the crates of `2790c1e`, the score drops none.** Only the checks drop a crate.
 - **Equal weights are a judgement.** A waiver can show that one factor weighs more.
 - **`unsafe` is a Rust factor.** A record that applies this one to another kind of dependency must replace it.
