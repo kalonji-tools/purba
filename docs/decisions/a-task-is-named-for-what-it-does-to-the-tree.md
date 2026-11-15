@@ -45,10 +45,11 @@ A check that reads the whole repository takes the name of its rule, such as `lin
 A new `lint:` task runs in CI on the day it is written.
 `build` is bare because it is the only task of its verb.
 
-`list` also has one task.
-`list:records` keeps its subject, because `records` names the same files under `lint`.
-No bare `list` runs it, because a group of one task runs nothing more than that task.
-So `check` does not run it.
+`list` has two tasks.
+`list:records` and `list:needs` keep their subjects, because `records` and `needs` name the same files under `lint`.
+No bare `list` runs them, because each prints for one step.
+`list:records` prints for the post pass, and `list:needs` for a new need or the start of a design.
+So `check` runs neither.
 
 **`.config/tasks.toml` lists its tasks A to Z.**
 That is the order `mise tasks ls` prints.

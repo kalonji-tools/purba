@@ -14,6 +14,8 @@ No script reads prose.
 | 0 of 1,317 issues sent through the API kept the structure of a form | [a register belongs to one location](a-register-belongs-to-one-location.md#context-and-problem-statement) |
 | a query in a need's own words found at best 20 of 41 crates | [How do tools and projects find the crates that could meet a stated need?](https://github.com/kalonji-tools/purba/issues/994#issuecomment-6891284107) |
 | a query by crates.io keywords found 14 of the 15 crates that no other query found, with words picked from the words of those crates | [How does a record state a need of a part not designed yet, so that a script reads it?](https://github.com/kalonji-tools/purba/issues/996#issuecomment-6891765982) |
+| those keywords found 11 of the 15 in a top 3, 12 in a top 10, and 14 in a top 20 or a top 50 | [Wayfinder: forecast the crates that the parts not designed yet could use](https://github.com/kalonji-tools/purba/issues/999#issuecomment-6892647843) |
+| a script gave the level a person gave in 323 of the 328 cells of 41 crates, in about 8.5 s for each crate | [Can a script measure the levels of a crate that purba does not lock, as research/future-crates.md measured them by hand?](https://github.com/kalonji-tools/purba/issues/995#issuecomment-6891407459) |
 
 ## Considered Options
 
@@ -23,10 +25,11 @@ No script reads prose.
 - **The body of an issue.** No gate reads an issue body.
 - **A `met` field on a need that purba meets.** A met need has nothing to forecast, so it has no line.
 - **A line that leaves when the design decides its need.** The design of a part decides all of its needs at once.
+- **The top 50 crates for each word.** It found no crate that the top 20 missed. It measures up to 50 crates for each word, not 20.
 
 ## Decision Outcome
 
-**Reach:** `.config/needs.toml` `.config/shortlists.toml` `.config/tasks.toml` `.config/lanes` `.editorconfig` `scripts/check-needs.sh` `scripts/test/check-needs.bats` `/LANDSCAPE.md`
+**Reach:** `.config/needs.toml` `.config/shortlists.toml` `.config/tasks.toml` `.config/lanes` `.editorconfig` `scripts/check-needs.sh` `scripts/test/check-needs.bats` `scripts/forecast.sh` `scripts/forecast/**` `scripts/test/forecast.bats` `/LANDSCAPE.md`
 
 **Area:** design, tooling
 
@@ -68,6 +71,39 @@ read-flags = { part = "command", need = "read the command's flags", words = ["ar
 - A line leaves when the build of its part closes. Its entries in `.config/shortlists.toml` leave with it.
 - A need that the design of its part leaves open moves to the part that decides it, so its `part` changes.
 
+**`mise run list:needs` finds and measures the crates of each line that no issue vets.**
+
+| run | reads |
+|---|---|
+| `mise run list:needs` | each line with no `issue`, no `declined` and no entry in `.config/shortlists.toml` |
+| `mise run list:needs --part <part>` | those lines of the part, and each of its lines with `declined` |
+| `mise run list:needs --shortlisted` | each entry of `.config/shortlists.toml`, and no line |
+
+- For each word of a line, it asks crates.io for the 20 crates with the most recent downloads that carry the keyword.
+- It waits at least one second between two requests to crates.io. Its User-Agent names purba and no person.
+- It drops each crate in `declined`.
+- Without `--shortlisted`, it runs the advisory, licence and source checks of `.cargo/deny.toml` on each crate.
+- It measures the eight levels from crates.io, a build of the crate and GitHub.
+- A level that it cannot measure counts as 3. `unmeasured` names that level.
+- For blast area, the parts of a crate are the parts of each line whose entry holds the crate or whose words find it.
+- It computes pain and `needs` with the formula of [a crate joins when its relief exceeds its pain](a-crate-joins-when-its-relief-exceeds-its-pain.md).
+- It prints the body of one issue for each line that finds a crate.
+- A new line whose words find no crate gets no body. The forecast prints that the line needs `declined = []`.
+- `--shortlisted` measures each entry at its `version`. It counts only the crates.io versions and the commits made before the `measured` day of the entry.
+- `--shortlisted` prints each level, `unmeasured` and `needs` that moved.
+- It writes neither `.config/needs.toml` nor `.config/shortlists.toml`.
+
+**The forecast runs when a pull request can change what it finds, and when the design of a part starts.**
+
+| event | the run |
+|---|---|
+| a pull request adds a line | `mise run list:needs`, in that pull request |
+| a pull request changes the `words` of a declined line | `mise run list:needs --part <part>`, in that pull request |
+| the design of a part starts | `mise run list:needs --part <part>` |
+| a pull request changes a threshold of a level | `mise run list:needs --shortlisted`, in that pull request |
+
+No workflow runs it, and nothing runs it on a schedule.
+
 **`mise run lint:needs` checks `.config/needs.toml`.**
 It asks no server anything.
 It refuses:
@@ -80,15 +116,22 @@ It refuses:
 
 **Downside:**
 
-- **Whoever writes a line picks its words.** A query finds only the crates that carry one of those words. The measure in the Context is an upper bound, because its words came from the crates that it found.
+- **Whoever writes a line picks its words.** A query finds only the crates that carry one of those words. The keyword counts in the Context are an upper bound, because their words came from the crates that they found.
 - **`lint:needs` asks no server.** A `stated` link that no longer states the need passes. A keyword that crates.io does not hold passes too. The reviewer reads both.
 - **No gate refuses a line with no `need`, or a line with `issue` beside `declined` or an entry.** The reviewer reads both.
 - **No gate decides whether a call meets a need.** The reviewer judges whether a line belongs.
+- **The forecast builds each crate.** The build scripts and proc macros of the crate, and of what it brings, run on the machine that runs the forecast.
+- **The forecast reads only GitHub and GitHub Actions.** For a crate on another forge, upstream review and tests are unmeasured. A crate whose tests run outside GitHub Actions, or behind a script that a workflow calls, gets tests level 2 where a person gives 1.
+- **The forecast builds for `x86_64-unknown-linux-gnu` only.** The build needs the standard library of that target. An `unsafe` block that only macOS compiles goes uncounted.
+- **`--shortlisted` reads the owners, the dependency graph and the CI runs as they are on the day it runs.** So a level of maintainers, blast area, `unsafe` or tests can move with no change to a threshold.
+- **A day is the unit of `measured`.** `--shortlisted` drops a release made on the `measured` day before the forecast ran.
+- **The forecast subtracts months from a date as text, for the windows of upkeep and API churn.** It takes three months before 2026-05-31 as `2026-02-31`. A release on 2026-03-01 then falls inside the window, though GNU `date` starts the window on 2026-03-03.
+- **No gate checks that a pull request ran the forecast.** The reviewer reads the output of the forecast in the pull request.
 
 ## Confirmation
 
 `mise run lint:needs` refuses each breach that the list above names.
 
-The forecast lands with [Build the forecast, mise run forecast](https://github.com/kalonji-tools/purba/issues/1003), which this record waits on.
+`bats` tests which lines the forecast reads, the `declined` filter, a line with no crate, `--part`, `--shortlisted` and the licence count. Each test reads recorded crates.io answers, and fakes the build and GitHub.
 
 [A crate joins when its relief exceeds its pain](a-crate-joins-when-its-relief-exceeds-its-pain.md) holds the rules of the shortlists and the formula.
