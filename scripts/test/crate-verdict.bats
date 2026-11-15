@@ -16,6 +16,8 @@ setup() {
   unwaived_refused="A crate is refused when it fails something its waiver does not name"
   out_refused="A crate is refused when a check fails or its relief does not exceed its pain"
   gate_refused="A finding of the advisory or the source check is refused when it names no crate"
+  shortlisted_levels_refused="An entry of .config/shortlists.toml is refused when a level is not"
+  shortlisted_needs_refused="An entry of .config/shortlists.toml is refused when its needs value"
 
   # Each graph answers by its key: `workspace` for the root, and the directory
   # of a cargo script for that script, whose .cargo/<directory>.deny.toml names it.
@@ -41,6 +43,7 @@ FAKE
   metadata workspace serde@1.0.0
   deny workspace
   entry serde
+  : >.config/shortlists.toml
 }
 
 # The `cargo metadata` of one graph, whose one member names each crate given as
@@ -109,6 +112,44 @@ entry() {
     done
     printf '\n'
   } >>.config/crates.toml
+}
+
+# Appends the entry of one crate on the shortlist of one need to
+# .config/shortlists.toml. Each <key>=<value> replaces that line, and adds it when
+# the entry holds none. A value of - drops it. The entry it writes passes: pain 1
+# needs relief 2.
+shortlisted() {
+  local need=$1 crate=$2 line key
+  shift 2
+  local -a order=(version measured blast-area upkeep maintainers upstream-review tests unsafe
+    api-churn owner-in-purba unmeasured needs)
+  local -A value=([version]='"1.0.0"' [measured]='"2026-11-14"' ["blast-area"]=1 [upkeep]=1
+    [maintainers]=1 ["upstream-review"]=1 [tests]=1 [unsafe]=1 ["api-churn"]=1
+    ["owner-in-purba"]=1 [unmeasured]='[]' [needs]=2)
+  for line in "$@"; do
+    key=${line%%=*}
+    [[ -v "value[${key}]" ]] || order+=("${key}")
+    value[${key}]=${line#*=}
+  done
+  {
+    printf '[%s.%s]\n' "${need}" "${crate}"
+    for key in "${order[@]}"; do
+      [[ "${value[${key}]}" == - ]] || printf '%s = %s\n' "${key}" "${value[${key}]}"
+    done
+    printf '\n'
+  } >>.config/shortlists.toml
+}
+
+# crate-verdict.sh in a directory of its own, beside the scripts it reads, with a
+# formula in which blast area alone gives pain.
+reweighed() {
+  local copy="${BATS_TEST_TMPDIR}/reweighed"
+  mkdir -p "${copy}"
+  cp "${BATS_TEST_DIRNAME}/../crate-verdict.sh" "${BATS_TEST_DIRNAME}/../report.sh" \
+    "${BATS_TEST_DIRNAME}/../crate-pain.jq" "${copy}/"
+  # shellcheck disable=SC2016 # jq's own variables, not the shell's
+  printf 'def fourteenths($entry): 14 * $entry["blast-area"];\n' >>"${copy}/crate-pain.jq"
+  script="${copy}/crate-verdict.sh"
 }
 
 # A tracked cargo script in scripts/<name>/, with its lock beside it and its
@@ -382,4 +423,71 @@ cargo_script() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *"no database"* ]]
+}
+
+@test "a shortlisted entry whose needs its levels give passes" {
+  shortlisted read-flags clap
+  shortlisted read-flags bpaf blast-area=2 upkeep=2 maintainers=2 upstream-review=2 tests=2 \
+    unsafe=2 api-churn=2 owner-in-purba=2 needs=3
+  shortlisted read-flags lexopt blast-area=3 upkeep=3 maintainers=3 upstream-review=3 tests=3 \
+    unsafe=3 api-churn=3 owner-in-purba=3 'needs="never"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a shortlisted entry with a level that is not 1, 2 or 3 is refused" {
+  shortlisted read-flags clap unsafe=4 upkeep=-
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${shortlisted_levels_refused}"* ]]
+  [[ "${output}" == *"  read-flags.clap: unsafe is 4"* ]]
+  [[ "${output}" == *"  read-flags.clap: upkeep has no level"* ]]
+  [[ "${output}" != *"${shortlisted_needs_refused}"* ]]
+}
+
+@test "a shortlisted entry whose needs differs from its levels is refused" {
+  shortlisted read-flags clap blast-area=2 upkeep=2 maintainers=2 upstream-review=2 tests=2 \
+    unsafe=2 api-churn=2 owner-in-purba=2
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${shortlisted_needs_refused}"* ]]
+  [[ "${output}" == *"  read-flags.clap: needs 2, and its levels need 3 (pain 2.00)"* ]]
+}
+
+@test "a weight change that moves pain and no needs passes" {
+  shortlisted read-flags clap upkeep=2
+  reweighed
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a weight change that moves needs is refused" {
+  shortlisted read-flags clap upkeep=3 maintainers=3 upstream-review=3 tests=3 unsafe=3 \
+    api-churn=3 owner-in-purba=3 needs=3
+  reweighed
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${shortlisted_needs_refused}"* ]]
+  [[ "${output}" == *"  read-flags.clap: needs 3, and its levels need 2 (pain 1.00)"* ]]
+}
+
+@test "no .config/shortlists.toml stops the check" {
+  rm .config/shortlists.toml
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *".config/shortlists.toml cannot be read."* ]]
 }

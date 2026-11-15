@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Whether each crate that a manifest names joins purba, calculated from the
-# levels in .config/crates.toml and the findings of cargo-deny.
+# levels in .config/crates.toml and the findings of cargo-deny, and whether each
+# entry of .config/shortlists.toml holds the needs that its levels give.
 #
 #   the decision:  docs/decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md
 #   the task:      mise run lint:crates
@@ -17,6 +18,8 @@ set -euo pipefail
 
 # shellcheck source=scripts/report.sh
 . "$(dirname "$0")/report.sh"
+here=$(cd "$(dirname "$0")" && pwd) ||
+  cannot "the directory of $0 cannot be found."
 
 top=$(git rev-parse --show-toplevel 2>/dev/null) ||
   cannot 'the manifests can only be found inside a git repository.'
@@ -24,6 +27,8 @@ cd "${top}"
 
 scores=$(yq -p toml -o json -I0 . .config/crates.toml) ||
   cannot '.config/crates.toml cannot be read.'
+shortlists=$(yq -p toml -o json -I0 . .config/shortlists.toml) ||
+  cannot '.config/shortlists.toml cannot be read.'
 records=$(git ls-files -z 'docs/decisions/*.md' |
   jq -Rsc 'split("\u0000") | map(select(. != ""))') ||
   cannot 'the tracked records cannot be listed.'
@@ -87,25 +92,20 @@ done <<<"${scripts_list}"
 
 # Each line it prints starts with the tag of the refusal it belongs to.
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
-verdicts=$(jq -nr \
+verdicts=$(jq -nr -L "${here}" \
   --argjson scores "${scores}" \
+  --argjson shortlists "${shortlists}" \
   --argjson named "${named}" \
   --argjson findings "${findings}" \
   --argjson records "${records}" '
-  def factors: "blast-area", "upkeep", "maintainers", "upstream-review", "tests", "unsafe",
-    "api-churn", "owner-in-purba", "relief";
-  def others: "upkeep", "maintainers", "upstream-review", "tests", "unsafe", "api-churn",
-    "owner-in-purba";
+  include "crate-pain";
+
+  def factors: levels, "relief";
   def level($l): any(1, 2, 3; . == $l);
   def failure: tostring | test("^(RUSTSEC-[0-9]{4}-[0-9]{4}|source|score)$");
   def comment:
     test("^https:/{2}github[.]com/kalonji-tools/purba/issues/[0-9]+#issuecomment-[0-9]+$");
   def among($list): . as $item | any($list[]; . == $item);
-
-  # Pain is a fourteenth of this sum: half of blast area and the mean of the others.
-  def fourteenths($entry): 7 * $entry["blast-area"] + ([$entry[others]] | add);
-  def hundredths($sum): ($sum * 100 / 14 | round)
-    | "\(. / 100 | floor).\(. % 100 | tostring | if length < 2 then "0" + . else . end)";
 
   [$named[] | "\(.crate)@\(.version)"] as $locked
   | ($findings[] | select(.crate == null or ("\(.crate)@\(.version)" | among($locked) | not))
@@ -132,7 +132,7 @@ verdicts=$(jq -nr \
           | fourteenths($entry) as $sum
           | [$locks[].version] as $versions
           | ([$findings[] | select(.crate == $crate and (.version | among($versions))) | .id]
-            | unique) + (if 14 * $entry.relief > $sum then [] else ["score"] end)
+            | unique) + (if joins($entry.relief; $sum) then [] else ["score"] end)
           | . as $fails
           | $entry.waiver as $waiver
           | if $waiver == null then
@@ -149,7 +149,20 @@ verdicts=$(jq -nr \
                 ($waived[] | select(failure and (among($fails) | not)) | "excess\t\($crate): \(.)"),
                 ($fails[] | select(among($waived) | not) | "unwaived\t\($crate): \(.)")
             end)
-      end)
+      end),
+
+  ($shortlists // {} | to_entries[] | .key as $need | .value | to_entries[]
+    | "\($need).\(.key)" as $name | .value as $entry
+    | (levels as $factor | $entry[$factor] as $level
+        | if $level == null then "shortlisted-levels\t\($name): \($factor) has no level"
+          elif level($level) then empty
+          else "shortlisted-levels\t\($name): \($factor) is \($level)" end),
+
+      (select(all(levels; level($entry[.])))
+        | fourteenths($entry) as $sum | needs($sum) as $needs
+        | select($entry.needs != $needs)
+        | "shortlisted-needs\t\($name): needs \($entry.needs), and its levels need \($needs)" +
+          " (pain \(hundredths($sum)))"))
 ')
 
 tagged() {
@@ -199,5 +212,14 @@ through only the failures a person decided."
 refuse_tagged out \
   "A crate is refused when a check fails or its relief does not exceed its pain, and no waiver \
 lets it in, because a crate joins only when each check passes and its relief exceeds its pain."
+
+refuse_tagged shortlisted-levels \
+  "An entry of .config/shortlists.toml is refused when a level is not 1, 2 or 3, because \
+lint:crates calculates its pain and its needs from each level."
+
+refuse_tagged shortlisted-needs \
+  "An entry of .config/shortlists.toml is refused when its needs value differs from the lowest \
+relief that lets its crate join at the pain its levels give, because a change to a level or a \
+weight must not move that relief unseen."
 
 finish
