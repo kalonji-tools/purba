@@ -28,6 +28,7 @@ prek.toml                         toolsmith
 .shellcheckrc                     toolsmith
 .config/**                        toolsmith
 .config/readers                   architect -toolsmith
+.config/shortlists.toml           architect
 .gitattributes                    toolsmith
 .gitignore                        toolsmith
 

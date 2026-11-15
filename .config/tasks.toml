@@ -74,7 +74,9 @@ done
 
 #   the decision:  docs/decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md
 ["lint:crates"]
-description = "Refuse a crate that its scores put out, or a finding of cargo-deny on another crate"
+description = """\
+Refuse a crate that its scores put out, a cargo-deny finding on another crate, \
+or a shortlisted crate whose needs value its levels do not give"""
 run = "scripts/crate-verdict.sh"
 
 ["lint:gates"]
