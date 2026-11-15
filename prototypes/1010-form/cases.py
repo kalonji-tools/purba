@@ -1,4 +1,5 @@
-"""What a tester imports: `case`, `raises`, `warns`, `handling`, `use`, and the bases of a stock.
+"""What a tester imports: `case`, `raises`, `warns`, `handling`, `use`, `before`, and the bases of a
+stock.
 A throwaway form for a blind rating. Never merge.
 
 A test is a plain function. `run.py` imports it with its last asserts rewritten as checks, and runs
@@ -16,6 +17,7 @@ from contextlib import contextmanager
 from typing import Any, Generic, ParamSpec, TypeVar, cast, overload
 
 P = ParamSpec("P")
+F = TypeVar("F", bound=Callable[..., Any])
 R = TypeVar("R")
 T = TypeVar("T")
 M = TypeVar("M")
@@ -67,6 +69,32 @@ def case(test: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
     against `test`."""
     caller = sys._getframe(1)
     return Case(test, args, dict(kwargs), caller.f_code.co_filename, caller.f_lineno)
+
+
+# ── a reset before each case ─────────────────
+
+BEFORE: dict[Callable[..., Any], list[Callable[[], object]]] = {}  # each test → what runs first
+
+
+def before(fn: Callable[[], object], /) -> Callable[[F], F]:
+    """`@before(reset)` on a test: the runner calls `reset()` at the start of each case of the test,
+    in the case's own process, before the act. Several run top to bottom. Nothing runs after a
+    case."""
+
+    def mark(test: F) -> F:
+        BEFORE.setdefault(test, []).insert(0, fn)  # decorators apply bottom up
+        return test
+
+    return mark
+
+
+def __getattr__(name: str) -> Any:
+    if name == "before_each":
+        raise ImportError(
+            "`before_each` is gone from the form: put `@before(fn)` on each test that needs fn to "
+            "run first"
+        )
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # ── an expected raise, an expected warning, code inside an `except` ─────────
@@ -205,8 +233,8 @@ class handling(Generic[P]):
 
 
 class Use(Generic[T]):
-    """A fixture: the runner calls `factory()` again for each case, inside the case's own
-    process."""
+    """A fixture: the runner calls `factory()` once in each case, inside the case's own process. A
+    parameter of the factory whose default is `use(other)` gets `other`'s value of the same case."""
 
     def __init__(self, factory: Callable[[], Any]) -> None:
         self.factory = factory
@@ -266,7 +294,7 @@ def use(factory: type[Stock[T]]) -> T: ...
 def use(factory: Callable[[], T]) -> T: ...
 def use(factory: Case[Any] | Callable[[], Any]) -> Any:
     """A fixture as the default of an input: `db: Db = use(UsersDb)`. A type checker sees the value
-    it gives.
+    it gives. A factory may take fixtures the same way: `def client(app: App = use(make_app))`.
 
     `use(stage)`, where `stage` is a case, is that case's product: `signed: Signed = use(ann)`.
     The stage runs first, with its checks; a stage that fails or is refused blocks the test."""

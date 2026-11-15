@@ -1,5 +1,5 @@
-"""FILE REFUSED: `before_each` is no part of the form; a test names its reset as a fixture
-(test_reset.py). Says "cannot import name 'before_each'" """
+"""FILE REFUSED: `before_each` is no part of the form, and the refusal points to `@before`
+(test_before.py). Says "`before_each` is gone from the form: put `@before(fn)` on each test" """
 
 from __future__ import annotations
 

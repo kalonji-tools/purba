@@ -1,4 +1,4 @@
-"""A reset of global state is a fixture, named in the signature of each test that needs it."""
+"""A reset written as a fixture in the signature still works; FORM.md teaches `@before` instead."""
 
 from __future__ import annotations
 

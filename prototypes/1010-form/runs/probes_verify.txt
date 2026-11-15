@@ -1,4 +1,10 @@
 ok  test_before_each.py: the file is refused
+ok  test_before.py::test_order: PASS
+ok  test_before.py::test_before_with_a_fixture: PASS
+ok  test_before.py::test_ann_joins: PASS
+ok  test_before.py::test_after_a_stage: PASS
+ok  test_before.py::test_before_that_raises: FAIL
+ok  test_before.py::test_other_decorator: REFUSED
 ok  test_blocked.py::test_stage: good PASS, wrong FAIL
 ok  test_blocked.py::test_after_good: PASS
 ok  test_blocked.py::test_after_wrong: BLOCKED
@@ -10,6 +16,10 @@ ok  test_blocked.py::test_after_computes: BLOCKED
 ok  test_blocked.py::test_threaded_stage: FAIL
 ok  test_blocked.py::test_after_threaded_wrong: BLOCKED
 ok  test_case_names.py::test_lower: plain PASS, twice PASS
+ok  test_composed.py::test_shared_once: PASS
+ok  test_composed.py::test_cycle: REFUSED
+ok  test_composed.py::test_parameter_with_no_default: REFUSED
+ok  test_composed.py::test_parameter_with_a_plain_default: REFUSED
 ok  test_far_home.py::test_member: member PASS, wrong_member FAIL
 ok  test_far_home.py::test_vip_member: REFUSED
 ok  test_far.py::test_buy: PASS
@@ -48,6 +58,9 @@ ok  test_reset.py::test_register_without_reset: FAIL
 ok  test_stock_fingerprint.py::test_reads_through_an_alias: PASS
 ok  test_stock_fingerprint.py::test_a_reading_that_rotates: REFUSED
 ok  test_stock_fingerprint.py::test_a_stock_with_no_watch: REFUSED
+ok  test_stock_in_a_fixture.py::test_stock_through_a_fixture: PASS
+ok  test_stock_in_a_fixture.py::test_reading_changes_the_stock: REFUSED
+ok  test_stock_in_a_fixture.py::test_stock_with_no_watch: REFUSED
 ok  test_tree.py::test_open: PASS
 ok  test_tree.py::test_next: PASS
 ok  test_tree.py::test_leaf: PASS

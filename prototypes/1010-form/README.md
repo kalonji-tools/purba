@@ -23,17 +23,19 @@ cd examples/tests && PYTHONPATH=../src ../../.venv/bin/python ../../run.py .
 | 2 | a failed or refused stage blocks each later stage, and the line names it | `stage_gone`, `blocked_by`, `block_subtree`, `mark_refused` | `test_blocked.py`: `which failed`, `which was refused` (at run time and before the run), `which was blocked` two stages down, and under a replay |
 | 3 | `use(stage)` is a default input | `resolve`, `stages_of` | `test_use_stage.py` |
 | 4 | a stage of another test module is loaded rewritten, and every rule applies | `load`, and `visit` in `run_file`: the stage runs in this file's run, under its own module's shape and watch | `test_far.py` with `test_far_home.py`: a path refusal of the far stage blocks its user, also when `test_far.py` runs alone (`runs/probes_far-alone.txt`) |
-| 5 | `before_each` leaves the form | gone from `cases.py`, `run.py` and `FORM.md` | `test_before_each.py`: the file is refused at import; `test_reset.py`: a reset as a fixture |
+| 5 | `before_each` leaves the form; `@before(fn)` replaces it | `before` and `BEFORE` in `cases.py`, and a `__getattr__` whose refusal points to `@before`; `build` runs each `@before` after the stages a case takes and before its fixtures; `is_before` refuses every other decorator | `test_before_each.py`: the file is refused at import; `test_before.py`: order, with a fixture, after a stage, a raising reset, another decorator refused; `test_reset.py`: a reset as a fixture still works |
 | 6 | no one-act rule | none; the one-call fixture rule (`FORM_FIXTURE`) is removed too | `test_two_acts.py` |
 | 7 | the watch covers only the test module, and its `@contextmanager` functions that a `with` of the test enters | `Paths.is_ours` compares the file; `Paths.py_start` steps over contextlib's frame; `arm` takes files | `test_watch.py`: code in the tests' folder passes, a one-way `@contextmanager` of the module is refused |
 | 8 | an assert inside a reading is refused | `Paths.reading_of`, and its message in `Paths.line` | `test_reading_assert.py`: refused when the helper's assert holds and when it fails |
 | 9 | a refusal in a helper names the test's line and the helper's line | `Paths.called_at`, `test_line`, `who` | `test_helper_lines.py`: a helper, a helper of a helper (the test's line), a helper in a reading (the check's line) |
+| 10 | a fixture may use a fixture; each factory runs once in a case; a cycle, and a factory parameter with no `use()` default, are refused before the run | `resolve` keeps one value of each factory in `made`; `fixture_faults` walks every factory from `shape_of` and `refuse_case` | `test_composed.py`; `test_stock_in_a_fixture.py`: a stock used by a factory keeps its rules |
+| 11 | stages are for probing a pipeline; fixtures share setup | `FORM.md` only | `examples/` |
 
 ## Probe results
 
 Each probe's docstring begins with what the run must show, and may quote text with `Says "…"`.
 `verify.py` reads the summary that the runner writes to `FORM_SUMMARY`, and compares.
-Every probe matches: 81 tests and one refused file, of 16 files, in `runs/probes_verify.txt`, and 5 tests in `runs/probes_far-alone_verify.txt`.
+Every probe matches: 94 tests and one refused file, of 19 files, in `runs/probes_verify.txt`, and 5 tests in `runs/probes_far-alone_verify.txt`.
 
 | file | what it proves |
 |---|---|
@@ -41,14 +43,16 @@ Every probe matches: 81 tests and one refused file, of 16 files, in `runs/probes
 | `test_blocked.py` | 2 |
 | `test_use_stage.py`, `test_use_far.py` | 3 and 4, from the stage-as-input prototype |
 | `test_far.py`, `test_far_home.py` | 4 |
-| `test_before_each.py`, `test_reset.py` | 5 |
+| `test_before_each.py`, `test_before.py`, `test_reset.py` | 5 |
 | `test_two_acts.py` | 6 |
 | `test_watch.py`, `flat.py` | 7 |
 | `test_reading_assert.py` | 8, with one hole: an asserting helper of another module passes |
 | `test_helper_lines.py` | 9 |
+| `test_composed.py`, `test_stock_in_a_fixture.py` | 10 |
 | `test_paths.py`, `test_reading_acts.py`, `test_stock_fingerprint.py`, `test_case_names.py`, `helpers.py` | prototype 980's probes |
 
-The whole run: `runs/probes.txt`, 99 cases: 48 passed, 7 failed, 34 refused, 10 blocked, and 1 file refused.
+The whole run: `runs/probes.txt`, 113 cases: 55 passed, 8 failed, 40 refused, 10 blocked, and 1 file refused.
+A cycle of fixtures cannot be written with `def`s alone, since a default names only an earlier function: `test_composed.py` builds one by setting `__defaults__`.
 `runs/probes_acts.txt` counts the shop's acts over `test_use_stage.py`: `sign_up ann` runs 3 times, where the stage-as-input prototype's replay ran it 9 times.
 
 A control (`runs/control_previous-runner.txt`) runs six of the new probe files under the stage-as-input runner.
@@ -92,6 +96,6 @@ Prototype 980's probes, under this runner (`runs/probes.txt`):
 
 - `FORM.md`: the rules sheet the porter reads.
 - `run.py`, `cases.py`: the runner and what a test imports. `verify.py`: probe docstrings against a run. `runall.sh`: every run into `runs/`.
-- `examples/tests/`: `test_members.py` (a fixture, a stage, `use(stage)`), `test_loans.py` (a pipeline of three stages on a stage of `test_members.py`, `raises`, a `with` setup). `examples/blocked/test_due_dates.py`: a stage that fails on purpose, and the stage it blocks. `examples/src/lending.py`: their code under test.
+- `examples/tests/`: `test_members.py` (a fixture, a fixture that uses it, a stage, `use(stage)`), `test_loans.py` (a pipeline of three stages on a stage of `test_members.py`, `@before`, `raises`, a `with` setup). `examples/blocked/test_due_dates.py`: a stage that fails on purpose, and the stage it blocks. `examples/src/lending.py`: their code under test.
 - `probes/`: the probes above. `undertest/`: their code under test (`shop.py`, `chain.py`, `registry.py`, `undertest.py`).
 - `runs/`: each output, folded at 100 bytes.

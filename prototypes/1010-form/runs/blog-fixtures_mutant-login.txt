@@ -111,6 +111,6 @@
        why       they differ from character 1: expected '', read 'auth/login'
    ✗ test_delete › post is None   test_blog.py:115 · assert at line 121
        expected  None (NoneType)
-       reading   <sqlite3.Row object at 0x765bfcae29b0> (Row)
-       why       `<sqlite3.Row object at 0x765bfcae29b0> is None` does not hold
+       reading   <sqlite3.Row object at 0x73da432a9270> (Row)
+       why       `<sqlite3.Row object at 0x73da432a9270> is None` does not hold
 ══ 13 cases: 4 passed · 9 failed · 0 refused · 0 blocked   (9 checks held)

@@ -19,6 +19,10 @@ The watch of the act covers the code of the test module only, and a `@contextman
 that module that a `with` of the test enters. An assert that runs inside a reading is refused. A
 refusal in a helper names the test's line that calls it and the helper's own line.
 
+A test may carry `@before(fn)`, and no other decorator: `fn()` runs at the start of each case,
+after the earlier stages it takes and before its fixtures. A fixture's parameters are fixtures too,
+`use(other)`; each factory runs at most once in a case, and a cycle is refused before the run.
+
 The exit status is 0 when every case passes, and 1 when a case fails, is refused or is blocked.
 `FORM_PATHS=off` and `FORM_ALONE=off` exist only to measure what the watch and the forks cost.
 """
@@ -55,7 +59,9 @@ from typing import Any
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import cases as form
 from cases import (
+    BEFORE,
     CREATED,
     OWNED,
     RAISED,
@@ -483,11 +489,13 @@ def shape_of(fn: types.FunctionType, src: Source) -> Shape:
         )
         return shape
     shape = Shape(fn, node, str(src.path))
-    if node.decorator_list:
-        shape.faults.append(
-            f"line {node.lineno}: a test takes no decorator; give its cases with `name = "
-            f"case({fn.__name__}, …)`"
-        )
+    for dec in node.decorator_list:
+        if not is_before(dec, fn.__globals__):
+            shape.faults.append(
+                f"line {dec.lineno}: `@{ast.unparse(dec)}`: a test takes no decorator but the "
+                "form's `@before(fn)`; give its cases with `name = "
+                f"case({fn.__name__}, …)`"
+            )
     if node.args.vararg or node.args.kwarg:
         shape.faults.append(f"line {node.lineno}: `*args` or `**kwargs`: name each input")
     act, asserts, ret = split(node)
@@ -520,32 +528,75 @@ def shape_of(fn: types.FunctionType, src: Source) -> Shape:
             )
     # "checks nothing" is seen while the case runs, when no check ran
     for name, p in shape.params.items():
-        if (
-            isinstance(p.default, Use)
-            and isinstance(p.default.factory, type)
-            and issubclass(p.default.factory, Stock)
-        ):
-            stock = p.default.factory
-            if inspect.isabstract(stock):
-                missing = ", ".join(sorted(getattr(stock, "__abstractmethods__", ())))
-                shape.faults.append(
-                    f"the input {name}: the stock {stock.__name__} lacks {missing}; a misspelled "
-                    "method leaves it abstract"
-                )
-                continue
-            if not issubclass(stock, (Samples, Checkpoints)):
-                shape.faults.append(
-                    f"the input {name}: the stock {stock.__name__} offers neither Samples nor "
-                    "Checkpoints, so nothing seals it for the case"
-                )
-            if not issubclass(
-                stock, (Fingerprints, Checkpoints)
-            ):  # by its type, not by the names a check reads
-                shape.faults.append(
-                    f"the input {name}: the stock {stock.__name__} offers neither Fingerprints nor "
-                    "Checkpoints, so a check that changes it cannot be seen"
-                )
+        if isinstance(p.default, Use):
+            for fault in fixture_faults(name, p.default.factory, []):
+                if fault not in shape.faults:
+                    shape.faults.append(fault)
     return shape
+
+
+def is_before(dec: ast.expr, scope: dict[str, Any]) -> bool:
+    """`@before(fn)`, where `before` is the form's own."""
+    if not (isinstance(dec, ast.Call) and len(dec.args) == 1 and not dec.keywords):
+        return False
+    func = dec.func
+    if isinstance(func, ast.Name):
+        return scope.get(func.id) is form.before
+    if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+        return getattr(scope.get(func.value.id), func.attr, None) is form.before
+    return False
+
+
+def fixture_params(factory: object) -> list[inspect.Parameter]:
+    try:
+        params = inspect.signature(factory).parameters.values()  # type: ignore[arg-type]
+    except (TypeError, ValueError):  # a builtin with no signature takes nothing
+        return []
+    return [p for p in params if p.kind not in (p.VAR_POSITIONAL, p.VAR_KEYWORD)]
+
+
+def fixture_faults(name: str, factory: object, trail: list[object]) -> list[str]:
+    """What refuses the fixture of one input, through each fixture it uses: a stock with no watch, a
+    cycle, and a parameter that is no fixture."""
+    if isinstance(factory, Case):
+        return []
+    through = f" (through {' → '.join(name_of(f) for f in trail)})" if trail else ""
+    if isinstance(factory, type) and issubclass(factory, Stock):
+        stock, faults = factory, []
+        if inspect.isabstract(stock):
+            missing = ", ".join(sorted(getattr(stock, "__abstractmethods__", ())))
+            return [
+                f"the input {name}{through}: the stock {stock.__name__} lacks {missing}; a "
+                "misspelled method leaves it abstract"
+            ]
+        if not issubclass(stock, (Samples, Checkpoints)):
+            faults.append(
+                f"the input {name}{through}: the stock {stock.__name__} offers neither Samples nor "
+                "Checkpoints, so nothing seals it for the case"
+            )
+        if not issubclass(stock, (Fingerprints, Checkpoints)):  # by its type, not the names read
+            faults.append(
+                f"the input {name}{through}: the stock {stock.__name__} offers neither "
+                "Fingerprints nor Checkpoints, so a check that changes it cannot be seen"
+            )
+        return faults
+    if factory in trail:
+        loop = trail[trail.index(factory) :] + [factory]
+        return [
+            f"the input {name}: the fixtures {' → '.join(name_of(f) for f in loop)} form a cycle, "
+            "so none of them can run first"
+        ]
+    faults: list[str] = []
+    for p in fixture_params(factory):
+        if isinstance(p.default, Use):
+            faults += fixture_faults(name, p.default.factory, [*trail, factory])
+        elif p.default is p.empty or inspect.isfunction(factory):
+            # a class keeps its own defaults; a factory function takes only fixtures
+            faults.append(
+                f"the input {name}{through}: the fixture {name_of(factory)} takes {p.name}, whose "
+                f"default is no `use(…)`; a fixture takes only fixtures: `{p.name}: T = use(…)`"
+            )
+    return faults
 
 
 IMMUTABLE = (str, bytes, int, float, bool, type(None), tuple)
@@ -639,6 +690,8 @@ def refuse_case(
                     f"gives {key}={short(value)} ({kind(value)}), and {shape.name} declares "
                     f"{' | '.join(t.__name__ for t in allowed)}"
                 )
+        if isinstance(value, Use):  # a fixture that the case line gives
+            faults += fixture_faults(key, value.factory, [])
         if isinstance(value, Step):
             earlier = shapes.get(value.case.test)
             if earlier and earlier.returns is None:
@@ -1747,7 +1800,11 @@ def hook(test: str, k: int, pair: Callable[[], Any], message: Callable[[], Any])
     emit(run.fd, **result)
 
 
-def resolve(name: str, given: object, run: Run, top: bool) -> object:
+class BeforeRaised(Exception):
+    pass
+
+
+def resolve(name: str, given: object, run: Run, top: bool, made: dict[int, object]) -> object:
     if isinstance(given, Step):
         return replay(given.case, run)
     if not isinstance(given, Use):
@@ -1770,16 +1827,40 @@ def resolve(name: str, given: object, run: Run, top: bool) -> object:
         if top:
             run.stock_inputs[name] = stock
         return value
-    return factory()
+    if id(factory) not in made:  # each factory runs at most once in a case
+        uses = {
+            p.name: resolve(p.name, p.default, run, False, made)
+            for p in fixture_params(factory)
+            if isinstance(p.default, Use)
+        }
+        made[id(factory)] = factory(**uses)
+    return made[id(factory)]
+
+
+def is_stage(given: object) -> bool:
+    return isinstance(given, Step) or (isinstance(given, Use) and isinstance(given.factory, Case))
 
 
 def build(case: Case[Any], run: Run, top: bool) -> dict[str, object]:
-    built: dict[str, object] = {}
-    for name, p in inspect.signature(case.test).parameters.items():
-        built[name] = resolve(
-            name, case.inputs[name] if name in case.inputs else p.default, run, top
-        )
-    return built
+    """The earlier stages first, as the fork tree has run them before this case starts; then each
+    `@before` of the test, top to bottom; then the fixtures, in the order of the parameters."""
+    given = {
+        name: case.inputs[name] if name in case.inputs else p.default
+        for name, p in inspect.signature(case.test).parameters.items()
+    }
+    made: dict[int, object] = {}
+    built = {n: resolve(n, g, run, top, made) for n, g in given.items() if is_stage(g)}
+    for fn in BEFORE.get(case.test, []):
+        try:
+            fn()
+        except Exception as error:
+            raise BeforeRaised(
+                f"@before({name_of(fn)}) raised {type(error).__name__}: {error}"
+            ) from error
+    for n, g in given.items():
+        if n not in built:
+            built[n] = resolve(n, g, run, top, made)
+    return {n: built[n] for n in given}
 
 
 def replay(step: Case[Any], run: Run) -> object:
@@ -2003,6 +2084,16 @@ def in_case(case: Case[Any], run: Run) -> None:
             inputs = build(case, run, top=True)
         except Blocked as why:
             return block_case(run.fd, str(why))
+        except BeforeRaised as error:
+            emit(
+                run.fd,
+                check="before",
+                line=0,
+                status="fail",
+                why=str(error),
+                trace=frames(error.__cause__ or error, shape.file),
+            )
+            return block_the_rest("a @before raised")
         except Exception as error:
             emit(
                 run.fd,

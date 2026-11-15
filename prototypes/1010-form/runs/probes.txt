@@ -1,7 +1,25 @@
+── test_before.py
+ test_order  (test_before.py:25)
+   ✓ test_order › names() == ['a', 'b', 'ann']   ['a', 'b', 'ann']
+ test_before_with_a_fixture  (test_before.py:37)
+   ✓ test_before_with_a_fixture › names() == ['ann', 'bob']   ['ann', 'bob']
+ test_ann_joins  (test_before.py:45)
+   ✓ ann › names() == ['ann']   ['ann']
+ test_after_a_stage  (test_before.py:56)
+   ✓ test_after_a_stage › names() == ['bob']   ['bob']
+ test_before_that_raises  (test_before.py:64)
+   ✗ test_before_that_raises › before   test_before.py:64
+       what      @before(boom) raised RuntimeError: no registry
+                 at test_before.py:19  raise RuntimeError("no registry")
+   ⊘ test_before_that_raises › names() == ['builtin', 'ann']   blocked: a @before raised
+ test_other_decorator  (test_before.py:76)
+   ! refused:
+       line 75: `@tagged`: a test takes no decorator but the form's `@before(fn)`; give its cases
+         with `name = case(test_other_decorator, …)`
+     so none of its 1 case(s) runs
 ── test_before_each.py
-   ! the file is refused: importing it raised ImportError: cannot import name 'before_each' from
-     'cases'
-     (/home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/cases.py)
+   ! the file is refused: importing it raised ImportError: `before_each` is gone from the form: put
+     `@before(fn)` on each test that needs fn to run first
      so none of its tests runs
 ── test_blocked.py
  test_stage  (test_blocked.py:11)
@@ -59,6 +77,25 @@
  test_lower  (test_case_names.py:9)
    ✓ plain › low.isupper() is False   False
    ✓ twice › low.isupper() is False   False
+── test_composed.py
+ test_shared_once  (test_composed.py:16)
+   ✓ bob › signed.users == ['ann', name]   ['ann', 'bob']
+   ✓ cy › signed.users == ['ann', name]   ['ann', 'cy']
+ test_cycle  (test_composed.py:37)
+   ! refused:
+       the input value: the fixtures ring_a → ring_b → ring_a form a cycle, so none of them can
+         run first
+     so none of its 1 case(s) runs
+ test_parameter_with_no_default  (test_composed.py:56)
+   ! refused:
+       the input shop: the fixture named takes name, whose default is no `use(…)`; a fixture takes
+         only fixtures: `name: T = use(…)`
+     so none of its 1 case(s) runs
+ test_parameter_with_a_plain_default  (test_composed.py:62)
+   ! refused:
+       the input shop: the fixture defaulted takes name, whose default is no `use(…)`; a fixture
+         takes only fixtures: `name: T = use(…)`
+     so none of its 1 case(s) runs
 ── test_far.py
  test_member  (test_far_home.py:18), a stage of test_far_home.py
    ✓ member › shop.users == users   ['ann']
@@ -302,6 +339,20 @@
        the input d: the stock SampleOnly offers neither Fingerprints nor Checkpoints, so a check
          that changes it cannot be seen
      so none of its 1 case(s) runs
+── test_stock_in_a_fixture.py
+ test_stock_through_a_fixture  (test_stock_in_a_fixture.py:46)
+   ✓ test_stock_through_a_fixture › sorted((p.name for p in folder.iterdir())) == ['app.log']
+     ['app.log']
+ test_reading_changes_the_stock  (test_stock_in_a_fixture.py:52)
+   ! test_reading_changes_the_stock › log.rename(log.with_name('app.log.1')).name == 'app.log.1'
+     test_stock_in_a_fixture.py:52 · assert at line 56
+       what      reading it changed the stock LogDir: a check reads what the act made, and changes
+         nothing
+ test_stock_with_no_watch  (test_stock_in_a_fixture.py:59)
+   ! refused:
+       the input log (through bare_log): the stock SampleOnly offers neither Fingerprints nor
+         Checkpoints, so a check that changes it cannot be seen
+     so none of its 1 case(s) runs
 ── test_tree.py
  test_open  (test_tree.py:20)
    ✓ root › count(opened) == 1   1
@@ -330,7 +381,7 @@
    ✓ journaled › journal.lines() == [name]   ['file']
  test_after_open_file  (test_tree.py:112)
    ↺ test_after_open_file ran by replay: the act left a file, socket or pipe open (fd 6 →
-     /tmp/tmp.rvNJKoUSn5/#3713054 (deleted)), whose offset a fork shares
+     /tmp/tmp.fn0SzNqEw7/#3713111 (deleted)), whose offset a fork shares
    ✓ test_after_open_file › journal.lines() == ['file']   ['file']
    ✓ test_after_open_file › count('file') == 2   2
 ── test_two_acts.py
@@ -414,5 +465,5 @@
          test): the act ends at the first check, and a function handed to the code may swallow an
          assert; keep what it sees, and check that at the end
    ✓ test_assert_in_a_contextmanager › shop.users == ['ann']   ['ann']
-══ 99 cases: 48 passed · 7 failed · 34 refused · 10 blocked · 1 file refused   (79 checks
+══ 113 cases: 55 passed · 8 failed · 40 refused · 10 blocked · 1 file refused   (86 checks
   held)

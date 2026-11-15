@@ -1,4 +1,5 @@
-"""Joining the library. A fixture builds the library; a stage hands a member to later tests."""
+"""Joining the library. Fixtures build the library and a member; a stage hands a member to later
+tests."""
 
 from __future__ import annotations
 
@@ -11,6 +12,18 @@ def stocked() -> Library:
     library = Library()
     library.stock("Dune", "Emma")
     return library
+
+
+def cat(library: Library = use(stocked)) -> Member:
+    """A fixture that uses a fixture: cat, a member of the stocked library."""
+    return library.join("cat")
+
+
+def test_lend_to_a_member(member: Member = use(cat), library: Library = use(stocked)) -> None:
+    """The test and `cat` share one stocked library in each case."""
+    library.lend(member, "Dune")
+    assert library.shelf == ["Emma"]
+    assert [loan.member.name for loan in library.loans] == ["cat"]
 
 
 def test_join(name: str, library: Library = use(stocked)) -> Member:

@@ -8,6 +8,15 @@ from dataclasses import dataclass, field
 
 LOAN_DAYS = 21
 FINE_PER_DAY = 10
+SENT: list[str] = []  # every notice the library sent: global state, as a logger keeps its sinks
+
+
+def notices() -> list[str]:
+    return list(SENT)
+
+
+def clear_notices() -> None:
+    SENT.clear()
 
 
 class Closed(Exception):
@@ -55,13 +64,16 @@ class Library:
         self.shelf.remove(title)
         loan = Loan(member, title, due=self.today + LOAN_DAYS)
         self.loans.append(loan)
+        SENT.append(f"{member.name} borrowed {title}")
         return loan
 
     def give_back(self, loan: Loan) -> int:
         """Put the book back, and return the fine."""
         loan.returned = self.today
         self.shelf.append(loan.title)
-        return max(0, self.today - loan.due) * FINE_PER_DAY
+        fine = max(0, self.today - loan.due) * FINE_PER_DAY
+        SENT.append(f"{loan.member.name} owes {fine}")
+        return fine
 
     def wait(self, days: int) -> None:
         self.today += days
