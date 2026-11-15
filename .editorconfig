@@ -16,3 +16,7 @@ switch_case_indent = true
 # A table row is one line by Markdown's syntax, and a lock file is generated.
 [*.{md,lock}]
 max_line_length = off
+
+# A need is one inline table, and TOML 1.0 lets an inline table hold no newline.
+[.config/needs.toml]
+max_line_length = off

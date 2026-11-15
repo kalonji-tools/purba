@@ -10,6 +10,7 @@ lint:licences        rust
 lint:wiring          rust
 lint:crates          rust scripts
 lint:manifests       rust scripts
+lint:needs           scripts docs
 lint:cargo-scripts   scripts
 lint:shell           scripts
 lint:placement       scripts
