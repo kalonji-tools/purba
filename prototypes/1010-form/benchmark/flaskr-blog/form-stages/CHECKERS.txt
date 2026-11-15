@@ -1,0 +1,7 @@
+$ ty check --python ../../.venv/bin/python test_blog.py
+All checks passed!
+(exit 0)
+
+$ nix-shell -p pyright --run 'pyright test_blog.py'
+0 errors, 0 warnings, 0 information
+(exit 0)

@@ -1,0 +1,36 @@
+Flaskr round, rater 2 (PORT_K = oxitest, PORT_M = the form with fixtures, PORT_Q = the form with stages).
+Condensed from the rater's report.
+
+Criterion                   ORIGINAL  K(oxitest)  M(form)  Q(stages)
+Readability                 5         3           4        3
+Clarity                     4         4           4        3
+Ease of use                 4         2           4        4
+Tester complexity           4         2           3        2
+Implementation complexity   3         2           3        2
+Minimum working test        5         3           4        3
+Fidelity                    ref (5)   5           4        3
+
+Weights: clarity 20, fidelity 20, readability 15, ease of use 15, tester complexity 10, implementation 10,
+minimum test 10.
+The rater's sums: ORIGINAL 4.35, M 3.8, K 3.15, Q 3.0.
+Recomputed from the rater's scores and weights: ORIGINAL 4.35, M 3.80, K 3.25, Q 2.95 (the rater's K and
+Q sums are arithmetic slips).
+Rank by the numbers and by the rater: ORIGINAL, M, K, Q.
+
+Q strongest: on the login mutant, 1 failed and 9 blocked, each naming logged_in; a broken login is
+reported once. Q weakest: every later case replays (the chain reads a stock), so the seed runs in all 14
+cases; the login is hidden in use(logged_in); the anonymous page comes from a second client; 118 lines.
+Q fidelity: adds 4 stage checks; reads the anonymous page from a second client; logs in before changing
+the author; drops the client fixture; a login fault becomes "blocked" in each test.
+M strongest: one-line cases, checkers clean, ty caught a wrong type and a typo, runner hint "did you mean
+'path'?". M weakest: one stock bundles app, client and auth (`blog.client...` everywhere); requests move
+before the checks in test_index.
+K weakest: ty 21 / pyright 26 errors from Fixture[T], rising with each edit; a new case id collided
+("keyword argument repeated: update"); a misspelled fixture stops the whole file.
+
+Runner bug (M/Q form), reproduced 4/4: a test whose second check posts /1/delete is reported FAILED on
+both checks (the second reads 404), not refused; called by hand it passes. With one mutating check alone,
+the runner correctly refuses it. The fork that reads a later check alone seems to write the shared SQLite
+file. A fault of the test is shown as a fault of the code.
+Other: a passing `in` check prints the whole response body; a blocked case still prints a replay line.
+Minimum test: ORIGINAL 2 lines, 0 imports; K, M, Q 4 lines, 2 imports each (K: 1 ty error).

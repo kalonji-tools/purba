@@ -1,0 +1,31 @@
+Loguru round, rater 1 (PORT_K = the form, PORT_M = oxitest). Condensed from the rater's report.
+
+Criterion                        ORIGINAL  PORT_K  PORT_M
+Readability                      5         3       4
+Clarity                          3         4       5
+Ease of use                      5         3       4
+Complexity for the tester        4         2       3
+Complexity of the implementation 3         2       2
+Minimum working test             5         5       4
+Fidelity                         ref (5)   4       5
+
+Weights: readability 15, clarity 20, ease of use 20, tester complexity 15, implementation complexity 10,
+minimum test 5, fidelity 15 (the original gets 5).
+Weighted (recomputed, matches the rater's): ORIGINAL 4.25, PORT_M 4.00, PORT_K 3.20.
+Rank by the numbers and by the rater: ORIGINAL, PORT_M, PORT_K.
+
+PORT_K strongest: the best fault reports, one case at a time (misspelled input with a hint, wrong type,
+expected / reading / why / inputs); the other cases still run.
+PORT_K weakest: rules and repeated boilerplate. `_reset: None = use(reset_logger)` and `use(Writer)` repeat
+in all 8 signatures; a plain try/except, `name or "anonymous"` and a computed expected value are refused.
+FORM.md: 179 lines, 54 rule bullets. run.py 2569 lines + cases.py 273.
+PORT_M strongest: same logic as the original, clearer intent through a message on each assert.
+PORT_M weakest: one fault stops everything ("collected 0 items", strict abort on one bare assert);
+a frozen dataclass per parametrized group.
+ORIGINAL weakest: intent and setup hidden (bare tuples, autouse reset in conftest, 9 checker errors in conftest).
+
+Minimum test: 6 non-blank lines, 1 import in each version; all pass, checkers clean.
+Fidelity, PORT_K: reset only calls logger.remove() (safe: each case forks); Writer.clear dropped;
+handling adds 3 checks. PORT_M: same checks; a teardown raise is only a warning.
+Rough edges: the brief says 9 tests, the original has 8; in PORT_K a test that leaves out `_reset` runs
+with loguru's default stderr handler, and no warning.

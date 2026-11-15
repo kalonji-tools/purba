@@ -1,0 +1,30 @@
+Loguru round, rater 3 (PORT_K = the form, PORT_M = oxitest). Condensed from the rater's report.
+
+Criterion                        ORIGINAL   PORT_M  PORT_K
+Readability                      4          3       4
+Clarity                          3          5       4
+Ease of use                      4          3       4
+Complexity for the tester        4          3       2
+Complexity of the implementation 3          2       2
+Minimum working test             5          4       5
+Fidelity                         reference  5       4
+
+Weights: fidelity 25, clarity 20, ease of use 20, readability 15, tester complexity 10, implementation
+complexity 5, minimum test 5.
+The rater's sums: PORT_M 3.90, PORT_K 3.75, ORIGINAL 3.73 (fidelity left out, renormalised).
+Recomputed with the original's fidelity counted as 5, as rounds 2 to 5 did: ORIGINAL 4.05, PORT_M 3.90,
+PORT_K 3.75.
+Rank by the numbers: ORIGINAL, PORT_M, PORT_K. Rank the rater chose: PORT_M, PORT_K, ORIGINAL.
+"The margins are thin. If fidelity weighed less, or tester complexity more, PORT_K would pass PORT_M."
+
+PORT_K strongest: errors precise and only hit the bad case (misspelled input with a hint, wrong type);
+fixtures explicit in each signature.
+PORT_K weakest: the rules restrict normal Python: a computed expected value (`level + "\n"`) refused, an
+`if` that went one way refused; every test repeats `_reset: None = use(reset_logger)`.
+Ease of use, PORT_K: copied the two-fixture signature, passed on the first run (22 cases, 25 checks).
+PORT_M: the first run aborted on a bare assert with no hint. ORIGINAL: passed first try.
+PORT_M strongest: intent (named cases, a message on each assert). Weakest: machinery (frozen dataclass per
+case set, runtime stand-in for FormatFunction, two-checker ignores).
+Fidelity, PORT_K: reset only calls logger.remove() (probed: configure(extra=...) did not leak, each case
+forks); handling adds checks; `==` compares types. PORT_M: same checks; a teardown raise is a warning.
+Rough edges: K's refusal text restates the whole one-path rule in one sentence; brief says 9 tests, there are 8.

@@ -1,0 +1,51 @@
+── test_blog.py
+ test_seed_app  (test_blog.py:62)
+   ✓ seeded › [tuple(user) for user in users] == [(1, 'test'), (2, 'other…   [(1, 'test'), (2, 'other')]
+   ✓ seeded › [tuple(post) for post in posts] == [(1, 1, 'test title', 't…   [(1, 1, 'test title', 'test\nbody')]
+ test_login  (test_blog.py:78)
+   ↺ logged_in ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ logged_in › response.headers.get('Location') == '/'   '/'
+   ✓ logged_in › user_id_of(client) == 1   1
+ test_index  (test_blog.py:93)
+   ↺ test_index ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ test_index › b'Log In' in anonymous.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'Register' in anonymous.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'test title' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'by test on 2018-01-01' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'test\nbody' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'href="/1/update"' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_login_required  (test_blog.py:104)
+   ↺ anonymous_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_create › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ anonymous_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_update › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ anonymous_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_delete › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:114)
+   ↺ test_author_required ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ test_author_required › update.status_code == 403   403
+   ✓ test_author_required › delete.status_code == 403   403
+   ✓ test_author_required › b'href="/1/update"' not in index.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a … title</h1>\n          <div class="about">by other on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_exists_required  (test_blog.py:130)
+   ↺ missing_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ missing_update › response.status_code == 404   404
+   ↺ missing_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ missing_delete › response.status_code == 404   404
+ test_create  (test_blog.py:139)
+   ↺ test_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ test_create › page.status_code == 200   200
+   ✓ test_create › count == 2   2
+ test_update  (test_blog.py:148)
+   ↺ test_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ test_update › page.status_code == 200   200
+   ✓ test_update › post['title'] == 'updated'   'updated'
+ test_create_update_validate  (test_blog.py:157)
+   ↺ validate_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ validate_create › b'Title is required.' in response.data   b'<!doctype html>\n<title>New Post - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      … name="title" id="title" value="" required>\n    <label for="body">Body</label>\n    <textarea name="body" id="body"></textarea>\n    <input type="submit" value="Save">\n  </form>\n\n</section>'
+   ↺ validate_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ validate_update › b'Title is required.' in response.data   b'<!doctype html>\n<title>Edit "test title" - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n   …  </form>\n  <hr>\n  <form action="/1/delete" method="post">\n    <input class="danger" type="submit" value="Delete" onclick="return confirm(\'Are you sure?\');">\n  </form>\n\n</section>'
+ test_delete  (test_blog.py:166)
+   ↺ test_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ test_delete › response.headers['Location'] == '/'   '/'
+   ✓ test_delete › post is None   None
+══ 14 cases: 14 passed · 0 failed · 0 refused · 0 blocked   (26 checks held)

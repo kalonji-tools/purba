@@ -1,0 +1,5 @@
+Flaskr round (the form of #1010). Which letter was which, per rater:
+
+rater1: PORT_K = the form with stages, PORT_M = oxitest, PORT_Q = the form with fixtures
+rater2: PORT_K = oxitest, PORT_M = the form with fixtures, PORT_Q = the form with stages
+rater3: PORT_K = the form with fixtures, PORT_M = the form with stages, PORT_Q = oxitest

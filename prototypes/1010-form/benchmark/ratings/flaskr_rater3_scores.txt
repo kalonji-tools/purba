@@ -1,0 +1,34 @@
+Flaskr round, rater 3 (PORT_K = the form with fixtures, PORT_M = the form with stages, PORT_Q = oxitest).
+Condensed from the rater's report.
+
+Criterion                   ORIGINAL  K(form)  M(stages)  Q(oxitest)
+Readability                 5         4        3          4
+Clarity                     4         4        4          5
+Ease of use                 5         4        3          2
+Tester complexity           4         3        2          3
+Implementation complexity   3         2        2          2
+Minimum working test        5         4        3          3
+Fidelity                    ref       4        3          5
+
+Weights: readability 15, clarity 20, ease of use 20, tester complexity 10, implementation 5, minimum
+test 10, fidelity 20.
+The rater's sums: ORIGINAL 4.50 (fidelity left out, renormalised), K 3.80, Q 3.70, M 3.05.
+Recomputed with the original's fidelity counted as 5: ORIGINAL 4.60, K 3.80, Q 3.70, M 3.05.
+Rank by the numbers and by the rater: ORIGINAL, K, Q, M.
+
+K strongest: authoring feedback, each case typo and wrong type caught three ways (ty, pyright, the runner
+with "did you mean 'path'?"); a forgotten case line refused with the fix; precise failure output.
+K weakest: `blog: Blog = use(BlogDb)` and `blog.` everywhere; checks move to the end, so test_index splits.
+M strongest: a broken login diagnosed once (9 cases blocked, naming logged_in).
+M weakest: 118 non-blank lines, nearly twice the original's 61; arrange steps become test_-named stages;
+the anonymous client through client.application.test_client(); a replay line on every case (13);
+a new test must know which stage to take (seeded or logged_in).
+M fidelity: 26 checks (22 + 4 stage checks); test_index reads the anonymous page on a second client;
+test_author_required logs in before it changes the author; a broken login blocks 9 cases, 14 cases not 12.
+Q strongest: the original's asserts verbatim, plus a message of intent. Q weakest: ty 23 / pyright 29
+after two edits, a real error buried; strict mode extra work; a raw TypeError from oxitest internals.
+Rough edges, the form: a refusal labelled "› path"; the refusal message about "a function handed to the
+code may swallow an assert" for a plain assert in the body; a blocked case still prints a replay line;
+a passing `in` check prints about 1 KB of HTML. Wall time: pytest 0.71 s, K 0.96 s, M 1.01 s, oxitest 0.60 s.
+Minimum test: ORIGINAL 2 lines, 0 imports; K and M 4 lines, 2 imports (M runs 2 cases, the imported stage
+too); Q 4 lines, 2 imports, 1 checker error each.

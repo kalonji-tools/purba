@@ -1,0 +1,24 @@
+Loguru round, rater 2 (PORT_K = oxitest, PORT_M = the form). Condensed from the rater's report.
+
+Criterion                        ORIGINAL  PORT_K  PORT_M
+Readability                      5         4       3
+Clarity                          3         4       4
+Ease of use                      4         3       4
+Complexity for the tester        4         3       2
+Complexity of the implementation 3         2       3
+Minimum working test             5         4       5
+Fidelity                         ref (5)   5       4
+
+Weights: clarity 20, ease of use 20, fidelity 20, readability 15, tester complexity 15, implementation 5,
+minimum test 5. Weighted (recomputed, matches the rater's): ORIGINAL 4.15, PORT_K 3.75, PORT_M 3.55.
+Rank by the numbers and by the rater: ORIGINAL, PORT_K, PORT_M. Without fidelity, K and M tie at 3.44.
+
+PORT_M strongest: the best errors (misspelled input with a hint, wrong type); each failure names the case
+line and the assert line.
+PORT_M weakest: 8 tests repeat `writer: Writer = use(Writer), _reset: None = use(reset_logger)`; a
+try/except test refused ("the except went one way"); `== len("a\n")` refused as computed.
+Rough edges, PORT_M: a test that leaves out `_reset` still passes, because the fork per case isolates it,
+"so the repeated use(reset_logger) parameter is not doing much in this file"; `handling(...)` puts the
+call before the statement that raises, so it reads backwards; a printed reading is cut with "...".
+PORT_K: names tests only through --json; loguru's default stderr leaked; a teardown raise is a warning;
+a misspelled case field is a raw traceback.

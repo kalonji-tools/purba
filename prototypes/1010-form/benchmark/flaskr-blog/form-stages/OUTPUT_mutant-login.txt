@@ -1,0 +1,49 @@
+── test_blog.py
+ test_seed_app  (test_blog.py:62)
+   ✓ seeded › [tuple(user) for user in users] == [(1, 'test'), (2, 'other…   [(1, 'test'), (2, 'other')]
+   ✓ seeded › [tuple(post) for post in posts] == [(1, 1, 'test title', 't…   [(1, 1, 'test title', 'test\nbody')]
+ test_login  (test_blog.py:78)
+   ↺ logged_in ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✗ logged_in › response.headers.get('Location') == '/'   test_blog.py:87 · assert at line 82
+       expected  '/' (str)
+       reading   None (NoneType)
+       why       a NoneType is not a str
+       inputs    (none)
+   ✗ logged_in › user_id_of(client) == 1   test_blog.py:87 · assert at line 83
+       expected  1 (int)
+       reading   None (NoneType)
+       why       a NoneType is not an int
+       inputs    (none)
+ test_index  (test_blog.py:93)
+   ↺ test_index ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ test_index  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_login_required  (test_blog.py:104)
+   ↺ anonymous_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_create › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ anonymous_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_update › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ anonymous_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ✓ anonymous_delete › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:114)
+   ↺ test_author_required ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ test_author_required  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_exists_required  (test_blog.py:130)
+   ↺ missing_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ missing_update  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+   ↺ missing_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ missing_delete  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_create  (test_blog.py:139)
+   ↺ test_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ test_create  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_update  (test_blog.py:148)
+   ↺ test_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ test_update  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_create_update_validate  (test_blog.py:157)
+   ↺ validate_create ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ validate_create  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+   ↺ validate_update ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ validate_update  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+ test_delete  (test_blog.py:166)
+   ↺ test_delete ran by replay: the chain reads a stock (TempDb), whose state a fork does not copy
+   ⊘ test_delete  blocked: it takes the product of logged_in (test_blog.py:87), which failed
+══ 14 cases: 4 passed · 1 failed · 0 refused · 9 blocked   (5 checks held)
