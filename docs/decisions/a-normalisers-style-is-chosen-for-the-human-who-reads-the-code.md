@@ -21,6 +21,7 @@ purba therefore indents with two spaces, stated once for every language that adm
 
 ⚠️ **A language whose own rules make a different value load-bearing is stated per language, with the constraint as the reason.**
 Markdown is that case: a table row is one line by its syntax, so no line length is stated for it.
+TOML is that case for `.config/needs.toml`: each need is one inline table, which TOML 1.0 keeps on one line, as [a forecast finds the crates for each stated need](a-forecast-finds-the-crates-for-each-stated-need.md) decides.
 
 **Downside:**
 

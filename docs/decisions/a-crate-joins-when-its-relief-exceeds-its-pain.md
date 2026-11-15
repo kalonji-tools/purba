@@ -40,7 +40,7 @@ A probe measured upkeep and API churn again for each past week.
 
 ## Decision Outcome
 
-**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/shortlists.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/crate-pain.jq` `scripts/test/crate-verdict.bats` `scripts/test/crate-pain.bats`
+**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/needs.toml` `.config/shortlists.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/crate-pain.jq` `scripts/test/crate-verdict.bats` `scripts/test/crate-pain.bats`
 
 **Area:** design, tooling
 
@@ -169,7 +169,7 @@ The reviewer checks that the pull request measured each entry again.
 - The record of a part's design names each crate it picks, in its Decision Outcome. The pick needs no record of its own.
 - Its Considered Options lists each crate of the shortlist that the design scored, with the relief it scored and why the crate lost. A crate the design did not score stays out of Considered Options. A design that picks no crate follows the same rule.
 - A design may pick a crate that is not on the shortlist. It measures that crate by the same criteria.
-- The pull request that answers an issue on a need writes the need's shortlist in `.config/shortlists.toml`. Only such a pull request adds or removes an entry.
+- The pull request that answers an issue on a need writes the need's shortlist in `.config/shortlists.toml`. Only such a pull request adds an entry. An entry leaves with its need's line in `.config/needs.toml`.
 
 **Each change judges again what it moves. Nothing judges an entry on a schedule.**
 
@@ -217,3 +217,5 @@ No check judges relief or trust, because [a standard a gate cannot decide does n
 No check reads whether the pull request that changes the lock measured each factor again. The reviewer reads it.
 
 No check reads whether a pull request that changes a threshold measured the shortlists again. The reviewer reads it.
+
+[A forecast finds the crates for each stated need](a-forecast-finds-the-crates-for-each-stated-need.md) states the needs that the shortlists answer.
