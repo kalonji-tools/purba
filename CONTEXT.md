@@ -80,7 +80,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, with only other expectations after it. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Gate
 
@@ -184,6 +184,10 @@ A division of purba with one responsibility and one interface. Each part is desi
 
 A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).
 
+### Private name
+
+A name that starts with `_`, written as an attribute or imported from another module, or a name imported through a part of a module's path that starts with `_`. A name that starts and ends with `__`, such as `__len__`, is not one.
+
 ### Project error
 
 An error that a [part](#part) sees in the [tester's](#tester) code, other than a test's [outcome](#outcome). A module that does not parse or load, a test purba refuses to call, and an exception that no test's call raised are each one.
@@ -278,7 +282,7 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 
 ### Test
 
-A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, names the fixture of each of its [inputs](#input), returns nothing, and is not a generator. purba calls it to try to disprove a behaviour.
+A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, is not a generator, and its body writes no [private name](#private-name). purba calls it to try to disprove a behaviour.
 
 ### Tester
 
