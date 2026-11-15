@@ -5,7 +5,7 @@ use purba_execution::{Kind, Module, Owner, Rewrite};
 fn module(name: &str, source: &str) -> Module {
     Module::new(
         PathBuf::from(name),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
     )
 }
 
@@ -191,4 +191,14 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
          but SystemExit itself, charges the test or the load that left the thread alive, and \
          otherwise the one that ran when it raised",
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

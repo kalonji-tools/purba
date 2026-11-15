@@ -21,7 +21,7 @@ bats_require_minimum_version 1.5.0
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_global.py::test_a passed
 test_global.py::test_b passed
-2 tests: 2 passed
+2 cases: 2 passed
 LINES
 }
 
@@ -36,7 +36,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_exit.py::test_one raised: its process exited 0 before its outcome
 test_exit.py::test_two passed
-2 tests: 1 passed, 1 raised
+2 cases: 1 passed, 1 raised
 LINES
 }
 
@@ -66,7 +66,7 @@ LINES
 
   run -0 --separate-stderr purba test_body.py
 
-  [[ "${output}" == *$'\n2 tests: 2 passed' ]] || false
+  [[ "${output}" == *$'\n2 cases: 2 passed' ]] || false
   local lines
   lines=$(wc -l <body.log)
   [[ "${lines}" -eq 3 ]]
@@ -82,6 +82,6 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_proxies.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
 }

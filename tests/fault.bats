@@ -15,7 +15,7 @@ load internal_error.sh
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one internal error: assertion: PURBA_FAULT=assert
-1 test: 1 blocked; 1 internal error
+1 case: 1 blocked; 1 internal error
 LINES
   grep -Fq -- 'panicked at crates/assertion/src/lib.rs:' <<<"${stderr}"
   grep -Fxq -- 'PURBA_FAULT=assert' <<<"${stderr}"
@@ -47,7 +47,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -59,7 +59,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -71,7 +71,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -84,7 +84,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_panic_exception.py::test_raises_it internal error: execution: raised by the test
-1 test: 1 blocked; 1 internal error
+1 case: 1 blocked; 1 internal error
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")
@@ -101,7 +101,7 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_stale_note.py::test_catches internal error: assertion: PURBA_FAULT=assert
 test_stale_note.py::test_raises internal error: execution: raised by the second test
-2 tests: 2 blocked; 2 internal errors
+2 cases: 2 blocked; 2 internal errors
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")
@@ -119,7 +119,7 @@ LINES
 test_load_catches_panic.py internal error: assertion: PURBA_FAULT=assert
 test_load_catches_panic.py::test_one blocked: test_load_catches_panic.py did not load
 test_load_catches_panic.py::test_two blocked: test_load_catches_panic.py did not load
-2 tests: 2 blocked; 1 internal error
+2 cases: 2 blocked; 1 internal error
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")
@@ -135,7 +135,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py internal error: selection: PURBA_FAULT=selection
-0 tests; 1 internal error
+0 cases; 1 internal error
 LINES
   grep -Fq -- 'panicked at crates/selection/src/lib.rs:' <<<"${stderr}"
   local expected last
@@ -151,7 +151,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one passed
-1 test: 1 passed
+1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -166,7 +166,7 @@ LINES
 test_rewrite_panic.py::test_refused project error: purba cannot run an async test yet
 test_rewrite_panic.py internal error: assertion: PURBA_FAULT=rewrite
 test_rewrite_panic.py::test_one blocked: test_rewrite_panic.py did not load
-2 tests: 2 blocked; 1 project error, 1 internal error
+2 cases: 2 blocked; 1 project error, 1 internal error
 LINES
   grep -Fq -- 'panicked at crates/assertion/src/lib.rs:' <<<"${stderr}"
   local expected last
@@ -183,7 +183,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_rewrite_panic.py internal error: parsing: PURBA_FAULT=parse
-0 tests; 1 internal error
+0 cases; 1 internal error
 LINES
   grep -Fq -- 'panicked at crates/parsing/src/lib.rs:' <<<"${stderr}"
   local expected last
@@ -202,7 +202,7 @@ LINES
     diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_rewrite_panic.py::test_refused project error: purba cannot run an async test yet
 test_rewrite_panic.py::test_one passed
-2 tests: 1 passed, 1 blocked; 1 project error
+2 cases: 1 passed, 1 blocked; 1 project error
 LINES
     [[ -z "${stderr}" ]]
   done
@@ -238,7 +238,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_pass.py::test_one internal error: assertion: PURBA_FAULT=assert
-1 test: 1 blocked; 1 internal error
+1 case: 1 blocked; 1 internal error
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")
@@ -254,7 +254,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_changes_abiflags.py::test_one internal error: assertion: PURBA_FAULT=assert
-1 test: 1 blocked; 1 internal error
+1 case: 1 blocked; 1 internal error
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")

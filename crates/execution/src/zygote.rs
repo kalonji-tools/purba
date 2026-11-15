@@ -31,9 +31,10 @@ mod tag {
     /// The test's process started: its pid.
     pub const FORKED: u8 = b'c';
     pub const PASSED: u8 = b'p';
-    pub const UNKNOWN: u8 = b'u';
     pub const INTERRUPTED: u8 = b'i';
-    /// The text of the assert that did not hold.
+    /// The text of each assert that did not hold, each after a NUL but the first.
+    /// `compile` refuses a source that holds a NUL, so no text holds one:
+    /// <https://docs.python.org/3.12/library/functions.html#compile>
     pub const FAILED: u8 = b'f';
     /// The exception, as text.
     pub const RAISED: u8 = b'r';
@@ -308,9 +309,10 @@ fn error_of(tag: u8, text: String) -> Error {
 fn outcome_of(tag: u8, text: String) -> Result<Outcome, Error> {
     let kind = match tag {
         tag::PASSED => Kind::Passed,
-        tag::UNKNOWN => Kind::Unknown,
         tag::INTERRUPTED => Kind::Interrupted,
-        tag::FAILED => Kind::Failed { assert: text },
+        tag::FAILED => Kind::Failed {
+            asserts: text.split('\0').map(str::to_owned).collect(),
+        },
         tag::RAISED => Kind::Raised { exception: text },
         _ => return Err(error_of(tag, text)),
     };
@@ -332,9 +334,8 @@ fn error_frame(error: &Error) -> (u8, String) {
 fn outcome_frame(result: &Result<Kind, Error>) -> (u8, String) {
     match result {
         Ok(Kind::Passed) => (tag::PASSED, String::new()),
-        Ok(Kind::Unknown) => (tag::UNKNOWN, String::new()),
         Ok(Kind::Interrupted) => (tag::INTERRUPTED, String::new()),
-        Ok(Kind::Failed { assert }) => (tag::FAILED, assert.clone()),
+        Ok(Kind::Failed { asserts }) => (tag::FAILED, asserts.join("\0")),
         Ok(Kind::Raised { exception }) => (tag::RAISED, exception.clone()),
         Err(error) => error_frame(error),
     }
@@ -360,7 +361,7 @@ fn pipe() -> io::Result<(OwnedFd, OwnedFd)> {
 }
 
 /// Waits for the child `pid` to end, and gives its wait status.
-fn wait(pid: libc::pid_t) -> libc::c_int {
+pub fn wait(pid: libc::pid_t) -> libc::c_int {
     let mut status = 0;
     loop {
         // SAFETY: `waitpid` writes the status of `pid` into `status`.
@@ -376,7 +377,7 @@ fn wait(pid: libc::pid_t) -> libc::c_int {
 
 /// Writes what Python buffered for stdout and stderr, so that no child writes
 /// it again. A stream that is gone or that refuses the write keeps its buffer.
-fn flush(py: Python<'_>) {
+pub fn flush(py: Python<'_>) {
     if let Ok(sys) = py.import("sys") {
         for name in ["stdout", "stderr"] {
             if let Ok(stream) = sys.getattr(name) {
@@ -438,7 +439,7 @@ fn live_as_zygote(
             send(&mut frames, (tag::READY, String::new()));
             end(py);
         }
-        if threaded(py, &worker) {
+        if threaded(py) {
             send(&mut frames, (tag::THREADED, String::new()));
             end(py);
         }
@@ -468,16 +469,17 @@ fn live_as_zygote(
 }
 
 /// Whether a Python thread other than the main one is alive.
-fn threaded(py: Python<'_>, worker: &Worker<'_, String>) -> bool {
+pub fn threaded(py: Python<'_>) -> bool {
     let Ok(main) = py
         .import("threading")
         .and_then(|threading| threading.getattr("main_thread")?.call0())
     else {
         return false;
     };
-    worker
-        .hook
-        .get()
+    let Ok(hook) = crate::thread::hook(py) else {
+        return false;
+    };
+    hook.get()
         .alive(py)
         .iter()
         .any(|thread| !thread.bind(py).is(&main))

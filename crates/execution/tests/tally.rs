@@ -9,7 +9,7 @@ fn internal(part: &str) -> Error {
 #[test]
 fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
     let failed = Kind::Failed {
-        assert: "assert 1 == 2".to_owned(),
+        asserts: vec!["assert 1 == 2".to_owned()],
     };
     let raised = Kind::Raised {
         exception: "ValueError: boom".to_owned(),
@@ -21,7 +21,6 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
         Ok(&Kind::Passed),
         Ok(&failed),
         Ok(&raised),
-        Ok(&Kind::Unknown),
         Ok(&Kind::Interrupted),
         Err(&project),
         Err(&internal),
@@ -34,7 +33,6 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
             passed: 1,
             failed: 1,
             raised: 1,
-            unknown: 1,
             interrupted: 1,
             blocked: 2,
             project_errors: 1,

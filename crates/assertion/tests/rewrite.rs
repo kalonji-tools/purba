@@ -5,7 +5,7 @@ fn rewrite(name: &str, text: &str) -> purba_assertion::Rewrite {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
     fs::write(&path, text).expect("the test writes its module");
     let module = purba_parsing::parse(&path).expect("the module parses");
-    purba_assertion::rewrite(&module)
+    purba_assertion::rewrite(&module, &[])
 }
 
 #[test]
@@ -158,7 +158,7 @@ fn a_text_that_no_file_holds_gives_the_rewrite_of_a_file_that_holds_it() {
     let text = "def test_one():\n    assert 1 == 1\n";
     let read = rewrite("test_of_source.py", text);
 
-    let rewritten = purba_assertion::Rewrite::of_source(text).expect("the text parses");
+    let rewritten = purba_assertion::Rewrite::of_source(text, &[]).expect("the text parses");
 
     assert_eq!(rewritten.text(), read.text(), "the same rewritten text");
     assert_eq!(rewritten.asserts(), read.asserts(), "the same asserts");
@@ -166,10 +166,126 @@ fn a_text_that_no_file_holds_gives_the_rewrite_of_a_file_that_holds_it() {
 
 #[test]
 fn a_text_that_does_not_parse_gives_the_syntax_error() {
-    let error = purba_assertion::Rewrite::of_source("def test_one(:\n    pass\n").err();
+    let error = purba_assertion::Rewrite::of_source("def test_one(:\n    pass\n", &[]).err();
 
     assert!(
         matches!(error, Some(purba_parsing::Error::Syntax(_))),
         "a syntax error, not {error:?}"
+    );
+}
+
+#[test]
+fn the_asserts_at_the_end_of_a_test_are_its_expectations() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def helper():\n",
+            "    assert True\n",
+            "\n",
+            "def test_one():\n",
+            "    assert 1 == 1\n",
+            "    total = 2\n",
+            "    assert total == 2\n",
+            "    assert total > 1, \"why\"\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def helper():\n",
+            "    assert _purba_ran(0, True)\n",
+            "\n",
+            "def test_one():\n",
+            "    assert _purba_ran(1, 1 == 1)\n",
+            "    total = 2\n",
+            "    _purba_reads(0) and _purba_read(0, total == 2)\n",
+            "    _purba_reads(1) and _purba_read(1, total > 1)\n",
+        ),
+        "an assert of a function that is no test, and one before another statement, keep a mark"
+    );
+    assert_eq!(
+        rewritten.expectations("test_one"),
+        ["assert total == 2", "assert total > 1, \"why\""],
+        "the text of each expectation, with its message"
+    );
+    assert_eq!(
+        rewritten.expectations("helper"),
+        [] as [&str; 0],
+        "a function that is no test has no expectation"
+    );
+}
+
+#[test]
+fn an_expectation_keeps_the_number_of_each_later_line() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    total = 2; assert \\\n",
+            "        total == 2, (\n",
+            "        \"why\")\n",
+            "    assert total\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    total = 2; _purba_reads(0) and _purba_read(0, \n",
+            "total == 2\n",
+            ")\n",
+            "    _purba_reads(1) and _purba_read(1, total)\n",
+        ),
+        "an expectation after `;` stays an expression, and its line breaks stay inside the call"
+    );
+    assert_eq!(
+        rewritten.expectations("test_one"),
+        [
+            "assert \n        total == 2, (\n        \"why\")",
+            "assert total"
+        ],
+        "the text of each expectation, without its line continuation"
+    );
+}
+
+#[test]
+fn the_assert_of_each_named_test_of_test_a_is_its_expectation() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "def test_two():\n",
+            "    assert 1 == 2\n",
+            "\n",
+            "def test_three():\n",
+            "    pass\n",
+        ),
+        &["test_one", "test_two", "test_three"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    _purba_reads(0) and _purba_read(0, 1 == 1)\n",
+            "\n",
+            "def test_two():\n",
+            "    _purba_reads(1) and _purba_read(1, 1 == 2)\n",
+            "\n",
+            "def test_three():\n",
+            "    pass\n",
+        ),
+        "each assert, as an expectation with its index in source order"
+    );
+    assert_eq!(
+        rewritten.asserts(),
+        [] as [&str; 0],
+        "no assert keeps a mark"
     );
 }

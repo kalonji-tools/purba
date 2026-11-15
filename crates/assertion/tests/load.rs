@@ -1,4 +1,4 @@
-use purba_assertion::Rewrite;
+use purba_assertion::{Readers, Readings, Rewrite, Verdict, Watched};
 use pyo3::Python;
 use pyo3::exceptions::{PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
@@ -6,14 +6,14 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 fn source(text: &str) -> Rewrite {
-    Rewrite::of_source(text).expect("the source parses")
+    Rewrite::of_source(text, &[]).expect("the source parses")
 }
 
 fn rewritten(name: &str, text: &str) -> (PathBuf, Rewrite) {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
     fs::write(&path, text).expect("the test writes its module");
     let module = purba_parsing::parse(&path).expect("the module parses");
-    (path, purba_assertion::rewrite(&module))
+    (path, purba_assertion::rewrite(&module, &[]))
 }
 
 #[test]
@@ -37,7 +37,9 @@ fn watch_gives_the_text_of_the_last_assert_that_ran() {
     Python::attach(|py| {
         let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
         let test_two = loaded.module().getattr("test_two").unwrap();
-        let (result, last) = loaded.watch(|| test_two.call0());
+        let Watched {
+            result, mark: last, ..
+        } = loaded.watch(&NO_READER, || test_two.call0());
         assert!(result.is_ok(), "the test returned");
         assert_eq!(
             last,
@@ -59,17 +61,17 @@ fn watch_starts_clear() {
         let marks = loaded.module().getattr("test_marks").unwrap();
         let none = loaded.module().getattr("test_none").unwrap();
         assert_eq!(
-            loaded.watch(|| none.call0()).1,
+            loaded.watch(&NO_READER, || none.call0()).mark,
             None,
             "the module-level assert ran before watch"
         );
         assert_eq!(
-            loaded.watch(|| marks.call0()).1,
+            loaded.watch(&NO_READER, || marks.call0()).mark,
             Some(("assert 1 == 1", true)),
             "the test's own assert"
         );
         assert_eq!(
-            loaded.watch(|| none.call0()).1,
+            loaded.watch(&NO_READER, || none.call0()).mark,
             None,
             "an assert ran in the watch before"
         );
@@ -84,7 +86,9 @@ fn the_mark_gives_back_whether_its_value_held() {
         let loaded = purba_assertion::load(py, Path::new("test_value.py"), &rewrite)
             .expect("the module loads");
         let kept = loaded.module().getattr("kept").unwrap();
-        let (result, last) = loaded.watch(|| kept.call0());
+        let Watched {
+            result, mark: last, ..
+        } = loaded.watch(&NO_READER, || kept.call0());
         assert_eq!(
             result.unwrap().to_string(),
             "False",
@@ -117,7 +121,7 @@ fn an_assert_tests_its_value_once() {
         let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
         let module = loaded.module();
         let counted = module.getattr("test_counted").unwrap();
-        let (result, _) = loaded.watch(|| counted.call0());
+        let Watched { result, .. } = loaded.watch(&NO_READER, || counted.call0());
         assert!(result.is_ok(), "the test returned");
         let tests: i64 = module
             .getattr("Counted")
@@ -138,7 +142,9 @@ fn a_mark_with_no_assert_raises() {
         let loaded = purba_assertion::load(py, Path::new("test_beyond.py"), &rewrite)
             .expect("the module loads");
         let test = loaded.module().getattr("test_beyond").unwrap();
-        let (result, last) = loaded.watch(|| test.call0());
+        let Watched {
+            result, mark: last, ..
+        } = loaded.watch(&NO_READER, || test.call0());
         let err = result.expect_err("the mark raises");
         assert!(
             err.is_instance_of::<PyIndexError>(py),
@@ -361,8 +367,8 @@ fn a_call_that_rebinds_the_hook_gives_a_name_error() {
         let after = loaded.module().getattr("test_after").unwrap();
 
         let err = loaded
-            .watch(|| swap.call0())
-            .0
+            .watch(&NO_READER, || swap.call0())
+            .result
             .expect_err("the call that rebinds the hook gives an error");
         assert!(
             err.is_instance_of::<PyNameError>(py),
@@ -374,7 +380,7 @@ fn a_call_that_rebinds_the_hook_gives_a_name_error() {
             "the error names the file and the hook"
         );
         assert_eq!(
-            loaded.watch(|| after.call0()).1,
+            loaded.watch(&NO_READER, || after.call0()).mark,
             Some(("assert 1 == 1", true)),
             "the next call finds the hook back"
         );
@@ -442,8 +448,8 @@ fn a_call_that_rebinds_the_hook_and_fails_its_assert_gives_a_name_error() {
         .expect("the module loads");
         let swap = loaded.module().getattr("test_swap").unwrap();
         let err = loaded
-            .watch(|| swap.call0())
-            .0
+            .watch(&NO_READER, || swap.call0())
+            .result
             .expect_err("the call gives an error");
         assert!(
             err.is_instance_of::<PyNameError>(py),
@@ -516,6 +522,201 @@ fn a_module_that_nests_too_deep_is_cpythons_error_at_the_load() {
             err.to_string(),
             "MemoryError: Parser stack overflowed - Python source too complex to parse",
             "CPython's error, as for any module that does not compile"
+        );
+    });
+}
+
+/// Readers that a test of the hook needs: none, since a Python thread always
+/// seems alive.
+struct NoReader;
+
+static NO_READER: NoReader = NoReader;
+
+impl Readers for NoReader {
+    fn threaded(&self, _py: Python<'_>) -> bool {
+        true
+    }
+
+    fn fork(&self, _py: Python<'_>) -> std::io::Result<Option<i32>> {
+        unreachable!("a process with a thread forks no reader")
+    }
+
+    fn wait(&self, _pid: i32) -> Verdict {
+        unreachable!("a process with a thread forks no reader")
+    }
+
+    fn end(&self, _verdict: Verdict) -> ! {
+        unreachable!("no process is a reader")
+    }
+}
+
+/// Readers that never fork: each looks forked, and gives `Fails`.
+struct Failing;
+
+static FAILING: Failing = Failing;
+
+impl Readers for Failing {
+    fn threaded(&self, _py: Python<'_>) -> bool {
+        false
+    }
+
+    fn fork(&self, _py: Python<'_>) -> std::io::Result<Option<i32>> {
+        Ok(Some(1))
+    }
+
+    fn wait(&self, _pid: i32) -> Verdict {
+        Verdict::Fails
+    }
+
+    fn end(&self, _verdict: Verdict) -> ! {
+        unreachable!("no process is a reader")
+    }
+}
+
+const EXPECTS: &str = "seen = []\n\n\
+    def test_three():\n    seen.append(1)\n\
+    \x20   assert seen == [1]\n    assert seen != []\n    assert seen == [2]\n";
+
+#[test]
+fn the_first_expectation_reads_each_later_one_alone_before_it_reads_in_order() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(EXPECTS, &["test_three"]).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_expects.py"), &rewrite)
+            .expect("the module loads");
+        let test = loaded.module().getattr("test_three").unwrap();
+        let Watched {
+            result,
+            mark,
+            readings,
+        } = loaded.watch(&FAILING, || test.call0());
+        assert!(result.is_ok(), "the test returned: {result:?}");
+        assert_eq!(mark, None, "an expectation keeps no mark");
+        assert_eq!(
+            readings,
+            Readings {
+                in_order: vec![(0, true), (1, true), (2, false)],
+                alone: vec![(1, Verdict::Fails), (2, Verdict::Fails)],
+                refused: None,
+            },
+            "a reader for each expectation after the first, then each in order"
+        );
+    });
+}
+
+#[test]
+fn a_python_thread_alive_at_the_first_expectation_leaves_the_case_with_no_reader() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(EXPECTS, &["test_three"]).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_threaded.py"), &rewrite)
+            .expect("the module loads");
+        let test = loaded.module().getattr("test_three").unwrap();
+        let readings = loaded.watch(&NO_READER, || test.call0()).readings;
+        assert_eq!(readings.alone, [], "no reader, so no verdict alone");
+        assert_eq!(
+            readings.in_order,
+            [(0, true), (1, true), (2, false)],
+            "each expectation in order"
+        );
+    });
+}
+
+#[test]
+fn a_module_that_binds_the_expectation_hook_does_not_load() {
+    Python::initialize();
+    Python::attach(|py| {
+        let err = purba_assertion::load(
+            py,
+            Path::new("test_binds_read.py"),
+            &source("_purba_read = None\n"),
+        )
+        .err()
+        .expect("the module binds the hook");
+        assert!(
+            err.is_instance_of::<PyNameError>(py),
+            "NameError, not {err}"
+        );
+        assert_eq!(
+            err.value(py).to_string(),
+            "test_binds_read.py binds _purba_read, the name of purba's expectation hook",
+            "the error names the hook"
+        );
+    });
+}
+
+/// Readers whose fork the operating system refuses.
+struct Refusing;
+
+static REFUSING: Refusing = Refusing;
+
+impl Readers for Refusing {
+    fn threaded(&self, _py: Python<'_>) -> bool {
+        false
+    }
+
+    fn fork(&self, _py: Python<'_>) -> std::io::Result<Option<i32>> {
+        Err(std::io::Error::other("no process left"))
+    }
+
+    fn wait(&self, _pid: i32) -> Verdict {
+        unreachable!("no fork took place")
+    }
+
+    fn end(&self, _verdict: Verdict) -> ! {
+        unreachable!("no process is a reader")
+    }
+}
+
+#[test]
+fn a_refused_fork_is_kept_and_each_expectation_is_read_in_order() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(EXPECTS, &["test_three"]).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_refused.py"), &rewrite)
+            .expect("the module loads");
+        let test = loaded.module().getattr("test_three").unwrap();
+        let readings = loaded.watch(&REFUSING, || test.call0()).readings;
+        assert_eq!(
+            readings.refused.as_deref(),
+            Some("purba cannot fork to read an expectation alone: no process left"),
+            "the refusal, with the operating system's error"
+        );
+        assert_eq!(
+            readings.in_order,
+            [(0, true), (1, true), (2, false)],
+            "each expectation in order"
+        );
+    });
+}
+
+#[test]
+fn a_test_that_rebinds_the_expectation_hook_gives_the_name_error_and_the_hook_is_back() {
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(
+            "def test_rebind():\n    global _purba_read\n    _purba_read = None\n\n\
+             def test_after():\n    assert 1 == 1\n",
+            &["test_rebind", "test_after"],
+        )
+        .expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_rebind.py"), &rewrite)
+            .expect("the module loads");
+        let rebind = loaded.module().getattr("test_rebind").unwrap();
+        let after = loaded.module().getattr("test_after").unwrap();
+        let err = loaded
+            .watch(&NO_READER, || rebind.call0())
+            .result
+            .expect_err("the call that rebinds the hook gives an error");
+        assert_eq!(
+            err.value(py).to_string(),
+            "test_rebind.py binds _purba_read, the name of purba's expectation hook",
+            "the error names the hook"
+        );
+        assert_eq!(
+            loaded.watch(&NO_READER, || after.call0()).readings.in_order,
+            [(0, true)],
+            "the next test reads through the hook that is back"
         );
     });
 }

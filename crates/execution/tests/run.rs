@@ -5,8 +5,23 @@ use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Rewrite};
 fn module(name: &str, source: &str) -> Module {
     Module::new(
         PathBuf::from(name),
-        Rewrite::of_source(source).expect("the source parses"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
     )
+}
+
+fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
+    purba_execution::attach(|worker| {
+        worker.load(module).expect("the module loads");
+        functions
+            .iter()
+            .map(|function| {
+                worker
+                    .run(module, function, *function)
+                    .map(|outcome| outcome.kind().clone())
+                    .map_err(|error| error.to_string())
+            })
+            .collect()
+    })
 }
 
 fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
@@ -26,7 +41,7 @@ fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
 }
 
 #[test]
-fn the_three_tests_of_test_a_pass_fail_and_are_unknown() {
+fn the_three_tests_of_test_a_pass_fail_and_state_no_expectation() {
     let test_a = module(
         "test_a.py",
         "def test_one():\n    assert 1 == 1\n\n\
@@ -34,27 +49,27 @@ fn the_three_tests_of_test_a_pass_fail_and_are_unknown() {
          def test_three():\n    pass\n",
     );
     assert_eq!(
-        kinds(&test_a, &["test_one", "test_two", "test_three"]),
+        results(&test_a, &["test_one", "test_two", "test_three"]),
         [
-            Kind::Passed,
-            Kind::Failed {
-                assert: "assert 1 == 2".to_owned()
-            },
-            Kind::Unknown,
+            Ok(Kind::Passed),
+            Ok(Kind::Failed {
+                asserts: vec!["assert 1 == 2".to_owned()]
+            }),
+            Err("no expectation stated".to_owned()),
         ],
-        "one outcome for each test, in order",
+        "one outcome or error for each test, in order",
     );
 }
 
 #[test]
-fn a_module_level_assert_leaves_a_test_unknown() {
+fn a_module_level_assert_is_no_expectation_of_a_test() {
     let test_level = module(
         "test_level.py",
         "assert True\n\ndef test_none():\n    pass\n",
     );
     assert_eq!(
-        kinds(&test_level, &["test_none"]),
-        [Kind::Unknown],
+        results(&test_level, &["test_none"]),
+        [Err("no expectation stated".to_owned())],
         "the module-level assert ran before the test's call",
     );
 }
@@ -275,7 +290,7 @@ fn an_assertion_error_before_any_assert_gives_raised() {
 fn an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised() {
     let test_message = module(
         "test_message.py",
-        "def test_message():\n    assert 1 == 2, undefined_name\n",
+        "def test_message():\n    assert 1 == 2, undefined_name\n    return\n",
     );
     assert_eq!(
         kinds(&test_message, &["test_message"]),
@@ -283,6 +298,21 @@ fn an_exception_in_the_message_of_an_assert_that_did_not_hold_gives_raised() {
             exception: "NameError: name 'undefined_name' is not defined".to_owned()
         }],
         "the message raised NameError, so the test raised"
+    );
+}
+
+#[test]
+fn the_message_of_an_expectation_is_never_evaluated() {
+    let test_message = module(
+        "test_expected_message.py",
+        "def test_expected_message():\n    assert 1 == 2, undefined_name\n",
+    );
+    assert_eq!(
+        kinds(&test_message, &["test_expected_message"]),
+        [Kind::Failed {
+            asserts: vec!["assert 1 == 2, undefined_name".to_owned()]
+        }],
+        "the expectation did not hold, and its message never ran"
     );
 }
 
@@ -304,16 +334,16 @@ fn an_exception_after_a_caught_assert_that_did_not_hold_gives_raised() {
 }
 
 #[test]
-fn a_caught_assert_that_did_not_hold_and_a_return_give_passed() {
+fn a_caught_assert_that_did_not_hold_and_a_return_state_no_expectation() {
     let test_caught = module(
         "test_caught_then_return.py",
         "def test_caught_then_return():\n    try:\n        assert 1 == 2\n\
          \x20   except AssertionError:\n        pass\n",
     );
     assert_eq!(
-        kinds(&test_caught, &["test_caught_then_return"]),
-        [Kind::Passed],
-        "an assert ran, and the test returned"
+        results(&test_caught, &["test_caught_then_return"]),
+        [Err("no expectation stated".to_owned())],
+        "the assert is marked, not an expectation, and the test returned"
     );
 }
 
@@ -330,7 +360,7 @@ fn a_cleanup_assert_that_holds_keeps_the_assert_that_did_not() {
          \x20   finally:\n        assert not opened\n",
     );
     let failed = Kind::Failed {
-        assert: "assert 1 + 1 == 3".to_owned(),
+        asserts: vec!["assert 1 + 1 == 3".to_owned()],
     };
     assert_eq!(
         kinds(
@@ -355,7 +385,7 @@ fn a_cleanup_assert_that_does_not_hold_either_fails_the_test() {
     assert_eq!(
         kinds(&test_cleanup, &["test_cleanup_fails"]),
         [Kind::Failed {
-            assert: "assert 2 + 2 == 5".to_owned()
+            asserts: vec!["assert 2 + 2 == 5".to_owned()],
         }],
         "the cleanup assert is the last that did not hold"
     );
@@ -373,7 +403,7 @@ fn an_assertion_error_after_a_caught_assert_and_one_that_held_fails_on_the_caugh
     assert_eq!(
         kinds(&test_caught, &["test_caught_held_raise"]),
         [Kind::Failed {
-            assert: "assert 1 == 2".to_owned()
+            asserts: vec!["assert 1 == 2".to_owned()],
         }],
         "an assert that held does not replace the caught assert that did not"
     );
@@ -430,4 +460,14 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
         "the panic that crosses the call is an internal error of execution, the next test \
          passes, and a project error names no part"
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }

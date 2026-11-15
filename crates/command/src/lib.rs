@@ -86,7 +86,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
 pub fn run_with(
     arguments: &[String],
     out: io::Result<impl Write>,
-    rewrite: impl Fn(&purba_parsing::Module) -> purba_assertion::Rewrite,
+    rewrite: impl Fn(&purba_parsing::Module, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<u8, Error> {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "command")
@@ -202,12 +202,13 @@ fn rewritten(
     path: &Path,
     module: &purba_parsing::Module,
     tests: Vec<TestId>,
-    rewrite: &impl Fn(&purba_parsing::Module) -> purba_assertion::Rewrite,
+    rewrite: &impl Fn(&purba_parsing::Module, &[&str]) -> purba_assertion::Rewrite,
 ) -> Found {
     if tests.is_empty() {
         return Found::Modules(Vec::new());
     }
-    match purba_execution::catch("command", || Ok(rewrite(module))) {
+    let names: Vec<&str> = tests.iter().map(TestId::function).collect();
+    match purba_execution::catch("command", || Ok(rewrite(module, &names))) {
         Ok(rewrite) => Found::Modules(vec![Module::new(path.to_owned(), rewrite, tests)]),
         Err(error) => Found::NotRewritten(error, tests),
     }

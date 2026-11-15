@@ -8,6 +8,7 @@ mod fork;
 mod frame;
 pub mod interrupt;
 pub mod panic;
+mod reader;
 mod step;
 mod thread;
 mod zygote;
@@ -18,9 +19,9 @@ use std::fmt;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 
-use purba_assertion::Loaded;
 /// Assertion's rewrite of a module, which a [`Module`] holds.
 pub use purba_assertion::Rewrite;
+use purba_assertion::{Loaded, Readings, Verdict};
 use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Py, PyAny, PyErr, Python};
@@ -60,29 +61,28 @@ pub struct Outcome {
 }
 
 impl Outcome {
-    /// Whether the test passed, failed, raised, or is `unknown` or
-    /// `interrupted`.
+    /// Whether the case passed, failed, raised, or is `interrupted`.
     #[must_use]
     pub const fn kind(&self) -> &Kind {
         &self.kind
     }
 }
 
-/// Passed, failed, raised, unknown or interrupted.
+/// Passed, failed, raised or interrupted.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Kind {
-    /// An assert ran, and the test returned.
+    /// Each expectation that the case read held, and the test returned.
     Passed,
-    /// An assert that ran did not hold, and the test raised `AssertionError`.
-    /// `assert` is the text of the last assert that did not hold.
-    Failed { assert: String },
+    /// An expectation did not hold, and the test returned, or a marked assert
+    /// did not hold, and the test raised `AssertionError`. `asserts` is the text
+    /// of each expectation that did not hold, in order, or of the last marked
+    /// assert that did not hold.
+    Failed { asserts: Vec<String> },
     /// The test's call raised, and the outcome is not `Failed` or
     /// `Interrupted`. A test whose process ends before its outcome gives
     /// `Raised` too. `exception` is the type and the message of the exception,
     /// or how the process ended, as text.
     Raised { exception: String },
-    /// No assert ran, and the test returned.
-    Unknown,
     /// The first interrupt landed during the test's step: its lookup or its
     /// call. The test has this outcome whether it then passed, failed or raised.
     Interrupted,
@@ -394,50 +394,113 @@ impl<'py, T: Clone> Worker<'py, T> {
             return (Ok(Kind::Interrupted), true);
         }
         let mut landed = false;
-        let (result, last) = loaded.watch(|| {
+        let watched = loaded.watch(&reader::READERS, || {
             let (called, inside) = interrupt::calling(py, || {
                 std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))
             });
             landed = inside;
             Ok(called)
         });
-        let result = match result {
-            Ok(Ok(called)) => called,
+        let result = match watched.result {
+            Ok(Ok(called)) => called.map(drop),
             Ok(Err(payload)) => {
                 return (Err(Error::caught(payload.as_ref(), "execution")), landed);
             }
             Err(err) => Err(err),
         };
-        let kind = match (result, last) {
-            (Ok(_), Some(_)) => Kind::Passed,
-            (Ok(_), None) => Kind::Unknown,
-            (Err(err), Some((assert, false))) if err.is_instance_of::<PyAssertionError>(py) => {
-                Kind::Failed {
-                    assert: assert.to_owned(),
-                }
-            }
-            (Err(err), _) => Kind::Raised {
-                exception: err.to_string(),
-            },
-        };
-        (Ok(kind), landed)
+        let kind = decide(
+            py,
+            result,
+            watched.mark,
+            &watched.readings,
+            loaded,
+            function,
+        );
+        (kind, landed)
     }
 }
 
-/// How many tests of a run passed, failed, raised, are `unknown` or
-/// `interrupted`, are blocked or unreached, and how many errors of each kind
-/// it met.
+/// The outcome of the case of `function`, from what its call gave, the last
+/// marked assert, and the readings of its expectations, in this order: a
+/// project error when a fork to read a later expectation alone failed, or when
+/// the two readings of one expectation differ; `raised` when the call raised,
+/// unless a marked assert that did not hold raised `AssertionError`, which is
+/// `failed`; `failed` when an expectation did not hold; a project error when no
+/// expectation ran; and `passed`.
+fn decide(
+    py: Python<'_>,
+    result: Result<(), PyErr>,
+    mark: Option<(&str, bool)>,
+    readings: &Readings,
+    loaded: &Loaded<'_>,
+    function: &str,
+) -> Result<Kind, Error> {
+    if let Some(refused) = &readings.refused {
+        return Err(Error::project(refused.clone()));
+    }
+    for &(index, alone) in &readings.alone {
+        let Some(&(_, in_order)) = readings.in_order.iter().find(|(read, _)| *read == index) else {
+            continue;
+        };
+        let differs = match (alone, in_order) {
+            (Verdict::Holds, false) => {
+                "holds when read alone, and not after the expectations before it"
+            }
+            (Verdict::Fails, true) => {
+                "holds after the expectations before it, and not when read alone"
+            }
+            (Verdict::Raises, true) => {
+                "holds after the expectations before it, and raises when read alone"
+            }
+            (Verdict::Raises, false) => {
+                "does not hold after the expectations before it, and raises when read alone"
+            }
+            (Verdict::Holds, true) | (Verdict::Fails, false) => continue,
+        };
+        let text = loaded.expectation(index).unwrap_or_default();
+        return Err(Error::project(format!("{text} {differs}")));
+    }
+    if let Err(err) = result {
+        if let Some((assert, false)) = mark
+            && err.is_instance_of::<PyAssertionError>(py)
+        {
+            return Ok(Kind::Failed {
+                asserts: vec![assert.to_owned()],
+            });
+        }
+        return Ok(Kind::Raised {
+            exception: err.to_string(),
+        });
+    }
+    let failed: Vec<String> = readings
+        .in_order
+        .iter()
+        .filter(|(_, held)| !held)
+        .filter_map(|(index, _)| loaded.expectation(*index).map(str::to_owned))
+        .collect();
+    if !failed.is_empty() {
+        Ok(Kind::Failed { asserts: failed })
+    } else if !readings.in_order.is_empty() {
+        Ok(Kind::Passed)
+    } else if !loaded.states_expectation(function) {
+        Err(Error::project("no expectation stated".to_owned()))
+    } else {
+        Err(Error::project("no expectation ran".to_owned()))
+    }
+}
+
+/// How many cases of a run passed, failed, raised, are `interrupted`, are
+/// blocked or unreached, and how many errors of each kind it met.
 ///
-/// Each test counts once, and each error once, by its kind.
+/// Each case counts once, and each error once, by its kind.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
     pub failed: usize,
     pub raised: usize,
-    pub unknown: usize,
     pub interrupted: usize,
     pub blocked: usize,
-    /// Tests that the run never reached, because an interrupt stopped the run.
+    /// Cases that the run never reached, because an interrupt stopped the run.
     pub unreached: usize,
     pub project_errors: usize,
     pub internal_errors: usize,
@@ -453,7 +516,6 @@ impl Tally {
             Ok(Kind::Passed) => self.passed += 1,
             Ok(Kind::Failed { .. }) => self.failed += 1,
             Ok(Kind::Raised { .. }) => self.raised += 1,
-            Ok(Kind::Unknown) => self.unknown += 1,
             Ok(Kind::Interrupted) => self.interrupted += 1,
             Err(error) => {
                 self.blocked += 1;

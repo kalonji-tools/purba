@@ -19,8 +19,9 @@ load internal_error.sh
   run -1 --separate-stderr purba test_fail.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_fail.py::test_one failed: assert 1 == 2
-1 test: 1 failed
+test_fail.py::test_one failed
+    assert 1 == 2
+1 case: 1 failed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -39,9 +40,11 @@ LINES
   run -1 --separate-stderr purba test_cleanup_assert.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_cleanup_assert.py::test_inside_a_checking_context failed: assert 1 + 1 == 3
-test_cleanup_assert.py::test_with_a_finally_check failed: assert 1 + 1 == 3
-2 tests: 2 failed
+test_cleanup_assert.py::test_inside_a_checking_context failed
+    assert 1 + 1 == 3
+test_cleanup_assert.py::test_with_a_finally_check failed
+    assert 1 + 1 == 3
+2 cases: 2 failed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -54,7 +57,110 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_raise.py::test_one raised: KeyError: 'k'
-1 test: 1 raised
+1 case: 1 raised
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test that states no expectation prints a project error, and the run exits 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_one():' '    total = 1 + 1' >test_none.py
+
+  run -4 --separate-stderr purba test_none.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_none.py::test_one project error: no expectation stated
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "an assert inside a with is no expectation, and the run exits 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import contextlib' '' '' \
+    'def test_one():' '    with contextlib.nullcontext():' '        assert 1 == 1' >test_with.py
+
+  run -4 --separate-stderr purba test_with.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_with.py::test_one project error: no expectation stated
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test whose expectation never runs prints a project error, and the run exits 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_one():' '    return' '    assert 1 == 1' >test_early.py
+
+  run -4 --separate-stderr purba test_early.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_early.py::test_one project error: no expectation ran
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test whose two expectations fail prints both under its line, and the run exits 1" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_one():' '    a, b = 2, 3' '    assert a == 1' '    assert b == 2' \
+    >test_two_fail.py
+
+  run -1 --separate-stderr purba test_two_fail.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_two_fail.py::test_one failed
+    assert a == 1
+    assert b == 2
+1 case: 1 failed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "an expectation that a reading before it changed is refused, and the run exits 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'seen = []' '' '' \
+    'def test_holds_alone():' '    assert seen.append(1) is None' '    assert seen == []' '' '' \
+    'def test_fails_alone():' '    assert seen.append(1) is None' '    assert seen == [1]' \
+    >test_reading.py
+
+  run -4 --separate-stderr purba test_reading.py
+
+  local alone='holds when read alone, and not after the expectations before it'
+  local after='holds after the expectations before it, and not when read alone'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_reading.py::test_holds_alone project error: assert seen == [] ${alone}
+test_reading.py::test_fails_alone project error: assert seen == [1] ${after}
+2 cases: 2 blocked; 2 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a thread alive at the first expectation leaves each expectation read in order only" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import threading' '' 'seen = []' '' '' 'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    assert seen.append(1) is None' '    assert seen == [1]' >test_thread.py
+
+  run -0 --separate-stderr purba test_thread.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_thread.py::test_one passed
+1 case: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "an expectation that raises gives raised, and no later expectation prints" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_one():' '    assert {}["k"] == 1' '    assert 1 == 2' >test_raise_first.py
+
+  run -4 --separate-stderr purba test_raise_first.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_raise_first.py::test_one raised: KeyError: 'k'
+1 case: 1 raised
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -67,7 +173,7 @@ LINES
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_paren.py project error: SyntaxError: Expected a parameter or the end of the parameter list
-0 tests; 1 project error
+0 cases; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -99,9 +205,10 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_panic.py::test_passes passed
 test_panic.py::test_panics internal error: assertion: PURBA_FAULT=assert
-test_panic.py::test_fails failed: assert 1 == 2
+test_panic.py::test_fails failed
+    assert 1 == 2
 test_panic.py::test_raises raised: KeyError: 'k'
-4 tests: 1 passed, 1 failed, 1 raised, 1 blocked; 1 internal error
+4 cases: 1 passed, 1 failed, 1 raised, 1 blocked; 1 internal error
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")

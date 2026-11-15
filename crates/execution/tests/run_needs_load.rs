@@ -13,7 +13,8 @@ const TEST_PROBE_SIGNAL: &str = "import signal\n\nsignal.raise_signal(signal.SIG
 fn a_run_on_a_module_never_given_to_load_is_an_internal_error_and_runs_none_of_it() {
     let module = Module::new(
         PathBuf::from("test_probe_signal.py"),
-        Rewrite::of_source(TEST_PROBE_SIGNAL).expect("the source parses"),
+        Rewrite::of_source(TEST_PROBE_SIGNAL, &tests_in(TEST_PROBE_SIGNAL))
+            .expect("the source parses"),
     );
     let (shown, kept) = purba_execution::attach(|worker| {
         purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
@@ -35,4 +36,14 @@ fn a_run_on_a_module_never_given_to_load_is_an_internal_error_and_runs_none_of_i
         "a run on a module that was never given to load is an internal error of execution, \
          and no line of the module runs, so no signal is kept"
     );
+}
+
+/// The name of each `def test_…` at the top of `source`, as selection names
+/// the tests of a module.
+fn tests_in(source: &str) -> Vec<&str> {
+    source
+        .lines()
+        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
+        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
+        .collect()
 }
