@@ -30,7 +30,7 @@ At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation
 
 - **Assertion leaves a tuple assert as written anywhere in a module.** CPython warns for an assert in a test, in a helper or at the module's level, when it compiles the module. Away from a test's end, the assert counts as no assert that ran.
 - **The refused line names the tuple assert's line number.** [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says how.
-- **Assertion rewrites an assert of an empty tuple as it rewrites any other assert.** An assert of an empty tuple always fails, and CPython does not warn about it. At a test's end, selection refuses the test, because an empty tuple is no comparison.
+- **Assertion rewrites an assert of an empty tuple as it rewrites any other assert.** An assert of an empty tuple always fails, and CPython does not warn about it. At a test's end, selection refuses the test, because an empty tuple is no comparison. Before the first expectation, execution refuses the case, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
 
 **Downside:**
 
@@ -43,7 +43,7 @@ At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation
 `mise run test:wheel` checks that selection refuses a test that ends with a tuple assert.
 It checks that the refused line names the tuple's line number.
 It checks that a tuple assert in a helper keeps CPython's warning.
-It checks that an assert of an empty tuple above a statement that is not an assert fails, and that stderr is empty.
+It checks that execution refuses an assert of an empty tuple above a statement that is not an assert, and that stderr is empty.
 
 `mise run test:rust` checks that selection refuses a test that ends with a tuple assert or an assert of an empty tuple.
 It checks that the rewrite leaves a tuple assert as written and gives it no index.

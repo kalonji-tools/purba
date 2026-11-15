@@ -30,10 +30,10 @@ The hook shares the module's namespace with the tester's own names, so a name of
 **A module that binds a name purba adds is a project error.**
 The checks below stay inside assertion, and they see what the module binds when it runs.
 
-- **The rule holds for each name that a rewrite adds to a module:** `_purba_ran`, `_purba_read`, `_purba_reads` and each later helper.
+- **The rule holds for each name that a rewrite adds to a module:** `_purba_ran`, `_purba_read`, `_purba_reads`, `_purba_step`, `_purba_with` and each later helper.
 - **Before the body of the module runs, the load checks that no function holds such a name as a local name.**
 - **After the body runs, the load checks that each such name still holds what purba put there.**
-- **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`. For `_purba_read` or `_purba_reads`, it names purba's expectation hook instead.
+- **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`. For `_purba_read` or `_purba_reads`, it names purba's expectation hook instead. For `_purba_step` it names purba's step hook, and for `_purba_with` it names purba's with hook.
 - **After each test, assertion checks the hook again.** When the hook changes, that test has the outcome `raised`, with that `NameError`. Assertion then puts the hook back for the next test.
 
 **Downside:**

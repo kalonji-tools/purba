@@ -18,6 +18,7 @@ When the tests of a module share one interpreter, a test can fail for what an ea
 - **One interpreter for the tests of a module.** click's tests leak through it.
 - **The tests whose text shows them isolated share one interpreter.** The text of click's tests showed none of its leaks.
 - **The forkserver of `multiprocessing` loads the module.** It ignores a preload that raises `ImportError`, and the module body then runs for each test.
+- **A thread alive at the first expectation gives a replay for each expectation but the last.** No replay would then read the last expectation alone.
 
 ## Decision Outcome
 
@@ -36,7 +37,8 @@ A crash ends one test, and not the run.
 - **A test whose process ends before its outcome has the outcome `raised`.** The line names the signal, `raised: its process died by SIGABRT`, or the exit code, `raised: its process exited 0 before its outcome`.
 - **After its test returns, the test's process joins each thread that is not a daemon, then runs the test's `atexit` functions.** A daemon thread ends with the process.
 - **Each process runs only the `atexit` functions that it registered.** So the functions that a load registered run once, at the end of the zygote, unless the load leaves a thread alive.
-- **At its first [expectation](../../CONTEXT.md#expectation), the test's process forks once for each later expectation, one fork at a time, before any reading.** Each fork reads its one expectation alone, and ends by `_exit` with what it read as its exit code. No `finally` block, `atexit` function or join of a thread runs in it. The test's process then reads each expectation in order. An expectation whose two readings differ gives a project error. A Python thread alive at the first expectation leaves the case with no fork, since a fork keeps only the thread that called it. An operating system that refuses the fork gives a project error too.
+- **At its first [expectation](../../CONTEXT.md#expectation), the test's process forks once for each later expectation, one fork at a time, before any reading.** Each fork reads its one expectation alone, and ends by `_exit` with what it read as its exit code. No `finally` block, `atexit` function or join of a thread runs in it. The test's process then reads each expectation in order. An expectation whose two readings differ gives a project error. An operating system that refuses the fork gives a project error too.
+- **When a Python thread is alive at the first expectation, the test's process forks none, since a fork keeps only the thread that called it.** When the case then passes or fails on its expectations, the zygote forks a [replay](../../CONTEXT.md#replay) for each later expectation. It forks them one at a time, after the test's process ends. A replay ends with what it read as its exit code. It writes nothing to stdout or stderr, since the case already wrote the test's output once.
 - **purba adds nothing to a test that the test does not name.**
 
 ```mermaid
@@ -45,18 +47,29 @@ sequenceDiagram
   participant zygote
   participant test as test's process
   participant alone as fork for a later expectation
+  participant replay as replay of a later expectation
   purba->>zygote: fork
   zygote->>zygote: load the module once
   loop each selected test
     purba->>zygote: the test's name
     zygote->>test: fork
-    loop each expectation after the first
-      test->>alone: fork, at the first expectation
-      alone->>test: what it read, as its exit code
+    alt no Python thread alive at the first expectation
+      loop each expectation after the first
+        test->>alone: fork, at the first expectation
+        alone->>test: what it read, as its exit code
+      end
     end
     test->>purba: the outcome, then the error of each thread
     test->>zygote: ends
     zygote->>purba: how the test's process ended
+    opt a Python thread alive at the first expectation, and the case passed or failed
+      loop each expectation after the first
+        purba->>zygote: a replay of the test, for that expectation
+        zygote->>replay: fork
+        replay->>zygote: what it read, as its exit code
+        zygote->>purba: how the replay ended
+      end
+    end
   end
 ```
 
@@ -76,7 +89,8 @@ It checks that each other test then keeps its line.
 It checks that the error of a thread that is not a daemon charges its test, and that a daemon thread charges nothing.
 
 It checks that a reading which changes what a later expectation reads gives a project error.
-It checks that a Python thread alive at the first expectation leaves the case with no fork, so the same test passes.
+It checks that a Python thread alive at the first expectation gives a replay for each later expectation.
+It checks that a replay refuses an expectation whose value an earlier reading changed.
 The `wheel` job runs these checks on Linux and on macOS.
 
 [Can purba plan a run as Polars plans a lazy query, and reorganize its tests?](https://github.com/kalonji-tools/purba/issues/691) may replace it.
