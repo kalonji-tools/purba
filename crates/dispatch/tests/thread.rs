@@ -22,23 +22,19 @@ enum Seen {
     Other,
 }
 
-// The hook on `threading.excepthook` keeps one record for the process, and
-// cargo runs the tests of one binary on several threads. So each thread that
-// raises in this process lives in this one test, alone in its binary.
 #[test]
 fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
-    let source = "import threading\n\ngo = threading.Event()\nleft = []\n\n\
+    let source = "import threading, time\n\n\
                   loader = threading.Thread(target=lambda: 1 / 0, name=\"L\")\n\
                   loader.start()\nloader.join()\n\n\
-                  def late():\n    go.wait()\n    raise ValueError(\"late\")\n\n\
+                  def late():\n    time.sleep(0.1)\n    raise ValueError(\"late\")\n\n\
                   def test_leaves():\n\
-                  \x20   thread = threading.Thread(target=late, name=\"T\", daemon=True)\n\
-                  \x20   thread.start()\n    left.append(thread)\n    assert True\n\n\
-                  def test_releases():\n    go.set()\n    left[0].join()\n    assert True\n";
+                  \x20   threading.Thread(target=late, name=\"T\").start()\n    assert True\n\n\
+                  def test_after():\n    assert True\n";
     let module = Module::new(
         PathBuf::from("test_late.py"),
         Rewrite::of_source(source).expect("the source parses"),
-        vec![Named("test_leaves"), Named("test_releases")],
+        vec![Named("test_leaves"), Named("test_after")],
     );
     let mut seen = Vec::new();
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |handed| {
@@ -64,13 +60,13 @@ fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
                 "thread L raised ZeroDivisionError: division by zero".to_owned()
             ),
             Seen::Test("test_leaves", Ok(Kind::Passed)),
-            Seen::Test("test_releases", Ok(Kind::Passed)),
             Seen::Thread(
                 Ok("test_leaves"),
                 "thread T raised ValueError: late".to_owned()
             ),
+            Seen::Test("test_after", Ok(Kind::Passed)),
         ],
-        "the load's thread error before the first test, and a test's thread error after \
-         the test that ran when it raised, under the test that left the thread"
+        "the load's thread error before the first test, and the error of a thread that \
+         raises after its test returns under that test, before the next test"
     );
 }

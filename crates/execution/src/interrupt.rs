@@ -1,18 +1,19 @@
 //! purba's signal handler. It keeps the first interrupt of the process.
 //!
-//! It raises `KeyboardInterrupt` inside a test's call or a load, and while
-//! Python waits for threads after the command. After each call and each load,
-//! purba gives each interrupt signal purba's signal handler again, or the ignore
-//! that the parent gave it. It then gives each interrupt signal the place in the
-//! thread's mask that it had when `install` ran. The first interrupt gives each
-//! interrupt signal that has purba's signal handler its default action. A native
-//! handler sits in front of the C handler of `CPython`. As the first interrupt
-//! signal arrives, it gives each interrupt signal that has the native handler its
-//! default action, and prints purba's interrupt line, even while purba or a test
-//! runs C code. The end of each later call or load gives each interrupt signal
-//! that has purba's signal handler its default action again.
+//! It raises `KeyboardInterrupt` inside a test's call or a load, and while a
+//! test's process joins its threads. After each call and each load, purba gives
+//! each interrupt signal purba's signal handler again, or the ignore that the
+//! parent gave it. It then gives each interrupt signal the place in the
+//! thread's mask that it had when `install` ran. A native handler sits in front
+//! of the C handler of `CPython`. As the first interrupt signal arrives, the
+//! native handler prints purba's interrupt line, even while purba or a test runs
+//! C code. purba forwards the signal to the test's process, or else to the
+//! zygote. A second interrupt signal ends purba at once.
 //! Once Python finalizes, purba dies by the interrupt that it kept, or else by
 //! the one that arrived.
+//!
+//! A zygote and a test's process inherit purba's signal handlers. They print no
+//! line, and they ignore each interrupt after their first.
 //!
 //! `docs/decisions/a-process-that-a-test-forks-has-the-signal-handlers-it-has-without-purba.md`
 //! says what a process that a test forks gets for a signal.
@@ -37,14 +38,15 @@ static KEPT: AtomicI32 = AtomicI32::new(0);
 /// handler, which runs at the next line of Python.
 static ARRIVED: AtomicI32 = AtomicI32::new(0);
 
+/// Whether purba took its first interrupt from a zygote or a test's process,
+/// and its own signal handler did not run after that.
+static ADOPTED: AtomicBool = AtomicBool::new(false);
+
 /// Whether a handler printed purba's interrupt line.
 static PRINTED: AtomicBool = AtomicBool::new(false);
 
 /// Whether a test's call or a load runs now.
 static CALLING: AtomicBool = AtomicBool::new(false);
-
-/// Whether the command returned, and purba's `atexit` function did not run yet.
-static ENDED: AtomicBool = AtomicBool::new(false);
 
 /// The number of each signal that `install` gave purba's signal handler.
 static GIVEN: Mutex<Vec<i32>> = Mutex::new(Vec::new());
@@ -76,6 +78,16 @@ struct Functions {
 
 static FUNCTIONS: PyOnceLock<Functions> = PyOnceLock::new();
 
+/// The pid of purba, which `install` keeps. A zygote and a test's process
+/// inherit it, so each knows that it is not purba.
+static PURBA: AtomicI32 = AtomicI32::new(0);
+
+/// The pid of the zygote that runs now, or 0.
+static ZYGOTE: AtomicI32 = AtomicI32::new(0);
+
+/// The pid of the test's process that runs now, or 0.
+static TEST: AtomicI32 = AtomicI32::new(0);
+
 /// The interrupt signals.
 const SIGNALS: [libc::c_int; 3] = [libc::SIGINT, libc::SIGTERM, libc::SIGHUP];
 
@@ -96,17 +108,19 @@ impl SignalHandler {
         if KEPT
             .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
             .is_err()
+            && !ADOPTED.swap(false, Ordering::SeqCst)
+            && is_purba()
         {
-            // Two signals waited at once. Python took the second before purba
-            // gave it the default action, so that action could not end purba.
+            // Two signals waited at once. Python took the second before the
+            // native handler could see it, so that handler could not end purba.
             die_by(signum);
         }
-        give_default_actions(py)?;
-        if !PRINTED.swap(true, Ordering::SeqCst) {
+        put_native_in_front(py);
+        if is_purba() && !PRINTED.swap(true, Ordering::SeqCst) {
             // stderr may refuse the write. The run stops either way.
             let _ = io::stderr().write_all(interrupt_line(signum));
         }
-        if CALLING.load(Ordering::SeqCst) || ENDED.load(Ordering::SeqCst) {
+        if CALLING.load(Ordering::SeqCst) {
             return Err(PyKeyboardInterrupt::new_err(()));
         }
         Ok(())
@@ -226,16 +240,19 @@ const fn interrupt_line(signum: i32) -> &'static [u8] {
     }
 }
 
-/// Runs as an interrupt signal arrives, even while purba or a test runs C code,
-/// and then calls the C handler of `CPython`. It runs no Python, and calls only
-/// functions that a signal handler may call.
+/// Runs as an interrupt signal arrives, even while purba or a test runs C code.
+/// For a first interrupt, it then calls the C handler of `CPython`. It runs no
+/// Python, and calls only functions that a signal handler may call.
 ///
 /// The C handler of `CPython` only marks the signal as waiting, and purba's
 /// signal handler runs at the next line of Python:
 /// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L338-L369>
-/// So on the first interrupt, it gives each interrupt signal that has the native
-/// handler its default action, and a second one ends purba at once. It gives the
-/// interrupted code back its `errno`, as the C handler of `CPython` does.
+/// So a second interrupt ends purba at once. A zygote and a test's process
+/// ignore each interrupt after their first, since one Ctrl-C reaches them twice:
+/// from the group, and from purba. purba forwards each first interrupt to the
+/// test's process, or else to the zygote. A second interrupt ends those
+/// processes, then purba. The handler gives the interrupted code back its
+/// `errno`, as the C handler of `CPython` does.
 extern "C" fn native_handler(signum: libc::c_int) {
     let errno = errno();
     // SAFETY: `errno` is the address of this thread's `errno`.
@@ -244,6 +261,12 @@ extern "C" fn native_handler(signum: libc::c_int) {
         .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
         .is_err()
     {
+        if !is_purba() {
+            // SAFETY: `errno` is the address of this thread's `errno`.
+            unsafe { *errno = saved };
+            return;
+        }
+        end_children();
         set_action(signum, libc::SIG_DFL);
         change_mask(libc::SIG_UNBLOCK, &[signum]);
         // SAFETY: `raise` takes a signal number that the kernel sent. `exit`
@@ -253,13 +276,10 @@ extern "C" fn native_handler(signum: libc::c_int) {
             libc::_exit(128 + signum)
         }
     }
-    for given in &NATIVE_GIVEN {
-        let given = given.load(Ordering::SeqCst);
-        if given != 0 && action(given) == native() {
-            set_action(given, libc::SIG_DFL);
-        }
+    if is_purba() {
+        forward(signum);
     }
-    if !PRINTED.swap(true, Ordering::SeqCst) {
+    if is_purba() && !PRINTED.swap(true, Ordering::SeqCst) {
         let line = interrupt_line(signum);
         // SAFETY: `write` reads `line.len()` bytes of `line`. stderr may refuse
         // the write, and the run stops either way.
@@ -274,6 +294,83 @@ extern "C" fn native_handler(signum: libc::c_int) {
     }
     // SAFETY: `errno` is the address of this thread's `errno`.
     unsafe { *errno = saved };
+}
+
+/// Whether this process is purba, and not a zygote or a test's process.
+fn is_purba() -> bool {
+    // SAFETY: `getpid` only gives the pid of the process.
+    PURBA.load(Ordering::SeqCst) == unsafe { libc::getpid() }
+}
+
+/// Sends `signum` to the test's process that runs now, or else to the zygote.
+fn forward(signum: libc::c_int) {
+    let pid = match TEST.load(Ordering::SeqCst) {
+        0 => ZYGOTE.load(Ordering::SeqCst),
+        test => test,
+    };
+    if pid > 0 {
+        // SAFETY: `kill` takes a pid that purba forked, and a signal that the
+        // kernel sent.
+        unsafe { libc::kill(pid, signum) };
+    }
+}
+
+/// Kills the test's process and the zygote that run now.
+fn end_children() {
+    for child in [&TEST, &ZYGOTE] {
+        let pid = child.load(Ordering::SeqCst);
+        if pid > 0 {
+            // SAFETY: `kill` takes a pid that purba forked.
+            unsafe { libc::kill(pid, libc::SIGKILL) };
+        }
+    }
+}
+
+/// The first interrupt signal that this process kept, or else the one that
+/// arrived, or 0.
+pub(crate) fn first() -> i32 {
+    match KEPT.load(Ordering::SeqCst) {
+        0 => ARRIVED.load(Ordering::SeqCst),
+        kept => kept,
+    }
+}
+
+/// Takes `signum`, the first interrupt of a zygote or of a test's process, as
+/// purba's own, when purba kept none: a mask can hold it from purba alone.
+pub(crate) fn adopt(signum: i32) {
+    if !SIGNALS.contains(&signum) {
+        return;
+    }
+    let _ = ARRIVED.compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst);
+    if KEPT
+        .compare_exchange(0, signum, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        // purba's own copy of the same interrupt may still wait for its signal
+        // handler.
+        ADOPTED.store(true, Ordering::SeqCst);
+    }
+    if is_purba() && !PRINTED.swap(true, Ordering::SeqCst) {
+        // stderr may refuse the write. The run stops either way.
+        let _ = io::stderr().write_all(interrupt_line(signum));
+    }
+}
+
+/// Ends purba by `signum` when it is an interrupt signal.
+pub(crate) fn die_with(signum: i32) {
+    if SIGNALS.contains(&signum) {
+        die_by(signum);
+    }
+}
+
+/// Keeps `pid` as the zygote that runs now, or 0 once it ended.
+pub(crate) fn follow_zygote(pid: libc::pid_t) {
+    ZYGOTE.store(pid, Ordering::SeqCst);
+}
+
+/// Keeps `pid` as the test's process that runs now, or 0 once it ended.
+pub(crate) fn follow_test(pid: libc::pid_t) {
+    TEST.store(pid, Ordering::SeqCst);
 }
 
 /// The address of this thread's `errno`.
@@ -328,6 +425,13 @@ fn put_native_in_front(py: Python<'_>) {
 /// function.
 pub fn install() -> PyResult<()> {
     Python::initialize();
+    // SAFETY: `getpid` only gives the pid of the process.
+    let _ = PURBA.compare_exchange(
+        0,
+        unsafe { libc::getpid() },
+        Ordering::SeqCst,
+        Ordering::SeqCst,
+    );
     Python::attach(|py| {
         let signal = py.import("_signal")?;
         let handler = SIGNAL_HANDLER.get_or_try_init(py, || {
@@ -392,8 +496,12 @@ pub fn install() -> PyResult<()> {
 /// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L509-L529>
 ///
 /// A signal whose handler Python did not install has no Python signal handler
-/// to give back, and keeps purba's.
+/// to give back, and keeps purba's. A zygote and a test's process, which purba
+/// forks itself, keep purba's signal handlers.
 fn give_back_in_child(py: Python<'_>) -> PyResult<()> {
+    if crate::fork::own() {
+        return Ok(());
+    }
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return Ok(());
     };
@@ -411,26 +519,6 @@ fn give_back_in_child(py: Python<'_>) -> PyResult<()> {
             functions.signal.bind(py).call1((signum, before))?;
         }
     }
-    Ok(())
-}
-
-/// Opens the window in which a first interrupt ends Python's wait for threads.
-///
-/// purba's `atexit` function closes it. Python waits for threads before it
-/// calls any `atexit` function:
-/// <https://github.com/python/cpython/blob/v3.15.2/Python/pylifecycle.c#L2284-L2300>
-/// Python calls the `atexit` function registered last first:
-/// <https://github.com/python/cpython/blob/v3.15.2/Modules/atexitmodule.c#L205-L206>
-///
-/// # Errors
-///
-/// purba cannot register its `atexit` function. The window then stays shut.
-pub fn ended(py: Python<'_>) -> PyResult<()> {
-    let close = PyCFunction::new_closure(py, None, None, |_args, _kwargs| {
-        ENDED.store(false, Ordering::SeqCst);
-    })?;
-    py.import("atexit")?.getattr("register")?.call1((close,))?;
-    ENDED.store(true, Ordering::SeqCst);
     Ok(())
 }
 
@@ -476,8 +564,8 @@ pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) 
 /// another signal handler now. It also gives each signal that the parent ignores
 /// the ignore in the operating system, where C code can give the signal a
 /// handler that Python's table does not show. It then gives each signal the
-/// place in the mask that it had at `install`. After the first signal, it then
-/// gives each signal that has purba's signal handler its default action again.
+/// place in the mask that it had at `install`, and puts the native handler in
+/// front again.
 fn put_back(py: Python<'_>) {
     let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
         return;
@@ -512,34 +600,7 @@ fn put_back(py: Python<'_>) {
         set_action(signum, libc::SIG_IGN);
     }
     put_back_mask();
-    // A signal that arrived still waits for purba's signal handler, and it is
-    // the first interrupt.
-    if kept_now() || ARRIVED.load(Ordering::SeqCst) != 0 {
-        // Its error has no test to charge either.
-        drop(give_default_actions(py));
-    } else {
-        put_native_in_front(py);
-    }
-}
-
-/// Gives each signal that still has purba's signal handler its default action,
-/// in the operating system only. Python's own table keeps purba's signal
-/// handler, so a signal that waits already still reaches it. If purba gave the
-/// default action through `signal.signal`, Python would find a waiting signal
-/// with no handler. Python would then report an `OSError` in place of the
-/// signal:
-/// <https://github.com/python/cpython/blob/v3.15.2/Modules/signalmodule.c#L1838-L1855>
-fn give_default_actions(py: Python<'_>) -> PyResult<()> {
-    let (Some(handler), Some(functions)) = (SIGNAL_HANDLER.get(py), FUNCTIONS.get(py)) else {
-        return Ok(());
-    };
-    for signum in given() {
-        if functions.getsignal.bind(py).call1((signum,))?.is(handler) {
-            // SAFETY: `signal` takes one of `SIGNALS`.
-            unsafe { libc::signal(signum, libc::SIG_DFL) };
-        }
-    }
-    Ok(())
+    put_native_in_front(py);
 }
 
 /// Runs after finalization gives each signal its default action:
@@ -559,6 +620,7 @@ extern "C" fn die() {
 
 /// Ends purba by the signal `signum`.
 fn die_by(signum: i32) -> ! {
+    end_children();
     // SAFETY: `signal` takes a signal number that the kernel sent.
     unsafe { libc::signal(signum, libc::SIG_DFL) };
     // A mask can hold the signal: the parent's, which `put_back` gave back, or

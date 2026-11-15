@@ -236,7 +236,7 @@ fn a_forked_child_exits_with_its_own_code() {
     assert_eq!(
         kinds(&test_fork, &["test_forks", "test_forks_with_a_keyword"]),
         [Kind::Passed, Kind::Passed],
-        "the guard calls the real os._exit in a process that a test forks",
+        "a process that a test forks exits with the code that it gives os._exit",
     );
 }
 

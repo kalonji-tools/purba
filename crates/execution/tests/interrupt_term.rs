@@ -1,5 +1,6 @@
-//! A SIGTERM does what a SIGINT does, and the first interrupt gives each
-//! interrupt signal its default action.
+//! A SIGTERM does what a SIGINT does, and after the first interrupt each
+//! interrupt signal keeps a handler of the operating system that ends the
+//! process at the second.
 
 use std::path::PathBuf;
 
@@ -12,7 +13,8 @@ const TEST_TERM: &str = "import signal\n\n\
 
 const SIGNALS: [libc::c_int; 3] = [libc::SIGINT, libc::SIGTERM, libc::SIGHUP];
 
-/// Whether the operating system gives `signum` its default action, or ignores it.
+/// Whether the operating system gives `signum` its default action, ignores it,
+/// or runs a handler.
 fn disposition(signum: libc::c_int) -> &'static str {
     // SAFETY: a null new action only reads the current one.
     let current = unsafe {
@@ -35,7 +37,7 @@ fn disposition(signum: libc::c_int) -> &'static str {
 // and a second signal ends the process. So this test lives alone in its
 // binary.
 #[test]
-fn a_sigterm_in_a_call_makes_the_test_interrupted_and_gives_each_signal_its_default_action() {
+fn a_sigterm_in_a_call_makes_the_test_interrupted_and_each_signal_keeps_a_handler() {
     let module = Module::new(
         PathBuf::from("test_term.py"),
         Rewrite::of_source(TEST_TERM).expect("the source parses"),
@@ -59,14 +61,14 @@ fn a_sigterm_in_a_call_makes_the_test_interrupted_and_gives_each_signal_its_defa
         if was == "ignored" {
             "ignored"
         } else {
-            "default"
+            "handled"
         }
     });
     assert_eq!(
         SIGNALS.map(disposition),
         expected,
-        "after the first interrupt, SIGINT, SIGTERM and SIGHUP each have their default \
-         action, unless purba's parent ignores it. SIGTERM has it though the test gave \
+        "after the first interrupt, SIGINT, SIGTERM and SIGHUP each keep purba's native \
+         handler, unless purba's parent ignores it. SIGTERM keeps it though the test gave \
          SIGTERM its own signal handler after the first interrupt."
     );
 }

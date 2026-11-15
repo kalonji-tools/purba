@@ -21,7 +21,10 @@ bats_require_minimum_version 1.5.0
 # SIGINT by default, or the names after <hold>, such as `INT TERM`. With
 # `none`, it sends no signal. With `ignored`, purba starts with SIGINT ignored,
 # and gets one SIGINT. With `masked` first, purba starts with SIGINT masked, and
-# gets the signals named after it, or no signal.
+# gets the signals named after it, or no signal. With `alone` first, each signal
+# goes to purba alone, and not to its group. With `forwarded`, purba gets one
+# SIGINT alone, and 50 ms later each other process of its group gets one, as a
+# signal to the group can reach them after purba forwards its own.
 #
 # It reads stdout only <hold> seconds after the last signal. A pipe holds less
 # than a line of 300 KB, so purba waits in its write until then. It prints
@@ -35,10 +38,14 @@ import os, signal, subprocess, sys, time
 
 purba, module, hold, *names = sys.argv[1:]
 ignored = names == ["ignored"]
+forwarded = names == ["forwarded"]
+alone = names[:1] == ["alone"]
+if alone:
+    names = names[1:]
 masked = names[:1] == ["masked"]
 if masked:
     names = names[1:] or ["none"]
-if ignored or not names:
+if ignored or forwarded or not names:
     names = ["INT"]
 disposition = signal.SIG_IGN if ignored else signal.SIG_DFL
 def start():
@@ -61,7 +68,14 @@ if names != ["none"]:
         time.sleep(0.01)
     for wait, name in zip([0.5] + [1] * len(names), names):
         time.sleep(wait)
-        os.killpg(child.pid, getattr(signal, "SIG" + name))
+        send = os.kill if alone or forwarded else os.killpg
+        send(child.pid, getattr(signal, "SIG" + name))
+        if forwarded:
+            time.sleep(0.05)
+            group = subprocess.run(["pgrep", "-g", str(child.pid)], capture_output=True, text=True)
+            for pid in map(int, group.stdout.split()):
+                if pid != child.pid:
+                    os.kill(pid, signal.SIGINT)
 time.sleep(float(hold))
 try:
     out, err = child.communicate(timeout=30)
@@ -156,6 +170,26 @@ LINES
   [[ ! -e three ]]
 }
 
+@test "an interrupt sent to purba alone makes the test interrupted, and its finally block runs" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import time' 'from pathlib import Path' \
+    'def test_one():' '    assert True' \
+    'def test_two():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        Path("finally").touch()' \
+    'def test_three():' '    Path("three").touch()' >test_call.py
+
+  run -0 --separate-stderr interrupt test_call.py 0 alone
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_call.py::test_one passed
+test_call.py::test_two interrupted
+3 tests: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ -e finally ]] || false
+  [[ ! -e three ]]
+}
+
 @test "a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import sys, time, types' 'from pathlib import Path' \
@@ -180,6 +214,36 @@ LINES
   [[ ! -e three ]]
 }
 
+@test "a Ctrl-C that reaches a process of the run after purba forwarded it counts once" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import time' 'from pathlib import Path' \
+    'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
+    '    finally:' '        time.sleep(0.5)' '        Path("finally").touch()' \
+    'def test_two():' '    Path("two").touch()' >test_running.py
+  printf '%s\n' 'from pathlib import Path' \
+    'def test_one():' '    Path("marker").touch()' '    raise Exception("x" * 300000)' \
+    'def test_two():' '    Path("two").touch()' >test_idle.py
+
+  run -0 --separate-stderr interrupt test_running.py 0 forwarded
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_running.py::test_one interrupted
+2 tests: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ -e finally ]] || false
+
+  rm marker
+  run -0 --separate-stderr interrupt test_idle.py 2 forwarded
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_idle.py::test_one raised: Exception: ${XS}
+2 tests: 1 raised, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
 @test "a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
@@ -190,6 +254,18 @@ LINES
   run -0 --separate-stderr interrupt test_load.py 0
 
   [[ "${output}" == '2 tests: 2 unreached' ]] || false
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
+}
+
+@test "a Ctrl-C in a load whose process then exits leaves each test unreached, and no error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, time' 'from pathlib import Path' \
+    'try:' '    Path("marker").touch()' '    time.sleep(3)' 'finally:' '    os._exit(3)' \
+    'def test_one():' '    assert True' >test_load_exits.py
+
+  run -0 --separate-stderr interrupt test_load_exits.py 0
+
+  [[ "${output}" == '1 test: 1 unreached' ]] || false
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
 
@@ -548,6 +624,27 @@ LINES
   [[ ! -e finally ]]
 }
 
+# A process that a kill ends can live on for a moment as it exits, so the check
+# waits up to two seconds. A test's process that outlived purba would sleep on
+# for five.
+@test "a second Ctrl-C in a test that catches the first leaves no process of the run alive" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, time' 'from pathlib import Path' \
+    'def test_one():' '    Path("group").write_text(str(os.getpgrp()))' \
+    '    Path("marker").touch()' '    try:' '        time.sleep(5)' \
+    '    except KeyboardInterrupt:' '        time.sleep(5)' >test_stubborn.py
+
+  run -0 --separate-stderr interrupt test_stubborn.py 0 INT INT
+
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  local group tries=0
+  group=$(<group)
+  while pgrep -g "${group}" >/dev/null && ((tries++ < 20)); do
+    sleep 0.1
+  done
+  run -1 pgrep -g "${group}"
+}
+
 @test "SIGINT and then SIGTERM make a second interrupt, and purba dies by SIGTERM" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
@@ -587,7 +684,7 @@ LINES
   [[ ! -e two ]]
 }
 
-@test "two signals that wait at once make a second interrupt, and purba dies by the second" {
+@test "two signals that wait at once in a test's process count as one interrupt" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal' \
     'def test_one():' '    both = {signal.SIGINT, signal.SIGTERM}' \
@@ -598,10 +695,14 @@ LINES
 
   run -0 --separate-stderr interrupt test_waiting.py 0 none
 
-  [[ "${stderr##*$'\n'}" == 'purba ended by SIGTERM' ]]
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_waiting.py::test_one interrupted
+2 tests: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr##*$'\n'}" =~ ^purba\ ended\ by\ SIG(INT|TERM)$ ]]
 }
 
-@test "a Ctrl-C ends Python's wait for a thread that a test left alive, and purba dies by SIGINT" {
+@test "a Ctrl-C ends the wait for a thread that a test left alive, and purba dies by SIGINT" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import threading, time' 'from pathlib import Path' \
     'def linger():' '    time.sleep(10)' '    Path("thread").touch()' \
