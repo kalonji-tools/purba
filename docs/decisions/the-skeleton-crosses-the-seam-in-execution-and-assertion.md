@@ -31,14 +31,15 @@ Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that assertion's load makes from the rewritten source, the index of the last assert that did not hold, or else of the last one that ran, and whether it held | the module's namespace |
+| assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, and whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone | the module's namespace |
 | execution | whether the call returned or raised `AssertionError`, and the type and message of each other exception, as text | the traceback |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
-- **Assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
-- **Assertion's rewrite copies the text of each assert that it marks from the module that command lends it.** [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes.
+- **Assertion rewrites the expectation of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, 1 == 2)`.** The first call says whether this process reads the expectation. The second tests the value once, and records its index and whether it held.
+- **Assertion marks each other assert: `assert x` becomes `assert _purba_ran(i, x)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
+- **Assertion's rewrite copies the text of each assert that it rewrites from the module that command lends it.** [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes.
 - **Reporting writes to Rust's stdout.**
 
 [A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) holds where assertion's load puts the module.
@@ -47,21 +48,29 @@ Each other part takes data.
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
 - **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
-- **A test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.** A test that hides its own failure on purpose reads as clean.
+- **A test that catches the `AssertionError` of a marked assert that did not hold, and then returns, passes when its expectations hold.** A test that hides its own failure on purpose reads as clean.
 
 ## Confirmation
 
-`mise run test:rust` checks that assertion rewrites the second assert of `test_a.py` to `assert _purba_ran(1, 1 == 2)`.
+`mise run test:rust` checks that assertion rewrites the assert of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, 1 == 2)`.
+It checks that a module whose tests the rewrite is not given keeps a mark on each assert, `assert _purba_ran(1, 1 == 2)` for that one.
 It also checks that the rewrite gives the text of each assert at its index.
+
 It checks that assertion's load runs the rewritten text as a module that holds `_purba_ran`.
 It checks that assertion's loaded module gives the text of the last assert that ran in one call, when each one held.
 It checks that an assert tests its value once.
 It checks that a call to `_purba_ran` with an index that names no assert raises `IndexError`.
 
-`mise run test:rust` also checks that execution makes a passed, failed or `unknown` outcome from the call and the assert that assertion keeps.
+It checks that the asserts at a test's end become its expectations, and that each later line keeps its number.
+It checks that an expectation after a `;` still parses.
+It checks that the first expectation of a case reads each later one alone, and each one in order.
+It checks that a Python thread alive at the first expectation leaves the case with no fork.
+It checks that a fork that the operating system refuses is kept, and that each expectation is still read in order.
+
+`mise run test:rust` also checks the outcome that execution makes: passed, failed, or the project error of a case with no expectation.
 It checks that `AssertionError` gives the outcome `raised` when no assert ran or each one held.
 It checks that another exception gives `raised` after an assert that did not hold, from the assert's message or after the test caught the assert.
-It checks that a test that catches the `AssertionError` of an assert that did not hold, and then returns, passes.
+It checks that a test with no expectation that catches the `AssertionError` of a marked assert, and then returns, gives `no expectation stated`.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 

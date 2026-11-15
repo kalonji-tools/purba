@@ -30,10 +30,10 @@ The hook shares the module's namespace with the tester's own names, so a name of
 **A module that binds a name purba adds is a project error.**
 The checks below stay inside assertion, and they see what the module binds when it runs.
 
-- **The rule holds for each name that a rewrite of purba adds to a module,** `_purba_ran` and each helper that a later rewrite adds.
+- **The rule holds for each name that a rewrite adds to a module:** `_purba_ran`, `_purba_read`, `_purba_reads` and each later helper.
 - **Before the body of the module runs, the load checks that no function holds such a name as a local name.**
 - **After the body runs, the load checks that each such name still holds what purba put there.**
-- **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`.
+- **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`. For `_purba_read` or `_purba_reads`, it names purba's expectation hook instead.
 - **After each test, assertion checks the hook again.** When the hook changes, that test has the outcome `raised`, with that `NameError`. Assertion then puts the hook back for the next test.
 
 **Downside:**
@@ -51,4 +51,7 @@ It checks a `def`, a full-width `def`, a `del`, an `import *` and a `globals().u
 It checks a local name, a parameter, a loop target, a full-width local name and a closure.
 It checks that a test that rebinds `_purba_ran` gives that `NameError`, even when its assert fails.
 It checks that the next test finds the hook back.
+
+It checks that a module that binds `_purba_read` fails to load, with the error that names the expectation hook.
+It checks that a test that rebinds `_purba_read` gives that error, and that the next test reads through the hook.
 `crates/assertion/tests/load.rs` holds each of these checks.

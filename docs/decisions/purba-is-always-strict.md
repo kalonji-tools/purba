@@ -36,7 +36,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 **purba is always strict: no mode, flag or opt-out turns strictness off.**
 
 - **A [strict check](../../CONTEXT.md#strict-check) blocks only when its predicate guarantees each violation or clean that it gives.** The bar is a property of the predicate, and the design of the check sets it. A check that blocks answers `unknown` where its predicate cannot guarantee the verdict.
-- **purba shows and counts `unknown`, and never shows it as clean.**
+- **purba shows `unknown`, the verdict of a strict check that cannot guarantee clean, and never shows it as clean.**
 - **A value that names a fact about the project is not a switch.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds that rule for configuration.
 - **Selection is not a switch.** Strictness judges only the tests that a run selects, so a tester can migrate one path at a time.
 - **A `skip` or an `xfail` with a reason is an outcome, and not a switch.** It shows as skipped or as an expected failure, and never as passed.
@@ -53,7 +53,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 ## Confirmation
 
-`mise run test:wheel` runs the explicit scenario of [the landscape](../../LANDSCAPE.md#the-driver-scenarios): purba prints `unknown` for a test that states no expectation.
+`mise run test:wheel` runs the explicit scenario of [the landscape](../../LANDSCAPE.md#the-driver-scenarios): purba prints the project error `no expectation stated` for a test that states no expectation.
 No command checks the rest.
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks the design in depth of strictness.
 That design answers each cost above.

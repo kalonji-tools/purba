@@ -2,14 +2,14 @@
 
 ## Context and Problem Statement
 
-[A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) lets a test that raised and a project error share exit 4, because the line that purba prints names each kind.
+[A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) lets a test that raised and a project error share exit 4, because the line that purba prints names each kind.
 On `main` at `09618c5`, a project error prints `error`, and an invocation error prints `purba: ` and its reason with no kind.
 A panic prints only the text of Rust's panic hook, and no line for its test.
 So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the other kinds by the line.
 
 | fact | source |
 |---|---|
-| a run writes no data for an [integrator](../../CONTEXT.md#integrator) yet, and the integrator reads the exit code | [A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) |
+| a run writes no data for an [integrator](../../CONTEXT.md#integrator) yet, and the integrator reads the exit code | [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) |
 | purba shows and counts `unknown`, and never shows it as clean | [purba is always strict](purba-is-always-strict.md#decision-outcome) |
 | pytest names a status in its count only when a report holds it | [pytest's `terminal.py`](https://github.com/pytest-dev/pytest/blob/9.1.1/src/_pytest/terminal.py#L1461-L1467) |
 | libtest names each status in its count, even at 0 | [libtest's `pretty.rs`](https://github.com/rust-lang/rust/blob/1.99.1/library/test/src/formatters/pretty.rs#L290-L293) |
@@ -32,7 +32,7 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 
 **A line names its kind in the glossary's words.**
 
-- **The line of an error names its kind:** [project error](../../CONTEXT.md#project-error), [internal error](../../CONTEXT.md#internal-error) or [invocation error](../../CONTEXT.md#invocation-error). The name says where the tester fixes the error. A test's line names its [outcome](../../CONTEXT.md#outcome) or `blocked`, as before.
+- **The line of an error names its kind:** [project error](../../CONTEXT.md#project-error), [internal error](../../CONTEXT.md#internal-error) or [invocation error](../../CONTEXT.md#invocation-error). The name says where the tester fixes the error. A case's line names its [outcome](../../CONTEXT.md#outcome) or `blocked`, as before.
 - **A line goes where its error stops.** A test that an internal error stops keeps its line among the others.
 
   ```mermaid
@@ -58,12 +58,12 @@ purba: internal error: <part>: <message>
 - **A module that an internal error stops prints its line once, and each of its selected tests as blocked.** It takes the shape of a module's project error.
 - **A run that met an internal error ends with two lines on stderr, once.** The first names a bug in purba, purba's version, the Python, the OS and the architecture. The Python carries `t` when it is free-threaded, so a free-threaded 3.14.0 reads `3.14.0t`. A tester's report then shows that a free-threaded build met the error. The second links the defect template. They follow the count, or the line that stopped the run. stdout keeps only the lines that name a test or a module, and the count.
 - **purba keeps the text of Rust's own panic hook.** The hook writes the location of the panic, and how to get a backtrace, to stderr. purba writes none of that text. [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) wraps the hook.
-- **The count always names the tests, and names each other column only above 0.** When no semicolon follows the tests, no error happened. The columns keep their order: passed, failed, raised, unknown, interrupted, blocked and unreached, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
+- **The count always names the [cases](../../CONTEXT.md#case), and names each other column only above 0.** When no semicolon follows the cases, no error happened. The columns keep their order: passed, failed, raised, interrupted, blocked and unreached, then a semicolon, project errors and internal errors. A comma parts two columns on one side of the semicolon. An invocation error stops the run before the count.
 
 ```
-3 tests: 3 passed
-3 tests: 2 passed, 1 blocked; 1 internal error
-0 tests; 1 project error
+3 cases: 3 passed
+3 cases: 2 passed, 1 blocked; 1 internal error
+0 cases; 1 project error
 ```
 
 **Downside:**

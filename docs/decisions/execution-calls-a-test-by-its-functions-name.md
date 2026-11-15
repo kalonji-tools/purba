@@ -54,7 +54,7 @@ sequenceDiagram
 ```
 
 The part that uses another part builds that part's input.
-[A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out the line where an identity prints as `path::function`.
+[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out the line where an identity prints as `path::function`.
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds why a worker loads each module once.
 [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds how a rewrite crosses the parts.
 

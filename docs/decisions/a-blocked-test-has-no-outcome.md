@@ -33,8 +33,8 @@ A module that does not load blocks each of its tests, so one cause can count onc
 - **A test whose own error blocks it prints that error, and counts as blocked.** Its line says that the fix is in the test.
 - **The error shows once.**
 - **The rule holds for every error that blocks a test, whatever its kind.**
-- **The count of tests holds every selected test.** A blocked test has a column of its own, so the columns add up to the count.
-- **The count of errors counts each cause once, separate from the count of tests.** An error that blocks no test counts too.
+- **The count of cases holds every selected test.** A blocked test has a column of its own, so the columns add up to the count.
+- **The count of errors counts each cause once, separate from the count of cases.** An error that blocks no test counts too.
 - **A blocked test does not change the exit code.** The error that blocked it sets the code.
 
 Reporting chooses the words of this shape:
@@ -43,7 +43,7 @@ Reporting chooses the words of this shape:
 test_b.py project error: ValueError: x
 test_b.py::test_one blocked: test_b.py did not load
 test_b.py::test_two blocked: test_b.py did not load
-2 tests: 2 blocked; 1 project error
+2 cases: 2 blocked; 1 project error
 ```
 
 **Downside:**

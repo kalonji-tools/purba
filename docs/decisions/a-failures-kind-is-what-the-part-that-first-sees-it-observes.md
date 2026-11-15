@@ -35,8 +35,8 @@ Each part can check an exception class or a branch that it holds.
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised | the tester's code |
-| [outcome](../../CONTEXT.md#outcome) | the test's call returned or raised | the code under test, or the test |
+| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ | the tester's code |
+| [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
 The name of each error kind says where the tester fixes the error.
@@ -46,8 +46,8 @@ The name of each error kind says where the tester fixes the error.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. It sees a test name with no `def`, and a `def` under a statement. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
-- **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs in its process when the thread raises. After a test returns, its process joins each thread that is not a daemon. Such a thread charges that test. The test keeps its outcome, and a load that succeeds still succeeds. A `threading.Thread` that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the outcome `raised` to a test when a thread's call to `os._exit` ends its process. It fails a load when such a call ends the load's process. It names the exception of a load that the first interrupt lands in. [Of the exceptions CPython ignores, only a thread's is a project error](of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md#decision-outcome) charges the exception of a thread that `_thread` starts to the test or the load that runs.
-- **That no test ran is no kind.** [A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
+- **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs in its process when the thread raises. After a test returns, its process joins each thread that is not a daemon. Such a thread charges that test. The test keeps its outcome, and a load that succeeds still succeeds. A `threading.Thread` that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the outcome `raised` to a test when a thread's call to `os._exit` ends its process. It fails a load when such a call ends the load's process. It names the exception of a load that the first interrupt lands in. [Of the exceptions CPython ignores, only a thread's is a project error](of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md#decision-outcome) charges the exception of a thread that `_thread` starts to the test or the load that runs.
+- **That no test ran is no kind.** [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
 - **The text of an internal error names the part that found it.**
 - **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) gives the test that the interrupt lands in the outcome `interrupted`, whether its call then passes, fails or raises.
@@ -62,15 +62,15 @@ flowchart LR
   parsing -- "a syntax error" --> project["<b>project error</b>"]
   selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, an async def, a yield, a parameter with no default, a returned value" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception" --> project
-  execution -- "passed, failed, raised, unknown, interrupted" --> outcome["<b>outcome</b>"]
+  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ" --> project
+  execution -- "passed, failed, raised, interrupted" --> outcome["<b>outcome</b>"]
   execution -- "purba's own PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
 ```
 
 **Downside:**
 
-- **A test can call `_purba_ran` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
+- **A test can call `_purba_read` itself, and forge a pass.** It reaches it through `globals()` or `sys.modules`, so execution sees an ordinary pass. A test can reach pytest's helpers in the same way.
 - **A fault of purba that a part sees as a failed assert shows as failed.** The tests of each part guard against it.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
 - **A daemon thread that is alive when the process of its test ends gives no line.** The run can exit 0.
@@ -87,7 +87,7 @@ No command checks the rest of this record.
 
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each kind stops.
 [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) says how execution sees a panic that a test catches.
-[A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
+[A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives each kind its exit code.
 [A module that binds a name purba adds is a project error](a-module-that-binds-a-name-purba-adds-is-a-project-error.md#decision-outcome) says what purba does with a module that binds the name of its hook.
 
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.

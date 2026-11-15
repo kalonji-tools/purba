@@ -1,4 +1,4 @@
-# A run exits 0 only when it checked something and every test passed
+# A run exits 0 only when it checked something and every case passed
 
 ## Context and Problem Statement
 
@@ -6,7 +6,7 @@ An [integrator](../../CONTEXT.md#integrator) reads the exit code of a [run](../.
 [The landscape](../../LANDSCAPE.md#the-quality-priorities) says that purba never shows `unknown` as clean.
 The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 [A pinned candidate decides when a milestone is done](a-pinned-candidate-decides-when-a-milestone-is-done.md#decision-outcome) leaves it to review alone.
-[A tester runs purba on one module, and reads one line for each test](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md) holds how a run starts.
+[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md) holds how a run starts.
 
 | fact | source |
 |---|---|
@@ -32,6 +32,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 ## Considered Options
 
 - **`unknown` exits 1, as a failed test does.** An integrator could not tell a test that found a defect from a test that checked nothing.
+- **A case in which no expectation ran is `unknown`, and the run exits 2.** A test that checks nothing then reads as a run with no test.
 - **A run with no test exits 0.** It reads as clean, and the run checked nothing.
 - **An error that `_main` does not catch.** It exits 1, so an internal error reads as a failed test.
 - **A test that raised exits 1, as a failed test does.** An integrator could not tell a test whose assert found a defect from a test whose code raised.
@@ -51,26 +52,27 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 
 **Area:** reporting
 
-**A run exits 0 only when at least one test ran and every test passed.**
+**A run exits 0 only when at least one [case](../../CONTEXT.md#case) ran and every case passed.**
 
 ```mermaid
 flowchart TD
   internal{"an internal error?"} -- yes --> c125["125"]
   internal -- no --> invocation{"an invocation error?"}
   invocation -- yes --> c3["3"]
-  invocation -- no --> failed{"a test failed?"}
+  invocation -- no --> failed{"a case failed?"}
   failed -- yes --> c1["1"]
-  failed -- no --> raised{"a test raised or gave no outcome, or a part saw a project error?"}
+  failed -- no --> raised{"a case raised or gave no outcome, or a part saw a project error, such as a case with no expectation?"}
   raised -- yes --> c4["4"]
-  raised -- no --> unknown{"a test is unknown, or no test ran?"}
-  unknown -- yes --> c2["2"]
-  unknown -- no --> c0["0: at least one test ran, and every test passed"]
+  raised -- no --> none{"no case ran?"}
+  none -- yes --> c2["2"]
+  none -- no --> c0["0: at least one case ran, and every case passed"]
 ```
 
+- **A case in which no expectation ran gives a project error, and the run exits 4.** The case checked nothing, so the run never reads as clean. Exit 4 also tells it from a failed case.
 - **An internal error has a code of its own, 125.** `git bisect run` and a system that retries each ask whether the tool itself failed. On 125, `git bisect run` skips the commit, and does not blame it. The line that purba prints names each kind.
-- **The order puts an internal error first, then an invocation error, then a failed test.** An internal error never comes after a failed test. A failed test still comes before what the run could not check.
+- **The order puts an internal error first, then an invocation error, then a failed case.** An internal error never comes after a failed case. A failed case still comes before what the run could not check.
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
-- **Command's argument parser returns each error, and never ends the process.** A parser that ends the process picks its own code. The Context shows one that picks 2, which means `unknown` here.
+- **Command's argument parser returns each error, and never ends the process.** A parser that ends the process picks its own code. The Context shows one that picks 2, which means here that no case ran.
 - **An interrupted run dies by its signal, and takes none of the codes 0, 1, 2, 3, 4 and 125.** [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds how it ends.
 - **A test whose process exits before its outcome has the outcome `raised`.** [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome), so a call to `os._exit`, `posix._exit`, `ctypes` or the C code of an extension ends only that process. A call from a thread, or one whose error the test catches, counts too. The line names the exit code, even when the code is 0. A load whose process exits fails that load, unless the first interrupt arrived as it loaded. A test that the first interrupt lands in has the outcome `interrupted` instead, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
 
@@ -79,7 +81,7 @@ flowchart TD
 
 **Downside:**
 
-- **pytest exits 2 for an interrupted run, and purba exits 2 for `unknown`.** An integrator that reads pytest's codes misreads purba's 2.
+- **pytest exits 2 for an interrupted run, and purba exits 2 for a run in which no case ran.** An integrator that reads pytest's codes misreads purba's 2.
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
@@ -100,3 +102,4 @@ It checks that a call to `os._exit` from a thread that `_thread` starts prints t
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 `tests/kinds.bats` checks 1, 3, 4 and 125 on the installed wheel, with one case of each kind.
+It checks that a test that states no expectation prints a project error, and that the run exits 4.

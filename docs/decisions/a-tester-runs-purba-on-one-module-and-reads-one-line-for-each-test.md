@@ -1,4 +1,4 @@
-# A tester runs purba on one module, and reads one line for each test
+# A tester runs purba on one module, and reads a line for each case
 
 ## Context and Problem Statement
 
@@ -6,7 +6,7 @@ The walking skeleton needs a way to start a [run](../../CONTEXT.md#run).
 A run must show each [outcome](../../CONTEXT.md#outcome).
 How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) lets a name join only with the issue that needs it.
-[A run exits 0 only when it checked something and every test passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md) holds what a run returns.
+[A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md) holds what a run returns.
 
 | fact | source |
 |---|---|
@@ -33,7 +33,7 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 
 **Area:** command
 
-**A [tester](../../CONTEXT.md#tester) runs `purba <path>` on one module, and reads one line for each test and a count.**
+**A [tester](../../CONTEXT.md#tester) runs `purba <path>` on one module, and reads a line for each [case](../../CONTEXT.md#case) and a count.**
 A console script adds one command and one private name, and the wheel keeps its layout.
 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
@@ -62,15 +62,17 @@ A console script adds one command and one private name, and the wheel keeps its 
 
 ```
 tests/test_a.py::test_one passed
-tests/test_a.py::test_two failed: assert 1 == 2
-tests/test_a.py::test_three unknown: no assert ran
-3 tests: 1 passed, 1 failed, 1 unknown
+tests/test_a.py::test_two failed
+    assert 1 == 2
+tests/test_a.py::test_three project error: no expectation stated
+3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 ```
 
-- **Each line holds the path as the tester typed it, then `::` and the name of the test function.** Then it names the test's outcome, `blocked`, or the kind of its error. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
-- **A line that is not `passed` or `interrupted` gives a reason.** A failed line quotes the text of its assert, with no values. [A failed line quotes the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which assert a failed line quotes, and which part of its text. An `unknown` line says `no assert ran`. [A tuple assert keeps CPython's warning and counts as no assert](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
+- **Each line holds the path as the tester typed it, then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
+- **A line that is not `passed` or `interrupted` gives a reason.** Under a failed line, each assert it quotes prints on a line of its own, indented by four spaces, with no values. [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes, and which part of their text. A case in which no expectation ran gives the project error `no expectation stated`, or `no expectation ran` when its test states one.
+  [A tuple assert keeps CPython's warning and counts as no assert](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
 - **A reason prints on one line.** It breaks at each character that Python's `str.splitlines` reads as a line break. Its lines join with one space, each without the whitespace at its ends. An empty line drops out. Each other control character prints as Python's `repr` writes it, such as `\t` or `\x1b`.
-- **The count names the tests, then each outcome, `blocked`, `unreached` and each kind of error above 0.** `test` and each kind of error take an `s`, except at 1. [purba is always strict](purba-is-always-strict.md#decision-outcome) shows and counts `unknown`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
+- **The count names the cases, then each outcome, `blocked`, `unreached` and each kind of error above 0.** `case` and each kind of error take an `s`, except at 1. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 - **A run writes no data for an integrator yet.** The integrator reads the exit code.
 
 **Downside:**

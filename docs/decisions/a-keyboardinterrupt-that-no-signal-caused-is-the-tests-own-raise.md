@@ -36,7 +36,7 @@ Execution sees a raise, and no signal.
 ```
 test_a.py::test_one raised: KeyboardInterrupt:
 test_a.py::test_two passed
-2 tests: 1 passed, 1 raised
+2 cases: 1 passed, 1 raised
 ```
 
 **Downside:**
