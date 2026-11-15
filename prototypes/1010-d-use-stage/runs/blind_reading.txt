@@ -1,0 +1,38 @@
+Blind reading of the two ports of flaskr's test_blog.py (#1010, Q3), 2026-11-15.
+
+Each reader was a fresh agent with only three files: a neutral primer of the form
+(use(function) and use(case)), and the two versions, named version_A.py and version_B.py,
+in an order drawn by `shuf` for each reader.
+The question: in which version is each test's setup easier to FIND and easier to TRUST?
+
+Key:     reader1 A=stages   B=fixtures
+         reader2 A=fixtures B=stages
+
+Picks, mapped back through the key:
+         reader1: stages, on 7 of 9 tests (2 the same)
+         reader2: stages, on 8 of 9 tests (1 the same)
+
+Reader 1's reasons for stages:
+  1. "Wrong data or a failed login stops the dependent tests as blocked, and the report names
+     the setup case. In the other, a failed login or a different data.sql shows up as a
+     confusing failure, or even a pass, in an unrelated check."
+  2. "`login(client)` is part of every act, so setup and act cannot be told apart. In
+     [stages], the act contains only what is being tested."
+  Best point for fixtures: "easier to find. Each test's state is fully visible in its own
+     body ... a reader does not have to follow use(logged_in) to test_log_in to
+     use(app_with_data) to test_app_with_data."
+  Distrusted: the setup functions are named test_..., so they appear in the report as tests;
+     test_log_in checks the login only through the redirect; some tests take `app` and build
+     a client, others take a client.
+
+Reader 2's reasons for stages:
+  1. "The premises are stated as checks ... A test then cannot pass or fail because of an
+     unseen data.sql."
+  2. "A failed setup makes [stages] report the test as blocked and name the setup case. In
+     [fixtures], a failed login would surface as a confusing failure, such as a redirect
+     where test_exists_required expects a 404."
+  Best point for fixtures: "it is simpler. The setup is plain functions, and the reader does
+     not need the primer rule that a case named in use() runs another test, checks included."
+  Distrusted: the stages are both tests and fixtures, and their checks run again in every
+     case that uses them; the post check does not pin id = 1; the mixed styles (app or
+     client); mkstemp leaks its file in both versions.

@@ -1,0 +1,2 @@
+blog-fixtures  best of 3: 0.79 s
+blog-stages    best of 3: 0.89 s

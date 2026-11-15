@@ -1,0 +1,7 @@
+── test_use_far.py
+ test_far_checkout  (test_use_far.py:11)
+   ✓ test_far_checkout › order.total == 2400   2400
+ test_far_after_wrong  (test_use_far.py:17)
+   ⊘ test_far_after_wrong › order.total == 1200   blocked: the stage wrong fails its check
+     `len(signed.shop.carts[signed.user]) == lines` at line 40: expected 9, read 1
+══ 2 cases: 1 passed · 0 failed · 0 refused · 1 blocked   (1 checks held)

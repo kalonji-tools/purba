@@ -1,0 +1,56 @@
+── test_blog.py
+ test_index_logged_out  (test_blog.py:36)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+ test_index_logged_in  (test_blog.py:42)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+ test_login_required  (test_blog.py:51)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 3 case(s) runs
+ test_author_required  (test_blog.py:61)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+ test_exists_required  (test_blog.py:75)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 2 case(s) runs
+ test_create  (test_blog.py:85)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+ test_update  (test_blog.py:95)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+ test_create_update_validate  (test_blog.py:105)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 2 case(s) runs
+ test_delete  (test_blog.py:115)
+   ! refused:
+       the input client: the fixture client_with_data holds 1 statement and 2 calls; a fixture is
+         one call, as `return Shop()`: make it a stage, a test that checks what it builds and
+         returns it, and take it with `use(stage)`
+     so none of its 1 case(s) runs
+══ 13 cases: 0 passed · 0 failed · 13 refused · 0 blocked   (0 checks held)

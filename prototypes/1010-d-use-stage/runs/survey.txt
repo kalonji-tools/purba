@@ -1,0 +1,11 @@
+project | n | i | ii | iii | iv | strict | broad | refused | refused_no_act | accepted_but_acts |
+  autouse | depth 1/2/3/4/5+ | max depth
+flask | 23 | 6 | 8 | 0 | 9 | 1 | 7 | 17 | 10 | 0 | 3 | 13/9/1/0/0 | 3
+loguru | 19 | 6 | 3 | 0 | 10 | 0 | 1 | 15 | 14 | 0 | 5 | 18/1/0/0/0 | 2
+saleor | 77 | 5 | 44 | 28 | 0 | 28 | 39 | 72 | 36 | 3 | 0 | 1/3/6/0/67 | 12
+total | 119 | 17 | 55 | 28 | 19 | 29 | 47 | 104 | 60 | 3 | 8 | 32/13/7/0/67 | 12
+checkout_preorder_with_charged_payment -> checkout_with_billing_address ->
+  checkout_with_shipping_method -> checkout_with_shipping_address -> checkout_with_variants -> stock
+  -> variant -> product -> product_type -> product_type_generator -> attribute_value_generator ->
+  attribute_generator
+auth -> client -> app
