@@ -299,3 +299,7 @@ A decision that lets one crate in despite the failures it names, and says why.
 ### Walking skeleton
 
 purba's first working code: a small version of every [part](#part), joined so that one [run](#run) goes through each of them. The later design of each part grows from this code, and does not replace it.
+
+### Zygote
+
+The process that purba forks for one module of a [run](#run). It loads the module once, and forks a process for each [test](#test) of that module. When that load leaves a Python thread alive, purba forks a second zygote that loads nothing.

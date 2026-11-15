@@ -38,8 +38,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 - **A test that raised exits 3.** 3 says that the run did not finish, but the run goes on past the test.
 - **A test that calls `os._exit` ends the run with its code, and the Downside names it.** With 0, the run reads as clean though an earlier test failed.
 - **Only `os._exit(0)` makes the test raise, as in Go.** Another code becomes the exit code of the run, so `os._exit(1)` reads as a failed test.
-- **The guard raises and records nothing, and the Downside names a call whose error a thread or the test catches.** A test that hides the call passes, and the run can exit 0. Before the guard, the run ended with the code of the call.
-- **Off the test's thread, a code other than 0 calls the real `os._exit`.** `faulthandler` already ends a hung test, and the guard would need to know which thread runs the test.
+- **A guard takes the place of `os._exit` in purba's process.** A test that exits by `posix._exit`, `ctypes` or the C code of an extension still ends the run with its code. A thread that calls `os._exit` after its test charges the next test.
 - **A digit names the kind, and a second digit names the failure.** No surveyed tool gives a digit a meaning. SMTP's second digit ran out of codes.
 - **Each kind has a code of its own.** No surveyed tool that reads an exit code tells a test that raised apart from a project error.
 - **Only the line that purba prints names the kind, and 3 and 4 each hold several kinds.** An internal error then reads as an invocation error or as a test that raised.
@@ -73,8 +72,7 @@ flowchart TD
 - **`_main` catches each error at its boundary.** It returns 3 for an invocation error, and 125 for a panic. It returns 125 when stdout refuses a write after an internal error.
 - **Command's argument parser returns each error, and never ends the process.** A parser that ends the process picks its own code. The Context shows one that picks 2, which means `unknown` here.
 - **An interrupted run dies by its signal, and takes none of the codes 0, 1, 2, 3, 4 and 125.** [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds how it ends.
-- **A guard takes the place of `os._exit` in purba's process.**
-- **A test that calls `os._exit` has the outcome `raised`.** The guard records the first call since the worker last took one. The worker takes that call when the test returns, and when the load of a module returns. So a call from a thread, or one whose error the test catches, counts too. A call while a module loads fails that load, whether the module catches it or not, unless the first interrupt landed in the load. In a process that a test forks, `os._exit` still exits. A test that the first interrupt lands in has the outcome `interrupted` instead, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
+- **A test whose process exits before its outcome has the outcome `raised`.** [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome), so a call to `os._exit`, `posix._exit`, `ctypes` or the C code of an extension ends only that process. A call from a thread, or one whose error the test catches, counts too. The line names the exit code, even when the code is 0. A load whose process exits fails that load, unless the first interrupt arrived as it loaded. A test that the first interrupt lands in has the outcome `interrupted` instead, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
 
 [Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) holds which part renders the code.
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds each kind of failure.
@@ -86,20 +84,19 @@ flowchart TD
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
 - **None of the codes 0, 1, 2, 3, 4 and 125 covers a run that a suppression fails, or a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
-- **A test that exits by another route ends the run with its own code.** `posix._exit`, `ctypes` and the C code of an extension are such routes. With 0, the run reads as clean though an earlier test failed.
-- **A thread that calls `os._exit` after its test returned charges the test or the load that runs when it calls.** After the last test, no test takes the call, and the run can exit 0.
-- **A thread that calls `os._exit` while its test hangs does not end the run.** The run waits on the test. `faulthandler` with `exit=True` still ends it, because it exits from C.
+- **A thread that calls `os._exit` after its test wrote its outcome changes no outcome.** The process of that test then ends before it joins its other threads.
 - **Nothing refuses a call of an argument parser that ends the process.** Only a reviewer finds a call such as `get_matches_from`.
 
 ## Confirmation
 
 `mise run test:rust` checks that reporting renders the first of 125, 3, 1, 4, 2 and 0 that a tally of the run meets.
-It also checks that a call to `os._exit` in a test gives the outcome `raised`, from a thread or under `except BaseException` too.
-It checks that a call while a module loads fails the load, caught or not, and that the next test passes.
+It also checks that a call to `os._exit` while a module loads fails the load, though the module catches it.
 It checks that a child that a test forks exits with its own code, whether the call names `status` or not.
 It checks that command returns 1 for a module with a failed test, and returns 2 for a module with no test.
 
 `mise run test:wheel` checks that the installed `purba` exits 1 on `test_a.py`, 3 on an invocation error, and 125 when the `fault` wheel panics.
+It checks that a test whose process exits 0 before its outcome prints `raised`, and that the run exits 4.
+It checks that a call to `os._exit` from a thread that `_thread` starts prints the test as `raised`, and no project error.
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 
 `tests/kinds.bats` checks 1, 3, 4 and 125 on the installed wheel, with one case of each kind.

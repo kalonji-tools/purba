@@ -56,6 +56,10 @@ The matrices of `ci.yml` and `publish.yml` name no Windows runner. No command ch
 Like `Scripts`, it runs them only when a pull request changes a path that starts them.
 `CI` requires each job to do what the job `changed` asked, so a failed one stops `Sign-off`.
 
+When a pull request changes the build, the `rust` job runs the tests of dispatch and execution on `macos-latest`.
+The macOS rows of the `wheel` job then run the end-to-end tests on `macos-latest`.
+So CI checks on macOS each test that a [zygote](../../CONTEXT.md#zygote) forks, as on Linux.
+
 The bash of `macos-latest` is 3.2.
 The scripts need bash 4.4 or later and GNU sed, so `.config/mise.toml` supplies both from conda on every platform.
 It supplies OpenSSL 3 from conda too, so the tests of the scripts verify a token with one tool.

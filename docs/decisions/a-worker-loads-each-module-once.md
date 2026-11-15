@@ -24,13 +24,15 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 **A worker loads each module once, and command hands each module once.**
 The module body runs once for its tests, as under pytest.
+The worker of the module's [zygote](../../CONTEXT.md#zygote) loads it.
+Each test's process starts from the module as the load left it.
 
 ```mermaid
 sequenceDiagram
   command->>dispatch: each module once, as assertion's rewrite of it, and its selected tests
-  dispatch->>execution: the module, to load it in a worker before its first test
+  dispatch->>execution: the module, to load it in the worker of a zygote before its first test
   loop each selected test
-    dispatch->>execution: a function's name, its module, and the test that it hands back as a thread's owner
+    dispatch->>execution: a function's name, and the test that it hands back as a thread's owner
   end
 ```
 
@@ -42,16 +44,16 @@ Dispatch runs none of that module's tests.
 
 **Downside:**
 
-- **A worker keeps each module it loaded.** A module-level state of one test reaches the next test of that module, as it does under pytest. The test does not name that state. The cost falls on the quality explicit.
-- **With many workers, an outcome can depend on the tests that ran before it in its worker.** The landscape's risk "an outcome depends on the worker" lands this cost on dispatch.
+- **A module whose load leaves a Python thread alive loads again in the process of each test.** Its body then runs once more than its tests.
 
 ## Confirmation
 
 `mise run test:rust` checks that a worker of execution loads a module once for two of its tests.
 It checks that a module that fails to load runs its body once for two of its tests.
 It checks that dispatch runs no test of such a module, and hands each on as blocked.
-It checks that dispatch hands the tests of one module to one worker.
+It checks that each test that dispatch hands on reads the module as its load left it.
+`mise run test:wheel` checks that a module body runs once for all its tests.
 
 `mise run test:rust` does not check that command hands each module once.
 A run takes one module, so command hands it at most once.
-[Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says what changes once purba has its zygote.
+[Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says how each test reaches the module that its zygote loaded.
