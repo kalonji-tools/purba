@@ -36,7 +36,7 @@ No record says which exceptions on `sys.unraisablehook` are a project error.
 
 - **A CPython that changes the message hides the thread's exception again.** The run can then exit 0.
 - **The exception of a `__del__`, a weakref callback or a generator in a test gives no error.** CPython prints it, and the run can exit 0.
-- **A tester who replaces `sys.unraisablehook` hides from purba the exception of a thread that `_thread` starts.** The run can then exit 0.
+- **A library that replaces `sys.unraisablehook` and puts it back inside one call hides a thread's exception from purba.** The thread is one that `_thread` starts during that call. purba sees a hook replaced only after a statement of the test before its first expectation, and as the module loads. A hook that a reading replaces hides each later thread's exception too.
 
 ## Confirmation
 

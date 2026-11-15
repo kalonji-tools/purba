@@ -19,6 +19,7 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 - **Execution finds the failed assert by the line number of the traceback.** A live traceback then reaches execution. Two asserts on one line are ambiguous.
 - **Reporting writes each line through `sys.stdout`.** Reporting then crosses the seam for every line.
 - **An `AssertionError` that no assert raised fails, with the error's text.** A failed line then names no assert. purba then counts a failure that no assert found.
+- **A Python file watches the lines and branches of a case.** It would be the one part that is not Rust.
 
 ## Decision Outcome
 
@@ -31,14 +32,18 @@ Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, and whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone | the module's namespace |
-| execution | whether the call returned or raised `AssertionError`, and the type and message of each other exception, as text | the traceback |
+| assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone, the first assert before the first expectation or the first hook replaced before it, and each exception that a `with` of a test raised or swallowed | the module's namespace |
+| execution | whether the call returned or raised `AssertionError`, the type and message of each other exception, as text, and each line and branch that `sys.monitoring` hands execution | the traceback, and the frames that execution walks to find who called a function |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the expectation of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, 1 == 2)`.** The first call says whether this process reads the expectation. The second tests the value once, and records its index and whether it held.
 - **Assertion marks each other assert: `assert x` becomes `assert _purba_ran(i, x)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
+- **The mark records an assert that runs before the first expectation, outside the cleanup of a `with`, and execution refuses the case.**
+- **Assertion writes `; _purba_step(n)` after each simple statement of a test before its first expectation.** It wraps each item `m` of each `with` of a test as `_purba_with(n, m)`. `n` is the line of the statement. The step asks execution whether the case replaced a hook. The wrap enters and leaves the manager. It keeps what the entry or the cleanup raised, and each raise that the cleanup swallowed.
+- **Execution watches the lines and branches of a case through a callable of the extension module, which `sys.monitoring` calls.** No part needs a Python file, so [every part of the skeleton is Rust inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) stays true.
+- **A Python thread alive at the first expectation gives a [replay](../../CONTEXT.md#replay) for each later expectation.** [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says which process forks it.
 - **Assertion's rewrite copies the text of each assert that it rewrites from the module that command lends it.** [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes.
 - **Reporting writes to Rust's stdout.**
 
@@ -48,7 +53,6 @@ Each other part takes data.
 
 - **A line that a test prints can reach a pipe after purba's lines.** Python holds it in the buffer of `sys.stdout`, and Rust's stdout writes first. No skeleton test prints.
 - **A test whose call raises `AssertionError` with no marked assert has the outcome `raised`, where pytest reports a failure.** `unittest`'s `assertEqual` is one. A run of only such a test exits 4.
-- **A test that catches the `AssertionError` of a marked assert that did not hold, and then returns, passes when its expectations hold.** A test that hides its own failure on purpose reads as clean.
 
 ## Confirmation
 
@@ -68,10 +72,12 @@ It checks that a Python thread alive at the first expectation leaves the case wi
 It checks that a fork that the operating system refuses is kept, and that each expectation is still read in order.
 
 `mise run test:rust` also checks the outcome that execution makes: passed, failed, or the project error of a case with no expectation.
-It checks that `AssertionError` gives the outcome `raised` when no assert ran or each one held.
-It checks that another exception gives `raised` after an assert that did not hold, from the assert's message or after the test caught the assert.
-It checks that a test with no expectation that catches the `AssertionError` of a marked assert, and then returns, gives `no expectation stated`.
+It checks that `AssertionError` gives the outcome `raised` when no assert ran.
+It checks that execution refuses an assert before the first expectation, whatever the case does after it.
+It checks that the rewrite writes a step after each simple statement of a test before its first expectation.
+It checks that the rewrite wraps each item of each `with` of a test.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
+It checks that a thread alive at the first expectation gives a replay for each later expectation.
 
 No command checks the rest.

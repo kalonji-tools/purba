@@ -22,6 +22,7 @@ On `main` at `efb4c9c`, purba prints `error` for a test that raised, a module th
 - **A test that raised gives an error in place of an outcome.** One error then holds a raise, a failed load and a defect of purba. Execution loses the kind.
 - **The words purba used: usage error, diagnostic and error inside purba.** A full disk is no usage error. "Diagnostic" names no place to fix. "Error inside purba" is a phrase and not a name.
 - **A forged pass is a defect.** `_purba_ran` is not on the [public surface](../../CONTEXT.md#public-surface), so a hand call breaks no promise.
+- **A `with` whose entry or cleanup raises is a breach of a test.** The code that the `with` runs raised, so the case fails.
 
 ## Decision Outcome
 
@@ -35,17 +36,31 @@ Each part can check an exception class or a branch that it holds.
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ | the tester's code |
-| [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised | the code under test, or the test |
+| [project error](../../CONTEXT.md#project-error) | a module that does not parse or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs | the tester's code |
+| [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised, or a `with` of the test raised as it entered or cleaned up | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
 The name of each error kind says where the tester fixes the error.
 
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
-- **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when an assert that ran did not hold gives `failed`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
+- **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when an assert that ran did not hold gives `failed`. A raise from the entry or the cleanup of a `with` of the test gives `failed` when it ends the call. The failed line then names the `with`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. It sees a test name with no `def`, and a `def` under a statement. It sees an [expectation](../../CONTEXT.md#expectation) that is not one comparison, one with no literal on either side, and a [private name](../../CONTEXT.md#private-name) in a test's body. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
+- **A breach that execution sees as a case runs is a project error for that test alone.** Execution sees each such breach before the first expectation. It sees a line that did not run, and a branch that went one way only. It sees a marked assert outside the cleanup of a `with`, and a hook that a statement replaced. It sees a `with` that swallowed a raise and skipped a line.
+- **A module that replaced a hook as it loaded is a project error of the module.** Execution sees it at the end of the load, and the error blocks each test of the module.
+
+A case gets the line of the first of these that it meets.
+
+| order | what the case met | its line |
+|---|---|---|
+| 1 | an interrupt | `interrupted` |
+| 2 | an assert before the first expectation, or a hook replaced, whichever came first | a project error |
+| 3 | a raise that ends the call | `raised`, or `failed` when a `with`'s entry or cleanup raised it |
+| 4 | a line that did not run, a branch that went one way, a `with` that swallowed a raise | a project error, each breach joined by `; ` |
+| 5 | a fork refused, or two readings that differ | a project error |
+| 6 | an expectation that did not hold, no expectation, or each expectation held | `failed`, a project error, or `passed` |
+
 - **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs in its process when the thread raises. After a test returns, its process joins each thread that is not a daemon. Such a thread charges that test. The test keeps its outcome, and a load that succeeds still succeeds. A `threading.Thread` that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the outcome `raised` to a test when a thread's call to `os._exit` ends its process. It fails a load when such a call ends the load's process. It names the exception of a load that the first interrupt lands in. [Of the exceptions CPython ignores, only a thread's is a project error](of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md#decision-outcome) charges the exception of a thread that `_thread` starts to the test or the load that runs.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
@@ -62,7 +77,7 @@ flowchart LR
   parsing -- "a syntax error" --> project["<b>project error</b>"]
   selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison or has no literal, a private name" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ" --> project
+  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation, a hook replaced, a with that swallowed a raise" --> project
   execution -- "passed, failed, raised, interrupted" --> outcome["<b>outcome</b>"]
   execution -- "purba's own PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
@@ -74,14 +89,17 @@ flowchart LR
 - **A fault of purba that a part sees as a failed assert shows as failed.** The tests of each part guard against it.
 - **A tester who knows pytest must learn the words again.** pytest prints a raise in a test's call as failed. It calls a raise outside the call an error.
 - **A daemon thread that is alive when the process of its test ends gives no line.** The run can exit 0.
-- **A tester who replaces `threading.excepthook` hides from purba the exception of each `threading.Thread`.** The run can then exit 0.
+- **A library that replaces `threading.excepthook` and puts it back inside one call hides a thread's exception from purba.** The thread is a `threading.Thread` that raises during that call. purba sees a hook replaced only after a statement of the test before its first expectation, and as the module loads. A hook that a reading replaces hides each later thread's exception too.
 
 ## Confirmation
 
 `mise run test:rust` checks that a test that selection refuses, and a module that does not parse or load, prints a project error.
 `mise run test:rust` checks that a thread's exception charges the test or the load that left the thread alive.
 `mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error.
+`mise run test:wheel` checks that each breach that execution sees as a case runs prints a project error.
+It checks that a `with` whose entry or cleanup raised prints `failed`.
 No command checks the rest of this record.
+
 [A case of each kind checks that no failure prints as another kind](a-case-of-each-kind-checks-that-no-failure-prints-as-another-kind.md#decision-outcome) names the gate of the kinds.
 [A test module named builtins.py replaces builtins, and purba's own load fails](https://github.com/kalonji-tools/purba/issues/662) builds part of what it decides.
 

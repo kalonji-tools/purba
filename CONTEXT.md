@@ -22,6 +22,10 @@ The [actor](#actor) that chooses purba's direction and is answerable for what th
 
 The kind of work a [record](#record) decides something in: product design, one [part](#part) or [concern](#concern), the pull-request workflow, writing, or repository tooling. A record names each area it decides something in.
 
+### Arrange, act, assert
+
+The layout of a [test](#test): the lines before its first [expectation](#expectation) arrange and act, and its expectations assert.
+
 ### Artifact
 
 Anything purba writes for a [reader](#reader), and never a file that a workflow uploads from a job. It is rewritten in place until its direction is agreed, and frozen after.
@@ -80,7 +84,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Gate
 
@@ -239,6 +243,10 @@ What a crate spares purba: the code purba would write without it, or the quality
 ### Repair
 
 A change that restores what a [record](#record), a [design spec](#design-spec) or a [gate](#gate) already requires. It carries no decision.
+
+### Replay
+
+A process that the [zygote](#zygote) forks to run a [test](#test) again, and to read one [expectation](#expectation) alone.
 
 ### Reviewer
 
