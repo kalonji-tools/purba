@@ -154,6 +154,13 @@ run = "ec"
 description = "Refuse a use between two parts that the parts diagram does not draw"
 run = "scripts/check-wiring.sh"
 
+#   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
+["list:needs"]
+description = """\
+Find and measure the crates that could meet each stated need, and print the body of the \
+issue that vets them"""
+run = "scripts/forecast.sh"
+
 ["list:records"]
 description = "Name the records a change must satisfy, and refuse nothing"
 run = "scripts/list-records.sh"
