@@ -40,7 +40,7 @@ A probe measured upkeep and API churn again for each past week.
 
 ## Decision Outcome
 
-**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/test/crate-verdict.bats`
+**Reach:** `/CONTEXT.md` `.config/crates.toml` `.config/shortlists.toml` `.config/tasks.toml` `.cargo/deny.toml` `.cargo/check-prose.deny.toml` `scripts/crate-verdict.sh` `scripts/crate-pain.jq` `scripts/test/crate-verdict.bats` `scripts/test/crate-pain.bats`
 
 **Area:** design, tooling
 
@@ -115,6 +115,19 @@ The entry holds no result of a check.
 A waiver names an advisory by its id, so a new advisory on the same crate fails the check again.
 No waiver lets a crate past the trust check.
 
+**`.config/shortlists.toml` holds the shortlist of each need.** Each entry is a table whose key names the need, then the crate.
+
+| field | holds |
+|---|---|
+| each factor except relief | the level of each |
+| `version` | the version that the levels judge |
+| `measured` | the date that a person measured the levels |
+| `unmeasured` | each factor whose level nobody could measure |
+| `needs` | the lowest relief that lets the crate join, or `"never"` |
+| `built` | the issue that adds the crate, once one exists |
+
+The entry holds no pain. `lint:crates` calculates it from the levels.
+
 **`mise run lint:crates` calculates the verdict.** It runs the advisory and the source checks with `cargo-deny`, on the workspace and on each cargo script.
 It refuses:
 
@@ -126,7 +139,9 @@ It refuses:
 - a waiver that names a failure the crate does not have,
 - an entry that fails something its waiver does not name,
 - a waiver that names anything except an advisory id, `"source"` or `"score"`, or has no `why` or no `issue`,
-- a finding of either check on a crate that no manifest names.
+- a finding of either check on a crate that no manifest names,
+- an entry of `.config/shortlists.toml` with a factor that has no level from 1 to 3,
+- an entry of `.config/shortlists.toml` whose `needs` differs from what the formula gives from its levels.
 
 A crate that no manifest names passes the gates only through an ignore, with its reason, in the configuration of its graph.
 `.cargo/deny.toml` serves the workspace, and `.cargo/<name>.deny.toml` serves the cargo script in `scripts/<name>/`.
@@ -139,18 +154,22 @@ A crate that no manifest names passes the gates only through an ignore, with its
 | `"score"` | a level or a weight |
 | an advisory id, or `"source"` | the wording of the check |
 
-The change stands when it moves no verdict of a crate in `.config/crates.toml`, and no relief that a crate on [the shortlists](https://github.com/kalonji-tools/purba/issues/962#issuecomment-6876192563) needs to join.
+The change stands when it moves no verdict of a crate in `.config/crates.toml`, and no `needs` of an entry in `.config/shortlists.toml`.
 Then the crate joins with no waiver.
 Otherwise the waiver stands, and its issue names the change that the pull request tried.
-`lint:crates` finds a moved verdict, because each moved verdict trips one of its refusals.
-The reviewer checks that relief on the shortlists by hand, against [`research/future-crates.md`](https://github.com/kalonji-tools/purba/blob/8607015ff23c21b1c41fea9d17c6f693502f6679/research/future-crates.md).
+
+`lint:crates` finds a moved verdict or a moved `needs`, because each trips one of its refusals.
+A pull request that changes a threshold of a level measures each entry of `.config/shortlists.toml` again.
+It cuts the data at the `measured` date of each entry.
+It rewrites the levels and `needs` that move.
+The reviewer checks that the pull request measured each entry again.
 
 **A design starts from its [shortlist](../../CONTEXT.md#shortlist).**
 
 - The record of a part's design names each crate it picks, in its Decision Outcome. The pick needs no record of its own.
 - Its Considered Options lists each crate of the shortlist that the design scored, with the relief it scored and why the crate lost. A crate the design did not score stays out of Considered Options. A design that picks no crate follows the same rule.
 - A design may pick a crate that is not on the shortlist. It measures that crate by the same criteria.
-- The shortlist stays as [Which crates go on the shortlist of each part not designed yet?](https://github.com/kalonji-tools/purba/issues/962#issuecomment-6876192563) froze it. No pick edits it.
+- The pull request that answers an issue on a need writes the need's shortlist in `.config/shortlists.toml`. Only such a pull request adds or removes an entry.
 
 **Each change judges again what it moves. Nothing judges an entry on a schedule.**
 
@@ -182,7 +201,7 @@ It updates `version`, `owners`, `judged` and `scored`.
 - **Equal weights are a judgement.** A waiver can show that one factor weighs more.
 - **`unsafe` is a Rust factor.** A record that applies this one to another kind of dependency must replace it.
 - **A licence exception holds no reason.** `.cargo/deny.toml` names the crate and the licence only.
-- **The reviewer checks the shortlists by hand.** The relief each crate on them needs is in an issue comment, so `lint:crates` cannot read them.
+- **A threshold change relies on the pull request that makes it.** That pull request measures the shortlists again. No gate checks that it measured them.
 - **Few crates calibrated the levels.** A change to a level or a weight can move none of them and still be wrong for the next crate.
 - **A reworded check can need a person to judge it.** Then [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies to it.
 - **`lint:crates` cannot open an issue comment.** For an entry whose `scored` links a comment, it checks only that the field is there.
@@ -196,3 +215,5 @@ It updates `version`, `owners`, `judged` and `scored`.
 `bats` tests each refusal.
 No check judges relief or trust, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md) applies.
 No check reads whether the pull request that changes the lock measured each factor again. The reviewer reads it.
+
+No check reads whether a pull request that changes a threshold measured the shortlists again. The reviewer reads it.
