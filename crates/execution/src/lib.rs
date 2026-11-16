@@ -501,17 +501,19 @@ struct Seen {
 /// The faults of the paths of a case, in the order of their lines: each `with`
 /// that swallowed a raise and skipped a line, and each fault of `path` that
 /// no such `with` explains.
-fn path_faults(path: Vec<(usize, String)>, swallowed: &[Swallowed]) -> Vec<String> {
-    let mut faults: Vec<(usize, String)> = path
+fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<String> {
+    let mut faults: Vec<paths::Fault> = path
         .into_iter()
-        .filter(|(line, _)| {
-            !swallowed
-                .iter()
-                .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
+        .filter(|(line, reached, _)| {
+            reached.is_some()
+                || !swallowed
+                    .iter()
+                    .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
         })
         .chain(swallowed.iter().map(|swallow| {
             (
                 swallow.with,
+                None,
                 format!(
                     "the with at line {} swallowed a raise, and line {} did not run",
                     swallow.with, swallow.skipped
@@ -521,11 +523,14 @@ fn path_faults(path: Vec<(usize, String)>, swallowed: &[Swallowed]) -> Vec<Strin
         .collect();
     faults.sort();
     faults.dedup();
-    faults.into_iter().map(|(_, fault)| fault).collect()
+    faults.into_iter().map(|(_, _, fault)| fault).collect()
 }
 
-/// The words of two readings of one expectation that differ, or `None` when
-/// they agree.
+/// The words of a reading alone that an assert ran inside.
+const REFUSED_ALONE: &str = "reaches an assert when read alone, and only an expectation asserts";
+
+/// The words of two readings of one expectation that differ, or of a reading
+/// alone that an assert ran inside, or `None` when the two readings agree.
 #[must_use]
 pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
     Some(match (alone, in_order) {
@@ -539,6 +544,7 @@ pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
         (Verdict::Raises, false) => {
             "does not hold after the expectations before it, and raises when read alone"
         }
+        (Verdict::Refused, _) => REFUSED_ALONE,
         (Verdict::Holds, true) | (Verdict::Fails, false) => return None,
     })
 }
@@ -547,7 +553,8 @@ pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// it, from what its call gave, the last marked assert, the readings of its
 /// expectations, and what the run saw. The first of these wins:
 ///
-/// 1. a project error for the first fault of the form;
+/// 1. a project error for the first fault of the form, then for a reading
+///    alone that an assert ran inside;
 /// 2. `raised` when the call raised, unless a `with`'s entry or cleanup raised
 ///    it, or a marked assert that did not hold raised `AssertionError`, which
 ///    are `failed`;
@@ -568,6 +575,17 @@ fn decide(
 ) -> (Result<Kind, Error>, bool) {
     if let Some(form) = &seen.form {
         return (Err(Error::project(form.clone())), false);
+    }
+    if let Some((index, _)) = readings
+        .alone
+        .iter()
+        .find(|(_, verdict)| *verdict == Verdict::Refused)
+    {
+        let text = loaded.expectation(*index).unwrap_or_default();
+        return (
+            Err(Error::project(format!("{text} {REFUSED_ALONE}"))),
+            false,
+        );
     }
     if let Err(err) = result {
         if let Some(with) = &seen.with {

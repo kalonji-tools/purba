@@ -20,6 +20,7 @@ pub static READERS: Forks = Forks;
 const HOLDS: libc::c_int = 0;
 const FAILS: libc::c_int = 1;
 const RAISES: libc::c_int = 2;
+const REFUSED: libc::c_int = 3;
 
 impl Readers for Forks {
     fn threaded(&self, py: Python<'_>) -> bool {
@@ -43,6 +44,7 @@ impl Readers for Forks {
             Verdict::Holds => HOLDS,
             Verdict::Fails => FAILS,
             Verdict::Raises => RAISES,
+            Verdict::Refused => REFUSED,
         };
         // SAFETY: `_exit` takes any code, and ends the process with no
         // `finally` block, `atexit` function or wait for threads.
@@ -60,7 +62,7 @@ impl Readers for Forks {
 
 /// The verdict of a reader or a replay that ended with the wait status
 /// `status`. One that a signal ends gives `Raises`, as does any exit code but
-/// the three of a verdict.
+/// the four of a verdict.
 pub const fn verdict(status: libc::c_int) -> Verdict {
     if !libc::WIFEXITED(status) {
         return Verdict::Raises;
@@ -68,6 +70,7 @@ pub const fn verdict(status: libc::c_int) -> Verdict {
     match libc::WEXITSTATUS(status) {
         HOLDS => Verdict::Holds,
         FAILS => Verdict::Fails,
+        REFUSED => Verdict::Refused,
         _ => Verdict::Raises,
     }
 }
