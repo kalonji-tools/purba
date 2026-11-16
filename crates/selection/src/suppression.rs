@@ -8,7 +8,7 @@ use ruff_python_ast::{Expr, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
 /// The checks that a suppression turns into a warning.
-pub const PRACTICE: [&str; 8] = [
+pub const PRACTICE: [&str; 10] = [
     "foreign-decorator",
     "name-bound-again",
     "not-one-comparison",
@@ -17,6 +17,8 @@ pub const PRACTICE: [&str; 8] = [
     "second-path",
     "assert-before-expectation",
     "swallowed-raise",
+    "patched-name",
+    "mock-without-spec",
 ];
 
 /// The checks that execution sees, of those that a suppression turns into a

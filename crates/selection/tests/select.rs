@@ -1680,3 +1680,397 @@ fn a_comment_that_is_not_purbas_and_a_string_are_no_suppression() {
         "nothing is suppressed"
     );
 }
+
+/// The words of a fault of a patch of `target`.
+fn patched(line: usize, target: &str) -> String {
+    format!(
+        "[patched-name] line {line} patches {target}, and a stand-in enters a test as an argument"
+    )
+}
+
+/// The words of a fault of a mock with no spec.
+fn without_spec(line: usize) -> String {
+    format!(
+        "[mock-without-spec] line {line} makes a mock with no spec, \
+         and a mock has the spec of what it stands for"
+    )
+}
+
+#[test]
+fn a_patch_in_a_test_body_is_refused_by_its_target() {
+    let (tests, refused) = judged(
+        "test_patched.py",
+        concat!(
+            "import os\n",
+            "import unittest.mock\n",
+            "from os import environ\n",
+            "from unittest import mock\n",
+            "from unittest.mock import patch\n",
+            "\n",
+            "import lending\n",
+            "import lending as books\n",
+            "from lending import Library\n",
+            "\n",
+            "\n",
+            "def test_object():\n",
+            "    with mock.patch.object(lending, \"Library\", object):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_string():\n",
+            "    patcher = patch(\"lending.borrow\", print)\n",
+            "    patcher.start()\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_dict_and_multiple():\n",
+            "    with unittest.mock.patch.dict(os.environ, {\"EDITOR\": \"vi\"}):\n",
+            "        with mock.patch.multiple(books, Library=object, borrow=print):\n",
+            "            got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_assign():\n",
+            "    lending.Library = object\n",
+            "    environ[\"EDITOR\"] = \"vi\"\n",
+            "    del books.borrow\n",
+            "    Library.lend += 1\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_builtins():\n",
+            "    setattr(lending, \"Library\", object)\n",
+            "    delattr(os, \"sep\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_nested():\n",
+            "    def swap():\n",
+            "        lending.Library = object\n",
+            "\n",
+            "    swap()\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_object {}", patched(13, "lending.Library")),
+            format!("test_m.py::test_string {}", patched(19, "lending.borrow")),
+            format!(
+                "test_m.py::test_dict_and_multiple {}; {}; {}",
+                patched(25, "os.environ"),
+                patched(26, "lending.Library"),
+                patched(26, "lending.borrow")
+            ),
+            format!(
+                "test_m.py::test_assign {}; {}; {}; {}",
+                patched(32, "lending.Library"),
+                patched(33, "os.environ[\"EDITOR\"]"),
+                patched(34, "lending.borrow"),
+                patched(35, "lending.Library.lend")
+            ),
+            format!(
+                "test_m.py::test_builtins {}; {}",
+                patched(40, "lending.Library"),
+                patched(41, "os.sep")
+            ),
+            format!("test_m.py::test_nested {}", patched(47, "lending.Library")),
+        ],
+        "each patch of unittest.mock, in a with or not, and each assignment, del, setattr() \
+         and delattr() of a name or an item of an import, by its target through the imports"
+    );
+}
+
+#[test]
+fn a_change_to_a_local_a_patch_that_is_not_unittest_mocks_and_a_decorator_are_no_patch() {
+    let (tests, refused) = judged(
+        "test_not_patched.py",
+        concat!(
+            "from unittest import mock\n",
+            "\n",
+            "import lending\n",
+            "from mylib import patch\n",
+            "\n",
+            "\n",
+            "class Box:\n",
+            "    pass\n",
+            "\n",
+            "\n",
+            "def test_local():\n",
+            "    box = Box()\n",
+            "    box.item = 1\n",
+            "    setattr(box, \"item\", 2)\n",
+            "    table = {}\n",
+            "    table[\"k\"] = 1\n",
+            "    assert box.item == 2\n",
+            "\n",
+            "\n",
+            "def test_shadow():\n",
+            "    lending = Box()\n",
+            "    lending.Library = object\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_other_patch():\n",
+            "    patch(\"lending.borrow\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "@mock.patch.object(lending, \"Library\", object)\n",
+            "def test_decorated():\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        [
+            "test_m.py::test_local",
+            "test_m.py::test_shadow",
+            "test_m.py::test_other_patch",
+        ],
+        "a local's attribute and item, a local that hides an import, and another patch are free"
+    );
+    assert_eq!(
+        refused,
+        [
+            "test_m.py::test_decorated [foreign-decorator] the decorator mock.patch.object \
+          is not purba's, and purba cannot see what it does"
+        ],
+        "a patch as a decorator stays a foreign decorator"
+    );
+}
+
+#[test]
+fn a_mock_with_no_spec_is_refused_once_a_line() {
+    let (tests, refused) = judged(
+        "test_mocks.py",
+        concat!(
+            "import unittest.mock\n",
+            "from unittest import mock\n",
+            "from unittest.mock import AsyncMock, MagicMock, Mock, ",
+            "NonCallableMagicMock, NonCallableMock\n",
+            "\n",
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_bare():\n",
+            "    a = Mock()\n",
+            "    b = mock.MagicMock(return_value=1)\n",
+            "    c = NonCallableMock(spec=None)\n",
+            "    d = NonCallableMagicMock(name=\"d\")\n",
+            "    e = unittest.mock.AsyncMock()\n",
+            "    assert a == 1\n",
+            "\n",
+            "\n",
+            "def test_once_a_line():\n",
+            "    pair = (Mock(), MagicMock())\n",
+            "    assert pair == 1\n",
+            "\n",
+            "\n",
+            "def test_specced(options={}):\n",
+            "    a = Mock(spec=lending.Library)\n",
+            "    b = MagicMock(lending.Library)\n",
+            "    c = AsyncMock(spec_set=lending.borrow)\n",
+            "    d = mock.create_autospec(lending.Library)\n",
+            "    e = Mock(**options)\n",
+            "    assert a == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_specced"],
+        "a spec by keyword or by position, a spec_set, create_autospec() and **kwargs pass"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!(
+                "test_m.py::test_bare {}; {}; {}; {}; {}",
+                without_spec(9),
+                without_spec(10),
+                without_spec(11),
+                without_spec(12),
+                without_spec(13)
+            ),
+            format!("test_m.py::test_once_a_line {}", without_spec(18)),
+        ],
+        "each of the five mock classes with no spec, or a spec of None, once a line"
+    );
+}
+
+#[test]
+fn a_patch_that_gives_no_value_is_refused_by_each_name() {
+    let (tests, refused) = judged(
+        "test_no_value.py",
+        concat!(
+            "from unittest import mock\n",
+            "\n",
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_no_value():\n",
+            "    with mock.patch.object(lending, \"Library\"):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_default():\n",
+            "    with mock.patch(\"lending.borrow\", mock.DEFAULT):\n",
+            "        with mock.patch.multiple(lending, Library=mock.DEFAULT):\n",
+            "            got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_spec_given():\n",
+            "    with mock.patch.object(lending, \"Library\", autospec=True):\n",
+            "        with mock.patch(\"lending.borrow\", spec=True):\n",
+            "            with mock.patch(\"lending.today\", new_callable=list):\n",
+            "                got = 1\n",
+            "    assert got == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!(
+                "test_m.py::test_no_value {}; {}",
+                patched(7, "lending.Library"),
+                without_spec(7)
+            ),
+            format!(
+                "test_m.py::test_default {}; {}; {}; {}",
+                patched(13, "lending.borrow"),
+                without_spec(13),
+                patched(14, "lending.Library"),
+                without_spec(14)
+            ),
+            format!(
+                "test_m.py::test_spec_given {}; {}; {}",
+                patched(20, "lending.Library"),
+                patched(21, "lending.borrow"),
+                patched(22, "lending.today")
+            ),
+        ],
+        "a patch with no value or DEFAULT makes a mock with no spec; \
+         autospec, spec and new_callable leave one refusal"
+    );
+}
+
+const PATCH_SUPPRESSED: &str = concat!(
+    "from unittest import mock\n",
+    "\n",
+    "import lending\n",
+    "\n",
+    "\n",
+    "# purba: suppress[patched-name] the library has no seam yet\n",
+    "def test_half():\n",
+    "    with mock.patch.object(lending, \"Library\"):\n",
+    "        got = 1\n",
+    "    assert got == 1\n",
+    "\n",
+    "\n",
+    "# purba: suppress[patched-name] the library has no seam yet\n",
+    "# purba: suppress[mock-without-spec] the stub answers one call\n",
+    "def test_both():\n",
+    "    with mock.patch.object(lending, \"Library\"):\n",
+    "        got = 1\n",
+    "    assert got == 1\n",
+);
+
+#[test]
+fn a_suppression_of_patched_name_alone_leaves_the_mock_without_spec() {
+    let (tests, refused) = judged("test_patch_suppressed.py", PATCH_SUPPRESSED);
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_both"],
+        "both checks suppressed, the test runs"
+    );
+    assert_eq!(
+        refused,
+        [format!("test_m.py::test_half {}", without_spec(8))],
+        "the mock with no spec still refuses the test"
+    );
+    let patch = "the library has no seam yet";
+    assert_eq!(
+        suppressed("test_patch_suppressed_verdicts.py", PATCH_SUPPRESSED),
+        [
+            verdict(
+                "test_both",
+                "patched-name",
+                "line 16 patches lending.Library, and a stand-in enters a test as an argument",
+                patch,
+            ),
+            verdict(
+                "test_both",
+                "mock-without-spec",
+                "line 16 makes a mock with no spec, and a mock has the spec of what it stands for",
+                "the stub answers one call",
+            ),
+            verdict(
+                "test_half",
+                "patched-name",
+                "line 8 patches lending.Library, and a stand-in enters a test as an argument",
+                patch,
+            ),
+        ],
+        "both checks are of the practice tier"
+    );
+}
+
+#[test]
+fn a_star_argument_may_give_a_spec_so_it_gives_no_mock_without_spec() {
+    let (tests, refused) = judged(
+        "test_star.py",
+        concat!(
+            "from unittest import mock\n",
+            "\n",
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_multiple_star(extra={}):\n",
+            "    with mock.patch.multiple(lending, borrow=mock.DEFAULT, **extra):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_object_star(extra={}):\n",
+            "    with mock.patch.object(lending, \"Library\", **extra):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_mock_star(args=()):\n",
+            "    stub = mock.Mock(*args)\n",
+            "    assert stub == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_mock_star"],
+        "a mock class with a star argument may get its spec from it"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!(
+                "test_m.py::test_multiple_star {}",
+                patched(7, "lending.borrow")
+            ),
+            format!(
+                "test_m.py::test_object_star {}",
+                patched(13, "lending.Library")
+            ),
+        ],
+        "a patch with a star argument is refused as a patch alone"
+    );
+}

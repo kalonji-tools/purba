@@ -19,16 +19,19 @@ bats_require_minimum_version 1.5.0
   local path='the lines before the first expectation take one path'
   local asserts='asserts before the first expectation, and only an expectation asserts'
   local hooks="replaced threading.excepthook, and a test keeps purba's hooks"
-  local swallowed='the with at line 39 swallowed a raise'
+  local swallowed='the with at line 40 swallowed a raise'
+  local patched='line 35 patches threading.excepthook, and a stand-in enters a test as an argument'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_m.py::test_path project error: [second-path] line 15 did not run, and ${path}
 test_m.py::test_branch project error: [second-path] line 21 went one way only, and ${path}
 test_m.py::test_assert project error: [assert-before-expectation] line 28 ${asserts}
-test_m.py::test_hook project error: [hook-replaced] line 34 ${hooks}
-test_m.py::test_swallow project error: [swallowed-raise] ${swallowed}, and line 41 did not run
+test_m.py::test_hook project error: [hook-replaced] line 35 ${hooks}
+    ⚠ suppressed [patched-name] ${patched}
+      reason: execution must still refuse a hook that the test replaced
+test_m.py::test_swallow project error: [swallowed-raise] ${swallowed}, and line 42 did not run
 test_m.py::test_cleanup failed
-    the cleanup of the with at line 46 raised AssertionError: a handle leaked
-6 cases: 1 failed, 5 blocked; 5 project errors
+    the cleanup of the with at line 47 raised AssertionError: a handle leaked
+6 cases: 1 failed, 5 blocked; 5 project errors; 1 suppressed
 LINES
   [[ -z "${stderr}" ]]
 }

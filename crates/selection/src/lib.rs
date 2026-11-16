@@ -19,6 +19,7 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
+mod patch;
 mod suppression;
 
 pub use suppression::Suppression;
@@ -166,6 +167,8 @@ enum Reason {
     NotOneComparison(usize),
     Computes(usize, String),
     Private(usize, String),
+    Patched(usize, String),
+    WithoutSpec(usize),
 }
 
 impl Reason {
@@ -182,6 +185,8 @@ impl Reason {
             Self::NotOneComparison(_) => "not-one-comparison",
             Self::Computes(..) => "computed-expected",
             Self::Private(..) => "private-name",
+            Self::Patched(..) => "patched-name",
+            Self::WithoutSpec(_) => "mock-without-spec",
             Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
                 return None;
             }
@@ -308,6 +313,15 @@ impl fmt::Display for Reason {
                 formatter,
                 "line {line} reads the private name {name}, and a test reads no private name"
             ),
+            Self::Patched(line, target) => write!(
+                formatter,
+                "line {line} patches {target}, and a stand-in enters a test as an argument"
+            ),
+            Self::WithoutSpec(line) => write!(
+                formatter,
+                "line {line} makes a mock with no spec, \
+                 and a mock has the spec of what it stands for"
+            ),
         }
     }
 }
@@ -343,7 +357,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     let Found { last, places, defs } = found(module);
     let sites = suppression::sites(module, &test_defs(module, &defs));
     let bindings = bindings(module.syntax());
-    let imported = private_imports(module.syntax());
+    let imported = imports(module.syntax());
     let mut tests = Vec::new();
     let mut refused = Vec::new();
     for (under, function, first) in last {
@@ -1096,18 +1110,21 @@ fn origins(statement: &Stmt) -> Vec<(&Identifier, String)> {
     }
 }
 
-/// Each name that an `import` at the module's level, or in a block there,
-/// binds from a private origin, by the name, beside that origin.
-fn private_imports(module: &ModModule) -> HashMap<&str, String> {
+/// The name that an `import` of `name` binds: `import a.b` binds `a`.
+fn bound(name: &Identifier) -> &str {
+    name.as_str().split('.').next().unwrap_or_default()
+}
+
+/// Each name that an `import` binds at the module's level or in a block there,
+/// with where it comes from.
+fn imports(module: &ModModule) -> HashMap<&str, String> {
     let mut found = HashMap::new();
     let mut pending: Vec<&Stmt> = module.body.iter().rev().collect();
     while let Some(statement) = pending.pop() {
         match statement {
             Stmt::Import(_) | Stmt::ImportFrom(_) => {
                 for (name, origin) in origins(statement) {
-                    if of_a_private_path(&origin) {
-                        found.insert(name.as_str(), origin);
-                    }
+                    found.insert(bound(name), origin);
                 }
             }
             Stmt::FunctionDef(_) | Stmt::ClassDef(_) => {}
@@ -1119,7 +1136,9 @@ fn private_imports(module: &ModModule) -> HashMap<&str, String> {
 
 /// Each fault of the rules that selection reads from the body of `function`,
 /// in source order: an expectation that is not one comparison, an expected
-/// value that is not a literal, and a private name.
+/// value that is not a literal, a private name, a patch, and a mock with no
+/// spec. Each patch comes once for each target of a line, and each mock with
+/// no spec comes once for each line.
 fn faults_of(
     function: &StmtFunctionDef,
     module: &Module,
@@ -1162,6 +1181,20 @@ fn faults_of(
     for (offset, name) in Names::of(&function.body, &locals, imported) {
         if seen.insert((line(offset), name.clone())) {
             faults.push((offset, Reason::Private(line(offset), name)));
+        }
+    }
+    let mut targets = HashSet::new();
+    let mut mocks = HashSet::new();
+    for (offset, fault) in patch::faults(&function.body, &locals, imported, module.source()) {
+        let at = line(offset);
+        match fault {
+            patch::Fault::Patched(target) if targets.insert((at, target.clone())) => {
+                faults.push((offset, Reason::Patched(at, target)));
+            }
+            patch::Fault::WithoutSpec if mocks.insert(at) => {
+                faults.push((offset, Reason::WithoutSpec(at)));
+            }
+            _ => {}
         }
     }
     faults.sort_by_key(|(offset, _)| *offset);
@@ -1230,6 +1263,7 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
             }
             Expr::Name(name) if name.ctx == ExprContext::Load => {
                 if let Some(origin) = self.imported.get(name.id.as_str())
+                    && of_a_private_path(origin)
                     && !self.locals.contains(name.id.as_str())
                 {
                     self.found.push((name.start(), origin.clone()));
