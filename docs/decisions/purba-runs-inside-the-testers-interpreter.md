@@ -29,6 +29,7 @@ Each arrangement decides which interpreter runs the tester's code.
 
 **purba runs inside the tester's interpreter, as an extension module.**
 The tester's CPython loads purba, so each test runs on the interpreter and the packages that the tester chose.
+The test module does not follow the interpreter's `-O`, as [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) says.
 CPython is outside purba's boundary.
 [The landscape](../../LANDSCAPE.md#the-context) draws each neighbour.
 

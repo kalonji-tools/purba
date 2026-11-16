@@ -27,6 +27,7 @@
 ### command
 
 - [A command test checks only command's rules](decisions/a-command-test-checks-only-commands-rules.md)
+- [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
 - [A tester runs purba on one module, and reads a line for each case](decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md)
 - [Command lends one parse to selection and assertion](decisions/command-lends-one-parse-to-selection-and-assertion.md)
 
@@ -65,6 +66,7 @@
 - [A loaded module joins sys.modules under its file's name, without .py](decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md)
 - [A module that binds a name purba adds is a project error](decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md)
 - [A module whose load fails leaves sys.modules as it found it](decisions/a-module-whose-load-fails-leaves-sys-modules-as-it-found-it.md)
+- [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
 - [A tuple assert keeps CPython's warning, and selection refuses a test that ends with one](decisions/a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md)
 - [Assertion's rewrite crosses each part whole, and only assertion opens it](decisions/assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md)
 
@@ -86,6 +88,7 @@
 ### strictness
 
 - [A suppression is an outcome and not a switch](decisions/a-suppression-is-an-outcome-and-not-a-switch.md)
+- [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
 - [purba is always strict](decisions/purba-is-always-strict.md)
 
 ### interrupt handling
