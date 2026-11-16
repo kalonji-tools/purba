@@ -1,0 +1,43 @@
+test files: 189
+pytest 119
+unittest 26
+hypothesis 9
+freezegun 3
+nose 0
+nose2 0
+testtools 0
+ward 0
+--- pytest names read
+    840 pytest.mark.parametrize
+    487 pytest.raises
+    318 pytest.param
+    140 pytest.mark.skipif
+     55 pytest.warns
+     31 pytest.fixture
+     23 pytest.mark.xfail
+     17 pytest.skip
+     16 pytest.mark.usefixtures
+     15 pytest.fail
+     12 pytest.mark.gettz
+      9 pytest.mark.tzstr
+      8 pytest.importorskip
+      6 pytest.mark.stress
+      5 pytest.mark.tz_resolve_imaginary
+      5 pytest.mark.smoke
+      4 pytest.mark.tzoffset
+      4 pytest.mark.tzlocal
+      4 pytest.mark.rrule
+      3 pytest.mark.filterwarnings
+      2 pytest.mark.tzfile
+      2 pytest.mark.rruleset
+      2 pytest.mark.parserinfo
+      1 pytest.MonkeyPatch
+      1 pytest.mark.tzdata_properties
+      1 pytest.mark.skip
+      1 pytest.mark.rrulestr
+      1 pytest.mark.isoparser
+      1 pytest.mark.import_star
+      1 pytest.mark.benchmark
+      1 pytest.FixtureRequest
+      1 pytest.__file__
+      1 pytest.deprecated_call

@@ -1,0 +1,60 @@
+--- import pytest: 112 ms
+meta_path          same
+path_hooks         same
+warnings.filters   same
+showwarning        same
+excepthook         same
+displayhook        same
+SIGINT             same
+SIGALRM            same
+threads            same
+atexit             CHANGED  0 -> 1
+trace              same
+profile            same
+recursionlimit     same
+modules            CHANGED  51 -> 288
+--- import hypothesis: 118 ms
+meta_path          same
+path_hooks         same
+warnings.filters   same
+showwarning        same
+excepthook         same
+displayhook        same
+SIGINT             same
+SIGALRM            same
+threads            same
+atexit             same
+trace              same
+profile            same
+recursionlimit     same
+modules            CHANGED  51 -> 280
+--- import unittest: 19 ms
+meta_path          same
+path_hooks         same
+warnings.filters   same
+showwarning        same
+excepthook         same
+displayhook        same
+SIGINT             same
+SIGALRM            same
+threads            same
+atexit             same
+trace              same
+profile            same
+recursionlimit     same
+modules            CHANGED  51 -> 92
+--- import unittest.mock: 43 ms
+meta_path          same
+path_hooks         same
+warnings.filters   same
+showwarning        same
+excepthook         same
+displayhook        same
+SIGINT             same
+SIGALRM            same
+threads            same
+atexit             CHANGED  0 -> 1
+trace              same
+profile            same
+recursionlimit     same
+modules            CHANGED  51 -> 156

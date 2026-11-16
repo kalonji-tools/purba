@@ -1,0 +1,64 @@
+=== test_01_import_only.py
+test_01_import_only.py::test_price passed
+1 case: 1 passed
+exit 0
+=== test_02_from_import_unused.py
+test_02_from_import_unused.py::test_price passed
+1 case: 1 passed
+exit 0
+=== test_03_monkeypatch.py
+test_03_monkeypatch.py::test_price_patched passed
+1 case: 1 passed
+exit 0
+=== test_04_raises.py
+test_04_raises.py::test_negative project error: [no-expectation] no expectation stated
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_05_skip_call.py
+test_05_skip_call.py::test_skipped_inside raised: Skipped: not on this platform
+1 case: 1 raised
+exit 4
+=== test_06_fail_call.py
+test_06_fail_call.py::test_fail_inside project error: [second-path] line 8 went one way only, and the lines before the first expectation take one path; [second-path] line 9 did not run, and the lines before the first expectation take one path
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_07_importorskip.py
+test_07_importorskip.py project error: Skipped: could not import 'no_such_module_xyz': No module named 'no_such_module_xyz'
+test_07_importorskip.py::test_never blocked: test_07_importorskip.py did not load
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_08_parametrize.py
+test_08_parametrize.py::test_price project error: [foreign-decorator] the decorator pytest.mark.parametrize is not purba's, and purba cannot see what it does; the parameter n has no default, and purba cannot see which fixture builds it
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_09_fixture_def.py
+test_09_fixture_def.py::test_price passed
+1 case: 1 passed
+exit 0
+=== test_10_hypothesis_import.py
+test_10_hypothesis_import.py::test_price passed
+1 case: 1 passed
+exit 0
+=== test_11_unittest_mock.py
+test_11_unittest_mock.py::test_price_patched passed
+1 case: 1 passed
+exit 0
+=== test_12_warns.py
+test_12_warns.py::test_warns project error: [no-expectation] no expectation stated
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_13_unittest_testcase_import.py
+test_13_unittest_testcase_import.py::test_price passed
+1 case: 1 passed
+exit 0
+=== test_14_suppressed_parametrize.py
+test_14_suppressed_parametrize.py::test_price passed
+    ⚠ suppressed [foreign-decorator] the decorator pytest.mark.parametrize is not purba's, and purba cannot see what it does
+      reason: cases wait for case()
+1 case: 1 passed; 1 suppressed
+exit 0
+=== test_15_skip_module_level.py
+test_15_skip_module_level.py project error: Skipped: whole module off
+test_15_skip_module_level.py::test_never blocked: test_15_skip_module_level.py did not load
+1 case: 1 blocked; 1 project error
+exit 4

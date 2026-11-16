@@ -1,0 +1,6 @@
+files             119
+tests             1657
+touch             834
+fixture_only      493
+clean             330
+files_with_clean  51
