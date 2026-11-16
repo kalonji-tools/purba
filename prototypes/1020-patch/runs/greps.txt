@@ -1,0 +1,23 @@
+=== grep: each 'with ...patch(' line in the 9 suites
+./click/tests/test_termui.py:559:    with patch("subprocess.Popen") as mock_popen:
+./click/tests/test_termui.py:588:    with patch("subprocess.Popen") as mock_popen:
+./click/tests/test_termui.py:598:    with patch("subprocess.Popen") as mock_popen:
+./click/tests/test_termui.py:608:    with patch("subprocess.Popen") as mock_popen:
+./click/tests/test_termui.py:615:    with patch("subprocess.Popen", side_effect=OSError("not found")):
+./requests/tests/test_help.py:20:    with mock.patch("requests.help.idna", new=None):
+./requests/tests/test_help.py:26:    with mock.patch("requests.help.idna", new=VersionedPackage("2.6")):
+./requests/tests/test_utils.py:791:    with mock.patch("requests.utils.proxy_bypass") as proxy_bypass:
+./requests/tests/test_requests.py:1020:        with mock.patch("os.environ", env):
+./requests/tests/test_requests.py:2215:        with mock.patch.dict(session.adapters["http://"].proxy_manager, proxies):
+./loguru/tests/test_add_option_context.py:19:    with patch.object(type(context), "Lock", wraps=context.Lock) as mock:
+./loguru/tests/test_add_option_context.py:27:    with patch.object(type(context), "Lock", wraps=context.Lock) as mock:
+./loguru/tests/test_add_option_context.py:37:    with patch.object(type(context), "Lock", wraps=context.Lock) as mock:
+./loguru/tests/test_add_option_context.py:45:    with patch.object(type(context), "Lock", wraps=context.Lock) as mock:
+./attrs/tests/test_slots.py:1168:    with mock.patch(f"{__name__}.A", NEW_A):
+./attrs/tests/test_slots.py:1193:    with mock.patch(f"{__name__}.A", NEW_A):
+=== grep: Mock(...) built in a test file, and how many carry spec= or spec_set= on the same line
+built: 45
+with a spec: 1
+=== test files that import pytest, and that import unittest.mock or mock
+pytest: 125
+mock: 20

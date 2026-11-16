@@ -1,0 +1,93 @@
+=== test_00_with_patch.py
+test_00_with_patch.py::test_with_patch_object passed
+1 case: 1 passed
+exit 0
+=== test_01_assign.py
+test_01_assign.py::test_assign_module_attr passed
+1 case: 1 passed
+exit 0
+=== test_02_decorator.py
+test_02_decorator.py::test_patch_decorator project error: the decorator mock.patch.object is not purba's, and purba cannot see what it does; the parameter fake has no default, and purba cannot see which fixture builds it
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_03_monkeypatch.py
+test_03_monkeypatch.py::test_uses_monkeypatch project error: the parameter monkeypatch has no default, and purba cannot see which fixture builds it; line 6 computes object, and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_04_mock_assert_only.py
+test_04_mock_assert_only.py::test_only_mock_assert project error: no expectation stated
+1 case: 1 blocked; 1 project error
+exit 4
+=== test_05_misspelled.py
+test_05_misspelled.py::test_unspecced_attr passed
+1 case: 1 passed
+exit 0
+=== test_06_call_count.py
+test_06_call_count.py::test_call_count passed
+1 case: 1 passed
+exit 0
+=== test_07_patch_in_check.py
+test_07_patch_in_check.py::test_spec_mismatch_check_reads_mock passed
+1 case: 1 passed
+exit 0
+=== test_08_cut_patched.py
+test_08_cut_patched.py::test_patch_the_code_under_test passed
+1 case: 1 passed
+exit 0
+=== test_09_leak.py
+test_09_leak.py::test_a_patches passed
+test_09_leak.py::test_b_reads_real passed
+2 cases: 2 passed
+exit 0
+=== test_10_with_then_after.py
+test_10_with_then_after.py::test_under_then_after_the_undo passed
+test_10_with_then_after.py::test_after_undo_wrong_on_purpose failed
+    assert lending.borrow("Dune") == "stub"
+2 cases: 1 passed, 1 failed
+exit 1
+=== test_11_mp_context.py
+test_11_mp_context.py::test_mp_context_stub passed
+1 case: 1 passed
+exit 0
+=== test_12_mp_typo_target.py
+test_12_mp_typo_target.py::test_mp_typo_target raised: AttributeError: <module 'lending' from 'probes/lending.py'> has no attribute 'Librarian'
+1 case: 1 raised
+exit 4
+=== test_13_patch_typo_target.py
+test_13_patch_typo_target.py::test_patch_typo_target failed
+    the entry of the with at line 7 raised AttributeError: <module 'lending' from 'probes/lending.py'> does not have the attribute 'Librarian'
+1 case: 1 failed
+exit 1
+=== test_14_mp_no_value.py
+test_14_mp_no_value.py::test_mp_needs_a_value raised: TypeError: use setattr(target, name, value) or setattr(target, value) with target being a dotted import string
+1 case: 1 raised
+exit 4
+=== test_15_patch_default_magic.py
+test_15_patch_default_magic.py::test_patch_default_value_answers_anything passed
+1 case: 1 passed
+exit 0
+=== test_16_mp_stub_typo_method.py
+test_16_mp_stub_typo_method.py::test_stub_with_wrong_method raised: AttributeError: 'Stub' object has no attribute 'lend'
+1 case: 1 raised
+exit 4
+=== test_17_mp_env.py
+test_17_mp_env.py::test_mp_setenv passed
+1 case: 1 passed
+exit 0
+=== test_18_stdlib_equivalents.py
+test_18_stdlib_equivalents.py::test_setattr_is_patch_object_with_a_value passed
+test_18_stdlib_equivalents.py::test_setenv_is_patch_dict passed
+test_18_stdlib_equivalents.py::test_delenv_inside_patch_dict passed
+test_18_stdlib_equivalents.py::test_delattr_inside_patch_object passed
+test_18_stdlib_equivalents.py::test_chdir_is_contextlib_chdir passed
+test_18_stdlib_equivalents.py::test_syspath_prepend_is_patch_object passed
+test_18_stdlib_equivalents.py::test_typo_target_still_caught failed
+    the entry of the with at line 53 raised AttributeError: <module 'lending' from 'probes/lending.py'> does not have the attribute 'Librarian'
+test_18_stdlib_equivalents.py::test_stub_without_method_still_caught raised: AttributeError: 'Bad' object has no attribute 'lend'
+8 cases: 6 passed, 1 failed, 1 raised
+exit 1
+=== test_19_pytest_names.py
+test_19_pytest_names.py::test_pytest_approx project error: line 11 computes pytest.approx(0.3), and an expected value is a literal
+test_19_pytest_names.py::test_pytest_raises project error: no expectation stated
+2 cases: 2 blocked; 2 project errors
+exit 4

@@ -1,0 +1,45 @@
+  4458  test functions
+   215  any patch form
+   131  param monkeypatch (pytest)
+    54  with freeze_time
+    19  with mock.patch*
+     8  assign imported_module.attr = ...
+     5  decorator freeze_time
+     2  setattr(imported_module, ...)
+     1  call mock.patch* (start/stop)
+
+attrs 683 tests, 8 with a patch form: {'with mock.patch*': 2, 'assign imported_module.attr = ...': 3, 'setattr(imported_module, ...)': 1, 'param monkeypatch (pytest)': 2}
+click 645 tests, 64 with a patch form: {'param monkeypatch (pytest)': 59, 'with mock.patch*': 7, 'assign imported_module.attr = ...': 1, 'call mock.patch* (start/stop)': 1}
+dateutil 1133 tests, 5 with a patch form: {'decorator freeze_time': 5}
+loguru 740 tests, 118 with a patch form: {'with mock.patch*': 4, 'with freeze_time': 54, 'param monkeypatch (pytest)': 60, 'assign imported_module.attr = ...': 1}
+pyflakes 564 tests, 1 with a patch form: {'with mock.patch*': 1}
+requests 347 tests, 16 with a patch form: {'with mock.patch*': 5, 'param monkeypatch (pytest)': 9, 'assign imported_module.attr = ...': 1, 'setattr(imported_module, ...)': 1}
+schedule 81 tests, 0 with a patch form: {}
+six 83 tests, 2 with a patch form: {'param monkeypatch (pytest)': 1, 'assign imported_module.attr = ...': 1}
+toolz 182 tests, 1 with a patch form: {'assign imported_module.attr = ...': 1}
+
+param monkeypatch (pytest)
+    six/test_six.py:380 test_dictionary_iterators
+    click/tests/test_commands.py:582 test_deprecated_help_text_is_not_translated
+    click/tests/test_basic.py:855 test_version_option_resolves_import_name_to_distribution
+assign imported_module.attr = ...
+    six/test_six.py:640 test_print_
+    toolz/toolz/tests/test_curried_doctests.py:5 test_doctests
+    click/tests/test_utils/test_echo.py:46 test_echo_no_streams
+with mock.patch*
+    click/tests/test_termui.py:558 test_editor_path_normalization
+    click/tests/test_termui.py:585 test_editor_windows_path_normalization
+    click/tests/test_termui.py:597 test_editor_env_passed_through
+call mock.patch* (start/stop)
+    click/tests/test_utils/test_echo_via_pager.py:155 test_echo_via_pager
+decorator freeze_time
+    dateutil/tests/test_rrule.py:4612 test_generated_aware_dtstart
+    dateutil/tests/test_rrule.py:4625 test_generated_aware_dtstart_rrulestr
+    dateutil/tests/test_utils.py:19 test_utils_today
+setattr(imported_module, ...)
+    requests/tests/test_requests.py:1455 test_response_is_iterable
+    attrs/tests/test_make.py:640 test_immutable
+with freeze_time
+    loguru/tests/test_filesink_delay.py:60 test_rotation
+    loguru/tests/test_filesink_delay.py:82 test_rotation_and_retention
+    loguru/tests/test_filesink_delay.py:101 test_rotation_and_retention_timed_file
