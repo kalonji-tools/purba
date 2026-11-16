@@ -200,6 +200,31 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test in a class prints as refused, named by its class and its method" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def test_plain():' '    assert 1 == 1' \
+    'class TestGroup:' \
+    '    def test_in_class(self):' '        assert 1 == 2' \
+    '    def test_fixture(self, tmp_path):' '        assert tmp_path.name == "x"' \
+    'class FakeClient:' \
+    '    def test_connection(self):' '        self.ok = True' >mixed.py
+
+  run -4 --separate-stderr purba mixed.py
+
+  local method='project error: purba cannot call a method of a class'
+  local fixture='the parameter tmp_path has no default'
+  local unseen='and purba cannot see which fixture builds it'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+mixed.py::TestGroup::test_in_class ${method}
+mixed.py::TestGroup::test_fixture ${method}; ${fixture}, ${unseen}
+mixed.py::FakeClient::test_connection ${method}
+mixed.py::test_plain passed
+4 cases: 1 passed, 3 blocked; 3 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a test name that the module binds with no def prints as refused" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
