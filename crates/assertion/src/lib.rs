@@ -1285,9 +1285,13 @@ fn run<'py>(
     module: &Bound<'py, PyModule>,
 ) -> PyResult<Bound<'py, PyAny>> {
     let builtins = py.import("builtins")?;
-    let code = builtins
-        .getattr("compile")?
-        .call1((text, path.as_os_str(), "exec"))?;
+    // PROTOTYPE #1027: PURBA_PROTO_MUT=interp reverts optimize=0, a mutation.
+    let compile = builtins.getattr("compile")?;
+    let code = if std::env::var_os("PURBA_PROTO_MUT").is_some_and(|m| m == "interp") {
+        compile.call1((text, path.as_os_str(), "exec"))?
+    } else {
+        compile.call1((text, path.as_os_str(), "exec", 0, false, 0))?
+    };
     check_locals(&code, path)?;
     builtins.getattr("exec")?.call1((&code, module.dict()))?;
     Ok(code)

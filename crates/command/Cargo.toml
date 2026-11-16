@@ -14,9 +14,10 @@ purba-execution = { path = "../execution" }
 purba-parsing = { path = "../parsing" }
 purba-reporting = { path = "../reporting" }
 purba-selection = { path = "../selection" }
+# PROTOTYPE #1027: arms b and c read sys.flags from command.
+pyo3.workspace = true
 
 [dev-dependencies]
-pyo3.workspace = true
 
 [features]
 fault = ["purba-assertion/fault", "purba-parsing/fault", "purba-selection/fault"]

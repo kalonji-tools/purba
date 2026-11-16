@@ -1,0 +1,198 @@
+=== mutation none
+--- arm a: tests/optimize.bats
+    (1s)
+--- arm b: every bats file, PYTHONOPTIMIZE=1
+    not ok 3 the fault wheel passes the test when PURBA_FAULT is unset
+    not ok 4 the wheel without fault passes the test when PURBA_FAULT is assert
+    not ok 5 the wheel without fault passes the test when PURBA_FAULT is command
+    not ok 10 the wheel without fault passes the test when PURBA_FAULT is selection
+    not ok 13 the wheel without fault runs the module when PURBA_FAULT is rewrite or parse
+    not ok 17 a Ctrl-C while purba writes a line starts no later test, and purba dies by SIGINT
+    not ok 18 a Ctrl-C while purba writes the last line prints the count, and purba dies by SIGINT
+    not ok 19 a Ctrl-C while purba calls __str__ keeps the exception's text, and purba dies by SIGINT
+    not ok 20 a Ctrl-C in a test's call makes the test interrupted, and its finally block runs
+    not ok 21 an interrupt sent to purba alone makes the test interrupted, and its finally block runs
+    not ok 22 a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts
+    not ok 23 a Ctrl-C that reaches a process of the run after purba forwarded it counts once
+    not ok 24 a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT
+    not ok 25 a Ctrl-C in a load whose process then exits leaves each test unreached, and no error
+    not ok 26 a KeyboardInterrupt with no signal makes the test raised, and the next test runs
+    not ok 27 a signal handler that a test installs lives only for its call
+    not ok 28 a signal handler that a module installs lives only for its load
+    not ok 29 a signal handler that a test installs below Python lives only for its call
+    not ok 30 an ignore that a test gives SIGINT below Python lives only for its call
+    not ok 31 the flag that signal.siginterrupt gives SIGINT lives only for its call
+    not ok 32 a mask that a test puts on SIGINT lives only for its call
+    not ok 33 a mask that a module puts on SIGINT lives only for its load
+    not ok 34 a signal that the parent masks stays masked after a test unmasks it
+    not ok 35 a Ctrl-C in a test that unmasks a signal the parent masks ends purba by SIGINT
+    not ok 36 a Ctrl-C that a test's mask holds stops the run, though the test has its own handler
+    not ok 37 a test's signal handler lives only for its call, though the test patches signal.signal
+    not ok 38 a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises
+    not ok 39 a Ctrl-C that the parent ignores stays ignored, and the run ends normally
+    not ok 40 a signal handler that a test gives a signal the parent ignores lives only for its call
+    not ok 41 an ignore of the parent comes back after a test changes it below Python
+    not ok 42 a Ctrl-C that a test's mask holds stops the run when the call returns
+    not ok 43 SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal
+    not ok 44 a second Ctrl-C ends purba at once by SIGINT, even while a finally block runs C code
+    not ok 45 a second Ctrl-C in a test that catches the first leaves no process of the run alive
+    not ok 46 SIGINT and then SIGTERM make a second interrupt, and purba dies by SIGTERM
+    not ok 47 a second Ctrl-C ends purba at once by SIGINT, when the first lands in a test's C code
+    not ok 48 SIGINT then SIGTERM end purba at once by SIGTERM, when the first lands in a test's C code
+    not ok 50 a Ctrl-C ends the wait for a thread that a test left alive, and purba dies by SIGINT
+    not ok 51 the error of a thread in the test that a Ctrl-C lands in prints after that test's line
+    not ok 52 a Ctrl-C in a test's atexit function lets the function finish, and purba dies by SIGINT
+    not ok 53 a child that a test forks dies by SIGTERM, and prints no report of its own
+    not ok 54 a child that multiprocessing forks dies by SIGTERM on terminate
+    not ok 55 a child that a test forks has the signal handlers that Python has without purba
+    not ok 56 a signal handler that a test gives SIGTERM before it forks runs in the child
+    not ok 57 a test whose assert fails prints failed, and the run exits 1
+    not ok 58 an expectation inside a checking context fails, and an assert in a try is refused
+    not ok 59 a test that raises prints raised, and the run exits 4
+    not ok 60 a test that states no expectation prints a project error, and the run exits 4
+    not ok 61 a test whose expectation never runs prints a project error, and the run exits 4
+    not ok 62 a test whose two expectations fail prints both under its line, and the run exits 1
+    not ok 63 a failed expectation shows its expected value and its reading, and the run exits 1
+    not ok 64 an expectation that a reading before it changed is refused, and the run exits 4
+    not ok 65 an expectation that raises gives raised, and no later expectation prints
+    not ok 66 a module that does not parse prints a project error, and the run exits 4
+    not ok 67 an argument that purba cannot take prints an invocation error, and the run exits 3
+    not ok 74 a case that breaks a rule prints the line and the rule, and a cleanup that raises fails
+    not ok 75 a with whose entry raises fails the case, ahead of a line that did not run
+    not ok 76 an expectation inside a with reads before its cleanup, and one after it reads after
+    not ok 77 an assert before the first expectation beats a raise, and a raise keeps raised
+    not ok 78 a helper of the test module takes one path, unless the test calls it both ways
+    not ok 79 a library's callback, an imported module, and a raise at the end of a with are free
+    not ok 80 a hook that a helper replaces and puts back inside one call is free
+    not ok 81 a module that replaces a hook as it loads is refused, and blocks each of its tests
+    not ok 82 a thread alive at the first expectation gives a replay for each later expectation
+    not ok 83 a replay that reads an expectation alone refuses one that a reading before it changed
+    not ok 84 a helper that breaks a rule names the line of the test that reaches it first
+    not ok 85 execution refuses an assert that only a fork or a replay reaches
+    not ok 87 purba with no path exits 3, and says why on stderr
+    not ok 88 purba with stdout closed exits 3, and says why on stderr
+    not ok 89 purba with stdout open for reading exits 3, and says why on stderr
+    not ok 90 purba with a module that declares latin-1 exits 3, and says why on stderr
+    not ok 91 purba with no sys.abiflags runs its tests
+    not ok 93 a tuple assert at a test's end is refused as an expectation that is not one comparison
+    not ok 95 a test that breaks a rule of its code prints each fault by its line, and is never called
+    not ok 96 an empty tuple asserted before the first expectation is refused, and CPython does not warn
+    not ok 97 a test that selection refuses prints above the tests that run, and is never called
+    not ok 98 a test under a statement at the module's level prints as refused
+    not ok 99 a test in a class prints as refused, named by its class and its method
+    not ok 100 a test name that the module binds with no def prints as refused
+    not ok 101 a test name that never holds a function prints no line
+    not ok 102 a module that did not load prints its error once, and each of its tests as blocked
+    not ok 109 a module that does not parse prints its error once, and no test of it
+    (56s)
+=== mutation interp
+--- arm a: tests/optimize.bats
+    not ok 1 under -O, a helper of the test module that asserts is refused, and the run warns
+    not ok 2 under -O, the test module reads __debug__ as True
+    not ok 3 under -OO, the test module keeps its docstrings
+    (1s)
+--- arm b: every bats file, PYTHONOPTIMIZE=1
+    not ok 3 the fault wheel passes the test when PURBA_FAULT is unset
+    not ok 4 the wheel without fault passes the test when PURBA_FAULT is assert
+    not ok 5 the wheel without fault passes the test when PURBA_FAULT is command
+    not ok 7 a test that catches the panic still gets its internal error, and the next test its own
+    not ok 8 a module that catches the panic while it loads gets its internal error, and no test runs
+    not ok 10 the wheel without fault passes the test when PURBA_FAULT is selection
+    not ok 13 the wheel without fault runs the module when PURBA_FAULT is rewrite or parse
+    not ok 17 a Ctrl-C while purba writes a line starts no later test, and purba dies by SIGINT
+    not ok 18 a Ctrl-C while purba writes the last line prints the count, and purba dies by SIGINT
+    not ok 19 a Ctrl-C while purba calls __str__ keeps the exception's text, and purba dies by SIGINT
+    not ok 20 a Ctrl-C in a test's call makes the test interrupted, and its finally block runs
+    not ok 21 an interrupt sent to purba alone makes the test interrupted, and its finally block runs
+    not ok 22 a Ctrl-C while purba looks a test up makes the test interrupted, and its call never starts
+    not ok 23 a Ctrl-C that reaches a process of the run after purba forwarded it counts once
+    not ok 24 a Ctrl-C while a module loads leaves each test unreached, and purba dies by SIGINT
+    not ok 25 a Ctrl-C in a load whose process then exits leaves each test unreached, and no error
+    not ok 26 a KeyboardInterrupt with no signal makes the test raised, and the next test runs
+    not ok 27 a signal handler that a test installs lives only for its call
+    not ok 28 a signal handler that a module installs lives only for its load
+    not ok 29 a signal handler that a test installs below Python lives only for its call
+    not ok 30 an ignore that a test gives SIGINT below Python lives only for its call
+    not ok 31 the flag that signal.siginterrupt gives SIGINT lives only for its call
+    not ok 32 a mask that a test puts on SIGINT lives only for its call
+    not ok 33 a mask that a module puts on SIGINT lives only for its load
+    not ok 34 a signal that the parent masks stays masked after a test unmasks it
+    not ok 35 a Ctrl-C in a test that unmasks a signal the parent masks ends purba by SIGINT
+    not ok 36 a Ctrl-C that a test's mask holds stops the run, though the test has its own handler
+    not ok 37 a test's signal handler lives only for its call, though the test patches signal.signal
+    not ok 38 a test that a Ctrl-C lands in is interrupted, whether it then passes, fails or raises
+    not ok 39 a Ctrl-C that the parent ignores stays ignored, and the run ends normally
+    not ok 40 a signal handler that a test gives a signal the parent ignores lives only for its call
+    not ok 41 an ignore of the parent comes back after a test changes it below Python
+    not ok 42 a Ctrl-C that a test's mask holds stops the run when the call returns
+    not ok 43 SIGTERM and SIGHUP make the test they land in interrupted, and purba dies by that signal
+    not ok 44 a second Ctrl-C ends purba at once by SIGINT, even while a finally block runs C code
+    not ok 45 a second Ctrl-C in a test that catches the first leaves no process of the run alive
+    not ok 46 SIGINT and then SIGTERM make a second interrupt, and purba dies by SIGTERM
+    not ok 47 a second Ctrl-C ends purba at once by SIGINT, when the first lands in a test's C code
+    not ok 48 SIGINT then SIGTERM end purba at once by SIGTERM, when the first lands in a test's C code
+    not ok 50 a Ctrl-C ends the wait for a thread that a test left alive, and purba dies by SIGINT
+    not ok 51 the error of a thread in the test that a Ctrl-C lands in prints after that test's line
+    not ok 52 a Ctrl-C in a test's atexit function lets the function finish, and purba dies by SIGINT
+    not ok 53 a child that a test forks dies by SIGTERM, and prints no report of its own
+    not ok 54 a child that multiprocessing forks dies by SIGTERM on terminate
+    not ok 55 a child that a test forks has the signal handlers that Python has without purba
+    not ok 56 a signal handler that a test gives SIGTERM before it forks runs in the child
+    not ok 57 a test whose assert fails prints failed, and the run exits 1
+    not ok 58 an expectation inside a checking context fails, and an assert in a try is refused
+    not ok 59 a test that raises prints raised, and the run exits 4
+    not ok 60 a test that states no expectation prints a project error, and the run exits 4
+    not ok 61 a test whose expectation never runs prints a project error, and the run exits 4
+    not ok 62 a test whose two expectations fail prints both under its line, and the run exits 1
+    not ok 63 a failed expectation shows its expected value and its reading, and the run exits 1
+    not ok 64 an expectation that a reading before it changed is refused, and the run exits 4
+    not ok 65 an expectation that raises gives raised, and no later expectation prints
+    not ok 66 a module that does not parse prints a project error, and the run exits 4
+    not ok 67 an argument that purba cannot take prints an invocation error, and the run exits 3
+    not ok 68 a panic stops only its test, each other test keeps its line, and the run exits 125
+    not ok 69 under -O, a helper of the test module that asserts is refused, and the run warns
+    not ok 70 under -O, the test module reads __debug__ as True
+    not ok 71 under -OO, the test module keeps its docstrings
+    not ok 74 a case that breaks a rule prints the line and the rule, and a cleanup that raises fails
+    not ok 75 a with whose entry raises fails the case, ahead of a line that did not run
+    not ok 76 an expectation inside a with reads before its cleanup, and one after it reads after
+    not ok 77 an assert before the first expectation beats a raise, and a raise keeps raised
+    not ok 78 a helper of the test module takes one path, unless the test calls it both ways
+    not ok 79 a library's callback, an imported module, and a raise at the end of a with are free
+    not ok 80 a hook that a helper replaces and puts back inside one call is free
+    not ok 81 a module that replaces a hook as it loads is refused, and blocks each of its tests
+    not ok 82 a thread alive at the first expectation gives a replay for each later expectation
+    not ok 83 a replay that reads an expectation alone refuses one that a reading before it changed
+    not ok 84 a helper that breaks a rule names the line of the test that reaches it first
+    not ok 85 execution refuses an assert that only a fork or a replay reaches
+    not ok 87 purba with no path exits 3, and says why on stderr
+    not ok 88 purba with stdout closed exits 3, and says why on stderr
+    not ok 89 purba with stdout open for reading exits 3, and says why on stderr
+    not ok 90 purba with a module that declares latin-1 exits 3, and says why on stderr
+    not ok 91 purba with no sys.abiflags runs its tests
+    not ok 93 a tuple assert at a test's end is refused as an expectation that is not one comparison
+    not ok 95 a test that breaks a rule of its code prints each fault by its line, and is never called
+    not ok 96 an empty tuple asserted before the first expectation is refused, and CPython does not warn
+    not ok 97 a test that selection refuses prints above the tests that run, and is never called
+    not ok 98 a test under a statement at the module's level prints as refused
+    not ok 99 a test in a class prints as refused, named by its class and its method
+    not ok 100 a test name that the module binds with no def prints as refused
+    not ok 101 a test name that never holds a function prints no line
+    not ok 102 a module that did not load prints its error once, and each of its tests as blocked
+    not ok 109 a module that does not parse prints its error once, and no test of it
+    (55s)
+=== mutation nowarn
+--- arm a: tests/optimize.bats
+    not ok 1 under -O, a helper of the test module that asserts is refused, and the run warns
+    not ok 2 under -O, the test module reads __debug__ as True
+    not ok 3 under -OO, the test module keeps its docstrings
+    not ok 4 under -O, a helper of another module loses its asserts, as the warning says
+    (1s)
+--- arm b: every bats file, PYTHONOPTIMIZE=1
+    not ok 69 under -O, a helper of the test module that asserts is refused, and the run warns
+    not ok 70 under -O, the test module reads __debug__ as True
+    not ok 71 under -OO, the test module keeps its docstrings
+    not ok 72 under -O, a helper of another module loses its asserts, as the warning says
+    (60s)
+=== plain baseline: every bats file, no -O, the change whole
+    (59s)

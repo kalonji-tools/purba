@@ -96,7 +96,11 @@ pub fn run_with(
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let parsed = match purba_execution::catch("command", || Ok(purba_parsing::parse(&path))) {
+    let parsed = purba_execution::catch("command", || Ok(purba_parsing::parse(&path)));
+    if !matches!(parsed, Ok(Err(purba_parsing::Error::Read(_)))) {
+        proto_warn("b");
+    }
+    let parsed = match parsed {
         Ok(Ok(module)) => module,
         Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
         Ok(Err(purba_parsing::Error::Syntax(error))) => {
@@ -110,6 +114,9 @@ pub fn run_with(
             Ok(selected) => selected,
             Err(error) => return stopped(report, &path, &error),
         };
+    if !tests.is_empty() {
+        proto_warn("c");
+    }
     not_interrupted()?;
     let found = rewritten(&path, &parsed, tests, &rewrite);
     drop(parsed);
@@ -148,6 +155,26 @@ pub fn run_with(
         return Err(refused.into());
     }
     Ok(report.finish()?)
+}
+
+/// PROTOTYPE #1027: under -O, writes the warning when `PURBA_PROTO_WARN`
+/// names `arm`.
+pub fn proto_warn(arm: &str) {
+    if std::env::var_os("PURBA_PROTO_WARN").is_none_or(|setting| setting != arm) {
+        return;
+    }
+    let optimized = pyo3::Python::attach(|py| {
+        use pyo3::types::PyAnyMethods;
+        py.import("sys")
+            .and_then(|sys| sys.getattr("flags")?.getattr("optimize")?.extract::<u8>())
+            .is_ok_and(|level| level > 0)
+    });
+    if optimized {
+        let _ = writeln!(
+            io::stderr(),
+            "purba: warning: Python runs with -O, so an assert outside a test module does not run"
+        );
+    }
 }
 
 /// Prints the line of a module whose error stops the run before any test, then

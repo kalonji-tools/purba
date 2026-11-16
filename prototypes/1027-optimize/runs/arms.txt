@@ -1,0 +1,120 @@
+=== arm a
+--- $ purba 
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+purba: invocation error: usage: purba <path to one .py file>
+(exit 3)
+--- $ purba missing.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+purba: invocation error: cannot read missing.py: No such file or directory (os error 2)
+(exit 3)
+--- $ purba test_syntax.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_syntax.py project error: SyntaxError: Expected a parameter or the end of the parameter list
+0 cases; 1 project error
+(exit 4)
+--- $ purba test_none.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+0 cases
+(exit 2)
+--- $ purba test_bare.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_helper.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_mix.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_mix.py::test_b project error: line 7 is not one comparison, and an expectation compares a reading by one operator
+test_mix.py::test_a passed
+test_mix.py::test_c project error: line 10 reaches line 14 of check, which asserts before the first expectation, and only an expectation asserts
+3 cases: 1 passed, 2 blocked; 2 project errors
+(exit 4)
+=== arm b
+--- $ purba 
+purba: invocation error: usage: purba <path to one .py file>
+(exit 3)
+--- $ purba missing.py
+purba: invocation error: cannot read missing.py: No such file or directory (os error 2)
+(exit 3)
+--- $ purba test_syntax.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_syntax.py project error: SyntaxError: Expected a parameter or the end of the parameter list
+0 cases; 1 project error
+(exit 4)
+--- $ purba test_none.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+0 cases
+(exit 2)
+--- $ purba test_bare.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_helper.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_mix.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_mix.py::test_b project error: line 7 is not one comparison, and an expectation compares a reading by one operator
+test_mix.py::test_a passed
+test_mix.py::test_c project error: line 10 reaches line 14 of check, which asserts before the first expectation, and only an expectation asserts
+3 cases: 1 passed, 2 blocked; 2 project errors
+(exit 4)
+=== arm c
+--- $ purba 
+purba: invocation error: usage: purba <path to one .py file>
+(exit 3)
+--- $ purba missing.py
+purba: invocation error: cannot read missing.py: No such file or directory (os error 2)
+(exit 3)
+--- $ purba test_syntax.py
+test_syntax.py project error: SyntaxError: Expected a parameter or the end of the parameter list
+0 cases; 1 project error
+(exit 4)
+--- $ purba test_none.py
+0 cases
+(exit 2)
+--- $ purba test_bare.py
+test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_helper.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+(exit 4)
+--- $ purba test_mix.py
+purba: warning: Python runs with -O, so an assert outside a test module does not run
+test_mix.py::test_b project error: line 7 is not one comparison, and an expectation compares a reading by one operator
+test_mix.py::test_a passed
+test_mix.py::test_c project error: line 10 reaches line 14 of check, which asserts before the first expectation, and only an expectation asserts
+3 cases: 1 passed, 2 blocked; 2 project errors
+(exit 4)
+=== pytest control, -O
+--- $ pytest missing.py
+ERROR: file or directory not found: missing.py
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1508: PytestConfigWarning: assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter (are you using python -O?)
+    self._warn_about_missing_assertion(mode)
+--- $ pytest test_syntax.py
+==================================== ERRORS ====================================
+_______ ERROR collecting prototypes/1027-optimize/probes/test_syntax.py ________
+../../../../../../eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:176: in exec_module
+../../../../../../eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:339: in _rewrite_test
+--- $ pytest test_none.py
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1508: PytestConfigWarning: assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter (are you using python -O?)
+    self._warn_about_missing_assertion(mode)
+--- $ pytest test_bare.py
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1508: PytestConfigWarning: assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter (are you using python -O?)
+    self._warn_about_missing_assertion(mode)
+1 passed, 1 warning in 0.01s
+--- $ pytest test_helper.py
+>       assert x == 2
+E       assert 3 == 2
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1508: PytestConfigWarning: assertions not in test modules or plugins will be ignored because assert statements are not executed by the underlying Python interpreter (are you using python -O?)
+    self._warn_about_missing_assertion(mode)

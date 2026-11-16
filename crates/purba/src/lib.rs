@@ -42,6 +42,7 @@ fn main(py: Python<'_>) -> u8 {
     if let Err(error) = purba_execution::interrupt::install() {
         return stop(&error);
     }
+    purba_command::proto_warn("a");
     let code = match panic::catch_unwind(|| {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
