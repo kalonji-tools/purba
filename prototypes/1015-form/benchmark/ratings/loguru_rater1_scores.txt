@@ -1,0 +1,21 @@
+Loguru rater 1 (the 1015 form). Letters: PORT_K = the form, PORT_M = oxitest. Condensed from the rater's report.
+
+                         ORIGINAL  FORM(K)  OXITEST(M)
+readability                 4        4         3
+clarity                     3        5         4
+ease of use                 4        4         3
+complexity for the tester   4        2         3
+complexity of the impl.     3        2         2
+minimum working test        5        5         5 (4 under the port's strict config)
+fidelity                   ref       4         4
+Weights: clarity 20, ease 20, readability 15, tester 15, impl 10, minimum 5, fidelity 15 (ports only).
+Rater's own sums (fidelity left out, normalised): ORIGINAL 3.71, FORM 3.71, OXITEST 3.24; tie broken for the form on clarity.
+Recomputed with the original's fidelity counted as 5: ORIGINAL 3.90, FORM 3.75, OXITEST 3.35.
+
+Form, strongest: the failure screen (`expected 'h?\n' / reading 'h!\n' / why they differ from character 1 / inputs …`); a typo gets "did you mean 'expected'?"; a wrong type is named; only the bad case is refused.
+Form, weakest: rule load: `with raises(KeyError):` refused for no `match=`; `assert writer.written` refused as no comparison; `@before(reset_logger)` and `use(Writer)` 8 times each (122 non-blank lines).
+Oxitest: typed, named cases with messages; 4 dataclasses (3 single-field); a typo gives a raw TypeError and collects 0 items.
+Fidelity of the form: checks more (a `match=` on test_invalid_format); less: no reset after a case (no effect), and the runner does not type-check `format` (an annotation it cannot resolve, `Callable[[Record], str]`, is skipped silently).
+Minimum test: the same 6 lines pass in all three, 1 import, no name of the form.
+Ease of use: case "g" 1 line; new test about 5 lines in all three; ty and pyright found 3 of 3 planted mistakes in both ports, 0 in the original.
+Speed: original ~175 ms, form ~380 ms, oxitest ~150 ms.

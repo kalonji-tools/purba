@@ -1,0 +1,20 @@
+Loguru rater 3 (the 1015 form). Letters: PORT_K = the form, PORT_M = oxitest. Condensed from the rater's report.
+
+                         ORIGINAL  FORM(K)  OXITEST(M)
+readability                 5        4         3
+clarity                     3        4         4
+ease of use                 5        4         3
+complexity for the tester   4        2         3
+complexity of the impl.     3        2         3
+minimum working test        5        5         4
+fidelity                  ref(5)     4         5
+Weights: readability 20, clarity 20, ease 20, tester 15, impl 10, minimum 5, fidelity 10.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.25, FORM 3.55, OXITEST 3.45. Rank: original, form, oxitest.
+
+Form, strongest: errors. ty and pyright flag `case(test_typo, mesage=…)`; the runner adds "did you mean 'message'?"; a failing check prints expected, reading and the seed.
+Form, weakest: the rules a tester must learn (FORM.md 187 lines): refused `assert writer.read() == user + "\n"` ("the expected value computes `user`") and a bare `assert writer.read()`. Case names format_a..format_f say nothing; @before(reset_logger) on all 8 tests.
+Oxitest: best intent (messages, descriptive case names); a frozen dataclass per parametrized test; a field/parameter mismatch passes both checkers.
+Fidelity of the form: checks more (a `match=` on test_invalid_format, each raise a check, `==` by type, unexpected warning fails); no reset after a case (cannot matter: a fork per case).
+Minimum test: 6 non-blank lines, 1 import in all three; the form needs no name from cases.
+Ease of use: case "g" 1 line in all; new test: original 5 lines, form 9, oxitest 15.
+Rough edges: the original has 8 tests, not 9 (the prompt's count, kept word for word from rounds 2-5); the runner needs Python 3.12+ and fork; an input-derived expected value must become a second input.

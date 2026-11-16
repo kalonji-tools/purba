@@ -1,0 +1,4 @@
+[environment]
+python = "../../.venv"
+extra-paths = ["../../.."]
+python-version = "3.12"

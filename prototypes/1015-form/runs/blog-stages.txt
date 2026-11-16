@@ -1,0 +1,106 @@
+── test_blog.py
+ test_app_with_data  (test_blog.py:17)
+   ✓ app_with_data › [user['username'] for user in users] == ['test', 'other']   ['test',
+     'other']
+   ✓ app_with_data › [tuple(post) for post in posts] == [('test title', 1)]   [('test title',
+     1)]
+ test_log_in  (test_blog.py:34)
+   ↺ logged_in ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ logged_in › response.headers['Location'] == '/'   '/'
+ test_index_logged_out  (test_blog.py:45)
+   ↺ test_index_logged_out ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_index_logged_out › b'Log In' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_out › b'Register' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_index_logged_in  (test_blog.py:51)
+   ↺ test_index_logged_in ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_index_logged_in › b'test title' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …
+     </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n
+     </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_in › b'by test on 2018-01-01' in response.data   b'<!doctype
+     html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+      <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …
+          </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n
+     </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_in › b'test\nbody' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …
+     </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n
+     </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_in › b'href="/1/update"' in response.data   b'<!doctype
+     html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+      <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …
+          </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n
+     </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_login_required  (test_blog.py:59)
+   ↺ create_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ create_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ update_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ update_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ delete_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ delete_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:69)
+   ↺ test_author_required ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_author_required › update.status_code == 403   403
+   ✓ test_author_required › delete.status_code == 403   403
+   ✓ test_author_required › b'href="/1/update"' not in index.data   b'<!doctype
+     html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+      <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …
+     title</h1>\n          <div class="about">by other on 2018-01-01</div>\n        </div>\n
+     \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n
+     \n\n</section>'
+ test_exists_required  (test_blog.py:82)
+   ↺ update_missing ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ update_missing › response.status_code == 404   404
+   ↺ delete_missing ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ delete_missing › response.status_code == 404   404
+ test_create  (test_blog.py:91)
+   ↺ test_create ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_create › page.status_code == 200   200
+   ✓ test_create › count == 2   2
+ test_update  (test_blog.py:100)
+   ↺ test_update ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_update › page.status_code == 200   200
+   ✓ test_update › post['title'] == 'updated'   'updated'
+ test_create_update_validate  (test_blog.py:109)
+   ↺ create_validates ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ create_validates › b'Title is required.' in response.data   b'<!doctype html>\n<title>New
+     Post - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      … name="title"
+     id="title" value="" required>\n    <label for="body">Body</label>\n    <textarea name="body"
+     id="body"></textarea>\n    <input type="submit" value="Save">\n  </form>\n\n</section>'
+   ↺ update_validates ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ update_validates › b'Title is required.' in response.data   b'<!doctype html>\n<title>Edit
+     "test title" - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+     <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n   …  </form>\n
+     <hr>\n  <form action="/1/delete" method="post">\n    <input class="danger" type="submit"
+     value="Delete" onclick="return confirm(\'Are you sure?\');">\n  </form>\n\n</section>'
+ test_delete  (test_blog.py:118)
+   ↺ test_delete ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.i5s1AWx2ey/tmpizqq2vax), whose offset a fork shares
+   ✓ test_delete › response.headers['Location'] == '/'   '/'
+   ✓ test_delete › post is None   None
+══ 15 cases: 15 passed · 0 failed · 0 refused · 0 blocked   (25 checks held) · seed 695959
+  · slowest test_author_required (test_blog.py:69) 0.07 s

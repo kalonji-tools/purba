@@ -1,0 +1,19 @@
+Flaskr rater 3 (the 1015 form). Letters: PORT_K = oxitest, PORT_M = the form. Condensed from the rater's report.
+
+                         ORIGINAL  OXITEST(K)  FORM(M)
+readability                 5         4          3
+clarity                     4         5          4
+ease of use                 4         3          4
+complexity for the tester   4         3          2
+complexity of the impl.     3         2          1
+minimum working test        5         3          2
+fidelity                  ref(5)      5          4
+Weights: clarity 20, ease 20, readability 15, tester 15, fidelity 15, minimum 10, impl 5.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.35, OXITEST 3.80, FORM 3.20.
+
+Form, strongest: type checking and diagnostics: tests clean in ty and pyright, each planted mistake gave 1-2 precise diagnostics; "did you mean 'path'?"; each check prints its text and reading.
+Form, weakest: it moves code around (test_index: all requests first, all checks at the end; test_create checks `form.status_code == 200` inside `with app.app_context()`); an assert in the middle of the act is refused; FORM.md 187 lines.
+Oxitest: intent on screen through messages; `Fixture[T]` gives 21 ty and 26 pyright errors on correct code.
+All three caught a broken login the same way (9 failed, 3 passed).
+Minimum test: original 2 lines; oxitest 4; the form 5 with an imported fixture, 21 standalone (a stock: Samples, Fingerprints, sample, discard, fingerprint).
+Rough edges, the form: a plain fixture that makes a temporary database file without a stock is not refused, and leaks the file; each passing line prints ~400 characters of HTML; "(1 checks held)".

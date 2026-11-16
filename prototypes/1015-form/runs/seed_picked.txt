@@ -1,0 +1,23 @@
+── test_1015_seed.py
+ test_draws  (test_1015_seed.py:12)
+   ✓ six › roll >= 1   2
+ test_shows_the_draw  (test_1015_seed.py:21)
+   ✗ d6 › roll == 0   test_1015_seed.py:28 · assert at line 25
+       expected  0 (int)
+       reading   4 (int)
+       inputs    sides=6
+       random was seeded for this case; python run.py --seed 865593 test_1015_seed.py repeats it
+   ✗ d20 › roll == 0   test_1015_seed.py:29 · assert at line 25
+       expected  0 (int)
+       reading   10 (int)
+       inputs    sides=20
+       random was seeded for this case; python run.py --seed 865593 test_1015_seed.py repeats it
+ test_one_way_draw  (test_1015_seed.py:32)
+   ! test_one_way_draw › path   test_1015_seed.py:32
+       what      the branch at test_1015_seed.py:36 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_one_way_draw › kept == 'low'   'low'
+       random was seeded for this case; python run.py --seed 865593 test_1015_seed.py repeats it
+══ 4 cases: 1 passed · 2 failed · 1 refused · 0 blocked   (2 checks held) · seed 865593 ·
+  slowest d20 (test_1015_seed.py:29) 0.01 s

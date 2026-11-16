@@ -1,0 +1,6 @@
+ok  test_far.py::test_buy: PASS
+ok  test_far.py::test_after_far_wrong: BLOCKED
+ok  test_far.py::test_after_far_refused: BLOCKED
+ok  test_far_home.py::test_member: member PASS, wrong_member FAIL
+ok  test_far_home.py::test_vip_member: REFUSED
+every probe matches its docstring

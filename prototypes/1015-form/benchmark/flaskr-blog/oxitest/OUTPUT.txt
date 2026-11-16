@@ -1,0 +1,26 @@
+$ PYTHONPATH=../flaskr-src ../../.venv/bin/oxitest -vv --color=never
+collected 12 items from 8 functions
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 77ms <= spawn overhead 250ms x 22 workers)
+............
+
+════════════════════════════════════════════════════════════════════════════════
+  12 passed
+════════════════════════════════════════════════════════════════════════════════
+exit=0
+
+$ PYTHONPATH=../flaskr-src ../../.venv/bin/oxitest --color=never --json results.json
+exit=0
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_author_required
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_create
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_create_update_validate[create]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_create_update_validate[update]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_delete
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_exists_required[delete]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_exists_required[update]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_index
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_login_required[create]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_login_required[delete]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_login_required[update]
+passed  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py::test_update

@@ -1,0 +1,7 @@
+$ ty check test_add_option_format.py
+All checks passed!
+(exit 0)
+
+$ nix-shell -p pyright --run 'pyright test_add_option_format.py'
+0 errors, 0 warnings, 0 informations
+(exit 0)

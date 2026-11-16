@@ -1,0 +1,7 @@
+{
+  "include": ["test_add_option_format.py"],
+  "venvPath": "../..",
+  "venv": ".venv",
+  "extraPaths": ["../../.."],
+  "pythonVersion": "3.12"
+}

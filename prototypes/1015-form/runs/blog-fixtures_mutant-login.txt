@@ -1,0 +1,126 @@
+── test_blog.py
+ test_index_logged_out  (test_blog.py:36)
+   ✓ test_index_logged_out › b'Log In' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_out › b'Register' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_index_logged_in  (test_blog.py:42)
+   ✓ test_index_logged_in › b'test title' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_in › b'by test on 2018-01-01' in response.data   b'<!doctype
+     html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+      <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n
+     <div class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n
+      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_in › b'test\nbody' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✗ test_index_logged_in › b'href="/1/update"' in response.data   test_blog.py:42 · assert at
+     line 48
+       expected  b'href="/1/update"' (bytes)
+       reading   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet"
+         href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n
+         <li><a … <h1>test title</h1>\n          <div class="about">by test on 2018-01-01</div>\n
+               </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n
+         </article>\n    \n  \n\n</section>' (bytes)
+       why       `b'href="/1/update"' in b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link
+         rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n
+         <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div class="about">by test on
+         2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+         class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'` does not hold
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_login_required  (test_blog.py:51)
+   ✓ create_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ✓ update_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ✓ delete_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:61)
+   ✗ test_author_required › update.status_code == 403   test_blog.py:61 · assert at line 70
+       expected  403 (int)
+       reading   302 (int)
+   ✗ test_author_required › delete.status_code == 403   test_blog.py:61 · assert at line 71
+       expected  403 (int)
+       reading   302 (int)
+   ✓ test_author_required › b'href="/1/update"' not in index.data   b'<!doctype
+     html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n
+      <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … title</h1>\n          <div
+     class="about">by other on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_exists_required  (test_blog.py:75)
+   ✗ update_missing › response.status_code == 404   test_blog.py:81 · assert at line 78
+       expected  404 (int)
+       reading   302 (int)
+       inputs    path='/2/update'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+   ✗ delete_missing › response.status_code == 404   test_blog.py:82 · assert at line 78
+       expected  404 (int)
+       reading   302 (int)
+       inputs    path='/2/delete'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_create  (test_blog.py:85)
+   ✗ test_create › page.status_code == 200   test_blog.py:85 · assert at line 91
+       expected  200 (int)
+       reading   302 (int)
+   ✗ test_create › count == 2   test_blog.py:85 · assert at line 92
+       expected  2 (int)
+       reading   1 (int)
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_update  (test_blog.py:95)
+   ✗ test_update › page.status_code == 200   test_blog.py:95 · assert at line 101
+       expected  200 (int)
+       reading   302 (int)
+   ✗ test_update › post['title'] == 'updated'   test_blog.py:95 · assert at line 102
+       expected  'updated' (str)
+       reading   'test title' (str)
+       why       they differ from character 0: expected 'updated', read 'test title'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_create_update_validate  (test_blog.py:105)
+   ✗ create_validates › b'Title is required.' in response.data   test_blog.py:111 · assert at
+     line 108
+       expected  b'Title is required.' (bytes)
+       reading   b'<!doctype html>\n<html
+         lang=en>\n<title>Redirecting...</title>\n<h1>Redirecting...</h1>\n<p>You should be
+         redirected automatically to the target URL: <a href="/auth/login">/auth/login</a>. If not,
+         click the link.\n' (bytes)
+       why       `b'Title is required.' in b'<!doctype html>\n<html
+         lang=en>\n<title>Redirecting...</title>\n<h1>Redirecting...</h1>\n<p>You should be
+         redirected automatically to the target URL: <a href="/auth/login">/auth/login</a>. If not,
+         click the link.\n'` does not hold
+       inputs    path='/create'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+   ✗ update_validates › b'Title is required.' in response.data   test_blog.py:112 · assert at
+     line 108
+       expected  b'Title is required.' (bytes)
+       reading   b'<!doctype html>\n<html
+         lang=en>\n<title>Redirecting...</title>\n<h1>Redirecting...</h1>\n<p>You should be
+         redirected automatically to the target URL: <a href="/auth/login">/auth/login</a>. If not,
+         click the link.\n' (bytes)
+       why       `b'Title is required.' in b'<!doctype html>\n<html
+         lang=en>\n<title>Redirecting...</title>\n<h1>Redirecting...</h1>\n<p>You should be
+         redirected automatically to the target URL: <a href="/auth/login">/auth/login</a>. If not,
+         click the link.\n'` does not hold
+       inputs    path='/1/update'
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+ test_delete  (test_blog.py:115)
+   ✗ test_delete › response.headers['Location'] == '/'   test_blog.py:115 · assert at line 120
+       expected  '/' (str)
+       reading   '/auth/login' (str)
+       why       they differ from character 1: expected '', read 'auth/login'
+   ✗ test_delete › post is None   test_blog.py:115 · assert at line 121
+       expected  None (NoneType)
+       reading   <sqlite3.Row object at 0x7ac562b561d0> (Row)
+       why       `<sqlite3.Row object at 0x7ac562b561d0> is None` does not hold
+       random was seeded for this case; python run.py --seed 131067 test_blog.py repeats it
+══ 13 cases: 4 passed · 9 failed · 0 refused · 0 blocked   (9 checks held) · seed 131067 ·
+  slowest test_index_logged_in (test_blog.py:42) 0.08 s

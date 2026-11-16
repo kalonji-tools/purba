@@ -1,0 +1,20 @@
+Flaskr rater 1 (the 1015 form). Letters: PORT_K = oxitest, PORT_M = the form. Condensed from the rater's report.
+
+                         ORIGINAL  OXITEST(K)  FORM(M)
+readability                 5         4          3
+clarity                     3         5          4
+ease of use                 4         2          4
+complexity for the tester   4         3          2
+complexity of the impl.     4         3          1
+minimum working test        5         3          4
+fidelity                  ref(5)      5          4
+Weights: clarity 20, ease 20, readability 15, tester 15, fidelity 15, impl 10, minimum 5.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.15, OXITEST 3.65, FORM 3.25.
+
+Form, strongest: both checkers clean (0 errors) and both catch a case typo and a wrong type; the runner's errors are the best of the three ("did you mean 'path'?", "gives path=3 (int), and test_exists_required declares str").
+Form, weakest: FORM.md, 187 lines of rules; the port reorders 5 of 8 tests (test_blog.py:140 checks `form.status_code` inside `with app.app_context()`); a passing check prints ~400 characters of HTML.
+Oxitest: every check carries its intent; every `Fixture[T]` annotation is a checker error (21 ty, 26 pyright); a case id must be an identifier.
+Ease of use, the form: a new test that checks before the POST, as the original does, was refused ("an assert ran in the act"); fixed by rebinding and moving the check to the end.
+Fidelity of the form: all checks moved after the act, so in test_create and test_update the POST runs even when the GET fails; every check runs after a failure; `==` by type; no messages.
+Minimum test (reusing fixtures): original 2 lines, oxitest 4, the form 4 (5 annotated).
+Rough edges: ty.toml's relative extra-paths fails when the folder is copied; the runner needs fork and Python 3.12+.

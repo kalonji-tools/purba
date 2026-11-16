@@ -1,0 +1,19 @@
+Loguru rater 2 (the 1015 form). Letters: PORT_K = oxitest, PORT_M = the form. Condensed from the rater's report.
+
+                         ORIGINAL  OXITEST(K)  FORM(M)
+readability                 4         3          4
+clarity                     3         4          4
+ease of use                 4         3          4
+complexity for the tester   4         3          2
+complexity of the impl.     3         3          2
+minimum working test        5         4          5
+fidelity                  ref(5)      5          4
+Weights: readability 15, clarity 20, ease 20, tester 15, impl 10, minimum 5, fidelity 15.
+Weighted (recomputed, matches the rater's): ORIGINAL 3.90, OXITEST 3.55, FORM 3.55; tie broken for the form on clarity + ease of use.
+
+Form, strongest: the runner's errors; one bad case is refused alone (`gives 'mesage', which is no input of test_format; did you mean 'message'?`, `gives message=1 (int), and test_format declares str`); a failure shows expected, reading, why, inputs and captured output; edits passed first try.
+Form, weakest: the rules (142 non-blank lines of FORM.md); `@before(reset_logger)` 8 times and nothing warns when it is forgotten; case names format_a..format_f carry no meaning.
+Oxitest: explicit intent (messages, meaningful case names); 4 frozen dataclasses and a TYPE_CHECKING stand-in; strict mode aborts the whole run with `bare-assert line 194`.
+Fidelity of the form: more (a `match=` on test_invalid_format, each check read alone, each raise a check); less (no reset after a case, harmless); the runtime input type check is skipped silently for test_format (`Record` imported only for the checkers).
+Minimum test: 6 non-blank lines, 1 import in all three.
+Rough edges: when an assert is followed by another statement, the refusal says "a function handed to the code may swallow an assert", which misleads; CHECKERS.txt names `ty check test_add_option_format.py`, not the tests/ layout.

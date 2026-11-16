@@ -1,0 +1,20 @@
+Flaskr rater 2 (the 1015 form). Letters: PORT_K = the form, PORT_M = oxitest. Condensed from the rater's report.
+
+                         ORIGINAL  FORM(K)  OXITEST(M)
+readability                 5        3         4
+clarity                     4        5         4
+ease of use                 5        4         2
+complexity for the tester   4        2         3
+complexity of the impl.     4        1         3
+minimum working test        5        3         4
+fidelity                  ref(5)     4         5
+Weights: clarity 20, ease 20, readability 15, fidelity 15, tester 15, minimum 10, impl 5.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.60, OXITEST 3.55, FORM 3.50.
+
+Form, strongest: the clearest failures (`expected 405 (int) / reading 404 (int) / inputs path='/2/update'`, with the case's and the assert's line); ty and pyright clean and both caught `paht=` and `logn`; "did you mean 'path'?".
+Form, weakest: FORM.md 187 lines, about 32 bold rules; run.py 3009 lines; bodies moved to obey the rules (test_delete:179 checks Location inside `with app.app_context()`).
+Oxitest: bodies match the original exactly; `Fixture[T]` is an error in both checkers (21 ty, 26 pyright); one bare assert aborts the suite.
+Ease of use, the form: a new case was one copied line; a pytest-style assert-act-assert test was refused ("an assert ran in the act … the act ends at the first check").
+Fidelity of the form: same 22 readings; every request runs before any check (test_index logs in before the anonymous page is checked).
+Minimum test: the form 10 lines leaks a mkdtemp folder; without the leak it needs a stock, 20 lines.
+Bug, the form's runner: a test whose second check posts /1/delete on the SQLite stock reports both checks failed with readings that never happened (the fork that reads a later check alone writes the shared file). The same fault is listed in the 1010 benchmark's "Faults of this runner"; FORM.md promises a refusal.

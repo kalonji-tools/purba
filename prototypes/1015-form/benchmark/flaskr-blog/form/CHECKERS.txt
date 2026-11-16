@@ -1,0 +1,12 @@
+$ ty check
+ty 0.0.99
+All checks passed!
+(exit 0)
+
+$ nix-shell -p pyright --run 'pyright'
+pyright 1.1.411
+test_blog.py
+  test_blog.py:18:20 - error: Type of "create_app" is partially unknown
+    Type of "create_app" is "(test_config: Unknown | None = None) -> Flask" (reportUnknownVariableType)
+1 error, 0 warnings, 0 informations
+(exit 1)

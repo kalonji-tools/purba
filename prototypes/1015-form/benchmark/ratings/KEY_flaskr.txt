@@ -1,0 +1,5 @@
+Flaskr round (the 1015 form; port in flaskr-blog/form). Which letter was which, per rater:
+
+rater1: PORT_K = oxitest, PORT_M = the form
+rater2: PORT_K = the form, PORT_M = oxitest
+rater3: PORT_K = oxitest, PORT_M = the form

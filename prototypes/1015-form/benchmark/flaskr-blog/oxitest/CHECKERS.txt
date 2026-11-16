@@ -1,0 +1,231 @@
+$ PYTHONPATH=../flaskr-src ty check --python ../../.venv/bin/python tests
+ty 0.0.99
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/__fixtures__.py:40:17
+   |
+40 | def client(app: Fixture[Flask]) -> FlaskClient:
+   |                 ^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/__fixtures__.py:46:18
+   |
+46 | def auth(client: Fixture[FlaskClient]) -> AuthActions:
+   |                  ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:22:24
+   |
+22 | def test_index(client: Fixture[FlaskClient], auth: Fixture[AuthActions]) -> None:
+   |                        ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:22:52
+   |
+22 | def test_index(client: Fixture[FlaskClient], auth: Fixture[AuthActions]) -> None:
+   |                                                    ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:40:33
+   |
+40 | def test_login_required(client: Fixture[FlaskClient], path: str) -> None:
+   |                                 ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:48:10
+   |
+48 |     app: Fixture[Flask], client: Fixture[FlaskClient], auth: Fixture[AuthActions]
+   |          ^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:48:34
+   |
+48 |     app: Fixture[Flask], client: Fixture[FlaskClient], auth: Fixture[AuthActions]
+   |                                  ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:48:62
+   |
+48 |     app: Fixture[Flask], client: Fixture[FlaskClient], auth: Fixture[AuthActions]
+   |                                                              ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:75:13
+   |
+75 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], path: str
+   |             ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:75:41
+   |
+75 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], path: str
+   |                                         ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:82:13
+   |
+82 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |             ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:82:41
+   |
+82 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |                                         ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:82:68
+   |
+82 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |                                                                    ^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:95:13
+   |
+95 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |             ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:95:41
+   |
+95 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |                                         ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+  --> tests/test_blog.py:95:68
+   |
+95 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+   |                                                                    ^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+   --> tests/test_blog.py:112:13
+    |
+112 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], path: str
+    |             ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+   --> tests/test_blog.py:112:41
+    |
+112 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], path: str
+    |                                         ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+   --> tests/test_blog.py:120:13
+    |
+120 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+    |             ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+   --> tests/test_blog.py:120:41
+    |
+120 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+    |                                         ^^^^^^^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+error[invalid-type-form]: Non-generic class `_FixtureType` cannot be specialized in a type expression
+   --> tests/test_blog.py:120:68
+    |
+120 |     client: Fixture[FlaskClient], auth: Fixture[AuthActions], app: Fixture[Flask]
+    |                                                                    ^^^^^^^^^^^^^^
+info: See the following page for a reference on valid type expressions:
+info: https://typing.python.org/en/latest/spec/annotations.html#type-and-annotation-expressions
+
+Found 21 diagnostics
+exit=1
+
+$ nix-shell -p pyright --run pyright
+pyright 1.1.411
+/home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/__fixtures__.py
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/__fixtures__.py:42:16 - error: Cannot access attribute "test_client" for class "Fixture"
+    Attribute "test_client" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/__fixtures__.py:48:24 - error: Argument of type "Fixture" cannot be assigned to parameter "client" of type "FlaskClient" in function "__init__"
+    "_FixtureType" is not assignable to "FlaskClient" (reportArgumentType)
+/home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:23:23 - error: Cannot access attribute "get" for class "Fixture"
+    Attribute "get" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:27:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:28:23 - error: Cannot access attribute "get" for class "Fixture"
+    Attribute "get" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:41:23 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:51:14 - error: Cannot access attribute "app_context" for class "Fixture"
+    Attribute "app_context" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:56:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:58:19 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:61:19 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:65:46 - error: Cannot access attribute "get" for class "Fixture"
+    Attribute "get" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:77:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:78:19 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:84:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:85:19 - error: Cannot access attribute "get" for class "Fixture"
+    Attribute "get" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:86:12 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:88:14 - error: Cannot access attribute "app_context" for class "Fixture"
+    Attribute "app_context" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:97:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:98:19 - error: Cannot access attribute "get" for class "Fixture"
+    Attribute "get" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:99:12 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:101:14 - error: Cannot access attribute "app_context" for class "Fixture"
+    Attribute "app_context" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:114:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:115:23 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:122:10 - error: Cannot access attribute "login" for class "Fixture"
+    Attribute "login" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:123:23 - error: Cannot access attribute "post" for class "Fixture"
+    Attribute "post" is unknown (reportAttributeAccessIssue)
+  /home/snregales/Projects/kalonji-tools/purba.proto-1010-form/prototypes/1010-form/benchmark/flaskr-blog/oxitest/tests/test_blog.py:126:14 - error: Cannot access attribute "app_context" for class "Fixture"
+    Attribute "app_context" is unknown (reportAttributeAccessIssue)
+26 errors, 0 warnings, 0 information
+exit=1
