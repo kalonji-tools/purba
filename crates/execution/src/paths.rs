@@ -4,8 +4,12 @@
 //! <https://docs.python.org/3.12/library/sys.monitoring.html>
 //!
 //! Code is part of the case when the test starts it, or when code that is part
-//! of the case starts it. Code that a library calls back is free, and so is a
-//! module that the test imports, since only the test module's code is watched.
+//! of the case starts it. A generator under `contextlib.contextmanager` is part
+//! of the case when code that is part of the case enters it, through a `with` or
+//! through `ExitStack.enter_context`. The lines after the `yield` where it waits
+//! at the first expectation are its cleanup. The watch does not judge them.
+//! Other code that a library calls back is free, and so is a module that the
+//! test imports, since only the test module's code is watched.
 
 use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, MutexGuard, PoisonError};
@@ -38,6 +42,16 @@ struct Case {
     on: bool,
     /// Each code object that is part of the case, the test's among them.
     codes: HashMap<usize, Py<PyAny>>,
+    /// For each code object but the test's, the line of the test that ran
+    /// when the code object first started, and the name of its function.
+    reached: HashMap<usize, (usize, String)>,
+    /// Each generator that a `with` of the case entered.
+    managers: HashSet<usize>,
+    /// The line of the `yield` where each such generator waits.
+    waiting: HashMap<usize, usize>,
+    /// The line of the `yield` where each such generator waited at the first
+    /// expectation. The lines after it are its cleanup.
+    cleanup: HashMap<usize, usize>,
     /// Each line that ran, for each code object.
     lines: HashMap<usize, HashSet<usize>>,
     /// Where each branch went, for each code object and offset.
@@ -70,6 +84,8 @@ enum Kind {
     Start,
     Line,
     Branch,
+    Yield,
+    Resume,
 }
 
 /// The callable that `sys.monitoring` calls for one kind of event.
@@ -85,7 +101,7 @@ impl Event {
         &self,
         code: &Bound<'_, PyAny>,
         at: usize,
-        to: Option<usize>,
+        to: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Py<PyAny>> {
         let py = code.py();
         let disable = match self.kind {
@@ -94,7 +110,19 @@ impl Event {
                 false
             }
             Kind::Line => line(code, at),
-            Kind::Branch => branch(code, at, to.unwrap_or(at))?,
+            Kind::Branch => {
+                let to = to.map(PyAnyMethods::extract).transpose()?;
+                branch(code, at, to.unwrap_or(at))?
+            }
+            Kind::Yield => {
+                yielded(code, at)?;
+                false
+            }
+            Kind::Resume => {
+                let id = key(code);
+                on_this_thread(|case| case.waiting.remove(&id));
+                false
+            }
         };
         Ok(match (disable, TOOL.get(py)) {
             (true, Some(Some(tool))) => tool.disable.clone_ref(py),
@@ -113,13 +141,37 @@ fn on_this_thread<R>(act: impl FnOnce(&mut Case) -> R) -> Option<R> {
         .map(act)
 }
 
+/// The code of `__enter__` of a generator under `contextlib.contextmanager`,
+/// and of `ExitStack.enter_context`.
+static ENTERS: PyOnceLock<(Py<PyAny>, Py<PyAny>)> = PyOnceLock::new();
+
+fn enters(py: Python<'_>) -> PyResult<&(Py<PyAny>, Py<PyAny>)> {
+    ENTERS.get_or_try_init(py, || {
+        let contextlib = py.import("contextlib")?;
+        let code = |class: &str, method: &str| -> PyResult<Py<PyAny>> {
+            Ok(contextlib
+                .getattr(class)?
+                .getattr(method)?
+                .getattr("__code__")?
+                .unbind())
+        };
+        Ok((
+            code("_GeneratorContextManager", "__enter__")?,
+            code("ExitStack", "enter_context")?,
+        ))
+    })
+}
+
 /// Makes `code` part of the case when the test or code that is part of the
-/// case started it.
+/// case started it, or entered it as a generator under `contextmanager`.
+/// Keeps the line that the test runs, and the name of `code`.
 fn started(code: &Bound<'_, PyAny>) -> PyResult<()> {
     let id = key(code);
-    if on_this_thread(|case| case.on && !case.codes.contains_key(&id)) != Some(true) {
+    let Some(Some(test)) =
+        on_this_thread(|case| (case.on && !case.codes.contains_key(&id)).then_some(case.test))
+    else {
         return Ok(());
-    }
+    };
     let py = code.py();
     let mut frame = py.import("sys")?.getattr("_getframe")?.call0()?;
     while !frame.is_none() && !frame.getattr("f_code")?.is(code) {
@@ -128,27 +180,75 @@ fn started(code: &Bound<'_, PyAny>) -> PyResult<()> {
     if frame.is_none() {
         return Ok(());
     }
-    let caller = frame.getattr("f_back")?;
+    let mut caller = frame.getattr("f_back")?;
+    let mut manager = false;
+    let (enter, enter_context) = enters(py)?;
+    if !caller.is_none() && caller.getattr("f_code")?.is(enter.bind(py)) {
+        manager = true;
+        caller = caller.getattr("f_back")?;
+        if !caller.is_none() && caller.getattr("f_code")?.is(enter_context.bind(py)) {
+            caller = caller.getattr("f_back")?;
+        }
+    }
     if caller.is_none() {
         return Ok(());
     }
     let caller = key(&caller.getattr("f_code")?);
+    let mut reached = None;
+    while !frame.is_none() {
+        if key(&frame.getattr("f_code")?) == test {
+            reached = Some((
+                frame.getattr("f_lineno")?.extract()?,
+                code.getattr("co_name")?.extract()?,
+            ));
+            break;
+        }
+        frame = frame.getattr("f_back")?;
+    }
     let code = code.clone().unbind();
     on_this_thread(|case| {
         if case.codes.contains_key(&caller) {
             case.codes.insert(id, code);
+            if let Some(reached) = reached {
+                case.reached.insert(id, reached);
+            }
+            if manager {
+                case.managers.insert(id);
+            }
         }
     });
     Ok(())
 }
 
-/// Records that `at` ran, when `code` is part of the case.
+/// Keeps the line of the `yield` at `at`, where a generator waits. It does
+/// this only for a generator that a `with` of the case entered.
+fn yielded(code: &Bound<'_, PyAny>, at: usize) -> PyResult<()> {
+    let id = key(code);
+    if on_this_thread(|case| case.on && case.managers.contains(&id)) != Some(true) {
+        return Ok(());
+    }
+    let mut line = None;
+    for entry in code.call_method0("co_lines")?.try_iter()? {
+        let (start, end, at_line): (usize, usize, Option<usize>) = entry?.extract()?;
+        if (start..end).contains(&at) {
+            line = at_line;
+        }
+    }
+    if let Some(line) = line {
+        on_this_thread(|case| case.waiting.insert(id, line));
+    }
+    Ok(())
+}
+
+/// Records that `at` ran, when `code` is part of the case. A generator that
+/// runs a line no longer waits: `throw()` resumes it with no `PY_RESUME`.
 fn line(code: &Bound<'_, PyAny>, at: usize) -> bool {
     let id = key(code);
     on_this_thread(|case| {
         if !case.on || !case.codes.contains_key(&id) {
             return false;
         }
+        case.waiting.remove(&id);
         case.lines.entry(id).or_default().insert(at);
         true
     })
@@ -277,9 +377,14 @@ fn tool(py: Python<'_>) -> Option<&Tool> {
                 vec!["BRANCH"]
             };
             let mut mask = 0_u32;
-            for (name, kind) in [("PY_START", Kind::Start), ("LINE", Kind::Line)]
-                .into_iter()
-                .chain(branches.into_iter().map(|name| (name, Kind::Branch)))
+            for (name, kind) in [
+                ("PY_START", Kind::Start),
+                ("LINE", Kind::Line),
+                ("PY_YIELD", Kind::Yield),
+                ("PY_RESUME", Kind::Resume),
+            ]
+            .into_iter()
+            .chain(branches.into_iter().map(|name| (name, Kind::Branch)))
             {
                 let event = events.getattr(name)?;
                 mask |= event.extract::<u32>()?;
@@ -342,6 +447,10 @@ pub fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
             before,
             on: true,
             codes: HashMap::from([(key(test), test.clone().unbind())]),
+            reached: HashMap::new(),
+            managers: HashSet::new(),
+            waiting: HashMap::new(),
+            cleanup: HashMap::new(),
             lines: HashMap::new(),
             ways: HashMap::new(),
         },
@@ -349,39 +458,55 @@ pub fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
 }
 
 /// Stops the watch of the case on this thread: it reached its first
-/// expectation.
+/// expectation. The lines after the `yield` where each generator waits become
+/// its cleanup.
 pub fn stop() {
     if let Some(case) = cases()
         .as_mut()
         .and_then(|cases| cases.get_mut(&thread::current().id()))
     {
         case.on = false;
+        case.cleanup = case.waiting.clone();
     }
 }
 
+/// A fault of the paths of a case: the line of the test, the line of the code
+/// that the test reached when it is not the test's own, and the text.
+pub type Fault = (usize, Option<usize>, String);
+
 /// Ends the watch of the case on this thread, and gives each fault of its
-/// paths, beside its line, in the order of the lines.
-pub fn finish(py: Python<'_>) -> Vec<(usize, String)> {
+/// paths, in the order of the test's lines, then of the lines that each
+/// reached.
+pub fn finish(py: Python<'_>) -> Vec<Fault> {
     let Some(case) = cases()
         .as_mut()
         .and_then(|cases| cases.remove(&thread::current().id()))
     else {
         return Vec::new();
     };
-    let mut faults: Vec<(usize, String)> = Vec::new();
+    let mut faults: Vec<Fault> = Vec::new();
     for (id, code) in &case.codes {
         let code = code.bind(py);
+        let judged = |line: usize| {
+            !(*id == case.test && line >= case.before)
+                && case.cleanup.get(id).is_none_or(|waited| line <= *waited)
+        };
+        let fault = |line: usize, what: &str| match case.reached.get(id) {
+            Some((test, name)) => (
+                *test,
+                Some(line),
+                format!("line {test} reaches line {line} of {name}, which {what}, and {RULE}"),
+            ),
+            None => (line, None, format!("line {line} {what}, and {RULE}")),
+        };
         let Ok(lines) = lines(code) else {
             continue;
         };
         let ran = case.lines.get(id);
         for line in lines {
-            if (*id == case.test && line >= case.before)
-                || ran.is_some_and(|ran| ran.contains(&line))
-            {
-                continue;
+            if judged(line) && !ran.is_some_and(|ran| ran.contains(&line)) {
+                faults.push(fault(line, "did not run"));
             }
-            faults.push((line, format!("line {line} did not run, and {RULE}")));
         }
         let Ok(branches) = branches(code) else {
             continue;
@@ -390,8 +515,10 @@ pub fn finish(py: Python<'_>) -> Vec<(usize, String)> {
             if owner != id || ways.len() > 1 {
                 continue;
             }
-            if let Some((line, _)) = branches.get(at) {
-                faults.push((*line, format!("line {line} went one way only, and {RULE}")));
+            if let Some((line, _)) = branches.get(at)
+                && judged(*line)
+            {
+                faults.push(fault(*line, "went one way only"));
             }
         }
     }

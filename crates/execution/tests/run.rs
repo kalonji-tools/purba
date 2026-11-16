@@ -308,6 +308,46 @@ fn an_assert_before_the_first_expectation_is_refused_whatever_the_case_does_afte
 }
 
 #[test]
+fn an_assert_of_a_helper_names_the_line_of_the_test_that_runs_it() {
+    let test_reach = module(
+        "test_reach.py",
+        "def check(user):\n    if user:\n        assert user == 'ann'\n\n\
+         def test_reach():\n    check('')\n    check('ann')\n    check('')\n    assert 1 == 1\n",
+    );
+    assert_eq!(
+        results(&test_reach, &["test_reach"]),
+        [Err(
+            "line 7 reaches line 3 of check, which asserts before the first \
+              expectation, and only an expectation asserts"
+                .to_owned()
+        )],
+        "line 6 reaches check first, and line 7 runs its assert"
+    );
+}
+
+#[test]
+fn an_assert_inside_a_reading_is_refused_whether_it_holds_or_not() {
+    for (name, user) in [("test_holds", "ann"), ("test_fails", "bob")] {
+        let test = module(
+            &format!("{name}.py"),
+            &format!(
+                "def check(user):\n    assert user == 'ann'\n\n\
+                 def {name}():\n    assert check('{user}') is None\n"
+            ),
+        );
+        assert_eq!(
+            results(&test, &[name]),
+            [Err(
+                "line 5 reaches line 2 of check, which asserts inside a \
+                  reading, and only an expectation asserts"
+                    .to_owned()
+            )],
+            "{name}: execution refuses the assert of check, and does not read its result"
+        );
+    }
+}
+
+#[test]
 fn an_assertion_error_before_any_assert_gives_raised() {
     let test_bare = module(
         "test_bare.py",

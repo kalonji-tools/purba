@@ -9,7 +9,7 @@
 use purba_parsing::Module;
 use pyo3::exceptions::{PyIndexError, PyNameError};
 use pyo3::types::{PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods};
-use pyo3::{Bound, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
+use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::{ExceptHandler, Expr, Stmt, StmtAssert, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextRange, TextSize};
@@ -409,6 +409,31 @@ fn fault() {
     }
 }
 
+/// Where the assert at `line` runs. It is `line N` when the innermost frame
+/// is the test's own frame. Else it is `line T reaches line N of F, which`.
+/// `T` is the line that the test runs, and `F` names the function of the
+/// innermost frame. The test is the outermost frame whose code comes from
+/// `file`, the module's file.
+fn place(py: Python<'_>, line: usize, file: &Bound<'_, PyAny>) -> PyResult<String> {
+    let innermost = py.import("sys")?.getattr("_getframe")?.call0()?;
+    let mut test = None;
+    let mut frame = innermost.clone();
+    while !frame.is_none() {
+        if frame.getattr("f_code")?.getattr("co_filename")?.eq(file)? {
+            test = Some(frame.clone());
+        }
+        frame = frame.getattr("f_back")?;
+    }
+    let Some(test) = test.filter(|test| !test.is(&innermost)) else {
+        return Ok(format!("line {line}"));
+    };
+    let reaches: usize = test.getattr("f_lineno")?.extract()?;
+    let name: String = innermost.getattr("f_code")?.getattr("co_name")?.extract()?;
+    Ok(format!(
+        "line {reaches} reaches line {line} of {name}, which"
+    ))
+}
+
 /// Whether a frame of the call that runs now, from the innermost out, runs an
 /// `__exit__`: the cleanup of a `with`.
 fn in_cleanup(py: Python<'_>) -> PyResult<bool> {
@@ -429,12 +454,14 @@ fn in_cleanup(py: Python<'_>) -> PyResult<bool> {
 /// The text of each marked assert of one loaded module, and the index of the
 /// last one that did not hold, or else of the last one that ran, beside
 /// whether it held. It also holds the line of each, and the hook of the
-/// expectations, which says whether a case runs before its first expectation.
+/// expectations, which says whether a case runs before its first expectation
+/// or inside a reading, and the file of the module.
 #[pyclass(frozen)]
 struct Ran {
     asserts: Vec<String>,
     marks: Vec<usize>,
     read: Py<Read>,
+    file: Py<PyAny>,
     kept: Mutex<Option<(usize, bool)>>,
 }
 
@@ -446,7 +473,8 @@ impl Ran {
     ///
     /// While a case runs before its first expectation, it also records the
     /// assert as a fault of the form, unless it runs in the cleanup of a
-    /// `with`.
+    /// `with`. Inside a reading, it records the assert as a fault of the form,
+    /// and a reader or a replay ends with `Verdict::Refused`.
     ///
     /// # Errors
     ///
@@ -464,11 +492,21 @@ impl Ran {
                 self.asserts.len()
             )));
         }
+        let py = value.py();
         let read = self.read.get();
-        if read.before_the_first_expectation() && !in_cleanup(value.py())? {
+        let line = self.marks[index];
+        if read.inside_a_reading() {
+            if let Some(readers) = read.reader() {
+                readers.end(Verdict::Refused);
+            }
             read.fault(format!(
-                "line {} asserts before the first expectation, and only an expectation asserts",
-                self.marks[index]
+                "{} asserts inside a reading, and only an expectation asserts",
+                place(py, line, self.file.bind(py))?
+            ));
+        } else if read.before_the_first_expectation() && !in_cleanup(py)? {
+            read.fault(format!(
+                "{} asserts before the first expectation, and only an expectation asserts",
+                place(py, line, self.file.bind(py))?
             ));
         }
         let held = value.is_truthy()?;
@@ -490,13 +528,14 @@ impl Ran {
     }
 }
 
-/// What a reading of one expectation gave: it held, it did not hold, or it
-/// raised.
+/// What a reading of one expectation gave: it held, it did not hold, it
+/// raised, or an assert ran inside it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Verdict {
     Holds,
     Fails,
     Raises,
+    Refused,
 }
 
 /// What the expectations and the steps of one case need from the process that
@@ -548,6 +587,7 @@ struct State {
     readers: Option<&'static dyn Readers>,
     reader: Option<usize>,
     started: bool,
+    reading: bool,
     readings: Readings,
     form: Option<String>,
     raised: Vec<(Py<PyAny>, String)>,
@@ -595,24 +635,34 @@ impl Read {
         state.readers.is_some() && !state.started
     }
 
+    /// Whether a case runs inside a reading.
+    fn inside_a_reading(&self) -> bool {
+        let state = self.state();
+        state.readers.is_some() && state.reading
+    }
+
+    /// The readers, when this process is a reader or a replay.
+    fn reader(&self) -> Option<&'static dyn Readers> {
+        let state = self.state();
+        state.reader.and(state.readers)
+    }
+
     /// Records `text` as the fault of the form, unless one is on record.
     fn fault(&self, text: String) {
         self.state().form.get_or_insert(text);
     }
-}
 
-#[pymethods]
-impl Read {
-    /// Whether this process reads the expectation at `index`. The first call of
-    /// a case forks a reader for each later expectation of its test, one at a
-    /// time, and waits for each. When a Python thread other than the main one
-    /// is alive, it forks none, and records each later expectation for a
-    /// replay. A reader reads only its own expectation.
+    /// Forks the readers of a case, and gives whether this process reads the
+    /// expectation at `index`. The first call of a case forks a reader for each
+    /// later expectation of its test, one at a time, and waits for each. When a
+    /// Python thread other than the main one is alive, it forks none, and
+    /// records each later expectation for a replay. A reader reads only its own
+    /// expectation.
     ///
     /// # Errors
     ///
     /// `IndexError` when no expectation has `index`.
-    fn reads(&self, py: Python<'_>, index: usize) -> PyResult<bool> {
+    fn forks(&self, py: Python<'_>, index: usize) -> PyResult<bool> {
         let test = self.known(index)?;
         let mut state = self.state();
         if let Some(reader) = state.reader {
@@ -652,9 +702,24 @@ impl Read {
         }
         Ok(true)
     }
+}
+
+#[pymethods]
+impl Read {
+    /// Whether this process reads the expectation at `index`. When it does, a
+    /// reading opens.
+    ///
+    /// # Errors
+    ///
+    /// `IndexError` when no expectation has `index`.
+    fn reads(&self, py: Python<'_>, index: usize) -> PyResult<bool> {
+        let reads = self.forks(py, index)?;
+        self.state().reading = reads;
+        Ok(reads)
+    }
 
     /// Records whether `value` held as the reading of the expectation at
-    /// `index`. A reader ends here, with its verdict.
+    /// `index`, and closes the reading. A reader ends here, with its verdict.
     ///
     /// # Errors
     ///
@@ -668,7 +733,8 @@ impl Read {
         self.known(index)?;
         let held = value.is_truthy();
         let (reader, readers) = {
-            let state = self.state();
+            let mut state = self.state();
+            state.reading = false;
             (state.reader, state.readers)
         };
         if let (Some(_), Some(readers)) = (reader, readers) {
@@ -763,6 +829,8 @@ impl With {
         value: &Bound<'_, PyAny>,
         traceback: &Bound<'_, PyAny>,
     ) -> PyResult<Py<PyAny>> {
+        // A reading that raised ends here, inside the `with` that holds it.
+        self.read.get().state().reading = false;
         let result = self
             .exit
             .call1(py, (&self.manager, kind, value, traceback))
@@ -997,6 +1065,7 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
             asserts: rewrite.asserts.clone(),
             marks: rewrite.marks.clone(),
             read: read.clone().unbind(),
+            file: path.as_os_str().into_pyobject(py)?.into_any().unbind(),
             kept: Mutex::new(None),
         },
     )?;

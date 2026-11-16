@@ -96,9 +96,10 @@ LINES
   run -4 --separate-stderr purba test_helper.py
 
   local path='the lines before the first expectation take one path'
-  local one_way="line 2 went one way only, and ${path}"
+  local one_way="line 8 reaches line 2 of pick, which went one way only, and ${path}"
+  local not_run="line 8 reaches line 4 of pick, which did not run, and ${path}"
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_helper.py::test_one_way project error: ${one_way}; line 4 did not run, and ${path}
+test_helper.py::test_one_way project error: ${one_way}; ${not_run}
 test_helper.py::test_both_ways passed
 2 cases: 1 passed, 1 blocked; 1 project error
 LINES
@@ -189,6 +190,49 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_thread.py::test_one project error: assert seen == [1] ${after}
 1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a helper that breaks a rule names the line of the test that reaches it first" {
+  cd "${BATS_TEST_DIRNAME}/rules"
+
+  run -4 --separate-stderr purba test_reach.py
+
+  local path='the lines before the first expectation take one path'
+  local one_way="reaches line 16 of make, which went one way only, and ${path}"
+  local not_run="reaches line 18 of make, which did not run, and ${path}"
+  local reading='asserts inside a reading, and only an expectation asserts'
+  local opened="reaches line 6 of opened, which went one way only, and ${path}"
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_reach.py::test_cm project error: line 22 ${opened}
+test_reach.py::test_reading project error: line 29 reaches line 12 of check_user, which ${reading}
+test_reach.py::test_helper project error: line 33 ${one_way}; line 33 ${not_run}
+test_reach.py::test_two_lines project error: line 38 ${one_way}; line 38 ${not_run}
+test_reach.py::test_stack project error: line 45 ${opened}
+test_reach.py::test_kept passed
+test_reach.py::test_inside passed
+7 cases: 2 passed, 5 blocked; 5 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "execution refuses an assert that only a fork or a replay reaches" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import threading' '' 'seen = []' '' '' 'def check():' '    if not seen:' \
+    '        assert seen == []' '    return True' '' '' \
+    'def test_reader():' '    assert seen.append(1) is None' '    assert check() is True' '' '' \
+    'def test_replay():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    assert seen.append(1) is None' '    assert check() is True' >test_alone.py
+
+  run -4 --separate-stderr purba test_alone.py
+
+  local alone='reaches an assert when read alone, and only an expectation asserts'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_alone.py::test_reader project error: assert check() is True ${alone}
+test_alone.py::test_replay project error: assert check() is True ${alone}
+2 cases: 2 blocked; 2 project errors
 LINES
   [[ -z "${stderr}" ]]
 }
