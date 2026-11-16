@@ -37,6 +37,7 @@ A reader of one test then cannot see what runs in its place.
 - **Selection refuses a test whose decorator uses a name that the module binds again after its import.** A decorator's name bound again does not say what purba does. After `from purba import skip`, `skip = keep` is one such binding.
 - **A decorator of purba returns the function that it takes.** The body that selection judges is then the body that runs.
 - **Selection judges each `def`, under any decorator.** A refused line names the decorator, then each reason in the body.
+- **A suppression of `foreign-decorator` or `name-bound-again` lets the test run.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) says how. No suppression reaches a test name with no `def`, or a `def` under a statement, since purba reads no expectation of such a test.
 - **Selection refuses a test whose name the module binds again after its last `def`, or under `global` in a function wherever it stands.** A test's name bound again is a decorator in another form. Selection already refuses a `yield` in a branch that never runs, so a binding that may never run counts too. The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a `del` as a binding.
 - **Selection refuses a test name that the module binds with no `def`, where a binding of it can hold a function.** A binding that can hold a function is a decorator in another form too. At the module's level, an assignment of a literal, a comprehension or a generator expression to the name alone never holds a function. Nor does an `import` with no `from`, a `class` with no decorator or a `del`, so a name that only these bind prints no line. The refused line names each binding that can hold a function, and sits at the first of them.
 - **Selection refuses a test whose `def` sits under a statement at the module's level, unless a `def` at the top binds the name.** The refused line names the statement, and says that purba cannot see whether import binds the test.
@@ -44,7 +45,7 @@ A reader of one test then cannot see what runs in its place.
 
 **Downside:**
 
-- **A test cannot carry a library's decorator.** Selection refuses Hypothesis's `@given` and `mock.patch` on a test. A tester writes `with mock.patch(…)` in the body instead. A tester puts `@given` on a function that the body defines and calls.
+- **A test carries a library's decorator only under a suppression of `foreign-decorator`.** Selection refuses Hypothesis's `@given` and `mock.patch` on a test. A tester writes `with mock.patch(…)` in the body instead. A tester puts `@given` on a function that the body defines and calls.
 - **A suite from pytest loses each decorator until purba carries one that does its work.**
 - **Each test repeats the decorator that it shares with other tests.** click names one `skipif` for several tests.
 - **Selection does not see a name bound through `globals()`, `setattr` or `from … import *`.** Execution calls what import bound.

@@ -84,7 +84,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test unless a [suppression](#suppression) names that check. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Gate
 
@@ -188,6 +188,10 @@ A division of purba with one responsibility and one interface. Each part is desi
 
 A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).
 
+### Practice tier
+
+The [strict checks](#strict-check) whose violation a [suppression](#suppression) turns into a warning, so that the test runs.
+
 ### Private name
 
 A name that starts with `_`, written as an attribute or imported from another module, or a name imported through a part of a module's path that starts with `_`. A name that starts and ends with `__`, such as `__len__`, is not one.
@@ -282,11 +286,11 @@ An [input](#input) that outlives one [test](#test), and whose content can change
 
 ### Strict check
 
-A rule that judges one of a [tester's](#tester) tests and gives a verdict of violation, clean or unknown. A [gate](#gate) judges a contributor's change instead.
+A rule that judges one of a [tester's](#tester) tests and gives a verdict of violation, clean or unknown. Its name is its breach, in kebab case, such as `computed-expected`. A [gate](#gate) judges a contributor's change instead.
 
 ### Suppression
 
-A [tester's](#tester) statement, at a site, that names one [strict check](#strict-check) and gives a reason. purba shows each suppressed verdict as a warning.
+A [tester's](#tester) comment that names one [strict check](#strict-check) and gives a reason, such as `# purba: suppress[computed-expected] <reason>`. It sits above a test or at the top of a module. purba shows each suppressed verdict as a warning.
 
 ### Technical writer
 
@@ -294,7 +298,7 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 
 ### Test
 
-A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, is not a generator, and its body writes no [private name](#private-name). purba calls it to try to disprove a behaviour.
+A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, is not a generator, and its body writes no [private name](#private-name). A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
 
 ### Tester
 

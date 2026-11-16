@@ -51,7 +51,7 @@ sequenceDiagram
   purba->>zygote: fork
   zygote->>zygote: load the module once
   loop each selected test
-    purba->>zygote: the test's name
+    purba->>zygote: the test's name, and each suppression that reaches it
     zygote->>test: fork
     alt no Python thread alive at the first expectation
       loop each expectation after the first
@@ -59,7 +59,7 @@ sequenceDiagram
         alone->>test: what it read, as its exit code
       end
     end
-    test->>purba: the outcome, then the error of each thread
+    test->>purba: each warning, the outcome, then the error of each thread
     test->>zygote: ends
     zygote->>purba: how the test's process ended
     opt a Python thread alive at the first expectation, and the case passed or failed

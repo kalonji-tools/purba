@@ -22,18 +22,35 @@ A way past one verdict must therefore show in the report.
 
 - **No suppression.** The tester rewrites the test until the check stops, and no report shows that rewrite.
 - **An opt-out that the report does not show.** It is the switch that [purba is always strict](purba-is-always-strict.md#considered-options) refuses, at a smaller scale.
+- **A suppression at a class.** A reader of one method does not see a comment on its class.
+- **One bracket after `project error` that holds every name of the line.** A refused line can give several reasons, and some have no name. The tester would then match each name to its words by their order.
+- **`def-under-block`, `name-without-def` and `returned-value` in the practice tier.** Execution reads an expectation only in a `def` at the top of the module, and only in its last asserts. A suppressed one of the three still reaches no outcome.
 
 ## Decision Outcome
 
-**Reach:** `/LANDSCAPE.md` `/CONTEXT.md`
+**Reach:** `crates/**` `tests/**` `/LANDSCAPE.md` `/CONTEXT.md`
 
 **Area:** strictness
 
 **A suppression is an outcome that the report shows, and not a switch.**
 
-- **A [suppression](../../CONTEXT.md#suppression) names one strict check and gives a reason.** purba refuses a suppression with no name or no reason.
-- **A suppression acts at a test, a class or a module.** purba refuses a path pattern in a file of configuration, because nobody reads it beside the test.
-- **The report shows each suppressed verdict as a warning on its own line, with its reason.** It counts each one. It never shows one as passed.
+- **A [suppression](../../CONTEXT.md#suppression) names one strict check and gives a reason, in one comment.** A comment keeps [purba's public surface](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) empty.
+- **A suppression acts at a test or a module, and not at a class.** A test's suppression is `# purba: suppress[<check>] <reason>`, on its own line directly above the `def` or above its first decorator. No blank line separates them. Several suppressions can stack, each with one name. A module's suppression is `# purba: suppress-module[<check>] <reason>`, above its first statement other than its docstring. purba refuses a path pattern in a file of configuration, because nobody reads it beside the test.
+- **Each strict check has a name: its breach, in the glossary's words, in kebab case.** A refused line puts the name in brackets before the words of each check, such as `[computed-expected] line 7 computes obj, and an expected value is a literal`. A reason that says purba cannot call the test has no name and no bracket.
+- **Each check sits in one tier.**
+
+  | tier | checks |
+  |---|---|
+  | the [practice tier](../../CONTEXT.md#practice-tier): a suppression turns its violation into a warning, and the test runs | `foreign-decorator` `name-bound-again` `not-one-comparison` `computed-expected` `private-name` `second-path` `assert-before-expectation` `swallowed-raise` |
+  | never suppressed: a suppressed one would let an outcome stand on what purba did not check | `no-expectation` `readings-differ` `assert-in-reading` `hook-replaced` |
+  | never suppressed: purba reads no expectation of such a test, so a suppression cannot help | `def-under-block` `name-without-def` `returned-value` |
+  | no name: purba cannot call the test, so no suppression reaches it | an `async` test, a generator, a parameter with no default, a test in a class |
+
+- **A tester suppresses a check that execution sees as one that selection sees.** The case then gets the outcome that it would get without that check.
+- **The report shows each suppressed verdict as a warning under the line of its case, and its reason on the line below.** The warning reads `⚠ suppressed [<check>] <words>`. It shows under a case that passed or failed, or that an error blocked. A suppressed verdict is never the outcome of its case.
+- **One check of one test gives one suppressed verdict.** A check of selection or of the paths that one test breaks on two lines gives one warning, which joins both clauses. For an assert before the first expectation, the warning names the first such assert.
+- **The count line counts each suppressed verdict after the errors, such as `; 5 suppressed`.** A suppressed verdict changes no exit code.
+- **Each fault of a suppression is a project error, and a suppression with a fault does not count.** A fault is a `# purba:` comment that does not read as a suppression, or a suppression with no reason. A site that names one check twice has a fault. A name that no check has is a fault. A suppression of a check outside the practice tier is a fault. A `suppress[…]` above no test is a fault. A `suppress-module[…]` below the module's first statement is a fault. A fault directly above a test refuses that test. Any other fault is the module's, and blocks each test of the module.
 - **purba counts a suppression as used only when it turns a violation of a selected test into a warning.** A verdict of `unknown` or `clean` passes through it unchanged.
 - **A suppression that suppresses nothing fails the run.** If purba only warned about such a suppression, the suppression would stay. The Python study above finds such suppressions common.
 - **purba does not judge a suppression whose tests the run did not select.**
@@ -47,9 +64,18 @@ A way past one verdict must therefore show in the report.
 - **A module suppression covers tests that the tester did not read.**
 - **A better check fails a run whose suppression it empties.** The tester must then remove the suppression.
 - **The rule for configuration admits a value that states no fact about the project.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) calls the line between a fact and a switch thin. The cap moves that line.
+- **Selection and execution each write the names of the checks that execution sees.** Selection checks the name of each suppression, and execution names each fault that it sees. Neither part reaches the other. The tests quote each name.
+- **A tester cannot suppress a `def` under a block, a test name with no `def`, or a `return` of a value.** The tester rewrites such a test instead.
+- **A suppression of a test in a class does not count.** No suppression reaches a test that purba cannot call.
 
 ## Confirmation
 
-No command checks it yet.
-[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks the design in depth of strictness.
-That design names each check and the syntax of a suppression.
+`mise run test:rust` checks in `crates/selection/tests/select.rs` each site, each tier and each fault of a suppression.
+It checks in `crates/execution/tests/run.rs` each of the three checks that execution sees and a suppression reaches.
+`mise run test:wheel` checks in `tests/suppress.bats` the warning under a case that passed and under one that failed, and the count line.
+It checks five faults of a suppression above a test, and a fault of the module.
+
+No command checks the cap yet.
+No command checks yet that a suppression that suppresses nothing fails the run.
+[Fail the run on a suppression that suppresses nothing](https://github.com/kalonji-tools/purba/issues/1032) builds the first.
+[A flag joins the public surface only with a change that purba needs to work as a command](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome), so the cap waits for one.

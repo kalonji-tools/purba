@@ -24,7 +24,7 @@ Selection judges each test before any test runs.
 The refused lines keep source order, and the lines of the selected tests follow them.
 
 - **Selection judges the last `def` of a name, because import binds that one.** The line keeps the place of the first `def`, as for a selected test. Selection refuses a test whose name the module binds again after that `def`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
-- **A refused line names every reason that selection sees.** A part names every error it finds, as [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says. An `async def` with a `yield` names only that the test is async, because purba cannot call it either way.
+- **A refused line names every reason that selection sees, except a reason that a suppression turns into a warning.** That warning prints under the line. A part names every error it finds, as [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says. An `async def` with a `yield` names only that the test is async, because purba cannot call it either way.
 - **A module does not load when selection refuses every test of it.**
 
 **Downside:**
