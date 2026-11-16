@@ -50,7 +50,7 @@ The name of each error kind says where the tester fixes the error.
 - **A breach that execution sees as a case runs is a project error for that test alone.** Execution sees each such breach before the first expectation, and also sees a marked assert inside a reading. It sees a line that did not run, and a branch that went one way only. It sees a marked assert outside the cleanup of a `with`, a marked assert inside a reading, and a hook that a statement replaced. It sees a `with` that swallowed a raise and skipped a line.
 - **A module that replaced a hook as it loaded is a project error of the module.** Execution sees it at the end of the load, and the error blocks each test of the module.
 
-A case gets the line of the first of these that it meets.
+A case gets the line of the first of these that it meets. A suppression of a check of the practice tier skips its breach, as [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) says.
 
 | order | what the case met | its line |
 |---|---|---|
@@ -75,7 +75,7 @@ flowchart LR
   parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
   parsing -- "a syntax error" --> project["<b>project error</b>"]
-  selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison or has no literal, a private name" --> project
+  selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison or has no literal, a private name, a fault of a suppression" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation or inside a reading, a hook replaced, a with that swallowed a raise" --> project
   execution -- "passed, failed, raised, interrupted" --> outcome["<b>outcome</b>"]

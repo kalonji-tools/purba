@@ -42,13 +42,13 @@ sequenceDiagram
   Note over dispatch: builds execution's module, and forks a zygote for it
   Note over execution: the zygote's worker loads the module once
   loop each selected test
-    dispatch->>execution: the name of one function in the module, and the test that it hands back as a thread's owner
+    dispatch->>execution: the name of one function in the module, each suppression that reaches it, and the test that it hands back as a thread's owner
     Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
     Note over execution: its worker looks the name up in the module it loaded
-    execution-->>dispatch: an outcome or error, and an outcome holds no name of its test
+    execution-->>dispatch: an outcome or error with each warning, and an outcome holds no name of its test
     Note over dispatch: puts each outcome beside its test, and uses selection and execution
-    dispatch->>command: the outcome or error, beside its test
-    command->>reporting: the outcome or error, beside a value that prints itself
+    dispatch->>command: the outcome or error with each warning, beside its test
+    command->>reporting: the outcome or error, beside a value that prints itself, then each warning
     Note over reporting: prints selection's identity as path::function
   end
 ```

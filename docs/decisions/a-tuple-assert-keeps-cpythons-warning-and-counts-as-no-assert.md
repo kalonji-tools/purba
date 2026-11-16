@@ -26,11 +26,11 @@ The rewrite puts the tuple in a call, so CPython never warns.
 **Area:** assertion
 
 **Assertion leaves an assert of a tuple with items as written, so CPython warns.**
-At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation). Selection refuses its test, because an expectation is one comparison.
+At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation). Selection refuses its test, because an expectation is one comparison, unless a suppression of `not-one-comparison` lets it run.
 
 - **Assertion leaves a tuple assert as written anywhere in a module.** CPython warns for an assert in a test, in a helper or at the module's level, when it compiles the module. Away from a test's end, the assert counts as no assert that ran.
 - **The refused line names the tuple assert's line number.** [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says how.
-- **Assertion rewrites an assert of an empty tuple as it rewrites any other assert.** An assert of an empty tuple always fails, and CPython does not warn about it. At a test's end, selection refuses the test, because an empty tuple is no comparison. Before the first expectation, execution refuses the case, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
+- **Assertion rewrites an assert of an empty tuple as it rewrites any other assert.** An assert of an empty tuple always fails, and CPython does not warn about it. At a test's end, selection refuses the test, because an empty tuple is no comparison, unless a suppression lets it run. Before the first expectation, execution refuses the case, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
 
 **Downside:**
 
