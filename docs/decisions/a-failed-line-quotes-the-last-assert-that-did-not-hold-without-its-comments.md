@@ -34,7 +34,7 @@ The hook keeps no traceback, so no new Python object crosses the seam.
 - **An expectation that did not hold fails the case after the test returns.** purba reads each later expectation too, and quotes each one that did not hold.
 - **The message of an expectation never runs.** The line quotes it, as part of the text of the assert.
 - **A marked assert runs only in the cleanup of a `with`.** Execution refuses one that runs before the first expectation outside such a cleanup, and one inside a reading, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
-- **A raise from the entry or the cleanup of a `with` of the test fails the case when it ends the call.** Its line reads `the cleanup of the with at line 46 raised`, then the exception and its message. When the test catches the raise, the expectations decide the case.
+- **A raise from the entry or the cleanup of a `with` of the test fails the case when it ends the call.** Its line reads `the cleanup of the with at line 47 raised`, then the exception and its message. When the test catches the raise, the expectations decide the case.
 - **A marked assert that holds never replaces a marked assert that did not hold.** A cleanup assert runs after the assert that found the failure, and the failed line names the assert that found it. A case fails when a marked assert that ran did not hold, and the test raised `AssertionError`. An `AssertionError` gives `raised` when no marked assert ran, or when each one that ran held.
 - **Parsing hands assertion the range of each comment and each line continuation.** Parsing is the one caller of ruff's parser. Assertion leaves those ranges out of the text of each assert. Reporting joins the text that remains.
 
@@ -47,7 +47,7 @@ test_two_fail.py::test_one failed
       expected  2
       reading   3
 test_m.py::test_cleanup failed
-    the cleanup of the with at line 46 raised AssertionError: a handle leaked
+    the cleanup of the with at line 47 raised AssertionError: a handle leaked
 test_shapes.py::test_comment failed
     assert (1 and 0)
 ```

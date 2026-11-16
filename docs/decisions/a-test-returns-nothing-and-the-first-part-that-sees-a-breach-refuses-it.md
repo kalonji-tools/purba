@@ -56,6 +56,8 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side | an expectation that is no comparison, or a chained comparison | selection |
 | | an expectation with no literal on either side | selection |
 | writes no [private name](../../CONTEXT.md#private-name) in its body | a private name in the test's body, a nested `def`, `lambda` or `class` included | selection |
+| takes each [stand-in](../../CONTEXT.md#stand-in) as an argument | a [patch](../../CONTEXT.md#patch) in the test's body, a nested `def`, `lambda` or `class` included | selection |
+| | a mock with no spec in the test's body | selection |
 | takes one path in the lines before its first expectation, and in each line of the test module that those lines call or enter as a generator under `contextlib.contextmanager` | a line that did not run, or a branch that went one way only | execution |
 | | a `with` that swallowed a raise and skipped a line | execution |
 | asserts only in its expectations | a marked assert that runs before the first expectation, outside the cleanup of a `with` | execution |
@@ -111,6 +113,7 @@ The designs in depth of fixtures and execution, which [the landscape](../../LAND
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.
 
+[A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](a-stand-in-enters-a-test-as-an-argument.md#decision-outcome) says which patches selection refuses.
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names the kind of each breach.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each breach stops.
 [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says what may change around a test.
