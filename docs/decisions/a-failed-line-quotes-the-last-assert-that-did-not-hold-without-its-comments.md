@@ -41,12 +41,18 @@ The hook keeps no traceback, so no new Python object crosses the seam.
 ```
 test_two_fail.py::test_one failed
     assert a == 1
+      expected  1
+      reading   2
     assert b == 2
+      expected  2
+      reading   3
 test_m.py::test_cleanup failed
     the cleanup of the with at line 46 raised AssertionError: a handle leaked
 test_shapes.py::test_comment failed
     assert (1 and 0)
 ```
+
+[A failed expectation shows its expected value and its reading](a-failed-expectation-shows-its-expected-value-and-its-reading.md#decision-outcome) says what shows under each quote of an expectation.
 
 **Downside:**
 
