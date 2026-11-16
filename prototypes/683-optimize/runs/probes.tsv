@@ -1,0 +1,40 @@
+test_helper	main	plain: test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+test_helper	main	optimized: test_helper.py::test_helper passed
+test_helper	opt0	plain: test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+test_helper	opt0	optimized: test_helper.py::test_helper project error: line 6 reaches line 2 of check, which asserts before the first expectation, and only an expectation asserts
+test_ctx	main	plain: test_ctx.py::test_ctx project error: line 9 reaches line 5 of opened, which asserts before the first expectation, and only an expectation asserts
+test_ctx	main	optimized: test_ctx.py::test_ctx passed
+test_ctx	opt0	plain: test_ctx.py::test_ctx project error: line 9 reaches line 5 of opened, which asserts before the first expectation, and only an expectation asserts
+test_ctx	opt0	optimized: test_ctx.py::test_ctx project error: line 9 reaches line 5 of opened, which asserts before the first expectation, and only an expectation asserts
+test_expect	main	plain: test_expect.py::test_fails failed
+test_expect	main	optimized: test_expect.py::test_fails failed
+test_expect	opt0	plain: test_expect.py::test_fails failed
+test_expect	opt0	optimized: test_expect.py::test_fails failed
+test_bare	main	plain: test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+test_bare	main	optimized: test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+test_bare	opt0	plain: test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+test_bare	opt0	optimized: test_bare.py::test_bare project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+test_cut	main	plain: test_cut.py::test_odd raised: AssertionError: odd
+test_cut	main	optimized: test_cut.py::test_odd passed
+test_cut	opt0	plain: test_cut.py::test_odd raised: AssertionError: odd
+test_cut	opt0	optimized: test_cut.py::test_odd passed
+test_sibling	main	plain: test_sibling.py::test_sibling raised: AssertionError:
+test_sibling	main	optimized: test_sibling.py::test_sibling passed
+test_sibling	opt0	plain: test_sibling.py::test_sibling raised: AssertionError:
+test_sibling	opt0	optimized: test_sibling.py::test_sibling passed
+test_own	main	plain: test_own.py::test_own failed
+test_own	main	optimized: test_own.py::test_own passed
+test_own	opt0	plain: test_own.py::test_own failed
+test_own	opt0	optimized: test_own.py::test_own passed
+test_debug	main	plain: test_debug.py::test_debug passed
+test_debug	main	optimized: test_debug.py::test_debug failed
+test_debug	opt0	plain: test_debug.py::test_debug passed
+test_debug	opt0	optimized: test_debug.py::test_debug passed
+test_flag	main	plain: test_flag.py::test_flag failed
+test_flag	main	optimized: test_flag.py::test_flag passed
+test_flag	opt0	plain: test_flag.py::test_flag failed
+test_flag	opt0	optimized: test_flag.py::test_flag failed
+test_doc	main	plain: test_doc.py::test_doc passed
+test_doc	main	optimized: test_doc.py::test_doc failed
+test_doc	opt0	plain: test_doc.py::test_doc passed
+test_doc	opt0	optimized: test_doc.py::test_doc passed

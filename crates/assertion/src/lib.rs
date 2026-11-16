@@ -1110,7 +1110,7 @@ fn run<'py>(
     let builtins = py.import("builtins")?;
     let code = builtins
         .getattr("compile")?
-        .call1((text, path.as_os_str(), "exec"))?;
+        .call1((text, path.as_os_str(), "exec", 0, false, 0))?;
     check_locals(&code, path)?;
     builtins.getattr("exec")?.call1((&code, module.dict()))?;
     Ok(code)

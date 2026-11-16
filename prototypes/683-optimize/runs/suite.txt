@@ -1,0 +1,17 @@
+# mise run test:wheel, 107 tests
+opt0 plain rc=0
+opt0 -O rc=0
+main -O rc=1
+opt0-plain: 107 ok, 0 not ok
+opt0-O: 107 ok, 0 not ok
+main-O: 98 ok, 9 not ok
+main -O, not ok:
+not ok 7 a test that catches the panic still gets its internal error, and the next test its own
+not ok 8 a module that catches the panic while it loads gets its internal error, and no test runs
+not ok 58 an expectation inside a checking context fails, and an assert in a try is refused
+not ok 67 a panic stops only its test, each other test keeps its line, and the run exits 125
+not ok 68 a case that breaks a rule prints the line and the rule, and a cleanup that raises fails
+not ok 71 an assert before the first expectation beats a raise, and a raise keeps raised
+not ok 78 a helper that breaks a rule names the line of the test that reaches it first
+not ok 79 execution refuses an assert that only a fork or a replay reaches
+not ok 90 an empty tuple asserted before the first expectation is refused, and CPython does not warn
