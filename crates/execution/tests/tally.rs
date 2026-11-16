@@ -42,6 +42,7 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
             internal_errors: 1,
             invocation_errors: 0,
             unreached: 0,
+            suppressed: 0,
         },
         "one of each kind, and a test whose own error blocks it counts as blocked \
          and as one error of that error's kind"

@@ -54,7 +54,7 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
                 .map_err(|error| error.to_string());
             steps.push((loaded, purba_execution::interrupted()));
             let after = worker
-                .run(&signal_module, "test_one", ())
+                .run(&signal_module, "test_one", &[], ())
                 .map(|_| ())
                 .map_err(|error| error.to_string());
             (steps, handler, after)

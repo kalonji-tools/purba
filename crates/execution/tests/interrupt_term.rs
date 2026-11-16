@@ -48,7 +48,7 @@ fn a_sigterm_in_a_call_makes_the_test_interrupted_and_each_signal_keeps_a_handle
         purba_execution::interrupt::install().expect("purba's signal handler takes each signal");
         worker.load(&module).expect("the module loads");
         worker
-            .run(&module, "test_term", "test_term")
+            .run(&module, "test_term", &[], "test_term")
             .map(|outcome| outcome.kind().clone())
             .map_err(|error| error.to_string())
     });

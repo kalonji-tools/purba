@@ -42,12 +42,13 @@ LINES
   run -1 --separate-stderr purba test_cleanup_assert.py
 
   local asserts='asserts before the first expectation, and only an expectation asserts'
+  local before='[assert-before-expectation] line 21'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_cleanup_assert.py::test_inside_a_checking_context failed
     assert 1 + 1 == 3
       expected  3
       reading   2
-test_cleanup_assert.py::test_with_a_finally_check project error: line 21 ${asserts}
+test_cleanup_assert.py::test_with_a_finally_check project error: ${before} ${asserts}
 2 cases: 1 failed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -73,7 +74,7 @@ LINES
   run -4 --separate-stderr purba test_none.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_none.py::test_one project error: no expectation stated
+test_none.py::test_one project error: [no-expectation] no expectation stated
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -86,7 +87,7 @@ LINES
   run -4 --separate-stderr purba test_early.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_early.py::test_one project error: no expectation ran
+test_early.py::test_one project error: [no-expectation] no expectation ran
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -223,8 +224,8 @@ LINES
   local alone='holds when read alone, and not after the expectations before it'
   local after='holds after the expectations before it, and not when read alone'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_reading.py::test_holds_alone project error: assert seen == [] ${alone}
-test_reading.py::test_fails_alone project error: assert seen == [1] ${after}
+test_reading.py::test_holds_alone project error: [readings-differ] assert seen == [] ${alone}
+test_reading.py::test_fails_alone project error: [readings-differ] assert seen == [1] ${after}
 2 cases: 2 blocked; 2 project errors
 LINES
   [[ -z "${stderr}" ]]

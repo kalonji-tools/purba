@@ -111,14 +111,27 @@ pub fn run_with(
             Err(error) => return stopped(report, &path, &error),
         };
     not_interrupted()?;
-    let found = rewritten(&path, &parsed, tests, &rewrite);
-    drop(parsed);
+    let fault =
+        match purba_execution::catch("command", || Ok(purba_selection::module_fault(&parsed))) {
+            Ok(fault) => fault,
+            Err(error) => return stopped(report, &path, &error),
+        };
     for refused in &refused_tests {
         report.line(
             refused.test(),
             &Err(purba_execution::Error::project(refused.to_string())),
         )?;
+        warned(&mut report, refused.test(), &[])?;
     }
+    if let Some(fault) = fault {
+        report.error(&path.display(), &purba_execution::Error::project(fault))?;
+        for test in &tests {
+            report.blocked(test, &path.display())?;
+        }
+        return Ok(report.finish()?);
+    }
+    let found = rewritten(&path, &parsed, tests, &rewrite);
+    drop(parsed);
     let modules = match found {
         Found::Modules(modules) => modules,
         Found::NotRewritten(error, tests) => {
@@ -131,7 +144,9 @@ pub fn run_with(
     };
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
-            Handed::Test(test, result) => report.line(&test, &result),
+            Handed::Test(test, result, warnings) => report
+                .line(&test, &result)
+                .and_then(|()| warned(&mut report, &test, &warnings)),
             Handed::NotLoaded(path, error) | Handed::Thread(Charged::Module(path), error) => {
                 report.error(&path.display(), &error)
             }
@@ -148,6 +163,22 @@ pub fn run_with(
         return Err(refused.into());
     }
     Ok(report.finish()?)
+}
+
+/// Prints each verdict of `test` that a suppression turned into a warning:
+/// those of selection, then `warnings`, those of execution.
+fn warned(
+    report: &mut purba_reporting::Report<impl Write>,
+    test: &TestId,
+    warnings: &[purba_execution::Warning],
+) -> Result<(), purba_reporting::Refused> {
+    for verdict in test.suppressed() {
+        report.warned(verdict.check, &verdict.words, &verdict.reason)?;
+    }
+    for warning in warnings {
+        report.warned(&warning.check, &warning.words, &warning.reason)?;
+    }
+    Ok(())
 }
 
 /// Prints the line of a module whose error stops the run before any test, then

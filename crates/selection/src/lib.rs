@@ -19,6 +19,10 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
+mod suppression;
+
+pub use suppression::Suppression;
+
 /// A test's identity. Only selection constructs one. It displays its path,
 /// then each class on the way to the test, then its function, joined by `::`.
 ///
@@ -27,6 +31,8 @@ use ruff_text_size::{Ranged, TextSize};
 ///     path: "test_a.py".into(),
 ///     classes: Vec::new(),
 ///     function: "test_one".into(),
+///     suppressed: Vec::new(),
+///     suppressions: Vec::new(),
 /// };
 /// ```
 ///
@@ -46,9 +52,46 @@ pub struct TestId {
     path: PathBuf,
     classes: Vec<String>,
     function: String,
+    suppressed: Vec<Suppressed>,
+    suppressions: Vec<Suppression>,
+}
+
+/// A violation of a strict check that a suppression turned into a warning: the
+/// name of the check, its words, and the reason of the suppression.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Suppressed {
+    pub check: &'static str,
+    pub words: String,
+    pub reason: String,
 }
 
 impl TestId {
+    /// The test `function` of the module at `path`, in `classes`, with no
+    /// suppression.
+    fn new(path: &Path, classes: Vec<String>, function: String) -> Self {
+        Self {
+            path: path.to_path_buf(),
+            classes,
+            function,
+            suppressed: Vec::new(),
+            suppressions: Vec::new(),
+        }
+    }
+
+    /// Each verdict of selection that a suppression turned into a warning, one
+    /// for each check, in the order of its first reason.
+    #[must_use]
+    pub fn suppressed(&self) -> &[Suppressed] {
+        &self.suppressed
+    }
+
+    /// Each suppression that reaches the test for a check that execution sees:
+    /// its own, then the module's.
+    #[must_use]
+    pub fn suppressions(&self) -> &[Suppression] {
+        &self.suppressions
+    }
+
     /// The path of the test's module, as the tester typed it.
     #[must_use]
     pub fn path(&self) -> &Path {
@@ -99,6 +142,9 @@ impl fmt::Display for Refused {
             if index > 0 {
                 formatter.write_str("; ")?;
             }
+            if let Some(check) = reason.check() {
+                write!(formatter, "[{check}] ")?;
+            }
             write!(formatter, "{reason}")?;
         }
         Ok(())
@@ -106,6 +152,8 @@ impl fmt::Display for Refused {
 }
 
 enum Reason {
+    /// A fault of a suppression of the test.
+    Fault(String),
     Decorated(Vec<String>),
     Async,
     Generator,
@@ -120,9 +168,75 @@ enum Reason {
     Private(usize, String),
 }
 
+impl Reason {
+    /// The name of the strict check that gives this reason, or `None` for a
+    /// reason that says purba cannot call the test, or for a fault of a
+    /// suppression.
+    const fn check(&self) -> Option<&'static str> {
+        Some(match self {
+            Self::Decorated(_) => "foreign-decorator",
+            Self::ReturnsValue => "returned-value",
+            Self::Rebound(..) => "name-bound-again",
+            Self::NoDef(..) => "name-without-def",
+            Self::Under(_) => "def-under-block",
+            Self::NotOneComparison(_) => "not-one-comparison",
+            Self::Computes(..) => "computed-expected",
+            Self::Private(..) => "private-name",
+            Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
+                return None;
+            }
+        })
+    }
+
+    /// Whether this reason says that purba cannot call the test.
+    const fn cannot_call(&self) -> bool {
+        matches!(
+            self,
+            Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method
+        )
+    }
+}
+
+/// `reasons` without each reason that a suppression of `suppressions` turns
+/// into a warning, and the warnings that it gives. A test that purba cannot call
+/// keeps every reason, since no suppression reaches it.
+fn suppress(reasons: Vec<Reason>, suppressions: &[Suppression]) -> (Vec<Reason>, Vec<Suppressed>) {
+    if reasons.iter().any(Reason::cannot_call) {
+        return (reasons, Vec::new());
+    }
+    let mut kept = Vec::new();
+    let mut suppressed: Vec<Suppressed> = Vec::new();
+    for reason in reasons {
+        let found = reason
+            .check()
+            .and_then(|check| suppressions.iter().find(|named| named.check == check));
+        let Some(suppression) = found else {
+            kept.push(reason);
+            continue;
+        };
+        let words = reason.to_string();
+        match suppressed
+            .iter_mut()
+            .find(|verdict| verdict.check == suppression.check)
+        {
+            Some(verdict) => {
+                verdict.words.push_str("; ");
+                verdict.words.push_str(&words);
+            }
+            None => suppressed.push(Suppressed {
+                check: suppression.check,
+                words,
+                reason: suppression.reason.clone(),
+            }),
+        }
+    }
+    (kept, suppressed)
+}
+
 impl fmt::Display for Reason {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Fault(words) => formatter.write_str(words),
             Self::Decorated(names) if names.len() == 1 => write!(
                 formatter,
                 "the decorator {} is not purba's, and purba cannot see what it does",
@@ -226,59 +340,35 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     {
         panic!("PURBA_FAULT=selection");
     }
-    let statements = &module.syntax().body;
-    let top: HashSet<&str> = statements
-        .iter()
-        .filter_map(|statement| match statement {
-            Stmt::FunctionDef(function) => Some(function.name.as_str()),
-            _ => None,
-        })
-        .collect();
-    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef, TextSize)> = Vec::new();
-    let mut places: HashMap<&str, usize> = HashMap::new();
-    for statement in statements {
-        let found = match (statement, keyword(statement)) {
-            (Stmt::FunctionDef(function), _) => vec![(None, function)],
-            (_, Some(keyword)) => defs_under(statement)
-                .into_iter()
-                .filter(|function| !top.contains(function.name.as_str()))
-                .map(|function| (Some(keyword), function))
-                .collect(),
-            (_, None) => Vec::new(),
-        };
-        for (under, function) in found {
-            if !function.name.starts_with("test") {
-                continue;
-            }
-            match places.entry(function.name.as_str()) {
-                Entry::Occupied(place) => last[*place.get()].1 = function,
-                Entry::Vacant(place) => {
-                    place.insert(last.len());
-                    last.push((under, function, function.range.start()));
-                }
-            }
-        }
-    }
+    let Found { last, places, defs } = found(module);
+    let sites = suppression::sites(module, &test_defs(module, &defs));
     let bindings = bindings(module.syntax());
     let imported = private_imports(module.syntax());
     let mut tests = Vec::new();
     let mut refused = Vec::new();
     for (under, function, first) in last {
-        let test = TestId {
-            path: path.to_path_buf(),
-            classes: Vec::new(),
-            function: function.name.to_string(),
-        };
-        let mut reasons: Vec<Reason> = under.map(Reason::Under).into_iter().collect();
+        let mut test = TestId::new(path, Vec::new(), function.name.to_string());
+        let at = defs
+            .get(function.name.as_str())
+            .map_or(&[][..], Vec::as_slice);
+        let mut reasons: Vec<Reason> = sites.faults_of(at).into_iter().map(Reason::Fault).collect();
+        reasons.extend(under.map(Reason::Under));
         reasons.extend(reasons_of(function, module, &bindings));
         reasons.extend(faults_of(function, module, &imported));
+        let suppressions = sites.of(at);
+        let (reasons, suppressed) = suppress(reasons, &suppressions);
+        test.suppressed = suppressed;
+        test.suppressions = suppressions
+            .into_iter()
+            .filter(Suppression::seen_by_execution)
+            .collect();
         if reasons.is_empty() {
             tests.push(test);
         } else {
             refused.push((first, Refused { test, reasons }));
         }
     }
-    refused.extend(refused_methods(path, module, &imported));
+    refused.extend(refused_methods(path, module, &imported, &sites));
     let never = never_a_function(module.syntax());
     for (name, found) in &bindings {
         if !name.starts_with("test") || places.contains_key(name) {
@@ -298,11 +388,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             .map(|offset| module.position(*offset).line())
             .collect();
         lines.dedup();
-        let test = TestId {
-            path: path.to_path_buf(),
-            classes: Vec::new(),
-            function: (*name).to_string(),
-        };
+        let test = TestId::new(path, Vec::new(), (*name).to_string());
         refused.push((
             offsets[0],
             Refused {
@@ -316,6 +402,84 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         tests,
         refused.into_iter().map(|(_, refused)| refused).collect(),
     )
+}
+
+/// The fault of the module's suppressions, or `None` when there is none.
+///
+/// It holds each fault of a suppression of the module, and each `# purba:`
+/// comment that sits above no test, joined by `; `.
+#[must_use]
+pub fn module_fault(module: &Module) -> Option<String> {
+    let Found { defs, .. } = found(module);
+    suppression::sites(module, &test_defs(module, &defs)).module_fault()
+}
+
+/// The tests of a module at its top or under a statement there.
+struct Found<'a> {
+    /// For each name, the block it sits under, the `def` that import binds
+    /// last, and the offset of its first `def`.
+    last: Vec<(Option<&'static str>, &'a StmtFunctionDef, TextSize)>,
+    /// The place of each name in `last`.
+    places: HashMap<&'a str, usize>,
+    /// The offset of each `def` of each name.
+    defs: HashMap<&'a str, Vec<TextSize>>,
+}
+
+/// The tests of `module` at its top or under a statement there. A `def` under a
+/// statement is a test only when no `def` at the top binds its name.
+fn found(module: &Module) -> Found<'_> {
+    let statements = &module.syntax().body;
+    let top: HashSet<&str> = statements
+        .iter()
+        .filter_map(|statement| match statement {
+            Stmt::FunctionDef(function) => Some(function.name.as_str()),
+            _ => None,
+        })
+        .collect();
+    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef, TextSize)> = Vec::new();
+    let mut places: HashMap<&str, usize> = HashMap::new();
+    let mut defs: HashMap<&str, Vec<TextSize>> = HashMap::new();
+    for statement in statements {
+        let found = match (statement, keyword(statement)) {
+            (Stmt::FunctionDef(function), _) => vec![(None, function)],
+            (_, Some(keyword)) => defs_under(statement)
+                .into_iter()
+                .filter(|function| !top.contains(function.name.as_str()))
+                .map(|function| (Some(keyword), function))
+                .collect(),
+            (_, None) => Vec::new(),
+        };
+        for (under, function) in found {
+            if !function.name.starts_with("test") {
+                continue;
+            }
+            defs.entry(function.name.as_str())
+                .or_default()
+                .push(function.range.start());
+            match places.entry(function.name.as_str()) {
+                Entry::Occupied(place) => last[*place.get()].1 = function,
+                Entry::Vacant(place) => {
+                    place.insert(last.len());
+                    last.push((under, function, function.range.start()));
+                }
+            }
+        }
+    }
+    Found { last, places, defs }
+}
+
+/// The offset of each `def` of `module` that is a test: each of `defs`, and
+/// each test in a class.
+fn test_defs(module: &Module, defs: &HashMap<&str, Vec<TextSize>>) -> Vec<TextSize> {
+    defs.values()
+        .flatten()
+        .copied()
+        .chain(
+            methods_of(&module.syntax().body)
+                .into_iter()
+                .map(|(_, function)| function.range.start()),
+        )
+        .collect()
 }
 
 /// The offset of each binding at the module's level, or in a block there, that
@@ -459,6 +623,7 @@ fn refused_methods(
     path: &Path,
     module: &Module,
     imported: &HashMap<&str, String>,
+    sites: &suppression::Sites,
 ) -> Vec<(TextSize, Refused)> {
     let mut methods: Vec<(Vec<&str>, &StmtFunctionDef, TextSize)> = Vec::new();
     let mut places: HashMap<(Vec<&str>, &str), usize> = HashMap::new();
@@ -474,12 +639,18 @@ fn refused_methods(
     methods
         .into_iter()
         .map(|(classes, function, first)| {
-            let test = TestId {
-                path: path.to_path_buf(),
-                classes: classes.into_iter().map(str::to_owned).collect(),
-                function: function.name.to_string(),
-            };
-            let mut reasons = vec![Reason::Method];
+            let test = TestId::new(
+                path,
+                classes.into_iter().map(str::to_owned).collect(),
+                function.name.to_string(),
+            );
+            let at = [first, function.range.start()];
+            let mut reasons: Vec<Reason> = sites
+                .faults_of(&at)
+                .into_iter()
+                .map(Reason::Fault)
+                .collect();
+            reasons.push(Reason::Method);
             reasons.extend(own_reasons(function, module, Some("self")));
             reasons.extend(faults_of(function, module, imported));
             (first, Refused { test, reasons })

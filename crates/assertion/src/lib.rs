@@ -628,15 +628,21 @@ impl Ran {
             if let Some(readers) = read.reader() {
                 readers.end(Verdict::Refused);
             }
-            read.fault(format!(
-                "{} asserts inside a reading, and only an expectation asserts",
-                place(py, line, self.file.bind(py))?
-            ));
+            read.fault(
+                "assert-in-reading",
+                format!(
+                    "{} asserts inside a reading, and only an expectation asserts",
+                    place(py, line, self.file.bind(py))?
+                ),
+            );
         } else if read.before_the_first_expectation() && !in_cleanup(py)? {
-            read.fault(format!(
-                "{} asserts before the first expectation, and only an expectation asserts",
-                place(py, line, self.file.bind(py))?
-            ));
+            read.fault(
+                "assert-before-expectation",
+                format!(
+                    "{} asserts before the first expectation, and only an expectation asserts",
+                    place(py, line, self.file.bind(py))?
+                ),
+            );
         }
         let held = value.is_truthy()?;
         let mut kept = self.kept.lock().unwrap_or_else(PoisonError::into_inner);
@@ -729,7 +735,7 @@ struct State {
     started: bool,
     reading: bool,
     readings: Readings,
-    form: Option<String>,
+    form: Vec<(&'static str, String)>,
     raised: Vec<(Py<PyAny>, String)>,
     swallowed: Vec<Swallowed>,
 }
@@ -788,9 +794,13 @@ impl Read {
         state.reader.and(state.readers)
     }
 
-    /// Records `text` as the fault of the form, unless one is on record.
-    fn fault(&self, text: String) {
-        self.state().form.get_or_insert(text);
+    /// Records `text` as a fault of the form, by the name of its `check`, unless
+    /// a fault of that check is on record.
+    fn fault(&self, check: &'static str, text: String) {
+        let mut state = self.state();
+        if !state.form.iter().any(|(named, _)| *named == check) {
+            state.form.push((check, text));
+        }
     }
 
     /// Forks the readers of a case, and gives whether this process reads the
@@ -938,9 +948,10 @@ impl Read {
             state.readers
         };
         if let Some(name) = readers.and_then(|readers| readers.replaced(py)) {
-            self.fault(format!(
-                "line {line} replaced {name}, and a test keeps purba's hooks"
-            ));
+            self.fault(
+                "hook-replaced",
+                format!("line {line} replaced {name}, and a test keeps purba's hooks"),
+            );
         }
     }
 
@@ -1049,9 +1060,10 @@ pub struct Watched<'a, T> {
     pub mark: Option<(&'a str, bool)>,
     /// What the expectations gave.
     pub readings: Readings,
-    /// The first fault of the form: an assert before the first expectation,
-    /// or a hook that the case replaced.
-    pub form: Option<String>,
+    /// The first fault of each check of the form, each beside the name of its
+    /// check, in the order they came: an assert before the first expectation,
+    /// an assert inside a reading, or a hook that the case replaced.
+    pub form: Vec<(&'static str, String)>,
     /// Each exception that the entry or the cleanup of a `with` raised, in the
     /// order they raised, beside the text that names that `with`.
     pub raised: Vec<(Py<PyAny>, String)>,

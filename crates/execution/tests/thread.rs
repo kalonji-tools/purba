@@ -144,7 +144,7 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
         .map(|(module, function)| {
             let result = match function {
                 Some(function) => worker
-                    .run(module, function, *function)
+                    .run(module, function, &[], *function)
                     .map(|outcome| Some(outcome.kind().clone())),
                 None => worker.load(module).map(|()| None),
             }

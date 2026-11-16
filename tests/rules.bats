@@ -18,14 +18,14 @@ bats_require_minimum_version 1.5.0
 
   local path='the lines before the first expectation take one path'
   local asserts='asserts before the first expectation, and only an expectation asserts'
-  local hooks="a test keeps purba's hooks"
+  local hooks="replaced threading.excepthook, and a test keeps purba's hooks"
   local swallowed='the with at line 39 swallowed a raise'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_m.py::test_path project error: line 15 did not run, and ${path}
-test_m.py::test_branch project error: line 21 went one way only, and ${path}
-test_m.py::test_assert project error: line 28 ${asserts}
-test_m.py::test_hook project error: line 34 replaced threading.excepthook, and ${hooks}
-test_m.py::test_swallow project error: ${swallowed}, and line 41 did not run
+test_m.py::test_path project error: [second-path] line 15 did not run, and ${path}
+test_m.py::test_branch project error: [second-path] line 21 went one way only, and ${path}
+test_m.py::test_assert project error: [assert-before-expectation] line 28 ${asserts}
+test_m.py::test_hook project error: [hook-replaced] line 34 ${hooks}
+test_m.py::test_swallow project error: [swallowed-raise] ${swallowed}, and line 41 did not run
 test_m.py::test_cleanup failed
     the cleanup of the with at line 46 raised AssertionError: a handle leaked
 6 cases: 1 failed, 5 blocked; 5 project errors
@@ -80,7 +80,7 @@ LINES
 
   local asserts='asserts before the first expectation, and only an expectation asserts'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_order.py::test_asserts project error: line 3 ${asserts}
+test_order.py::test_asserts project error: [assert-before-expectation] line 3 ${asserts}
 test_order.py::test_raises raised: KeyError: 'k'
 2 cases: 1 raised, 1 blocked; 1 project error
 LINES
@@ -99,7 +99,7 @@ LINES
   local one_way="line 8 reaches line 2 of pick, which went one way only, and ${path}"
   local not_run="line 8 reaches line 4 of pick, which did not run, and ${path}"
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_helper.py::test_one_way project error: ${one_way}; ${not_run}
+test_helper.py::test_one_way project error: [second-path] ${one_way}; [second-path] ${not_run}
 test_helper.py::test_both_ways passed
 2 cases: 1 passed, 1 blocked; 1 project error
 LINES
@@ -150,7 +150,7 @@ LINES
 
   local replaced='the module replaced sys.unraisablehook as it loaded'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_load_hook.py project error: ${replaced}, and a test keeps purba's hooks
+test_load_hook.py project error: [hook-replaced] ${replaced}, and a test keeps purba's hooks
 test_load_hook.py::test_one blocked: test_load_hook.py did not load
 1 case: 1 blocked; 1 project error
 LINES
@@ -188,7 +188,7 @@ LINES
 
   local after='holds after the expectations before it, and not when read alone'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_thread.py::test_one project error: assert seen == [1] ${after}
+test_thread.py::test_one project error: [readings-differ] assert seen == [1] ${after}
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -203,13 +203,16 @@ LINES
   local one_way="reaches line 16 of make, which went one way only, and ${path}"
   local not_run="reaches line 18 of make, which did not run, and ${path}"
   local reading='asserts inside a reading, and only an expectation asserts'
+  local reach='line 29 reaches line 12 of check_user, which'
   local opened="reaches line 6 of opened, which went one way only, and ${path}"
+  local split='[second-path]'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_reach.py::test_cm project error: line 22 ${opened}
-test_reach.py::test_reading project error: line 29 reaches line 12 of check_user, which ${reading}
-test_reach.py::test_helper project error: line 33 ${one_way}; line 33 ${not_run}
-test_reach.py::test_two_lines project error: line 38 ${one_way}; line 38 ${not_run}
-test_reach.py::test_stack project error: line 45 ${opened}
+test_reach.py::test_cm project error: ${split} line 22 ${opened}
+test_reach.py::test_reading project error: [assert-in-reading] ${reach} ${reading}
+test_reach.py::test_helper project error: ${split} line 33 ${one_way}; ${split} line 33 ${not_run}
+test_reach.py::test_two_lines project error: ${split} line 38 ${one_way}; \
+${split} line 38 ${not_run}
+test_reach.py::test_stack project error: ${split} line 45 ${opened}
 test_reach.py::test_kept passed
 test_reach.py::test_inside passed
 7 cases: 2 passed, 5 blocked; 5 project errors
@@ -230,8 +233,8 @@ LINES
 
   local alone='reaches an assert when read alone, and only an expectation asserts'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_alone.py::test_reader project error: assert check() is True ${alone}
-test_alone.py::test_replay project error: assert check() is True ${alone}
+test_alone.py::test_reader project error: [assert-in-reading] assert check() is True ${alone}
+test_alone.py::test_replay project error: [assert-in-reading] assert check() is True ${alone}
 2 cases: 2 blocked; 2 project errors
 LINES
   [[ -z "${stderr}" ]]
