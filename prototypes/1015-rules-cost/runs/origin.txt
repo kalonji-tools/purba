@@ -1,0 +1,4 @@
+  153  input, from parametrize   e.g. loguru/tests/test_add_option_colorize.py::test_colorized_format expected
+  117  local of the test   e.g. loguru/tests/test_add_option_serialize.py::test_serialize_not_serializable not_serializable
+   29  name of the module   e.g. loguru/tests/test_add_option_enqueue.py::test_logging_not_picklable_exception ValueError
+    6  input, from a fixture   e.g. dateutil/tests/test_utils.py::test_utils_default_tz_info_naive NYC

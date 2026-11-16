@@ -1,0 +1,9 @@
+loguru https://github.com/Delgan/loguru 28349be3cd740867bc947eef741c69370ca45735
+attrs https://github.com/python-attrs/attrs 2a1fb86d44816afcc60e86d57956ce3604820326
+click https://github.com/pallets/click e38188e9e205005d5af5f9e59df51904c984586a
+requests https://github.com/psf/requests 3c7baaa05ab4aa49cc819ce3a819d260de19c157
+dateutil https://github.com/dateutil/dateutil a78cbd81d5d03b5f126eb36edb92bca78972c804
+pyflakes https://github.com/PyCQA/pyflakes 5324946c5d8602697f5df6d98ad162920b3e5d61
+toolz https://github.com/pytoolz/toolz 451af60dec590a6010e2babdbf391ea8f815122f
+six https://github.com/benjaminp/six c8e394065cd541a16c040515dc0afb85cf22a7c3
+schedule https://github.com/dbader/schedule 82a43db1b938d8fdf60103bd41f329e06c8d3651

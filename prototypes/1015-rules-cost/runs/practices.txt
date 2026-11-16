@@ -1,0 +1,17 @@
+test functions read: 4404 in 9 projects
+   32    0.7%  P10 builds a mock                                              click=1 loguru=29 requests=2
+    9    0.2%  P10 checks an interaction (assert_called…)                     click=1 loguru=3 requests=2 schedule=3
+  215    4.9%  P10 patches a name (patch / monkeypatch / mocker / freeze_time) attrs=4 click=64 dateutil=5 loguru=128 requests=13 six=1
+   33    0.7%  P11 sleeps                                                     loguru=30 requests=3
+   17    0.4%  P14 a skip with no reason                                      attrs=1 click=1 dateutil=14 requests=1
+   30    0.7%  P14 switched off: a skip inside the body                       attrs=2 dateutil=14 loguru=5 pyflakes=1 requests=1 schedule=5 six=2
+  176    4.0%  P14 switched off: a skip/xfail decorator                       attrs=8 click=29 dateutil=26 loguru=79 pyflakes=23 requests=7 six=3 toolz=1
+  231    5.2%  P2 P11 touches the network                                     requests=231
+   68    1.5%  P2 reads clock / randomness / sleeps                           click=2 dateutil=9 loguru=51 requests=3 schedule=3
+  394    8.9%  P4 act, check, act, check (more than one phase)                attrs=67 click=132 dateutil=56 loguru=24 pyflakes=11 requests=36 schedule=8 six=13 toolz=47
+  179    4.1%  P4 more than five checks                                       attrs=27 click=44 dateutil=15 loguru=12 pyflakes=7 requests=4 schedule=16 six=9 toolz=45
+   31    0.7%  PY4 a mock with no spec                                        click=1 loguru=28 requests=2
+  108    2.5%  PY5 a BROAD raise checked by type alone                        attrs=37 click=4 dateutil=36 loguru=20 requests=10 six=1
+  231    5.2%  PY5 a raise checked by type alone                              attrs=60 click=14 dateutil=74 loguru=29 requests=44 schedule=3 six=6 toolz=1
+  482   10.9%  PY5 expects a raise or warning                                 attrs=145 click=70 dateutil=78 loguru=125 requests=53 schedule=3 six=7 toolz=1
+   45    1.0%  PY7 starts a thread or process                                 click=7 dateutil=1 loguru=37

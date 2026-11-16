@@ -1,0 +1,27 @@
+not one comparison:
+  159  not x                  e.g. loguru/tests/test_colorama.py:63  assert not patch_colorama.AnsiToWin32.called
+  133  call other(...)        e.g. loguru/tests/test_add_option_catch.py:67  assert lines[1].startswith('Record was: {')
+   48  call isinstance(...)   e.g. loguru/tests/test_exceptions_catch.py:249  assert isinstance(exception, tuple)
+   29  bare truthy x          e.g. loguru/tests/test_add_option_context.py:21  assert mock.called
+   18  chained a < b < c      e.g. loguru/tests/test_add_option_catch.py:29  assert out == err == ''
+    6  call callable(...)     e.g. six/test_six.py:452  assert six.callable(X)
+    3  call all(...)          e.g. loguru/tests/test_exceptions_catch.py:255  assert all((t is ZeroDivisionError for t in (t_1, t_2, t_3, t_4)))
+    2  IfExp                  e.g. loguru/tests/test_add_option_serialize.py:68  assert lines[-1] == 'NoneType' if sys.version_info < (3, 5, 3) else 'N
+    1  Constant               e.g. loguru/tests/test_locks.py:68  assert True
+    1  call hasattr(...)      e.g. dateutil/tests/test_imports.py:89  assert hasattr(dateutil, '__version__')
+    1  x and/or y             e.g. toolz/toolz/tests/test_dicttoolz.py:269  assert merge(d) is d or merge(d) == {1: 1}
+    1  call issubclass(...)   e.g. six/test_six.py:56  assert issubclass(six.text_type, six.string_types)
+
+private names, top 12 of 317 reads, 77 names:
+   51  _termui_impl
+   20  ._common.set_tzpath
+   16  click._compat.strip_ansi
+   15  loguru._colorama.should_colorize
+   15  click._utils.UNSET
+   14  _available_shells
+   11  toolz._signatures.builtins
+    8  loguru._colorama.should_wrap
+    8  _base_val
+    8  toolz._signatures
+    7  loguru._defaults.env
+    7  _opt_prefixes

@@ -1,0 +1,7 @@
+ 1285  param-no-default
+  719  foreign-decorator
+  534  computed-expected
+  285  not-one-comparison
+  179  private-name
+    2  def-under-block
+tests read: 1901

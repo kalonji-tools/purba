@@ -1,0 +1,8 @@
+tests read: 1899
+  543  ends with no assert   e.g. loguru/tests/test_activation.py::test_disable
+  510  assert-before-expectation   e.g. loguru/tests/test_activation.py::test_disable
+  246  raise check: with raises(...)   e.g. loguru/tests/test_activation.py::test_invalid_enable_name
+  155  loop in the act (refused only with no round)   e.g. loguru/tests/test_add_option_enqueue.py::test_wait_for_all_messages_enqueued
+  148  second-path?: if/match in the act   e.g. loguru/tests/test_activation.py::test_disable
+   53  second-path?: or/and/x-if-y/comprehension-if   e.g. loguru/tests/test_coroutine_sink.py::test_complete_from_another_loop
+   50  second-path: try/except in the act   e.g. loguru/tests/test_add_option_backtrace.py::test_backtrace
