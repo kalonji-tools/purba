@@ -17,3 +17,6 @@ A row that starts with `T_` counts tests; any other row counts asserts.
 
 Run it as `python -I count/shapes.py <corpus> <out>`.
 The matchers are heuristics: a round trip in one statement needs a bare name on the expected side, and a round trip across statements follows only assignments of one name.
+
+`count/true.py` counts each assert that compares a value to `True`, over every file whose name or folder marks it as a test, and writes `runs/true.txt`.
+Its files are not exactly the 4,404 tests of `shapes.py`.

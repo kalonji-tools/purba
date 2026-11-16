@@ -1,0 +1,80 @@
+79
+Is attrs/tests/test_compat.py:80: assert _IS_GENERATOR_RESULTS[gen] is True
+Is attrs/tests/test_config.py:17: assert True is _config._run_validators
+Is attrs/tests/test_config.py:26: assert True is _config._run_validators
+Is attrs/tests/test_converters.py:171: assert True is c('yes', None, None)
+Is attrs/tests/test_converters.py:293: assert True is i.x
+Is attrs/tests/test_converters.py:341: assert True is c2.x
+Is attrs/tests/test_filters.py:60: assert i(fields(C).a, value) is True
+Is attrs/tests/test_filters.py:106: assert e(fields(C).a, value) is True
+Is attrs/tests/test_hooks.py:281: assert f.alias_is_default is True
+Is attrs/tests/test_hooks.py:343: assert f.alias_is_default is True
+Is attrs/tests/test_make.py:531: assert True is f(B).a.inherited
+Is attrs/tests/test_make.py:535: assert True is f(C).b.inherited
+Is attrs/tests/test_make.py:1310: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1316: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1318: assert fs['b'].kw_only is True
+Is attrs/tests/test_make.py:1319: assert fs['b_t'].kw_only is True
+Is attrs/tests/test_make.py:1325: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1327: assert fs['b'].kw_only is True
+Is attrs/tests/test_make.py:1328: assert fs['b_t'].kw_only is True
+Is attrs/tests/test_make.py:1331: assert fs['c_t'].kw_only is True
+Is attrs/tests/test_make.py:1360: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1365: assert fs['a'].kw_only is True
+Is attrs/tests/test_make.py:1366: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1367: assert fs['a_f'].kw_only is True
+Is attrs/tests/test_make.py:1368: assert fs['b'].kw_only is True
+Is attrs/tests/test_make.py:1369: assert fs['b_t'].kw_only is True
+Is attrs/tests/test_make.py:1370: assert fs['b_f'].kw_only is True
+Is attrs/tests/test_make.py:1375: assert fs['a_t'].kw_only is True
+Is attrs/tests/test_make.py:1377: assert fs['b'].kw_only is True
+Is attrs/tests/test_make.py:1378: assert fs['b_t'].kw_only is True
+Is attrs/tests/test_make.py:1379: assert fs['b_f'].kw_only is True
+Is attrs/tests/test_make.py:1381: assert fs['c_t'].kw_only is True
+Is attrs/tests/test_make.py:2480: assert fields['auto'].alias_is_default is True
+Is attrs/tests/test_make.py:2481: assert fields['_private_auto'].alias_is_default is True
+Is attrs/tests/test_make.py:2755: assert True is _determine_whether_to_implement(C, None, True, ('__init__',))
+Is attrs/tests/test_make.py:2758: assert True is _determine_whether_to_implement(C, None, True, ('__repr__',))
+Is attrs/tests/test_make.py:2761: assert True is _determine_whether_to_implement(C, None, True, ('__eq__', '__ne__'))
+Is attrs/tests/test_make.py:2764: assert True is _determine_whether_to_implement(C, None, True, ('__le__', '__lt__', '__ge__', '__gt__'))
+Is attrs/tests/test_make.py:3091: assert True is i.called
+Is attrs/tests/test_make.py:338: assert a.kw_only is True
+Is attrs/tests/test_make.py:1274: assert fs['yes'].kw_only is True
+Is attrs/tests/test_make.py:1280: assert fs['yes'].kw_only is True
+Is attrs/tests/test_make.py:1281: assert fs['no'].kw_only is True
+Is attrs/tests/test_make.py:323: assert a.kw_only is True
+Is attrs/tests/test_setattr.py:331: assert cleaned_up is True
+Is attrs/tests/test_setattr.py:477: assert True is i.__attrs_own_setattr__
+Is attrs/tests/test_setattr.py:481: assert True is i2.__attrs_own_setattr__
+Is attrs/tests/test_setattr.py:485: assert True is WOSAH.__attrs_own_setattr__
+Is attrs/tests/test_setattr.py:617: assert getattr(A, '__attrs_own_setattr__', False) is True
+Is attrs/tests/test_validators.py:53: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:82: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:87: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:93: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:100: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:106: assert _config._run_validators is True
+Is attrs/tests/test_validators.py:116: assert _config._run_validators is True
+Is click/tests/test_termui.py:821: assert color is True
+Is click/tests/test_utils/test_sentinel.py:21: assert bool(value) is True
+Is loguru/tests/test_defaults.py:19: assert env(key, bool) is True
+Is loguru/tests/test_filesink_watch.py:83: assert exists is True
+Is loguru/tests/test_filesink_watch.py:99: assert exists is True
+Is loguru/tests/test_filesink_watch.py:115: assert exists is True
+Is loguru/tests/test_standard_handler.py:106: assert result is True
+Is requests/tests/test_structures.py:81: assert hasattr(self.lookup_dict, 'bad_gateway') is True
+Is toolz/toolz/tests/test_functoolz.py:126: assert mf(1) is True
+Is toolz/toolz/tests/test_functoolz.py:131: assert mf(1) is True
+Is toolz/toolz/tests/test_functoolz.py:139: assert mf(1, 2) is True
+Is toolz/toolz/tests/test_functoolz.py:145: assert mf() is True
+Is toolz/toolz/tests/test_functoolz.py:172: assert f(1) is True
+Is toolz/toolz/tests/test_itertoolz.py:130: assert isiterable([1, 2, 3]) is True
+Is toolz/toolz/tests/test_itertoolz.py:131: assert isiterable('abc') is True
+Is toolz/toolz/tests/test_itertoolz.py:132: assert isiterable(IterIterable()) is True
+Is toolz/toolz/tests/test_itertoolz.py:133: assert isiterable(GetItemIterable()) is True
+Is toolz/toolz/tests/test_itertoolz.py:140: assert isdistinct([1, 2, 3]) is True
+Is toolz/toolz/tests/test_itertoolz.py:144: assert isdistinct('World') is True
+Is toolz/toolz/tests/test_itertoolz.py:146: assert isdistinct(iter([1, 2, 3])) is True
+Is toolz/toolz/tests/test_serialization.py:30: assert f(False) is True
+Is toolz/toolz/tests/test_serialization.py:40: assert p.__get__(1) is True
+Is toolz/toolz/tests/test_serialization.py:44: assert p2.__get__(1) is True
