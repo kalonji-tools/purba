@@ -32,15 +32,15 @@ Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
-| assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone, the first assert before the first expectation or the first hook replaced before it, and each exception that a `with` of a test raised or swallowed | the module's namespace |
-| execution | whether the call returned or raised `AssertionError`, the type and message of each other exception, as text, and each line and branch that `sys.monitoring` hands execution | the traceback, and the frames that execution walks to find who called a function |
+| assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone, the first assert before the first expectation or inside a reading, or the first hook replaced before it, and each exception that a `with` of a test raised or swallowed | the module's namespace |
+| execution | whether the call returned or raised `AssertionError`, the type and message of each other exception, as text, and each line and branch that `sys.monitoring` hands execution | the traceback, and the frames that execution and assertion walk to find who called a function and the line of the test |
 | command, selection, parsing, dispatch, fixtures and reporting | nothing | |
 
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the expectation of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, 1 == 2)`.** The first call says whether this process reads the expectation. The second tests the value once, and records its index and whether it held.
 - **Assertion marks each other assert: `assert x` becomes `assert _purba_ran(i, x)`.** The call tests the value once, records the index of the assert and whether it held, and gives back that `bool`.
-- **The mark records an assert that runs before the first expectation, outside the cleanup of a `with`, and execution refuses the case.**
+- **The mark records an assert that runs before the first expectation outside the cleanup of a `with`, or inside a reading.** Execution refuses the case.
 - **Assertion writes `; _purba_step(n)` after each simple statement of a test before its first expectation.** It wraps each item `m` of each `with` of a test as `_purba_with(n, m)`. `n` is the line of the statement. The step asks execution whether the case replaced a hook. The wrap enters and leaves the manager. It keeps what the entry or the cleanup raised, and each raise that the cleanup swallowed.
 - **Execution watches the lines and branches of a case through a callable of the extension module, which `sys.monitoring` calls.** No part needs a Python file, so [every part of the skeleton is Rust inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) stays true.
 - **A Python thread alive at the first expectation gives a [replay](../../CONTEXT.md#replay) for each later expectation.** [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says which process forks it.

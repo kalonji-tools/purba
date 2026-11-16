@@ -47,7 +47,7 @@ The name of each error kind says where the tester fixes the error.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
 - **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. It sees a test name with no `def`, and a `def` under a statement. It sees an [expectation](../../CONTEXT.md#expectation) that is not one comparison, one with no literal on either side, and a [private name](../../CONTEXT.md#private-name) in a test's body. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
-- **A breach that execution sees as a case runs is a project error for that test alone.** Execution sees each such breach before the first expectation. It sees a line that did not run, and a branch that went one way only. It sees a marked assert outside the cleanup of a `with`, and a hook that a statement replaced. It sees a `with` that swallowed a raise and skipped a line.
+- **A breach that execution sees as a case runs is a project error for that test alone.** Execution sees each such breach before the first expectation, and also sees a marked assert inside a reading. It sees a line that did not run, and a branch that went one way only. It sees a marked assert outside the cleanup of a `with`, a marked assert inside a reading, and a hook that a statement replaced. It sees a `with` that swallowed a raise and skipped a line.
 - **A module that replaced a hook as it loaded is a project error of the module.** Execution sees it at the end of the load, and the error blocks each test of the module.
 
 A case gets the line of the first of these that it meets.
@@ -55,10 +55,10 @@ A case gets the line of the first of these that it meets.
 | order | what the case met | its line |
 |---|---|---|
 | 1 | an interrupt | `interrupted` |
-| 2 | an assert before the first expectation, or a hook replaced, whichever came first | a project error |
+| 2 | an assert before the first expectation or inside a reading, or a hook replaced, whichever came first | a project error |
 | 3 | a raise that ends the call | `raised`, or `failed` when a `with`'s entry or cleanup raised it |
 | 4 | a line that did not run, a branch that went one way, a `with` that swallowed a raise | a project error, each breach joined by `; ` |
-| 5 | a fork refused, or two readings that differ | a project error |
+| 5 | a fork refused, two readings that differ, or a replay that reached an assert | a project error |
 | 6 | an expectation that did not hold, no expectation, or each expectation held | `failed`, a project error, or `passed` |
 
 - **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs in its process when the thread raises. After a test returns, its process joins each thread that is not a daemon. Such a thread charges that test. The test keeps its outcome, and a load that succeeds still succeeds. A `threading.Thread` that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the outcome `raised` to a test when a thread's call to `os._exit` ends its process. It fails a load when such a call ends the load's process. It names the exception of a load that the first interrupt lands in. [Of the exceptions CPython ignores, only a thread's is a project error](of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md#decision-outcome) charges the exception of a thread that `_thread` starts to the test or the load that runs.
@@ -77,7 +77,7 @@ flowchart LR
   parsing -- "a syntax error" --> project["<b>project error</b>"]
   selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison or has no literal, a private name" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
-  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation, a hook replaced, a with that swallowed a raise" --> project
+  execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation or inside a reading, a hook replaced, a with that swallowed a raise" --> project
   execution -- "passed, failed, raised, interrupted" --> outcome["<b>outcome</b>"]
   execution -- "purba's own PanicException" --> internal["<b>internal error</b>"]
   every["every part"] -- "a panic, an error purba never expects" --> internal
