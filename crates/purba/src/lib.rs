@@ -18,7 +18,10 @@ use std::panic;
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 
-/// The console script `purba`. It copies `sys.argv` into a list of strings,
+/// The console script `purba`. Under `python -O`, `-OO` or a `PYTHONOPTIMIZE`
+/// above 0, it first writes one warning to stderr.
+///
+/// It copies `sys.argv` into a list of strings,
 /// runs command on the list, and returns the exit code. For the error that
 /// stops the run, it writes one line to stderr, and returns 3, or 125 for a
 /// panic. A write that stdout refused once the report exists returns the code
@@ -31,9 +34,28 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 #[pyfunction]
 #[pyo3(name = "_main")]
 fn main(py: Python<'_>) -> u8 {
-    let argv = match py
-        .import("sys")
-        .and_then(|sys| sys.getattr("argv")?.extract::<Vec<String>>())
+    let sys = match py.import("sys") {
+        Ok(sys) => sys,
+        Err(error) => return stop(&error),
+    };
+    match sys
+        .getattr("flags")
+        .and_then(|flags| flags.getattr("optimize")?.extract::<i64>())
+    {
+        Ok(0) => {}
+        // stderr may refuse the write. The run goes on either way.
+        Ok(_) => {
+            let _ = writeln!(
+                io::stderr(),
+                "purba: warning: Python runs with -O, \
+                 so an assert outside a test module does not run"
+            );
+        }
+        Err(error) => return stop(&error),
+    }
+    let argv = match sys
+        .getattr("argv")
+        .and_then(|argv| argv.extract::<Vec<String>>())
     {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
