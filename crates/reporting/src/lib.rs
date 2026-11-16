@@ -99,8 +99,12 @@ impl<W: Write> Report<W> {
             Ok(Kind::Passed) => writeln!(out, "{test} passed"),
             Ok(Kind::Failed { asserts }) => {
                 let mut lines = format!("{test} failed\n");
-                for assert in asserts {
-                    let _ = writeln!(lines, "    {}", one_line(assert));
+                for quote in asserts {
+                    let _ = writeln!(lines, "    {}", one_line(&quote.assert));
+                    if let Some(shown) = &quote.shown {
+                        let _ = writeln!(lines, "      expected  {}", one_line(&shown.expected));
+                        let _ = writeln!(lines, "      reading   {}", one_line(&shown.reading));
+                    }
                 }
                 out.write_all(lines.as_bytes())
             }
@@ -227,6 +231,19 @@ mod tests {
     use std::rc::Rc;
 
     use super::*;
+    use purba_execution::{Quote, Shown};
+
+    /// The quote of `assert`, with the expected value and the reading that
+    /// `shown` names.
+    fn quote(assert: &str, shown: Option<(&str, &str)>) -> Quote {
+        Quote {
+            assert: assert.to_owned(),
+            shown: shown.map(|(expected, reading)| Shown {
+                expected: expected.to_owned(),
+                reading: reading.to_owned(),
+            }),
+        }
+    }
 
     fn project(text: &str) -> Error {
         Error::project(text.to_owned())
@@ -462,7 +479,7 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         let failed = Kind::Failed {
-            asserts: vec!["assert 1 == 2".to_owned()],
+            asserts: vec![quote("assert 1 == 2", None)],
         };
         report
             .add(&"test_a.py::test_one", Ok(&Kind::Passed))
@@ -545,7 +562,7 @@ mod tests {
     #[test]
     fn each_case_prints_its_outcome_or_error_and_the_count() {
         let failed = Kind::Failed {
-            asserts: vec!["assert 1 == 2".to_owned()],
+            asserts: vec![quote("assert 1 == 2", Some(("2", "1")))],
         };
         let raised = Kind::Raised {
             exception: "KeyError: 'k'".to_owned(),
@@ -561,6 +578,8 @@ mod tests {
             "test_a.py::test_one passed\n\
              test_a.py::test_two failed\n\
              \x20   assert 1 == 2\n\
+             \x20     expected  2\n\
+             \x20     reading   1\n\
              test_a.py::test_four raised: KeyError: 'k'\n\
              test_c.py::test_x project error: ValueError: boom\n\
              4 cases: 1 passed, 1 failed, 1 raised, 1 blocked; 1 project error\n",
@@ -613,7 +632,7 @@ mod tests {
     #[test]
     fn a_reason_over_several_lines_prints_on_one() {
         let failed = Kind::Failed {
-            asserts: vec!["assert (\n    total  ==  3\n)".to_owned()],
+            asserts: vec![quote("assert (\n    total  ==  3\n)", None)],
         };
         let raised = Kind::Raised {
             exception: "ValueError: a\n  b".to_owned(),
@@ -664,7 +683,7 @@ mod tests {
             exception: "ValueError: \x1b[32mgreen\x1b[0m\x1b[1A\x1b[2K".to_owned(),
         };
         let failed = Kind::Failed {
-            asserts: vec!["assert x ==\t\"a\x00b\"".to_owned()],
+            asserts: vec![quote("assert x ==\t\"a\x00b\"", None)],
         };
         let (text, _) = report_of(&[
             ("test_a.py::test_one", Ok(&raised)),
@@ -684,6 +703,33 @@ mod tests {
             ],
             "a tab prints as \\t, and each other control character as \\x and two hex digits"
         );
+    }
+
+    #[test]
+    fn each_failed_expectation_prints_its_expected_value_and_its_reading_under_it() {
+        let failed = Kind::Failed {
+            asserts: vec![
+                quote("assert got == []", Some(("[]", "[\n  -1,\n]"))),
+                quote("assert len(got) == 0", Some(("0", "a\x00b"))),
+                quote("the cleanup of the with at line 4 raised OSError: x", None),
+            ],
+        };
+        let (text, code) = report_of(&[("test_a.py::test_one", Ok(&failed))]);
+        assert_eq!(
+            text,
+            "test_a.py::test_one failed\n\
+             \x20   assert got == []\n\
+             \x20     expected  []\n\
+             \x20     reading   [ -1, ]\n\
+             \x20   assert len(got) == 0\n\
+             \x20     expected  0\n\
+             \x20     reading   a\\x00b\n\
+             \x20   the cleanup of the with at line 4 raised OSError: x\n\
+             1 case: 1 failed\n",
+            "two lines under each quote that shows a reading, each on one line, and none \
+             under a quote that shows none"
+        );
+        assert_eq!(code, 1, "a failed test makes the run exit 1");
     }
 
     #[test]

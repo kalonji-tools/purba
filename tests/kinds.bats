@@ -21,6 +21,8 @@ load internal_error.sh
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_fail.py::test_one failed
     assert 1 == 2
+      expected  2
+      reading   1
 1 case: 1 failed
 LINES
   [[ -z "${stderr}" ]]
@@ -43,6 +45,8 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_cleanup_assert.py::test_inside_a_checking_context failed
     assert 1 + 1 == 3
+      expected  3
+      reading   2
 test_cleanup_assert.py::test_with_a_finally_check project error: line 21 ${asserts}
 2 cases: 1 failed, 1 blocked; 1 project error
 LINES
@@ -98,8 +102,111 @@ LINES
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
 test_two_fail.py::test_one failed
     assert a == 1
+      expected  1
+      reading   2
     assert b == 2
+      expected  2
+      reading   3
 1 case: 1 failed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a failed expectation shows its expected value and its reading, and the run exits 1" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  cat >reading.py <<'PY'
+class One:
+    def __repr__(self):
+        return "1"
+
+
+class NoRepr:
+    def __repr__(self):
+        raise ValueError("no repr")
+
+
+def test_eq():
+    got = [x for x in [1, -3, 2] if x <= 0]
+    assert got == []
+
+
+def test_lt():
+    got = 3
+    assert got < 2
+
+
+def test_contains():
+    got = "ab"
+    assert "z" in got
+
+
+def test_none():
+    got = [-1]
+    assert got is None
+
+
+def test_same_text():
+    got = One()
+    assert got == 1
+
+
+def test_no_repr():
+    got = NoRepr()
+    assert got == 1
+
+
+def test_two():
+    got = [-1]
+    assert got == []
+    assert len(got) == 0
+
+
+def test_long():
+    got = list(range(-30, 0))
+    assert got == []
+PY
+
+  run -1 --separate-stderr purba reading.py
+
+  local long=-30 n
+  for ((n = -29; n <= -1; n++)); do long+=", ${n}"; done
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+reading.py::test_eq failed
+    assert got == []
+      expected  []
+      reading   [-3]
+reading.py::test_lt failed
+    assert got < 2
+      expected  < 2
+      reading   3
+reading.py::test_contains failed
+    assert "z" in got
+      expected  to contain 'z'
+      reading   'ab'
+reading.py::test_none failed
+    assert got is None
+      expected  is None
+      reading   [-1]
+reading.py::test_same_text failed
+    assert got == 1
+      expected  1 (int)
+      reading   1 (One)
+reading.py::test_no_repr failed
+    assert got == 1
+      expected  1
+      reading   (repr raised ValueError: no repr)
+reading.py::test_two failed
+    assert got == []
+      expected  []
+      reading   [-1]
+    assert len(got) == 0
+      expected  0
+      reading   1
+reading.py::test_long failed
+    assert got == []
+      expected  []
+      reading   [${long}]
+8 cases: 8 failed
 LINES
   [[ -z "${stderr}" ]]
 }
@@ -178,6 +285,8 @@ test_panic.py::test_passes passed
 test_panic.py::test_panics internal error: assertion: PURBA_FAULT=assert
 test_panic.py::test_fails failed
     assert 1 == 2
+      expected  2
+      reading   1
 test_panic.py::test_raises raised: KeyError: 'k'
 4 cases: 1 passed, 1 failed, 1 raised, 1 blocked; 1 internal error
 LINES

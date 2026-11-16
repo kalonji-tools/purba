@@ -1,4 +1,4 @@
-use purba_execution::{Error, ErrorKind, Kind, Tally};
+use purba_execution::{Error, ErrorKind, Kind, Quote, Tally};
 
 /// The internal error that `catch` gives for a panic, which names `part`.
 fn internal(part: &str) -> Error {
@@ -9,7 +9,10 @@ fn internal(part: &str) -> Error {
 #[test]
 fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
     let failed = Kind::Failed {
-        asserts: vec!["assert 1 == 2".to_owned()],
+        asserts: vec![Quote {
+            assert: "assert 1 == 2".to_owned(),
+            shown: None,
+        }],
     };
     let raised = Kind::Raised {
         exception: "ValueError: boom".to_owned(),

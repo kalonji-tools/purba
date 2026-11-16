@@ -176,3 +176,76 @@ proptest! {
         }
     }
 }
+
+/// Each operator of one comparison.
+const OPERATORS: [&str; 10] = [
+    "==", "!=", "<", "<=", ">", ">=", "in", "not in", "is", "is not",
+];
+
+/// A module whose one test ends with an expectation that compares two
+/// conditions by one operator. A test that is not async cannot `await`, so a
+/// call takes the place of each `await`.
+fn compared() -> impl Strategy<Value = String> {
+    (
+        condition(),
+        prop::sample::select(&OPERATORS[..]),
+        condition(),
+    )
+        .prop_map(|(left, op, right)| {
+            format!("def test_case():\n    assert ({left}) {op} ({right})\n")
+                .replace("(await ", "(id ")
+        })
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig {
+        cases: 4096,
+        rng_seed: RngSeed::Fixed(1024),
+        failure_persistence: None,
+        ..ProptestConfig::default()
+    })]
+
+    #[test]
+    fn the_rewrite_hands_each_side_of_a_comparison_as_it_was_written(text in compared()) {
+        let original = parse(&text, "the module")?;
+        let [assert] = &*asserts(&original) else {
+            return Err(TestCaseError::fail("the module holds one assert"));
+        };
+        let Expr::Compare(compare) = &*assert.test else {
+            return Err(TestCaseError::fail("the assert compares"));
+        };
+        let [left, right] = &*compare.operands else {
+            return Err(TestCaseError::fail("the comparison has two sides"));
+        };
+        let left = &original.source()[left.range()];
+        let right = &original.source()[right.range()];
+
+        let rewrite = purba_assertion::rewrite(&original, &["test_case"]);
+        let rewritten = parse(rewrite.text(), "the rewrite")?;
+        prop_assert_eq!(
+            rewritten.source().lines().count(),
+            original.source().lines().count(),
+            "the rewrite keeps each line"
+        );
+        let Some(Stmt::FunctionDef(test)) = rewritten.syntax().body.first() else {
+            return Err(TestCaseError::fail("the rewrite holds the test"));
+        };
+        let Some(Stmt::Expr(statement)) = test.body.last() else {
+            return Err(TestCaseError::fail("the expectation is an expression"));
+        };
+        let Expr::BoolOp(both) = &*statement.value else {
+            return Err(TestCaseError::fail("the expectation asks the hook whether it reads"));
+        };
+        let Some(Expr::Call(call)) = both.values.last() else {
+            return Err(TestCaseError::fail("the expectation calls the hook"));
+        };
+        let text = |node: &dyn Ranged| &rewritten.source()[node.range()];
+        prop_assert_eq!(text(&*call.func), "_purba_read", "the hook reads");
+        let [index, first, second] = &*call.arguments.args else {
+            return Err(TestCaseError::fail("the hook takes its index and two sides"));
+        };
+        prop_assert_eq!(text(index), "0", "the index of the one expectation");
+        prop_assert_eq!(text(first), left, "the left side, as written");
+        prop_assert_eq!(text(second), right, "the right side, as written");
+    }
+}

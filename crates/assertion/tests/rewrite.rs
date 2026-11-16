@@ -200,8 +200,8 @@ fn the_asserts_at_the_end_of_a_test_are_its_expectations() {
             "def test_one():\n",
             "    assert _purba_ran(1, 1 == 1); _purba_step(5)\n",
             "    total = 2; _purba_step(6)\n",
-            "    _purba_reads(0) and _purba_read(0, total == 2)\n",
-            "    _purba_reads(1) and _purba_read(1, total > 1)\n",
+            "    _purba_reads(0) and _purba_read(0, (total), (2))\n",
+            "    _purba_reads(1) and _purba_read(1, (total), (1))\n",
         ),
         "an assert of a function that is no test, and one before another statement, keep a mark"
     );
@@ -236,7 +236,7 @@ fn an_expectation_keeps_the_number_of_each_later_line() {
         concat!(
             "def test_one():\n",
             "    total = 2; _purba_step(2); _purba_reads(0) and _purba_read(0, \n",
-            "total == 2\n",
+            "(total), (2)\n",
             ")\n",
             "    _purba_reads(1) and _purba_read(1, total)\n",
         ),
@@ -273,10 +273,10 @@ fn the_assert_of_each_named_test_of_test_a_is_its_expectation() {
         rewritten.text(),
         concat!(
             "def test_one():\n",
-            "    _purba_reads(0) and _purba_read(0, 1 == 1)\n",
+            "    _purba_reads(0) and _purba_read(0, (1), (1))\n",
             "\n",
             "def test_two():\n",
-            "    _purba_reads(1) and _purba_read(1, 1 == 2)\n",
+            "    _purba_reads(1) and _purba_read(1, (1), (2))\n",
             "\n",
             "def test_three():\n",
             "    pass; _purba_step(8)\n",
@@ -320,7 +320,7 @@ fn a_step_follows_each_statement_of_a_test_before_its_first_expectation() {
             "    total = inner(); _purba_step(5)\n",
             "    if total:\n",
             "        total = 2; _purba_step(7); print(total); _purba_step(7)\n",
-            "    _purba_reads(0) and _purba_read(0, total == 2)\n",
+            "    _purba_reads(0) and _purba_read(0, (total), (2))\n",
             "\n",
             "def helper():\n",
             "    total = 1\n",
@@ -350,7 +350,7 @@ fn an_assert_at_the_end_of_the_body_of_a_with_is_an_expectation_and_each_with_is
             "def test_one():\n",
             "    with _purba_with(2, open(\"f\")) as handle, _purba_with(2, lock):\n",
             "        total = 1; _purba_step(3)\n",
-            "        _purba_reads(0) and _purba_read(0, total == 1)\n",
+            "        _purba_reads(0) and _purba_read(0, (total), (1))\n",
             "    _purba_reads(1) and _purba_read(1, handle.closed)\n",
         ),
         "each item of the with names its line, and the asserts at the end of its body and \
@@ -360,5 +360,37 @@ fn an_assert_at_the_end_of_the_body_of_a_with_is_an_expectation_and_each_with_is
         rewritten.expectations("test_one"),
         ["assert total == 1", "assert handle.closed"],
         "the expectation inside the with comes first"
+    );
+}
+
+#[test]
+fn a_comparison_hands_each_side_in_parentheses_and_keeps_each_line() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    got = 1\n",
+            "    assert (\n",
+            "        got  # the reading\n",
+            "    ) in (\n",
+            "        1, 2)\n",
+            "    assert not got\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    got = 1; _purba_step(2)\n",
+            "    _purba_reads(0) and _purba_read(0, \n",
+            "(got)\n",
+            ", ((\n",
+            "        1, 2)))\n",
+            "    _purba_reads(1) and _purba_read(1, not got)\n",
+        ),
+        "each side of one comparison goes to the hook in parentheses, without the operator, \
+         and the line breaks between them stay; any other expectation hands its condition"
     );
 }

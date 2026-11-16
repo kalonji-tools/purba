@@ -3,7 +3,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Error, ErrorKind, Kind, Rewrite};
+use purba_execution::{Error, ErrorKind, Kind, Quote, Rewrite, Shown};
 
 #[derive(Clone)]
 struct Named(&'static str);
@@ -104,7 +104,13 @@ fn each_outcome_stands_beside_its_test() {
             test(
                 "test_two",
                 Ok(Kind::Failed {
-                    asserts: vec!["assert 1 == 2".to_owned()]
+                    asserts: vec![Quote {
+                        assert: "assert 1 == 2".to_owned(),
+                        shown: Some(Shown {
+                            expected: "2".to_owned(),
+                            reading: "1".to_owned(),
+                        }),
+                    }]
                 })
             ),
             test("test_three", Err("no expectation stated")),
@@ -372,4 +378,52 @@ fn tests_in(source: &str) -> Vec<&str> {
         .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
         .filter_map(|line| line.split_once('(').map(|(name, _)| name))
         .collect()
+}
+
+#[test]
+fn what_a_failed_expectation_shows_crosses_the_fork_whole() {
+    let test_shown = module(
+        "test_shown.py",
+        "import contextlib\n\n\
+         class Nul:\n    def __repr__(self):\n        return 'a\\x00b'\n\n\
+         @contextlib.contextmanager\ndef leaks():\n    yield\n\
+         \x20   assert False, 'a handle leaked'\n\n\
+         def test_nul():\n    got = Nul()\n    assert got == ''\n    assert got == 'x'\n\n\
+         def test_cleanup():\n    with leaks():\n        got = 1\n    assert got == 1\n",
+        &["test_nul", "test_cleanup"],
+    );
+    let shown = |assert: &str, expected: &str| Quote {
+        assert: assert.to_owned(),
+        shown: Some(Shown {
+            expected: expected.to_owned(),
+            reading: "a\0b".to_owned(),
+        }),
+    };
+    assert_eq!(
+        seen(test_shown),
+        [
+            test(
+                "test_nul",
+                Ok(Kind::Failed {
+                    asserts: vec![
+                        shown("assert got == ''", "''"),
+                        shown("assert got == 'x'", "'x'"),
+                    ]
+                })
+            ),
+            test(
+                "test_cleanup",
+                Ok(Kind::Failed {
+                    asserts: vec![Quote {
+                        assert: "the cleanup of the with at line 18 raised AssertionError: \
+                                 a handle leaked"
+                            .to_owned(),
+                        shown: None,
+                    }]
+                })
+            ),
+        ],
+        "a reading that holds a NUL, each of two failed expectations, and a quote with no \
+         reading reach dispatch as the test's process made them",
+    );
 }

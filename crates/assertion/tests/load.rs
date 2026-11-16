@@ -1,4 +1,4 @@
-use purba_assertion::{Readers, Readings, Rewrite, Verdict, Watched};
+use purba_assertion::{Readers, Readings, Rewrite, Shown, Verdict, Watched};
 use pyo3::Python;
 use pyo3::exceptions::{PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
@@ -597,6 +597,13 @@ fn the_first_expectation_reads_each_later_one_alone_before_it_reads_in_order() {
             readings,
             Readings {
                 in_order: vec![(0, true), (1, true), (2, false)],
+                shown: vec![(
+                    2,
+                    Shown {
+                        expected: "[2]".to_owned(),
+                        reading: "[1]".to_owned(),
+                    },
+                )],
                 alone: vec![(1, Verdict::Fails), (2, Verdict::Fails)],
                 refused: None,
                 replay: Vec::new(),
@@ -719,6 +726,125 @@ fn a_test_that_rebinds_the_expectation_hook_gives_the_name_error_and_the_hook_is
             loaded.watch(&NO_READER, || after.call0()).readings.in_order,
             [(0, true)],
             "the next test reads through the hook that is back"
+        );
+    });
+}
+
+/// What a test of `SHOWS` gave: how its call ended, each verdict in order, and
+/// the expected value and the reading of each expectation that did not hold.
+type Seen = (String, Vec<(usize, bool)>, Vec<(String, String)>);
+
+const SHOWS: &str = "class One:\n    def __repr__(self):\n        return '1'\n\n\
+    class NoRepr:\n    def __repr__(self):\n        raise ValueError('no repr')\n\n\
+    class Always:\n    def __eq__(self, other):\n        return [1]\n\n\
+    def test_eq():\n    got = [-3]\n    assert got == []\n\n\
+    def test_ne():\n    got = []\n    assert got != []\n\n\
+    def test_left():\n    got = 3\n    assert 2 > got\n\n\
+    def test_contains():\n    got = 'ab'\n    assert 'z' in got\n\n\
+    def test_not_contains():\n    got = 'ab'\n    assert 'a' not in got\n\n\
+    def test_member():\n    got = 2\n    assert got in (0, 1)\n\n\
+    def test_is():\n    got = [-1]\n    assert got is None\n\n\
+    def test_same_text():\n    got = One()\n    assert got == 1\n\n\
+    def test_no_repr():\n    got = NoRepr()\n    assert got == 1\n\n\
+    def test_both_literal():\n    assert 1 + 1 == 3\n\n\
+    def test_holds():\n    got = Always()\n    assert got == 2\n\n\
+    def test_raises():\n    got = 'a'\n    assert got < 2\n\n\
+    def test_lt():\n    got = 3\n    assert got < 2\n\n\
+    def test_le():\n    got = 3\n    assert got <= 2\n\n\
+    def test_gt():\n    got = 1\n    assert got > 2\n\n\
+    def test_ge():\n    got = 1\n    assert got >= 2\n\n\
+    def test_left_lt():\n    got = 1\n    assert 2 < got\n\n\
+    def test_left_le():\n    got = 1\n    assert 2 <= got\n\n\
+    def test_left_ge():\n    got = 3\n    assert 2 >= got\n\n\
+    def test_not_member():\n    got = 0\n    assert got not in (0, 1)\n\n\
+    def test_is_not():\n    got = None\n    assert got is not None\n";
+
+#[test]
+fn a_failed_expectation_shows_its_expected_value_and_its_reading() {
+    let tests = [
+        "test_eq",
+        "test_ne",
+        "test_left",
+        "test_contains",
+        "test_not_contains",
+        "test_member",
+        "test_is",
+        "test_same_text",
+        "test_no_repr",
+        "test_both_literal",
+        "test_holds",
+        "test_raises",
+        "test_lt",
+        "test_le",
+        "test_gt",
+        "test_ge",
+        "test_left_lt",
+        "test_left_le",
+        "test_left_ge",
+        "test_not_member",
+        "test_is_not",
+    ];
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(SHOWS, &tests).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_shows.py"), &rewrite)
+            .expect("the module loads");
+        let seen: Vec<Seen> = tests
+            .iter()
+            .map(|name| {
+                let test = loaded.module().getattr(*name).unwrap();
+                let Watched {
+                    result, readings, ..
+                } = loaded.watch(&NO_READER, || test.call0());
+                let result = result.map_or_else(|err| err.to_string(), |_| "returned".to_owned());
+                let shown = readings
+                    .shown
+                    .into_iter()
+                    .map(|(_, shown)| (shown.expected, shown.reading))
+                    .collect();
+                (result, readings.in_order, shown)
+            })
+            .collect();
+        let failed = |index: usize, expected: &str, reading: &str| {
+            (
+                "returned".to_owned(),
+                vec![(index, false)],
+                vec![(expected.to_owned(), reading.to_owned())],
+            )
+        };
+        assert_eq!(
+            seen,
+            [
+                failed(0, "[]", "[-3]"),
+                failed(1, "!= [] (list)", "[] (list)"),
+                failed(2, "< 2", "3"),
+                failed(3, "to contain 'z'", "'ab'"),
+                failed(4, "not to contain 'a'", "'ab'"),
+                failed(5, "in (0, 1)", "2"),
+                failed(6, "is None", "[-1]"),
+                failed(7, "1 (int)", "1 (One)"),
+                failed(8, "1", "(repr raised ValueError: no repr)"),
+                failed(9, "3", "2"),
+                ("returned".to_owned(), vec![(10, true)], Vec::new()),
+                (
+                    "TypeError: '<' not supported between instances of 'str' and 'int'".to_owned(),
+                    Vec::new(),
+                    Vec::new()
+                ),
+                failed(12, "< 2", "3"),
+                failed(13, "<= 2", "3"),
+                failed(14, "> 2", "1"),
+                failed(15, ">= 2", "1"),
+                failed(16, "> 2", "1"),
+                failed(17, ">= 2", "1"),
+                failed(18, "<= 2", "3"),
+                failed(19, "not in (0, 1)", "0"),
+                failed(20, "is not None (NoneType)", "None (NoneType)"),
+            ],
+            "the expected value is the literal side, or the right side when both are \
+             literals; its line names the rule of any operator but ==; a type shows only \
+             when the two texts are the same; Python's own operator decides, and its raise \
+             stays the test's"
         );
     });
 }
