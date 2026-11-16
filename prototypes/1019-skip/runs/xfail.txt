@@ -1,0 +1,24 @@
+xXxFF                                                                    [100%]
+=================================== FAILURES ===================================
+____________________________ test_strict_now_fixed _____________________________
+[XPASS(strict)] bug 12
+__________________________ test_strict_wrong_failure ___________________________
+
+    @pytest.mark.xfail(reason="bug 12", strict=True, raises=TypeError)
+    def test_strict_wrong_failure():
+>       raise KeyError("other")
+E       KeyError: 'other'
+
+test_xf.py:26: KeyError
+=================================== XPASSES ====================================
+=========================== short test summary info ============================
+XFAIL test_xf.py::test_lax_still_broken - bug 12
+XFAIL test_xf.py::test_strict_still_broken - bug 12
+XPASS test_xf.py::test_lax_now_fixed - bug 12
+FAILED test_xf.py::test_strict_now_fixed - [XPASS(strict)] bug 12
+FAILED test_xf.py::test_strict_wrong_failure - KeyError: 'other'
+2 failed, 2 xfailed, 1 xpassed in 0.01s
+test_lax_still_broken exit=0
+test_lax_now_fixed exit=0
+test_strict_still_broken exit=0
+test_strict_now_fixed exit=1

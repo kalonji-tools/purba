@@ -1,0 +1,115 @@
+tests: {'module-level def': 1899, 'class method': 2505}
+
+## kind
+  127  module-level def / decorator direct | skip if
+   21  class method / decorator direct | skip if
+   17  class method / decorator direct | xfail (not strict)
+   15  module-level def / body | body skip
+   11  class method / decorator direct | skip (always)
+    7  module-level def / body | body importorskip
+    7  module-level def / decorator module alias | skip if
+    6  class method / body | body skipTest
+    5  module-level def / decorator direct | xfail (not strict)
+    3  module | pytestmark
+    1  class method / decorator module alias | skip if
+    1  module | module importorskip
+
+## kind x condition
+   82  module-level def / decorator direct | skip if | platform
+   34  module-level def / decorator direct | skip if | python version
+   18  class method / decorator direct | skip if | python version
+   16  class method / decorator direct | xfail (not strict) | none
+   11  class method / decorator direct | skip (always) | none
+    8  module-level def / decorator direct | skip if | optional dependency
+    7  module-level def / decorator module alias | skip if | platform
+    6  module-level def / body | body skip | other
+    5  class method / body | body skipTest | unconditional
+    5  module-level def / body | body importorskip | unconditional
+    4  module-level def / body | body skip | optional dependency
+    3  module-level def / body | body skip | platform
+    3  module-level def / decorator direct | xfail (not strict) | none
+    2  class method / decorator direct | skip if | platform
+    2  module | pytestmark | other
+    2  module-level def / body | body importorskip | other
+    2  module-level def / decorator direct | skip if | interpreter
+    1  class method / body | body skipTest | other
+    1  class method / decorator direct | skip if | optional dependency
+    1  class method / decorator direct | xfail (not strict) | platform
+    1  class method / decorator module alias | skip if | optional dependency
+    1  module | module importorskip | none
+    1  module | pytestmark | optional dependency
+    1  module-level def / body | body skip | python version
+    1  module-level def / body | body skip | unconditional
+    1  module-level def / decorator direct | skip if | other
+    1  module-level def / decorator direct | xfail (not strict) | other
+    1  module-level def / decorator direct | xfail (not strict) | python version
+
+## reason
+  124  module-level def / decorator direct | skip if | literal
+   21  class method / decorator direct | skip if | literal
+   16  class method / decorator direct | xfail (not strict) | none
+   14  module-level def / body | body skip | literal
+   11  class method / decorator direct | skip (always) | literal
+    7  module-level def / body | body importorskip | implied (module name)
+    7  module-level def / decorator module alias | skip if | literal
+    6  class method / body | body skipTest | literal
+    4  module-level def / decorator direct | xfail (not strict) | literal
+    3  module | pytestmark | n/a
+    3  module-level def / decorator direct | skip if | none
+    1  class method / decorator direct | xfail (not strict) | literal
+    1  class method / decorator module alias | skip if | literal
+    1  module | module importorskip | implied (module name)
+    1  module-level def / body | body skip | computed
+    1  module-level def / decorator direct | xfail (not strict) | none
+
+## project
+   84  loguru | module-level def / decorator direct
+   29  click | module-level def / decorator direct
+   23  pyflakes | class method / decorator direct
+   18  dateutil | class method / decorator direct
+   10  dateutil | module-level def / body
+    8  dateutil | module-level def / decorator direct
+    7  click | module-level def / decorator module alias
+    6  loguru | module-level def / body
+    6  six | module-level def / body
+    5  attrs | class method / decorator direct
+    5  schedule | class method / body
+    4  requests | module-level def / decorator direct
+    3  attrs | module
+    3  attrs | module-level def / decorator direct
+    3  requests | class method / decorator direct
+    3  six | module-level def / decorator direct
+    1  dateutil | class method / decorator module alias
+    1  dateutil | module
+    1  pyflakes | class method / body
+    1  toolz | module-level def / decorator direct
+
+## examples
+class method / body | body skipTest | other -> pyflakes/pyflakes/test/test_api.py:511
+class method / body | body skipTest | unconditional -> schedule/test_schedule.py:514, schedule/test_schedule.py:522
+class method / decorator direct | skip (always) | none -> dateutil/tests/test_tz.py:438, dateutil/tests/test_tz.py:2488
+class method / decorator direct | skip if | optional dependency -> requests/tests/test_requests.py:1034
+class method / decorator direct | skip if | platform -> dateutil/tests/test_tz.py:2166, pyflakes/pyflakes/test/test_api.py:505
+class method / decorator direct | skip if | python version -> attrs/tests/test_annotations.py:100, attrs/tests/test_annotations.py:394
+class method / decorator direct | xfail (not strict) | none -> attrs/tests/test_setattr.py:504, dateutil/tests/test_parser.py:777
+class method / decorator direct | xfail (not strict) | platform -> dateutil/tests/test_tz.py:1086
+class method / decorator module alias | skip if | optional dependency -> dateutil/tests/test_tz.py:2493
+module | module importorskip | none -> attrs/tests/test_3rd_party.py:14
+module | pytestmark | optional dependency -> attrs/tests/test_pyright.py:14
+module | pytestmark | other -> attrs/bench/test_benchmarks.py:15, dateutil/tests/test_tzpath_data.py:21
+module-level def / body | body importorskip | other -> dateutil/tests/test_tzfile.py:2298, dateutil/tests/test_tzfile.py:2318
+module-level def / body | body importorskip | unconditional -> dateutil/tests/test_tzfile.py:1960, dateutil/tests/test_tzfile.py:2414
+module-level def / body | body skip | optional dependency -> dateutil/tests/test_tz.py:1123, dateutil/tests/test_tzfile.py:1992
+module-level def / body | body skip | other -> loguru/tests/test_add_option_kwargs.py:29, loguru/tests/test_add_option_kwargs.py:32
+module-level def / body | body skip | platform -> loguru/tests/test_exceptions_formatting.py:241, loguru/tests/test_exceptions_formatting.py:274
+module-level def / body | body skip | python version -> loguru/tests/test_exceptions_formatting.py:271
+module-level def / body | body skip | unconditional -> six/test_six.py:720
+module-level def / decorator direct | skip if | interpreter -> attrs/tests/test_slots.py:502, attrs/tests/test_slots.py:520
+module-level def / decorator direct | skip if | optional dependency -> click/tests/test_termui.py:1203, click/tests/test_termui.py:1236
+module-level def / decorator direct | skip if | other -> requests/tests/test_requests.py:3078
+module-level def / decorator direct | skip if | platform -> click/tests/test_termui.py:306, click/tests/test_termui.py:390
+module-level def / decorator direct | skip if | python version -> loguru/tests/test_coroutine_sink.py:90, loguru/tests/test_coroutine_sink.py:121
+module-level def / decorator direct | xfail (not strict) | none -> click/tests/test_chain.py:222, dateutil/tests/test_isoparser.py:303
+module-level def / decorator direct | xfail (not strict) | other -> attrs/tests/test_slots.py:791
+module-level def / decorator direct | xfail (not strict) | python version -> loguru/tests/test_contextualize.py:68
+module-level def / decorator module alias | skip if | platform -> click/tests/test_testing.py:766, click/tests/test_testing.py:783

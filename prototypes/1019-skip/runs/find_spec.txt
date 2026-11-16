@@ -1,0 +1,6 @@
+json               find_spec is None -> False
+no_such_mod        find_spec is None -> True
+brokenmod          find_spec is None -> False
+no_such_pkg.sub    find_spec RAISES ModuleNotFoundError: No module named 'no_such_pkg'
+importorskip('no_such_mod') -> Skipped: could not import 'no_such_mod': No module named 'no_such_mod'
+importorskip('brokenmod') -> ImportError: broken install

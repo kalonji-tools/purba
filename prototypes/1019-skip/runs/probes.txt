@@ -1,0 +1,39 @@
+===== test_00_control.py
+test_00_control.py::test_control passed
+1 case: 1 passed
+===== test_01_decorator_skipif.py
+test_01_decorator_skipif.py::test_decorator_skipif project error: the decorator pytest.mark.skipif is not purba's, and purba cannot see what it does
+1 case: 1 blocked; 1 project error
+exit=4
+===== test_02_body_skip.py
+test_02_body_skip.py::test_body_skip raised: Skipped: not here
+1 case: 1 raised
+exit=4
+===== test_03_body_if_skip_not_taken.py
+test_03_body_if_skip_not_taken.py::test_body_if_skip_not_taken project error: line 6 went one way only, and the lines before the first expectation take one path; line 7 did not run, and the lines before the first expectation take one path
+1 case: 1 blocked; 1 project error
+exit=4
+===== test_04_body_if_skip_taken.py
+test_04_body_if_skip_taken.py::test_body_if_skip_taken raised: Skipped: not on linux
+1 case: 1 raised
+exit=4
+===== test_05_raise_skiptest.py
+test_05_raise_skiptest.py::test_raise_skiptest raised: SkipTest: not here
+1 case: 1 raised
+exit=4
+===== test_06_importorskip.py
+test_06_importorskip.py::test_importorskip raised: Skipped: could not import 'no_such_module_xyz': No module named 'no_such_module_xyz'
+1 case: 1 raised
+exit=4
+===== test_07_decorator_xfail.py
+test_07_decorator_xfail.py::test_decorator_xfail project error: the decorator pytest.mark.xfail is not purba's, and purba cannot see what it does
+1 case: 1 blocked; 1 project error
+exit=4
+===== test_08_pytestmark.py
+test_08_pytestmark.py::test_under_pytestmark passed
+1 case: 1 passed
+===== test_09_module_skip.py
+test_09_module_skip.py project error: Skipped: module off
+test_09_module_skip.py::test_module_skip blocked: test_09_module_skip.py did not load
+1 case: 1 blocked; 1 project error
+exit=4
