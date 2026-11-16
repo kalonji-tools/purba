@@ -271,6 +271,7 @@ LINES
   printf '%s\n' \
     'import os' '' '' \
     'def test_passes():' '    assert 1 == 1' '' '' \
+    '# purba: suppress[patched-name] the test sets the switch that makes purba panic' \
     'def test_panics():' \
     '    os.environ["PURBA_FAULT"] = "assert"' \
     '    try:' '        assert 1 == 1' \
@@ -281,15 +282,19 @@ LINES
   local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
   run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_panic.py
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+  local argument='and a stand-in enters a test as an argument'
+  local switch='patches os.environ["PURBA_FAULT"]'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
 test_panic.py::test_passes passed
 test_panic.py::test_panics internal error: assertion: PURBA_FAULT=assert
+    ⚠ suppressed [patched-name] line 10 ${switch}, ${argument}; line 14 ${switch}, ${argument}
+      reason: the test sets the switch that makes purba panic
 test_panic.py::test_fails failed
     assert 1 == 2
       expected  2
       reading   1
 test_panic.py::test_raises raised: KeyError: 'k'
-4 cases: 1 passed, 1 failed, 1 raised, 1 blocked; 1 internal error
+4 cases: 1 passed, 1 failed, 1 raised, 1 blocked; 1 internal error; 1 suppressed
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")

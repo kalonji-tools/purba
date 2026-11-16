@@ -479,6 +479,8 @@ LINES
 @test "a test's signal handler lives only for its call, though the test patches signal.signal" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' 'from unittest import mock' \
+    '# purba: suppress[patched-name] the handler must outlive a patch of signal.signal' \
+    '# purba: suppress[mock-without-spec] each mock only blocks the call it replaces' \
     'def test_one():' '    signal.signal(signal.SIGINT, lambda signum, frame: None)' \
     '    mock.patch("signal.signal").start()' '    mock.patch("_signal.signal").start()' \
     '    mock.patch("_signal.getsignal").start()' '    assert 1 == 1' \
@@ -487,10 +489,17 @@ LINES
 
   run -0 --separate-stderr interrupt test_patched.py 0
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+  local argument='and a stand-in enters a test as an argument'
+  local spec='makes a mock with no spec, and a mock has the spec of what it stands for'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
 test_patched.py::test_one passed
+    ⚠ suppressed [patched-name] line 8 patches signal.signal, ${argument}; \
+line 9 patches _signal.signal, ${argument}; line 10 patches _signal.getsignal, ${argument}
+      reason: the handler must outlive a patch of signal.signal
+    ⚠ suppressed [mock-without-spec] line 8 ${spec}; line 9 ${spec}; line 10 ${spec}
+      reason: each mock only blocks the call it replaces
 test_patched.py::test_two interrupted
-3 cases: 1 passed, 1 interrupted, 1 unreached
+3 cases: 1 passed, 1 interrupted, 1 unreached; 2 suppressed
 LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
   [[ ! -e three ]]

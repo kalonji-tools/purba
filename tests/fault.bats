@@ -252,9 +252,12 @@ LINES
   local fault_purba="${FAULT_PURBA:?set by mise run test:wheel and the wheel job}"
   run -125 --separate-stderr env PURBA_FAULT=assert "${fault_purba}" test_changes_abiflags.py
 
-  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+  local argument='and a stand-in enters a test as an argument'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
 test_changes_abiflags.py::test_one internal error: assertion: PURBA_FAULT=assert
-1 case: 1 blocked; 1 internal error
+    ⚠ suppressed [patched-name] line 6 patches sys.abiflags, ${argument}
+      reason: the report must ignore a sys.abiflags that a test changed
+1 case: 1 blocked; 1 internal error; 1 suppressed
 LINES
   local expected last
   expected=$(report_lines "${fault_purba}")

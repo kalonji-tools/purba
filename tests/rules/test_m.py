@@ -30,6 +30,7 @@ def test_assert():
     assert total == 2
 
 
+# purba: suppress[patched-name] execution must still refuse a hook that the test replaced
 def test_hook():
     threading.excepthook = print
     assert 1 == 1
