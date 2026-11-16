@@ -33,7 +33,7 @@ The hook keeps no traceback, so no new Python object crosses the seam.
 
 - **An expectation that did not hold fails the case after the test returns.** purba reads each later expectation too, and quotes each one that did not hold.
 - **The message of an expectation never runs.** The line quotes it, as part of the text of the assert.
-- **A marked assert runs only in the cleanup of a `with`, or in a reading.** Execution refuses one that runs before the first expectation outside such a cleanup, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
+- **A marked assert runs only in the cleanup of a `with`.** Execution refuses one that runs before the first expectation outside such a cleanup, and one inside a reading, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
 - **A raise from the entry or the cleanup of a `with` of the test fails the case when it ends the call.** Its line reads `the cleanup of the with at line 46 raised`, then the exception and its message. When the test catches the raise, the expectations decide the case.
 - **A marked assert that holds never replaces a marked assert that did not hold.** A cleanup assert runs after the assert that found the failure, and the failed line names the assert that found it. A case fails when a marked assert that ran did not hold, and the test raised `AssertionError`. An `AssertionError` gives `raised` when no marked assert ran, or when each one that ran held.
 - **Parsing hands assertion the range of each comment and each line continuation.** Parsing is the one caller of ruff's parser. Assertion leaves those ranges out of the text of each assert. Reporting joins the text that remains.
@@ -50,12 +50,13 @@ test_shapes.py::test_comment failed
 
 **Downside:**
 
-- **A reading can catch the `AssertionError` of a marked assert that did not hold, then raise one with no assert.** Its case fails on the caught assert. It fails on the caught assert even when an assert after it held. The hook records which assert did not hold, and not which error the reading raised.
+- **Execution refuses a case when a helper asserts inside a reading.** It refuses the case even when the assert holds. A tester guards the input of such a helper with a raise.
 
 ## Confirmation
 
 `mise run test:rust` checks that an expectation inside a `with` whose cleanup asserts fails the case on itself.
 It checks that execution refuses an assert in a `try` before the first expectation.
+It checks that execution refuses an assert inside a reading, whether that assert holds or not.
 It checks that a `with` whose cleanup raises fails the case, and that its line names the `with`.
 It checks that the text of an assert leaves out its comment and its line continuation, and keeps a `#` inside a string.
 It checks that the message of an expectation never runs.
@@ -63,6 +64,5 @@ It checks that the message of an expectation never runs.
 `mise run test:wheel` checks that the line of an expectation that fails inside a `with` whose cleanup asserts reads `failed`, and that the run exits 1.
 It checks that a test whose two expectations fail prints both under its line.
 It checks that a `with` whose entry or cleanup raised prints its line.
-No command checks the Downside.
 
 [Which assert does a failed line name, and in what text, when the assert that failed is not the last to run, or holds a comment?](https://github.com/kalonji-tools/purba/issues/848) weighed the options.
