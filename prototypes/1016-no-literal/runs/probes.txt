@@ -1,0 +1,114 @@
+### all_bare.py
+all_bare.py::test_all project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+1 case: 1 blocked; 1 project error
+exit 4
+
+### all_true.py
+all_true.py::test_all failed
+    assert all(x > 0 for x in xs) == True
+1 case: 1 failed
+exit 1
+
+### filt.py
+filt.py::test_eq failed
+    assert [x for x in xs if x <= 0] == []
+1 case: 1 failed
+exit 1
+
+### idem.py
+idem.py::test_idem project error: line 3 computes sorted(xs), and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
+
+### iter_any_order.py
+iter_any_order.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_consumed_twice.py
+iter_consumed_twice.py::test_x project error: assert list(it) == [1, 2] holds when read alone, and not after the expectations before it
+1 case: 1 blocked; 1 project error
+exit 4
+
+### iter_contains.py
+iter_contains.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_every_index.py
+iter_every_index.py::test_x failed
+    assert [(i, x) for i, x in enumerate(xs) if x <= 0] == []
+1 case: 1 failed
+exit 1
+
+### iter_first_n.py
+iter_first_n.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_gen_raises.py
+iter_gen_raises.py::test_x raised: ValueError: boom
+1 case: 1 raised
+exit 4
+
+### iter_length.py
+iter_length.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_multiset_dict_literal.py
+iter_multiset_dict_literal.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_multiset_unorderable.py
+iter_multiset_unorderable.py::test_x project error: line 4 computes Counter(["{\"b\": 2}", "{\"a\": 1}"]), and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
+
+### iter_seq_exact.py
+iter_seq_exact.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_some_item.py
+iter_some_item.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### iter_subset.py
+iter_subset.py::test_x passed
+1 case: 1 passed
+exit 0
+
+### listcmp.py
+listcmp.py::test_list failed
+    assert [x > 0 for x in xs] == [True, True, True]
+1 case: 1 failed
+exit 1
+
+### loop_end.py
+loop_end.py::test_loop project error: line 4 asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+exit 4
+
+### plain.py
+plain.py::test_eq failed
+    assert sorted([3, 1]) == [1, 2]
+1 case: 1 failed
+exit 1
+
+### rt_input.py
+rt_input.py::test_rt project error: line 3 computes obj, and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
+
+### rt_literal.py
+rt_literal.py::test_rt passed
+1 case: 1 passed
+exit 0
+
+### rt_local.py
+rt_local.py::test_rt project error: line 4 computes obj, and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
