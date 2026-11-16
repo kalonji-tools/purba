@@ -19,7 +19,7 @@ test_a.py::test_two failed
     assert 1 == 2
       expected  2
       reading   1
-test_a.py::test_three project error: no expectation stated
+test_a.py::test_three project error: [no-expectation] no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
@@ -77,7 +77,7 @@ test_a.py::test_two failed
     assert 1 == 2
       expected  2
       reading   1
-test_a.py::test_three project error: no expectation stated
+test_a.py::test_three project error: [no-expectation] no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -110,7 +110,7 @@ LINES
 
   local one='and an expectation compares a reading by one operator'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_tup.py::test_tuple project error: line 3 is not one comparison, ${one}
+test_tup.py::test_tuple project error: [not-one-comparison] line 3 is not one comparison, ${one}
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -141,9 +141,11 @@ LINES
 
   run -4 --separate-stderr purba test_rules.py
 
-  local private='line 5 reads the private name _checkClosed, and a test reads no private name'
-  local one='line 6 is not one comparison, and an expectation compares a reading by one operator'
-  local literal='line 7 computes N, and an expected value is a literal'
+  local private='[private-name] line 5 reads the private name _checkClosed'
+  private+=', and a test reads no private name'
+  local one='[not-one-comparison] line 6 is not one comparison'
+  one+=', and an expectation compares a reading by one operator'
+  local literal='[computed-expected] line 7 computes N, and an expected value is a literal'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_rules.py::test_x project error: ${private}; ${one}; ${literal}
 test_rules.py::test_y passed
@@ -161,7 +163,7 @@ LINES
 
   local asserts='asserts before the first expectation, and only an expectation asserts'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_empty.py::test_empty project error: line 2 ${asserts}
+test_empty.py::test_empty project error: [assert-before-expectation] line 2 ${asserts}
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -195,9 +197,10 @@ LINES
   run -4 --separate-stderr purba test_nested.py
 
   local unseen='and purba cannot see whether import binds it'
+  local under='[def-under-block] the def sits under'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_nested.py::test_inside_if project error: the def sits under \`if\`, ${unseen}
-test_nested.py::test_inside_try project error: the def sits under \`try\`, ${unseen}
+test_nested.py::test_inside_if project error: ${under} \`if\`, ${unseen}
+test_nested.py::test_inside_try project error: ${under} \`try\`, ${unseen}
 test_nested.py::test_top passed
 3 cases: 1 passed, 2 blocked; 2 project errors
 LINES
@@ -243,9 +246,9 @@ LINES
 
   local unseen='with no def, and purba cannot see what the name holds'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_nodef.py::test_rebound project error: line 7 binds test_rebound ${unseen}
-test_nodef.py::test_alias project error: line 8 binds test_alias ${unseen}
-test_nodef.py::test_join project error: line 9 binds test_join ${unseen}
+test_nodef.py::test_rebound project error: [name-without-def] line 7 binds test_rebound ${unseen}
+test_nodef.py::test_alias project error: [name-without-def] line 8 binds test_alias ${unseen}
+test_nodef.py::test_join project error: [name-without-def] line 9 binds test_join ${unseen}
 test_nodef.py::test_real passed
 4 cases: 1 passed, 3 blocked; 3 project errors
 LINES

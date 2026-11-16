@@ -48,7 +48,7 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
     let mut seen = Vec::new();
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |handed| {
         seen.push(match handed {
-            Handed::Test(test, result) => Seen::Test(
+            Handed::Test(test, result, _) => Seen::Test(
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())
@@ -113,7 +113,7 @@ fn each_outcome_stands_beside_its_test() {
                     }]
                 })
             ),
-            test("test_three", Err("no expectation stated")),
+            test("test_three", Err("[no-expectation] no expectation stated")),
         ],
         "each outcome beside its test, in order",
     );
@@ -177,7 +177,7 @@ fn dispatch_hands_each_test_before_it_runs_the_next() {
     let mut ran_before = Vec::new();
     let flow: ControlFlow<()> =
         purba_dispatch::hand(vec![two_tests("test_before.py", &ran)], |handed| {
-            if let Handed::Test(test, _) = handed {
+            if let Handed::Test(test, _, _) = handed {
                 ran_before.push((test.0, ran.exists()));
             }
             ControlFlow::Continue(())
@@ -195,7 +195,7 @@ fn dispatch_calls_no_test_after_a_break() {
     let ran = ran_at("test_dispatch_break.ran");
     let mut handed = Vec::new();
     let flow = purba_dispatch::hand(vec![two_tests("test_break.py", &ran)], |given| {
-        if let Handed::Test(test, _) = given {
+        if let Handed::Test(test, _, _) = given {
             handed.push(test.0);
         }
         ControlFlow::Break("stop")
@@ -425,5 +425,89 @@ fn what_a_failed_expectation_shows_crosses_the_fork_whole() {
         ],
         "a reading that holds a NUL, each of two failed expectations, and a quote with no \
          reading reach dispatch as the test's process made them",
+    );
+}
+
+/// A test that carries its suppressions: the name of each check, and its reason.
+#[derive(Clone)]
+struct Suppressing(&'static str, &'static [(&'static str, &'static str)]);
+
+impl Test for Suppressing {
+    fn function(&self) -> &str {
+        self.0
+    }
+
+    fn suppressions(&self) -> Vec<(&str, &str)> {
+        self.1.to_vec()
+    }
+}
+
+#[test]
+fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() {
+    let source = "def test_act():\n    data = 1\n    assert data == 1\n    got = data + 1\n    \
+                  assert got == 2\n\n\
+                  def test_plain():\n    data = 1\n    assert data == 1\n    got = data + 1\n    \
+                  assert got == 2\n";
+    let module = Module::new(
+        PathBuf::from("test_act.py"),
+        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
+        vec![
+            Suppressing(
+                "test_act",
+                &[("assert-before-expectation", "two\nlines and a \0 NUL")],
+            ),
+            Suppressing("test_plain", &[]),
+        ],
+    );
+    let mut seen = Vec::new();
+
+    let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |handed| {
+        if let Handed::Test(test, result, warnings) = handed {
+            seen.push((
+                test.0,
+                result
+                    .map(|outcome| outcome.kind().clone())
+                    .map_err(|err| reason(&err)),
+                warnings
+                    .iter()
+                    .map(|warning| {
+                        (
+                            warning.check.clone(),
+                            warning.words.clone(),
+                            warning.reason.clone(),
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+            ));
+        }
+        ControlFlow::Continue(())
+    });
+
+    assert_eq!(flow, ControlFlow::Continue(()), "every test runs");
+    assert_eq!(
+        seen,
+        [
+            (
+                "test_act",
+                Ok(Kind::Passed),
+                vec![(
+                    "assert-before-expectation".to_owned(),
+                    "line 3 asserts before the first expectation, \
+                     and only an expectation asserts"
+                        .to_owned(),
+                    "two\nlines and a \0 NUL".to_owned(),
+                )],
+            ),
+            (
+                "test_plain",
+                Err(
+                    "[assert-before-expectation] line 9 asserts before the first expectation, \
+                     and only an expectation asserts"
+                        .to_owned()
+                ),
+                Vec::new(),
+            ),
+        ],
+        "the suppression reaches its own test's process whole, and its warning crosses back"
     );
 }

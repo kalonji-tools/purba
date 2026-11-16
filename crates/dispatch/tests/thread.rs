@@ -39,7 +39,7 @@ fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
     let mut seen = Vec::new();
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |handed| {
         seen.push(match handed {
-            Handed::Test(test, result) => Seen::Test(
+            Handed::Test(test, result, _) => Seen::Test(
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())

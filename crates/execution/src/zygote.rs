@@ -19,13 +19,15 @@ use crate::fork::{Forked, fork};
 use purba_assertion::{Readers, Verdict};
 
 use crate::{
-    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Worker, frame, interrupt, panic,
-    reader,
+    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Warning, Worker, frame, interrupt,
+    panic, reader,
 };
 
 /// The tags of the frames.
 mod tag {
-    /// purba names the test to run: the name of its function.
+    /// purba names the test to run: the name of its function, then the name of
+    /// each check that a suppression of the test reaches and its reason, each
+    /// as `put` writes it.
     pub const TEST: u8 = b'n';
     /// purba asks for a replay of a test: the name of its function, a NUL,
     /// and the index of the expectation that the replay reads alone.
@@ -47,6 +49,9 @@ mod tag {
     /// Each quote of a failed case, as `quotes_frame` writes it. The `repr` of a
     /// reading may hold a NUL, so each field carries its length.
     pub const FAILED: u8 = b'f';
+    /// A warning of the case: its check, its words and its reason, each as
+    /// `put` writes it. Each comes before the outcome.
+    pub const WARNED: u8 = b'u';
     /// The exception, as text.
     pub const RAISED: u8 = b'r';
     /// A project error, as text.
@@ -168,8 +173,9 @@ impl Zygote {
         }
     }
 
-    /// Asks the zygote to fork a process for the test `function`, and reads its
-    /// outcome and the error of each thread that it found. `owner` owns each
+    /// Asks the zygote to fork a process for the test `function`, which
+    /// `suppressions` reach. Reads the outcome of the process, its warnings, and
+    /// the error of each thread that it found. `owner` owns each
     /// thread that the test left. A process that ended with no outcome gives
     /// `Raised`, which names the signal or the exit code, or `Interrupted` when
     /// the first interrupt arrived as it ran. A process that an interrupt signal
@@ -177,17 +183,20 @@ impl Zygote {
     pub fn run<T: Clone>(
         &mut self,
         function: &str,
+        suppressions: &[(&str, &str)],
         owner: T,
-    ) -> (Result<Outcome, Error>, Threads<T>) {
+    ) -> (Result<Outcome, Error>, Vec<Warning>, Threads<T>) {
         let mut threads = Vec::new();
+        let mut warnings = Vec::new();
         let asked = self.tests.as_mut().map_or_else(
             || Err(ErrorKind::BrokenPipe.into()),
-            |tests| frame::write(tests, tag::TEST, function),
+            |tests| frame::write(tests, tag::TEST, &test_frame(function, suppressions)),
         );
         if asked.is_err() {
             let ended = ended(self.wait());
             return (
                 Err(Error::project(format!("the module's process {ended}"))),
+                warnings,
                 threads,
             );
         }
@@ -198,6 +207,7 @@ impl Zygote {
             match frame::read(&mut self.frames) {
                 Ok(Some((tag::ENDED, status))) => break status.parse().ok(),
                 Ok(Some((tag::LATER, text))) => later = later_of(&text),
+                Ok(Some((tag::WARNED, text))) => warnings.extend(warning_of(&text)),
                 Ok(Some((tag::FORKED, pid))) => {
                     interrupt::follow_test(pid.parse().unwrap_or(0));
                 }
@@ -216,6 +226,7 @@ impl Zygote {
                         result.unwrap_or_else(|| {
                             Err(Error::project(format!("the module's process {ended}")))
                         }),
+                        warnings,
                         threads,
                     );
                 }
@@ -250,7 +261,7 @@ impl Zygote {
             }
             other => other,
         };
-        (result, threads)
+        (result, warnings, threads)
     }
 
     /// Asks the zygote for a replay of `function` for each of `later`, in
@@ -277,8 +288,8 @@ impl Zygote {
                     kind: Kind::Interrupted,
                 }));
             }
-            if let Some(differ) = crate::differs(verdict, *held) {
-                return Some(Err(Error::project(format!("{text} {differ}"))));
+            if let Some(line) = crate::differ_line(text, verdict, *held) {
+                return Some(Err(Error::project(line)));
             }
         }
         None
@@ -441,6 +452,48 @@ fn take<'a>(frame: &mut &'a str) -> Option<&'a str> {
     let field = rest.get(..length)?;
     *frame = &rest[length..];
     Some(field)
+}
+
+/// The frame that names the test `function` to the zygote, with `suppressions`.
+fn test_frame(function: &str, suppressions: &[(&str, &str)]) -> String {
+    let mut frame = String::new();
+    put(&mut frame, function);
+    for (check, reason) in suppressions {
+        put(&mut frame, check);
+        put(&mut frame, reason);
+    }
+    frame
+}
+
+/// The function and the suppressions that `test_frame` wrote, or `None` when
+/// the frame is cut short.
+fn test_of(mut frame: &str) -> Option<(String, Vec<(String, String)>)> {
+    let function = take(&mut frame)?.to_owned();
+    let mut suppressions = Vec::new();
+    while !frame.is_empty() {
+        let check = take(&mut frame)?.to_owned();
+        suppressions.push((check, take(&mut frame)?.to_owned()));
+    }
+    Some((function, suppressions))
+}
+
+/// The frame of a warning: its check, its words and its reason.
+fn warning_frame(warning: &Warning) -> String {
+    let mut frame = String::new();
+    put(&mut frame, &warning.check);
+    put(&mut frame, &warning.words);
+    put(&mut frame, &warning.reason);
+    frame
+}
+
+/// The warning that `warning_frame` wrote, or `None` when the frame is cut
+/// short.
+fn warning_of(mut frame: &str) -> Option<Warning> {
+    Some(Warning {
+        check: take(&mut frame)?.to_owned(),
+        words: take(&mut frame)?.to_owned(),
+        reason: take(&mut frame)?.to_owned(),
+    })
 }
 
 /// The frame of the quotes of a failed case: for each, its text, then `1` and
@@ -606,10 +659,13 @@ fn live_as_zygote(
     }
     send(&mut frames, (tag::READY, String::new()));
     while let Ok(Some((tag, text))) = frame::read(&mut tests) {
-        let (function, replay) = match tag {
-            tag::TEST => (text, None),
+        let (function, suppressions, replay) = match tag {
+            tag::TEST => match test_of(&text) {
+                Some((function, suppressions)) => (function, suppressions, None),
+                None => break,
+            },
             tag::REPLAY => match text.split_once('\0') {
-                Some((function, index)) => (function.to_owned(), index.parse().ok()),
+                Some((function, index)) => (function.to_owned(), Vec::new(), index.parse().ok()),
                 None => break,
             },
             _ => break,
@@ -622,7 +678,15 @@ fn live_as_zygote(
                     Some(index) => {
                         live_as_replay(py, &mut worker, module, !load, &function, index, &frames)
                     }
-                    None => live_as_test(py, &mut worker, module, !load, &function, frames),
+                    None => live_as_test(
+                        py,
+                        &mut worker,
+                        module,
+                        !load,
+                        &function,
+                        &suppressions,
+                        frames,
+                    ),
                 }
             }
             Ok(Forked::Parent(pid)) => {
@@ -669,8 +733,13 @@ fn live_as_test(
     module: &Module,
     load: bool,
     function: &str,
+    suppressions: &[(String, String)],
     mut frames: File,
 ) -> ! {
+    let suppressions: Vec<(&str, &str)> = suppressions
+        .iter()
+        .map(|(check, reason)| (check.as_str(), reason.as_str()))
+        .collect();
     // SAFETY: `getpid` only gives the pid of the process.
     let own = unsafe { libc::getpid() };
     send(&mut frames, (tag::FORKED, own.to_string()));
@@ -686,7 +755,7 @@ fn live_as_test(
             }
         }
         worker
-            .run(module, function, function.to_owned())
+            .run(module, function, &suppressions, function.to_owned())
             .map(|outcome| outcome.kind)
     });
     // SAFETY: `getpid` only gives the pid of the process.
@@ -702,6 +771,9 @@ fn live_as_test(
             })
             .collect();
         send(&mut frames, (tag::LATER, later.join("\0")));
+    }
+    for warning in worker.warnings() {
+        send(&mut frames, (tag::WARNED, warning_frame(warning)));
     }
     send(&mut frames, outcome_frame(&result));
     interrupt::calling(py, || join(py, worker));

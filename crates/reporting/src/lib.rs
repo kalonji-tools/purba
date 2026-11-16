@@ -87,6 +87,24 @@ impl<W: Write> Report<W> {
         self.flushed(written)
     }
 
+    /// Adds one suppressed verdict of `check` to the tally. Writes it under the
+    /// line of its case as `⚠ suppressed [<check>] <words>`, then `reason:
+    /// <reason>` on the next line. It changes no exit code.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn warned(&mut self, check: &str, words: &str, reason: &str) -> Result<(), Refused> {
+        self.tally.add_suppressed();
+        let written = write!(
+            self.out,
+            "    \u{26a0} suppressed [{check}] {}\n      reason: {}\n",
+            one_line(words),
+            one_line(reason)
+        );
+        self.flushed(written)
+    }
+
     /// Adds a test that the run never reached to the tally. It writes no line.
     pub const fn unreached(&mut self) {
         self.tally.add_unreached();
@@ -169,7 +187,11 @@ fn count_line(tally: &Tally) -> String {
     .map(|(count, error)| format!("{count} {error}{}", plural(count)))
     .collect();
     let mut line = format!("{cases} case{}", plural(cases));
-    for (mark, columns) in [(':', outcomes), (';', errors)] {
+    let suppressed: Vec<String> = (tally.suppressed > 0)
+        .then(|| format!("{} suppressed", tally.suppressed))
+        .into_iter()
+        .collect();
+    for (mark, columns) in [(':', outcomes), (';', errors), (';', suppressed)] {
         if !columns.is_empty() {
             line.push(mark);
             line.push(' ');
@@ -600,6 +622,7 @@ mod tests {
             internal_errors: 0,
             invocation_errors: 0,
             unreached: 0,
+            suppressed: 0,
         };
         assert_eq!(
             exit_code(&Tally {
@@ -851,5 +874,66 @@ mod tests {
             "2 cases: 2 blocked; 2 project errors",
             "a kind of error takes an s above 1"
         );
+    }
+
+    #[test]
+    fn the_count_names_the_suppressed_verdicts_after_the_errors() {
+        assert_eq!(
+            count_line(&Tally {
+                passed: 1,
+                suppressed: 1,
+                ..Tally::default()
+            }),
+            "1 case: 1 passed; 1 suppressed",
+            "no error"
+        );
+        assert_eq!(
+            count_line(&Tally {
+                passed: 3,
+                failed: 1,
+                blocked: 1,
+                project_errors: 1,
+                suppressed: 5,
+                ..Tally::default()
+            }),
+            "5 cases: 3 passed, 1 failed, 1 blocked; 1 project error; 5 suppressed",
+            "after the errors, and no s above 1"
+        );
+    }
+
+    #[test]
+    fn each_suppressed_verdict_prints_under_its_case_and_changes_no_exit_code() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .add(&"t.py::test_round_trip", Ok(&Kind::Passed))
+            .expect("a Vec takes every write");
+        report
+            .warned(
+                "computed-expected",
+                "line 10 computes obj, and an expected value is a literal",
+                "the payload is its own expected value",
+            )
+            .expect("a Vec takes every write");
+        report
+            .warned(
+                "assert-before-expectation",
+                "line 3 asserts before the first expectation,\nand only an expectation asserts",
+                "the act checks its input",
+            )
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "t.py::test_round_trip passed\n    \u{26a0} suppressed [computed-expected] \
+             line 10 computes obj, and an expected value is a literal\n      \
+             reason: the payload is its own expected value\n    \
+             \u{26a0} suppressed [assert-before-expectation] line 3 asserts before the first \
+             expectation, and only an expectation asserts\n      reason: the act checks its input\n\
+             1 case: 1 passed; 2 suppressed\n",
+            "each verdict under its case, on one line, with its reason on the next"
+        );
+        assert_eq!(code, 0, "a suppressed verdict changes no exit code");
     }
 }

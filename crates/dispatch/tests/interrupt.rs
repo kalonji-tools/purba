@@ -50,7 +50,7 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
     let mut seen = Vec::new();
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![first, second], |handed| {
         seen.push(match handed {
-            Handed::Test(test, result) => Seen::Test(
+            Handed::Test(test, result, _) => Seen::Test(
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())

@@ -23,7 +23,7 @@ fn run(
     function: &'static str,
 ) -> Result<Kind, String> {
     worker
-        .run(module, function, function)
+        .run(module, function, &[], function)
         .map(|outcome| outcome.kind().clone())
         .map_err(|error| error.to_string())
 }

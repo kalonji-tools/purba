@@ -208,6 +208,7 @@ pub struct Worker<'py, T> {
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
     replays: Vec<(usize, bool, String)>,
+    warnings: Vec<Warning>,
 }
 
 /// What a load or a call meets, from before its first line of Python: whether
@@ -250,6 +251,7 @@ impl<'py, T> Worker<'py, T> {
             owners: Vec::new(),
             last: None,
             replays: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 }
@@ -261,15 +263,26 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// not run. Each thread that the step leaves alive gets `test` as its owner,
     /// unless it has one.
     ///
+    /// `suppressions` names each check that a suppression of the test reaches,
+    /// beside its reason. A fault of such a check gives a warning in place of
+    /// its project error. [`Worker::warnings`] then holds the warning. The case
+    /// gets the outcome that it would get without that check.
+    ///
     /// # Errors
     ///
     /// An internal error when `module` was never given to `load`, when a panic
     /// crossed the test's call, or when the test caught a panic and the panic
     /// hook noted it. A project error when the module did not load, it has no
     /// `function`, or `function` is not callable.
-    pub fn run(&mut self, module: &Module, function: &str, test: T) -> Result<Outcome, Error> {
+    pub fn run(
+        &mut self,
+        module: &Module,
+        function: &str,
+        suppressions: &[(&str, &str)],
+        test: T,
+    ) -> Result<Outcome, Error> {
         let window = self.open();
-        let (own, interrupted) = self.call(&window, module, function);
+        let (own, interrupted) = self.call(&window, module, function, suppressions);
         let met = self.close(&window, Owner::Test(test), interrupted);
         step::decide(own, met).map(|gives| Outcome {
             kind: match gives {
@@ -303,7 +316,8 @@ impl<'py, T: Clone> Worker<'py, T> {
             let own = loaded.map_err(|err| error(&err)).and_then(|loaded| {
                 if let Some(name) = thread::replaced(py) {
                     return Err(Error::project(format!(
-                        "the module replaced {name} as it loaded, and a test keeps purba's hooks"
+                        "[hook-replaced] the module replaced {name} as it loaded, \
+                         and a test keeps purba's hooks"
                     )));
                 }
                 paths::arm(loaded.code()).map_err(|err| error(&err))?;
@@ -412,9 +426,11 @@ impl<'py, T: Clone> Worker<'py, T> {
         window: &Window,
         module: &Module,
         function: &str,
+        suppressions: &[(&str, &str)],
     ) -> (Result<Kind, Error>, bool) {
         let py = self.py;
         self.replays.clear();
+        self.warnings.clear();
         let loaded = match self.module(module) {
             Ok(loaded) => loaded,
             Err(error) => return (Err(error), window.landed()),
@@ -473,6 +489,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             form,
             with,
             path: path_faults(path, &swallowed),
+            suppressions,
         };
         let decided = decide(py, result, mark, &readings, &seen, loaded, function);
         let replays = if decided.1 {
@@ -488,6 +505,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             Vec::new()
         };
         self.replays = replays;
+        self.warnings = decided.2;
         (decided.0, landed)
     }
 
@@ -507,6 +525,13 @@ impl<'py, T: Clone> Worker<'py, T> {
         });
     }
 
+    /// Each warning of the last case: a fault of a check that a suppression
+    /// reached.
+    #[must_use]
+    pub fn warnings(&self) -> &[Warning] {
+        &self.warnings
+    }
+
     /// Each later expectation of the last case that a replay must read alone:
     /// its index, whether it held when read in order, and its text.
     #[must_use]
@@ -515,20 +540,78 @@ impl<'py, T: Clone> Worker<'py, T> {
     }
 }
 
-/// What the run of a case saw besides its result, its mark and its readings:
-/// the first fault of the form, the text of a `with` whose entry or cleanup
-/// raised what the call raised, and the faults of the paths.
-struct Seen {
-    form: Option<String>,
+/// What the run of a case saw besides its result, its mark and its readings.
+/// It holds the first fault of each check of the form, each beside the name of
+/// its check. It holds the text of a `with` whose entry or cleanup raised what
+/// the call raised. It holds the faults of the paths, each beside the name of
+/// its check. It also holds each check that a suppression of the test reaches,
+/// beside its reason.
+struct Seen<'a> {
+    form: Vec<(&'static str, String)>,
     with: Option<String>,
-    path: Vec<String>,
+    path: Vec<(&'static str, String)>,
+    suppressions: &'a [(&'a str, &'a str)],
 }
 
-/// The faults of the paths of a case, in the order of their lines: each `with`
-/// that swallowed a raise and skipped a line, and each fault of `path` that
-/// no such `with` explains.
-fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<String> {
-    let mut faults: Vec<paths::Fault> = path
+/// The checks that execution sees, of those that a suppression turns into a
+/// warning.
+const SUPPRESSIBLE: [&str; 3] = [
+    "second-path",
+    "assert-before-expectation",
+    "swallowed-raise",
+];
+
+/// A violation of a check that execution sees, which a suppression turned
+/// into a warning: the name of the check, its words, and the reason of the
+/// suppression.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Warning {
+    pub check: String,
+    pub words: String,
+    pub reason: String,
+}
+
+/// The suppressions of a case, and the warnings that they gave.
+struct Suppressing<'a> {
+    suppressions: &'a [(&'a str, &'a str)],
+    warnings: Vec<Warning>,
+}
+
+impl Suppressing<'_> {
+    /// Gives `words`, a fault of `check`, back as a clause of a project error,
+    /// or turns it into a warning when a suppression reaches `check`.
+    fn clause(&mut self, check: &str, words: &str) -> Option<String> {
+        let Some((_, reason)) = self
+            .suppressions
+            .iter()
+            .find(|(named, _)| *named == check && SUPPRESSIBLE.contains(named))
+        else {
+            return Some(format!("[{check}] {words}"));
+        };
+        match self
+            .warnings
+            .iter_mut()
+            .find(|warning| warning.check == check)
+        {
+            Some(warning) => {
+                warning.words.push_str("; ");
+                warning.words.push_str(words);
+            }
+            None => self.warnings.push(Warning {
+                check: check.to_owned(),
+                words: words.to_owned(),
+                reason: (*reason).to_owned(),
+            }),
+        }
+        None
+    }
+}
+
+/// The faults of the paths of a case, in the order of their lines, beside the
+/// name of each check: each `with` that swallowed a raise and skipped a line,
+/// and each fault of `path` that no such `with` explains.
+fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<(&'static str, String)> {
+    let mut faults: Vec<(usize, _, String, &'static str)> = path
         .into_iter()
         .filter(|(line, reached, _)| {
             reached.is_some()
@@ -536,6 +619,7 @@ fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<String> 
                     .iter()
                     .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
         })
+        .map(|(line, reached, fault)| (line, reached, fault, "second-path"))
         .chain(swallowed.iter().map(|swallow| {
             (
                 swallow.with,
@@ -544,12 +628,28 @@ fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<String> 
                     "the with at line {} swallowed a raise, and line {} did not run",
                     swallow.with, swallow.skipped
                 ),
+                "swallowed-raise",
             )
         }))
         .collect();
     faults.sort();
     faults.dedup();
-    faults.into_iter().map(|(_, _, fault)| fault).collect()
+    faults
+        .into_iter()
+        .map(|(_, _, fault, check)| (check, fault))
+        .collect()
+}
+
+/// The line of two readings of the expectation `text` that differ, or of a
+/// reading alone that an assert ran inside, with the name of its check, or
+/// `None` when the two readings agree.
+fn differ_line(text: &str, alone: Verdict, in_order: bool) -> Option<String> {
+    let check = if alone == Verdict::Refused {
+        "assert-in-reading"
+    } else {
+        "readings-differ"
+    };
+    differs(alone, in_order).map(|differ| format!("[{check}] {text} {differ}"))
 }
 
 /// The words of a reading alone that an assert ran inside.
@@ -557,8 +657,7 @@ const REFUSED_ALONE: &str = "reaches an assert when read alone, and only an expe
 
 /// The words of two readings of one expectation that differ, or of a reading
 /// alone that an assert ran inside, or `None` when the two readings agree.
-#[must_use]
-pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
+const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
     Some(match (alone, in_order) {
         (Verdict::Holds, false) => {
             "holds when read alone, and not after the expectations before it"
@@ -576,11 +675,12 @@ pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 }
 
 /// The outcome of the case of `function`, and whether its expectations gave
-/// it, from what its call gave, the last marked assert, the readings of its
-/// expectations, and what the run saw. The first of these wins:
+/// it. It also gives each warning of the case. It reads what the call gave,
+/// the last marked assert, the readings of the expectations, and what the run
+/// saw. The first of these wins:
 ///
-/// 1. a project error for the first fault of the form, then for a reading
-///    alone that an assert ran inside;
+/// 1. a project error for the first fault of each check of the form in turn,
+///    then for a reading alone that an assert ran inside;
 /// 2. `raised` when the call raised, unless a `with`'s entry or cleanup raised
 ///    it, or a marked assert that did not hold raised `AssertionError`, which
 ///    are `failed`;
@@ -590,70 +690,103 @@ pub const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// 5. `failed` when an expectation did not hold;
 /// 6. a project error when no expectation ran;
 /// 7. `passed`.
+///
+/// A fault of a check that a suppression of the test reaches gives a warning in
+/// place of its project error, and the case goes on to the next of these. Each
+/// project error of a strict check names its check in brackets before the
+/// words of each fault.
 fn decide(
     py: Python<'_>,
     result: Result<(), PyErr>,
     mark: Option<(&str, bool)>,
     readings: &Readings,
-    seen: &Seen,
+    seen: &Seen<'_>,
+    loaded: &Loaded<'_>,
+    function: &str,
+) -> (Result<Kind, Error>, bool, Vec<Warning>) {
+    let mut suppressing = Suppressing {
+        suppressions: seen.suppressions,
+        warnings: Vec::new(),
+    };
+    let (own, decided) = 'decide: {
+        for (check, words) in &seen.form {
+            if let Some(clause) = suppressing.clause(check, words) {
+                break 'decide (Err(Error::project(clause)), false);
+            }
+        }
+        if let Some((index, _)) = readings
+            .alone
+            .iter()
+            .find(|(_, verdict)| *verdict == Verdict::Refused)
+        {
+            let text = loaded.expectation(*index).unwrap_or_default();
+            break 'decide (
+                Err(Error::project(format!(
+                    "[assert-in-reading] {text} {REFUSED_ALONE}"
+                ))),
+                false,
+            );
+        }
+        if let Err(err) = result {
+            if let Some(with) = &seen.with {
+                break 'decide (
+                    Ok(Kind::Failed {
+                        asserts: vec![Quote::alone(with.clone())],
+                    }),
+                    false,
+                );
+            }
+            if let Some((assert, false)) = mark
+                && err.is_instance_of::<PyAssertionError>(py)
+            {
+                break 'decide (
+                    Ok(Kind::Failed {
+                        asserts: vec![Quote::alone(assert.to_owned())],
+                    }),
+                    false,
+                );
+            }
+            break 'decide (
+                Ok(Kind::Raised {
+                    exception: err.to_string(),
+                }),
+                false,
+            );
+        }
+        let path: Vec<String> = seen
+            .path
+            .iter()
+            .filter_map(|(check, words)| suppressing.clause(check, words))
+            .collect();
+        if !path.is_empty() {
+            break 'decide (Err(Error::project(path.join("; "))), false);
+        }
+        if let Some(refused) = &readings.refused {
+            break 'decide (Err(Error::project(refused.clone())), false);
+        }
+        for &(index, alone) in &readings.alone {
+            let Some(&(_, in_order)) = readings.in_order.iter().find(|(read, _)| *read == index)
+            else {
+                continue;
+            };
+            let text = loaded.expectation(index).unwrap_or_default();
+            if let Some(line) = differ_line(text, alone, in_order) {
+                break 'decide (Err(Error::project(line)), false);
+            }
+        }
+        of_the_readings(readings, loaded, function)
+    };
+    (own, decided, suppressing.warnings)
+}
+
+/// The outcome of the case of `function` from the readings of its expectations
+/// in order, and whether they gave it: `failed` when an expectation did not
+/// hold, a project error when no expectation ran, or else `passed`.
+fn of_the_readings(
+    readings: &Readings,
     loaded: &Loaded<'_>,
     function: &str,
 ) -> (Result<Kind, Error>, bool) {
-    if let Some(form) = &seen.form {
-        return (Err(Error::project(form.clone())), false);
-    }
-    if let Some((index, _)) = readings
-        .alone
-        .iter()
-        .find(|(_, verdict)| *verdict == Verdict::Refused)
-    {
-        let text = loaded.expectation(*index).unwrap_or_default();
-        return (
-            Err(Error::project(format!("{text} {REFUSED_ALONE}"))),
-            false,
-        );
-    }
-    if let Err(err) = result {
-        if let Some(with) = &seen.with {
-            return (
-                Ok(Kind::Failed {
-                    asserts: vec![Quote::alone(with.clone())],
-                }),
-                false,
-            );
-        }
-        if let Some((assert, false)) = mark
-            && err.is_instance_of::<PyAssertionError>(py)
-        {
-            return (
-                Ok(Kind::Failed {
-                    asserts: vec![Quote::alone(assert.to_owned())],
-                }),
-                false,
-            );
-        }
-        return (
-            Ok(Kind::Raised {
-                exception: err.to_string(),
-            }),
-            false,
-        );
-    }
-    if !seen.path.is_empty() {
-        return (Err(Error::project(seen.path.join("; "))), false);
-    }
-    if let Some(refused) = &readings.refused {
-        return (Err(Error::project(refused.clone())), false);
-    }
-    for &(index, alone) in &readings.alone {
-        let Some(&(_, in_order)) = readings.in_order.iter().find(|(read, _)| *read == index) else {
-            continue;
-        };
-        if let Some(differ) = differs(alone, in_order) {
-            let text = loaded.expectation(index).unwrap_or_default();
-            return (Err(Error::project(format!("{text} {differ}"))), false);
-        }
-    }
     let failed: Vec<Quote> =
         readings
             .in_order
@@ -677,18 +810,26 @@ fn decide(
         (Ok(Kind::Passed), true)
     } else if !loaded.states_expectation(function) {
         (
-            Err(Error::project("no expectation stated".to_owned())),
+            Err(Error::project(
+                "[no-expectation] no expectation stated".to_owned(),
+            )),
             false,
         )
     } else {
-        (Err(Error::project("no expectation ran".to_owned())), false)
+        (
+            Err(Error::project(
+                "[no-expectation] no expectation ran".to_owned(),
+            )),
+            false,
+        )
     }
 }
 
 /// How many cases of a run passed, failed, raised, are `interrupted`, are
 /// blocked or unreached, and how many errors of each kind it met.
 ///
-/// Each case counts once, and each error once, by its kind.
+/// Each case counts once, and each error once, by its kind. It also counts each
+/// verdict that a suppression turned into a warning.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Tally {
     pub passed: usize,
@@ -702,6 +843,9 @@ pub struct Tally {
     pub internal_errors: usize,
     /// Writes that stdout refused. The run stops at the first.
     pub invocation_errors: usize,
+    /// Verdicts that a suppression turned into a warning: one for each check
+    /// of each test.
+    pub suppressed: usize,
 }
 
 impl Tally {
@@ -723,6 +867,11 @@ impl Tally {
     /// Counts one test that the error of its module blocked.
     pub const fn add_blocked(&mut self) {
         self.blocked += 1;
+    }
+
+    /// Counts one verdict that a suppression turned into a warning.
+    pub const fn add_suppressed(&mut self) {
+        self.suppressed += 1;
     }
 
     /// Counts one test that the run never reached.

@@ -27,7 +27,7 @@ fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
             .iter()
             .map(|function| {
                 worker
-                    .run(module, function, *function)
+                    .run(module, function, &[], *function)
                     .map(|outcome| outcome.kind().clone())
                     .map_err(|error| error.to_string())
             })
@@ -42,7 +42,7 @@ fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
             .iter()
             .map(|function| {
                 worker
-                    .run(module, function, *function)
+                    .run(module, function, &[], *function)
                     .expect("the test runs")
                     .kind()
                     .clone()
@@ -66,7 +66,7 @@ fn the_three_tests_of_test_a_pass_fail_and_state_no_expectation() {
             Ok(Kind::Failed {
                 asserts: vec![shown("assert 1 == 2", "2", "1")]
             }),
-            Err("no expectation stated".to_owned()),
+            Err("[no-expectation] no expectation stated".to_owned()),
         ],
         "one outcome or error for each test, in order",
     );
@@ -80,7 +80,7 @@ fn a_module_level_assert_is_no_expectation_of_a_test() {
     );
     assert_eq!(
         results(&test_level, &["test_none"]),
-        [Err("no expectation stated".to_owned())],
+        [Err("[no-expectation] no expectation stated".to_owned())],
         "the module-level assert ran before the test's call",
     );
 }
@@ -129,7 +129,7 @@ fn a_name_that_is_not_callable_is_an_error() {
             .iter()
             .map(|function| {
                 worker
-                    .run(&test_bound, function, *function)
+                    .run(&test_bound, function, &[], *function)
                     .expect_err("an object that is not callable is not a test")
                     .to_string()
             })
@@ -167,7 +167,7 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
         std::iter::once(loaded)
             .chain(["test_one", "test_two"].iter().map(|function| {
                 worker
-                    .run(&loads, function, *function)
+                    .run(&loads, function, &[], *function)
                     .expect_err("the module does not load")
                     .to_string()
             }))
@@ -204,7 +204,7 @@ fn a_load_that_fails_gives_its_error_once() {
                 .expect_err("the module did not load")
                 .to_string(),
             worker
-                .run(&fails, "test_one", "test_one")
+                .run(&fails, "test_one", &[], "test_one")
                 .expect_err("the module did not load")
                 .to_string(),
         ]
@@ -234,7 +234,7 @@ fn a_test_runs_on_the_module_that_load_loaded() {
             .load(&loads)
             .expect("a second load keeps the first module");
         worker
-            .run(&loads, "test_one", "test_one")
+            .run(&loads, "test_one", &[], "test_one")
             .expect("the test runs")
             .kind()
             .clone()
@@ -266,9 +266,14 @@ fn a_forked_child_exits_with_its_own_code() {
     );
 }
 
-/// The words of a refused assert before the first expectation, at `line`.
-fn asserts_before(line: usize) -> String {
+/// The words of an assert before the first expectation, at `line`.
+fn before(line: usize) -> String {
     format!("line {line} asserts before the first expectation, and only an expectation asserts")
+}
+
+/// The line of a refused assert before the first expectation, at `line`.
+fn asserts_before(line: usize) -> String {
+    format!("[assert-before-expectation] {}", before(line))
 }
 
 #[test]
@@ -328,8 +333,8 @@ fn an_assert_of_a_helper_names_the_line_of_the_test_that_runs_it() {
     assert_eq!(
         results(&test_reach, &["test_reach"]),
         [Err(
-            "line 7 reaches line 3 of check, which asserts before the first \
-              expectation, and only an expectation asserts"
+            "[assert-before-expectation] line 7 reaches line 3 of check, \
+             which asserts before the first expectation, and only an expectation asserts"
                 .to_owned()
         )],
         "line 6 reaches check first, and line 7 runs its assert"
@@ -349,7 +354,7 @@ fn an_assert_inside_a_reading_is_refused_whether_it_holds_or_not() {
         assert_eq!(
             results(&test, &[name]),
             [Err(
-                "line 5 reaches line 2 of check, which asserts inside a \
+                "[assert-in-reading] line 5 reaches line 2 of check, which asserts inside a \
                   reading, and only an expectation asserts"
                     .to_owned()
             )],
@@ -477,7 +482,7 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
             .iter()
             .map(|function| {
                 worker
-                    .run(&test_panic, function, *function)
+                    .run(&test_panic, function, &[], *function)
                     .map(|outcome| outcome.kind().clone())
                     .map_err(|error| reason(&error))
             })
@@ -503,4 +508,191 @@ fn tests_in(source: &str) -> Vec<&str> {
         .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
         .filter_map(|line| line.split_once('(').map(|(name, _)| name))
         .collect()
+}
+
+/// The words, the check and the reason of each warning that a run gave.
+type Warned = Vec<(String, String, String)>;
+
+/// The outcome or the error of each of `functions`, each run under
+/// `suppressions`, beside the warnings of its run.
+fn suppressed_runs(
+    module: &Module,
+    functions: &[&str],
+    suppressions: &[(&str, &str)],
+) -> Vec<(Result<Kind, String>, Warned)> {
+    purba_execution::attach(|worker| {
+        worker.load(module).expect("the module loads");
+        functions
+            .iter()
+            .map(|function| {
+                let result = worker
+                    .run(module, function, suppressions, *function)
+                    .map(|outcome| outcome.kind().clone())
+                    .map_err(|error| error.to_string());
+                let warned = worker
+                    .warnings()
+                    .iter()
+                    .map(|warning| {
+                        (
+                            warning.check.clone(),
+                            warning.words.clone(),
+                            warning.reason.clone(),
+                        )
+                    })
+                    .collect();
+                (result, warned)
+            })
+            .collect()
+    })
+}
+
+/// One warning of `check`, with its `words` and its `reason`.
+fn warned(check: &str, words: &str, reason: &str) -> Warned {
+    vec![(check.to_owned(), words.to_owned(), reason.to_owned())]
+}
+
+#[test]
+fn a_suppressed_assert_before_the_first_expectation_gives_the_outcome_without_the_check() {
+    let test_act = module(
+        "test_act_suppressed.py",
+        "def test_holds():\n    data = 1\n    assert data == 1\n    got = data + 1\n    \
+         assert got == 2\n\n\
+         def test_fails():\n    data = 1\n    assert data == 3\n    got = data + 1\n    \
+         assert got == 2\n\n\
+         def test_plain():\n    got = 1\n    assert got == 1\n",
+    );
+
+    let runs = suppressed_runs(
+        &test_act,
+        &["test_holds", "test_fails", "test_plain"],
+        &[("assert-before-expectation", "the act checks its input")],
+    );
+
+    assert_eq!(
+        runs,
+        [
+            (
+                Ok(Kind::Passed),
+                warned(
+                    "assert-before-expectation",
+                    &before(3),
+                    "the act checks its input"
+                )
+            ),
+            (
+                Ok(Kind::Failed {
+                    asserts: vec![Quote {
+                        assert: "assert data == 3".to_owned(),
+                        shown: None,
+                    }],
+                }),
+                warned(
+                    "assert-before-expectation",
+                    &before(9),
+                    "the act checks its input"
+                )
+            ),
+            (Ok(Kind::Passed), Vec::new()),
+        ],
+        "the case passes, or fails on the act's assert, with a warning; \
+         a case that breaks no check gives none"
+    );
+}
+
+#[test]
+fn a_suppressed_path_or_swallowed_raise_gives_the_outcome_without_the_check() {
+    let test_paths = module(
+        "test_paths_suppressed.py",
+        "import contextlib\n\n\n\
+         def test_branch():\n    x = 1\n    if x == 2:\n        x = 3\n    assert x == 1\n\n\n\
+         def test_swallow():\n    x = 1\n    with contextlib.suppress(ValueError):\n        \
+         raise ValueError(\"x\")\n        x = 2\n    assert x == 1\n",
+    );
+
+    let runs = suppressed_runs(
+        &test_paths,
+        &["test_branch", "test_swallow"],
+        &[
+            ("second-path", "the branch depends on the platform"),
+            ("swallowed-raise", "the raise is the act"),
+        ],
+    );
+
+    assert_eq!(
+        runs,
+        [
+            (
+                Ok(Kind::Passed),
+                warned(
+                    "second-path",
+                    "line 6 went one way only, and the lines before the first expectation \
+                     take one path; line 7 did not run, and the lines before the first \
+                     expectation take one path",
+                    "the branch depends on the platform"
+                )
+            ),
+            (
+                Ok(Kind::Passed),
+                warned(
+                    "swallowed-raise",
+                    "the with at line 13 swallowed a raise, and line 15 did not run",
+                    "the raise is the act"
+                )
+            ),
+        ],
+        "each case passes on its expectation, with one warning for its check"
+    );
+}
+
+#[test]
+fn a_check_of_the_run_names_itself_in_brackets_and_a_suppression_does_not_reach_another() {
+    let test_hook = module(
+        "test_hook_after_act.py",
+        "import threading\n\n\n\
+         def test_hook():\n    data = 1\n    assert data == 1\n    \
+         threading.excepthook = print\n    assert data == 1\n\n\n\
+         def test_branch():\n    x = 1\n    if x == 2:\n        x = 3\n    assert x == 1\n\n\n\
+         def test_none():\n    print('only logs')\n",
+    );
+
+    let runs = suppressed_runs(
+        &test_hook,
+        &["test_hook", "test_branch", "test_none"],
+        &[
+            ("assert-before-expectation", "the act checks its input"),
+            ("hook-replaced", "no suppression reaches it"),
+            ("no-expectation", "no suppression reaches it"),
+        ],
+    );
+
+    assert_eq!(
+        runs,
+        [
+            (
+                Err("[hook-replaced] line 7 replaced threading.excepthook, \
+                     and a test keeps purba's hooks"
+                    .to_owned()),
+                warned(
+                    "assert-before-expectation",
+                    &before(6),
+                    "the act checks its input"
+                )
+            ),
+            (
+                Err(
+                    "[second-path] line 13 went one way only, and the lines before the first \
+                     expectation take one path; [second-path] line 14 did not run, and the \
+                     lines before the first expectation take one path"
+                        .to_owned()
+                ),
+                Vec::new()
+            ),
+            (
+                Err("[no-expectation] no expectation stated".to_owned()),
+                Vec::new()
+            ),
+        ],
+        "a fault of the form after a suppressed one still refuses; each clause names its check; \
+         a check that no suppression reaches refuses whatever the run is handed"
+    );
 }

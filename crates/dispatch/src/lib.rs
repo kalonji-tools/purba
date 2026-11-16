@@ -6,18 +6,31 @@
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{Error, Load, Outcome, Owner, Rewrite, Worker, Zygote};
+use purba_execution::{Error, Load, Outcome, Owner, Rewrite, Warning, Worker, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
 pub trait Test {
     /// The name of the test's function.
     fn function(&self) -> &str;
+
+    /// The name of each check that execution sees and that a suppression of
+    /// the test reaches, beside its reason. A test has none unless it says so.
+    fn suppressions(&self) -> Vec<(&str, &str)> {
+        Vec::new()
+    }
 }
 
 impl Test for TestId {
     fn function(&self) -> &str {
         Self::function(self)
+    }
+
+    fn suppressions(&self) -> Vec<(&str, &str)> {
+        Self::suppressions(self)
+            .iter()
+            .map(|suppression| (suppression.check, suppression.reason.as_str()))
+            .collect()
     }
 }
 
@@ -41,13 +54,13 @@ impl<T> Module<T> {
     }
 }
 
-/// What dispatch hands on: a test beside its outcome or its own error, the
-/// error of a module that did not load, a test of that module, or the error
-/// of a thread.
+/// What dispatch hands on: a test with its outcome or its own error, and with
+/// its warnings; the error of a module that did not load; a test of that
+/// module; or the error of a thread.
 pub enum Handed<T> {
     /// A test that ran, beside its outcome, or the error that it gave in
-    /// place of one.
-    Test(T, Result<Outcome, Error>),
+    /// place of one, and each warning of its case.
+    Test(T, Result<Outcome, Error>, Vec<Warning>),
     /// A module that did not load, by its path, and the load's error, or the
     /// internal error of a panic during the load.
     NotLoaded(PathBuf, Error),
@@ -152,7 +165,11 @@ pub fn hand<T: Test + Clone, B>(
                     Err(error) => {
                         let text = error.to_string();
                         for test in module.tests {
-                            each(Handed::Test(test, Err(Error::project(text.clone()))))?;
+                            each(Handed::Test(
+                                test,
+                                Err(Error::project(text.clone())),
+                                Vec::new(),
+                            ))?;
                         }
                         continue;
                     }
@@ -178,8 +195,9 @@ fn run<T: Test + Clone, B>(
             each(Handed::Unreached(test))?;
             continue;
         }
-        let (result, threads) = zygote.run(test.function(), test.clone());
-        each(Handed::Test(test, result))?;
+        let (result, warnings, threads) =
+            zygote.run(test.function(), &test.suppressions(), test.clone());
+        each(Handed::Test(test, result, warnings))?;
         for (owner, error) in threads {
             each(Handed::Thread(charged(owner), error))?;
         }
