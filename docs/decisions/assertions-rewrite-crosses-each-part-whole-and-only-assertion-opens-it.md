@@ -33,7 +33,7 @@ flowchart LR
     rewrite["its rewrite"]
     load["its load"]
   end
-  rewrite -->|"one Rewrite, which holds the rewritten text, the text and the line of each marked assert and of each expectation of each test, and the body of each with of a test"| command
+  rewrite -->|"one Rewrite, which holds the rewritten text, the text and the line of each marked assert and of each expectation of each test, the operator of each expectation and which side is its expected value, and the body of each with of a test"| command
   command -->|"the Rewrite, whole"| dispatch
   dispatch -->|"the Rewrite, whole"| execution
   execution -->|"the Rewrite, whole"| load

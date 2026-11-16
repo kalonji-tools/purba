@@ -220,6 +220,10 @@ The [locations](#location) a [record](#record) applies to. It names every locati
 
 An [actor](#actor) that a [location](#location) serves. A location inherits its readers from the path tree.
 
+### Reading
+
+One read of an [expectation](#expectation) in a [case](#case), and the value that it reads. That value is the side of the comparison that is not the expected value. The expected value is the side that is a literal, or the right side when both are.
+
 ### Reagent
 
 An [input](#input) that fixtures builds for one [test](#test), and tears down after it.

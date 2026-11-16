@@ -37,6 +37,7 @@
 
 ### parsing
 
+- [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [purba parses Python with ruff's parser](decisions/purba-parses-python-with-ruff.md)
@@ -48,6 +49,7 @@
 
 ### execution
 
+- [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [Execution calls a test by its function's name, and reporting prints the identity it is given](decisions/execution-calls-a-test-by-its-functions-name.md)
 
@@ -58,6 +60,7 @@
 
 ### assertion
 
+- [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [A loaded module joins sys.modules under its file's name, without .py](decisions/a-loaded-module-joins-sys-modules-under-its-files-name.md)
 - [A module that binds a name purba adds is a project error](decisions/a-module-that-binds-a-name-purba-adds-is-a-project-error.md)
@@ -67,6 +70,7 @@
 
 ### reporting
 
+- [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
 - [A run exits 0 only when it checked something and every case passed](decisions/a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md)
 - [A test that selection refuses prints before any test runs](decisions/a-test-that-selection-refuses-prints-before-any-test-runs.md)

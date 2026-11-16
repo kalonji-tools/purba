@@ -64,12 +64,14 @@ A console script adds one command and one private name, and the wheel keeps its 
 tests/test_a.py::test_one passed
 tests/test_a.py::test_two failed
     assert 1 == 2
+      expected  2
+      reading   1
 tests/test_a.py::test_three project error: no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 ```
 
 - **Each line holds the path as the tester typed it, then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. A test in a class names each class on the way before its function, each after `::`. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
-- **A line that is not `passed` or `interrupted` gives a reason.** Under a failed line, each assert it quotes prints on a line of its own, indented by four spaces, with no values. [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes, and which part of their text. A case in which no expectation ran gives the project error `no expectation stated`, or `no expectation ran` when its test states one.
+- **A line that is not `passed` or `interrupted` gives a reason.** Under a failed line, each assert it quotes prints on a line of its own, indented by four spaces. [A failed expectation shows its expected value and its reading](a-failed-expectation-shows-its-expected-value-and-its-reading.md#decision-outcome) says what prints under each quote of an expectation. [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes, and which part of their text. A case in which no expectation ran gives the project error `no expectation stated`, or `no expectation ran` when its test states one.
   [A tuple assert keeps CPython's warning, and selection refuses a test that ends with one](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names the module that did not load.
 - **A reason prints on one line.** It breaks at each character that Python's `str.splitlines` reads as a line break. Its lines join with one space, each without the whitespace at its ends. An empty line drops out. Each other control character prints as Python's `repr` writes it, such as `\t` or `\x1b`.
 - **The count names the cases, then each outcome, `blocked`, `unreached` and each kind of error above 0.** `case` and each kind of error take an `s`, except at 1. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
@@ -78,7 +80,6 @@ tests/test_a.py::test_three project error: no expectation stated
 **Downside:**
 
 - **`python -m purba` fails.** CPython prints `No module named purba.__main__; 'purba' is a package and cannot be directly executed`.
-- **A failed line shows no values.** The tester reads them only after assertion shows them in its design in depth.
 - **A reason changes a string literal that spans several lines.** Each run of whitespace in it that holds a line break prints as one space.
 - **A reason that holds the text of an escape, such as `\x00` or `\t`, prints as one that holds that character.** purba does not escape a backslash, so the tester cannot tell the two apart.
 - **`from purba import *` imports `_main`.** PyO3 lists `_main` in `__all__`, and maturin's `__init__.py` imports each name on that list.
