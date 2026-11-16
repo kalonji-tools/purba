@@ -37,7 +37,26 @@ Against #1010's form with fixtures, the form lost 1.0 on readability, 1.0 on com
 What the raters counted for the form: both checkers clean, and each planted mistake found by both ("did you mean 'path'?", "gives path=3 (int), and test_exists_required declares str"); the clearest failure line of the three (3 of 3).
 Against it: the port moves code (test_index sends every request before its first check; test_create checks the GET status inside `with app.app_context()`, after the POST) (3 of 3); an assert before the last request is refused, so a test written as pytest writes it must be restructured (3 of 3); `FORM.md` at 187 lines and `run.py` at about 3,000 (3 of 3); a passing `in` check prints about 400 characters of HTML (2 of 3); the smallest test that does not leak its database file needs a stock, 20 or 21 lines (2 of 3).
 
-**The eight changes are not what moved flaskr.** The flaskr port holds no `raises`, no `try`, no skip, no private name and no patch; it meets the changes only through a longer `FORM.md` (165 → 187 lines) and a longer runner. Each cost the raters named is a rule of #1010's form: the act ends at the first check, nothing runs after a case, and a stock for a file. One port by one porter stands for the form in each round, so a port's choices move its score: #1010's porter bundled `app`, `client` and `auth` into one value; this porter kept three fixtures and a stock, and moved checks to the end.
+The flaskr port holds no `raises`, no `try`, no skip, no private name and no patch; it meets the eight changes only through a longer `FORM.md` (165 → 187 lines) and a longer runner. One port by one porter stood for the form, so the next round asks how much of the drop is the port.
+
+## Flaskr again: a second porter
+
+A second porter, with the same brief and without sight of the first port, ported the file again (`flaskr-blog/form-2/`, port B; the first is port A). Three new raters scored four versions with #1010's flaskr prompt word for word (`ratings/RATER_PROMPT_flaskr2.md`, `ratings/KEY_flaskr2.txt`), as #1010 rated two ports of one form.
+
+| | readability | clarity | ease of use | tester | implementation | smallest test | fidelity | weighted, rater 1 · 2 · 3 | mean |
+|---|--:|--:|--:|--:|--:|--:|--:|---|--:|
+| pytest | 5.0 | 4.0 | 5.0 | 4.0 | 3.33 | 5.0 | reference | 4.60 · 4.55 · 4.45 | 4.53 |
+| **port B** | 4.0 | 4.33 | 4.0 | 2.0 | 2.0 | 3.33 | 4.0 | 3.60 · 3.50 · 3.70 | **3.60** |
+| oxitest | 3.67 | 4.67 | 2.33 | 2.67 | 2.33 | 3.33 | 5.0 | 3.65 · 3.80 · 3.10 | 3.52 |
+| **port A** | 3.0 | 4.0 | 4.0 | 2.0 | 2.0 | 3.0 | 4.0 | 3.35 · 3.35 · 3.35 | **3.35** |
+
+Rater 1 rescaled the original without fidelity (4.53); the table holds 4.60, with fidelity counted as 5.
+
+- **Port A is stable.** It scored 3.35 with each of the three new raters, and 3.32 in the first round.
+- **The porter moves 0.25.** Each rater scored port B above port A, by 0.25, 0.15 and 0.35. Port B gained on readability (4.0 against 3.0) and the smallest test: its fixtures sit in a module of their own, and its checks come after the `with` block, where port A's sit inside `with app.app_context()` (3 of 3). Port A's notes call that layout forced; rater 3 found that `FORM.md` allows the checks after the block.
+- **Port B came second, above oxitest by 0.08, and 0.93 below pytest.** The form of #1010 with fixtures was 0.34 above oxitest and 0.61 below pytest.
+- **What remains against #1010's form is the tester's load.** Port B equals #1010's port on readability, clarity, ease of use and fidelity, and is 1.0 lower on complexity for the tester, 0.67 lower on the implementation and 0.67 lower on the smallest test. Each of the six flaskr raters gave each port of this form a 2 on complexity for the tester; one counted 58 rules. The eight changes add rules that flaskr's tests never use.
+- **What the raters counted against both ports:** each test puts every request before its first assert, so `test_index` checks the anonymous page after the login, and `test_create` checks the GET's status after the POST (3 of 3); `FORM.md` at 187 lines (3 of 3); `use(App)`, a stock class, beside `use(client)`, a factory (2 of 3).
 
 ## Faults of this runner, not of the form
 
@@ -49,7 +68,7 @@ Against it: the port moves code (test_index sends every request before its first
 
 ## Files
 
-- `loguru-format/form/`, `flaskr-blog/form/`: each port, with its `RUN.md`, `OUTPUT.txt`, `CHECKERS.txt` and `NOTES.md`; flaskr also has `OUTPUT_mutant-login.txt` (9 failed, 3 passed, as in each version).
+- `loguru-format/form/`, `flaskr-blog/form/` (port A), `flaskr-blog/form-2/` (port B): each port, with its `RUN.md`, `OUTPUT.txt`, `CHECKERS.txt` and `NOTES.md`; each flaskr port also has `OUTPUT_mutant-login.txt` (9 failed, 3 passed, as in each version).
 - `loguru-format/pytest/`, `loguru-format/oxitest/`, `flaskr-blog/pytest/`, `flaskr-blog/oxitest/`, `flaskr-blog/flaskr-src/`: the originals and the oxitest ports, unchanged from #1010.
 - `ratings/`: the build scripts of the blind folders, the keys, the prompts, and each rater's scores, condensed.
 

@@ -1,0 +1,7 @@
+[environment]
+python = "../../.venv"
+python-version = "3.12"
+extra-paths = ["../flaskr-src", "../../.."]
+
+[src]
+include = ["test_blog.py", "flaskr_fixtures.py"]

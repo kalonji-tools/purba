@@ -1,0 +1,18 @@
+Second flaskr round, rater 2. Letters: PORT_K = oxitest, PORT_M = port A (form/), PORT_Q = port B (form-2/). Condensed from the rater's report.
+
+                         ORIGINAL  OXITEST(K)  PORT_A(M)  PORT_B(Q)
+readability                 5         3           3          4
+clarity                     4         5           4          4
+ease of use                 5         3           4          4
+complexity for the tester   4         3           2          2
+complexity of the impl.     3         2           1          1
+minimum working test        5         4           3          3
+fidelity                  ref(5)      5           4          4
+Weights: clarity 20, ease 20, fidelity 20, readability 15, tester 15, impl 5, minimum 5.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.55, OXITEST 3.80, PORT_B 3.50, PORT_A 3.35.
+
+Both form ports: ty and pyright clean and they caught `paht=`; the runner explains its refusals ("did you mean 'path'?", "an assert ran in the act at …:9"); every check runs (both 403 checks shown under the author mutant); a tester must learn 58 rules, and every test puts all of its actions before its first assert, which moves checks away from the action they check.
+Port A, weakest: 129 lines in one file (stock, fixtures and tests); checks inside `with app.app_context()` (lines 140-141, 179-180); a new test imports its fixtures from the test module test_blog.
+Port B, strongest: fixtures in flaskr_fixtures.py and an 89-line test file; checks after the `with` blocks; ty flagged `auth.lgin`. Weakest: `app: Flask = use(App)` asks a reader to follow a class/instance split; test_index's anonymous checks run after the login.
+Oxitest: every assert is the original's, in order, with a message; `Fixture[T]` makes both checkers useless (23 ty, 29 pyright after edits; `auth.lgin` not flagged).
+Rough edges, the form: "a reading reads; it does not act" is not enforced for a call that changes no stock (`assert b"Log In" in client.get("/").data` passed); a temp database made in the act with no stock is not refused, and it leaks; each passing check prints its reading (10 output lines over 100 characters, the longest 467); the assert-in-act refusal is labelled `› path`.

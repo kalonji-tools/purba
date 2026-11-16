@@ -1,0 +1,9 @@
+$ ty check
+ty 0.0.99
+All checks passed!
+(exit 0)
+
+$ nix-shell -p pyright --run 'pyright'
+pyright 1.1.411
+0 errors, 0 warnings, 0 informations
+(exit 0)

@@ -1,0 +1,5 @@
+Second flaskr round (the 1015 form; two ports by two porters with one brief: flaskr-blog/form = port A, flaskr-blog/form-2 = port B). Which letter was which, per rater:
+
+rater1: PORT_K = port B, PORT_M = oxitest, PORT_Q = port A
+rater2: PORT_K = oxitest, PORT_M = port A, PORT_Q = port B
+rater3: PORT_K = port A, PORT_M = port B, PORT_Q = oxitest

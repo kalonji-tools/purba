@@ -1,0 +1,20 @@
+Second flaskr round, rater 1. Letters: PORT_K = port B (form-2/), PORT_M = oxitest, PORT_Q = port A (form/). Condensed from the rater's report.
+
+                         ORIGINAL  PORT_B(K)  OXITEST(M)  PORT_A(Q)
+readability                 5         4          4           3
+clarity                     4         4          5           4
+ease of use                 5         4          2           4
+complexity for the tester   4         2          3           2
+complexity of the impl.     4         2          3           2
+minimum working test        5         4          3           3
+fidelity                   ref        4          5           4
+Weights: clarity 20, ease 20, readability 15, tester 15, fidelity 15, minimum 10, impl 5.
+Rater's own sums (the original without fidelity, rescaled): ORIGINAL 4.53, OXITEST 3.65, PORT_B 3.60, PORT_A 3.35.
+Recomputed with the original's fidelity counted as 5: ORIGINAL 4.60, OXITEST 3.65, PORT_B 3.60, PORT_A 3.35.
+
+Both form ports: checkers clean, and both caught a `paht=` typo, as did the runner ("did you mean 'path'?"); failures show expected, reading, inputs and line; every check runs.
+Port B: a separate fixtures module; `client: FlaskClient = use(client)` shadows the factory name; test_index makes the anonymous request, logs in, then runs all six checks.
+Port A: fixtures and the stock take the top 70 lines of the test file; checks indented inside `with app.app_context():`; its CHECKERS.txt shows 1 pyright error that a re-run with its own config does not give.
+Oxitest: shaped like the original, every assert states its intent; `Fixture[T]` gives 21 ty and 26 pyright false errors.
+All four versions caught four app mutants the same way (1, 1, 2, 2 failed).
+Rough edges, the form: the "assert in the act" refusal is labelled `› path`; each passing line prints 200+ characters of HTML; a standalone test that builds the database inside the test was accepted although the file lives outside the process.

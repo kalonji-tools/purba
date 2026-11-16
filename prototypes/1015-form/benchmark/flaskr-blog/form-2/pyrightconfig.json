@@ -1,0 +1,8 @@
+{
+  "venvPath": "../..",
+  "venv": ".venv",
+  "extraPaths": ["../flaskr-src", "../../.."],
+  "pythonVersion": "3.12",
+  "include": ["test_blog.py", "flaskr_fixtures.py"],
+  "exclude": ["_mutant"]
+}

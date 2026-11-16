@@ -1,0 +1,19 @@
+Second flaskr round, rater 3. Letters: PORT_K = port A (form/), PORT_M = port B (form-2/), PORT_Q = oxitest. Condensed from the rater's report.
+
+                         ORIGINAL  PORT_A(K)  PORT_B(M)  OXITEST(Q)
+readability                 5         3          4          4
+clarity                     4         4          5          4
+ease of use                 5         4          4          2
+complexity for the tester   4         2          2          2
+complexity of the impl.     3         3          3          2
+minimum working test        5         3          3          3
+fidelity                  ref(5)      4          4          5
+Weights: readability 15, clarity 20, ease 20, tester 15, impl 10, minimum 10, fidelity 10.
+Weighted (recomputed, matches the rater's): ORIGINAL 4.45, PORT_B 3.70, PORT_A 3.35, OXITEST 3.10.
+
+Port B, strongest: act first, then the checks after the `with` block (test_blog.py:75-79); fixtures in their own flaskr_fixtures.py; precise refusals ("did you mean 'path'?"), flagged by ty and pyright too.
+Port A, weakest: checks sit inside `with app.app_context():` (test_blog.py:137-141, 176-180), so HTTP-status checks read as if they need the context; its NOTES call that layout forced, and it is not (FORM.md allows checks after the block, as port B does); fixtures inside the test module.
+Both form ports: 187-line FORM.md; a name invented for each case; long `use(...)` defaults; `use(App)` (a stock class) beside `use(client)` (a factory) is inconsistent.
+Oxitest: keeps the original's structure assert for assert, with messages; `Fixture[T]` breaks both checkers (21 ty, 26 pyright).
+All four versions caught each of two app mutants (author check removed, delete a no-op) with exactly 1 failed item.
+Rough edges, the form: no `skipped` field on the summary when the count is 0 (FORM.md:187 lists it); both NOTES say GET requests had to leave the asserts, but only a POST that changes the database must (a GET inside a check was accepted).

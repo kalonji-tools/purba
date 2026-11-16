@@ -1,0 +1,32 @@
+── test_blog.py
+ test_index  (test_blog.py:14)
+   ✓ test_index › b'Log In' in anonymous.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'Register' in anonymous.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'test title' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'by test on 2018-01-01' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'test\nbody' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index › b'href="/1/update"' in response.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a …        </div>\n        \n          <a class="action" href="/1/update">Edit</a>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_login_required  (test_blog.py:26)
+   ✓ login_required_create › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ✓ login_required_update › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ✓ login_required_delete › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:36)
+   ✓ test_author_required › update.status_code == 403   403
+   ✓ test_author_required › delete.status_code == 403   403
+   ✓ test_author_required › b'href="/1/update"' not in index.data   b'<!doctype html>\n<title>Posts - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      <li><a … title</h1>\n          <div class="about">by other on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_exists_required  (test_blog.py:56)
+   ✓ exists_required_update › response.status_code == 404   404
+   ✓ exists_required_delete › response.status_code == 404   404
+ test_create  (test_blog.py:68)
+   ✓ test_create › page.status_code == 200   200
+   ✓ test_create › count == 2   2
+ test_update  (test_blog.py:82)
+   ✓ test_update › page.status_code == 200   200
+   ✓ test_update › post['title'] == 'updated'   'updated'
+ test_create_update_validate  (test_blog.py:96)
+   ✓ create_update_validate_create › b'Title is required.' in response.data   b'<!doctype html>\n<title>New Post - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n      … name="title" id="title" value="" required>\n    <label for="body">Body</label>\n    <textarea name="body" id="body"></textarea>\n    <input type="submit" value="Save">\n  </form>\n\n</section>'
+   ✓ create_update_validate_update › b'Title is required.' in response.data   b'<!doctype html>\n<title>Edit "test title" - Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><span>test</span>\n   …  </form>\n  <hr>\n  <form action="/1/delete" method="post">\n    <input class="danger" type="submit" value="Delete" onclick="return confirm(\'Are you sure?\');">\n  </form>\n\n</section>'
+ test_delete  (test_blog.py:108)
+   ✓ test_delete › response.headers['Location'] == '/'   '/'
+   ✓ test_delete › post is None   None
+══ 12 cases: 12 passed · 0 failed · 0 refused · 0 blocked   (22 checks held) · seed 651970 · slowest test_index (test_blog.py:14) 0.08 s
