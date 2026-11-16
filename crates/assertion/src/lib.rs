@@ -10,7 +10,8 @@ use purba_parsing::Module;
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyIndexError, PyNameError, PyTypeError};
 use pyo3::types::{
-    PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods, PyTuple, PyTupleMethods, PyTypeMethods,
+    PyAnyMethods, PyDict, PyDictMethods, PyModule, PyModuleMethods, PyTuple, PyTupleMethods,
+    PyTypeMethods,
 };
 use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
@@ -1297,9 +1298,11 @@ fn run<'py>(
     module: &Bound<'py, PyModule>,
 ) -> PyResult<Bound<'py, PyAny>> {
     let builtins = py.import("builtins")?;
+    let keywords = PyDict::new(py);
+    keywords.set_item("optimize", 0)?;
     let code = builtins
         .getattr("compile")?
-        .call1((text, path.as_os_str(), "exec"))?;
+        .call((text, path.as_os_str(), "exec"), Some(&keywords))?;
     check_locals(&code, path)?;
     builtins.getattr("exec")?.call1((&code, module.dict()))?;
     Ok(code)
