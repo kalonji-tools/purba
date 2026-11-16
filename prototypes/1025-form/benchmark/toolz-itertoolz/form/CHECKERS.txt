@@ -1,0 +1,7 @@
+$ ty check
+ty 0.0.99
+All checks passed!
+
+$ pyright
+pyright 1.1.411
+0 errors, 0 warnings, 0 informations

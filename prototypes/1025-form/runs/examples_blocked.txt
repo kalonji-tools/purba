@@ -1,0 +1,11 @@
+── test_due_dates.py
+ test_borrow  (test_due_dates.py:10)
+   ✗ two_weeks › loan.due == due   test_due_dates.py:17 · assert at line 13
+       expected  14 (int)
+       reading   21 (int)
+       inputs    due=14
+       random was seeded for this case; python run.py --seed 560305 test_due_dates.py repeats it
+ test_on_time  (test_due_dates.py:20)
+   ⊘ test_on_time  blocked: it takes the product of two_weeks (test_due_dates.py:17), which failed
+══ 2 cases: 0 passed · 1 failed · 0 refused · 1 blocked   (0 checks held) · seed 560305 ·
+  slowest two_weeks (test_due_dates.py:17) 0.01 s

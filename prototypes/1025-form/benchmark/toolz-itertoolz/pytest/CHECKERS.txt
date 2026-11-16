@@ -1,0 +1,7 @@
+$ ty check
+All checks passed!
+
+$ pyright
+test_itertoolz.py
+  test_itertoolz.py:152:5 - warning: Expression value is unused (reportUnusedExpression)
+0 errors, 1 warning, 0 informations

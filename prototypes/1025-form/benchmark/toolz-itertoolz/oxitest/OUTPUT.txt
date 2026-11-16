@@ -1,0 +1,26 @@
+$ PYTHONPATH=../toolz-src "$VENV/bin/oxitest" -vv --color=never
+collected 12 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 22ms <= spawn overhead 250ms x 22 workers)
+............
+
+════════════════════════════════════════════════════════════════════════════════
+  12 passed
+════════════════════════════════════════════════════════════════════════════════
+exit=0
+
+$ PYTHONPATH=../toolz-src "$VENV/bin/oxitest" --color=never --json results.json  (per-test list)
+exit=0
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_accumulate_works_on_consumable_iterables
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_count
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_diff
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_isdistinct
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_iterate
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_nth
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_partition_all
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_peek
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_peekn
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_sliding_window_of_short_iterator
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_tail
+passed  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/benchmark/toolz-itertoolz/oxitest/tests/test_itertoolz.py::test_topk

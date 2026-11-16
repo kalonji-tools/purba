@@ -1,0 +1,24 @@
+── test_base.py
+ test_all  (test_base.py:4)
+   ! refused:
+       line 6: a check compares a reading with the value you expect, with one operator: `assert reading == expected`, `in`, `<`, `is None`; or it is `assert not reading`, `assert isinstance(reading, T)`, `assert reading.startswith(x)` or `assert reading.endswith(x)`
+     so none of its 1 case(s) runs
+ test_twice  (test_base.py:9)
+   ✓ test_twice › list(it) == [1, 2]   [1, 2]
+   ! test_twice › list(it) == [1, 2]   test_base.py:9 · assert at line 12
+       what      it holds when read alone, and fails after the checks before it (line 11): a reading before it changed what it reads, and a check reads, it does not act
+       random was seeded for this case; python run.py --seed 347499 test_base.py repeats it
+ test_once  (test_base.py:15)
+   ✓ test_once › list(it) == [1, 2]   [1, 2]
+ test_lazy_in_act  (test_base.py:20)
+   ✗ test_lazy_in_act › act   test_base.py:20
+       what      the act raised ValueError: boom
+                 at test_base.py:21  items = list(gen())
+   ⊘ test_lazy_in_act › items == [1, 2]   blocked: the act did not end as the test says
+       random was seeded for this case; python run.py --seed 347499 test_base.py repeats it
+ test_lazy_in_check  (test_base.py:25)
+   ✗ test_lazy_in_check › list(gen()) == [1, 2]   test_base.py:25 · assert at line 26
+       what      reading it raised ValueError: boom
+                 at test_base.py:26  assert list(gen()) == [1, 2]
+       random was seeded for this case; python run.py --seed 347499 test_base.py repeats it
+══ 5 cases: 1 passed · 2 failed · 2 refused · 0 blocked   (2 checks held) · seed 347499 · slowest test_twice (test_base.py:9) 0.02 s

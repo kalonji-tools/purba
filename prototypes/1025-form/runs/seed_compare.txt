@@ -1,0 +1,8 @@
+the draws of --seed 1015, run twice (no diff means the same values):
+the draws of --seed 1015 against a seed the runner picked:
+1,2c1,2
+<        reading   6 (int)
+<        reading   16 (int)
+---
+>        reading   3 (int)
+>        reading   19 (int)

@@ -1,0 +1,22 @@
+  4436  tests
+    19  tests whose assert reads a file-like name
+     5  tests whose assert reads a iterator name
+
+# file-like: 34 asserts
+click/tests/test_basic.py:485 f.read() == b'meh\n'
+click/tests/test_stream_lifecycle.py:73 not buf.closed
+click/tests/test_stream_lifecycle.py:74 buf.getvalue() == b'hello'
+click/tests/test_stream_lifecycle.py:85 not buf.closed
+click/tests/test_stream_lifecycle.py:86 buf.getvalue() == b'world'
+click/tests/test_stream_lifecycle.py:101 not buf.closed
+click/tests/test_stream_lifecycle.py:102 buf.getvalue() == b'onetwo'
+click/tests/test_stream_lifecycle.py:176 target.getvalue() == b'data'
+
+# iterator: 7 asserts
+dateutil/tests/property/test_rrule_prop.py:75 prefix + list(iterator) == expected
+dateutil/tests/property/test_rrule_prop.py:116 prefix + list(iterator) == expected
+dateutil/tests/test_rrule.py:4949 next(iterator) == expected[0]
+dateutil/tests/test_rrule.py:4961 list(iterator) == expected[1:]
+six/test_six.py:219 six.advance_iterator(f) == 1
+six/test_six.py:429 six.next(it) == 1
+six/test_six.py:430 six.next(it) == 2

@@ -1,0 +1,89 @@
+── test_itertoolz.py
+ test_isdistinct  (test_itertoolz.py:38)
+   ✓ test_isdistinct › isdistinct([1, 2, 3]) is True   True
+   ✓ test_isdistinct › isdistinct([1, 2, 1]) is False   False
+   ✓ test_isdistinct › isdistinct('Hello') is False   False
+   ✓ test_isdistinct › isdistinct('World') is True   True
+   ✓ test_isdistinct › isdistinct(iter([1, 2, 3])) is True   True
+   ✓ test_isdistinct › isdistinct(iter([1, 2, 1])) is False   False
+ test_nth  (test_itertoolz.py:49)
+   ✓ test_nth › nth(2, 'ABCDE') == 'C'   'C'
+   ✓ test_nth › nth(2, iter('ABCDE')) == 'C'   'C'
+   ✓ test_nth › nth(1, (3, 2, 1)) == 2   2
+   ✓ test_nth › nth(0, {'foo': 'bar'}) == 'foo'   'foo'
+   ✓ test_nth › nth(-2, 'ABCDE') == 'D'   'D'
+ test_nth_raises  (test_itertoolz.py:57)
+   ✓ nth_past_the_end › raises   StopIteration: 
+   ✓ nth_past_the_end › str(caught.value) == message   ''
+   ✓ nth_negative_of_iterator › raises   ValueError: Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.
+   ✓ nth_negative_of_iterator › str(caught.value) == message   'Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.'
+ test_tail  (test_itertoolz.py:73)
+   ✓ test_tail › list(tail(3, 'ABCDE')) == ['C', 'D', 'E']   ['C', 'D', 'E']
+   ✓ test_tail › list(tail(3, iter('ABCDE'))) == ['C', 'D', 'E']   ['C', 'D', 'E']
+   ✓ test_tail › list(tail(2, (3, 2, 1))) == [2, 1]   [2, 1]
+ test_iterate  (test_itertoolz.py:79)
+   ✓ test_iterate › list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, …   [0, 1, 2, 3, 4]
+   ✓ test_iterate › list(take(4, iterate(double, 1))) == [1, 2, 4, 8]   [1, 2, 4, 8]
+ test_accumulate_works_on_consumable_iterables  (test_itertoolz.py:84)
+   ✓ test_accumulate_works_on_consumable_iterables › list(accumulate(add, iter((1, 2, 3)))) == [1, 3, 6]   [1, 3, 6]
+ test_sliding_window_of_short_iterator  (test_itertoolz.py:88)
+   ✓ test_sliding_window_of_short_iterator › list(sliding_window(3, [1, 2])) == []   []
+   ✓ test_sliding_window_of_short_iterator › list(sliding_window(7, [1, 2])) == []   []
+ test_partition_all  (test_itertoolz.py:102)
+   ✓ test_partition_all › list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]   [(1, 2), (3, 4)]
+   ✓ test_partition_all › list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]   [(0, 1, 2), (3, 4)]
+   ✓ test_partition_all › list(partition_all(2, [])) == []   []
+   ✓ test_partition_all › list(partition_all(4, [obj] * 7)) == [(obj, obj, obj, obj),…   [(<test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>), (<test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>)]
+   ✓ test_partition_all › list(partition_all(4, iter([obj] * 7))) == [(obj, obj, obj,…   [(<test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>), (<test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>, <test_itertoolz.NoCompare object at 0x730c2af132c0>)]
+ test_partition_all_of_invalid_length  (test_itertoolz.py:112)
+   ✓ too_long_list › raises   LookupError: The sequence passed to `parition_all` has invalid length
+   ✓ too_long_list › str(caught.value) == 'The sequence passed to `parition_all`…   'The sequence passed to `parition_all` has invalid length'
+   ✓ too_short_list › raises   LookupError: The sequence passed to `parition_all` has invalid length
+   ✓ too_short_list › str(caught.value) == 'The sequence passed to `parition_all`…   'The sequence passed to `parition_all` has invalid length'
+ test_count  (test_itertoolz.py:132)
+   ✓ test_count › count((1, 2, 3)) == 3   3
+   ✓ test_count › count([]) == 0   0
+   ✓ test_count › count(iter((1, 2, 3, 4))) == 4   4
+   ✓ test_count › count('hello') == 5   5
+   ✓ test_count › count(iter('hello')) == 5   5
+ test_diff  (test_itertoolz.py:141)
+   ✓ test_diff › list(diff([1, 2], (1, 2), iter([1, 2]))) == []   []
+   ✓ test_diff › list(diff([1, 2, 3], (1, 10, 3), iter([1, 2, 10]))) == [(2,…   [(2, 10, 2), (3, 3, 10)]
+   ✓ test_diff › list(diff([1, 2], [10])) == [(1, 10)]   [(1, 10)]
+   ✓ test_diff › list(diff([1, 2], [10], default=None)) == [(1, 10), (2, Non…   [(1, 10), (2, None)]
+   ✓ test_diff › list(diff([(1, 2), (1, 3)])) == [(2, 3)]   [(2, 3)]
+   ✓ test_diff › list(diff(data1, data2, key=indollars)) == [({'cost': 2, 'c…   [({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+ test_diff_raises  (test_itertoolz.py:163)
+   ✓ diff_of_no_sequence › raises   TypeError: Too few sequences given (min 2 required)
+   ✓ diff_of_no_sequence › str(caught.value) == message   'Too few sequences given (min 2 required)'
+   ✓ diff_of_one_sequence › raises   TypeError: 'int' object is not iterable
+   ✓ diff_of_one_sequence › str(caught.value) == message   "'int' object is not iterable"
+   ✓ diff_of_a_sequence_and_a_number › raises   TypeError: 'int' object is not iterable
+   ✓ diff_of_a_sequence_and_a_number › str(caught.value) == message   "'int' object is not iterable"
+   ✓ diff_of_an_empty_list › raises   TypeError: Too few sequences given (min 2 required)
+   ✓ diff_of_an_empty_list › str(caught.value) == message   'Too few sequences given (min 2 required)'
+   ✓ diff_of_a_list_of_one_empty_sequence › raises   TypeError: Too few sequences given (min 2 required)
+   ✓ diff_of_a_list_of_one_empty_sequence › str(caught.value) == message   'Too few sequences given (min 2 required)'
+   ✓ diff_of_a_list_of_one_sequence › raises   TypeError: Too few sequences given (min 2 required)
+   ✓ diff_of_a_list_of_one_sequence › str(caught.value) == message   'Too few sequences given (min 2 required)'
+   ✓ diff_of_a_list_of_a_sequence_and_a_number › raises   TypeError: 'int' object is not iterable
+   ✓ diff_of_a_list_of_a_sequence_and_a_number › str(caught.value) == message   "'int' object is not iterable"
+ test_topk  (test_itertoolz.py:193)
+   ✓ test_topk › topk(2, [4, 1, 5, 2]) == (5, 4)   (5, 4)
+   ✓ test_topk › topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)   (1, 2)
+   ✓ test_topk › topk(2, iter([5, 1, 4, 2]), key=lambda x: -x) == (1, 2)   (1, 2)
+   ✓ test_topk › topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9}, {'a': 10, 'b'…   ({'a': 10, 'b': 1}, {'a': 9, 'b': 2})
+   ✓ test_topk › topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9}, {'a': 10, 'b'…   ({'a': 1, 'b': 10}, {'a': 2, 'b': 9})
+   ✓ test_topk › topk(2, [(0, 4), (1, 3), (2, 2), (3, 1), (4, 0)], 0) == ((4…   ((4, 0), (3, 1))
+ test_peek  (test_itertoolz.py:208)
+   ✓ test_peek › element == 'Alice'   'Alice'
+   ✓ test_peek › whole == ['Alice', 'Bob', 'Carol']   ['Alice', 'Bob', 'Carol']
+ test_peek_of_empty  (test_itertoolz.py:216)
+   ✓ test_peek_of_empty › raises   StopIteration: 
+   ✓ test_peek_of_empty › str(caught.value) == ''   ''
+ test_peekn  (test_itertoolz.py:222)
+   ✓ test_peekn › elements == ('Alice', 'Bob')   ('Alice', 'Bob')
+   ✓ test_peekn › whole == ('Alice', 'Bob', 'Carol')   ('Alice', 'Bob', 'Carol')
+   ✓ test_peekn › all_elements == ('Alice', 'Bob', 'Carol')   ('Alice', 'Bob', 'Carol')
+   ✓ test_peekn › whole_after_all == ('Alice', 'Bob', 'Carol')   ('Alice', 'Bob', 'Carol')
+══ 24 cases: 24 passed · 0 failed · 0 refused · 0 blocked   (71 checks held) · seed 744333 · slowest test_partition_all (test_itertoolz.py:102) 0.04 s

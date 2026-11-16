@@ -1,0 +1,67 @@
+### shape=all t_all.py
+t_all.py::test_positive failed
+    assert x > 0  for each item of xs
+      [2]  -3
+      [3]  0
+      2 of 5 items break it
+t_all.py::test_types failed
+    assert isinstance(c, str)  for each item of chunks
+      [1]  b'b'
+      1 of 3 items break it
+t_all.py::test_is failed
+    assert t is ZeroDivisionError  for each item of ts
+      [2]  <class 'ValueError'>
+      1 of 3 items break it
+t_all.py::test_holds passed
+t_all.py::test_iterator project error: line 19 reads list_iterator 'it', an iterator that one reading empties; make it a list in the act
+t_all.py::test_lazy_in_check project error: line 27 reads generator 'gen()', an iterator that one reading empties; make it a list in the act
+t_all.py::test_nested_comp failed
+    assert v > 0  for each item of [y for row in xs for y in row]
+      [3]  -4
+      1 of 4 items break it
+t_all.py::test_tuple_target failed
+    assert a == b  for each item of pairs
+      [1]  (2, 3)
+      1 of 2 items break it
+exit 4
+
+### shape=all t_all_if.py
+t_all_if.py project error: line 3: all() takes one `for`, with no `if`
+exit 4
+
+### shape=all t_all_expr.py
+t_all_expr.py::test_in_expression passed
+exit 0
+
+### shape=for t_for.py
+t_for.py::test_positive failed
+    assert x > 0  for each item of xs
+      [2]  -3
+      [3]  0
+      2 of 5 items break it
+t_for.py::test_types failed
+    assert isinstance(c, str)  for each item of chunks
+      [1]  b'b'
+      1 of 3 items break it
+exit 1
+
+### shape=each t_each.py
+t_each.py::test_positive failed
+    each item > 0
+      [2]  -3
+      [3]  0
+      2 of 5 items break it
+t_each.py::test_is failed
+    AssertionError
+t_each.py::test_types failed
+    AssertionError
+t_each.py::test_in_holds_wrongly failed
+    each item == 1
+      [1]  9
+      1 of 2 items break it
+t_each.py::test_literal_left failed
+    each item > 0
+      [1]  -3
+      1 of 2 items break it
+exit 1
+

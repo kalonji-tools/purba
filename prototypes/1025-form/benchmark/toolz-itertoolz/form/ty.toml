@@ -1,0 +1,6 @@
+[environment]
+python-version = "3.12"
+extra-paths = ["../../..", "../toolz-src"]
+
+[src]
+include = ["test_itertoolz.py"]

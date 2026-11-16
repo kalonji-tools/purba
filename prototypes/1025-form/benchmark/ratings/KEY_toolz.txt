@@ -1,0 +1,3 @@
+rater1: K = the form, M = oxitest
+rater2: M = the form, K = oxitest
+rater3: K = the form, M = oxitest

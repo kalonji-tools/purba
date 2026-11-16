@@ -1,0 +1,27 @@
+--- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform/prototypes/1025-form/run.py	2026-11-16 18:01:16.469831496 +0100
++++ run.py	2026-11-16 18:16:44.966167616 +0100
+@@ -2014,7 +2014,15 @@
+     return [f"raised in {where}"]
+ 
+ 
++def made_here(check: Check) -> bool:
++    """VARIANT: the reading of all()/any() is a call, so the check makes its iterator itself."""
++    gen = check.node.test.args[0]
++    return isinstance(gen.generators[0].iter, ast.Call)
++
++
+ def one_shot(value: object) -> bool:
++    if isinstance(value, __import__("io").IOBase):
++        return False  # VARIANT: a file or StringIO keeps the rule of an open file and the alone rule
+     """An iterator that one reading empties: a generator, `iter(list)`, `map`, `zip`, a file…"""
+     if not hasattr(type(value), "__next__"):
+         return False  # no `iter()` call on an iterable: its `__iter__` may do anything
+@@ -2084,7 +2092,7 @@
+         if check.form in AFFIXES:  # a reading with no `startswith` raises here
+             why = verdict(check, left, right)
+         if check.form in EACH:  # the reading is evaluated, and no item of it is read yet
+-            if one_shot(left):
++            if one_shot(left) and not made_here(check):
+                 return dict(
+                     check=check.label,
+                     line=check.line,

@@ -1,0 +1,36 @@
+── test_loans.py
+ test_join  (test_members.py:29), a stage of test_members.py
+   ✓ ann › library.members == [name]   ['ann']
+   ✓ ann › member.name == name   'ann'
+   ✓ bob › library.members == [name]   ['bob']
+   ✓ bob › member.name == name   'bob'
+ test_borrow  (test_loans.py:11)
+   ✓ dune › loan.due == due   21
+   ✓ dune › member.library.shelf == ['Emma']   ['Emma']
+ test_late  (test_loans.py:22)
+   ✓ late › loan.member.library.today == days   30
+ test_give_back  (test_loans.py:33)
+   ✓ nine_days › paid == fine   90
+   ✓ nine_days › loan.member.library.shelf == ['Emma', 'Dune']   ['Emma', 'Dune']
+   ✓ nine_days › notices() == [notice]   ['ann owes 90']
+ test_lent_book_is_not_on_the_shelf  (test_loans.py:45)
+   ✓ test_lent_book_is_not_on_the_shelf › raises   NotOnShelf: 'Dune' is not on the shelf
+   ✓ test_lent_book_is_not_on_the_shelf › str(caught.value) == "'Dune' is not on the shelf"
+     "'Dune' is not on the shelf"
+ test_closed_library_lends_nothing  (test_loans.py:52)
+   ✓ test_closed_library_lends_nothing › raises   Closed: the library is closed
+   ✓ test_closed_library_lends_nothing › library.open is True   True
+   ✓ test_closed_library_lends_nothing › library.shelf == ['Dune', 'Emma']   ['Dune', 'Emma']
+── test_members.py
+ test_lend_to_a_member  (test_members.py:22)
+   ✓ test_lend_to_a_member › library.shelf == ['Emma']   ['Emma']
+   ✓ test_lend_to_a_member › [loan.member.name for loan in library.loans] == ['cat']   ['cat']
+ test_join  (test_members.py:29)
+   ✓ ann › library.members == [name]   ['ann']
+   ✓ ann › member.name == name   'ann'
+   ✓ bob › library.members == [name]   ['bob']
+   ✓ bob › member.name == name   'bob'
+ test_second_member  (test_members.py:41)
+   ✓ test_second_member › member.library.members == ['ann', 'bob']   ['ann', 'bob']
+══ 11 cases: 11 passed · 0 failed · 0 refused · 0 blocked   (22 checks held) · seed 996477
+  · slowest dune (test_loans.py:19) 0.02 s

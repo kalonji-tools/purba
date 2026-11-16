@@ -1,0 +1,1015 @@
+── test_1015_by_type.py
+ test_raises_with_match  (test_1015_by_type.py:16)
+   ✓ test_raises_with_match › raises   ValueError: ann is taken
+ test_raises_checked_by_value  (test_1015_by_type.py:24)
+   ✓ test_raises_checked_by_value › raises   ValueError: ann is taken
+   ✓ test_raises_checked_by_value › str(caught.value) == 'ann is taken'   'ann is taken'
+ test_raises_with_another_message  (test_1015_by_type.py:33)
+   ✗ test_raises_with_another_message › raises   test_1015_by_type.py:33
+       what      expected ValueError matching 'bob'; it raised ValueError: ann is taken
+                 at test_1015_by_type.py:38  with raises(ValueError, match="bob"):
+       random was seeded for this case; python run.py --seed 356675 test_1015_by_type.py repeats it
+ test_warns_checked_by_value  (test_1015_by_type.py:42)
+   ✓ test_warns_checked_by_value › warns   DeprecationWarning: old_name is gone; use new_name
+   ✓ test_warns_checked_by_value › str(caught.value).startswith('old_name is gone')   'old_name
+     is gone; use new_name'
+ test_raises_by_type_alone  (test_1015_by_type.py:49)
+   ! refused:
+       line 54: `with raises(ValueError):` checks the type alone; add `match=r"…"`, or check
+         `caught.value` after `with raises(ValueError) as caught:`
+     so none of its 1 case(s) runs
+ test_warns_by_type_alone  (test_1015_by_type.py:58)
+   ! refused:
+       line 60: `with warns(DeprecationWarning):` checks the type alone; add `match=r"…"`, or
+         check `caught.value` after `with warns(DeprecationWarning) as caught:`
+     so none of its 1 case(s) runs
+ test_caught_but_not_read  (test_1015_by_type.py:64)
+   ! refused:
+       line 68: `with raises(ValueError):` checks the type alone; add `match=r"…"`, or check
+         `caught.value` after `with raises(ValueError) as caught:`
+     so none of its 1 case(s) runs
+ test_match_none  (test_1015_by_type.py:74)
+   ! refused:
+       line 78: `with raises(ValueError, match=None):` checks the type alone; add `match=r"…"`, or
+         check `caught.value` after `with raises(ValueError, match=None) as caught:`
+     so none of its 1 case(s) runs
+── test_1015_checks.py
+ test_not_holds  (test_1015_checks.py:13)
+   ✓ test_not_holds › not shop.carts['ann']   []
+ test_not_fails  (test_1015_checks.py:22)
+   ✗ test_not_fails › not shop.carts['ann']   test_1015_checks.py:22 · assert at line 28
+       asks      the cart is empty
+       expected  empty or false
+       reading   [('PEN', 1)] (list)
+       random was seeded for this case; python run.py --seed 356675 test_1015_checks.py repeats it
+ test_isinstance_holds  (test_1015_checks.py:31)
+   ✓ test_isinstance_holds › isinstance(order, Order)   Order(owner='ann', total=0,
+     state='paid')
+   ✓ test_isinstance_holds › isinstance(shop.carts, collections.abc.Mapping)   {'ann': []}
+   ✓ test_isinstance_holds › isinstance(order.total, (int, float))   0
+ test_isinstance_fails  (test_1015_checks.py:41)
+   ✗ test_isinstance_fails › isinstance(order.total, str)   test_1015_checks.py:41 · assert at
+     line 46
+       expected  an instance of str
+       reading   0 (int)
+       random was seeded for this case; python run.py --seed 356675 test_1015_checks.py repeats it
+ test_affixes_hold  (test_1015_checks.py:49)
+   ✓ ann › shop.users[0].startswith(prefix)   'ann-lee'
+   ✓ ann › shop.users[0].endswith('-lee')   'ann-lee'
+ test_affixes_fail  (test_1015_checks.py:60)
+   ✗ test_affixes_fail › shop.users[0].startswith('bob')   test_1015_checks.py:60 · assert at
+     line 65
+       expected  to start with 'bob'
+       reading   'ann-lee' (str)
+   ✗ test_affixes_fail › shop.users[0].endswith('smith')   test_1015_checks.py:60 · assert at
+     line 66
+       expected  to end with 'smith'
+       reading   'ann-lee' (str)
+       random was seeded for this case; python run.py --seed 356675 test_1015_checks.py repeats it
+ test_affix_of_no_str  (test_1015_checks.py:69)
+   ✗ test_affix_of_no_str › shop.users.startswith('a')   test_1015_checks.py:69 · assert at
+     line 74
+       what      reading it raised AttributeError: 'list' object has no attribute 'startswith'
+       random was seeded for this case; python run.py --seed 356675 test_1015_checks.py repeats it
+ test_bare_assert  (test_1015_checks.py:77)
+   ! refused:
+       line 83: a check compares a reading with the value you expect, with one operator: `assert
+         reading == expected`, `in`, `<`, `is None`; or it is `assert not reading`, `assert
+         isinstance(reading, T)`, `assert reading.startswith(x)` or `assert reading.endswith(x)`
+     so none of its 1 case(s) runs
+ test_chained_comparison  (test_1015_checks.py:86)
+   ! refused:
+       line 91: a check compares a reading with the value you expect, with one operator: `assert
+         reading == expected`, `in`, `<`, `is None`; or it is `assert not reading`, `assert
+         isinstance(reading, T)`, `assert reading.startswith(x)` or `assert reading.endswith(x)`
+     so none of its 1 case(s) runs
+ test_other_call  (test_1015_checks.py:94)
+   ✓ test_other_call › any(u == 'ann' for u in shop.users)   1 of 1 item holds
+ test_computed_affix  (test_1015_checks.py:102)
+   ! refused:
+       line 107: the expected value computes `'ann'.upper()`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_isinstance_of_a_value  (test_1015_checks.py:110)
+   ! refused:
+       line 116: `isinstance(reading, T)` takes a class as T: `kind` is bound to no class at module
+         level; write the class's name, a dotted name, or a tuple of them
+     so none of its 1 case(s) runs
+ test_not_reads_nothing  (test_1015_checks.py:119)
+   ! refused:
+       line 122: `[]` reads no value; read what the act made
+     so none of its 1 case(s) runs
+── test_1015_private.py
+ test_reads_private_names  (test_1015_private.py:11)
+   ✓ test_reads_private_names › log.__name__ == '_log'   '_log'
+   ✓ test_reads_private_names › same.__name__ == '_log'   '_log'
+   ✓ test_reads_private_names › later is not None   <lambda at line 17>
+   ✓ test_reads_private_names › shop.users == ['ann']   ['ann']
+     ⚠ line 15 reads the private name _log
+     ⚠ line 16 reads the private name _log
+     ⚠ line 17 reads the private name _flush
+ test_private_in_a_check_and_a_class  (test_1015_private.py:26)
+   ✓ test_private_in_a_check_and_a_class › shop_module._log is not None   _log
+   ✓ test_private_in_a_check_and_a_class › Box().value == 1   1
+   ✗ test_private_in_a_check_and_a_class › shop.users == ['bob']   test_1015_private.py:26 ·
+     assert at line 39
+       expected  ['bob'] (list)
+       reading   [] (list)
+       why       0 items, not 1
+       random was seeded for this case; python run.py --seed 356675 test_1015_private.py repeats it
+     ⚠ line 34 reads the private name _secret
+     ⚠ line 37 reads the private name _log
+ test_own_names_are_not_private  (test_1015_private.py:42)
+   ✓ test_own_names_are_not_private › _total == 1   1
+   ✓ test_own_names_are_not_private › Shop().users == []   []
+ test_private_and_refused  (test_1015_private.py:51)
+   ! test_private_and_refused › path   test_1015_private.py:51
+       what      the branch at test_1015_private.py:54 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_private_and_refused › shown == 'anonymous'   'anonymous'
+       random was seeded for this case; python run.py --seed 356675 test_1015_private.py repeats it
+     ⚠ line 55 reads the private name _log
+── test_1015_replaced.py
+ test_replaced_and_kept  (test_1015_replaced.py:16)
+   ✓ test_replaced_and_kept › sent == 'faked to ann'   'faked to ann'
+     ⚠ the act replaced mailer.SMTP
+ test_patched_under_a_setup  (test_1015_replaced.py:23)
+   ✓ test_patched_under_a_setup › sent == 'faked to ann'   'faked to ann'
+     ⚠ the act replaced mailer.SMTP
+ test_patch_undone_before_the_check  (test_1015_replaced.py:31)
+   ✓ test_patch_undone_before_the_check › sent == 'faked to ann'   'faked to ann'
+ test_many_replaced  (test_1015_replaced.py:39)
+   ✗ test_many_replaced › sent == 'sent to ann through smtp.test'   test_1015_replaced.py:39 ·
+     assert at line 45
+       expected  'sent to ann through smtp.test' (str)
+       reading   'faked to ann' (str)
+       why       they differ from character 0: expected 'sent to ann through ', read 'faked to ann'
+       random was seeded for this case; python run.py --seed 356675 test_1015_replaced.py repeats it
+     ⚠ the act replaced mailer.HOST
+     ⚠ the act replaced mailer.PORT
+     ⚠ the act replaced mailer.RETRIES
+     ⚠ and 2 more
+ test_replaced_and_refused  (test_1015_replaced.py:48)
+   ! test_replaced_and_refused › path   test_1015_replaced.py:48
+       what      the branch at test_1015_replaced.py:52 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_replaced_and_refused › sent == 'faked to ann'   'faked to ann'
+       random was seeded for this case; python run.py --seed 356675 test_1015_replaced.py repeats it
+     ⚠ the act replaced mailer.SMTP
+ test_nothing_replaced  (test_1015_replaced.py:56)
+   ✓ test_nothing_replaced › sent == 'sent to ann through mail.example'   'sent to ann through
+     mail.example'
+── test_1015_seed.py
+ test_draws  (test_1015_seed.py:12)
+   ✓ six › roll >= 1   5
+ test_shows_the_draw  (test_1015_seed.py:21)
+   ✗ d6 › roll == 0   test_1015_seed.py:28 · assert at line 25
+       expected  0 (int)
+       reading   3 (int)
+       inputs    sides=6
+       random was seeded for this case; python run.py --seed 356675 test_1015_seed.py repeats it
+   ✗ d20 › roll == 0   test_1015_seed.py:29 · assert at line 25
+       expected  0 (int)
+       reading   1 (int)
+       inputs    sides=20
+       random was seeded for this case; python run.py --seed 356675 test_1015_seed.py repeats it
+ test_one_way_draw  (test_1015_seed.py:32)
+   ! test_one_way_draw › path   test_1015_seed.py:32
+       what      the branch at test_1015_seed.py:36 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_one_way_draw › kept == 'low'   'low'
+       random was seeded for this case; python run.py --seed 356675 test_1015_seed.py repeats it
+── test_1015_skip.py
+ test_skipped  (test_1015_skip.py:15)
+   ○ ann  skipped: the shop has no refunds of a refund yet
+   ○ bob  skipped: the shop has no refunds of a refund yet
+ test_after_a_skipped_stage  (test_1015_skip.py:27)
+   ⊘ test_after_a_skipped_stage  blocked: it takes the product of ann (test_1015_skip.py:23),
+     which was skipped
+ test_skip_if_holds  (test_1015_skip.py:35)
+   ○ test_skip_if_holds  skipped: the condition holds on every platform
+ test_skip_if_does_not_hold  (test_1015_skip.py:42)
+   ✗ test_skip_if_does_not_hold › names() == ['ann']   test_1015_skip.py:42 · assert at line 45
+       expected  ['ann'] (list)
+       reading   ['builtin', 'ann'] (list)
+       why       2 items, not 1
+       random was seeded for this case; python run.py --seed 356675 test_1015_skip.py repeats it
+ test_skip_if_passes  (test_1015_skip.py:49)
+   ✓ test_skip_if_passes › shop.users == ['ann']   ['ann']
+ test_reason_by_name  (test_1015_skip.py:60)
+   ! refused:
+       line 59: `@skip(…)` takes its reason as a string literal that is not empty, and it has
+         `REASON`: say why the test does not run
+     so none of its 1 case(s) runs
+ test_empty_reason  (test_1015_skip.py:67)
+   ! refused:
+       line 66: `@skip(…)` takes its reason as a string literal that is not empty, and it has
+         `''`: say why the test does not run
+     so none of its 1 case(s) runs
+ test_reason_by_fstring  (test_1015_skip.py:73)
+   ! refused:
+       line 72: `@skip_if(…)` takes its reason as a string literal that is not empty, and it has
+         `f'computed {sys.platform}'`: say why the test does not run
+     so none of its 1 case(s) runs
+── test_1015_time.py
+ test_slow  (test_1015_time.py:11)
+   ✓ test_slow › shop.users == ['ann']   ['ann']  1.2 s
+ test_slow_and_failing  (test_1015_time.py:19)
+   ✗ test_slow_and_failing › shop.users == ['bob']   test_1015_time.py:19 · assert at line 24
+     1.0 s
+       expected  ['bob'] (list)
+       reading   ['ann'] (list)
+       why       [0]: they differ from character 0: expected 'bob', read 'ann'
+       random was seeded for this case; python run.py --seed 356675 test_1015_time.py repeats it
+ test_quick  (test_1015_time.py:27)
+   ✓ test_quick › Shop().users == []   []
+ test_slow_and_refused  (test_1015_time.py:32)
+   ! test_slow_and_refused › path   test_1015_time.py:32  1.0 s
+       what      the branch at test_1015_time.py:35 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_slow_and_refused › shown == 'anonymous'   'anonymous'
+       random was seeded for this case; python run.py --seed 356675 test_1015_time.py repeats it
+── test_1015_try.py
+ test_try_of_the_form  (test_1015_try.py:14)
+   ✓ test_try_of_the_form › seen == ["ValueError: invalid literal for int() with base 1…
+     ["ValueError: invalid literal for int() with base 10: 'x'"]
+ test_try_with_a_dotted_name_and_as  (test_1015_try.py:24)
+   ✓ test_try_with_a_dotted_name_and_as › seen == ['Expecting property name enclosed in double
+     quotes…   ['Expecting property name enclosed in double quotes', 'JSONDecodeError']
+ test_try_that_does_not_raise  (test_1015_try.py:35)
+   ✗ test_try_that_does_not_raise › try   test_1015_try.py:35
+       what      the `try` at line 39 expects ValueError, and the statement did not raise it
+                 at test_1015_try.py:40  parse("1")
+   ⊘ test_try_that_does_not_raise › seen == ['handled']   blocked: the act did not end as the
+     test says
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+ test_try_that_raises_another_type  (test_1015_try.py:46)
+   ✗ test_try_that_raises_another_type › act   test_1015_try.py:46
+       what      the act raised TypeError: int() argument must be a string, a bytes-like object or a
+         real number, not 'NoneType'
+                 at test_1015_try.py:50  parse(None)  # ty: ignore[invalid-argument-type]
+                 raised in parse() at undertest.py:20
+   ⊘ test_try_that_raises_another_type › seen == ['handled']   blocked: the act did not end as
+     the test says
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+ test_try_of_two_statements  (test_1015_try.py:56)
+   ! test_try_of_two_statements › path   test_1015_try.py:56
+       what      line 63 of test_1015_try.py never ran: the act has one path, so each line of it
+         runs in every case
+   ! test_try_of_two_statements › path   test_1015_try.py:56
+       what      the `except` at test_1015_try.py:64 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there; a `try` of the form holds one statement and one `except SomeError:`, with
+         no `else` and no `finally`, and fails the case when the statement does not raise SomeError
+   ✓ test_try_of_two_statements › seen == ['handled']   ['handled']
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+ test_try_with_finally  (test_1015_try.py:69)
+   ! test_try_with_finally › path   test_1015_try.py:69
+       what      the `except` at test_1015_try.py:75 went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there; a `try` of the form holds one statement and one `except SomeError:`, with
+         no `else` and no `finally`, and fails the case when the statement does not raise SomeError
+   ✓ test_try_with_finally › seen == ['handled', 'done']   ['handled', 'done']
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+ test_bare_except  (test_1015_try.py:82)
+   ! test_bare_except › path   test_1015_try.py:82
+       what      lines 88, 89 of test_1015_try.py never ran: the act has one path, so each line of
+         it runs in every case
+   ✓ test_bare_except › seen == ['1']   ['1']
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+ test_assert_in_the_except  (test_1015_try.py:93)
+   ! test_assert_in_the_except › path   test_1015_try.py:93
+       what      an assert ran in the act at test_1015_try.py:99: the act ends at the first check,
+         and a function handed to the code may swallow an assert; keep what it sees, and check that
+         at the end
+   ✓ test_assert_in_the_except › seen == ['handled']   ['handled']
+       random was seeded for this case; python run.py --seed 356675 test_1015_try.py repeats it
+── test_1025_all.py
+ test_gt_holds  (test_1025_all.py:12)
+   ✓ test_gt_holds › all(t > 0 for t in totals)   3 of 3 items hold
+ test_gt_fails  (test_1025_all.py:19)
+   ✗ test_gt_fails › all(x > 0 for x in xs)   test_1025_all.py:19 · assert at line 23
+       what      2 of 5 items break  x > 0
+                 [2]  -3
+                 [3]  0
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_is_holds  (test_1025_all.py:26)
+   ✓ test_is_holds › all(w.category is None for w in words)   3 of 3 items hold
+ test_is_fails  (test_1025_all.py:32)
+   ✗ test_is_fails › all(w.category is None for w in words)   test_1025_all.py:32 · assert at
+     line 36
+       what      1 of 3 items break  w.category is None
+                 [1]  w.category  <class 'str'>     w  Word('ab')
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_isinstance_holds  (test_1025_all.py:39)
+   ✓ test_isinstance_holds › all(isinstance(u, str) for u in shop.users)   2 of 2 items hold
+ test_isinstance_fails  (test_1025_all.py:47)
+   ✗ test_isinstance_fails › all(isinstance(c, int) for c in parts)   test_1025_all.py:47 ·
+     assert at line 50
+       what      1 of 2 items break  isinstance(c, int)
+                 [1]  'ab'
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_startswith_holds  (test_1025_all.py:53)
+   ✓ ann › all(u.startswith(prefix) for u in shop.users)   2 of 2 items hold
+ test_computed_reading_fails  (test_1025_all.py:64)
+   ✗ test_computed_reading_fails › all(len(c) == 2 for c in parts)   test_1025_all.py:64 ·
+     assert at line 67
+       asks      each chunk holds two letters
+       what      1 of 3 items break  len(c) == 2
+                 [2]  len(c)  1     c  'e'
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_tuple_target_holds  (test_1025_all.py:70)
+   ✓ test_tuple_target_holds › all(len(a + b) == 2 for a, b in pairs)   4 of 4 items hold
+ test_tuple_target_fails  (test_1025_all.py:76)
+   ✗ test_tuple_target_fails › all(a != 'x' for a, b in pairs)   test_1025_all.py:76 · assert
+     at line 80
+       what      1 of 3 items break  a != 'x'
+                 [1]  a  'x'     (a, b)  ('x', 'c')
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_tuple_target_compares_items  (test_1025_all.py:83)
+   ! refused:
+       line 87: the expected value computes `b`; an expected value is a literal, or operators on
+         literals, so the test cannot compute what the code computes; write a literal, or take it as
+         an input of the case
+     so none of its 1 case(s) runs
+ test_nested_comprehension  (test_1025_all.py:90)
+   ✓ test_nested_comprehension › all(n > 0 for n in [len(c) for c in parts])   3 of 3 items hold
+ test_empty_holds  (test_1025_all.py:96)
+   ✓ test_empty_holds › all(o.total > 0 for o in shop.orders)   0 of 0 items hold
+ test_with_if  (test_1025_all.py:102)
+   ! refused:
+       line 106: `all(…)` has an `if`; `assert all(<check> for <target> in <reading>)` (or `any`)
+         is a check: a generator expression with one `for` and no `if`, whose <check> is one
+         comparison, `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`
+     so none of its 1 case(s) runs
+ test_two_fors  (test_1025_all.py:109)
+   ! refused:
+       line 112: `all(…)` has 2 `for`s; `assert all(<check> for <target> in <reading>)` (or `any`)
+         is a check: a generator expression with one `for` and no `if`, whose <check> is one
+         comparison, `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`
+     so none of its 1 case(s) runs
+ test_list_comprehension  (test_1025_all.py:115)
+   ! refused:
+       line 118: `all(…)` holds a list comprehension; `assert all(<check> for <target> in
+         <reading>)` (or `any`) is a check: a generator expression with one `for` and no `if`, whose
+         <check> is one comparison, `not x`, `isinstance(x, T)`, `x.startswith(y)` or
+         `x.endswith(y)`
+     so none of its 1 case(s) runs
+ test_body_no_check  (test_1025_all.py:121)
+   ! refused:
+       line 124: `c` is no check; `assert all(<check> for <target> in <reading>)` (or `any`) is a
+         check: a generator expression with one `for` and no `if`, whose <check> is one comparison,
+         `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`
+     so none of its 1 case(s) runs
+ test_class_on_the_right  (test_1025_all.py:127)
+   ! refused:
+       line 131: the expected value computes `ZeroDivisionError`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_computed_expected  (test_1025_all.py:134)
+   ! refused:
+       line 138: the expected value computes `len(parts)`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_inside_a_larger_expression  (test_1025_all.py:141)
+   ✓ test_inside_a_larger_expression › all((len(c) > 0 for c in parts)) == True   True
+ test_assert_in_the_reading  (test_1025_all.py:152)
+   ! test_assert_in_the_reading › path   test_1025_all.py:152
+       what      an assert ran inside the reading of the check at line 156, at test_1025_all.py:148
+         (positive, reached from line 156 of the test): a check is the one comparison; let the
+         helper return what it reads, and compare that in the check
+   ✓ test_assert_in_the_reading › all(positive(len(c)) is True for c in parts)   3 of 3 items
+     hold
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+ test_read_alone  (test_1025_all.py:159)
+   ✓ test_read_alone › all(c > '' for c in stack)   3 of 3 items hold
+   ✓ test_read_alone › all(stack.pop() > '' for _ in [0])   1 of 1 item holds
+   ! test_read_alone › len(stack) == 3   test_1025_all.py:159 · assert at line 165
+       what      it holds when read alone, and fails after the checks before it (lines 163, 164): a
+         reading before it changed what it reads, and a check reads, it does not act
+       random was seeded for this case; python run.py --seed 356675 test_1025_all.py repeats it
+── test_1025_any.py
+ test_holds  (test_1025_any.py:11)
+   ✓ test_holds › any(u == 'ann' for u in shop.users)   1 of 2 items hold
+ test_fails  (test_1025_any.py:19)
+   ✗ test_fails › any(x > 5 for x in xs)   test_1025_any.py:19 · assert at line 23
+       what      none of 3 items holds  x > 5
+                 [0]  1
+                 [1]  2
+                 [2]  3
+       random was seeded for this case; python run.py --seed 356675 test_1025_any.py repeats it
+ test_computed_reading_fails  (test_1025_any.py:26)
+   ✗ test_computed_reading_fails › any(len(c) == 3 for c in parts)   test_1025_any.py:26 ·
+     assert at line 30
+       what      none of 2 items holds  len(c) == 3
+                 [0]  len(c)  2     c  'ab'
+                 [1]  len(c)  1     c  'c'
+       random was seeded for this case; python run.py --seed 356675 test_1025_any.py repeats it
+ test_empty_fails  (test_1025_any.py:33)
+   ✗ test_empty_fails › any(o.total > 0 for o in shop.orders)   test_1025_any.py:33 · assert at
+     line 36
+       what      none of 0 items holds  o.total > 0
+       random was seeded for this case; python run.py --seed 356675 test_1025_any.py repeats it
+ test_with_if  (test_1025_any.py:39)
+   ! refused:
+       line 42: `any(…)` has an `if`; `assert all(<check> for <target> in <reading>)` (or `any`)
+         is a check: a generator expression with one `for` and no `if`, whose <check> is one
+         comparison, `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`
+     so none of its 1 case(s) runs
+── test_1025_iterators.py
+ test_read_once  (test_1025_iterators.py:14)
+   ! test_read_once › list(users) == ['ann']   test_1025_iterators.py:14 · assert at line 20
+       what      line 20 reads users, a list_iterator that one reading empties; make it a list in
+         the act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_read_twice  (test_1025_iterators.py:23)
+   ! test_read_twice › list(users) == ['ann']   test_1025_iterators.py:23 · assert at line 29
+       what      line 29 reads users, a list_iterator that one reading empties; make it a list in
+         the act
+   ! test_read_twice › list(users) == ['ann']   test_1025_iterators.py:23 · assert at line 30
+       what      line 30 reads users, a list_iterator that one reading empties; make it a list in
+         the act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_generator_as_the_reading  (test_1025_iterators.py:33)
+   ! test_generator_as_the_reading › all(n > 0 for n in numbers('1 2 3'))
+     test_1025_iterators.py:33 · assert at line 36
+       what      line 36 reads `numbers('1 2 3')`, a generator that one reading empties; make it a
+         list in the act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_generator_by_name  (test_1025_iterators.py:39)
+   ! test_generator_by_name › all(n > 0 for n in nums)   test_1025_iterators.py:39 · assert at
+     line 42
+       what      line 42 reads nums, a generator that one reading empties; make it a list in the act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_map_object  (test_1025_iterators.py:45)
+   ! test_map_object › list(values) == [1, 2]   test_1025_iterators.py:45 · assert at line 48
+       what      line 48 reads values, a map that one reading empties; make it a list in the act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_open_file  (test_1025_iterators.py:51)
+   ✗ test_open_file › warning   test_1025_iterators.py:51
+       what      a warning that the test does not expect: ResourceWarning: unclosed file
+         <_io.TextIOWrapper name='/tmp/tmp.2Y7KQXptL7/tmpdraadhzv/a.txt' mode='r' encoding='UTF-8'>
+                 at ../run.py:2662
+   ! test_open_file › f.read() == 'x'   test_1025_iterators.py:51 · assert at line 57
+       what      line 57 reads f, a TextIOWrapper that one reading empties; make it a list in the
+         act
+       random was seeded for this case; python run.py --seed 356675 test_1025_iterators.py repeats
+         it
+ test_a_list_in_the_act  (test_1025_iterators.py:60)
+   ✓ test_a_list_in_the_act › all(n > 0 for n in nums)   3 of 3 items hold
+   ✓ test_a_list_in_the_act › nums == [1, 2, 3]   [1, 2, 3]
+ test_made_inside_the_check  (test_1025_iterators.py:67)
+   ✓ test_made_inside_the_check › list(numbers('1 2')) == [1, 2]   [1, 2]
+── test_1025_raise.py
+ test_generator_raises  (test_1025_raise.py:9)
+   ✗ test_generator_raises › act   test_1025_raise.py:9
+       what      the act raised ValueError: boom
+                 at test_1025_raise.py:12  items = list(gen())
+                 raised inside the generator gen() at lazy.py:6
+   ⊘ test_generator_raises › items == [1]   blocked: the act did not end as the test says
+       random was seeded for this case; python run.py --seed 356675 test_1025_raise.py repeats it
+ test_function_raises  (test_1025_raise.py:16)
+   ✗ test_function_raises › act   test_1025_raise.py:16
+       what      the act raised ValueError: not a number: 'x'
+                 at test_1025_raise.py:19  n = parse("x")
+                 raised in parse() at lazy.py:11
+   ⊘ test_function_raises › n == 1   blocked: the act did not end as the test says
+       random was seeded for this case; python run.py --seed 356675 test_1025_raise.py repeats it
+ test_own_line_raises  (test_1025_raise.py:23)
+   ✗ test_own_line_raises › act   test_1025_raise.py:23
+       what      the act raised ZeroDivisionError: integer division or modulo by zero
+                 at test_1025_raise.py:26  n = parse("1") // 0
+   ⊘ test_own_line_raises › n == 1   blocked: the act did not end as the test says
+       random was seeded for this case; python run.py --seed 356675 test_1025_raise.py repeats it
+ test_reading_raises  (test_1025_raise.py:30)
+   ✗ test_reading_raises › parse(text) == 1   test_1025_raise.py:30 · assert at line 34
+       what      reading it raised ValueError: not a number: 'x'
+                 at test_1025_raise.py:34  assert parse(text) == 1
+                 raised in parse() at lazy.py:11
+       random was seeded for this case; python run.py --seed 356675 test_1025_raise.py repeats it
+── test_before.py
+ test_order  (test_before.py:25)
+   ✓ test_order › names() == ['a', 'b', 'ann']   ['a', 'b', 'ann']
+ test_before_with_a_fixture  (test_before.py:37)
+   ✓ test_before_with_a_fixture › names() == ['ann', 'bob']   ['ann', 'bob']
+ test_ann_joins  (test_before.py:45)
+   ✓ ann › names() == ['ann']   ['ann']
+ test_after_a_stage  (test_before.py:56)
+   ✓ test_after_a_stage › names() == ['bob']   ['bob']
+ test_before_that_raises  (test_before.py:64)
+   ✗ test_before_that_raises › before   test_before.py:64
+       what      @before(boom) raised RuntimeError: no registry
+                 at test_before.py:19  raise RuntimeError("no registry")
+   ⊘ test_before_that_raises › names() == ['builtin', 'ann']   blocked: a @before raised
+       random was seeded for this case; python run.py --seed 356675 test_before.py repeats it
+ test_other_decorator  (test_before.py:76)
+   ! refused:
+       line 75: `@tagged`: a test takes no decorator but the form's `@before(fn)`, `@skip(reason)`
+         and `@skip_if(condition, reason)`; give its cases with `name = case(test_other_decorator,
+         …)`
+     so none of its 1 case(s) runs
+── test_before_each.py
+   ! the file is refused: importing it raised ImportError: `before_each` is gone from the form: put
+     `@before(fn)` on each test that needs fn to run first
+     so none of its tests runs
+── test_blocked.py
+ test_stage  (test_blocked.py:11)
+   ✓ good › shop.users == users   ['ann']
+   ✗ wrong › shop.users == users   test_blocked.py:20 · assert at line 15
+       expected  ['bob'] (list)
+       reading   ['ann'] (list)
+       why       [0]: they differ from character 0: expected 'bob', read 'ann'
+       inputs    name='ann' users=['bob']
+       random was seeded for this case; python run.py --seed 356675 test_blocked.py repeats it
+ test_after_good  (test_blocked.py:23)
+   ✓ test_after_good › shop.users == ['ann', 'cy']   ['ann', 'cy']
+ test_after_wrong  (test_blocked.py:29)
+   ⊘ after_wrong  blocked: it takes the product of wrong (test_blocked.py:20), which failed
+ test_two_down  (test_blocked.py:39)
+   ⊘ test_two_down  blocked: it takes the product of after_wrong (test_blocked.py:36), which was
+     blocked
+ test_one_way  (test_blocked.py:46)
+   ! one_way › path   test_blocked.py:54
+       what      the branch at test_blocked.py:49 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+       inputs    name='dee'
+   ✓ one_way › shop.users == [name]   ['dee']
+       random was seeded for this case; python run.py --seed 356675 test_blocked.py repeats it
+ test_after_one_way  (test_blocked.py:57)
+   ⊘ test_after_one_way  blocked: it takes the product of one_way (test_blocked.py:54), which was
+     refused
+ test_computes  (test_blocked.py:63)
+   ! refused:
+       line 67: the expected value computes `name.upper()`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_after_computes  (test_blocked.py:74)
+   ⊘ test_after_computes  blocked: it takes the product of computed (test_blocked.py:71), which
+     was refused
+ test_threaded_stage  (test_blocked.py:80)
+   ✗ threaded_wrong › worker.thread.name == 'nobody'   test_blocked.py:87 · assert at line 83
+       expected  'nobody' (str)
+       reading   'worker' (str)
+       why       they differ from character 0: expected 'nobody', read 'worker'
+       inputs    name='worker'
+       random was seeded for this case; python run.py --seed 356675 test_blocked.py repeats it
+ test_after_threaded_wrong  (test_blocked.py:90)
+   ↺ test_after_threaded_wrong ran by replay: a thread other than the main one is alive after the
+     act (worker), and a fork copies only the thread that forks
+   ⊘ test_after_threaded_wrong  blocked: it takes the product of threaded_wrong
+     (test_blocked.py:87), which failed
+── test_case_names.py
+   ! a case of test_lower at line 21 has two names, first and second: give each case one name
+   ! a case of test_lower at line 18 has no name, so the run cannot show it: bind each case to a
+     name of its own, `name = case(test, …)`, once
+   ! 2 cases of test_lower at line 20 have no name, so the run cannot show them: bind each case to a
+     name of its own, `name = case(test, …)`, once
+   ! a case of test_lower at line 22 has no name, so the run cannot show it: bind each case to a
+     name of its own, `name = case(test, …)`, once
+ test_lower  (test_case_names.py:9)
+   ✓ plain › low.isupper() is False   False
+   ✓ twice › low.isupper() is False   False
+── test_composed.py
+ test_shared_once  (test_composed.py:16)
+   ✓ bob › signed.users == ['ann', name]   ['ann', 'bob']
+   ✓ cy › signed.users == ['ann', name]   ['ann', 'cy']
+ test_cycle  (test_composed.py:37)
+   ! refused:
+       the input value: the fixtures ring_a → ring_b → ring_a form a cycle, so none of them can
+         run first
+     so none of its 1 case(s) runs
+ test_parameter_with_no_default  (test_composed.py:56)
+   ! refused:
+       the input shop: the fixture named takes name, whose default is no `use(…)`; a fixture takes
+         only fixtures: `name: T = use(…)`
+     so none of its 1 case(s) runs
+ test_parameter_with_a_plain_default  (test_composed.py:62)
+   ! refused:
+       the input shop: the fixture defaulted takes name, whose default is no `use(…)`; a fixture
+         takes only fixtures: `name: T = use(…)`
+     so none of its 1 case(s) runs
+── test_far.py
+ test_member  (test_far_home.py:18), a stage of test_far_home.py
+   ✓ member › shop.users == users   ['ann']
+   ✗ wrong_member › shop.users == users   test_far_home.py:26 · assert at line 21
+       expected  ['nobody'] (list)
+       reading   ['bob'] (list)
+       why       [0]: they differ from character 0: expected 'nobody', read 'bob'
+       inputs    name='bob' users=['nobody']
+       random was seeded for this case; python run.py --seed 356675 test_far_home.py repeats it
+ test_vip_member  (test_far_home.py:35), a stage of test_far_home.py
+   ! vip_member › path   test_far_home.py:43
+       what      line 32 of test_far_home.py (shown, reached from line 38 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+       inputs    name='cy'
+   ! vip_member › path   test_far_home.py:43
+       what      the branch at test_far_home.py:30 (shown, reached from line 38 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+       inputs    name='cy'
+   ✓ vip_member › shop.users == ['CY']   ['CY']
+       random was seeded for this case; python run.py --seed 356675 test_far_home.py repeats it
+ test_buy  (test_far.py:11)
+   ✓ test_buy › order.total == 2400   2400
+ test_after_far_wrong  (test_far.py:18)
+   ⊘ test_after_far_wrong  blocked: it takes the product of wrong_member (test_far_home.py:26),
+     which failed
+ test_after_far_refused  (test_far.py:24)
+   ⊘ test_after_far_refused  blocked: it takes the product of vip_member (test_far_home.py:43),
+     which was refused
+── test_far_home.py
+ test_member  (test_far_home.py:18)
+   ✓ member › shop.users == users   ['ann']
+   ✗ wrong_member › shop.users == users   test_far_home.py:26 · assert at line 21
+       expected  ['nobody'] (list)
+       reading   ['bob'] (list)
+       why       [0]: they differ from character 0: expected 'nobody', read 'bob'
+       inputs    name='bob' users=['nobody']
+       random was seeded for this case; python run.py --seed 356675 test_far_home.py repeats it
+ test_vip_member  (test_far_home.py:35)
+   ! vip_member › path   test_far_home.py:43
+       what      line 32 of test_far_home.py (shown, reached from line 38 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+       inputs    name='cy'
+   ! vip_member › path   test_far_home.py:43
+       what      the branch at test_far_home.py:30 (shown, reached from line 38 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+       inputs    name='cy'
+   ✓ vip_member › shop.users == ['CY']   ['CY']
+       random was seeded for this case; python run.py --seed 356675 test_far_home.py repeats it
+── test_helper_lines.py
+ test_helper_branch  (test_helper_lines.py:17)
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      line 10 of test_helper_lines.py (pick, reached from line 21 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 21 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_branch › got == 1   1
+       random was seeded for this case; python run.py --seed 356675 test_helper_lines.py repeats it
+ test_helper_of_a_helper  (test_helper_lines.py:25)
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      line 9 of test_helper_lines.py (pick, reached from line 28 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 28 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_of_a_helper › total == 4   4
+       random was seeded for this case; python run.py --seed 356675 test_helper_lines.py repeats it
+ test_helper_in_a_reading  (test_helper_lines.py:32)
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      line 10 of test_helper_lines.py (pick, reached from line 37 of the test) never ran:
+         the act has one path, so each line of it runs in every case
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      the branch at test_helper_lines.py:8 (pick, reached from line 37 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_helper_in_a_reading › pick(flag) == 1   1
+       random was seeded for this case; python run.py --seed 356675 test_helper_lines.py repeats it
+── test_paths.py
+ test_join_threads  (test_paths.py:29)
+   ✓ two_threads › len(threads) == n   2
+   ! no_threads › path   test_paths.py:41
+       what      line 36 of test_paths.py never ran: the act has one path, so each line of it runs
+         in every case
+       inputs    n=0
+   ! no_threads › path   test_paths.py:41
+       what      the loop at test_paths.py:33 ran no round: the act has one path, so each line of it
+         runs in every case
+       inputs    n=0
+   ! no_threads › path   test_paths.py:41
+       what      the loop at test_paths.py:35 ran no round: the act has one path, so each line of it
+         runs in every case
+       inputs    n=0
+   ✓ no_threads › len(threads) == n   0
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_module_helper_branch  (test_paths.py:44)
+   ! test_module_helper_branch › path   test_paths.py:44
+       what      line 19 of test_paths.py (module_helper, reached from line 47 of the test) never
+         ran: the act has one path, so each line of it runs in every case
+   ! test_module_helper_branch › path   test_paths.py:44
+       what      the branch at test_paths.py:17 (module_helper, reached from line 47 of the test)
+         went one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_module_helper_branch › got == 1   1
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_class_branch  (test_paths.py:51)
+   ! test_class_branch › path   test_paths.py:51
+       what      the branch at test_paths.py:24 (__init__, reached from line 53 of the test) went
+         one way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and
+         `except` in it takes both ways in a case, or is not there
+   ✓ test_class_branch › box.v == 0   0
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_ternary  (test_paths.py:57)
+   ! test_ternary › path   test_paths.py:57
+       what      the branch at test_paths.py:59 went one way: the act has one path, so each `if`, `x
+         if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not
+         there
+   ✓ test_ternary › y == 1   1
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_or_default  (test_paths.py:63)
+   ! test_or_default › path   test_paths.py:63
+       what      the branch at test_paths.py:65 went one way: the act has one path, so each `if`, `x
+         if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is not
+         there
+   ✓ test_or_default › shown == 'anonymous'   'anonymous'
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_callback_branches  (test_paths.py:69)
+   ✓ test_callback_branches › seen == ['loud']   ['loud']
+ test_callback_by_assignment  (test_paths.py:83)
+   ✓ test_callback_by_assignment › sizes == [1]   [1]
+ test_branch_both_ways_in_a_loop  (test_paths.py:104)
+   ✓ both_ways › odd == [1]   [1]
+   ! one_way › path   test_paths.py:114
+       what      the branch at test_paths.py:108 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+       inputs    items=[1]
+   ✓ one_way › odd == [1]   [1]
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_comprehension_over_nothing  (test_paths.py:117)
+   ! empty › path   test_paths.py:123
+       what      the loop at test_paths.py:119 ran no round: the act has one path, so each line of
+         it runs in every case
+       inputs    items=[]
+   ✓ empty › doubled == []   []
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_try_in_the_act  (test_paths.py:126)
+   ! test_try_in_the_act › path   test_paths.py:126
+       what      line 131 of test_paths.py never ran: the act has one path, so each line of it runs
+         in every case
+   ! test_try_in_the_act › path   test_paths.py:126
+       what      the `except` at test_paths.py:132 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there; a `try` of the form holds one statement and one `except SomeError:`, with no
+         `else` and no `finally`, and fails the case when the statement does not raise SomeError
+   ✓ test_try_in_the_act › got == -1   -1
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_raise_swallowed_at_the_last_line  (test_paths.py:137)
+   ✓ test_raise_swallowed_at_the_last_line › log == ['before']   ['before']
+ test_assert_in_a_helper  (test_paths.py:146)
+   ✓ test_assert_in_a_helper › names == ['a.log']   ['a.log']
+ test_assert_in_a_callback  (test_paths.py:154)
+   ! test_assert_in_a_callback › path   test_paths.py:154
+       what      an assert ran in the act at test_paths.py:160 (sink, reached from line 163 of the
+         test): the act ends at the first check, and a function handed to the code may swallow an
+         assert; keep what it sees, and check that at the end
+   ✓ test_assert_in_a_callback › seen == ['x']   ['x']
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_line_after_the_raise  (test_paths.py:167)
+   ! test_line_after_the_raise › path   test_paths.py:167
+       what      line 172 ran after the expected raise: `with raises(…):` ends the act, since
+         after a raise the act has nothing left to run
+   ✓ test_line_after_the_raise › raises   ValueError: invalid literal for int() with base 10:
+     'x'
+   ✓ test_line_after_the_raise › str(caught.value) == "invalid literal for int() with base 1…
+      "invalid literal for int() with base 10: 'x'"
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_checks_nothing  (test_paths.py:176)
+   ! test_checks_nothing › checks   test_paths.py:176
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise
+         with `with raises(…):`
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+ test_expected_by_operators  (test_paths.py:181)
+   ✓ test_expected_by_operators › text == '7' * 20 + '\n'   '77777777777777777777\n'
+ test_callback_called_by_c  (test_paths.py:187)
+   ! test_callback_called_by_c › path   test_paths.py:187
+       what      line 194 of test_paths.py (key, reached from line 197 of the test) never ran: the
+         act has one path, so each line of it runs in every case
+   ! test_callback_called_by_c › path   test_paths.py:187
+       what      the branch at test_paths.py:193 (key, reached from line 197 of the test) went one
+         way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except`
+         in it takes both ways in a case, or is not there
+   ✓ test_callback_called_by_c › ordered == ['a', 'bb']   ['a', 'bb']
+       random was seeded for this case; python run.py --seed 356675 test_paths.py repeats it
+── test_reading_acts.py
+ test_reading_calls_the_code  (test_reading_acts.py:12)
+   ✓ test_reading_calls_the_code › wrap(stream) is True   True
+   ! test_reading_calls_the_code › stream.flush.called is False   test_reading_acts.py:12 ·
+     assert at line 16
+       what      it holds when read alone, and fails after the checks before it (line 15): a reading
+         before it changed what it reads, and a check reads, it does not act
+       random was seeded for this case; python run.py --seed 356675 test_reading_acts.py repeats it
+ test_reading_consumes_a_stream  (test_reading_acts.py:19)
+   ! test_reading_consumes_a_stream › stream.read() == 'x'   test_reading_acts.py:19 · assert at
+     line 24
+       what      line 24 reads stream, a StringIO that one reading empties; make it a list in the
+         act
+   ! test_reading_consumes_a_stream › stream.read() == 'x'   test_reading_acts.py:19 · assert at
+     line 25
+       what      line 25 reads stream, a StringIO that one reading empties; make it a list in the
+         act
+       random was seeded for this case; python run.py --seed 356675 test_reading_acts.py repeats it
+ test_pure_readings  (test_reading_acts.py:28)
+   ✓ test_pure_readings › seen['a'] == 1   1
+   ✓ test_pure_readings › 'b' not in seen   {'a': 1}
+ test_the_act_flushes  (test_reading_acts.py:35)
+   ✓ test_the_act_flushes › wrapped is True   True
+   ✓ test_the_act_flushes › stream.flush.called is True   True
+── test_reading_assert.py
+ test_assert_in_a_reading  (test_reading_assert.py:19)
+   ! test_assert_in_a_reading › path   test_reading_assert.py:19
+       what      an assert ran inside the reading of the check at line 24, at
+         test_reading_assert.py:12 (check_paid, reached from line 24 of the test): a check is the
+         one comparison; let the helper return what it reads, and compare that in the check
+   ✓ test_assert_in_a_reading › check_paid(order) is None   None
+       random was seeded for this case; python run.py --seed 356675 test_reading_assert.py repeats
+         it
+ test_failing_assert_in_a_reading  (test_reading_assert.py:27)
+   ! test_failing_assert_in_a_reading › path   test_reading_assert.py:27
+       what      an assert ran inside the reading of the check at line 31, at
+         test_reading_assert.py:12 (check_paid, reached from line 31 of the test): a check is the
+         one comparison; let the helper return what it reads, and compare that in the check
+   ✗ test_failing_assert_in_a_reading › check_paid(order) is None   test_reading_assert.py:27 ·
+     assert at line 31
+       what      reading it raised AssertionError:
+                 at test_reading_assert.py:31  assert check_paid(order) is None
+                 at test_reading_assert.py:12  assert order.state == "paid"
+                 raised in check_paid() at test_reading_assert.py:12
+       random was seeded for this case; python run.py --seed 356675 test_reading_assert.py repeats
+         it
+ test_helper_that_returns  (test_reading_assert.py:34)
+   ✓ test_helper_that_returns › state_of(order) == 'paid'   'paid'
+ test_asserting_helper_of_another_module  (test_reading_assert.py:40)
+   ✓ test_asserting_helper_of_another_module › total_is(order, 0) is None   None
+── test_reset.py
+ test_register  (test_reset.py:9)
+   ✓ test_register › names() == ['ann']   ['ann']
+ test_register_without_reset  (test_reset.py:15)
+   ✗ test_register_without_reset › names() == ['ann']   test_reset.py:15 · assert at line 18
+       expected  ['ann'] (list)
+       reading   ['builtin', 'ann'] (list)
+       why       2 items, not 1
+       random was seeded for this case; python run.py --seed 356675 test_reset.py repeats it
+── test_stock_fingerprint.py
+ test_reads_through_an_alias  (test_stock_fingerprint.py:42)
+   ✓ test_reads_through_an_alias › (same / 'a.log').read_text() == 'line\n'   'line\n'
+   ✓ test_reads_through_an_alias › log.exists() is True   True
+ test_a_reading_that_rotates  (test_stock_fingerprint.py:51)
+   ! test_a_reading_that_rotates › (d / 'a.log').rename(d / 'a.log.1').name == 'a.log.1'
+     test_stock_fingerprint.py:51 · assert at line 55
+       what      reading it changed the stock LogDir: a check reads what the act made, and changes
+         nothing
+   ! test_a_reading_that_rotates › sorted((p.name for p in d.iterdir())) == ['a.log.1']
+     test_stock_fingerprint.py:51 · assert at line 56
+       what      it fails when read alone, and holds after the checks before it (line 55): a reading
+         before it changed what it reads, and a check reads, it does not act
+       random was seeded for this case; python run.py --seed 356675 test_stock_fingerprint.py
+         repeats it
+ test_a_stock_with_no_watch  (test_stock_fingerprint.py:59)
+   ! refused:
+       the input d: the stock SampleOnly offers neither Fingerprints nor Checkpoints, so a check
+         that changes it cannot be seen
+     so none of its 1 case(s) runs
+── test_stock_in_a_fixture.py
+ test_stock_through_a_fixture  (test_stock_in_a_fixture.py:46)
+   ✓ test_stock_through_a_fixture › sorted((p.name for p in folder.iterdir())) == ['app.log']
+     ['app.log']
+ test_reading_changes_the_stock  (test_stock_in_a_fixture.py:52)
+   ! test_reading_changes_the_stock › log.rename(log.with_name('app.log.1')).name == 'app.log.1'
+     test_stock_in_a_fixture.py:52 · assert at line 56
+       what      reading it changed the stock LogDir: a check reads what the act made, and changes
+         nothing
+       random was seeded for this case; python run.py --seed 356675 test_stock_in_a_fixture.py
+         repeats it
+ test_stock_with_no_watch  (test_stock_in_a_fixture.py:59)
+   ! refused:
+       the input log (through bare_log): the stock SampleOnly offers neither Fingerprints nor
+         Checkpoints, so a check that changes it cannot be seen
+     so none of its 1 case(s) runs
+── test_tree.py
+ test_open  (test_tree.py:20)
+   ✓ root › count(opened) == 1   1
+ test_next  (test_tree.py:30)
+   ✓ next_step › count(opened) == 1   1
+   ✓ next_step › count(step) == 1   1
+ test_leaf  (test_tree.py:41)
+   ✓ test_leaf › count('tree') == 1   1
+   ✓ test_leaf › count(step) == 1   1
+ test_sibling  (test_tree.py:47)
+   ✓ test_sibling › count(opened) == 1   1
+ test_with_thread  (test_tree.py:55)
+   ✓ threaded › worker.thread.is_alive() is True   True
+ test_after_thread  (test_tree.py:65)
+   ↺ test_after_thread ran by replay: a thread other than the main one is alive after the act
+     (thread), and a fork copies only the thread that forks
+   ✓ test_after_thread › count(worker.thread.name) == 2   2
+ test_with_stock  (test_tree.py:85)
+   ✓ stocked › (db / 'rows').read_text() == name   'stock'
+ test_after_stock  (test_tree.py:95)
+   ↺ test_after_stock ran by replay: the chain reads a stock (Db), whose state a fork does not
+     copy
+   ✓ test_after_stock › (db / 'rows').read_text() == 'stock'   'stock'
+   ✓ test_after_stock › count('stock') == 2   2
+ test_with_open_file  (test_tree.py:102)
+   ✓ journaled › journal.lines() == [name]   ['file']
+ test_after_open_file  (test_tree.py:112)
+   ↺ test_after_open_file ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/#3845394 (deleted)), whose offset a fork shares
+   ✓ test_after_open_file › journal.lines() == ['file']   ['file']
+   ✓ test_after_open_file › count('file') == 2   2
+── test_two_acts.py
+ test_sign_up_add_and_check_out  (test_two_acts.py:9)
+   ✓ test_sign_up_add_and_check_out › order.total == 1200   1200
+   ✓ test_sign_up_add_and_check_out › shop.carts['ann'] == []   []
+── test_use_far.py
+ test_sign_up  (test_use_stage.py:25), a stage of test_use_stage.py
+   ✓ ann › shop.users == [name]   ['ann']
+ test_fill  (test_use_stage.py:36), a stage of test_use_stage.py
+   ✓ ann_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✗ wrong › len(signed.shop.carts[signed.user]) == lines   test_use_stage.py:44 · assert at
+     line 39
+       expected  9 (int)
+       reading   1 (int)
+       inputs    signed=<product of the case at line 32> sku='BOOK' qty=1 lines=9
+       random was seeded for this case; python run.py --seed 356675 test_use_stage.py repeats it
+ test_far_checkout  (test_use_far.py:10)
+   ✓ test_far_checkout › order.total == 2400   2400
+ test_far_after_wrong  (test_use_far.py:16)
+   ⊘ test_far_after_wrong  blocked: it takes the product of wrong (test_use_stage.py:44), which
+     failed
+── test_use_stage.py
+ test_sign_up  (test_use_stage.py:25)
+   ✓ ann › shop.users == [name]   ['ann']
+   ✓ bob › shop.users == [name]   ['bob']
+ test_fill  (test_use_stage.py:36)
+   ✓ ann_books › len(signed.shop.carts[signed.user]) == lines   1
+   ✗ wrong › len(signed.shop.carts[signed.user]) == lines   test_use_stage.py:44 · assert at
+     line 39
+       expected  9 (int)
+       reading   1 (int)
+       inputs    signed=<product of the case at line 32> sku='BOOK' qty=1 lines=9
+       random was seeded for this case; python run.py --seed 356675 test_use_stage.py repeats it
+ test_signed_quietly  (test_use_stage.py:47)
+   ! quiet › checks   test_use_stage.py:54
+       what      no check ran: end the test with `assert reading == expected`, or expect a raise
+         with `with raises(…):`
+       inputs    name='cy'
+       random was seeded for this case; python run.py --seed 356675 test_use_stage.py repeats it
+ test_sign_up_only  (test_use_stage.py:57)
+   ✓ dee › shop.users == ['dee']   ['dee']
+ test_second_sign_up  (test_use_stage.py:66)
+   ✓ test_second_sign_up › signed.shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_add_one  (test_use_stage.py:72)
+   ✓ test_add_one › signed.shop.carts['ann'] == [('PEN', 1)]   [('PEN', 1)]
+ test_checkout  (test_use_stage.py:81)
+   ✓ test_checkout › order.total == 2400   2400
+ test_after_wrong  (test_use_stage.py:90)
+   ⊘ test_after_wrong  blocked: it takes the product of wrong (test_use_stage.py:44), which failed
+ test_after_quiet  (test_use_stage.py:99)
+   ⊘ test_after_quiet  blocked: it takes the product of quiet (test_use_stage.py:54), which was
+     refused
+ test_after_dee  (test_use_stage.py:111)
+   ! test_after_dee refused   test_use_stage.py:111
+       takes shop from use(<the case at line 108>), and test_sign_up_only returns nothing
+ test_two_shops  (test_use_stage.py:120)
+   ✓ test_two_shops › right.shop.carts['bob'] == []   []
+ test_fixture_that_acts  (test_use_stage.py:135)
+   ✓ test_fixture_that_acts › shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_fixture_that_acts_in_one_call  (test_use_stage.py:145)
+   ✓ test_fixture_that_acts_in_one_call › shop.users == ['ann', 'bob']   ['ann', 'bob']
+ test_fixture_of_one_call  (test_use_stage.py:151)
+   ✓ test_fixture_of_one_call › shop.users == ['bob']   ['bob']
+── test_watch.py
+ test_folder_code_is_not_watched  (test_watch.py:13)
+   ✓ test_folder_code_is_not_watched › box.v == 0   0
+ test_contextmanager_of_another_file  (test_watch.py:19)
+   ✓ test_contextmanager_of_another_file › box.v == 1   1
+ test_contextmanager_is_watched  (test_watch.py:33)
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      line 29 of test_watch.py (loud, reached from line 38 of the test) never ran: the
+         act has one path, so each line of it runs in every case
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at test_watch.py:28 (loud, reached from line 38 of the test) went one
+         way: the act has one path, so each `if`, `x if c else y`, `and`, `or`, `while` and `except`
+         in it takes both ways in a case, or is not there
+   ✓ test_contextmanager_is_watched › shop.users == ['ann']   ['ann']
+       random was seeded for this case; python run.py --seed 356675 test_watch.py repeats it
+ test_contextmanager_of_one_path  (test_watch.py:50)
+   ✓ test_contextmanager_of_one_path › shop.carts['ann'] == []   []
+ test_assert_in_a_contextmanager  (test_watch.py:64)
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      an assert ran in the act at test_watch.py:61 (checked, reached from line 68 of the
+         test): the act ends at the first check, and a function handed to the code may swallow an
+         assert; keep what it sees, and check that at the end
+   ✓ test_assert_in_a_contextmanager › shop.users == ['ann']   ['ann']
+       random was seeded for this case; python run.py --seed 356675 test_watch.py repeats it
+══ 208 cases: 85 passed · 33 failed · 76 refused · 11 blocked · 3 skipped · 1 file refused
+   (138 checks held) · seed 356675 · slowest test_slow (test_1015_time.py:11) 1.2 s

@@ -1,0 +1,10 @@
+t_any.py::test_some_deprecation failed
+    assert w.category is DeprecationWarning  for some item of caught
+      no item holds it:
+      [0]  <warnings.WarningMessage object at 0x71bc91233290>
+      [1]  <warnings.WarningMessage object at 0x71bc91233bc0>
+t_any.py::test_prefix failed
+    assert p.startswith('/opt')  for some item of tzpath
+      no item holds it:
+      [0]  '/usr/share/zoneinfo'
+      [1]  '/etc/zoneinfo'

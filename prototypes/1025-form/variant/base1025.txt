@@ -1,0 +1,24 @@
+── test_variant.py
+ test_min_one_line  (test_variant.py:7)
+   ! test_min_one_line › all(len(w) == 2 for w in sliding_window(2, iter([1, 2, 3, 4…   test_variant.py:7 · assert at line 8
+       what      line 8 reads `sliding_window(2, iter([1, 2, 3, 4]))`, a zip that one reading empties; make it a list in the act
+ test_min_breaks  (test_variant.py:11)
+   ! test_min_breaks › all(len(w) == 3 for w in sliding_window(2, iter([1, 2, 3, 4…   test_variant.py:11 · assert at line 12
+       what      line 12 reads `sliding_window(2, iter([1, 2, 3, 4]))`, a zip that one reading empties; make it a list in the act
+ test_bound_iterator_still_refused  (test_variant.py:15)
+   ! test_bound_iterator_still_refused › all(len(w) == 2 for w in windows)   test_variant.py:15 · assert at line 17
+       what      line 17 reads windows, a zip that one reading empties; make it a list in the act
+ test_stringio_getvalue  (test_variant.py:20)
+   ! test_stringio_getvalue › buf.getvalue() == 'hello'   test_variant.py:20 · assert at line 23
+       what      line 23 reads buf, a StringIO that one reading empties; make it a list in the act
+   ! test_stringio_getvalue › not buf.closed   test_variant.py:20 · assert at line 24
+       what      line 24 reads buf, a StringIO that one reading empties; make it a list in the act
+ test_stringio_read_twice  (test_variant.py:27)
+   ! test_stringio_read_twice › buf.read() == 'x'   test_variant.py:27 · assert at line 29
+       what      line 29 reads buf, a StringIO that one reading empties; make it a list in the act
+   ! test_stringio_read_twice › buf.read() == 'x'   test_variant.py:27 · assert at line 30
+       what      line 30 reads buf, a StringIO that one reading empties; make it a list in the act
+ test_plain_iterator_still_refused  (test_variant.py:33)
+   ! test_plain_iterator_still_refused › list(it) == [1, 2]   test_variant.py:33 · assert at line 35
+       what      line 35 reads it, a list_iterator that one reading empties; make it a list in the act
+══ 6 cases: 0 passed · 0 failed · 6 refused · 0 blocked   (0 checks held) · seed 256379 · slowest test_stringio_getvalue (test_variant.py:20) 0.02 s

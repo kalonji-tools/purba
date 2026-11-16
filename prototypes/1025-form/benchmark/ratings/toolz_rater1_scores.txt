@@ -1,0 +1,27 @@
+Rater 1 (K = the form, M = oxitest), condensed from the rater's report.
+
+                 readab clarity ease tester impl min fidelity
+ORIGINAL pytest     5     3      5     5     4    5   (ref = 5)
+PORT_M oxitest      4     4      4     4     3    4     5
+PORT_K the form     3     4      2     2     2    3     4
+
+Weights: clarity 20, ease 20, fidelity 20 (original = 5), readability 15, tester 15, implementation 5, minimum test 5.
+Weighted (recomputed, matches the rater): pytest 4.55 · oxitest 4.15 · the form 3.00.
+
+Minimum test (each window of sliding_window(2, iter([1, 2, 3, 4])) holds 2 items):
+pytest 3 lines, passed first try; failure shows `all(<generator…>)` only.
+oxitest 3 lines + 3 of pyproject; failure shows `value: False` and the message.
+the form 4 lines; first try REFUSED ("reads sliding_window(...), a zip that one reading empties"); after
+`windows = list(...)` it passed; a broken one lists each item with its reading.
+
+For the form: the report (each reading; `3 of 3 items break len(w) == 3` with each item; type-strict ==;
+each raise checks its message); ty and the runner catch a bad case() input.
+Against the form: 12 tests become 16 tests and 24 cases; expected raises sit at module level away from the
+test; test_peekn runs two acts then four checks; 2 of 2 natural first attempts refused in the ease task
+(`list("BC")` computed expected; `assert raises(...)` other form); 200-line FORM.md, ~3,265-line runner.
+Rough edges of the form: the refusal names the implementation type ("a zip") not what the tester wrote;
+FORM.md:39 "an iterator that the check makes itself is not seen" reads as if all(... for w in <call>) passes;
+a try that got another raise names no expected type; long repr of NoCompare on a pass line; seed line when
+no test uses random; assert in the act labelled `path`.
+oxitest: the documented "module-level definition" strict check never fires (confirmed).
+Original: test_itertoolz.py:152 compares and drops the result (pyright reportUnusedExpression).

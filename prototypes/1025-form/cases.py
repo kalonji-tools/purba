@@ -1,0 +1,295 @@
+"""What a tester imports: `case`, `raises`, `warns`, `use`, `before`, `skip`, `skip_if`, and the bases
+of a stock.
+A throwaway form for a blind rating. Never merge.
+
+A test is a plain function. `run.py` imports it with its last asserts rewritten as checks, and runs
+it as written.
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+import warnings
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
+from typing import Any, Generic, ParamSpec, TypeVar, cast, overload
+
+P = ParamSpec("P")
+F = TypeVar("F", bound=Callable[..., Any])
+R = TypeVar("R")
+T = TypeVar("T")
+M = TypeVar("M")
+E = TypeVar("E", bound=BaseException)
+W = TypeVar("W", bound=Warning)
+
+
+# ── cases ────────────────────────────
+
+CREATED: list[Case[Any]] = []
+
+
+class Case(Generic[R]):
+    """One set of inputs for a test. Its name is the variable it is bound to."""
+
+    def __init__(
+        self,
+        test: Callable[..., R],
+        args: tuple[Any, ...],
+        inputs: dict[str, Any],
+        file: str,
+        line: int,
+    ) -> None:
+        self.test = test
+        self.args = args
+        self.inputs = inputs
+        self.file = file
+        self.line = line
+        CREATED.append(self)
+
+    @property
+    def product(self) -> R:
+        """What this case's test returns, as the input of a later case: a stage."""
+        return cast(R, Step(self))
+
+
+class Step(Generic[T]):
+    """The product of an earlier case, taken as an input: a step of a chain."""
+
+    def __init__(self, case: Case[Any]) -> None:
+        self.case = case
+
+    def __repr__(self) -> str:
+        return f"<product of the case at line {self.case.line}>"
+
+
+def case(test: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Case[R]:
+    """A case of `test`: name each input as `test`'s parameters do. A type checker reads the call
+    against `test`."""
+    caller = sys._getframe(1)
+    return Case(test, args, dict(kwargs), caller.f_code.co_filename, caller.f_lineno)
+
+
+# ── a reset before each case ─────────────────
+
+BEFORE: dict[Callable[..., Any], list[Callable[[], object]]] = {}  # each test → what runs first
+
+
+def before(fn: Callable[[], object], /) -> Callable[[F], F]:
+    """`@before(reset)` on a test: the runner calls `reset()` at the start of each case of the test,
+    in the case's own process, before the act. Several run top to bottom. Nothing runs after a
+    case."""
+
+    def mark(test: F) -> F:
+        BEFORE.setdefault(test, []).insert(0, fn)  # decorators apply bottom up
+        return test
+
+    return mark
+
+
+SKIPS: dict[Callable[..., Any], str] = {}  # each skipped test → its reason
+
+
+def skip(reason: str, /) -> Callable[[F], F]:
+    """`@skip("why")` on a test: no case of it runs, and each is reported skipped, with the reason."""
+
+    def mark(test: F) -> F:
+        SKIPS[test] = reason
+        return test
+
+    return mark
+
+
+def skip_if(condition: object, reason: str, /) -> Callable[[F], F]:
+    """`@skip_if(sys.platform == "win32", "why")`: the condition is read once, at import. When it
+    holds, no case of the test runs, and each is reported skipped, with the reason."""
+
+    def mark(test: F) -> F:
+        if condition:
+            SKIPS[test] = reason
+        return test
+
+    return mark
+
+
+def __getattr__(name: str) -> Any:
+    if name == "handling":
+        raise ImportError(
+            "`handling` is gone from the form: write `try:` with one statement and one "
+            "`except SomeError:`, whose body runs while the exception is live"
+        )
+    if name == "before_each":
+        raise ImportError(
+            "`before_each` is gone from the form: put `@before(fn)` on each test that needs fn to "
+            "run first"
+        )
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+# ── an expected raise, an expected warning ─────────
+
+
+class Missed(BaseException):
+    """An expected raise or warning that did not come, or came with another message; or the raise
+    that a `try` of the act expects, which did not come."""
+
+    def __init__(self, form: str, text: str) -> None:
+        super().__init__(text)
+        self.form = form
+
+
+SEEN: list[
+    str
+] = []  # what each `raises` and `warns` saw; the runner prints it as a check
+OWNED = [
+    0
+]  # above 0 while the form itself changes the warning filters: the runner's guard lets it
+RAISED = [False]  # True once `raises` caught what it expects
+
+
+class Caught(Generic[T]):
+    """What `with raises(…) as caught:` caught: `caught.value`, for the checks after it."""
+
+    def __init__(self) -> None:
+        self._value: T | None = None
+
+    @property
+    def value(self) -> T:
+        if self._value is None:
+            raise LookupError("nothing was caught")
+        return self._value
+
+
+def _want(kind: type[BaseException], match: str | None) -> str:
+    return f"{kind.__name__}" + (f" matching {match!r}" if match is not None else "")
+
+
+@contextmanager
+def raises(kind: type[E], match: str | None = None) -> Generator[Caught[E]]:
+    """Expect the one statement inside to raise `kind`, with a message that `re.search(match, …)`
+    finds."""
+    caught: Caught[E] = Caught()
+    try:
+        yield caught
+    except kind as error:
+        if match is not None and not re.search(match, str(error)):
+            raise Missed(
+                "raises",
+                f"expected {_want(kind, match)}; it raised {type(error).__name__}: {error}",
+            ) from None
+        caught._value = error
+        SEEN.append(f"raises {type(error).__name__}: {error}")
+        RAISED[0] = True  # a line of the act that runs after this is seen by the runner
+        return
+    raise Missed("raises", f"expected {_want(kind, match)}; the statement did not raise")
+
+
+@contextmanager
+def warns(kind: type[W], match: str | None = None) -> Generator[Caught[W]]:
+    """Expect the one statement inside to warn `kind`. Any other warning goes on to fail
+    the case."""
+    caught: Caught[W] = Caught()
+    OWNED[0] += 1
+    catcher = warnings.catch_warnings(record=True)
+    seen = catcher.__enter__()
+    warnings.simplefilter("always")
+    OWNED[0] -= 1
+    try:
+        yield caught
+    finally:
+        OWNED[0] += 1
+        catcher.__exit__(None, None, None)
+        OWNED[0] -= 1
+    assert seen is not None
+    hit = next(
+        (
+            w
+            for w in seen
+            if issubclass(w.category, kind) and (match is None or re.search(match, str(w.message)))
+        ),
+        None,
+    )
+    for w in seen:
+        if w is not hit:
+            warnings.warn_explicit(w.message, w.category, w.filename, w.lineno)
+    if hit is None:
+        raise Missed(
+            "warns",
+            f"expected {_want(kind, match)}; "
+            + (", ".join(f"{w.category.__name__}: {w.message}" for w in seen) or "no warning"),
+        )
+    caught._value = cast(W, hit.message)
+    SEEN.append(f"warns {hit.category.__name__}: {hit.message}")
+
+
+# ── fixtures and stocks ───────────────────────
+
+
+class Use(Generic[T]):
+    """A fixture: the runner calls `factory()` once in each case, inside the case's own process. A
+    parameter of the factory whose default is `use(other)` gets `other`'s value of the same case."""
+
+    def __init__(self, factory: Case[Any] | Callable[[], Any]) -> None:
+        self.factory: Any = factory
+
+    def __repr__(self) -> str:
+        if isinstance(self.factory, Case):
+            return f"use(<the case at line {self.factory.line}>)"
+        return f"use({getattr(self.factory, '__name__', self.factory)})"
+
+
+class Stock(ABC, Generic[T]):
+    """An input whose state lives outside the process: a database, a file, a server.
+
+    A fork cannot seal it. For the case, its fixture offers a sample (`Samples`) or a checkpoint
+    (`Checkpoints`). For each check, it offers a fingerprint (`Fingerprints`) or a checkpoint
+   .
+    """
+
+
+class Samples(Stock[T]):
+    """A stock that draws a sample for one case, and discards it after the case."""
+
+    @abstractmethod
+    def sample(self) -> T: ...
+
+    @abstractmethod
+    def discard(self, value: T, /) -> None: ...
+
+
+class Checkpoints(Stock[T], Generic[T, M]):
+    """A stock that opens one value, sets a checkpoint in its state, and restores it."""
+
+    @abstractmethod
+    def open(self) -> T: ...
+
+    @abstractmethod
+    def checkpoint(self, value: T, /) -> M: ...
+
+    @abstractmethod
+    def restore(self, value: T, mark: M, /) -> None: ...
+
+
+class Fingerprints(Stock[T]):
+    """A stock whose state the runner can fingerprint. Before and after each check, the runner takes
+    a fingerprint; a check whose reading changed the stock is refused. Pure reads need no
+    checkpoint and no copy."""
+
+    @abstractmethod
+    def fingerprint(self, value: T, /) -> object: ...
+
+
+@overload
+def use(factory: Case[T]) -> T: ...
+@overload
+def use(factory: type[Stock[T]]) -> T: ...
+@overload
+def use(factory: Callable[[], T]) -> T: ...
+def use(factory: Case[Any] | Callable[[], Any]) -> Any:
+    """A fixture as the default of an input: `db: Db = use(UsersDb)`. A type checker sees the value
+    it gives. A factory may take fixtures the same way: `def client(app: App = use(make_app))`.
+
+    `use(stage)`, where `stage` is a case, is that case's product: `signed: Signed = use(ann)`.
+    The stage runs first, with its checks; a stage that fails or is refused blocks the test."""
+    return Use(factory)

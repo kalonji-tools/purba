@@ -1,0 +1,5 @@
+{
+  "include": ["tests"],
+  "extraPaths": ["../toolz-src"],
+  "pythonVersion": "3.12"
+}

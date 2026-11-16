@@ -1,0 +1,5 @@
+{
+  "include": ["test_itertoolz.py"],
+  "extraPaths": ["../../..", "../toolz-src"],
+  "pythonVersion": "3.12"
+}

@@ -1,0 +1,259 @@
+── test_tree.py
+ test_open  (test_tree.py:20)
+   ✓ root › count(opened) == 1   1
+ test_next  (test_tree.py:30)
+   ⊘ next_step › count(opened) == 1   blocked: the stage root fails its check `count(opened) ==
+     1` at line 23: expected 1, read 2
+   ⊘ next_step › count(step) == 1   blocked: the stage root fails its check `count(opened) == 1`
+     at line 23: expected 1, read 2
+ test_leaf  (test_tree.py:41)
+   ⊘ test_leaf  blocked: it takes the product of next_step (test_tree.py:38), which is blocked
+ test_sibling  (test_tree.py:47)
+   ⊘ test_sibling › count(opened) == 1   blocked: the stage root fails its check `count(opened)
+     == 1` at line 23: expected 1, read 3
+ test_with_thread  (test_tree.py:55)
+   ✓ threaded › worker.thread.is_alive() is True   True
+ test_after_thread  (test_tree.py:65)
+   ✓ test_after_thread › count(worker.thread.name) == 2   2
+ test_with_stock  (test_tree.py:85)
+   ✓ stocked › (db / 'rows').read_text() == name   'stock'
+ test_after_stock  (test_tree.py:95)
+   ✓ test_after_stock › (db / 'rows').read_text() == 'stock'   'stock'
+   ✓ test_after_stock › count('stock') == 2   2
+ test_with_open_file  (test_tree.py:102)
+   ✗ journaled › warning   test_tree.py:109
+       what      a warning that the test does not expect: ResourceWarning: unclosed file
+         <_io.TextIOWrapper name=4 mode='w+' encoding='UTF-8'>
+                 at ../../1010-d-use-stage/run.py:1841
+       inputs    name='file'
+   ✓ journaled › journal.lines() == [name]   ['file']
+ test_after_open_file  (test_tree.py:112)
+   ⊘ test_after_open_file  blocked: it takes the product of journaled (test_tree.py:109), which
+     failed
+── test_blocked.py
+ test_stage  (test_blocked.py:11)
+   ! good › path   test_blocked.py:19
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['ann']
+   ! good › path   test_blocked.py:19
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['ann']
+   ! good › path   test_blocked.py:19
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['ann']
+   ! good › path   test_blocked.py:19
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['ann']
+   ✓ good › shop.users == users   ['ann']
+   ! wrong › path   test_blocked.py:20
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['bob']
+   ! wrong › path   test_blocked.py:20
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['bob']
+   ! wrong › path   test_blocked.py:20
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['bob']
+   ! wrong › path   test_blocked.py:20
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='ann' users=['bob']
+   ✗ wrong › shop.users == users   test_blocked.py:20 · assert at line 15
+       expected  ['bob'] (list)
+       reading   ['ann'] (list)
+       why       [0]: they differ from character 0: expected 'bob', read 'ann'
+       inputs    name='ann' users=['bob']
+ test_after_good  (test_blocked.py:23)
+   ⊘ test_after_good  blocked: it takes the product of good (test_blocked.py:19), which is refused
+ test_after_wrong  (test_blocked.py:29)
+   ⊘ after_wrong  blocked: it takes the product of wrong (test_blocked.py:20), which is refused
+ test_two_down  (test_blocked.py:39)
+   ⊘ test_two_down  blocked: it takes the product of after_wrong (test_blocked.py:36), which is
+     blocked
+ test_one_way  (test_blocked.py:46)
+   ! one_way › path   test_blocked.py:54
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='dee'
+   ! one_way › path   test_blocked.py:54
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='dee'
+   ! one_way › path   test_blocked.py:54
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='dee'
+   ! one_way › path   test_blocked.py:54
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+       inputs    name='dee'
+   ! one_way › path   test_blocked.py:54
+       what      the branch at test_blocked.py:49 went one way: the act has one path, so each `if`,
+         `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case, or is
+         not there
+       inputs    name='dee'
+   ✓ one_way › shop.users == [name]   ['dee']
+ test_after_one_way  (test_blocked.py:57)
+   ⊘ test_after_one_way  blocked: it takes the product of one_way (test_blocked.py:54), which is
+     refused
+ test_computes  (test_blocked.py:63)
+   ! refused:
+       line 67: the expected value computes `name.upper()`; an expected value is a literal, or
+         operators on literals, so the test cannot compute what the code computes; write a literal,
+         or take it as an input of the case
+     so none of its 1 case(s) runs
+ test_after_computes  (test_blocked.py:74)
+   ⊘ test_after_computes  blocked: it takes the product of computed (test_blocked.py:71), which is
+     refused
+ test_threaded_stage  (test_blocked.py:80)
+   ✗ threaded_wrong › worker.thread.name == 'nobody'   test_blocked.py:87 · assert at line 83
+       expected  'nobody' (str)
+       reading   'worker' (str)
+       why       they differ from character 0: expected 'nobody', read 'worker'
+       inputs    name='worker'
+ test_after_threaded_wrong  (test_blocked.py:90)
+   ⊘ test_after_threaded_wrong  blocked: it takes the product of threaded_wrong
+     (test_blocked.py:87), which failed
+── test_before_each.py
+ test_register  (test_before_each.py:12)
+   ✓ test_register › names() == ['ann']   ['ann']
+── test_watch.py
+ test_folder_code_is_not_watched  (test_watch.py:13)
+   ! test_folder_code_is_not_watched › path   test_watch.py:13
+       what      the branch at flat.py:12 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_folder_code_is_not_watched › box.v == 0   0
+ test_contextmanager_of_another_file  (test_watch.py:19)
+   ✓ test_contextmanager_of_another_file › box.v == 1   1
+ test_contextmanager_is_watched  (test_watch.py:33)
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_is_watched › path   test_watch.py:33
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_contextmanager_is_watched › shop.users == ['ann']   ['ann']
+ test_contextmanager_of_one_path  (test_watch.py:50)
+   ! test_contextmanager_of_one_path › path   test_watch.py:50
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_of_one_path › path   test_watch.py:50
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_of_one_path › path   test_watch.py:50
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_contextmanager_of_one_path › path   test_watch.py:50
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_contextmanager_of_one_path › shop.carts['ann'] == []   []
+ test_assert_in_a_contextmanager  (test_watch.py:64)
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      an assert ran in the act at test_watch.py:61 (checked): the act ends at the first
+         check, and a function handed to the code may swallow an assert; keep what it sees, and
+         check that at the end
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      the branch at <string>:3 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      the branch at <string>:4 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      the branch at <string>:5 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ! test_assert_in_a_contextmanager › path   test_watch.py:64
+       what      the branch at <string>:6 (__init__) went one way: the act has one path, so each
+         `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a case,
+         or is not there
+   ✓ test_assert_in_a_contextmanager › shop.users == ['ann']   ['ann']
+── test_reading_assert.py
+ test_assert_in_a_reading  (test_reading_assert.py:19)
+   ! test_assert_in_a_reading › path   test_reading_assert.py:19
+       what      an assert ran in the act at test_reading_assert.py:12 (check_paid): the act ends at
+         the first check, and a function handed to the code may swallow an assert; keep what it
+         sees, and check that at the end
+   ✓ test_assert_in_a_reading › check_paid(order) is None   None
+ test_failing_assert_in_a_reading  (test_reading_assert.py:27)
+   ! test_failing_assert_in_a_reading › path   test_reading_assert.py:27
+       what      an assert ran in the act at test_reading_assert.py:12 (check_paid): the act ends at
+         the first check, and a function handed to the code may swallow an assert; keep what it
+         sees, and check that at the end
+   ✗ test_failing_assert_in_a_reading › check_paid(order) is None   test_reading_assert.py:27 ·
+     assert at line 31
+       what      reading it raised AssertionError:
+                 at test_reading_assert.py:31  assert check_paid(order) is None
+                 at test_reading_assert.py:12  assert order.state == "paid"
+ test_helper_that_returns  (test_reading_assert.py:34)
+   ✓ test_helper_that_returns › state_of(order) == 'paid'   'paid'
+ test_asserting_helper_of_another_module  (test_reading_assert.py:40)
+   ! test_asserting_helper_of_another_module › path   test_reading_assert.py:40
+       what      an assert ran in the act at helpers.py:18 (total_is): the act ends at the first
+         check, and a function handed to the code may swallow an assert; keep what it sees, and
+         check that at the end
+   ✓ test_asserting_helper_of_another_module › total_is(order, 0) is None   None
+── test_helper_lines.py
+ test_helper_branch  (test_helper_lines.py:17)
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      line 10 of test_helper_lines.py (pick) never ran: the act has one path, so each
+         line of it runs in every case
+   ! test_helper_branch › path   test_helper_lines.py:17
+       what      the branch at test_helper_lines.py:8 (pick) went one way: the act has one path, so
+         each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a
+         case, or is not there
+   ✓ test_helper_branch › got == 1   1
+ test_helper_of_a_helper  (test_helper_lines.py:25)
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      line 9 of test_helper_lines.py (pick) never ran: the act has one path, so each line
+         of it runs in every case
+   ! test_helper_of_a_helper › path   test_helper_lines.py:25
+       what      the branch at test_helper_lines.py:8 (pick) went one way: the act has one path, so
+         each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a
+         case, or is not there
+   ✓ test_helper_of_a_helper › total == 4   4
+ test_helper_in_a_reading  (test_helper_lines.py:32)
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      line 10 of test_helper_lines.py (pick) never ran: the act has one path, so each
+         line of it runs in every case
+   ! test_helper_in_a_reading › path   test_helper_lines.py:32
+       what      the branch at test_helper_lines.py:8 (pick) went one way: the act has one path, so
+         each `if`, `x if c else y`, `and`, `or`, `while` and `except` in it takes both ways in a
+         case, or is not there
+   ✓ test_helper_in_a_reading › pick(flag) == 1   1
+══ 34 cases: 8 passed · 2 failed · 14 refused · 10 blocked   (21 checks held)

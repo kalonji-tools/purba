@@ -1,0 +1,25 @@
+Rater 2 (M = the form, K = oxitest), condensed from the rater's report.
+
+                 readab clarity ease tester impl min fidelity
+ORIGINAL pytest     4     3      5     5     3    5   (ref = 5)
+PORT_K oxitest      4     4      4     4     3    4     5
+PORT_M the form     3     4      3     2     2    4     4
+
+Weights: readability 15, clarity 20, ease 20, tester 15, implementation 5, minimum test 5, fidelity 20.
+Rater's sums: pytest 4.19 (scored over 80 % of the weight, no fidelity) · oxitest 4.15 · the form 3.25.
+Recomputed with the original's fidelity as 5: pytest 4.35 · oxitest 4.15 · the form 3.25.
+
+Minimum test: pytest 3 lines; oxitest 3 lines + a message (strict aborts without it); the form 4 lines,
+the one-line form REFUSED ("a zip that one reading empties"), windows made a list in the act first.
+
+For the form: the failure screen (a broken all() lists each item, `[0] len(w) 2  w (1, 2)`; expected,
+actual and types); specific refusals ("the expected value computes list('BC') … write a literal";
+"did you mean 'off_by'?", which ty also caught).
+Against the form: 200 lines of FORM.md, 3,265-line runner + 295 cases.py; 12 tests → 16 tests, 24 cases,
+raises in separate tests at module level; a test_get written the pytest way (value asserts before an
+expected raise) refused 3 times "an assert ran in the act", rewritten into 3 readings, raises, 4 checks.
+Rough edges of the form: a failing run said "0 blocked" while 4 checks showed ⊘ blocked (the count names
+cases); seed line when no test uses random; assert-in-act labelled `path` with a text about a function
+handed to the code; FORM.md:39 vs all() refusing a call; pins a CPython-specific islice message.
+oxitest: module-level-definition check never fires; -vv names no test. All three: pyright reads
+`get(10, 'ABC', None)` as None not assignable to str (toolz has no hints).

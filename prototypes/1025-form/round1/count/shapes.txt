@@ -1,0 +1,44 @@
+  4436  tests
+     3  assert any(...)
+     1    any of a non-generator
+    30  trailing for, asserts only
+    28    of them one assert
+    28    of them one comparison
+   109  for holding an assert (anywhere)
+   137  assert reads list/tuple/set/sorted(<call>)
+    11  assert all(...)
+    11    all one gen, no if
+     3    all body one comparison
+     2    any one gen, no if
+     4  assert reads next(...)
+
+# trailing for one assert: 28
+attrs/tests/test_dunders.py:204 "for a, b in [((1, 2), (2, 1)), ((1, 2), (1, 3)), (('a', 'b'), ('b', 'a'))]:\n    assert cls"
+attrs/tests/test_dunders.py:217 "for a, b in [(('test1', 1), ('Test1', 2)), (('test0', 1), ('Test1', 1))]:\n    assert cls(*"
+attrs/tests/test_dunders.py:237 "for a, b in [((1, 2), (2, 1)), ((1, 2), (1, 3)), ((1, 1), (1, 1)), (('a', 'b'), ('b', 'a')"
+attrs/tests/test_dunders.py:252 "for a, b in [(('test1', 1), ('Test1', 1)), (('test1', 1), ('Test1', 2)), (('test0', 1), ('"
+attrs/tests/test_dunders.py:274 "for a, b in [((2, 1), (1, 2)), ((1, 3), (1, 2)), (('b', 'a'), ('a', 'b'))]:\n    assert cls"
+attrs/tests/test_dunders.py:287 "for a, b in [(('Test1', 2), ('test1', 1)), (('Test1', 1), ('test0', 1))]:\n    assert cls(*"
+attrs/tests/test_dunders.py:307 "for a, b in [((2, 1), (1, 2)), ((1, 3), (1, 2)), ((1, 1), (1, 1)), (('b', 'a'), ('a', 'b')"
+attrs/tests/test_dunders.py:322 "for a, b in [(('Test1', 1), ('test1', 1)), (('Test1', 2), ('test1', 1)), (('Test1', 1), ('"
+attrs/tests/test_funcs.py:630 'for k, v in change_dict.items():\n    assert getattr(changed, k) == v'
+attrs/tests/test_funcs.py:707 "for name in chosen_names:\n    assert getattr(changed, name) == change_dict[name.replace('_"
+attrs/tests/test_functional.py:304 'for attribute in attr.fields(cls):\n    assert attribute == pickle.loads(pickle.dumps(attri'
+attrs/tests/test_make.py:340 'for b_a in B.__attrs_attrs__:\n    assert b_a.kw_only is False'
+
+# all: 11
+attrs/tests/test_make.py:267 'all((isinstance(a, Attribute) for a in attrs))'
+attrs/tests/test_make.py:554 'all((isinstance(a, Attribute) for a in C.__attrs_attrs__))'
+attrs/tests/test_make.py:1643 'all((isinstance(a, Attribute) for a in fields(C)))'
+attrs/tests/test_validators.py:890 'all((f.__name__ in validator_module.__all__ for f in [lt, le, ge, gt, ne]))'
+dateutil/tests/test_tzfile.py:2792 'all((isinstance(v, tz.tzfile) for v in expected.values()))'
+loguru/tests/test_exceptions_catch.py:255 'all((t is ZeroDivisionError for t in (t_1, t_2, t_3, t_4)))'
+loguru/tests/test_exceptions_catch.py:256 'all((isinstance(v, ZeroDivisionError) for v in (v_1, v_2, v_3, v_4)))'
+loguru/tests/test_exceptions_catch.py:257 'all((isinstance(tb, types.TracebackType) for tb in (tb_1, tb_2, tb_3, tb_4)))'
+requests/tests/test_requests.py:1478 'all((isinstance(chunk, str) for chunk in chunks))'
+requests/tests/test_requests.py:1485 'all((isinstance(chunk, str) for chunk in chunks))'
+requests/tests/test_requests.py:1515 'all((len(chunk) == 1 for chunk in chunks))'
+
+# any: 2
+click/tests/test_arguments.py:184 'any((issubclass(w.category, DeprecationWarning) for w in caught))'
+dateutil/tests/test_tzpath_data.py:85 'any((zone._filename.startswith(p) for p in tzpath))'

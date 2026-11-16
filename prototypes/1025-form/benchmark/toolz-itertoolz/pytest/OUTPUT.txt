@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/eb0d7984-d4f3-4812-9745-d481a5457e94/scratchpad/eval/.venv/bin/python
+rootdir: /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/e38351e3-9e70-488b-bb06-cee511a37338/scratchpad/pform
+configfile: pyproject.toml
+collecting ... collected 12 items
+
+test_itertoolz.py::test_isdistinct PASSED                                [  8%]
+test_itertoolz.py::test_nth PASSED                                       [ 16%]
+test_itertoolz.py::test_tail PASSED                                      [ 25%]
+test_itertoolz.py::test_iterate PASSED                                   [ 33%]
+test_itertoolz.py::test_accumulate_works_on_consumable_iterables PASSED  [ 41%]
+test_itertoolz.py::test_sliding_window_of_short_iterator PASSED          [ 50%]
+test_itertoolz.py::test_partition_all PASSED                             [ 58%]
+test_itertoolz.py::test_count PASSED                                     [ 66%]
+test_itertoolz.py::test_diff PASSED                                      [ 75%]
+test_itertoolz.py::test_topk PASSED                                      [ 83%]
+test_itertoolz.py::test_peek PASSED                                      [ 91%]
+test_itertoolz.py::test_peekn PASSED                                     [100%]
+
+============================== 12 passed in 0.03s ==============================

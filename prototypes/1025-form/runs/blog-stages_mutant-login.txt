@@ -1,0 +1,77 @@
+── test_blog.py
+ test_app_with_data  (test_blog.py:17)
+   ✓ app_with_data › [user['username'] for user in users] == ['test', 'other']   ['test',
+     'other']
+   ✓ app_with_data › [tuple(post) for post in posts] == [('test title', 1)]   [('test title',
+     1)]
+ test_log_in  (test_blog.py:34)
+   ↺ logged_in ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ✗ logged_in › response.headers['Location'] == '/'   test_blog.py:42 · assert at line 38
+       what      reading it raised BadRequestKeyError: 400 Bad Request: The browser (or proxy) sent
+         a request that this server could not understand.
+                 at test_blog.py:38  assert response.headers["Location"] == "/"
+                 raised in _get_key() at headers.py:101
+       inputs    (none)
+       random was seeded for this case; python run.py --seed 722589 test_blog.py repeats it
+ test_index_logged_out  (test_blog.py:45)
+   ↺ test_index_logged_out ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ✓ test_index_logged_out › b'Log In' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+   ✓ test_index_logged_out › b'Register' in response.data   b'<!doctype html>\n<title>Posts -
+     Flaskr</title>\n<link rel="stylesheet" href="/static/style.css">\n<nav>\n  <h1><a
+     href="/">Flaskr</a></h1>\n  <ul>\n    \n      <li><a … <h1>test title</h1>\n          <div
+     class="about">by test on 2018-01-01</div>\n        </div>\n        \n      </header>\n      <p
+     class="body">test\nbody</p>\n    </article>\n    \n  \n\n</section>'
+ test_index_logged_in  (test_blog.py:51)
+   ↺ test_index_logged_in ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ test_index_logged_in  blocked: it takes the product of logged_in (test_blog.py:42), which
+     failed
+ test_login_required  (test_blog.py:59)
+   ↺ create_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ✓ create_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ update_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ✓ update_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+   ↺ delete_needs_login ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ✓ delete_needs_login › response.headers['Location'] == '/auth/login'   '/auth/login'
+ test_author_required  (test_blog.py:69)
+   ↺ test_author_required ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ test_author_required  blocked: it takes the product of logged_in (test_blog.py:42), which
+     failed
+ test_exists_required  (test_blog.py:82)
+   ↺ update_missing ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ update_missing  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+   ↺ delete_missing ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ delete_missing  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+ test_create  (test_blog.py:91)
+   ↺ test_create ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ test_create  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+ test_update  (test_blog.py:100)
+   ↺ test_update ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ test_update  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+ test_create_update_validate  (test_blog.py:109)
+   ↺ create_validates ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ create_validates  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+   ↺ update_validates ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ update_validates  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+ test_delete  (test_blog.py:118)
+   ↺ test_delete ran by replay: the act left a file, socket or pipe open (fd 6 →
+     /tmp/tmp.2Y7KQXptL7/tmpp1hwojo4), whose offset a fork shares
+   ⊘ test_delete  blocked: it takes the product of logged_in (test_blog.py:42), which failed
+══ 15 cases: 5 passed · 1 failed · 0 refused · 9 blocked   (7 checks held) · seed 722589 ·
+  slowest logged_in (test_blog.py:42) 0.09 s

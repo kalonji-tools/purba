@@ -1,0 +1,13 @@
+$ ty check --python "$VENV/bin/python" tests
+ty 0.0.99
+All checks passed!
+exit=0
+
+$ nix-shell -p pyright --run "pyright --pythonpath $VENV/bin/python"
+pyright 1.1.411
+0 errors, 0 warnings, 0 informations
+exit=0
+
+# First pyright run, before the fix (kept for the record; the run above is final)
+tests/test_itertoolz.py:176:5 - warning: Expression value is unused (reportUnusedExpression)
+0 errors, 1 warning, 0 informations

@@ -1,0 +1,9 @@
+[tool.oxitest]
+testpaths = ["tests"]
+# Refuse to run at all if a test breaks oxitest's authoring rules:
+# every assert carries a message, no stray module-level helpers.
+strict = "abort"
+
+[tool.ty.environment]
+# The code under test is not installed; point ty at the source tree beside this folder.
+extra-paths = ["../toolz-src"]

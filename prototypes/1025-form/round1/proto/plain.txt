@@ -1,0 +1,8 @@
+t_plain.py::test_twice project error: line 8 reads it, a list_iterator that one reading empties; make it a list in the act
+t_plain.py::test_once project error: line 13 reads it, a list_iterator that one reading empties; make it a list in the act
+t_plain.py::test_next_each project error: line 17 reads it, a list_iterator that one reading empties; make it a list in the act
+t_plain.py::test_call_in_check raised: ValueError: boom
+    line 20 of the test; raised inside the generator gen() at line 4
+t_plain.py::test_lazy_in_act raised: ValueError: boom
+    line 23 of the test; raised inside the generator gen() at line 4
+t_plain.py::test_list_in_act passed

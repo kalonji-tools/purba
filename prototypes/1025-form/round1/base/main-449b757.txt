@@ -1,0 +1,58 @@
+### all_bare.py
+all_bare.py::test_all project error: line 3 is not one comparison, and an expectation compares a reading by one operator
+1 case: 1 blocked; 1 project error
+exit 4
+
+### all_true.py
+all_true.py::test_all failed
+    assert all(x > 0 for x in xs) == True
+1 case: 1 failed
+exit 1
+
+### breakers.py
+breakers.py::test_x failed
+    assert [x for x in xs if not x > 0] == []
+1 case: 1 failed
+exit 1
+
+### consumed_once_each.py
+consumed_once_each.py::test_x project error: assert next(it) == 2 holds after the expectations before it, and not when read alone
+1 case: 1 blocked; 1 project error
+exit 4
+
+### gen_in_act.py
+gen_in_act.py::test_x raised: ValueError: boom
+1 case: 1 raised
+exit 4
+
+### iter_consumed_twice.py
+iter_consumed_twice.py::test_x project error: assert list(it) == [1, 2] holds when read alone, and not after the expectations before it
+1 case: 1 blocked; 1 project error
+exit 4
+
+### iter_every_index.py
+iter_every_index.py::test_x failed
+    assert [(i, x) for i, x in enumerate(xs) if x <= 0] == []
+1 case: 1 failed
+exit 1
+
+### iter_gen_raises.py
+iter_gen_raises.py::test_x raised: ValueError: boom
+1 case: 1 raised
+exit 4
+
+### iter_multiset_unorderable.py
+iter_multiset_unorderable.py::test_x project error: line 4 computes Counter(["{\"b\": 2}", "{\"a\": 1}"]), and an expected value is a literal
+1 case: 1 blocked; 1 project error
+exit 4
+
+### loop_at_end.py
+loop_at_end.py::test_x project error: line 4 asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+exit 4
+
+### loop_end.py
+loop_end.py::test_loop project error: line 4 asserts before the first expectation, and only an expectation asserts
+1 case: 1 blocked; 1 project error
+exit 4
+

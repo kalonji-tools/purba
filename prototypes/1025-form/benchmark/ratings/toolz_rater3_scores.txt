@@ -1,0 +1,26 @@
+Rater 3 (K = the form, M = oxitest), condensed from the rater's report.
+
+                 readab clarity ease tester impl min fidelity
+ORIGINAL pytest     4     3      5     5     4    5   (ref = 5)
+PORT_M oxitest      4     4      4     4     3    4     5
+PORT_K the form     3     5      3     2     2    3     4
+
+Weights: clarity 20, ease 20, readability 15, tester 15, fidelity 15, implementation 10, minimum test 5.
+Rater's sums: pytest 4.24 (rescaled without fidelity) · oxitest 4.05 · the form 3.30.
+Recomputed with the original's fidelity as 5: pytest 4.35 · oxitest 4.05 · the form 3.30.
+The form would need clarity weighted at about 45 % to overtake oxitest.
+
+Minimum test: pytest 3 lines, 1st try; oxitest 3 lines, 2nd try (message); the form 4 lines, 2nd try
+(the generator inside all() refused: "reads sliding_window(...), a zip that one reading empties").
+
+For the form: clarity (named cases; "expected / reading / why"; "expected StopIteration; the statement did
+not raise" with later checks blocked); the most helpful refusals ("the expected value computes list('BC') …
+write a literal"; "did you mean 'message'?").
+Against the form: about 10 rules (act ends at the first check, literal expected values, no iterator in a
+check, raises needs as caught or match=, case, use, type-strict ==); inputs away from the test body;
+169 non-blank lines, up to 101 columns. Ease: tail check 2 tries (list("BC") → ["B", "C"]); new test 3 tries
+(type-alone raises refused; trimmed imports).
+Rough edges of the form: FORM.md:39 ("an iterator the check makes itself is not seen") vs all() of a call
+refused; "a zip" leaks an implementation detail; "differ from character 0" for one-character strings.
+oxitest: `oxitest tests` with no pyproject runs nothing and exits 0; --help lists 4 strict checks;
+module-level-definition check never fires; one violation aborts every test; +/- diff unlabelled.
