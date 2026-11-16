@@ -19,10 +19,15 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
-/// A test's identity. Only selection constructs one.
+/// A test's identity. Only selection constructs one. It displays its path,
+/// then each class on the way to the test, then its function, joined by `::`.
 ///
 /// ```compile_fail,E0451
-/// let id = purba_selection::TestId { path: "test_a.py".into(), function: "test_one".into() };
+/// let id = purba_selection::TestId {
+///     path: "test_a.py".into(),
+///     classes: Vec::new(),
+///     function: "test_one".into(),
+/// };
 /// ```
 ///
 /// ```compile_fail,E0616
@@ -32,9 +37,14 @@ use ruff_text_size::{Ranged, TextSize};
 /// ```compile_fail,E0616
 /// fn forge(id: &mut purba_selection::TestId) { id.function = "test_two".into(); }
 /// ```
+///
+/// ```compile_fail,E0616
+/// fn forge(id: &mut purba_selection::TestId) { id.classes.clear(); }
+/// ```
 #[derive(Clone)]
 pub struct TestId {
     path: PathBuf,
+    classes: Vec<String>,
     function: String,
 }
 
@@ -54,7 +64,11 @@ impl TestId {
 
 impl fmt::Display for TestId {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{}::{}", self.path.display(), self.function)
+        write!(formatter, "{}", self.path.display())?;
+        for class in &self.classes {
+            write!(formatter, "::{class}")?;
+        }
+        write!(formatter, "::{}", self.function)
     }
 }
 
@@ -100,6 +114,7 @@ enum Reason {
     Rebound(String, Vec<usize>),
     NoDef(String, Vec<usize>),
     Under(&'static str),
+    Method,
     NotOneComparison(usize),
     Computes(usize, String),
     Private(usize, String),
@@ -161,6 +176,7 @@ impl fmt::Display for Reason {
                     lines.join(", ")
                 )
             }
+            Self::Method => formatter.write_str("purba cannot call a method of a class"),
             Self::Under(keyword) => write!(
                 formatter,
                 "the def sits under `{keyword}`, and purba cannot see whether import binds it"
@@ -192,6 +208,13 @@ impl fmt::Display for Reason {
 /// A `test` name that the module binds with no `def` is a test that selection
 /// refuses, where a binding of it can hold a function. A refused test sits at
 /// its first `def`, or else at its first binding that can hold one.
+///
+/// A `def` with a `test` name in a class is a test that selection refuses,
+/// since purba calls a test by the name of one function. A class counts at the
+/// module's level, in a block there, or in such a class. The test's identity
+/// names each class on the way. Its line gives the reasons of its `def` and its
+/// body, but none for `self`. A binding of its name at the module's level and a
+/// statement above its class give no reason either.
 ///
 /// # Panics
 ///
@@ -243,6 +266,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     for (under, function, first) in last {
         let test = TestId {
             path: path.to_path_buf(),
+            classes: Vec::new(),
             function: function.name.to_string(),
         };
         let mut reasons: Vec<Reason> = under.map(Reason::Under).into_iter().collect();
@@ -254,6 +278,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             refused.push((first, Refused { test, reasons }));
         }
     }
+    refused.extend(refused_methods(path, module, &imported));
     let never = never_a_function(module.syntax());
     for (name, found) in &bindings {
         if !name.starts_with("test") || places.contains_key(name) {
@@ -275,6 +300,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         lines.dedup();
         let test = TestId {
             path: path.to_path_buf(),
+            classes: Vec::new(),
             function: (*name).to_string(),
         };
         refused.push((
@@ -426,12 +452,101 @@ fn blocks(statement: &Stmt) -> Vec<&[Stmt]> {
     }
 }
 
+/// Each test in a class of `module`, refused, beside the offset of its first
+/// `def`. A name defined twice in one class is one test, and selection judges
+/// its last `def`.
+fn refused_methods(
+    path: &Path,
+    module: &Module,
+    imported: &HashMap<&str, String>,
+) -> Vec<(TextSize, Refused)> {
+    let mut methods: Vec<(Vec<&str>, &StmtFunctionDef, TextSize)> = Vec::new();
+    let mut places: HashMap<(Vec<&str>, &str), usize> = HashMap::new();
+    for (classes, function) in methods_of(&module.syntax().body) {
+        match places.entry((classes.clone(), function.name.as_str())) {
+            Entry::Occupied(place) => methods[*place.get()].1 = function,
+            Entry::Vacant(place) => {
+                place.insert(methods.len());
+                methods.push((classes, function, function.range.start()));
+            }
+        }
+    }
+    methods
+        .into_iter()
+        .map(|(classes, function, first)| {
+            let test = TestId {
+                path: path.to_path_buf(),
+                classes: classes.into_iter().map(str::to_owned).collect(),
+                function: function.name.to_string(),
+            };
+            let mut reasons = vec![Reason::Method];
+            reasons.extend(own_reasons(function, module, Some("self")));
+            reasons.extend(faults_of(function, module, imported));
+            (first, Refused { test, reasons })
+        })
+        .collect()
+}
+
+/// Each `def` with a `test` name in the body of a class, beside the name of
+/// each class on the way, in source order. A class counts at the module's
+/// level, in a block there, or in such a class. A class in a `def` does not
+/// count.
+fn methods_of(statements: &[Stmt]) -> Vec<(Vec<&str>, &StmtFunctionDef)> {
+    let mut found = Vec::new();
+    // A walk that recurses once for each level of nesting overflows the stack
+    // on statements that nest deeper than the stack.
+    let mut pending: Vec<(&Stmt, Vec<&str>)> = statements
+        .iter()
+        .rev()
+        .map(|statement| (statement, Vec::new()))
+        .collect();
+    while let Some((statement, classes)) = pending.pop() {
+        match statement {
+            Stmt::FunctionDef(function) => {
+                if !classes.is_empty() && function.name.starts_with("test") {
+                    found.push((classes, function));
+                }
+            }
+            Stmt::ClassDef(class) => {
+                let mut inner = classes;
+                inner.push(class.name.as_str());
+                pending.extend(
+                    class
+                        .body
+                        .iter()
+                        .rev()
+                        .map(|statement| (statement, inner.clone())),
+                );
+            }
+            _ => pending.extend(
+                blocks(statement)
+                    .into_iter()
+                    .flatten()
+                    .rev()
+                    .map(|statement| (statement, classes.clone())),
+            ),
+        }
+    }
+    found
+}
+
 /// Why purba cannot call `function`, from its `def` and its body.
 fn reasons_of(
     function: &StmtFunctionDef,
     module: &Module,
     bindings: &HashMap<&str, Vec<Binding>>,
 ) -> Vec<Reason> {
+    let mut reasons = own_reasons(function, module, None);
+    let lines = rebound(function, module, bindings);
+    if !lines.is_empty() {
+        reasons.push(Reason::Rebound(function.name.to_string(), lines));
+    }
+    reasons
+}
+
+/// Why purba cannot call `function`, from its `def` and its body alone, with
+/// no reason for the parameter `aside`.
+fn own_reasons(function: &StmtFunctionDef, module: &Module, aside: Option<&str>) -> Vec<Reason> {
     let body = Body::of(&function.body);
     let mut reasons = Vec::new();
     if !function.decorator_list.is_empty() {
@@ -451,13 +566,10 @@ fn reasons_of(
     if body.returns_value {
         reasons.push(Reason::ReturnsValue);
     }
-    let without_default = without_default(&function.parameters);
+    let mut without_default = without_default(&function.parameters);
+    without_default.retain(|name| Some(name.as_str()) != aside);
     if !without_default.is_empty() {
         reasons.push(Reason::NoDefault(without_default));
-    }
-    let lines = rebound(function, module, bindings);
-    if !lines.is_empty() {
-        reasons.push(Reason::Rebound(function.name.to_string(), lines));
     }
     reasons
 }

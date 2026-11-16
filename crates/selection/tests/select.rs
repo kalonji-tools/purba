@@ -697,7 +697,7 @@ fn a_test_under_a_statement_at_the_modules_level_is_refused() {
 }
 
 #[test]
-fn a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test() {
+fn a_def_in_a_def_under_a_statement_is_not_a_test_and_a_def_in_a_class_is_refused() {
     let (tests, refused) = judged(
         "test_own_body.py",
         concat!(
@@ -710,9 +710,143 @@ fn a_def_in_a_body_of_its_own_under_a_statement_is_not_a_test() {
     );
 
     assert!(tests.is_empty(), "no test: {tests:?}");
-    assert!(
-        refused.is_empty(),
-        "the body of a class or a def is not the module's: {refused:?}"
+    assert_eq!(
+        refused,
+        [method("C::test_method", ""), method("D::test_other", "")],
+        "a class under a statement is read, and the body of a def is not the module's"
+    );
+}
+
+/// The words of the reason for a test `name` in a class, then `more`.
+fn method(name: &str, more: &str) -> String {
+    format!("test_m.py::{name} purba cannot call a method of a class{more}")
+}
+
+#[test]
+fn a_test_in_a_class_is_refused_and_named_by_its_class() {
+    let (tests, refused) = judged(
+        "test_class.py",
+        concat!(
+            "def test_plain():\n    assert 1 == 1\n\n",
+            "class TestGroup:\n",
+            "    def test_in_class(self):\n        assert 1 == 2\n\n",
+            "    def test_fixture(self, tmp_path):\n        assert tmp_path.name == \"x\"\n\n",
+            "class FakeClient:\n",
+            "    def test_connection(self):\n        self.ok = True\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_plain"],
+        "only the test at the module's level"
+    );
+    assert_eq!(
+        refused,
+        [
+            method("TestGroup::test_in_class", ""),
+            method(
+                "TestGroup::test_fixture",
+                "; the parameter tmp_path has no default, \
+                 and purba cannot see which fixture builds it"
+            ),
+            method("FakeClient::test_connection", ""),
+        ],
+        "each test of every class, whatever its name, in source order, with no reason for self"
+    );
+}
+
+#[test]
+fn a_class_in_a_class_adds_its_name_and_a_class_in_a_def_is_not_read() {
+    let (tests, refused) = judged(
+        "test_nested_class.py",
+        concat!(
+            "class Outer:\n",
+            "    class Inner:\n",
+            "        def test_deep(self):\n            assert 1 == 1\n\n",
+            "    def test_outer(self):\n        assert 1 == 1\n\n",
+            "def helper():\n",
+            "    class InDef:\n",
+            "        def test_hidden(self):\n            assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            method("Outer::Inner::test_deep", ""),
+            method("Outer::test_outer", "")
+        ],
+        "each class on the way names the test, in source order"
+    );
+}
+
+#[test]
+fn a_def_under_a_statement_in_a_class_is_refused_as_a_test_in_a_class() {
+    let (tests, refused) = judged(
+        "test_class_block.py",
+        concat!(
+            "class Guarded:\n",
+            "    if c:\n        def test_if(self):\n            assert 1 == 1\n",
+            "    try:\n        class Inner:\n",
+            "            def test_try(self):\n                assert 1 == 1\n",
+            "    finally:\n        pass\n",
+            "    def helper(self):\n",
+            "        def test_in_def():\n            assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            method("Guarded::test_if", ""),
+            method("Guarded::Inner::test_try", "")
+        ],
+        "a def or a class under a statement in a class is read, and a def in a method is not"
+    );
+}
+
+#[test]
+fn a_test_in_a_class_gives_every_reason_of_its_def_and_is_one_test_for_each_name() {
+    let (tests, refused) = judged(
+        "test_class_reasons.py",
+        concat!(
+            "def test_shared():\n    assert 1 == 1\n\n",
+            "class Case(TestCase):\n",
+            "    def test_shared(self):\n        assert 1 == 1\n\n",
+            "    def test_twice(self):\n        assert 1 == 2\n\n",
+            "    @staticmethod\n",
+            "    def test_static(x):\n        assert x == 1\n\n",
+            "    async def test_async(self):\n        assert 1 == 1\n\n",
+            "    def test_twice(self):\n        assert 1 == 1\n\n",
+            "class Other:\n",
+            "    def test_shared(self):\n        assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_shared"],
+        "a test at the module's level keeps its name beside a method of that name"
+    );
+    assert_eq!(
+        refused,
+        [
+            method("Case::test_shared", ""),
+            method("Case::test_twice", ""),
+            method(
+                "Case::test_static",
+                "; the decorator staticmethod is not purba's, \
+                 and purba cannot see what it does; \
+                 the parameter x has no default, and purba cannot see which fixture builds it"
+            ),
+            method("Case::test_async", "; purba cannot run an async test yet"),
+            method("Other::test_shared", ""),
+        ],
+        "one refused test for each name in each class, at its first def, \
+         and no reason that the module's own names give"
     );
 }
 
