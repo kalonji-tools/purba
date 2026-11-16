@@ -1,0 +1,44 @@
+A. checks that read caught.value with no match= (a test may count in two kinds)
+     72  message    e.g. attrs/tests/test_annotations.py::test_catches_basic_type_conflict, attrs/tests/test_annotations.py::test_auto_attribs_unannotated
+      7  value itself (is / isinstance / ==)    e.g. attrs/tests/test_functional.py::test_auto_exc, attrs/tests/test_functional.py::test_auto_exc
+      3  attr .value    e.g. attrs/tests/test_validators.py::test_noncallable_validators, attrs/tests/test_validators.py::test_noncallable_validators
+      2  attr .__cause__    e.g. attrs/tests/test_next_gen.py::test_discard_context, attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .x    e.g. attrs/tests/test_next_gen.py::test_discard_context
+      1  attr .add_note    e.g. attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .__traceback__    e.g. attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .__notes__    e.g. attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .__context__    e.g. attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .__suppress_context__    e.g. attrs/tests/test_next_gen.py::test_setting_exception_mutable_attributes
+      1  attr .doc    e.g. requests/tests/test_requests.py::test_json_decode_persists_doc_attr
+
+B. raise sites of the expected type in the project's own code, per expected raise
+  names a message  items  188  sites=0   10  =1   13  >=2  165  >=10  139  median  23.0
+  reads caught     items   82  sites=0   16  =1    5  >=2   61  >=10   48  median  14.0
+  type alone       items  259  sites=0   49  =1   27  >=2  183  >=10  121  median     7
+
+B'. type alone, by project and type (items, sites in the project)
+    35  attrs     TypeError                    sites 14
+    30  dateutil  ValueError                   sites 120
+    20  loguru    TypeError                    sites 23
+    16  dateutil  ParserError                  sites 3
+    16  schedule  IntervalError                sites 12
+    14  attrs     AttributeError               sites 1
+    12  attrs     ValueError                   sites 26
+     8  attrs     FrozenInstanceError          sites 3
+     8  dateutil  TypeError                    sites 7
+     8  six       AssertionError               sites 0
+     6  requests  ProxyError                   sites 2
+     6  requests  ValueError                   sites 8
+     5  dateutil  exception                    sites 0
+     5  loguru    ImportError                  sites 0
+     4  click     RuntimeError                 sites 13
+     4  loguru    ZeroDivisionError            sites 0
+     4  requests  exception                    sites 0
+     4  requests  InvalidProxyURL              sites 2
+     3  requests  InvalidHeader                sites 3
+     3  requests  SSLError                     sites 2
+     2  attrs     ZeroDivisionError            sites 0
+     2  attrs     FrozenAttributeError         sites 1
+     2  attrs     SystemError                  sites 0
+     2  click     TypeError                    sites 23
+     2  click     TestException                sites 0

@@ -1,0 +1,17 @@
+     3    ... whose except is only pass
+    76  call form raises(E, fn, ...)
+   172  raises:   ... a literal
+    16  raises:   ... not a literal
+   122  raises:   ... of a broad type
+   529  raises: all
+     4  raises: binds as, reads nothing
+   188  raises: names a message (match=/msg=/Regex)
+    78  raises: no message arg, reads .value/.exception
+   259  raises: type alone
+    62  try: one statement / except T:
+    23  warns:   ... a literal
+     3  warns:   ... not a literal
+    55  warns: all
+     5  warns: binds as, reads nothing
+    26  warns: names a message (match=/msg=/Regex)
+    24  warns: type alone

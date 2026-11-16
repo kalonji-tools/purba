@@ -1,0 +1,13 @@
+   76  distinct with items: part of the message (search only)
+   94  distinct with items: whole message (fullmatch)
+  172  part of the message (search only)
+   78  skipped: with_file outside the project (unittest context)
+  270  whole message (fullmatch)
+part of the message (search only)
+    attrs:tests/test_compat.py:39  match='not support item assignment'  msg="'mappingproxy' object does not support item assignment"
+    attrs:tests/test_compat.py:42  match='not support item deletion'  msg="'mappingproxy' object does not support item deletion"
+    attrs:tests/test_compat.py:45  match="no attribute 'update'"  msg="'mappingproxy' object has no attribute 'update'"
+whole message (fullmatch)
+    attrs:tests/test_funcs.py:834  match='evolve\\(\\) takes 1 positional argument, but 2 were given'  msg='evolve() takes 1 positional argument, but 2 were given'
+    attrs:tests/test_functional.py:267  match="can't set attribute"  msg="can't set attribute"
+    attrs:tests/test_functional.py:275  match="can't set attribute"  msg="can't set attribute"
