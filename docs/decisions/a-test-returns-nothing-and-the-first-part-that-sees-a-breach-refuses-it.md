@@ -53,6 +53,7 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | returns nothing | a `return` of a value in the test's own body | selection |
 | is not a generator | a `yield` in the test's own body | selection |
 | can be `async`, and purba cannot run one yet | an `async def` | selection |
+| is a function of the module, and not of a class | a `def` with a `test` name in the body of a class, unless the class sits in a `def` | selection |
 | states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side | an expectation that is no comparison, or a chained comparison | selection |
 | | an expectation with no literal on either side | selection |
 | writes no [private name](../../CONTEXT.md#private-name) in its body | a private name in the test's body, a nested `def`, `lambda` or `class` included | selection |
@@ -64,6 +65,7 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 
 - **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
+- **Selection refuses a test in a class, whatever the name or the bases of its class.** Its refused line names the test as `path::Class::method`, with each class on the way. The line gives each reason of its `def` and its body, but none for `self`. A binding of its name at the module's level and a statement above its class give no reason either. Execution calls a test by the name of one function.
 - **The rules of a test's code judge every test, with inputs or without.** An input on either side of the comparison is no literal.
 - **A refused line names each reason of the `def` first, then each reason of the body by its line number.** Selection names each private name once for each line.
 - **Selection leaves two inputs that name one fixture to execution.** Execution refuses such a test, so no test gets one object under two names. Only execution resolves the names in `use(…)`.
@@ -98,6 +100,8 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 `mise run test:rust` checks that selection refuses an `async def`, a `yield`, a `return` of a value and a parameter with no default.
 It checks that selection refuses an expectation that is not one comparison, one with no literal, and a private name.
 It checks that the refused line names each by its line number.
+It checks that selection refuses a test in a class, and that its line names each class on the way.
+
 `mise run test:wheel` checks in `tests/rules.bats` that execution refuses a case for each rule that it sees.
 It checks that the refused line names the rule and the line of the test.
 For a helper, it checks that the line also names the line of the helper and the name of the helper.
