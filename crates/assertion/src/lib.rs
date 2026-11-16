@@ -7,11 +7,14 @@
 //! test is wrapped, so that the case sees its hooks and its `with`s.
 
 use purba_parsing::Module;
-use pyo3::exceptions::{PyIndexError, PyNameError};
-use pyo3::types::{PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods};
+use pyo3::basic::CompareOp;
+use pyo3::exceptions::{PyIndexError, PyNameError, PyTypeError};
+use pyo3::types::{
+    PyAnyMethods, PyDictMethods, PyModule, PyModuleMethods, PyTuple, PyTupleMethods, PyTypeMethods,
+};
 use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
-use ruff_python_ast::{ExceptHandler, Expr, Stmt, StmtAssert, StmtFunctionDef};
+use ruff_python_ast::{CmpOp, ExceptHandler, Expr, ExprCompare, Stmt, StmtAssert, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextRange, TextSize};
 use std::collections::{HashMap, HashSet};
 use std::io;
@@ -42,9 +45,30 @@ pub struct Rewrite {
     asserts: Vec<String>,
     marks: Vec<usize>,
     expectations: Vec<String>,
+    checks: Vec<Option<Check>>,
     lines: Vec<usize>,
     tests: Vec<(String, Range<usize>)>,
     bodies: HashMap<usize, Body>,
+}
+
+/// The operator of an expectation that compares two values by one, and
+/// whether its expected value is the left side: the left is a literal, and
+/// the right is not.
+#[derive(Clone, Copy, Debug)]
+struct Check {
+    op: CmpOp,
+    expected_left: bool,
+}
+
+/// The two sides of `test` when it compares two values by one operator.
+fn sides(test: &Expr) -> Option<(&ExprCompare, &Expr, &Expr)> {
+    let Expr::Compare(compare) = test else {
+        return None;
+    };
+    match (&*compare.ops, &*compare.operands) {
+        ([_], [left, right]) => Some((compare, left, right)),
+        _ => None,
+    }
 }
 
 /// The body of a `with`: the line of each statement in it, at any depth, in
@@ -247,9 +271,11 @@ impl Edit {
 /// Rewrites each assert of `module`, where `tests` names its tests.
 ///
 /// An expectation `assert x` becomes `_purba_reads(i) and _purba_read(i, x)`,
-/// where `i` counts the expectations of the module in source order, from 0. It
-/// keeps each line break of the assert inside the call, so each later line
-/// keeps its number, and drops the assert's message.
+/// where `i` counts the expectations of the module in source order, from 0. An
+/// expectation that compares two values by one operator, `assert a < b`, becomes
+/// `_purba_reads(i) and _purba_read(i, (a), (b))`, and the hook compares them by
+/// that operator. Each keeps each line break of the assert inside the call, so
+/// each later line keeps its number, and drops the assert's message.
 ///
 /// Every other assert `assert x` becomes `assert _purba_ran(i, x)`, where `i`
 /// counts the marked asserts of the module in source order, from 0. An assert
@@ -304,24 +330,7 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
         });
     }
     for (index, assert) in all.iter().enumerate() {
-        let whole = assert.range();
-        let condition = assert.test.range();
-        let mut text = format!("{READS}({index}) and {READ}({index}, ");
-        push_breaks(
-            &mut text,
-            &source[TextRange::new(whole.start(), condition.start())],
-        );
-        push_condition(&mut text, source, assert);
-        push_breaks(
-            &mut text,
-            &source[TextRange::new(condition.end(), whole.end())],
-        );
-        text.push(')');
-        edits.push(Edit {
-            start: whole.start().to_usize(),
-            end: whole.end().to_usize(),
-            text,
-        });
+        edits.push(read_edit(index, assert, source));
     }
     let bodies = watch_each_test(module, &by_test, &expected, &mut edits);
     edits.sort_by_key(|edit| (edit.start, edit.end));
@@ -357,9 +366,50 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
             .iter()
             .map(|assert| without_trivia(module, assert.range()))
             .collect(),
+        checks: all
+            .iter()
+            .map(|assert| {
+                sides(&assert.test).map(|(compare, left, right)| Check {
+                    op: compare.ops[0],
+                    expected_left: purba_parsing::is_literal(left)
+                        && !purba_parsing::is_literal(right),
+                })
+            })
+            .collect(),
         lines: all.iter().map(|assert| line(assert.start())).collect(),
         tests: ranges,
         bodies,
+    }
+}
+
+/// The edit that makes `assert`, the expectation at `index`, a call of the
+/// hook. A comparison of two values by one operator hands the hook each side.
+fn read_edit(index: usize, assert: &StmtAssert, source: &str) -> Edit {
+    let whole = assert.range();
+    let mut text = format!("{READS}({index}) and {READ}({index}, ");
+    let mut copied = whole.start();
+    if let Some((_, left, right)) = sides(&assert.test) {
+        for (side, start) in [(left, ""), (right, ", ")] {
+            push_breaks(&mut text, &source[TextRange::new(copied, side.start())]);
+            text.push_str(start);
+            push_side(&mut text, source, side);
+            copied = side.end();
+        }
+    } else {
+        let condition = assert.test.range();
+        push_breaks(
+            &mut text,
+            &source[TextRange::new(copied, condition.start())],
+        );
+        push_condition(&mut text, source, assert);
+        copied = condition.end();
+    }
+    push_breaks(&mut text, &source[TextRange::new(copied, whole.end())]);
+    text.push(')');
+    Edit {
+        start: whole.start().to_usize(),
+        end: whole.end().to_usize(),
+        text,
     }
 }
 
@@ -373,6 +423,14 @@ fn push_condition(rewritten: &mut String, source: &str, assert: &StmtAssert) {
     rewritten.push_str(open);
     rewritten.push_str(&source[assert.test.range()]);
     rewritten.push_str(close);
+}
+
+/// Writes `side`, one side of a comparison, in parentheses. ruff's range of
+/// a side leaves out the parentheses around it, and the side may need them.
+fn push_side(rewritten: &mut String, source: &str, side: &Expr) {
+    rewritten.push('(');
+    rewritten.push_str(&source[side.range()]);
+    rewritten.push(')');
 }
 
 /// Writes a line feed for each line break in `text`.
@@ -407,6 +465,77 @@ fn fault() {
     {
         panic!("PURBA_FAULT=assert");
     }
+}
+
+/// Whether `left` and `right` hold by `op`, as Python's own operator decides.
+fn holds(op: CmpOp, left: &Bound<'_, PyAny>, right: &Bound<'_, PyAny>) -> PyResult<bool> {
+    let by = |op| left.rich_compare(right, op)?.is_truthy();
+    match op {
+        CmpOp::Eq => by(CompareOp::Eq),
+        CmpOp::NotEq => by(CompareOp::Ne),
+        CmpOp::Lt => by(CompareOp::Lt),
+        CmpOp::LtE => by(CompareOp::Le),
+        CmpOp::Gt => by(CompareOp::Gt),
+        CmpOp::GtE => by(CompareOp::Ge),
+        CmpOp::In => right.contains(left),
+        CmpOp::NotIn => right.contains(left).map(|contains| !contains),
+        CmpOp::Is => Ok(left.is(right)),
+        CmpOp::IsNot => Ok(!left.is(right)),
+    }
+}
+
+/// What an expectation that compares `left` and `right` by `check` shows.
+fn shown(check: Check, left: &Bound<'_, PyAny>, right: &Bound<'_, PyAny>) -> Shown {
+    let (expected, reading) = if check.expected_left {
+        (left, right)
+    } else {
+        (right, left)
+    };
+    let text = |value: &Bound<'_, PyAny>| {
+        value
+            .repr()
+            .map(|text| text.to_string())
+            .map_err(|err| format!("(repr raised {err})"))
+    };
+    let (mut expected_text, mut reading_text) = (text(expected), text(reading));
+    if let (Ok(expected_text), Ok(reading_text)) = (&mut expected_text, &mut reading_text)
+        && expected_text == reading_text
+    {
+        for (text, value) in [(expected_text, expected), (reading_text, reading)] {
+            let class = value
+                .get_type()
+                .name()
+                .map_or_default(|name| name.to_string());
+            text.push_str(" (");
+            text.push_str(&class);
+            text.push(')');
+        }
+    }
+    Shown {
+        expected: rule(check, expected_text.unwrap_or_else(|text| text)),
+        reading: reading_text.unwrap_or_else(|text| text),
+    }
+}
+
+/// The text of `expected` under the rule of the operator of `check`, read from
+/// the side of the reading: `== 2` shows `2`, `< 2` shows `< 2`, `2 < x` shows
+/// `> 2`, and `'z' in x` shows `to contain 'z'`.
+fn rule(check: Check, expected: String) -> String {
+    let words = match (check.op, check.expected_left) {
+        (CmpOp::Eq, _) => return expected,
+        (CmpOp::NotEq, _) => "!=",
+        (CmpOp::Lt, false) | (CmpOp::Gt, true) => "<",
+        (CmpOp::LtE, false) | (CmpOp::GtE, true) => "<=",
+        (CmpOp::Gt, false) | (CmpOp::Lt, true) => ">",
+        (CmpOp::GtE, false) | (CmpOp::LtE, true) => ">=",
+        (CmpOp::In, false) => "in",
+        (CmpOp::NotIn, false) => "not in",
+        (CmpOp::In, true) => "to contain",
+        (CmpOp::NotIn, true) => "not to contain",
+        (CmpOp::Is, _) => "is",
+        (CmpOp::IsNot, _) => "is not",
+    };
+    format!("{words} {expected}")
 }
 
 /// Where the assert at `line` runs. It is `line N` when the innermost frame
@@ -570,16 +699,27 @@ pub trait Readers: Sync {
 
 /// What the expectations of one case gave.
 ///
-/// The verdict of each that the case read in order, the verdict of each that a
-/// reader read alone, why no reader was forked when the fork failed, and each
-/// later expectation that a replay must read alone, since a thread was alive at
-/// the first expectation.
+/// The verdict of each that the case read in order, what each that did not hold
+/// shows, the verdict of each that a reader read alone, why no reader was forked
+/// when the fork failed, and each later expectation that a replay must read
+/// alone, since a thread was alive at the first expectation.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Readings {
     pub in_order: Vec<(usize, bool)>,
+    pub shown: Vec<(usize, Shown)>,
     pub alone: Vec<(usize, Verdict)>,
     pub refused: Option<String>,
     pub replay: Vec<usize>,
+}
+
+/// What a comparison that did not hold shows: its expected value and its reading.
+///
+/// Each is the `repr` of its value, beside the name of its class when the two
+/// `repr`s are the same. The expected value reads by the rule of its operator.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Shown {
+    pub expected: String,
+    pub reading: String,
 }
 
 #[derive(Default)]
@@ -611,6 +751,7 @@ pub struct Swallowed {
 #[pyclass(frozen)]
 struct Read {
     tests: Vec<Range<usize>>,
+    checks: Vec<Option<Check>>,
     bodies: HashMap<usize, Body>,
     state: Mutex<State>,
 }
@@ -720,18 +861,49 @@ impl Read {
 
     /// Records whether `value` held as the reading of the expectation at
     /// `index`, and closes the reading. A reader ends here, with its verdict.
+    /// With one more value in `rest`, the expectation compares `value` and that
+    /// value by its own operator, and when they do not hold, it records what it
+    /// shows. A side can be `None`, so the right side comes in `rest`, where it
+    /// cannot read as a missing argument.
     ///
     /// # Errors
     ///
-    /// `IndexError` when no expectation has `index`, or the error that testing
-    /// `value` raised.
+    /// `IndexError` when no expectation has `index`, `TypeError` when `rest`
+    /// holds a value for an expectation that compares no two values, or more
+    /// than one, or the error that testing `value` raised.
     ///
     /// # Panics
     ///
     /// In a build with the feature `fault`, when `PURBA_FAULT` is `assert`.
-    fn __call__(&self, index: usize, value: &Bound<'_, PyAny>) -> PyResult<()> {
+    #[pyo3(signature = (index, value, *rest))]
+    fn __call__(
+        &self,
+        index: usize,
+        value: &Bound<'_, PyAny>,
+        rest: &Bound<'_, PyTuple>,
+    ) -> PyResult<()> {
         self.known(index)?;
-        let held = value.is_truthy();
+        let compared = match rest.len() {
+            0 => None,
+            1 => {
+                let right = rest.get_item(0)?;
+                let check = self.checks.get(index).copied().flatten().ok_or_else(|| {
+                    PyTypeError::new_err(format!(
+                        "{READ}({index}): the expectation compares no two values"
+                    ))
+                })?;
+                Some((check, right))
+            }
+            _ => {
+                return Err(PyTypeError::new_err(format!(
+                    "{READ}({index}): an expectation compares at most two values"
+                )));
+            }
+        };
+        let held = match &compared {
+            Some((check, right)) => holds(check.op, value, right),
+            None => value.is_truthy(),
+        };
         let (reader, readers) = {
             let mut state = self.state();
             state.reading = false;
@@ -746,6 +918,10 @@ impl Read {
         }
         fault();
         let held = held?;
+        if !held && let Some((check, right)) = &compared {
+            let shown = shown(*check, value, right);
+            self.state().readings.shown.push((index, shown));
+        }
         self.state().readings.in_order.push((index, held));
         Ok(())
     }
@@ -1055,6 +1231,7 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
         py,
         Read {
             tests,
+            checks: rewrite.checks.clone(),
             bodies: rewrite.bodies.clone(),
             state: Mutex::new(State::default()),
         },

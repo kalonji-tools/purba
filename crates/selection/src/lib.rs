@@ -963,7 +963,7 @@ fn faults_of(
                 let [left, right] = &*compare.operands else {
                     continue;
                 };
-                if !is_literal(left) && !is_literal(right) {
+                if !purba_parsing::is_literal(left) && !purba_parsing::is_literal(right) {
                     let text = on_one_line(&module.source()[right.range()]);
                     faults.push((start, Reason::Computes(line(start), text)));
                 }
@@ -995,49 +995,6 @@ fn faults_of(
     }
     faults.sort_by_key(|(offset, _)| *offset);
     faults.into_iter().map(|(_, fault)| fault).collect()
-}
-
-/// Whether `expr` is a literal: a string, bytes, a number, `True`, `False`,
-/// `None`, `...`, an f-string with no placeholder, an operator on literals, or
-/// a list, tuple, set or dict of these.
-fn is_literal(expr: &Expr) -> bool {
-    // A walk that recurses once for each level of nesting overflows the stack
-    // on an expression that nests deeper than the stack.
-    let mut pending = vec![expr];
-    while let Some(expr) = pending.pop() {
-        match expr {
-            Expr::StringLiteral(_)
-            | Expr::BytesLiteral(_)
-            | Expr::NumberLiteral(_)
-            | Expr::BooleanLiteral(_)
-            | Expr::NoneLiteral(_)
-            | Expr::EllipsisLiteral(_) => {}
-            Expr::FString(string)
-                if string
-                    .value
-                    .f_strings()
-                    .all(|part| part.elements.interpolations().next().is_none()) => {}
-            Expr::UnaryOp(operation) => pending.push(&operation.operand),
-            Expr::BinOp(operation) => {
-                pending.push(&operation.left);
-                pending.push(&operation.right);
-            }
-            Expr::List(list) => pending.extend(&list.elts),
-            Expr::Tuple(tuple) => pending.extend(&tuple.elts),
-            Expr::Set(set) => pending.extend(&set.elts),
-            Expr::Dict(dict) => {
-                for item in &dict.items {
-                    let Some(key) = &item.key else {
-                        return false;
-                    };
-                    pending.push(key);
-                    pending.push(&item.value);
-                }
-            }
-            _ => return false,
-        }
-    }
-    true
 }
 
 /// Each private name that a test's body reads, by its offset: an attribute, a

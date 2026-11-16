@@ -18,7 +18,10 @@ use pyo3::types::PyAnyMethods;
 use crate::fork::{Forked, fork};
 use purba_assertion::{Readers, Verdict};
 
-use crate::{Error, Kind, Module, Outcome, Owner, Reason, Worker, frame, interrupt, panic, reader};
+use crate::{
+    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Worker, frame, interrupt, panic,
+    reader,
+};
 
 /// The tags of the frames.
 mod tag {
@@ -41,9 +44,8 @@ mod tag {
     pub const FORKED: u8 = b'c';
     pub const PASSED: u8 = b'p';
     pub const INTERRUPTED: u8 = b'i';
-    /// The text of each assert that did not hold, each after a NUL but the first.
-    /// `compile` refuses a source that holds a NUL, so no text holds one:
-    /// <https://docs.python.org/3.12/library/functions.html#compile>
+    /// Each quote of a failed case, as `quotes_frame` writes it. The `repr` of a
+    /// reading may hold a NUL, so each field carries its length.
     pub const FAILED: u8 = b'f';
     /// The exception, as text.
     pub const RAISED: u8 = b'r';
@@ -411,12 +413,70 @@ fn outcome_of(tag: u8, text: String) -> Result<Outcome, Error> {
         tag::PASSED => Kind::Passed,
         tag::INTERRUPTED => Kind::Interrupted,
         tag::FAILED => Kind::Failed {
-            asserts: text.split('\0').map(str::to_owned).collect(),
+            asserts: quotes_of(&text).ok_or_else(|| {
+                Error(Reason::Internal(panic::Caught {
+                    part: "execution".to_owned(),
+                    message: "the frame of a failed case is cut short".to_owned(),
+                }))
+            })?,
         },
         tag::RAISED => Kind::Raised { exception: text },
         _ => return Err(error_of(tag, text)),
     };
     Ok(Outcome { kind })
+}
+
+/// Writes `field` after its length in bytes and a NUL, so that a field holds
+/// any text, a NUL too.
+fn put(frame: &mut String, field: &str) {
+    frame.push_str(&field.len().to_string());
+    frame.push('\0');
+    frame.push_str(field);
+}
+
+/// Takes the field that `put` wrote at the start of `frame`.
+fn take<'a>(frame: &mut &'a str) -> Option<&'a str> {
+    let (length, rest) = frame.split_once('\0')?;
+    let length: usize = length.parse().ok()?;
+    let field = rest.get(..length)?;
+    *frame = &rest[length..];
+    Some(field)
+}
+
+/// The frame of the quotes of a failed case: for each, its text, then `1` and
+/// what it shows, or `0`.
+fn quotes_frame(quotes: &[Quote]) -> String {
+    let mut frame = String::new();
+    for quote in quotes {
+        put(&mut frame, &quote.assert);
+        match &quote.shown {
+            Some(shown) => {
+                put(&mut frame, "1");
+                put(&mut frame, &shown.expected);
+                put(&mut frame, &shown.reading);
+            }
+            None => put(&mut frame, "0"),
+        }
+    }
+    frame
+}
+
+/// The quotes that `quotes_frame` wrote, or `None` when the frame is cut short.
+fn quotes_of(mut frame: &str) -> Option<Vec<Quote>> {
+    let mut quotes = Vec::new();
+    while !frame.is_empty() {
+        let assert = take(&mut frame)?.to_owned();
+        let shown = match take(&mut frame)? {
+            "1" => Some(Shown {
+                expected: take(&mut frame)?.to_owned(),
+                reading: take(&mut frame)?.to_owned(),
+            }),
+            "0" => None,
+            _ => return None,
+        };
+        quotes.push(Quote { assert, shown });
+    }
+    Some(quotes)
 }
 
 /// The frame of an error.
@@ -435,7 +495,7 @@ fn outcome_frame(result: &Result<Kind, Error>) -> (u8, String) {
     match result {
         Ok(Kind::Passed) => (tag::PASSED, String::new()),
         Ok(Kind::Interrupted) => (tag::INTERRUPTED, String::new()),
-        Ok(Kind::Failed { asserts }) => (tag::FAILED, asserts.join("\0")),
+        Ok(Kind::Failed { asserts }) => (tag::FAILED, quotes_frame(asserts)),
         Ok(Kind::Raised { exception }) => (tag::RAISED, exception.clone()),
         Err(error) => error_frame(error),
     }

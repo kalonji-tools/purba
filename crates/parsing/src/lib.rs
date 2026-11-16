@@ -424,3 +424,46 @@ fn trivia(source: &str, tokens: &[Token]) -> Vec<TextRange> {
     }
     trivia
 }
+
+/// Whether `expr` is a literal: a string, bytes, a number, `True`, `False`,
+/// `None`, `...`, an f-string with no placeholder, an operator on literals, or
+/// a list, tuple, set or dict of these.
+pub fn is_literal(expr: &Expr) -> bool {
+    // A walk that recurses once for each level of nesting overflows the stack
+    // on an expression that nests deeper than the stack.
+    let mut pending = vec![expr];
+    while let Some(expr) = pending.pop() {
+        match expr {
+            Expr::StringLiteral(_)
+            | Expr::BytesLiteral(_)
+            | Expr::NumberLiteral(_)
+            | Expr::BooleanLiteral(_)
+            | Expr::NoneLiteral(_)
+            | Expr::EllipsisLiteral(_) => {}
+            Expr::FString(string)
+                if string
+                    .value
+                    .f_strings()
+                    .all(|part| part.elements.interpolations().next().is_none()) => {}
+            Expr::UnaryOp(operation) => pending.push(&operation.operand),
+            Expr::BinOp(operation) => {
+                pending.push(&operation.left);
+                pending.push(&operation.right);
+            }
+            Expr::List(list) => pending.extend(&list.elts),
+            Expr::Tuple(tuple) => pending.extend(&tuple.elts),
+            Expr::Set(set) => pending.extend(&set.elts),
+            Expr::Dict(dict) => {
+                for item in &dict.items {
+                    let Some(key) = &item.key else {
+                        return false;
+                    };
+                    pending.push(key);
+                    pending.push(&item.value);
+                }
+            }
+            _ => return false,
+        }
+    }
+    true
+}

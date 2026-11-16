@@ -1,6 +1,17 @@
 use std::path::PathBuf;
 
-use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Rewrite};
+use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown};
+
+/// The quote of an expectation that did not hold, with what it shows.
+fn shown(assert: &str, expected: &str, reading: &str) -> Quote {
+    Quote {
+        assert: assert.to_owned(),
+        shown: Some(Shown {
+            expected: expected.to_owned(),
+            reading: reading.to_owned(),
+        }),
+    }
+}
 
 fn module(name: &str, source: &str) -> Module {
     Module::new(
@@ -53,7 +64,7 @@ fn the_three_tests_of_test_a_pass_fail_and_state_no_expectation() {
         [
             Ok(Kind::Passed),
             Ok(Kind::Failed {
-                asserts: vec!["assert 1 == 2".to_owned()]
+                asserts: vec![shown("assert 1 == 2", "2", "1")]
             }),
             Err("no expectation stated".to_owned()),
         ],
@@ -371,7 +382,7 @@ fn the_message_of_an_expectation_is_never_evaluated() {
     assert_eq!(
         kinds(&test_message, &["test_expected_message"]),
         [Kind::Failed {
-            asserts: vec!["assert 1 == 2, undefined_name".to_owned()]
+            asserts: vec![shown("assert 1 == 2, undefined_name", "2", "1")]
         }],
         "the expectation did not hold, and its message never ran"
     );
@@ -399,7 +410,7 @@ fn an_expectation_inside_a_checking_context_fails_and_an_assert_in_a_try_is_refu
         ),
         [
             Ok(Kind::Failed {
-                asserts: vec!["assert 1 + 1 == 3".to_owned()],
+                asserts: vec![shown("assert 1 + 1 == 3", "3", "2")],
             }),
             Err(asserts_before(18)),
         ],
@@ -421,10 +432,11 @@ fn a_with_whose_cleanup_raises_fails_and_names_the_with() {
     assert_eq!(
         kinds(&test_with, &["test_cleanup"]),
         [Kind::Failed {
-            asserts: vec![
-                "the cleanup of the with at line 11 raised AssertionError: a handle leaked"
-                    .to_owned()
-            ],
+            asserts: vec![Quote {
+                assert: "the cleanup of the with at line 11 raised AssertionError: a handle leaked"
+                    .to_owned(),
+                shown: None,
+            }],
         }],
         "the cleanup ran before the first expectation, and its assert keeps its mark"
     );

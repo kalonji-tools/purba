@@ -75,10 +75,10 @@ pub enum Kind {
     /// Each expectation that the case read held, and the test returned.
     Passed,
     /// An expectation did not hold, and the test returned, or a marked assert
-    /// did not hold, and the test raised `AssertionError`. `asserts` is the text
-    /// of each expectation that did not hold, in order, or of the last marked
-    /// assert that did not hold.
-    Failed { asserts: Vec<String> },
+    /// did not hold, and the test raised `AssertionError`. `asserts` quotes each
+    /// expectation that did not hold, in order, or the last marked assert that
+    /// did not hold.
+    Failed { asserts: Vec<Quote> },
     /// The test's call raised, and the outcome is not `Failed` or
     /// `Interrupted`. A test whose process ends before its outcome gives
     /// `Raised` too. `exception` is the type and the message of the exception,
@@ -87,6 +87,32 @@ pub enum Kind {
     /// The first interrupt landed during the test's step: its lookup or its
     /// call. The test has this outcome whether it then passed, failed or raised.
     Interrupted,
+}
+
+/// The text of an assert that did not hold, or of the `with` that raised, and
+/// what an expectation that compares two values shows.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Quote {
+    pub assert: String,
+    pub shown: Option<Shown>,
+}
+
+/// What an expectation that compares two values shows when it does not hold:
+/// its expected value and its reading, as assertion gives them.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Shown {
+    pub expected: String,
+    pub reading: String,
+}
+
+impl Quote {
+    /// A quote of `text` that shows no reading.
+    const fn alone(text: String) -> Self {
+        Self {
+            assert: text,
+            shown: None,
+        }
+    }
 }
 
 /// Why `run` made no outcome: a project error or an internal error.
@@ -591,7 +617,7 @@ fn decide(
         if let Some(with) = &seen.with {
             return (
                 Ok(Kind::Failed {
-                    asserts: vec![with.clone()],
+                    asserts: vec![Quote::alone(with.clone())],
                 }),
                 false,
             );
@@ -601,7 +627,7 @@ fn decide(
         {
             return (
                 Ok(Kind::Failed {
-                    asserts: vec![assert.to_owned()],
+                    asserts: vec![Quote::alone(assert.to_owned())],
                 }),
                 false,
             );
@@ -628,12 +654,23 @@ fn decide(
             return (Err(Error::project(format!("{text} {differ}"))), false);
         }
     }
-    let failed: Vec<String> = readings
-        .in_order
-        .iter()
-        .filter(|(_, held)| !held)
-        .filter_map(|(index, _)| loaded.expectation(*index).map(str::to_owned))
-        .collect();
+    let failed: Vec<Quote> =
+        readings
+            .in_order
+            .iter()
+            .filter(|(_, held)| !held)
+            .filter_map(|(index, _)| {
+                Some(Quote {
+                    assert: loaded.expectation(*index)?.to_owned(),
+                    shown: readings.shown.iter().find(|(shown, _)| shown == index).map(
+                        |(_, shown)| Shown {
+                            expected: shown.expected.clone(),
+                            reading: shown.reading.clone(),
+                        },
+                    ),
+                })
+            })
+            .collect();
     if !failed.is_empty() {
         (Ok(Kind::Failed { asserts: failed }), true)
     } else if !readings.in_order.is_empty() {

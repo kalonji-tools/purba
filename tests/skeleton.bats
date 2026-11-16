@@ -17,6 +17,8 @@ bats_require_minimum_version 1.5.0
 test_a.py::test_one passed
 test_a.py::test_two failed
     assert 1 == 2
+      expected  2
+      reading   1
 test_a.py::test_three project error: no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
@@ -73,6 +75,8 @@ LINES
 test_a.py::test_one passed
 test_a.py::test_two failed
     assert 1 == 2
+      expected  2
+      reading   1
 test_a.py::test_three project error: no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
