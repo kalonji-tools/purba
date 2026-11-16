@@ -45,7 +45,7 @@ A reader of one test then cannot see what runs in its place.
 
 **Downside:**
 
-- **A test carries a library's decorator only under a suppression of `foreign-decorator`.** Selection refuses Hypothesis's `@given` and `mock.patch` on a test. A tester writes `with mock.patch(…)` in the body instead. A tester puts `@given` on a function that the body defines and calls.
+- **A test carries a library's decorator only under a suppression of `foreign-decorator`.** Selection refuses Hypothesis's `@given` and `mock.patch` on a test. A patch in the body is refused too, as [a stand-in enters a test as an argument](a-stand-in-enters-a-test-as-an-argument.md#decision-outcome) says. A tester puts `@given` on a function that the body defines and calls.
 - **A suite from pytest loses each decorator until purba carries one that does its work.**
 - **Each test repeats the decorator that it shares with other tests.** click names one `skipif` for several tests.
 - **Selection does not see a name bound through `globals()`, `setattr` or `from … import *`.** Execution calls what import bound.

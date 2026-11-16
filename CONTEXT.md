@@ -184,6 +184,10 @@ What a crate costs purba: its [blast area](#blast-area), and the other factors o
 
 A division of purba with one responsibility and one interface. Each part is designed in depth on its own, and its code may be Rust, Python or both.
 
+### Patch
+
+A change that a test makes, itself or through a library, to a value outside the test, such as `lending.Library = Stub` or a call of `unittest.mock`'s `patch`. It puts a [stand-in](#stand-in) where the code under test reaches the real value.
+
 ### Post pass
 
 A read of a branch, after the implementation, for what can be removed or improved, and for each breach of a [record](#record) whose [reach](#reach) the change touches. It leaves its findings as a comment on the [pull request](#pull-request).
@@ -275,6 +279,10 @@ The crates that pass the checks for one need of a [part](#part) not designed yet
 ### Significance
 
 The property that routes a change to the code owner. A change is architecturally significant if and only if it adds or changes a [record](#record).
+
+### Stand-in
+
+A value that a test gives the code under test in place of a real one, such as a mock or a stub.
 
 ### Stem
 
