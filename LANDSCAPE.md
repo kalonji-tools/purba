@@ -152,7 +152,7 @@ sequenceDiagram
 ## The cross-cutting concerns
 
 - **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.
-- **strictness.** Never shows as passed what was not checked, in selection, execution, fixtures and reporting. No switch turns it off.
+- **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in selection, execution, fixtures and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on an interrupt and tears down what was built, in command, dispatch, execution, fixtures and reporting. [An interrupt stops the run, and a second one exits at once](docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds its design in depth.
 - **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.
@@ -169,24 +169,22 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 - **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
 - **a test imports another directory's module of the same name.** Given two test directories that each hold `helper.py`, when both run, then a test reads the other directory's `helper`, and its outcome depends on which test ran first. Lands on execution; probability medium, impact high.
 - **a change in one part edits another part.** Given a change inside one part that leaves its interface unchanged, when the change is made, then a file of another part changes. Lands on command; probability high, impact medium.
-- **strictness refuses a test that checks.** Given a test that checks its result through a helper, when purba runs it, then purba does not report it as passed. Lands on strictness; probability medium, impact medium.
 - **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing refuses it, and selection finds no test in it. Lands on parsing; probability low, impact high.
 
 ## The order of design
 
 Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
 
-1. **strictness.**
-2. **parsing.**
-3. **configuration.**
-4. **selection.**
-5. **the Rust/Python seam.**
-6. **fixtures.**
-7. **assertion.**
-8. **execution.**
-9. **dispatch.**
-10. **reporting.**
-11. **command.**
+1. **parsing.**
+2. **configuration.**
+3. **selection.**
+4. **the Rust/Python seam.**
+5. **fixtures.**
+6. **assertion.**
+7. **execution.**
+8. **dispatch.**
+9. **reporting.**
+10. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 

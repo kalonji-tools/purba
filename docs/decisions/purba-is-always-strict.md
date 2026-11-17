@@ -20,6 +20,7 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 | rustc and clippy stay silent where a lint cannot see, and `#[allow]` makes that silence safe | [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32#issuecomment-5600829294) |
 | rustc's suggestion-only idiom groups "did not seem to work very well" | [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32#issuecomment-5600829294) |
 | oxitest's strict judged each test by its `node_id`, so a migration by path worked | [What does always-strict mean, and which checks can exist under it?](https://github.com/kalonji-tools/purba/issues/32) |
+| a suppression turns a check of the practice tier into a warning, and never reaches a check of the other two tiers | [A suppression is an outcome and not a switch, L42-L46](https://github.com/kalonji-tools/purba/blob/b2e363ab/docs/decisions/a-suppression-is-an-outcome-and-not-a-switch.md?plain=1#L42-L46) |
 
 ## Considered Options
 
@@ -37,14 +38,15 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 
 - **A [strict check](../../CONTEXT.md#strict-check) blocks only when its predicate guarantees each violation or clean that it gives.** The bar is a property of the predicate, and the design of the check sets it. A check that blocks answers `unknown` where its predicate cannot guarantee the verdict.
 - **purba shows `unknown`, the verdict of a strict check that cannot guarantee clean, and never shows it as clean.**
-- **A strict check that judges only what a test's code writes guarantees each verdict, so it never answers `unknown`.** [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) names each strict check that selection runs. A tester suppresses one with a [suppression](../../CONTEXT.md#suppression).
+- **A strict check that judges only what a test's code writes guarantees each verdict, so it never answers `unknown`.** [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) names each strict check that selection runs. A tester suppresses one of the practice tier with a [suppression](../../CONTEXT.md#suppression).
 - **A value that names a fact about the project is not a switch.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds that rule for configuration.
 - **Selection is not a switch.** Strictness judges only the tests that a run selects, so a tester can migrate one path at a time.
 - **A `skip` or an `xfail` with a reason is an outcome, and not a switch.** It shows as skipped or as an expected failure, and never as passed.
 
 **Downside:**
 
-- **A false positive costs the tester a suppression and its reason until a fix ships.** [The landscape](../../LANDSCAPE.md#the-risks) names it as the risk that strictness refuses a test that checks its result through a helper.
+- **A false positive of a check of the practice tier costs the tester a suppression and its reason until a fix ships.**
+- **A false positive of a check of the other two tiers blocks the test until a fix ships.** No suppression reaches such a check.
 - **A check that warns and does not block needs a category beside the checks that block, and not a separate channel.** A separate channel of suggestions failed in rustc.
 - **Each demotion states its trigger.**
 - **A removed check keeps its name and states why it went.**
@@ -55,6 +57,5 @@ purba buys that right with a [suppression](../../CONTEXT.md#suppression).
 ## Confirmation
 
 `mise run test:wheel` runs the explicit scenario of [the landscape](../../LANDSCAPE.md#the-driver-scenarios): purba prints the project error `no expectation stated` for a test that states no expectation.
+[A case of each strict check shows its refusal and its departure](a-case-of-each-strict-check-shows-its-refusal-and-its-departure.md#confirmation) names the file of tests that sends a case of each strict check, and of its suppression, to the installed purba.
 No command checks the rest.
-[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks the design in depth of strictness.
-That design answers each cost above.
