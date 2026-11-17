@@ -1,0 +1,42 @@
+test files: 189, top-level tests: 1899
+files with an import line of pytest or _pytest: 119
+
+Q3  import lines of the target per file
+    1: 119 files
+    2: 0 files
+    3+: 0 files
+
+import lines by where they sit
+    module: 119
+    type_checking: 0
+    test: 0
+    helper: 0
+    class: 0
+
+Q4/Q7  top-level tests by what reaches them (first match wins, in this order)
+    module import: 1657
+    helper or class import only: 0
+    TYPE_CHECKING import only: 0
+    a test-body import only: 0
+
+Q4  files whose only import of the target is in a helper or a class
+    ('none',)
+
+Q7  files whose only import of the target is under TYPE_CHECKING
+    ('none',)
+
+Q6  calls of a known importing function (resolved through the imports), or of a known short name
+    path:line where | written | qualified | first argument | hit through imports | hit by name alone
+    known calls resolved through the imports: 14
+    hits through the imports: 0; hits by name alone: 0
+    by name alone, not through the imports: 0
+    calls of a known short name that do not resolve to a known function: 22
+        16 x logger.patch -> loguru.logger.patch
+        2 x logger_.patch -> None
+        2 x None -> None
+        1 x logger_1.patch -> None
+        1 x logger2.patch -> None
+        resolved: 11 x unittest.mock.patch
+        resolved: 2 x importlib.import_module
+        resolved: 1 x __import__
+    through the imports, not by name alone: 0

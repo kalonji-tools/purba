@@ -1,0 +1,40 @@
+test files: 6, top-level tests: 9
+files with an import line of pytest or _pytest: 5
+
+Q3  import lines of the target per file
+    1: 4 files
+    2: 1 files
+    3+: 0 files
+
+import lines by where they sit
+    module: 3
+    type_checking: 1
+    test: 1
+    helper: 1
+    class: 0
+
+Q4/Q7  top-level tests by what reaches them (first match wins, in this order)
+    module import: 2
+    helper or class import only: 1
+    TYPE_CHECKING import only: 1
+    a test-body import only: 3
+
+Q4  files whose only import of the target is in a helper or a class
+    (PosixPath('test_06_in_helper.py'), [5], 1)
+
+Q7  files whose only import of the target is under TYPE_CHECKING
+    (PosixPath('test_tc.py'), [3], 1)
+
+Q6  calls of a known importing function (resolved through the imports), or of a known short name
+    path:line where | written | qualified | first argument | hit through imports | hit by name alone
+    test_calls.py:5 test | importlib.import_module | importlib.import_module | 'pytest' | True | True
+    test_calls.py:7 test | files | shop.files | 'pytest' | False | True
+    test_calls.py:9 test | find_spec | importlib.util.find_spec | 'pytest.mark' | True | True
+    known calls resolved through the imports: 3
+    hits through the imports: 2; hits by name alone: 3
+    by name alone, not through the imports: 1
+    calls of a known short name that do not resolve to a known function: 1
+        1 x files -> shop.files
+        resolved: 2 x importlib.util.find_spec
+        resolved: 1 x importlib.import_module
+    through the imports, not by name alone: 0
