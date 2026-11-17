@@ -54,8 +54,10 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | is not a generator | a `yield` in the test's own body | selection |
 | can be `async`, and purba cannot run one yet | an `async def` | selection |
 | is a function of the module, and not of a class | a `def` with a `test` name in the body of a class, unless the class sits in a `def` | selection |
-| states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side, or as `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)` | an expectation that is none of these, or a chained comparison | selection |
-| | a comparison with no literal on either side | selection |
+| states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side, or as `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`, or as an `all()` or an `any()` of one of these | an expectation that is none of these, a chained comparison, or an `all()` or an `any()` with an `if`, a second `for`, a list comprehension or a `:=` | selection |
+| | a comparison with no literal on either side, in an `all()` or an `any()` too | selection |
+| | an `all()` whose reading holds no item | execution |
+| reads in an expectation no iterator that the test's body bound, other than to a parameter | a name that an expectation reads, which holds an iterator in the test's frame | execution |
 | takes each [stand-in](../../CONTEXT.md#stand-in) as an argument | a [patch](../../CONTEXT.md#patch) in the test's body, a nested `def`, `lambda` or `class` included | selection |
 | | a mock with no spec in the test's body | selection |
 | sits in a module that imports no other test framework | an import of pytest in its module outside every test, or in its body, by an import line or by a call that names it in a string | selection |
@@ -68,6 +70,11 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, unless a suppression names `foreign-decorator`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
 - **Selection refuses a test in a class, whatever the name or the bases of its class.** Its refused line names the test as `path::Class::method`, with each class on the way. The line gives each reason of its `def` and its body, but none for `self`. A binding of its name at the module's level and a statement above its class give no reason either. Execution calls a test by the name of one function.
+- **`assert all(<check> for <target> in <reading>)` is an expectation, and so is `assert any(…)`.** Its generator holds one `for`, not `async`, no `if`, no `:=`, and a `<check>` of one comparison or one of the four forms. The expected side of `<check>` keeps the rule of an expected value.
+- **An `all()` or an `any()` with an `if`, a second `for`, a list comprehension or a `:=` gets the check `not-one-comparison`.** Its line names the shape: `[not-one-comparison] line 22 is an all() with an if, and an all() takes one for, no if`. For a second or a third `for`, the words say `with two for` or `with three for`. Four or more `for` give `with more than three for`. A list comprehension gives `of a list, not a generator`, and a `:=` gives `with a :=`. Any other `all()` or `any()`, such as one of a name, gets the words that any other expectation gets.
+- **An `all()` whose reading holds no item is a project error under the check `no-item`.** Its line reads `[no-item] line 27 checks each item of xs, and xs holds no item`. A passed case would stand on no item that purba checked, so no suppression reaches `no-item`. An `any()` of no item fails, as Python's `any()` does.
+- **An expectation that reads a name that holds an iterator is a project error under `iterator-read`, at the first expectation that reads the name.** The test's frame binds the name, and the name is no parameter of the test. The type of its value has `__next__`, and `iter(value) is value` holds. The value is no `io.IOBase`, such as a file or a `StringIO`. The line reads `[iterator-read] line 32 reads it, an iterator that one reading empties; make it a list in the act`. One reading of an iterator gives a true outcome today, so `iterator-read` sits in the practice tier.
+- **`iterator-read` does not refuse an iterator that the expectation makes itself by a call.** `assert list(iter(rows)) == [1, 2]` reads it once.
 - **The rules of a test's code judge every test, with inputs or without.** An input on either side of a comparison is no literal. Its refused line names the input: `[computed-expected] line 66 compares to the input expected, and an expected value is a literal until purba has cases`.
 - **A refused line names each fault of a suppression above the test first.** It then names each reason of the `def`, and each reason of the body by its line number. A test in a class also names each import of pytest outside every test, as [a test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) says.
 - **Selection reports each [private name](../../CONTEXT.md#private-name) in a test's body, and refuses none.** The body takes in a nested `def`, `lambda` or `class`. The case runs. After the lines of its outcome, one [notice](../../CONTEXT.md#notice) shows for each name of each line: `⚠ line 12 reads the private name _default_encoder`. A test that selection refuses for another reason shows its refusal alone.
@@ -105,17 +112,30 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **A `try` whose handler binds the raise with `as` is another `try`.** Execution refuses the case when a line of its `except` did not run.
 - **Each branch of a context manager of the test module goes both ways before the first expectation, or execution refuses the case.** This holds for a class, and for a generator that a `with` or `ExitStack.enter_context` enters. Execution does not judge a context manager from `contextlib.contextmanager` that decorates a function, since `contextlib` enters it.
 - **A hook that a reading replaces stays unseen.** It hides the exception of each thread that raises after it.
+- **`not-one-comparison` names each `all()` and `any()` that selection refuses for its shape, though none of them is a comparison.**
+- **`iterator-read` refuses an expectation that reads an iterator and does not empty it, such as `assert it is not None`.**
+- **`iterator-read` refuses `assert isinstance(it, Iterator)` too, and its words advise a list.**
+- **`iterator-read` reads no parameter of the test, so a parameter that the act binds again to an iterator escapes it.**
+- **`iterator-read` does not see `assert all(it > 0 for it in it)`.** The target of the `for` hides the name that its reading reads.
+- **Selection refuses an `all()` whose check holds a `:=`, though Python runs it.** The check runs inside purba's function, so the name would not reach the test.
+- **A module that binds its own `all` or `any` still gets the rules of Python's.** Selection reads the name, and not what the module binds to it.
+- **`iterator-read` does not see an iterator behind an attribute, such as `shelf.rows`, or behind a name of the module.**
+- **An iterator that an expectation makes itself runs the code under test inside the reading.** A raise there gives the outcome `raised`. A line under it names the frame of the raise when that frame is not the test's own.
 
 ## Confirmation
 
 `mise run test:rust` checks that selection refuses an `async def`, a `yield`, a `return` of a value and a parameter with no default.
-It checks that selection refuses an expectation that is not one comparison or one of the four forms, and one with no literal. It checks that a private name gives a notice.
+It checks that selection refuses an expectation that is not one comparison or one of the four forms, and one with no literal.
+It checks that a private name gives a notice.
 It checks that the refused line names each by its line number.
 It checks that selection refuses a test in a class, and that its line names each class on the way.
 
-`mise run test:wheel` checks in `tests/rules.bats` that execution refuses a case for each rule that it sees.
+`mise run test:rust` checks in `crates/selection/tests/select.rs` that selection takes an `all()` or an `any()` of each shape of a check. It checks the words that selection prints for each shape that it refuses. It checks in `crates/execution/tests/run.rs` that an iterator that a parameter holds is no fault.
+
+`mise run test:wheel` checks in `tests/rules.bats` that execution refuses a case for each rule that it sees, except `no-item` and `iterator-read`.
 It checks that the refused line names the rule and the line of the test. `tests/strict.bats` checks a private name, the four forms and a `try` of one path on one module. It also checks a callback, the warning filters, an assert in the act and an input on the expected side.
 For a helper, it checks that the line also names the line of the helper and the name of the helper.
+`tests/iterable.bats` checks a failed `all()`, a failed `any()`, an `all()` with an `if`, an `all()` of no item, and an expectation that reads an iterator.
 
 The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
 [A test names the fixture of each input](a-test-names-the-fixture-of-each-input.md#decision-outcome) says how a test names its inputs.
