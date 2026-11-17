@@ -41,7 +41,7 @@ A way past one verdict must therefore show in the report.
 
   | tier | checks |
   |---|---|
-  | the [practice tier](../../CONTEXT.md#practice-tier): a suppression turns its violation into a warning, and the test runs | `foreign-decorator` `foreign-framework` `name-bound-again` `not-one-comparison` `computed-expected` `second-path` `assert-before-expectation` `swallowed-raise` `patched-name` `mock-without-spec` `iterator-read` |
+  | the [practice tier](../../CONTEXT.md#practice-tier): a suppression turns its violation into a warning, and the test runs | `foreign-decorator` `foreign-framework` `name-bound-again` `not-one-comparison` `computed-expected` `second-path` `assert-before-expectation` `swallowed-raise` `patched-name` `mock-without-spec` `iterator-read` `type-alone` |
   | never suppressed: a suppressed one would let an outcome stand on what purba did not check | `no-expectation` `readings-differ` `assert-in-reading` `hook-replaced` `no-item` |
   | never suppressed: purba reads no expectation of such a test, so a suppression cannot help | `def-under-block` `name-without-def` `returned-value` |
   | no name: purba cannot call the test, so no suppression reaches it | an `async` test, a generator, a parameter with no default, a test in a class |
