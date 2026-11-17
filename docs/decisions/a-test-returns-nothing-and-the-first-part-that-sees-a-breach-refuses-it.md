@@ -25,7 +25,8 @@ Selection takes each `def test…`, and execution calls it.
 - **The rules of a test's code judge only a test with no inputs.** An input would then free a test from them.
 - **"Act" names everything that a test runs before its checks.** The convention names the arrange and the act apart, and purba keeps its words.
 - **Execution watches a helper in another module of the test's folder too.** [Prototype 980](https://github.com/kalonji-tools/purba/blob/9a9fa15/prototypes/980-rules-at-run-time/LEARNINGS.md#held) found the test module alone enough.
-- **purba guards `warnings.showwarning` and the handler of `SIGALRM` too.** purba guards only `threading.excepthook` and `sys.unraisablehook`.
+- **purba guards the handler of `SIGALRM` too.** No time limit of purba stands on that handler, so a test that replaces it hides no verdict.
+- **A `try` of another shape is refused for its shape.** A `try` with a `finally` whose lines all ran shows no fault, and passes.
 - **A hook that a line of the test replaces fails the case.** A breach of a test is the test's fault, and `failed` names a fault of the code under test.
 - **A `with` that swallows a raise and skips a line fails the case.** The lines that it skips are a path that the case did not take.
 - **Execution judges each line of a generator under `contextlib.contextmanager`, and also the lines of its cleanup.** The rule names only the lines before the first expectation. A `with` that holds an expectation runs the cleanup after that expectation.
@@ -53,34 +54,39 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | is not a generator | a `yield` in the test's own body | selection |
 | can be `async`, and purba cannot run one yet | an `async def` | selection |
 | is a function of the module, and not of a class | a `def` with a `test` name in the body of a class, unless the class sits in a `def` | selection |
-| states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side | an expectation that is no comparison, or a chained comparison | selection |
-| | an expectation with no literal on either side | selection |
-| writes no [private name](../../CONTEXT.md#private-name) in its body | a private name in the test's body, a nested `def`, `lambda` or `class` included | selection |
+| states each [expectation](../../CONTEXT.md#expectation) as one comparison, by one operator, with a literal on one side, or as `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)` | an expectation that is none of these, or a chained comparison | selection |
+| | a comparison with no literal on either side | selection |
 | takes each [stand-in](../../CONTEXT.md#stand-in) as an argument | a [patch](../../CONTEXT.md#patch) in the test's body, a nested `def`, `lambda` or `class` included | selection |
 | | a mock with no spec in the test's body | selection |
-| takes one path in the lines before its first expectation, and in each line of the test module that those lines call or enter as a generator under `contextlib.contextmanager` | a line that did not run, or a branch that went one way only | execution |
+| takes one path in the lines before its first expectation, and in each line of the test module that those lines call by name or enter as a generator under `contextlib.contextmanager` | a line that did not run, or a branch that went one way only | execution |
 | | a `with` that swallowed a raise and skipped a line | execution |
 | asserts only in its expectations | a marked assert that runs before the first expectation, outside the cleanup of a `with` | execution |
 | | a marked assert that runs inside a reading, whether it holds or not | execution |
-| keeps purba's hooks, `threading.excepthook` and `sys.unraisablehook` | a hook that a statement replaced before the first expectation, or that the module replaced as it loaded | execution |
+| keeps purba's hooks, `threading.excepthook` and `sys.unraisablehook`, and the warning filters that the run began with | a hook or the filters that a statement replaced before the first expectation, or that the module replaced as it loaded | execution |
 
 - **Selection judges each `def`, under any decorator.** It refuses a test that carries a decorator that is not purba's, unless a suppression names `foreign-decorator`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A `return` in a nested `def`, `lambda` or `class` belongs to it, and not to the test.**
 - **Selection refuses a test in a class, whatever the name or the bases of its class.** Its refused line names the test as `path::Class::method`, with each class on the way. The line gives each reason of its `def` and its body, but none for `self`. A binding of its name at the module's level and a statement above its class give no reason either. Execution calls a test by the name of one function.
-- **The rules of a test's code judge every test, with inputs or without.** An input on either side of the comparison is no literal.
-- **A refused line names each fault of a suppression above the test first.** It then names each reason of the `def`, and each reason of the body by its line number. Selection names each private name once for each line.
-- **The words of each breach of a [strict check](../../CONTEXT.md#strict-check) start with the name of the check in brackets, such as `[private-name]`.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds each name and its tier.
+- **The rules of a test's code judge every test, with inputs or without.** An input on either side of a comparison is no literal. Its refused line names the input: `[computed-expected] line 66 compares to the input expected, and an expected value is a literal until purba has cases`.
+- **A refused line names each fault of a suppression above the test first.** It then names each reason of the `def`, and each reason of the body by its line number.
+- **Selection reports each [private name](../../CONTEXT.md#private-name) in a test's body, and refuses none.** The body takes in a nested `def`, `lambda` or `class`. The case runs. After the lines of its outcome, one [notice](../../CONTEXT.md#notice) shows for each name of each line: `⚠ line 12 reads the private name _default_encoder`. A test that selection refuses for another reason shows its refusal alone.
+- **A `try` of one path in a test's body holds one simple statement and one `except SomeError:`, with no `else` and no `finally`.** Its handler binds no name with `as`, and names its type by a name or a dotted name. The lines of its `except` that did not run are no fault. A raise of another type is `raised`.
+- **When the statement of a `try` of one path does not raise, the case fails.** Its first quote reads `the try at line 38 expects ValueError, and the statement did not raise it`. purba still reads each expectation, and shows each that did not hold after that quote.
+- **Execution judges any other `try` by its paths, and so a `try` in a helper.** When a line of a `try` of another shape in a test's body did not run, the refused line ends with `; a try of one path holds one statement and one except SomeError:, with no else and no finally`.
+- **The words of each breach of a [strict check](../../CONTEXT.md#strict-check) start with the name of the check in brackets, such as `[second-path]`.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds each name and its tier.
 - **A suppression of a check of the [practice tier](../../CONTEXT.md#practice-tier) lets the test run.** The case then gets the outcome that it would get without that check.
 - **Selection leaves two inputs that name one fixture to execution.** Execution refuses such a test, so no test gets one object under two names. Only execution resolves the names in `use(…)`.
 - **The type of a [catalyst](../../CONTEXT.md#catalyst) proves it immutable.** Fixtures reads the type before it builds the value.
 - **A test reaches a stock only through a [reagent](../../CONTEXT.md#reagent) that a fixture draws from it.** The risk that a test changes what the next test sees sits in one fixture. That fixture undoes what the test changes, such as through one transaction that it rolls back.
 - **A test follows [arrange, act, assert](../../CONTEXT.md#arrange-act-assert).** An expectation inside a `with` reads before the `with` cleans up, and one after it reads once the cleanup ran.
 - **A tuple assert with items carries no mark, so execution does not refuse it before the first expectation.** [A tuple assert keeps CPython's warning, and selection refuses a test that ends with one](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says why it carries none.
-- **Execution watches only the test module's code.** It does not watch other code that a library calls back, or a module that the test imports. It lets a loop's head, a `with`'s exit, an `except`'s match and an assert's test go one way. A line of a loop's body shows that the loop ran a round, and the mark of an assert shows that the assert ran.
+- **Execution watches only the test module's code, and a function of it only when code of the case calls it by name.** The last call that the caller made names the function, a bound method of it, or a class whose `__init__` or `__new__` it is. Execution does not watch a function that C code calls back, such as the `key` of `sorted`. It also does not watch code that a library calls back, or a module that the test imports. It lets a loop's head, a `with`'s exit, an `except`'s match and an assert's test go one way. A line of a loop's body shows that the loop ran a round, and the mark of an assert shows that the assert ran.
 - **A generator under `contextlib.contextmanager` can be code that the test calls.** It is when the test, or code that the test calls, enters it by a `with` or `ExitStack.enter_context`. Execution judges each line of it, except its cleanup. Its cleanup is the lines after the `yield` where it waits at the first expectation, which run after that expectation.
 - **A refused line for a helper names the first line of the test that reaches the helper.** Then it names the line of the helper and the name of the helper. It reads `[second-path] line 33 reaches line 16 of make, which went one way only, and the lines before the first expectation take one path`. For an assert, the line of the test is the one that runs the assert.
+- **The refused line for an assert in the act names the fix.** It reads `[assert-before-expectation] line 59: an assert ran in the act; one test checks one state; check this state in a test of its own`. For an assert in a helper, it reads `line 53 reaches line 7 of key, which ran an assert in the act; …`.
 - **When a fork or a replay reaches an assert, the refused line names the expectation that it read alone.** The exit code of the fork or the replay carries only its verdict. The line reads `[assert-in-reading] assert check() is True reaches an assert when read alone, and only an expectation asserts`.
 - **purba allows a library that replaces a hook and puts it back inside one call.** purba checks each hook after each statement of the test before its first expectation, and at the end of the module's load. It puts back each hook that it finds replaced.
+- **Execution refuses a case or a module that changes the warning filters.** It compares the filters that apply with those it held when the act or the load began. On CPython 3.14 they can sit in a context variable, which `warnings._get_filters` reads. Another filter, or the same filters in another order, refuses the case or the module: `[hook-replaced] line 47 replaced the warning filters, and a test keeps the filters that the run began with`. Execution refuses a filter inside `with warnings.catch_warnings():` too, so a test cannot hide `PYTHONWARNINGS=error`. purba does not put the filters back, since each case runs in a process of its own.
 - **A raise at the last line of a `with`'s body skips no line, so execution allows a `with` that swallows it.** A raise that the case lets through gives the outcome `raised`. Execution counts no line that the raise skips as a path that the case did not take.
 
 **Downside:**
@@ -88,25 +94,26 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **Selection refuses a `return` of a value in a branch that never runs.** The call would return nothing.
 - **purba cannot check what a fixture does with a stock.** A fixture that undoes nothing lets a test change what the next test sees.
 - **A value whose type does not prove it immutable is a stock.** click's `Command` is one, though no outcome of click depends on what a test leaves in it.
-- **Selection refuses a name that a library documents with a leading `_`, such as `os._exit`, too.** A tester calls it through a function of the test module, which selection does not read.
+- **Selection reports a name that a library documents with a leading `_`, such as `os._exit`, too.**
 - **Selection does not see a private name in a string, such as `getattr(w, "_flush")`.**
 - **Selection refuses a test that compares two computed values, because neither is a literal.** A test that compares a value with what CPython gives without purba writes that value as a literal.
 - **A test that forks takes one way of `if pid == 0` in each process.** A tester calls the child's work through a dictionary of functions, such as `{0: child}.get(pid, int)()`.
 - **A `while` that polls may run no round.** A tester polls in a module that the test imports.
 - **`x = a or b`, a conditional expression, the `if` of a comprehension and a `match` are branches.** Execution refuses the case unless each goes both ways before the first expectation.
-- **A callback that C code calls counts as code that the test calls.** The `key` of `sorted` is one, since C leaves no Python frame between the test and the callback.
+- **A function that the interpreter calls for an operator or an attribute takes any path.** `__eq__` and the getter of a property are such functions, since no call names them.
+- **A `try` whose handler binds the raise with `as` is another `try`.** Execution refuses the case when a line of its `except` did not run.
 - **Each branch of a context manager of the test module goes both ways before the first expectation, or execution refuses the case.** This holds for a class, and for a generator that a `with` or `ExitStack.enter_context` enters. Execution does not judge a context manager from `contextlib.contextmanager` that decorates a function, since `contextlib` enters it.
 - **A hook that a reading replaces stays unseen.** It hides the exception of each thread that raises after it.
 
 ## Confirmation
 
 `mise run test:rust` checks that selection refuses an `async def`, a `yield`, a `return` of a value and a parameter with no default.
-It checks that selection refuses an expectation that is not one comparison, one with no literal, and a private name.
+It checks that selection refuses an expectation that is not one comparison or one of the four forms, and one with no literal. It checks that a private name gives a notice.
 It checks that the refused line names each by its line number.
 It checks that selection refuses a test in a class, and that its line names each class on the way.
 
 `mise run test:wheel` checks in `tests/rules.bats` that execution refuses a case for each rule that it sees.
-It checks that the refused line names the rule and the line of the test.
+It checks that the refused line names the rule and the line of the test. `tests/strict.bats` checks a private name, the four forms and a `try` of one path on one module. It also checks a callback, the warning filters, an assert in the act and an input on the expected side.
 For a helper, it checks that the line also names the line of the helper and the name of the helper.
 
 The designs in depth of fixtures and execution, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, build the rest.
