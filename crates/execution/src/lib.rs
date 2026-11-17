@@ -208,7 +208,7 @@ pub struct Worker<'py, T> {
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
     replays: Vec<(usize, bool, String)>,
-    warnings: Vec<Warning>,
+    suppressed: Suppressed,
 }
 
 /// What a load or a call meets, from before its first line of Python: whether
@@ -251,7 +251,7 @@ impl<'py, T> Worker<'py, T> {
             owners: Vec::new(),
             last: None,
             replays: Vec::new(),
-            warnings: Vec::new(),
+            suppressed: Suppressed::default(),
         }
     }
 }
@@ -430,7 +430,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     ) -> (Result<Kind, Error>, bool) {
         let py = self.py;
         self.replays.clear();
-        self.warnings.clear();
+        self.suppressed = Suppressed::default();
         let loaded = match self.module(module) {
             Ok(loaded) => loaded,
             Err(error) => return (Err(error), window.landed()),
@@ -505,7 +505,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             Vec::new()
         };
         self.replays = replays;
-        self.warnings = decided.2;
+        self.suppressed = decided.2;
         (decided.0, landed)
     }
 
@@ -529,7 +529,14 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// reached.
     #[must_use]
     pub fn warnings(&self) -> &[Warning] {
-        &self.warnings
+        &self.suppressed.warnings
+    }
+
+    /// Whether execution read the paths of the last case, and so judged each
+    /// suppression of a check that it sees.
+    #[must_use]
+    pub const fn judged(&self) -> bool {
+        self.suppressed.judged
     }
 
     /// Each later expectation of the last case that a replay must read alone:
@@ -571,10 +578,19 @@ pub struct Warning {
     pub reason: String,
 }
 
+/// What the suppressions of a case gave: each warning, and whether execution
+/// read the paths of the case, and so judged each suppression of its checks.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Suppressed {
+    pub warnings: Vec<Warning>,
+    pub judged: bool,
+}
+
 /// The suppressions of a case, and the warnings that they gave.
 struct Suppressing<'a> {
     suppressions: &'a [(&'a str, &'a str)],
     warnings: Vec<Warning>,
+    judged: bool,
 }
 
 impl Suppressing<'_> {
@@ -694,7 +710,8 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// A fault of a check that a suppression of the test reaches gives a warning in
 /// place of its project error, and the case goes on to the next of these. Each
 /// project error of a strict check names its check in brackets before the
-/// words of each fault.
+/// words of each fault. Execution judges each suppression of a check that it
+/// sees only when `decide` reaches step 3.
 fn decide(
     py: Python<'_>,
     result: Result<(), PyErr>,
@@ -703,10 +720,11 @@ fn decide(
     seen: &Seen<'_>,
     loaded: &Loaded<'_>,
     function: &str,
-) -> (Result<Kind, Error>, bool, Vec<Warning>) {
+) -> (Result<Kind, Error>, bool, Suppressed) {
     let mut suppressing = Suppressing {
         suppressions: seen.suppressions,
         warnings: Vec::new(),
+        judged: false,
     };
     let (own, decided) = 'decide: {
         for (check, words) in &seen.form {
@@ -753,6 +771,7 @@ fn decide(
                 false,
             );
         }
+        suppressing.judged = true;
         let path: Vec<String> = seen
             .path
             .iter()
@@ -776,7 +795,14 @@ fn decide(
         }
         of_the_readings(readings, loaded, function)
     };
-    (own, decided, suppressing.warnings)
+    (
+        own,
+        decided,
+        Suppressed {
+            warnings: suppressing.warnings,
+            judged: suppressing.judged,
+        },
+    )
 }
 
 /// The outcome of the case of `function` from the readings of its expectations

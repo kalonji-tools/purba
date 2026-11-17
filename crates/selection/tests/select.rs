@@ -2074,3 +2074,141 @@ fn a_star_argument_may_give_a_spec_so_it_gives_no_mock_without_spec() {
         "a patch with a star argument is refused as a patch alone"
     );
 }
+
+/// The words of each unused suppression of the module `text`. Selection judges
+/// each refused test, and execution judges each selected test. Execution read
+/// the paths of a test when `judged` gives true for its function, and its
+/// checks gave the warnings that `warned` names.
+fn unused(
+    name: &str,
+    text: &str,
+    judged: impl Fn(&str) -> bool,
+    warned: impl Fn(&str) -> Vec<&'static str>,
+) -> Vec<String> {
+    let file = write(name, text);
+    let module = purba_parsing::parse(&file).expect("the module parses");
+    let (tests, refused) = purba_selection::select(Path::new(name), &module);
+    let mut ledger = purba_selection::Ledger::new(&module, &tests, &refused);
+    for test in &refused {
+        ledger.refused(test);
+    }
+    for test in &tests {
+        ledger.judge(test, &warned(test.function()), judged(test.function()));
+    }
+    ledger.unused()
+}
+
+#[test]
+fn a_suppression_that_selection_judged_and_that_suppressed_nothing_is_unused() {
+    let text = concat!(
+        "# purba: suppress-module[private-name] one test reads os._exit\n",
+        "# purba: suppress-module[computed-expected] no test computes\n",
+        "import os\n\n\n",
+        "# purba: suppress[not-one-comparison] the test once compared twice\n",
+        "def test_plain():\n",
+        "    value = 1\n",
+        "    assert value == 1\n\n\n",
+        "def test_reads():\n",
+        "    value = os._exit is not None\n",
+        "    assert value == True\n",
+    );
+
+    assert_eq!(
+        unused("test_unused_selection.py", text, |_| true, |_| Vec::new()),
+        [
+            "line 2 suppresses computed-expected, which no test of the module breaks",
+            "line 6 suppresses not-one-comparison, which test_plain does not break",
+        ],
+        "the module's suppression that one test used passes; the others are unused, by line"
+    );
+}
+
+#[test]
+fn a_module_suppression_that_each_test_names_itself_reaches_no_test_and_is_unused() {
+    let text = concat!(
+        "# purba: suppress-module[private-name] the module reads os._exit\n",
+        "import os\n\n\n",
+        "# purba: suppress[private-name] the test reads os._exit\n",
+        "def test_reads():\n",
+        "    value = os._exit is not None\n",
+        "    assert value == True\n",
+    );
+
+    assert_eq!(
+        unused("test_unused_shadowed.py", text, |_| true, |_| Vec::new()),
+        ["line 1 suppresses private-name, which no test of the module breaks"],
+        "the test's own suppression is used, so the module's reaches no test"
+    );
+}
+
+#[test]
+fn a_refused_test_judges_its_suppressions_unless_purba_cannot_call_it() {
+    let text = concat!(
+        "# purba: suppress[private-name] purba cannot call the test\n",
+        "async def test_async():\n",
+        "    value = 1\n",
+        "    assert value == 1\n\n\n",
+        "# purba: suppress[private-name] the test once read a private name\n",
+        "def test_computes():\n",
+        "    value = 1\n",
+        "    assert value == int(\"1\")\n",
+    );
+
+    assert_eq!(
+        unused("test_unused_refused.py", text, |_| true, |_| Vec::new()),
+        ["line 7 suppresses private-name, which test_computes does not break"],
+        "the test refused for a computed value judges its suppression; the async test does not"
+    );
+}
+
+#[test]
+fn a_suppression_of_a_check_of_execution_is_judged_only_where_execution_read_it() {
+    let text = concat!(
+        "# purba: suppress-module[swallowed-raise] one act may swallow a raise\n\n\n",
+        "# purba: suppress[second-path] the act once branched\n",
+        "def test_branch():\n",
+        "    value = 1\n",
+        "    assert value == 1\n\n\n",
+        "def test_raises():\n",
+        "    value = int(\"x\")\n",
+        "    assert value == 1\n",
+    );
+    let read = |function: &str| function == "test_branch";
+
+    assert_eq!(
+        unused("test_unused_execution.py", text, read, |_| Vec::new()),
+        ["line 4 suppresses second-path, which test_branch does not break"],
+        "the module's suppression waits for test_raises, which execution did not read"
+    );
+    assert_eq!(
+        unused(
+            "test_unused_execution.py",
+            text,
+            |_| true,
+            |_| vec!["second-path"]
+        ),
+        ["line 1 suppresses swallowed-raise, which no test of the module breaks"],
+        "a warning uses the test's suppression; once each test is read, the module's is unused"
+    );
+}
+
+#[test]
+fn a_second_suppression_above_a_test_that_the_module_defines_twice_is_unused() {
+    let text = concat!(
+        "import os\n\n\n",
+        "# purba: suppress[private-name] the first def reads os._exit\n",
+        "def test_reads():\n",
+        "    value = os._exit is not None\n",
+        "    assert value == True\n\n\n",
+        "# purba: suppress[private-name] the second def reads os._exit\n",
+        "def test_reads():\n",
+        "    value = os._exit is not None\n",
+        "    assert value == True\n",
+    );
+
+    assert_eq!(
+        unused("test_unused_twice.py", text, |_| true, |_| Vec::new()),
+        ["line 10 suppresses private-name, which test_reads does not break"],
+        "only the first suppression of a check reaches the test"
+    );
+}

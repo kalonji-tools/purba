@@ -86,3 +86,42 @@ helper.py::test_digest blocked: helper.py did not load
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a suppression that purba judged and that suppresses nothing fails the run" {
+  cd "${BATS_TEST_DIRNAME}/suppress"
+
+  run -1 --separate-stderr purba unused.py
+
+  local raised="raised: ValueError: invalid literal for int() with base 10: 'x'"
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+unused.py::test_renamed passed
+unused.py::test_failed failed
+    assert value == 4
+      expected  4
+      reading   3
+unused.py::test_raised ${raised}
+unused.py project error: line 1 suppresses computed-expected, which no test of the module breaks
+unused.py project error: line 4 suppresses private-name, which test_renamed does not break
+unused.py project error: line 10 suppresses swallowed-raise, which test_failed does not break
+3 cases: 1 passed, 1 failed, 1 raised; 3 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module suppression that one test uses, and one above an async test, print no line" {
+  cd "${BATS_TEST_DIRNAME}/suppress"
+
+  run -4 --separate-stderr purba judged.py
+
+  local private='⚠ suppressed [private-name] line 6 reads the private name _exit'
+  private+=', and a test reads no private name'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+judged.py::test_async project error: purba cannot run an async test yet
+judged.py::test_reads passed
+    ${private}
+      reason: one test reads os._exit
+judged.py::test_plain passed
+3 cases: 2 passed, 1 blocked; 1 project error; 1 suppressed
+LINES
+  [[ -z "${stderr}" ]]
+}

@@ -462,13 +462,14 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
     let mut seen = Vec::new();
 
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![module], |handed| {
-        if let Handed::Test(test, result, warnings) = handed {
+        if let Handed::Test(test, result, suppressed) = handed {
             seen.push((
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())
                     .map_err(|err| reason(&err)),
-                warnings
+                suppressed
+                    .warnings
                     .iter()
                     .map(|warning| {
                         (

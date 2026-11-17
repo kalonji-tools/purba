@@ -42,11 +42,14 @@ const OUTCOME: [&str; 4] = [
 /// suppressed one still reaches no outcome.
 const NO_EXPECTATION: [&str; 3] = ["def-under-block", "name-without-def", "returned-value"];
 
-/// A suppression that reaches a test: the check that it names, and its reason.
+/// A suppression that reaches a test: its check, its reason, its line, and the
+/// test above it, or `None` for a module's suppression.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Suppression {
     pub check: &'static str,
     pub reason: String,
+    pub line: usize,
+    pub test: Option<String>,
 }
 
 impl Suppression {
@@ -104,6 +107,20 @@ impl Sites {
             .collect();
         faults.sort_by_key(|(line, _)| *line);
         faults.into_iter().map(|(_, words)| words).collect()
+    }
+
+    /// Each suppression in the module, above a test or of the module, in source
+    /// order.
+    pub fn all(&self) -> Vec<Suppression> {
+        let mut all: Vec<Suppression> = self
+            .tests
+            .values()
+            .flatten()
+            .chain(&self.module)
+            .cloned()
+            .collect();
+        all.sort_by_key(|suppression| suppression.line);
+        all
     }
 
     /// The faults of the module's suppressions and of each `# purba:` comment
@@ -215,7 +232,7 @@ pub fn sites(module: &Module, tests: &[TextSize]) -> Sites {
         })
     };
     let mut sites = Sites::default();
-    let mut found: Vec<(Site, usize, &str, &str)> = Vec::new();
+    let mut found: Vec<(Site, Option<&str>, usize, &str, &str)> = Vec::new();
     for (line, own_line, text) in comments {
         let Some(read) = read(text) else {
             continue;
@@ -234,7 +251,7 @@ pub fn sites(module: &Module, tests: &[TextSize]) -> Sites {
                 },
                 _,
             ) if in_header => {
-                found.push((Site::Module, line, check, reason));
+                found.push((Site::Module, None, line, check, reason));
             }
             (Read::Suppress { module: true, .. }, Some(test)) => {
                 push(&mut sites.test_faults, test, line, below(line));
@@ -250,7 +267,13 @@ pub fn sites(module: &Module, tests: &[TextSize]) -> Sites {
                 },
                 Some(test),
             ) => {
-                found.push((Site::Test(test), line, check, reason));
+                found.push((
+                    Site::Test(test),
+                    def.map(|def| def.name),
+                    line,
+                    check,
+                    reason,
+                ));
             }
             (Read::Suppress { module: false, .. }, None) => {
                 let words = def.map_or_else(
@@ -266,16 +289,16 @@ pub fn sites(module: &Module, tests: &[TextSize]) -> Sites {
             }
         }
     }
-    for (site, line, check, reason) in found {
-        sites.settle(site, line, check, reason);
+    for (site, name, line, check, reason) in found {
+        sites.settle(site, name, line, check, reason);
     }
     sites
 }
 
 impl Sites {
-    /// Keeps the suppression of `check` with `reason` at `line` of `site`, or
-    /// its fault.
-    fn settle(&mut self, site: Site, line: usize, check: &str, reason: &str) {
+    /// Keeps the suppression of `check` with `reason` at `line` of `site`, above
+    /// the test `name`, or the module's when `name` is `None`, or its fault.
+    fn settle(&mut self, site: Site, name: Option<&str>, line: usize, check: &str, reason: &str) {
         let named = match &site {
             Site::Test(test) => self.tests.get(test).map_or(&[][..], Vec::as_slice),
             Site::Module => self.module.as_slice(),
@@ -292,6 +315,8 @@ impl Sites {
                 let suppression = Suppression {
                     check,
                     reason: reason.to_owned(),
+                    line,
+                    test: name.map(str::to_owned),
                 };
                 match site {
                     Site::Test(test) => self.tests.entry(test).or_default().push(suppression),

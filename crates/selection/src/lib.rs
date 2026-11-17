@@ -34,6 +34,7 @@ pub use suppression::Suppression;
 ///     function: "test_one".into(),
 ///     suppressed: Vec::new(),
 ///     suppressions: Vec::new(),
+///     reaching: Vec::new(),
 /// };
 /// ```
 ///
@@ -55,6 +56,7 @@ pub struct TestId {
     function: String,
     suppressed: Vec<Suppressed>,
     suppressions: Vec<Suppression>,
+    reaching: Vec<Suppression>,
 }
 
 /// A violation of a strict check that a suppression turned into a warning: the
@@ -76,6 +78,7 @@ impl TestId {
             function,
             suppressed: Vec::new(),
             suppressions: Vec::new(),
+            reaching: Vec::new(),
         }
     }
 
@@ -372,6 +375,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         let suppressions = sites.of(at);
         let (reasons, suppressed) = suppress(reasons, &suppressions);
         test.suppressed = suppressed;
+        test.reaching.clone_from(&suppressions);
         test.suppressions = suppressions
             .into_iter()
             .filter(Suppression::seen_by_execution)
@@ -416,6 +420,109 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         tests,
         refused.into_iter().map(|(_, refused)| refused).collect(),
     )
+}
+
+/// Each suppression of a module, beside how many tests it reaches, at how many
+/// of them purba judged it, and whether purba counts it as used.
+pub struct Ledger {
+    entries: Vec<Line>,
+}
+
+/// One suppression of a [`Ledger`], and what the run made of it.
+struct Line {
+    suppression: Suppression,
+    reaches: usize,
+    judged: usize,
+    used: bool,
+}
+
+impl Ledger {
+    /// The suppressions of `module`, each beside how many tests of `tests` and
+    /// `refused` it reaches.
+    #[must_use]
+    pub fn new(module: &Module, tests: &[TestId], refused: &[Refused]) -> Self {
+        let Found { defs, .. } = found(module);
+        let mut entries: Vec<Line> = suppression::sites(module, &test_defs(module, &defs))
+            .all()
+            .into_iter()
+            .map(|suppression| Line {
+                suppression,
+                reaches: 0,
+                judged: 0,
+                used: false,
+            })
+            .collect();
+        for test in tests.iter().chain(refused.iter().map(Refused::test)) {
+            for reaching in &test.reaching {
+                if let Some(entry) = entries
+                    .iter_mut()
+                    .find(|entry| entry.suppression.line == reaching.line)
+                {
+                    entry.reaches += 1;
+                }
+            }
+        }
+        Self { entries }
+    }
+
+    /// Judges each suppression that reaches `test`, one of a check that execution
+    /// sees only when `judged`. A check that selection sees counts as used when
+    /// the test suppressed it, and a check that execution sees when `warned`
+    /// names it.
+    pub fn judge(&mut self, test: &TestId, warned: &[&str], judged: bool) {
+        for reaching in &test.reaching {
+            let Some(entry) = self
+                .entries
+                .iter_mut()
+                .find(|entry| entry.suppression.line == reaching.line)
+            else {
+                continue;
+            };
+            let used = if reaching.seen_by_execution() {
+                if !judged {
+                    continue;
+                }
+                warned.contains(&reaching.check)
+            } else {
+                test.suppressed
+                    .iter()
+                    .any(|verdict| verdict.check == reaching.check)
+            };
+            entry.judged += 1;
+            entry.used |= used;
+        }
+    }
+
+    /// Judges each suppression of a check that selection sees that reaches the
+    /// refused test, unless purba cannot call the test.
+    pub fn refused(&mut self, refused: &Refused) {
+        if !refused.reasons.iter().any(Reason::cannot_call) {
+            self.judge(&refused.test, &[], false);
+        }
+    }
+
+    /// The words of each unused suppression that purba judged at each test it
+    /// reaches, in source order.
+    #[must_use]
+    pub fn unused(&self) -> Vec<String> {
+        self.entries
+            .iter()
+            .filter(|entry| !entry.used && entry.judged == entry.reaches)
+            .map(|entry| {
+                let Suppression {
+                    check, line, test, ..
+                } = &entry.suppression;
+                test.as_ref().map_or_else(
+                    || {
+                        format!(
+                            "line {line} suppresses {check}, which no test of the module breaks"
+                        )
+                    },
+                    |test| format!("line {line} suppresses {check}, which {test} does not break"),
+                )
+            })
+            .collect()
+    }
 }
 
 /// The fault of the module's suppressions, or `None` when there is none.

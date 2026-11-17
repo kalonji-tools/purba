@@ -111,6 +111,7 @@ pub fn run_with(
             Err(error) => return stopped(report, &path, &error),
         };
     not_interrupted()?;
+    let mut ledger = purba_selection::Ledger::new(&parsed, &tests, &refused_tests);
     let fault =
         match purba_execution::catch("command", || Ok(purba_selection::module_fault(&parsed))) {
             Ok(fault) => fault,
@@ -122,6 +123,7 @@ pub fn run_with(
             &Err(purba_execution::Error::project(refused.to_string())),
         )?;
         warned(&mut report, refused.test(), &[])?;
+        ledger.refused(refused);
     }
     if let Some(fault) = fault {
         report.error(&path.display(), &purba_execution::Error::project(fault))?;
@@ -144,9 +146,17 @@ pub fn run_with(
     };
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
-            Handed::Test(test, result, warnings) => report
-                .line(&test, &result)
-                .and_then(|()| warned(&mut report, &test, &warnings)),
+            Handed::Test(test, result, suppressed) => {
+                let checks: Vec<&str> = suppressed
+                    .warnings
+                    .iter()
+                    .map(|warning| warning.check.as_str())
+                    .collect();
+                ledger.judge(&test, &checks, suppressed.judged);
+                report
+                    .line(&test, &result)
+                    .and_then(|()| warned(&mut report, &test, &suppressed.warnings))
+            }
             Handed::NotLoaded(path, error) | Handed::Thread(Charged::Module(path), error) => {
                 report.error(&path.display(), &error)
             }
@@ -161,6 +171,9 @@ pub fn run_with(
     });
     if let ControlFlow::Break(refused) = flow {
         return Err(refused.into());
+    }
+    for words in ledger.unused() {
+        report.error(&path.display(), &purba_execution::Error::project(words))?;
     }
     Ok(report.finish()?)
 }
