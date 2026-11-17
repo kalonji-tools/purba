@@ -7,7 +7,7 @@ use std::fmt;
 use std::iter;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::Module;
+use purba_parsing::{Each, Module};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::visitor::{
     Visitor, walk_except_handler, walk_expr, walk_interpolated_string_element, walk_pattern,
@@ -179,6 +179,9 @@ enum Reason {
     Under(&'static str),
     Method,
     NotOneComparison(usize),
+    /// An `all()` or an `any()` of another shape: its line, its function, and
+    /// the words of its shape.
+    EachShape(usize, &'static str, &'static str),
     Computes(usize, String),
     Input(usize, String),
     Patched(usize, String),
@@ -197,7 +200,7 @@ impl Reason {
             Self::Rebound(..) => "name-bound-again",
             Self::NoDef(..) => "name-without-def",
             Self::Under(_) => "def-under-block",
-            Self::NotOneComparison(_) => "not-one-comparison",
+            Self::NotOneComparison(_) | Self::EachShape(..) => "not-one-comparison",
             Self::Computes(..) | Self::Input(..) => "computed-expected",
             Self::Patched(..) => "patched-name",
             Self::WithoutSpec(_) => "mock-without-spec",
@@ -320,6 +323,10 @@ impl fmt::Display for Reason {
                 "line {line} is not one comparison, \
                  and an expectation compares a reading by one operator, \
                  or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)"
+            ),
+            Self::EachShape(line, function, shape) => write!(
+                formatter,
+                "line {line} is an {function}() {shape}, and an {function}() takes one for, no if"
             ),
             Self::Computes(line, text) => write!(
                 formatter,
@@ -1263,11 +1270,13 @@ fn imports(module: &ModModule) -> HashMap<&str, String> {
 }
 
 /// Each fault of the rules that selection reads from the body of `function`,
-/// in source order: an expectation that is not one comparison, an expected
-/// value that is not a literal, a patch, a mock with no spec, and an import of
-/// another test framework, in the body or in `outside`. Each patch comes once
-/// for each target of a line, each mock with no spec once for each line, and
-/// each import once for each module of a line.
+/// in source order: an expectation that is not one comparison, an `all()` or an
+/// `any()` of another shape, an expected value that is not a literal, a patch,
+/// a mock with no spec, and an import of another test framework, in the body or
+/// in `outside`. The check of each item of an `all()` or an `any()` keeps the
+/// rule of an expected value. Each patch comes once for each target of a line,
+/// each mock with no spec once for each line, and each import once for each
+/// module of a line.
 fn faults_of(
     function: &StmtFunctionDef,
     module: &Module,
@@ -1283,7 +1292,15 @@ fn faults_of(
     };
     for assert in expectations(&function.body) {
         let start = assert.start();
-        match &*assert.test {
+        let check = match purba_parsing::each(&assert.test) {
+            Some(Each::One { check, .. }) => check,
+            Some(Each::Other { function, shape }) => {
+                faults.push((start, Reason::EachShape(line(start), function, shape)));
+                continue;
+            }
+            None => &*assert.test,
+        };
+        match check {
             Expr::Compare(compare) if compare.ops.len() == 1 => {
                 let [left, right] = &*compare.operands else {
                     continue;

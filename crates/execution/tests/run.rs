@@ -6,7 +6,7 @@ use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, S
 fn shown(assert: &str, expected: &str, reading: &str) -> Quote {
     Quote {
         assert: assert.to_owned(),
-        shown: Some(Shown {
+        shown: Some(Shown::Values {
             expected: expected.to_owned(),
             reading: reading.to_owned(),
         }),
@@ -109,9 +109,206 @@ fn another_exception_gives_raised() {
     assert_eq!(
         kinds(&test_raises, &["test_raises"]),
         [Kind::Raised {
-            exception: "ValueError: no".to_owned()
+            exception: "ValueError: no".to_owned(),
+            whence: None,
         }],
         "Python's exception as text"
+    );
+}
+
+/// The quote of `assert`, a failed `all()` or `any()`, with its `heading` and
+/// its `items`.
+fn items(assert: &str, heading: &str, items: &[&str]) -> Kind {
+    Kind::Failed {
+        asserts: vec![Quote {
+            assert: assert.to_owned(),
+            shown: Some(Shown::Items {
+                heading: heading.to_owned(),
+                items: items.iter().map(|&item| item.to_owned()).collect(),
+            }),
+        }],
+    }
+}
+
+#[test]
+fn a_failed_all_or_any_shows_a_heading_and_each_item_after_its_reading_closes() {
+    let test_each = module(
+        "test_each_items.py",
+        concat!(
+            "class Item:\n    def __repr__(self):\n",
+            "        assert True\n        return 'Item()'\n\n",
+            "def test_repr_asserts():\n    items = [Item()]\n",
+            "    assert all(isinstance(i, int) for i in items)\n\n",
+            "def test_one():\n    xs = [5]\n    assert all(x < 3 for x in xs)\n\n",
+            "def test_reading():\n    ws = ['ab', 'c']\n",
+            "    assert all(len(w) == 2 for w in ws)\n\n",
+            "def test_any():\n    xs = ['a', 'b']\n    assert any(x == 'z' for x in xs)\n\n",
+            "def test_any_empty():\n    xs = []\n    assert any(x == 'z' for x in xs)\n",
+        ),
+    );
+
+    assert_eq!(
+        results(
+            &test_each,
+            &[
+                "test_repr_asserts",
+                "test_one",
+                "test_reading",
+                "test_any",
+                "test_any_empty"
+            ]
+        ),
+        [
+            Ok(items(
+                "assert all(isinstance(i, int) for i in items)",
+                "the first item that breaks  isinstance(i, int)",
+                &["[0]  Item()"]
+            )),
+            Ok(items(
+                "assert all(x < 3 for x in xs)",
+                "the first item that breaks  x < 3",
+                &["[0]  5"]
+            )),
+            Ok(items(
+                "assert all(len(w) == 2 for w in ws)",
+                "the first item that breaks  len(w) == 2",
+                &["[1]  len(w)  1     w  'c'"]
+            )),
+            Ok(items(
+                "assert any(x == 'z' for x in xs)",
+                "none of 2 items holds  x == 'z'",
+                &["[0]  'a'", "[1]  'b'"]
+            )),
+            Ok(items(
+                "assert any(x == 'z' for x in xs)",
+                "none of 0 items holds  x == 'z'",
+                &[]
+            )),
+        ],
+        "a repr that asserts runs after the reading; one item, a reading that is not the item, \
+         each item of an any(), and an any() of no item"
+    );
+}
+
+#[test]
+fn a_failed_all_stops_at_its_first_item_that_breaks() {
+    let test_stops = module(
+        "test_all_stops.py",
+        concat!(
+            "class Item:\n    made = 0\n\n",
+            "    def __init__(self, ok):\n        Item.made += 1\n        self.ok = ok\n\n",
+            "    def __repr__(self):\n        return f'Item(made={Item.made})'\n\n",
+            "def made(oks):\n    for ok in oks:\n        yield Item(ok)\n\n",
+            "def test_stops():\n",
+            "    assert all(item.ok is True for item in made([False, True, True]))\n",
+        ),
+    );
+
+    assert_eq!(
+        results(&test_stops, &["test_stops"]),
+        [Ok(items(
+            "assert all(item.ok is True for item in made([False, True, True]))",
+            "the first item that breaks  item.ok is True",
+            &["[0]  item.ok  False     item  Item(made=1)"]
+        ))],
+        "the reading made one item, as Python's own all() reads no item after the first that \
+         breaks"
+    );
+}
+
+#[test]
+fn an_iterator_that_a_parameter_holds_is_not_one_that_the_act_made() {
+    let test_input = module(
+        "test_input_iterator.py",
+        "def test_input(it=iter([1])):\n    assert list(it) == [1]\n",
+    );
+
+    assert_eq!(
+        results(&test_input, &["test_input"]),
+        [Ok(Kind::Passed)],
+        "the default of a parameter is no iterator that the act made"
+    );
+}
+
+#[test]
+fn an_any_that_holds_stops_at_its_first_true_item() {
+    let test_any = module(
+        "test_any_stops.py",
+        "def gen():\n    yield 1\n    yield 5\n    raise ValueError('read past the item')\n\n\
+         def test_stops():\n    assert any(x == 5 for x in gen())\n",
+    );
+
+    assert_eq!(
+        results(&test_any, &["test_stops"]),
+        [Ok(Kind::Passed)],
+        "an any() reads no item after the first that holds, as Python's own does"
+    );
+}
+
+#[test]
+fn a_lambda_of_a_check_binds_its_parameter() {
+    let test_lambda = module(
+        "test_lambda_bound.py",
+        "def test_lambda():\n    y = iter([1])\n    xs = [1]\n    \
+         assert all((lambda y: y)(x) == 1 for x in xs)\n",
+    );
+
+    assert_eq!(
+        results(&test_lambda, &["test_lambda"]),
+        [Ok(Kind::Passed)],
+        "the parameter of a lambda is no name of the test's frame"
+    );
+}
+
+#[test]
+fn a_raise_names_the_innermost_frame_outside_the_standard_library() {
+    let test_whence = module(
+        "test_whence.py",
+        concat!(
+            "import json\n\n",
+            "def helper():\n    raise KeyError('k')\n\n",
+            "def gen():\n    yield 1\n    raise ValueError('boom')\n\n",
+            "def test_helper():\n    helper()\n\n",
+            "def test_generator():\n    list(gen())\n\n",
+            "def test_library():\n    json.loads('{')\n\n",
+            "def test_own_generator():\n    list(1 / x for x in [0])\n\n",
+            "def test_own_line():\n    raise ValueError('no')\n\n",
+            "import dataclasses\n\n@dataclasses.dataclass(frozen=True)\n",
+            "class Point:\n    x: int\n\n",
+            "def test_generated():\n    p = Point(1)\n    p.x = 2\n",
+        ),
+    );
+
+    let frames: Vec<Option<String>> = kinds(
+        &test_whence,
+        &[
+            "test_helper",
+            "test_generator",
+            "test_library",
+            "test_own_generator",
+            "test_own_line",
+            "test_generated",
+        ],
+    )
+    .into_iter()
+    .map(|kind| match kind {
+        Kind::Raised { whence, .. } => whence,
+        other => panic!("each test raises: {other:?}"),
+    })
+    .collect();
+
+    assert_eq!(
+        frames,
+        [
+            Some("raised in helper() at test_whence.py:4".to_owned()),
+            Some("raised inside the generator gen() at test_whence.py:8".to_owned()),
+            None,
+            None,
+            None,
+            None,
+        ],
+        "a helper and a generator are named; the standard library, a generator of the test, \
+         the test's own line and code that the standard library generates are not"
     );
 }
 
@@ -376,7 +573,8 @@ fn an_assertion_error_before_any_assert_gives_raised() {
     assert_eq!(
         kinds(&test_bare, &["test_bare"]),
         [Kind::Raised {
-            exception: "AssertionError: no assert ran".to_owned()
+            exception: "AssertionError: no assert ran".to_owned(),
+            whence: None,
         }],
         "no assert ran, so the test raised"
     );
@@ -645,6 +843,41 @@ fn a_suppressed_path_or_swallowed_raise_gives_the_outcome_without_the_check() {
             ),
         ],
         "each case passes on its expectation, with one warning for its check"
+    );
+}
+
+#[test]
+fn a_check_that_reads_an_iterator_is_refused_unless_a_suppression_reaches_it() {
+    let test_iterator = module(
+        "test_iterator.py",
+        "def test_iterator():\n    it = iter([1, 2])\n    assert list(it) == [1, 2]\n\n\
+         def test_list():\n    rows = [1, 2]\n    assert list(iter(rows)) == [1, 2]\n",
+    );
+    let words = "line 3 reads it, an iterator that one reading empties; make it a list in the act";
+
+    let refused = suppressed_runs(&test_iterator, &["test_iterator", "test_list"], &[]);
+    let suppressed = suppressed_runs(
+        &test_iterator,
+        &["test_iterator"],
+        &[("iterator-read", "the reader yields each row once")],
+    );
+
+    assert_eq!(
+        refused,
+        [
+            (Err(format!("[iterator-read] {words}")), Vec::new()),
+            (Ok(Kind::Passed), Vec::new()),
+        ],
+        "a name of the test that holds an iterator is refused; an iterator that the check \
+         makes is not"
+    );
+    assert_eq!(
+        suppressed,
+        [(
+            Ok(Kind::Passed),
+            warned("iterator-read", words, "the reader yields each row once")
+        )],
+        "a suppression turns the fault into a warning, and the case reads the iterator once"
     );
 }
 

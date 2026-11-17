@@ -8,7 +8,7 @@ use ruff_python_ast::{Expr, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
 /// The checks that a suppression turns into a warning.
-pub const PRACTICE: [&str; 10] = [
+pub const PRACTICE: [&str; 11] = [
     "foreign-decorator",
     "foreign-framework",
     "name-bound-again",
@@ -19,23 +19,26 @@ pub const PRACTICE: [&str; 10] = [
     "swallowed-raise",
     "patched-name",
     "mock-without-spec",
+    "iterator-read",
 ];
 
 /// The checks that execution sees, of those that a suppression turns into a
 /// warning.
-const OF_EXECUTION: [&str; 3] = [
+const OF_EXECUTION: [&str; 4] = [
     "second-path",
     "assert-before-expectation",
     "swallowed-raise",
+    "iterator-read",
 ];
 
 /// The checks without which an outcome would stand on what purba did not
 /// check.
-const OUTCOME: [&str; 4] = [
+const OUTCOME: [&str; 5] = [
     "no-expectation",
     "readings-differ",
     "assert-in-reading",
     "hook-replaced",
+    "no-item",
 ];
 
 /// The checks of a test whose expectations the run never reads, so that a

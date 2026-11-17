@@ -11,6 +11,7 @@ use ruff_python_ast::token::{Token, TokenKind};
 use ruff_python_ast::visitor::transformer::{
     Transformer, walk_expr, walk_interpolated_string_element, walk_pattern, walk_stmt,
 };
+use ruff_python_ast::visitor::{self, Visitor};
 use ruff_python_ast::{
     AtomicNodeIndex, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
@@ -508,5 +509,96 @@ pub fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)> {
             }
         }
         _ => None,
+    }
+}
+
+/// Whether `expr` holds a `:=` at any depth. A walk that recurses once for each
+/// level of nesting overflows the stack on an expression that nests deeper
+/// than the stack, so each visit pushes its expression.
+fn holds_a_walrus(expr: &Expr) -> bool {
+    struct Pending<'a>(Vec<&'a Expr>);
+    impl<'a> Visitor<'a> for Pending<'a> {
+        fn visit_expr(&mut self, expr: &'a Expr) {
+            self.0.push(expr);
+        }
+    }
+    let mut pending = Pending(vec![expr]);
+    while let Some(expr) = pending.0.pop() {
+        if expr.is_named_expr() {
+            return true;
+        }
+        visitor::walk_expr(&mut pending, expr);
+    }
+    false
+}
+
+/// Whether `test` is one shape of a check: a comparison of two values by one
+/// operator, or one of the four reads.
+fn is_check(test: &Expr) -> bool {
+    matches!(test, Expr::Compare(compare) if compare.ops.len() == 1) || read(test).is_some()
+}
+
+/// An `all()` or an `any()` that an expectation asserts.
+#[derive(Clone, Copy, Debug)]
+pub enum Each<'a> {
+    /// `all(<check> for <target> in <reading>)`, or `any(…)`: a generator with
+    /// one `for` and no `if`, whose item is one shape of a check.
+    One {
+        any: bool,
+        check: &'a Expr,
+        target: &'a Expr,
+        reading: &'a Expr,
+    },
+    /// Another `all()` or `any()`: its function, and the words that name its
+    /// shape, such as `with an if`.
+    Other {
+        function: &'static str,
+        shape: &'static str,
+    },
+}
+
+/// The `all()` or the `any()` that `test` is.
+///
+/// It is one when `test` calls one of them with one positional argument, a
+/// generator or a list. An `if`, a second `for` or a `:=` in the item names the
+/// shape first. `None` for any other test, and for an `all()` or an `any()` of
+/// another argument, or of a generator whose one `for` is async or whose item
+/// is no check.
+#[must_use]
+pub fn each(test: &Expr) -> Option<Each<'_>> {
+    let Expr::Call(call) = test else {
+        return None;
+    };
+    let (Expr::Name(name), [argument], []) = (
+        &*call.func,
+        &*call.arguments.args,
+        &*call.arguments.keywords,
+    ) else {
+        return None;
+    };
+    let (function, any) = match name.id.as_str() {
+        "all" => ("all", false),
+        "any" => ("any", true),
+        _ => return None,
+    };
+    let other = |shape| Some(Each::Other { function, shape });
+    let generator = match argument {
+        Expr::Generator(generator) => generator,
+        Expr::ListComp(_) => return other("of a list, not a generator"),
+        _ => return None,
+    };
+    match &*generator.generators {
+        [one] if !one.ifs.is_empty() => other("with an if"),
+        [_] if holds_a_walrus(&generator.elt) => other("with a :="),
+        [one] if !one.is_async && is_check(&generator.elt) => Some(Each::One {
+            any,
+            check: &generator.elt,
+            target: &one.target,
+            reading: &one.iter,
+        }),
+        [_] => None,
+        [_, _] => other("with two for"),
+        [_, _, _] => other("with three for"),
+        _ => other("with more than three for"),
     }
 }
