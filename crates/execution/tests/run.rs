@@ -696,3 +696,51 @@ fn a_check_of_the_run_names_itself_in_brackets_and_a_suppression_does_not_reach_
          a check that no suppression reaches refuses whatever the run is handed"
     );
 }
+
+#[test]
+fn a_case_judges_its_suppressions_only_when_it_reads_the_paths() {
+    let test_judged = module(
+        "test_judged.py",
+        "def test_holds():\n    value = 1\n    assert value == 1\n\n\n\
+         def test_fails():\n    value = 1\n    assert value == 2\n\n\n\
+         def test_raises():\n    value = int(\"x\")\n    assert value == 1\n\n\n\
+         def test_form():\n    value = 1\n    assert value == 1\n    value = 2\n    \
+         assert value == 2\n",
+    );
+
+    let judged = purba_execution::attach(|worker| {
+        worker.load(&test_judged).expect("the module loads");
+        ["test_holds", "test_fails", "test_raises", "test_form"]
+            .into_iter()
+            .map(|function| {
+                let result = worker
+                    .run(
+                        &test_judged,
+                        function,
+                        &[("second-path", "the act branches")],
+                        function,
+                    )
+                    .map(|outcome| outcome.kind().clone())
+                    .map_err(|error| error.to_string());
+                (
+                    function,
+                    result.is_ok(),
+                    worker.judged(),
+                    worker.warnings().len(),
+                )
+            })
+            .collect::<Vec<_>>()
+    });
+
+    assert_eq!(
+        judged,
+        [
+            ("test_holds", true, true, 0),
+            ("test_fails", true, true, 0),
+            ("test_raises", true, false, 0),
+            ("test_form", false, false, 0),
+        ],
+        "a case that passed or failed on its expectations read the paths; \
+         a raise or a fault of the form stops before"
+    );
+}

@@ -6,7 +6,7 @@
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{Error, Load, Outcome, Owner, Rewrite, Warning, Worker, Zygote};
+use purba_execution::{Error, Load, Outcome, Owner, Rewrite, Suppressed, Worker, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -55,12 +55,12 @@ impl<T> Module<T> {
 }
 
 /// What dispatch hands on: a test with its outcome or its own error, and with
-/// its warnings; the error of a module that did not load; a test of that
-/// module; or the error of a thread.
+/// what its suppressions gave; the error of a module that did not load; a test
+/// of that module; or the error of a thread.
 pub enum Handed<T> {
     /// A test that ran, beside its outcome, or the error that it gave in
-    /// place of one, and each warning of its case.
-    Test(T, Result<Outcome, Error>, Vec<Warning>),
+    /// place of one, and what the suppressions of its case gave.
+    Test(T, Result<Outcome, Error>, Suppressed),
     /// A module that did not load, by its path, and the load's error, or the
     /// internal error of a panic during the load.
     NotLoaded(PathBuf, Error),
@@ -168,7 +168,7 @@ pub fn hand<T: Test + Clone, B>(
                             each(Handed::Test(
                                 test,
                                 Err(Error::project(text.clone())),
-                                Vec::new(),
+                                Suppressed::default(),
                             ))?;
                         }
                         continue;
@@ -195,9 +195,9 @@ fn run<T: Test + Clone, B>(
             each(Handed::Unreached(test))?;
             continue;
         }
-        let (result, warnings, threads) =
+        let (result, suppressed, threads) =
             zygote.run(test.function(), &test.suppressions(), test.clone());
-        each(Handed::Test(test, result, warnings))?;
+        each(Handed::Test(test, result, suppressed))?;
         for (owner, error) in threads {
             each(Handed::Thread(charged(owner), error))?;
         }

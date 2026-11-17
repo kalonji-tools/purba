@@ -19,8 +19,8 @@ use crate::fork::{Forked, fork};
 use purba_assertion::{Readers, Verdict};
 
 use crate::{
-    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Warning, Worker, frame, interrupt,
-    panic, reader,
+    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Suppressed, Warning, Worker, frame,
+    interrupt, panic, reader,
 };
 
 /// The tags of the frames.
@@ -52,6 +52,9 @@ mod tag {
     /// A warning of the case: its check, its words and its reason, each as
     /// `put` writes it. Each comes before the outcome.
     pub const WARNED: u8 = b'u';
+    /// Execution read the paths of the case, and so judged each suppression of
+    /// its checks. It comes before the outcome, with no text.
+    pub const JUDGED: u8 = b'j';
     /// The exception, as text.
     pub const RAISED: u8 = b'r';
     /// A project error, as text.
@@ -174,20 +177,20 @@ impl Zygote {
     }
 
     /// Asks the zygote to fork a process for the test `function`, which
-    /// `suppressions` reach. Reads the outcome of the process, its warnings, and
-    /// the error of each thread that it found. `owner` owns each
-    /// thread that the test left. A process that ended with no outcome gives
-    /// `Raised`, which names the signal or the exit code, or `Interrupted` when
-    /// the first interrupt arrived as it ran. A process that an interrupt signal
-    /// ended ends purba by that signal.
+    /// `suppressions` reach. Reads the outcome of the process, its warnings,
+    /// whether execution judged its suppressions, and the error of each thread
+    /// that it found. `owner` owns each thread that the test left. A process
+    /// that ended with no outcome gives `Raised`, which names the signal or the
+    /// exit code, or `Interrupted` when the first interrupt arrived as it ran. A
+    /// process that an interrupt signal ended ends purba by that signal.
     pub fn run<T: Clone>(
         &mut self,
         function: &str,
         suppressions: &[(&str, &str)],
         owner: T,
-    ) -> (Result<Outcome, Error>, Vec<Warning>, Threads<T>) {
+    ) -> (Result<Outcome, Error>, Suppressed, Threads<T>) {
         let mut threads = Vec::new();
-        let mut warnings = Vec::new();
+        let mut suppressed = Suppressed::default();
         let asked = self.tests.as_mut().map_or_else(
             || Err(ErrorKind::BrokenPipe.into()),
             |tests| frame::write(tests, tag::TEST, &test_frame(function, suppressions)),
@@ -196,7 +199,7 @@ impl Zygote {
             let ended = ended(self.wait());
             return (
                 Err(Error::project(format!("the module's process {ended}"))),
-                warnings,
+                suppressed,
                 threads,
             );
         }
@@ -207,7 +210,8 @@ impl Zygote {
             match frame::read(&mut self.frames) {
                 Ok(Some((tag::ENDED, status))) => break status.parse().ok(),
                 Ok(Some((tag::LATER, text))) => later = later_of(&text),
-                Ok(Some((tag::WARNED, text))) => warnings.extend(warning_of(&text)),
+                Ok(Some((tag::WARNED, text))) => suppressed.warnings.extend(warning_of(&text)),
+                Ok(Some((tag::JUDGED, _))) => suppressed.judged = true,
                 Ok(Some((tag::FORKED, pid))) => {
                     interrupt::follow_test(pid.parse().unwrap_or(0));
                 }
@@ -226,7 +230,7 @@ impl Zygote {
                         result.unwrap_or_else(|| {
                             Err(Error::project(format!("the module's process {ended}")))
                         }),
-                        warnings,
+                        suppressed,
                         threads,
                     );
                 }
@@ -261,7 +265,7 @@ impl Zygote {
             }
             other => other,
         };
-        (result, warnings, threads)
+        (result, suppressed, threads)
     }
 
     /// Asks the zygote for a replay of `function` for each of `later`, in
@@ -774,6 +778,9 @@ fn live_as_test(
     }
     for warning in worker.warnings() {
         send(&mut frames, (tag::WARNED, warning_frame(warning)));
+    }
+    if worker.judged() {
+        send(&mut frames, (tag::JUDGED, String::new()));
     }
     send(&mut frames, outcome_frame(&result));
     interrupt::calling(py, || join(py, worker));
