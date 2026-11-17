@@ -8,6 +8,8 @@
 | fact | source |
 |---|---|
 | `async def test_a` prints `unknown: no assert ran` and a `RuntimeWarning`, and `def test_c(x)` prints `raised: TypeError: …` | [the spec of the selection change](https://github.com/kalonji-tools/purba/issues/670#issuecomment-6467653807), on the wheel from `main` at `0484ef3` |
+| each function definition binds the name of the function | [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) |
+| selection orders the tests of a module, and its refused lines, by the first `def` of each name | [`lib.rs` L649-L655](https://github.com/kalonji-tools/purba/blob/ca247088/crates/selection/src/lib.rs?plain=1#L649-L655) and [L475](https://github.com/kalonji-tools/purba/blob/ca247088/crates/selection/src/lib.rs?plain=1#L475) at `ca247088` |
 
 ## Considered Options
 
@@ -23,7 +25,7 @@
 Selection judges each test before any test runs.
 The refused lines keep source order, and the lines of the selected tests follow them.
 
-- **Selection judges the last `def` of a name, because import binds that one.** The line keeps the place of the first `def`, as for a selected test. Selection refuses a test whose name the module binds again after that `def`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
+- **Selection judges the last `def` of a name at the top of the module.** When each `def` of the name sits under a statement, selection judges the last of them. Import binds the name to the last `def` that runs. The refused line keeps the place of the first `def`, as the line of a selected test does. Selection refuses a test whose name the module binds again after that first `def`, as [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) says.
 - **A refused line names every reason that selection sees, except a reason that a suppression turns into a warning.** That warning prints under the line. A part names every error it finds, as [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says. An `async def` with a `yield` names only that the test is async, because purba cannot call it either way.
 - **A module does not load when selection refuses every test of it.**
 
