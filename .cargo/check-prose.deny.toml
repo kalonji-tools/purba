@@ -33,6 +33,30 @@ check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-
 reads an archive."""
 
 [[advisories.ignore]]
+id = "RUSTSEC-2026-0545"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0546"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0547"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
+id = "RUSTSEC-2026-0548"
+reason = """\
+check-prose builds no zip 7.2.0 and calls no weirpack, the one module of harper-core that \
+reads an archive."""
+
+[[advisories.ignore]]
 id = "RUSTSEC-2025-0141"
 reason = """\
 bincode is unmaintained, and burn needs it under harper-pos-utils 3.2.0, the newest."""
