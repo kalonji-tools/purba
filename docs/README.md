@@ -90,6 +90,7 @@
 
 ### strictness
 
+- [A case of each strict check shows its refusal and its departure](decisions/a-case-of-each-strict-check-shows-its-refusal-and-its-departure.md)
 - [A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](decisions/a-stand-in-enters-a-test-as-an-argument.md)
 - [A suppression is an outcome and not a switch](decisions/a-suppression-is-an-outcome-and-not-a-switch.md)
 - [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)

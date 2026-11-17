@@ -1,3 +1,6 @@
+#   the decision:
+# docs/decisions/a-case-of-each-strict-check-shows-its-refusal-and-its-departure.md
+#
 # One test for each strict check, in the modules of tests/strictness. Its first run
 # sends the refused case, and its second run sends the twin, which carries a
 # suppression. A refusal with no name, the private name and the helpers have one

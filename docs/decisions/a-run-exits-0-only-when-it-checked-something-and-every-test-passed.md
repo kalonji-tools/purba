@@ -28,6 +28,7 @@ The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 | SMTP gives its second digit a meaning, and only 5 codes were left for mail system errors | [the research of exit-code encodings](https://github.com/kalonji-tools/purba/blob/c3cdcec48fda70673fce384aaa373cf5abee3390/research/exit-code-encodings.md?plain=1#L161) |
 | Bazel says that infrastructure decides from the exit code whether to retry a request | [the research of exit-code encodings](https://github.com/kalonji-tools/purba/blob/c3cdcec48fda70673fce384aaa373cf5abee3390/research/exit-code-encodings.md?plain=1#L217) |
 | `timeout` and `env` exit 125 when they fail themselves | [the research of exit-code encodings](https://github.com/kalonji-tools/purba/blob/c3cdcec48fda70673fce384aaa373cf5abee3390/research/exit-code-encodings.md?plain=1#L122) |
+| on `main` at `b2e363ab`, no record chooses the exit code of a skipped test | unmeasured: no command decides which record chooses a code |
 
 ## Considered Options
 
@@ -85,7 +86,7 @@ flowchart TD
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
-- **None of the codes 0, 1, 2, 3, 4 and 125 covers a skipped test.** The design in depth of strictness chooses its code.
+- **None of the codes 0, 1, 2, 3, 4 and 125 covers a skipped test.** No record chooses its code yet.
 - **A thread that calls `os._exit` after its test wrote its outcome changes no outcome.** The process of that test then ends before it joins its other threads.
 - **Nothing refuses a call of an argument parser that ends the process.** Only a reviewer finds a call such as `get_matches_from`.
 
