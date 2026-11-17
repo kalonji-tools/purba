@@ -54,20 +54,24 @@ A mutant files purba's own `PanicException` as `raised`.
 `tests/kinds.bats` runs red under it.
 
 ```
-sed -i 's/return (Err(Error::caught(payload.as_ref(), "execution")), landed);/return (Ok(Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string() }), landed);/' crates/execution/src/lib.rs
+sed -i 's/return (Err(Error::caught(payload.as_ref(), "execution")), landed);/return (Ok(Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string(), whence: None }), landed);/' crates/execution/src/lib.rs
 mise run test:wheel
 ```
 
 ```
-not ok 69 a panic stops only its test, each other test keeps its line, and the run exits 125
-# (in test file tests/kinds.bats, line 203)
+not ok 70 a panic stops only its test, each other test keeps its line, and the run exits 125
+# (in test file tests/kinds.bats, line 283)
 #   `run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_panic.py' failed, expected exit code 125, got 1
 # test_panic.py::test_passes passed
 # test_panic.py::test_panics raised: PURBA_FAULT=assert
+#     ⚠ suppressed [patched-name] line 10 patches os.environ["PURBA_FAULT"], and a stand-in enters a test as an argument; line 14 patches os.environ["PURBA_FAULT"], and a stand-in enters a test as an argument
+#       reason: the test sets the switch that makes purba panic
 # test_panic.py::test_fails failed
 #     assert 1 == 2
+#       expected  2
+#       reading   1
 # test_panic.py::test_raises raised: KeyError: 'k'
-# 4 cases: 1 passed, 1 failed, 2 raised
+# 4 cases: 1 passed, 1 failed, 2 raised; 1 suppressed
 ```
 
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds the kinds.

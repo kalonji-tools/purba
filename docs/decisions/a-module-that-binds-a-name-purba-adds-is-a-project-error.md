@@ -30,7 +30,7 @@ The hook shares the module's namespace with the tester's own names, so a name of
 **A module that binds a name purba adds is a project error.**
 The checks below stay inside assertion, and they see what the module binds when it runs.
 
-- **The rule holds for each name that a rewrite adds to a module:** `_purba_ran`, `_purba_read`, `_purba_reads`, `_purba_step`, `_purba_with`, `_purba_missed` and each later helper.
+- **The rule holds for each name of a hook that a rewrite adds:** `_purba_ran`, `_purba_read`, `_purba_reads`, `_purba_step`, `_purba_with`, `_purba_missed` and each later hook.
 - **Before the body of the module runs, the load checks that no function holds such a name as a local name.**
 - **After the body runs, the load checks that each such name still holds what purba put there.**
 - **When either check fails, the load fails.** The error is `NameError: <file> binds _purba_ran, the name of purba's assert hook`. For `_purba_read` or `_purba_reads`, it names purba's expectation hook instead. For `_purba_step` it names purba's step hook, for `_purba_with` it names purba's with hook, and for `_purba_missed` it names purba's try hook.
@@ -43,6 +43,7 @@ The checks below stay inside assertion, and they see what the module binds when 
 - **A test that calls the hook on purpose can still forge a pass.** [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names that limit.
 - **A class body that binds `_purba_ran`, and asserts in that body, still forges a pass.** The name is an attribute of the class, and neither check reads it.
 - **A test that rebinds the hook gives its error as the result of its call.** It prints as `raised`, and not as a project error.
+- **`_purba_items` and `_purba_item`, the names that hold the reading and each item of an `all()` or an `any()`, are no hooks.** No check refuses a test that binds them. Inside an `all()` or an `any()`, the `<check>` of such a test reads purba's value, and not the test's.
 
 ## Confirmation
 

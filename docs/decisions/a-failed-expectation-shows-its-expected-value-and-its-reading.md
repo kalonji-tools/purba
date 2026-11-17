@@ -20,11 +20,12 @@ No flag sets how much of a value shows.
 
 ## Decision Outcome
 
-**Reach:** `/CONTEXT.md` `crates/parsing/src/lib.rs` `crates/selection/src/lib.rs` `crates/assertion/src/lib.rs` `crates/execution/src/lib.rs` `crates/execution/src/zygote.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/load.rs` `crates/assertion/tests/rewrite.rs` `crates/assertion/tests/rewrite_property.rs` `crates/execution/tests/run.rs` `crates/execution/tests/tally.rs` `crates/dispatch/tests/hand.rs` `tests/kinds.bats` `tests/skeleton.bats`
+**Reach:** `/CONTEXT.md` `crates/parsing/src/lib.rs` `crates/selection/src/lib.rs` `crates/assertion/src/lib.rs` `crates/execution/src/lib.rs` `crates/execution/src/zygote.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/load.rs` `crates/assertion/tests/rewrite.rs` `crates/assertion/tests/rewrite_property.rs` `crates/execution/tests/run.rs` `crates/execution/tests/tally.rs` `crates/dispatch/tests/hand.rs` `tests/kinds.bats` `tests/skeleton.bats` `tests/iterable.bats`
 
 **Area:** assertion, execution, parsing, reporting
 
 **Under each expectation that did not hold, a failed line shows its expected value and its reading.**
+A failed `all()` or a failed `any()` shows a heading and item lines in place of the expected value and the reading.
 Each takes a line of its own, two spaces in from the quote of its expectation.
 
 - **The expected value of a comparison is the side that is a literal.** When both sides are literals, it is the right side.
@@ -46,6 +47,7 @@ Each takes a line of its own, two spaces in from the quote of its expectation.
 
 - **A value shows whole, at any length.** No cut drops the item that broke the check.
 - **A `repr` that raises leaves the case failed.** Its line reads `(repr raised ValueError: no repr)`.
+- **A failed `all()` stops at the first item that breaks its check, as Python's own `all()` does.** It shows that item under a heading. A failed `any()` shows a heading, then a line for each item. Each line holds the index, then the text and the value of what the check reads, then the target and the item: `[2]  len(c)  1     c  'e'`. When the check reads the item itself, the line holds the item once: `[0]  '/usr/share'`. The heading reads `the first item that breaks  len(c) == 2`, or `none of 2 items holds  p == "/opt"` for an `any()`.
 - **A failed marked assert, and a `with` whose entry or cleanup raised, show no reading.**
 
 ```
@@ -61,12 +63,18 @@ reading.py::test_no_repr failed
     assert got == 1
       expected  1
       reading   (repr raised ValueError: no repr)
+iterable.py::test_each failed
+    assert all(len(c) == 2 for c in parts)
+      the first item that breaks  len(c) == 2
+      [2]  len(c)  1     c  'e'
 ```
 
 **Downside:**
 
 - **A failed `is not`, and a failed `!=` whose two values print alike, show the type of each value.** Their two texts are the same, so the line carries a type that says nothing new.
 - **A long value fills one long line.**
+- **A failed `any()` over many items prints a line for each item.**
+- **A failed `all()` names only its first item that breaks.** Each run names one item that breaks, so three such items take three runs.
 - **The `repr` of a value runs code of the test module after its check.** A `repr` that changes state changes it after the check read the value.
 
 ## Confirmation
@@ -83,7 +91,10 @@ It checks that what a failed expectation shows crosses the fork whole, even with
 A quote of a `with` crosses with no reading.
 It checks that reporting prints the two lines under each quote that shows a reading, and none under a quote that shows none.
 
+`mise run test:rust` checks that the items of a failed `any()` cross the fork whole. It checks that reporting prints the heading and the item under the quote of a failed `all()`. It checks in `crates/execution/tests/run.rs` that a failed `all()` takes the `repr` of its item after its reading closes. It checks there that an `any()` of no item fails. It checks that an `any()` that holds stops at its first true item. It checks that a failed `all()` stops at its first item that breaks.
+
 `mise run test:wheel` checks that purba prints the two lines under each expectation that did not hold, in a module whose tests each fail.
 It checks that the run exits 1.
+`tests/iterable.bats` checks the lines of a failed `all()` and a failed `any()`.
 
 [A failed expectation shows its reading](https://github.com/kalonji-tools/purba/issues/1024) built it.
