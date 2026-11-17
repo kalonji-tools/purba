@@ -32,6 +32,7 @@ A `with` whose entry or cleanup raised what ends the call fails the case, and it
 The hook keeps no traceback, so no new Python object crosses the seam.
 
 - **An expectation that did not hold fails the case after the test returns.** purba reads each later expectation too, and quotes each one that did not hold.
+- **A `try` of one path whose statement did not raise comes before each expectation.** Its quote reads `the try at line 38 expects ValueError, and the statement did not raise it`.
 - **The message of an expectation never runs.** The line quotes it, as part of the text of the assert.
 - **A marked assert runs only in the cleanup of a `with`.** Execution refuses one that runs before the first expectation outside such a cleanup, and one inside a reading, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
 - **A raise from the entry or the cleanup of a `with` of the test fails the case when it ends the call.** Its line reads `the cleanup of the with at line 47 raised`, then the exception and its message. When the test catches the raise, the expectations decide the case.

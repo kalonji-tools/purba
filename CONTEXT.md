@@ -84,7 +84,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or selection refuses its test unless a [suppression](#suppression) names that check. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, and one of them is a literal, or it takes one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`. Else selection refuses its test unless a [suppression](#suppression) names that check. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Gate
 
@@ -160,6 +160,10 @@ A person who holds write access to this repository. It is not an [actor](#actor)
 
 A set of [issues](#issue) that a pinned [candidate](#candidate) decides is done. GitHub's milestone object carries it, so purba never uses a milestone for a release.
 
+### Notice
+
+A line that purba prints under the line of a [case](#case), after the lines of its [outcome](#outcome), that starts with `⚠`, names no [strict check](#strict-check), and refuses nothing. It changes no count and no exit code. A [private name](#private-name) that a [test's](#test) body reads gives one.
+
 ### Origin
 
 The statement that a contributor has the right to submit a contribution. Only a person can make it, so no workflow writes one.
@@ -198,7 +202,7 @@ The [strict checks](#strict-check) whose violation a [suppression](#suppression)
 
 ### Private name
 
-A name that starts with `_`, written as an attribute or imported from another module, or a name imported through a part of a module's path that starts with `_`. A name that starts and ends with `__`, such as `__len__`, is not one.
+A name that starts with `_`, written as an attribute or imported from another module, or a name imported through a part of a module's path that starts with `_`. A name that starts and ends with `__`, such as `__len__`, is not one. purba reports each one that a [test's](#test) body reads, and refuses none.
 
 ### Project error
 
@@ -230,7 +234,7 @@ An [actor](#actor) that a [location](#location) serves. A location inherits its 
 
 ### Reading
 
-One read of an [expectation](#expectation) in a [case](#case), and the value that it reads. That value is the side of the comparison that is not the expected value. The expected value is the side that is a literal, or the right side when both are.
+One read of an [expectation](#expectation) in a [case](#case), and the value that it reads. That value is the side of the comparison that is not the expected value, or the `x` of one of the four forms of an expectation. The expected value is the side that is a literal, or the right side when both are.
 
 ### Reagent
 
@@ -306,7 +310,7 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 
 ### Test
 
-A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, is not a generator, and its body writes no [private name](#private-name). A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
+A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, and is not a generator. A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
 
 ### Tester
 

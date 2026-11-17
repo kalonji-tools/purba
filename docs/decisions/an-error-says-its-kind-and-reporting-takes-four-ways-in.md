@@ -1,4 +1,4 @@
-# An error says its kind, and reporting takes five ways in
+# An error says its kind, and reporting takes six ways in
 
 ## Context and Problem Statement
 
@@ -25,20 +25,21 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 **Area:** errors
 
-**An error says its kind, and reporting takes five ways in.**
+**An error says its kind, and reporting takes six ways in.**
 A new kind and the rule that counts it change in execution alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
 - **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression. It also builds one for each unused suppression.
 - **Only execution builds an internal error.**
 - **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
-- **Reporting takes five ways in.** `finish` ends the report. The five ways in are these:
+- **Reporting takes six ways in.** `finish` ends the report. The six ways in are these:
   - `line` takes a test with its outcome or its error.
   - `error` takes a module or a test, with its error. It counts no blocked test.
   - `blocked` takes a test that its module blocked.
   - `unreached` takes an [unreached test](../../CONTEXT.md#unreached-test). It writes no line.
   - `warned` takes a verdict that a suppression turned into a warning, under the line of its case. It counts no test.
-- **Reporting's tests reach it through the five ways in and `finish`.** An outcome goes through the private `add`.
+  - `noticed` takes a [notice](../../CONTEXT.md#notice), under the line of its case. It counts nothing.
+- **Reporting's tests reach it through the six ways in and `finish`.** An outcome goes through the private `add`.
 
 **Downside:**
 

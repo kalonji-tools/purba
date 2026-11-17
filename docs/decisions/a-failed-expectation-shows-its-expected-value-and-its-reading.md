@@ -27,10 +27,11 @@ No flag sets how much of a value shows.
 **Under each expectation that did not hold, a failed line shows its expected value and its reading.**
 Each takes a line of its own, two spaces in from the quote of its expectation.
 
-- **The expected value is the side that is a literal.** When both sides are literals, it is the right side.
+- **The expected value of a comparison is the side that is a literal.** When both sides are literals, it is the right side.
 - **Python's own operator compares the two sides.** Assertion hands the hook each side. The hook compares them by the operator of the expectation, so each verdict is the one that Python gives.
+- **Each of the four other forms of an expectation names its expected value in words.** Assertion hands the hook the reading, and the type or the argument. Python decides each, by `not`, `isinstance`, `startswith` or `endswith`.
 - **Each value shows as its `repr`, taken at the check, and only when the check fails.** A process that reads the expectation alone ends with its verdict before any `repr`.
-- **When the two texts are the same, each also shows the name of its class.** Otherwise no type shows.
+- **When the two texts of a comparison are the same, each also shows the name of its class.** The reading of `isinstance` always shows its class, as `1 (int)`. Otherwise no type shows.
 - **The `expected` line names the rule of the operator, from the side of the reading.**
 
   | expectation | `expected` line |
@@ -39,6 +40,9 @@ Each takes a line of its own, two spaces in from the quote of its expectation.
   | `got != 2`, `got < 2`, `got in (0, 1)`, `got is None` | `!= 2`, `< 2`, `in (0, 1)`, `is None` |
   | `2 < got` | `> 2` |
   | `"z" in got`, `"z" not in got` | `to contain 'z'`, `not to contain 'z'` |
+  | `not got` | `empty or false` |
+  | `isinstance(got, str)` | `an instance of str` |
+  | `got.startswith("ann")`, `got.endswith("lee")` | `to start with 'ann'`, `to end with 'lee'` |
 
 - **A value shows whole, at any length.** No cut drops the item that broke the check.
 - **A `repr` that raises leaves the case failed.** Its line reads `(repr raised ValueError: no repr)`.
