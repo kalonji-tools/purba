@@ -22,6 +22,7 @@ Each line links the file that states its rule, and the section of a record that 
 - Narrow an issue, and never change the question it asks. Close a replaced question as `not_planned` with its answer, and open a new issue that links back to it. ([an artifact is rewritten until its direction is agreed](docs/decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md#decision-outcome))
 - File a defect when you find it, and give it one label and its blockers. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome), [triage](CONTEXT.md#triage))
 - Land a rule somebody acts on in a tracked file before its issue closes. ([a change is specified before it is built](docs/decisions/a-change-is-specified-before-it-is-built.md#decision-outcome))
+- Before an answer picks or changes a form that a tester writes or reads, have it rated blind. ([a form that a tester meets is rated blind before it is decided](docs/decisions/a-form-that-a-tester-meets-is-rated-blind-before-it-is-decided.md#decision-outcome))
 
 ## When you open a pull request
 

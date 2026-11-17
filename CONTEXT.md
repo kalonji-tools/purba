@@ -34,6 +34,10 @@ Anything purba writes for a [reader](#reader), and never a file that a workflow 
 
 How far a crate reaches into purba: the [parts](#part) that name it, and the crates it brings with it.
 
+### Blind rating
+
+A score of each [form](#form) of a choice, by raters who do not know which form is new.
+
 ### Blocked test
 
 A selected test that an error kept from running, or that gave a [project error](#project-error) as it ran, such as a case with no [expectation](#expectation), so it has no [outcome](#outcome).
@@ -89,6 +93,10 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 ### Expectation
 
 An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, with a literal on one side. Or it takes one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`. Or it checks each item of an `all()` or an `any()` by one of these. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+
+### Form
+
+The text that a [tester](#tester) writes in a [test](#test), or reads in the report of a [run](#run), apart from what it means. Two forms can mean the same thing.
 
 ### Gate
 
