@@ -49,6 +49,7 @@ The person decides on each of them.
 - **A judgement says that it is one, and links nothing.**
 - **A claim links only what decides it.** [Evidence density](an-artifact-holds-the-minimum-that-conveys-its-point.md#decision-outcome) counts any link.
 - **The report of a [blind rating](../../CONTEXT.md#blind-rating) holds claims.** [A form that a tester meets is rated blind before it is decided](a-form-that-a-tester-meets-is-rated-blind-before-it-is-decided.md#decision-outcome) says what those claims link.
+- **Each finding of a [test critique](../../CONTEXT.md#test-critique) is a claim.** [A test critique reads a change's tests before its code is pushed](a-test-critique-reads-a-changes-tests-before-its-code-is-pushed.md#decision-outcome) says what the critique judges.
 
 **A borrowed concept:**
 

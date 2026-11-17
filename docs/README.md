@@ -125,6 +125,7 @@
 - [A gate's job counts only by a token that GitHub signed for its run](decisions/a-gate-counts-only-by-a-token-github-signed-for-its-run.md)
 - [`main` requires only `Sign-off`, and accepts it only from `purba-sign`](decisions/a-required-check-of-main-counts-only-from-github-actions.md)
 - [A standard a gate cannot decide does not become a gate](decisions/a-standard-a-gate-cannot-decide-does-not-become-a-gate.md)
+- [A test critique reads a change's tests before its code is pushed](decisions/a-test-critique-reads-a-changes-tests-before-its-code-is-pushed.md)
 - [An artifact is rewritten until its direction is agreed](decisions/an-artifact-is-rewritten-until-its-direction-is-agreed.md)
 - [An implementation follows test-driven development](decisions/an-implementation-follows-test-driven-development.md)
 - [An outside contribution is applied, not merged](decisions/an-outside-contribution-is-applied-not-merged.md)
