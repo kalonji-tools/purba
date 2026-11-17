@@ -40,7 +40,7 @@ A console script adds one command and one private name, and the wheel keeps its 
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes exactly one path to one `.py` file, and no flag.**
 - **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`. A module that declares an encoding other than UTF-8 takes the `cannot read` line. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
-- **A run prints to stdout the line of each test that selection refuses, then each other test's line, and the count.**
+- **A run prints to stdout the line of each test that selection refuses, then each other test's line, then each unused suppression's, and the count.**
 
   ```mermaid
   flowchart TD
@@ -56,7 +56,8 @@ A console script adds one command and one private name, and the wheel keeps its 
     refused -- "the rewrite met none" --> others["each other test's line, in source order, as dispatch hands the test on"]
     module --> count["the count"]
     blocked --> count
-    others --> count
+    others --> unused["the line of each unused suppression, in source order"]
+    unused --> count
   ```
 
   A module that does not load prints its line, then the line of each of its tests. A load that the first interrupt lands in prints no line, unless it meets an internal error. The line of a thread's exception prints when purba takes the exception. It follows the line of the test that ran then, and the error of a load prints before the first test of its module. An [unreached test](../../CONTEXT.md#unreached-test) prints no line, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds why a run that an interrupt stops before selection ends prints no count.
