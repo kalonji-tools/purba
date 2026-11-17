@@ -46,32 +46,29 @@ fn an_identity_gives_its_path_and_function() {
 }
 
 #[test]
-fn a_name_defined_twice_is_one_test_at_its_first_definition() {
-    let file = write(
+fn a_name_defined_twice_is_one_refused_test() {
+    let (tests, refused) = judged(
         "test_twice.py",
         concat!(
-            "def test_a():\n    pass\n\n",
+            "def test_a():\n    assert 1 == 1\n\n",
             "def test_dup():\n    assert 1 == 2\n\n",
-            "def test_b():\n    pass\n\n",
+            "def test_b():\n    assert 1 == 1\n\n",
             "def test_dup():\n    assert 1 == 1\n",
         ),
     );
-    let module = purba_parsing::parse(&file).expect("the module parses");
-
-    let names: Vec<String> = purba_selection::select(Path::new("test_a.py"), &module)
-        .0
-        .iter()
-        .map(ToString::to_string)
-        .collect();
 
     assert_eq!(
-        names,
+        tests,
+        ["test_m.py::test_a", "test_m.py::test_b"],
+        "each name defined once is a test"
+    );
+    assert_eq!(
+        refused,
         [
-            "test_a.py::test_a",
-            "test_a.py::test_dup",
-            "test_a.py::test_b"
+            "test_m.py::test_dup [name-bound-again] line 10 binds test_dup again, \
+             and purba cannot see what the name then holds"
         ],
-        "one test for each name, where import first binds it"
+        "the second def binds the name again, and the first def never runs"
     );
 }
 
@@ -450,7 +447,7 @@ fn a_test_whose_name_the_module_binds_again_is_refused() {
              and purba cannot see what the name then holds"
                 .to_owned(),
         ],
-        "each binding after the last def, or under global in a function anywhere, with its line"
+        "each binding after the first def, or under global in a function anywhere, with its line"
     );
 }
 
@@ -580,16 +577,18 @@ fn selection_judges_the_last_def_of_a_name_at_the_place_of_the_first() {
         ),
     );
 
-    assert_eq!(
-        tests,
-        ["test_m.py::test_fixed"],
-        "the last def of test_fixed takes nothing"
-    );
+    assert!(tests.is_empty(), "no test: {tests:?}");
     assert_eq!(
         refused,
-        ["test_m.py::test_broken the parameter x has no default, \
-         and purba cannot see which fixture builds it"],
-        "the last def of test_broken takes x"
+        [
+            "test_m.py::test_fixed [name-bound-again] line 7 binds test_fixed again, \
+             and purba cannot see what the name then holds",
+            "test_m.py::test_broken the parameter x has no default, \
+             and purba cannot see which fixture builds it; \
+             [name-bound-again] line 10 binds test_broken again, \
+             and purba cannot see what the name then holds",
+        ],
+        "the last def of test_fixed takes nothing, and the last def of test_broken takes x"
     );
 }
 
@@ -857,7 +856,7 @@ fn a_test_in_a_class_gives_every_reason_of_its_def_and_is_one_test_for_each_name
 }
 
 #[test]
-fn a_def_at_the_top_decides_the_name_of_a_def_under_a_statement() {
+fn a_def_at_the_top_and_a_def_under_a_statement_bind_one_name_again() {
     let (tests, refused) = judged(
         "test_top_decides.py",
         concat!(
@@ -868,19 +867,40 @@ fn a_def_at_the_top_decides_the_name_of_a_def_under_a_statement() {
         ),
     );
 
-    assert_eq!(
-        tests,
-        ["test_m.py::test_later"],
-        "the later def at the top binds the name last"
-    );
+    assert!(tests.is_empty(), "no test: {tests:?}");
     assert_eq!(
         refused,
         [
+            "test_m.py::test_later [name-bound-again] line 4 binds test_later again, \
+             and purba cannot see what the name then holds",
             "test_m.py::test_earlier [name-bound-again] line 11 binds test_earlier again, \
-         and purba cannot see what the name then holds"
+             and purba cannot see what the name then holds",
         ],
-        "the def under the statement binds the earlier test's name again, \
-         and gives no line of its own"
+        "the later def binds the name again, at the top or under the statement, \
+         and the def under the statement gives no line of its own"
+    );
+}
+
+#[test]
+fn a_refused_line_sits_at_the_first_def_when_that_def_is_under_a_statement() {
+    let (tests, refused) = judged(
+        "test_first_under.py",
+        concat!(
+            "if True:\n    def test_x(): assert 1 == 1\n\n",
+            "async def test_y():\n    ...\n\n",
+            "def test_x():\n    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            "test_m.py::test_x [name-bound-again] line 7 binds test_x again, \
+             and purba cannot see what the name then holds",
+            "test_m.py::test_y purba cannot run an async test yet",
+        ],
+        "the line of test_x sits at its def under the statement, before test_y"
     );
 }
 
@@ -899,8 +919,16 @@ fn two_defs_of_one_name_under_statements_are_one_refused_test_at_the_first() {
     assert!(tests.is_empty(), "no test: {tests:?}");
     assert_eq!(
         refused,
-        [under("test_twice", "if"), under("test_between", "if")],
-        "one refused test for each name, where import first binds it"
+        [
+            format!(
+                "{}; [name-bound-again] line 6 binds test_twice again, \
+                 and purba cannot see what the name then holds",
+                under("test_twice", "if")
+            ),
+            under("test_between", "if"),
+        ],
+        "one refused test for each name, where import first binds it, \
+         and the second def binds the name again"
     );
 }
 
