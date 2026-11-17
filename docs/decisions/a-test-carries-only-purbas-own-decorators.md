@@ -11,6 +11,11 @@ A reader of one test then cannot see what runs in its place.
 | `@keep`, a decorator whose wrapper returns what the test returns, on a test that returns `False` prints `passed`, and `test_rebound = keep(lambda: "x")` prints `unknown: no assert ran` | [Which decorators may a test carry?](https://github.com/kalonji-tools/purba/issues/707), on the wheel from `main` at `b82e8b6` |
 | each decorator on the module-level tests of click and loguru is the test runner's, or a name that the project gives one of the runner's decorators | [Which decorators may a test carry?](https://github.com/kalonji-tools/purba/issues/707) |
 | a module that binds `test_rebound = keep(lambda: "x")`, `test_alias = helper` and `from os.path import join as test_join` with no `def`, beside `def test_real`, prints one line for `test_real`, then the count, and exits 0 | [A test name that the module binds with no def prints no line](https://github.com/kalonji-tools/purba/issues/811), on the wheel from `main` at `78232b7` |
+| a function definition and a `del` bind a name | [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) |
+| a `yield` in the body of a function makes it a generator function | [Python's reference](https://docs.python.org/3/reference/expressions.html#yield-expressions) |
+| selection refuses a test whose `yield` sits in a branch that never runs | [`select.rs` L126-L154 at `b93bb6d`](https://github.com/kalonji-tools/purba/blob/b93bb6d6/crates/selection/tests/select.rs?plain=1#L126-L154) |
+| the refused line names each line that binds the name again | [`lib.rs` L294-L306 at `b93bb6d`](https://github.com/kalonji-tools/purba/blob/b93bb6d6/crates/selection/src/lib.rs?plain=1#L294-L306) |
+| no suppression lifts `def-under-block`, `name-without-def` or `returned-value` | [`suppression.rs` L47](https://github.com/kalonji-tools/purba/blob/b93bb6d6/crates/selection/src/suppression.rs?plain=1#L47) and [L365](https://github.com/kalonji-tools/purba/blob/b93bb6d6/crates/selection/src/suppression.rs?plain=1#L365) at `b93bb6d` |
 
 ## Considered Options
 
@@ -37,8 +42,8 @@ A reader of one test then cannot see what runs in its place.
 - **Selection refuses a test whose decorator uses a name that the module binds again after its import.** A decorator's name bound again does not say what purba does. After `from purba import skip`, `skip = keep` is one such binding.
 - **A decorator of purba returns the function that it takes.** The body that selection judges is then the body that runs.
 - **Selection judges each `def`, under any decorator.** A refused line names the decorator, then each reason in the body.
-- **A suppression of `foreign-decorator` or `name-bound-again` lets the test run.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) says how. No suppression reaches a test name with no `def`, or a `def` under a statement, since purba reads no expectation of such a test.
-- **Selection refuses a test whose name the module binds again after its last `def`, or under `global` in a function wherever it stands.** A test's name bound again is a decorator in another form. Selection already refuses a `yield` in a branch that never runs, so a binding that may never run counts too. The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a `del` as a binding.
+- **A suppression of `foreign-decorator` or `name-bound-again` lets the test run.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) says how. No suppression lets a test run that selection refuses as a name with no `def` or as a `def` under a statement. purba reads no expectation of such a test.
+- **Selection refuses a test whose name the module binds again after its first `def`, or whose name any function binds under `global`.** Such a binding is a decorator in another form. Selection already refuses a test whose `yield` sits in a branch that never runs, since that `yield` makes the test a generator. Selection counts a binding that may never run too, since it cannot see whether the binding runs. The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a later `def` and a `del` as bindings.
 - **Selection refuses a test name that the module binds with no `def`, where a binding of it can hold a function.** A binding that can hold a function is a decorator in another form too. At the module's level, an assignment of a literal, a comprehension or a generator expression to the name alone never holds a function. Nor does an `import` with no `from`, a `class` with no decorator or a `del`, so a name that only these bind prints no line. The refused line names each binding that can hold a function, and sits at the first of them.
 - **Selection refuses a test whose `def` sits under a statement at the module's level, unless a `def` at the top binds the name.** The refused line names the statement, and says that purba cannot see whether import binds the test.
 - **purba has no decorator for a class and no mark for a module.** A module that cannot load on one platform waits for a run that picks its files by platform.
@@ -49,6 +54,7 @@ A reader of one test then cannot see what runs in its place.
 - **A suite from pytest loses each decorator until purba carries one that does its work.**
 - **Each test repeats the decorator that it shares with other tests.** click names one `skipif` for several tests.
 - **Selection does not see a name bound through `globals()`, `setattr` or `from … import *`.** Execution calls what import bound.
+- **A suppression of `name-bound-again` can let a body run that selection never judged.** With a `def` at the top and a later `def` of that name under a statement, selection judges the `def` at the top. When the statement runs, import binds the name to the later `def`, and execution calls it.
 - **Selection refuses a test name that the module imports with `from`, whatever the name holds.** A tester who writes `from helpers import test_user` writes `from helpers import test_user as user` instead.
 - **Selection refuses a test name that holds a value it cannot see, such as `test_dir = os.path.dirname(__file__)`.** The count names it as a test. Selection keeps a list of the forms that never hold a function, and refuses each form that the list leaves out.
 - **A module that cannot load on one platform is a [project error](../../CONTEXT.md#project-error) there, until a run picks its files by platform.**
@@ -60,6 +66,9 @@ A reader of one test then cannot see what runs in its place.
 `mise run test:rust` checks that selection refuses a test name that the module binds with no `def`.
 `mise run test:wheel` checks the line of such a test on the installed `purba`.
 `mise run test:rust` and `mise run test:wheel` check that a test name that never holds a function gives no line.
+
+`mise run test:wheel` checks in `tests/twice.bats` that selection refuses a test that the module defines twice.
+It checks there that a suppression of `name-bound-again` lets such a test run.
 
 The milestone that adds purba's first decorator builds the two forms of its name, and the refusal of that name bound again.
 The designs in depth of configuration and selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decide how a run picks its files by platform.
