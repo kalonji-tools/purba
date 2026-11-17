@@ -65,3 +65,4 @@ The milestone that adds purba's first decorator builds the two forms of its name
 The designs in depth of configuration and selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decide how a run picks its files by platform.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what selection judges in the body.
 [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when the refused line prints.
+[A test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) refuses an import of pytest.
