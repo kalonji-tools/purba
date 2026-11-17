@@ -85,6 +85,7 @@ A reviewer decides whether a diagram reads clearer.
 It counts the prose lines that carry no number, no code span and no link.
 `.template.md` drives that number up, because it moves numbers into tables.
 A threshold would refuse the records that obey.
+[A claim links what decides it](a-claim-links-what-decides-it.md#decision-outcome) says which link a claim carries.
 
 **Downside:**
 
