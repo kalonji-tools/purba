@@ -16,7 +16,7 @@ def test_catches():
     try:
         assert 1 == 1
     except BaseException:
-        pass
+        caught = True
 
 
 def test_raises():

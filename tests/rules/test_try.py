@@ -40,5 +40,5 @@ def test_other_raise():
     try:
         {}["k"]
     except ValueError:
-        pass
+        caught = True
     assert 1 == 1

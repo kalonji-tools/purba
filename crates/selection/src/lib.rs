@@ -187,6 +187,9 @@ enum Reason {
     Patched(usize, String),
     WithoutSpec(usize),
     Imported(usize, String),
+    /// An `except` that only passes: its line, its type as written or `None`
+    /// for a bare `except:`, and whether it is an `except*`.
+    TypeAlone(usize, Option<String>, bool),
 }
 
 impl Reason {
@@ -205,6 +208,7 @@ impl Reason {
             Self::Patched(..) => "patched-name",
             Self::WithoutSpec(_) => "mock-without-spec",
             Self::Imported(..) => "foreign-framework",
+            Self::TypeAlone(..) => "type-alone",
             Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
                 return None;
             }
@@ -350,7 +354,32 @@ impl fmt::Display for Reason {
                 formatter,
                 "line {line} imports {module}, and a test module imports no other test framework"
             ),
+            Self::TypeAlone(line, kind, star) => {
+                type_alone(formatter, *line, kind.as_deref(), *star)
+            }
         }
+    }
+}
+
+/// Writes the words of an `except` that only passes, at `line`, of the type
+/// `kind`, or of a bare `except:` when `kind` is `None`.
+fn type_alone(
+    formatter: &mut fmt::Formatter<'_>,
+    line: usize,
+    kind: Option<&str>,
+    star: bool,
+) -> fmt::Result {
+    let star = if star { "*" } else { "" };
+    match kind {
+        Some(kind) => write!(
+            formatter,
+            "line {line} expects {kind} by its type alone; \
+             bind except{star} {kind} as e: and check str(e)"
+        ),
+        None => write!(
+            formatter,
+            "line {line} expects any raise; bind except{star} SomeError as e: and check str(e)"
+        ),
     }
 }
 
@@ -1272,11 +1301,11 @@ fn imports(module: &ModModule) -> HashMap<&str, String> {
 /// Each fault of the rules that selection reads from the body of `function`,
 /// in source order: an expectation that is not one comparison, an `all()` or an
 /// `any()` of another shape, an expected value that is not a literal, a patch,
-/// a mock with no spec, and an import of another test framework, in the body or
-/// in `outside`. The check of each item of an `all()` or an `any()` keeps the
-/// rule of an expected value. Each patch comes once for each target of a line,
-/// each mock with no spec once for each line, and each import once for each
-/// module of a line.
+/// a mock with no spec, an import of another test framework, in the body or in
+/// `outside`, and an `except` that only passes. The check of each item of an
+/// `all()` or an `any()` keeps the rule of an expected value. Each patch comes
+/// once for each target of a line, each mock with no spec once for each line,
+/// and each import once for each module of a line.
 fn faults_of(
     function: &StmtFunctionDef,
     module: &Module,
@@ -1343,8 +1372,53 @@ fn faults_of(
             faults.push((offset, Reason::Imported(at, name)));
         }
     }
+    for (offset, kind, star) in passing_excepts(&function.body, module.source()) {
+        faults.push((offset, Reason::TypeAlone(line(offset), kind, star)));
+    }
     faults.sort_by_key(|(offset, _)| *offset);
     faults.into_iter().map(|(_, fault)| fault).collect()
+}
+
+/// Each `except` in `body` whose body only passes, by its offset, with its type
+/// as `source` writes it, or `None` for a bare `except:`, and whether it is an
+/// `except*`. A tuple gains the parentheses that `as` needs after it. Each
+/// block counts, at any depth, but not a nested `def` or `class`.
+fn passing_excepts(body: &[Stmt], source: &str) -> Vec<(TextSize, Option<String>, bool)> {
+    let mut found = Vec::new();
+    let mut pending = vec![body];
+    while let Some(block) = pending.pop() {
+        for statement in block {
+            if let Stmt::Try(attempt) = statement {
+                for handler in &attempt.handlers {
+                    let ExceptHandler::ExceptHandler(clause) = handler;
+                    if only_passes(&clause.body) {
+                        let kind = clause.type_.as_deref().map(|kind| {
+                            let text = on_one_line(&source[kind.range()]);
+                            match kind {
+                                Expr::Tuple(tuple) if !tuple.parenthesized => format!("({text})"),
+                                _ => text,
+                            }
+                        });
+                        found.push((clause.start(), kind, attempt.is_star));
+                    }
+                }
+            }
+            pending.extend(blocks(statement));
+        }
+    }
+    found
+}
+
+/// Whether each statement of `body` is `pass`, `...` or a string.
+fn only_passes(body: &[Stmt]) -> bool {
+    body.iter().all(|statement| match statement {
+        Stmt::Pass(_) => true,
+        Stmt::Expr(expression) => matches!(
+            &*expression.value,
+            Expr::EllipsisLiteral(_) | Expr::StringLiteral(_)
+        ),
+        _ => false,
+    })
 }
 
 /// What a test reads of another test framework outside its own body.

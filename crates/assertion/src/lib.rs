@@ -1963,7 +1963,8 @@ fn watch_each_test(
 
 /// The text of the type that `attempt` expects when it is a `try` of one path:
 /// one simple statement, and one `except SomeError:` whose type is a name or a
-/// dotted name, with no `as`, no `else` and no `finally`. Else `None`.
+/// dotted name, with or without `as`, and no `else` and no `finally`. Else
+/// `None`.
 fn one_path<'a>(attempt: &StmtTry, source: &'a str) -> Option<&'a str> {
     let ([statement], [ExceptHandler::ExceptHandler(handler)]) =
         (&*attempt.body, &*attempt.handlers)
@@ -1974,7 +1975,6 @@ fn one_path<'a>(attempt: &StmtTry, source: &'a str) -> Option<&'a str> {
         || !is_simple(statement)
         || !attempt.orelse.is_empty()
         || !attempt.finalbody.is_empty()
-        || handler.name.is_some()
     {
         return None;
     }
