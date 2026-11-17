@@ -26,6 +26,7 @@ A report of the agent's sessions found that the person who decides corrected the
 - **The reach names paths alone, so `mise run list:records` prints this record only where a path matches.** [A record names every location where it applies](a-record-names-every-location-where-it-applies.md#decision-outcome) reaches a location with no path by its word.
 - **A change adds the table to each record without one now.** The sources of old frozen facts are hard to find. A sweep invites guessed links.
 - **The records that use Walking skeleton and Stand-in, the terms of Cockburn and Meszaros, get a source row now.** [The table issue found](https://github.com/kalonji-tools/purba/issues/1065#issuecomment-6956259715) that no record adopts either concept.
+- **Step 5 of the post pass judges the claims of a test critique.** The author acts on each finding, or writes it under "What you must decide", before step 5 runs.
 
 ## Decision Outcome
 
@@ -35,7 +36,6 @@ A report of the agent's sessions found that the person who decides corrected the
 
 **Each [claim](../../CONTEXT.md#claim) that an agent posts links what decides it.**
 The rule holds in an issue body, a design spec, a pull request body, a post pass and a record.
-It holds in the report of a blind rating and the comment of a test critique too.
 The person decides on each of them.
 
 | the claim states | it links |
@@ -85,16 +85,18 @@ The person decides on each of them.
 - **No command decides whether a sentence is a claim or a judgement.** A writer can label a claim a judgement, and only an entity that reads the sentence sees it.
 - **A record written before this rule keeps facts with no row** until a change rewrites them.
 - **Step 5 of the post pass costs one more context on each pull request.**
+- **Only the reviewer judges the claims of the post pass and a test critique, and of the issue except its design spec.**
 
 ## Confirmation
 
 No command checks a claim.
 Step 5 of [the post pass](../agents/post-pass.md) judges each claim in the pull request body and the design spec.
 The reviewer judges the claims of the issue, the records and the post pass.
-The reviewer also judges the claims in the report of a blind rating and in the comment of a test critique.
+The reviewer also judges the claims in the comment of a test critique.
 
 [What does a claim in a spec or a resolution carry, so that its reader can check it?](https://github.com/kalonji-tools/purba/issues/1053) decided the rule.
 [Where does a writer cite the primary source of a concept that purba borrows?](https://github.com/kalonji-tools/purba/issues/1054) decided the borrowed concept.
 [Does the post pass judge each claim that a change posts in its pull request body and its spec?](https://github.com/kalonji-tools/purba/issues/1064) decided the post pass.
 [Does each record get its fact and source table and the source of its borrowed concepts now, or when it is next rewritten?](https://github.com/kalonji-tools/purba/issues/1065) decided the table of an old record.
-[Does the claim record name the blind rating and the test critique in its reach and its Confirmation?](https://github.com/kalonji-tools/purba/issues/1077) decided where the rule holds for a rating and a critique. The same issue decided who judges the claims of the post pass, a rating and a critique.
+[Does the claim record name the blind rating and the test critique in its reach and its Confirmation?](https://github.com/kalonji-tools/purba/issues/1077) decided that the reach names the test critique, and that the reviewer judges the claims of the post pass and a test critique.
+[Does the claim record drop its repeated lines, and record the option and the cost that its last change left out?](https://github.com/kalonji-tools/purba/issues/1079) decided the lines that the record repeated, the option that lost, and the cost that the reviewer carries.
