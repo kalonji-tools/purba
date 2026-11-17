@@ -248,7 +248,7 @@ LINES
 @test "a try of one statement and one except takes one path, and another try names that shape" {
   cd "${BATS_TEST_DIRNAME}/rules"
 
-  run -4 --separate-stderr purba test_try.py
+  run -1 --separate-stderr purba test_try.py
 
   local path='the lines before the first expectation take one path'
   local shape='a try of one path holds one statement and one except SomeError:'
@@ -258,10 +258,10 @@ test_try.py::test_raises passed
 test_try.py::test_finally passed
 test_try.py::test_else project error: [second-path] line 23 did not run, and ${path}; \
 [second-path] line 24 did not run, and ${path}; ${shape}
-test_try.py::test_named project error: [second-path] line 34 did not run, and ${path}; \
-[second-path] line 35 did not run, and ${path}; ${shape}
+test_try.py::test_named failed
+    the try at line 32 expects ValueError, and the statement did not raise it
 test_try.py::test_other_raise raised: KeyError: 'k'
-5 cases: 2 passed, 1 raised, 2 blocked; 2 project errors
+5 cases: 2 passed, 1 failed, 1 raised, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }

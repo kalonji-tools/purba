@@ -481,12 +481,12 @@ fn the_statement_of_a_try_of_one_path_calls_the_hook_of_a_missed_try_after_its_s
             "    except ValueError:\n",
             "        seen.append(1); _purba_step(6)\n",
             "    try:\n",
-            "        int('2'); _purba_step(8)\n",
+            "        int('2'); _purba_step(8); _purba_missed(1)\n",
             "    except ValueError as error:\n",
             "        seen.append(error); _purba_step(10)\n",
             "    _purba_reads(0) and _purba_read(0, (seen), ([1]))\n",
         ),
-        "a try of one statement and one except SomeError: calls the hook; a handler that \
-         binds a name makes another try, which gains no hook"
+        "a try of one statement and one except SomeError: calls the hook, also when its \
+         handler binds the raise with as"
     );
 }

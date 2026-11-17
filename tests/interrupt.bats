@@ -509,7 +509,7 @@ LINES
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
-    '    except KeyboardInterrupt:' '        pass' '    assert 1 == 1' >test_passes.py
+    '    except KeyboardInterrupt:' '        caught = True' '    assert 1 == 1' >test_passes.py
   printf '%s\n' 'import time' 'from pathlib import Path' \
     'def test_one():' '    try:' '        Path("marker").touch()' '        time.sleep(3)' \
     '    finally:' '        assert 1 == 2' >test_fails.py

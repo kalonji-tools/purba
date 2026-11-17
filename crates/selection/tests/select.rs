@@ -1693,6 +1693,7 @@ fn a_suppression_of_each_check_of_the_practice_tier_is_in_its_place() {
         "assert-before-expectation",
         "swallowed-raise",
         "iterator-read",
+        "type-alone",
     ] {
         let text =
             format!("# purba: suppress[{check}] a reason\ndef test_x():\n    assert 1 == 1\n");
@@ -2640,5 +2641,203 @@ fn a_def_of_the_module_and_a_patch_of_pytest_alone_import_no_pytest() {
         refused,
         [format!("test_m.py::test_patch {}", patched(14, "pytest"))],
         "a patch imports only the parent of a dotted target"
+    );
+}
+
+/// The words of a fault of an `except` that only passes, of the type `kind`.
+fn alone(line: usize, kind: &str) -> String {
+    format!(
+        "[type-alone] line {line} expects {kind} by its type alone; \
+         bind except {kind} as e: and check str(e)"
+    )
+}
+
+#[test]
+fn each_except_that_only_passes_refuses_its_test_as_type_alone() {
+    let (tests, refused) = judged(
+        "test_type_alone.py",
+        concat!(
+            "class Closed(Exception):\n",
+            "    pass\n",
+            "\n",
+            "\n",
+            "def lend():\n",
+            "    raise Closed('closed')\n",
+            "\n",
+            "\n",
+            "def test_pass():\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except Closed:\n",
+            "        pass\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_noops():\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except Closed:\n",
+            "        ...\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except Closed:\n",
+            "        'expected'\n",
+            "        # a comment\n",
+            "        pass\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_does_more():\n",
+            "    seen = []\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except Closed:\n",
+            "        seen.append(1)\n",
+            "    def inner():\n",
+            "        try:\n",
+            "            lend()\n",
+            "        except Closed:\n",
+            "            pass\n",
+            "    assert seen == [1]\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_does_more"],
+        "an except that does more than pass, and a try in a nested def, give no reason"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_pass {}", alone(12, "Closed")),
+            format!(
+                "test_m.py::test_noops {}; {}",
+                alone(20, "Closed"),
+                alone(24, "Closed")
+            ),
+        ],
+        "each except whose body holds only pass, ... or a string gives a reason at its own \
+         line, in line order, and a comment is no statement"
+    );
+}
+
+#[test]
+fn an_except_that_only_passes_gives_a_reason_in_a_try_of_each_shape() {
+    let (tests, refused) = judged(
+        "test_type_alone_shapes.py",
+        concat!(
+            "class Closed(Exception):\n",
+            "    pass\n",
+            "\n",
+            "\n",
+            "def lend():\n",
+            "    raise Closed('closed')\n",
+            "\n",
+            "\n",
+            "def test_shapes():\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except (Closed, KeyError):\n",
+            "        pass\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except:\n",
+            "        pass\n",
+            "    try:\n",
+            "        lend()\n",
+            "    except Closed as e:\n",
+            "        pass\n",
+            "    try:\n",
+            "        x = 1\n",
+            "        lend()\n",
+            "    except KeyError:\n",
+            "        pass\n",
+            "    except shop.Closed:\n",
+            "        pass\n",
+            "    else:\n",
+            "        pass\n",
+            "    finally:\n",
+            "        pass\n",
+            "    if x:\n",
+            "        try:\n",
+            "            lend()\n",
+            "        except* Closed:\n",
+            "            pass\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [format!(
+            "test_m.py::test_shapes {}",
+            [
+                alone(12, "(Closed, KeyError)"),
+                "[type-alone] line 16 expects any raise; \
+                 bind except SomeError as e: and check str(e)"
+                    .to_owned(),
+                alone(20, "Closed"),
+                alone(25, "KeyError"),
+                alone(27, "shop.Closed"),
+                "[type-alone] line 36 expects Closed by its type alone; \
+                 bind except* Closed as e: and check str(e)"
+                    .to_owned(),
+            ]
+            .join("; ")
+        )],
+        "a tuple, a bare except, an as, a try of two statements, a second except, an \
+         except* and a try in a block each give a reason, but an else and a finally do not"
+    );
+}
+
+#[test]
+fn a_suppression_of_type_alone_lets_the_test_run_with_the_except_in_its_warning() {
+    let text = concat!(
+        "# purba: suppress[type-alone] the type is the whole contract\n",
+        "def test_a():\n",
+        "    try:\n",
+        "        int('x')\n",
+        "    except ValueError:\n",
+        "        pass\n",
+        "    assert 1 == 1\n",
+    );
+
+    assert_eq!(
+        suppressed("test_type_alone_suppressed.py", text),
+        [verdict(
+            "test_a",
+            "type-alone",
+            "line 5 expects ValueError by its type alone; \
+             bind except ValueError as e: and check str(e)",
+            "the type is the whole contract",
+        )],
+        "the suppression lifts the reason, and the warning names the except"
+    );
+}
+
+#[test]
+fn a_tuple_with_no_parentheses_gets_them_in_the_fix_that_its_line_names() {
+    let (tests, refused) = judged(
+        "test_type_alone_bare_tuple.py",
+        concat!(
+            "def test_a():\n",
+            "    try:\n",
+            "        int('x')\n",
+            "    except ValueError, KeyError:\n",
+            "        pass\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [format!(
+            "test_m.py::test_a {}",
+            alone(4, "(ValueError, KeyError)")
+        )],
+        "Python 3.14 refuses an as after a tuple with no parentheses, so the fix adds them"
     );
 }
