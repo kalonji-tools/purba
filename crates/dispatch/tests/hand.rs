@@ -106,7 +106,7 @@ fn each_outcome_stands_beside_its_test() {
                 Ok(Kind::Failed {
                     asserts: vec![Quote {
                         assert: "assert 1 == 2".to_owned(),
-                        shown: Some(Shown {
+                        shown: Some(Shown::Values {
                             expected: "2".to_owned(),
                             reading: "1".to_owned(),
                         }),
@@ -394,7 +394,7 @@ fn what_a_failed_expectation_shows_crosses_the_fork_whole() {
     );
     let shown = |assert: &str, expected: &str| Quote {
         assert: assert.to_owned(),
-        shown: Some(Shown {
+        shown: Some(Shown::Values {
             expected: expected.to_owned(),
             reading: "a\0b".to_owned(),
         }),
@@ -425,6 +425,44 @@ fn what_a_failed_expectation_shows_crosses_the_fork_whole() {
         ],
         "a reading that holds a NUL, each of two failed expectations, and a quote with no \
          reading reach dispatch as the test's process made them",
+    );
+}
+
+#[test]
+fn the_items_of_a_failed_any_and_the_frame_of_a_raise_cross_the_fork_whole() {
+    let test_cross = module(
+        "test_cross.py",
+        "def gen():\n    yield 1\n    raise ValueError('boom')\n\n\
+         class Nul:\n    def __repr__(self):\n        return 'a\\x00b'\n\n\
+         def test_items():\n    xs = [Nul(), Nul()]\n    assert any(x == 'z' for x in xs)\n\n\
+         def test_whence():\n    list(gen())\n",
+        &["test_items", "test_whence"],
+    );
+    assert_eq!(
+        seen(test_cross),
+        [
+            test(
+                "test_items",
+                Ok(Kind::Failed {
+                    asserts: vec![Quote {
+                        assert: "assert any(x == 'z' for x in xs)".to_owned(),
+                        shown: Some(Shown::Items {
+                            heading: "none of 2 items holds  x == 'z'".to_owned(),
+                            items: vec!["[0]  a\0b".to_owned(), "[1]  a\0b".to_owned()],
+                        }),
+                    }]
+                })
+            ),
+            test(
+                "test_whence",
+                Ok(Kind::Raised {
+                    exception: "ValueError: boom".to_owned(),
+                    whence: Some("raised inside the generator gen() at test_cross.py:3".to_owned()),
+                })
+            ),
+        ],
+        "the heading and each item, a NUL in an item, and the frame of a raise reach dispatch as \
+         the test's process made them",
     );
 }
 

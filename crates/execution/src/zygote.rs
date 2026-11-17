@@ -55,7 +55,8 @@ mod tag {
     /// Execution read the paths of the case, and so judged each suppression of
     /// its checks. It comes before the outcome, with no text.
     pub const JUDGED: u8 = b'j';
-    /// The exception, as text.
+    /// The exception, as text, then the frame that it came from when one is
+    /// named, each as `put` writes it.
     pub const RAISED: u8 = b'r';
     /// A project error, as text.
     pub const PROJECT: u8 = b'e';
@@ -251,6 +252,7 @@ impl Zygote {
                         || "its process ended before its outcome".to_owned(),
                         |status| lost(status, "its outcome"),
                     ),
+                    whence: None,
                 }
             };
             Ok(Outcome { kind })
@@ -435,7 +437,12 @@ fn outcome_of(tag: u8, text: String) -> Result<Outcome, Error> {
                 }))
             })?,
         },
-        tag::RAISED => Kind::Raised { exception: text },
+        tag::RAISED => raised_of(&text).ok_or_else(|| {
+            Error(Reason::Internal(panic::Caught {
+                part: "execution".to_owned(),
+                message: "the frame of a raised case is cut short".to_owned(),
+            }))
+        })?,
         _ => return Err(error_of(tag, text)),
     };
     Ok(Outcome { kind })
@@ -500,17 +507,26 @@ fn warning_of(mut frame: &str) -> Option<Warning> {
     })
 }
 
-/// The frame of the quotes of a failed case: for each, its text, then `1` and
-/// what it shows, or `0`.
+/// The frame of the quotes of a failed case: for each, its text, then `1`, its
+/// expected value and its reading, or `2`, its heading, the number of its items
+/// and each item, or `0` when it shows nothing.
 fn quotes_frame(quotes: &[Quote]) -> String {
     let mut frame = String::new();
     for quote in quotes {
         put(&mut frame, &quote.assert);
         match &quote.shown {
-            Some(shown) => {
+            Some(Shown::Values { expected, reading }) => {
                 put(&mut frame, "1");
-                put(&mut frame, &shown.expected);
-                put(&mut frame, &shown.reading);
+                put(&mut frame, expected);
+                put(&mut frame, reading);
+            }
+            Some(Shown::Items { heading, items }) => {
+                put(&mut frame, "2");
+                put(&mut frame, heading);
+                put(&mut frame, &items.len().to_string());
+                for item in items {
+                    put(&mut frame, item);
+                }
             }
             None => put(&mut frame, "0"),
         }
@@ -524,16 +540,39 @@ fn quotes_of(mut frame: &str) -> Option<Vec<Quote>> {
     while !frame.is_empty() {
         let assert = take(&mut frame)?.to_owned();
         let shown = match take(&mut frame)? {
-            "1" => Some(Shown {
+            "1" => Some(Shown::Values {
                 expected: take(&mut frame)?.to_owned(),
                 reading: take(&mut frame)?.to_owned(),
             }),
+            "2" => {
+                let heading = take(&mut frame)?.to_owned();
+                let length: usize = take(&mut frame)?.parse().ok()?;
+                let items = (0..length)
+                    .map(|_| take(&mut frame).map(str::to_owned))
+                    .collect::<Option<Vec<String>>>()?;
+                Some(Shown::Items { heading, items })
+            }
             "0" => None,
             _ => return None,
         };
         quotes.push(Quote { assert, shown });
     }
     Some(quotes)
+}
+
+/// The raised case that the frame of `tag::RAISED` wrote, or `None` when the
+/// frame is cut short.
+fn raised_of(mut frame: &str) -> Option<Kind> {
+    let exception = take(&mut frame)?.to_owned();
+    let named = if frame.is_empty() {
+        None
+    } else {
+        Some(take(&mut frame)?.to_owned())
+    };
+    frame.is_empty().then_some(Kind::Raised {
+        exception,
+        whence: named,
+    })
 }
 
 /// The frame of an error.
@@ -553,7 +592,14 @@ fn outcome_frame(result: &Result<Kind, Error>) -> (u8, String) {
         Ok(Kind::Passed) => (tag::PASSED, String::new()),
         Ok(Kind::Interrupted) => (tag::INTERRUPTED, String::new()),
         Ok(Kind::Failed { asserts }) => (tag::FAILED, quotes_frame(asserts)),
-        Ok(Kind::Raised { exception }) => (tag::RAISED, exception.clone()),
+        Ok(Kind::Raised { exception, whence }) => {
+            let mut text = String::new();
+            put(&mut text, exception);
+            if let Some(whence) = whence {
+                put(&mut text, whence);
+            }
+            (tag::RAISED, text)
+        }
         Err(error) => error_frame(error),
     }
 }

@@ -1026,6 +1026,106 @@ fn an_expectation_that_is_not_one_comparison_or_one_of_four_reads_is_refused() {
 }
 
 #[test]
+fn an_all_or_any_of_one_check_is_an_expectation_whose_expected_side_is_a_literal() {
+    let (tests, refused) = judged(
+        "test_each.py",
+        concat!(
+            "def test_compare():\n    assert all(len(c) == 2 for c in parts)\n\n",
+            "def test_any():\n    assert any(p == \"/opt\" for p in paths)\n\n",
+            "def test_instance():\n    assert all(isinstance(x, int) for x in xs)\n\n",
+            "def test_not():\n    assert all(not x for x in xs)\n\n",
+            "def test_prefix():\n    assert any(s.startswith(\"a\") for s in names)\n\n",
+            "def test_pairs():\n    assert all(a < 3 for a, b in pairs)\n\n",
+            "def test_suffix():\n    assert all(s.endswith(\".py\") for s in files)\n\n",
+            "def test_computed():\n    assert all(len(c) == size for c in parts)\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        [
+            "test_m.py::test_compare",
+            "test_m.py::test_any",
+            "test_m.py::test_instance",
+            "test_m.py::test_not",
+            "test_m.py::test_prefix",
+            "test_m.py::test_pairs",
+            "test_m.py::test_suffix",
+        ],
+        "an all() or an any() of one comparison or one of the four reads, with one for and \
+         no if, is an expectation"
+    );
+    assert_eq!(
+        refused,
+        [format!("test_m.py::test_computed {}", computes(23, "size"))],
+        "the check of each item keeps the rule of an expected value"
+    );
+}
+
+/// The words of a fault of an `all()` or an `any()` of another shape.
+fn each_shape(line: usize, function: &str, shape: &str) -> String {
+    format!(
+        "[not-one-comparison] line {line} is an {function}() {shape}, \
+         and an {function}() takes one for, no if"
+    )
+}
+
+#[test]
+fn an_all_or_any_of_another_shape_is_refused_with_words_that_name_its_shape() {
+    let (tests, refused) = judged(
+        "test_each_shapes.py",
+        concat!(
+            "def test_if():\n    assert all(x > 0 for x in xs if x)\n\n",
+            "def test_two_for():\n    assert all(x > 0 for row in rows for x in row)\n\n",
+            "def test_list():\n    assert all([x > 0 for x in xs])\n\n",
+            "def test_any_if():\n    assert any(x > 0 for x in xs if x)\n\n",
+            "def test_name():\n    assert all(xs)\n\n",
+            "def test_bare_item():\n    assert all(x for x in xs)\n\n",
+            "def test_three_for():\n    assert all(x > 0 for a in b for c in a for x in c)\n\n",
+            "def test_four_for():\n",
+            "    assert any(x > 0 for a in b for c in a for d in c for x in d)\n\n",
+            "def test_walrus():\n    assert all((y := x) < 3 for x in xs)\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_if {}", each_shape(2, "all", "with an if")),
+            format!(
+                "test_m.py::test_two_for {}",
+                each_shape(5, "all", "with two for")
+            ),
+            format!(
+                "test_m.py::test_list {}",
+                each_shape(8, "all", "of a list, not a generator")
+            ),
+            format!(
+                "test_m.py::test_any_if {}",
+                each_shape(11, "any", "with an if")
+            ),
+            format!("test_m.py::test_name {}", not_one(14)),
+            format!("test_m.py::test_bare_item {}", not_one(17)),
+            format!(
+                "test_m.py::test_three_for {}",
+                each_shape(20, "all", "with three for")
+            ),
+            format!(
+                "test_m.py::test_four_for {}",
+                each_shape(23, "any", "with more than three for")
+            ),
+            format!(
+                "test_m.py::test_walrus {}",
+                each_shape(26, "all", "with a :=")
+            ),
+        ],
+        "an if, a second for, a list and a := each name the shape; an all() of a name, or of an \
+         item that is no check, keeps the words of one comparison"
+    );
+}
+
+#[test]
 fn an_expectation_at_the_end_of_the_body_of_a_with_keeps_the_rules_of_an_expectation() {
     let (tests, refused) = judged(
         "test_with_rules.py",
@@ -1551,6 +1651,7 @@ fn a_suppression_of_a_check_of_the_never_suppressed_tier_is_refused_by_its_tier(
             "hook-replaced",
             "and an outcome cannot stand without that check",
         ),
+        ("no-item", "and an outcome cannot stand without that check"),
         (
             "def-under-block",
             "and a suppression cannot help: purba reads no expectation of such a test",
@@ -1591,6 +1692,7 @@ fn a_suppression_of_each_check_of_the_practice_tier_is_in_its_place() {
         "second-path",
         "assert-before-expectation",
         "swallowed-raise",
+        "iterator-read",
     ] {
         let text =
             format!("# purba: suppress[{check}] a reason\ndef test_x():\n    assert 1 == 1\n");

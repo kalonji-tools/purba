@@ -16,6 +16,7 @@ fn a_tally_adds_each_kind_and_each_error_by_its_kind() {
     };
     let raised = Kind::Raised {
         exception: "ValueError: boom".to_owned(),
+        whence: None,
     };
     let project = Error::project("TypeError: 'int' object is not callable".to_owned());
     let internal = internal("dispatch");

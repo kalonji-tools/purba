@@ -599,7 +599,7 @@ fn the_first_expectation_reads_each_later_one_alone_before_it_reads_in_order() {
                 in_order: vec![(0, true), (1, true), (2, false)],
                 shown: vec![(
                     2,
-                    Shown {
+                    Shown::Values {
                         expected: "[2]".to_owned(),
                         reading: "[1]".to_owned(),
                     },
@@ -800,7 +800,7 @@ fn a_failed_expectation_shows_its_expected_value_and_its_reading() {
                 let shown = readings
                     .shown
                     .into_iter()
-                    .map(|(_, shown)| (shown.expected, shown.reading))
+                    .map(|(_, shown)| values(shown))
                     .collect();
                 (result, readings.in_order, shown)
             })
@@ -886,7 +886,7 @@ fn a_failed_check_of_each_of_the_four_reads_shows_its_expected_value_in_words() 
                 let shown = readings
                     .shown
                     .into_iter()
-                    .map(|(_, shown)| (shown.expected, shown.reading))
+                    .map(|(_, shown)| values(shown))
                     .collect();
                 (result, readings.in_order, shown)
             })
@@ -969,4 +969,13 @@ fn a_try_of_one_path_whose_statement_does_not_raise_is_missed_and_its_expectatio
              miss nothing"
         );
     });
+}
+
+/// The expected value and the reading that `shown` holds, as a check of one
+/// value shows them.
+fn values(shown: Shown) -> (String, String) {
+    match shown {
+        Shown::Values { expected, reading } => (expected, reading),
+        Shown::Items { heading, .. } => panic!("a check of one value shows no items: {heading}"),
+    }
 }

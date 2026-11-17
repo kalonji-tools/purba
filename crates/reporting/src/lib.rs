@@ -6,8 +6,9 @@
 
 use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
+use std::iter;
 
-use purba_execution::{Error, ErrorKind, Kind, Outcome, Tally};
+use purba_execution::{Error, ErrorKind, Kind, Outcome, Shown, Tally};
 
 /// A write that the writer refused, and the exit code of what the run met by
 /// then: 125 after an internal error, and 3 otherwise.
@@ -130,15 +131,27 @@ impl<W: Write> Report<W> {
                 let mut lines = format!("{test} failed\n");
                 for quote in asserts {
                     let _ = writeln!(lines, "    {}", one_line(&quote.assert));
-                    if let Some(shown) = &quote.shown {
-                        let _ = writeln!(lines, "      expected  {}", one_line(&shown.expected));
-                        let _ = writeln!(lines, "      reading   {}", one_line(&shown.reading));
+                    match &quote.shown {
+                        Some(Shown::Values { expected, reading }) => {
+                            let _ = writeln!(lines, "      expected  {}", one_line(expected));
+                            let _ = writeln!(lines, "      reading   {}", one_line(reading));
+                        }
+                        Some(Shown::Items { heading, items }) => {
+                            for line in iter::once(heading).chain(items) {
+                                let _ = writeln!(lines, "      {}", one_line(line));
+                            }
+                        }
+                        None => {}
                     }
                 }
                 out.write_all(lines.as_bytes())
             }
-            Ok(Kind::Raised { exception }) => {
-                writeln!(out, "{test} raised: {}", one_line(exception))
+            Ok(Kind::Raised { exception, whence }) => {
+                let mut lines = format!("{test} raised: {}\n", one_line(exception));
+                if let Some(whence) = whence {
+                    let _ = writeln!(lines, "    {}", one_line(whence));
+                }
+                out.write_all(lines.as_bytes())
             }
             Ok(Kind::Interrupted) => writeln!(out, "{test} interrupted"),
             Err(error) => writeln!(out, "{test} {}", Reason(error)),
@@ -271,7 +284,7 @@ mod tests {
     fn quote(assert: &str, shown: Option<(&str, &str)>) -> Quote {
         Quote {
             assert: assert.to_owned(),
-            shown: shown.map(|(expected, reading)| Shown {
+            shown: shown.map(|(expected, reading)| Shown::Values {
                 expected: expected.to_owned(),
                 reading: reading.to_owned(),
             }),
@@ -351,6 +364,7 @@ mod tests {
     fn each_line_is_flushed_before_the_next_test() {
         let raised = Kind::Raised {
             exception: "KeyError: 'k'".to_owned(),
+            whence: None,
         };
         let seen = Rc::new(RefCell::new(String::new()));
         let mut report = Report::new(Flushed {
@@ -593,12 +607,55 @@ mod tests {
     }
 
     #[test]
+    fn a_raised_case_prints_the_frame_of_its_raise_on_the_line_below() {
+        let raised = Kind::Raised {
+            exception: "ValueError: boom".to_owned(),
+            whence: Some("raised inside the generator gen() at m.py:3".to_owned()),
+        };
+
+        let (printed, code) = report_of(&[("m.py::test_gen", Ok(&raised))]);
+
+        assert_eq!(
+            printed,
+            "m.py::test_gen raised: ValueError: boom\n    \
+             raised inside the generator gen() at m.py:3\n1 case: 1 raised\n",
+            "the frame, indented, below the line of the case"
+        );
+        assert_eq!(code, 4, "a raised case exits 4");
+    }
+
+    #[test]
+    fn a_failed_all_prints_its_heading_and_each_item_under_its_quote() {
+        let failed = Kind::Failed {
+            asserts: vec![Quote {
+                assert: "assert all(len(c) == 2 for c in parts)".to_owned(),
+                shown: Some(Shown::Items {
+                    heading: "the first item that breaks  len(c) == 2".to_owned(),
+                    items: vec!["[2]  len(c)  1     c  'e'".to_owned()],
+                }),
+            }],
+        };
+
+        let (printed, code) = report_of(&[("m.py::test_each", Ok(&failed))]);
+
+        assert_eq!(
+            printed,
+            "m.py::test_each failed\n    assert all(len(c) == 2 for c in parts)\n      \
+             the first item that breaks  len(c) == 2\n      [2]  len(c)  1     c  'e'\n\
+             1 case: 1 failed\n",
+            "the heading, then each item, under the quote"
+        );
+        assert_eq!(code, 1, "a failed case exits 1");
+    }
+
+    #[test]
     fn each_case_prints_its_outcome_or_error_and_the_count() {
         let failed = Kind::Failed {
             asserts: vec![quote("assert 1 == 2", Some(("2", "1")))],
         };
         let raised = Kind::Raised {
             exception: "KeyError: 'k'".to_owned(),
+            whence: None,
         };
         let (text, code) = report_of(&[
             ("test_a.py::test_one", Ok(&Kind::Passed)),
@@ -670,6 +727,7 @@ mod tests {
         };
         let raised = Kind::Raised {
             exception: "ValueError: a\n  b".to_owned(),
+            whence: None,
         };
         let (text, _) = report_of(&[
             ("test_a.py::test_one", Ok(&failed)),
@@ -696,6 +754,7 @@ mod tests {
     fn a_reason_breaks_at_each_line_break_that_python_reads() {
         let raised = Kind::Raised {
             exception: "ValueError: a\x0bb\x0cc\u{2028}d\u{85}e".to_owned(),
+            whence: None,
         };
         let (text, _) = report_of(&[
             ("test_a.py::test_one", Ok(&raised)),
@@ -715,6 +774,7 @@ mod tests {
     fn a_reason_escapes_each_other_control_character_as_python_writes_it() {
         let raised = Kind::Raised {
             exception: "ValueError: \x1b[32mgreen\x1b[0m\x1b[1A\x1b[2K".to_owned(),
+            whence: None,
         };
         let failed = Kind::Failed {
             asserts: vec![quote("assert x ==\t\"a\x00b\"", None)],
@@ -770,6 +830,7 @@ mod tests {
     fn an_unreached_test_prints_no_line_and_the_count_names_it_after_blocked() {
         let raised = Kind::Raised {
             exception: "KeyboardInterrupt: ".to_owned(),
+            whence: None,
         };
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);

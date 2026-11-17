@@ -218,6 +218,30 @@ fn the_asserts_at_the_end_of_a_test_are_its_expectations() {
 }
 
 #[test]
+fn an_all_whose_target_spans_two_lines_keeps_the_number_of_each_later_line() {
+    let source = concat!(
+        "def test_pairs():\n",
+        "    assert all(a < 3 for (a,\n",
+        "                          b) in pairs)\n",
+        "\n",
+        "def after():\n",
+        "    pass\n",
+    );
+    let rewritten =
+        purba_assertion::Rewrite::of_source(source, &["test_pairs"]).expect("the text parses");
+
+    assert_eq!(
+        rewritten
+            .text()
+            .lines()
+            .position(|line| line == "def after():"),
+        Some(4),
+        "the def after the all() stays on line 5: {}",
+        rewritten.text()
+    );
+}
+
+#[test]
 fn an_expectation_keeps_the_number_of_each_later_line() {
     let rewritten = purba_assertion::Rewrite::of_source(
         concat!(

@@ -77,6 +77,7 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
             (
                 Ok(Kind::Raised {
                     exception: "KeyboardInterrupt: ".to_owned(),
+                    whence: None,
                 }),
                 false
             ),

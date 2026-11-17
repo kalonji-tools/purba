@@ -12,6 +12,7 @@ mod paths;
 mod reader;
 mod step;
 mod thread;
+mod whence;
 mod zygote;
 
 use std::any::Any;
@@ -82,8 +83,12 @@ pub enum Kind {
     /// The test's call raised, and the outcome is not `Failed` or
     /// `Interrupted`. A test whose process ends before its outcome gives
     /// `Raised` too. `exception` is the type and the message of the exception,
-    /// or how the process ended, as text.
-    Raised { exception: String },
+    /// or how the process ended, as text. `whence` names the frame that the
+    /// exception came from, when it is not the test's own.
+    Raised {
+        exception: String,
+        whence: Option<String>,
+    },
     /// The first interrupt landed during the test's step: its lookup or its
     /// call. The test has this outcome whether it then passed, failed or raised.
     Interrupted,
@@ -97,12 +102,14 @@ pub struct Quote {
     pub shown: Option<Shown>,
 }
 
-/// What an expectation that compares two values shows when it does not hold:
-/// its expected value and its reading, as assertion gives them.
+/// What an expectation shows when it does not hold, as assertion gives it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Shown {
-    pub expected: String,
-    pub reading: String,
+pub enum Shown {
+    /// A check of one value: its expected value and its reading.
+    Values { expected: String, reading: String },
+    /// An `all()` or an `any()`: a heading, and a line for each item that a
+    /// failure names.
+    Items { heading: String, items: Vec<String> },
 }
 
 impl Quote {
@@ -243,6 +250,7 @@ pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
 impl<'py, T> Worker<'py, T> {
     /// A worker that has loaded nothing.
     fn new(py: Python<'py>) -> Self {
+        whence::keep_the_folder();
         Self {
             py,
             loaded: HashMap::new(),
@@ -490,9 +498,14 @@ impl<'py, T: Clone> Worker<'py, T> {
                 .find(|(exception, _)| exception.bind(py).is(value))
                 .map(|(_, text)| text.clone())
         });
+        let whence = result
+            .as_ref()
+            .err()
+            .and_then(|err| whence::of(py, err, &test));
         let seen = Seen {
             form,
             with,
+            whence,
             path,
             in_another_try,
             missed,
@@ -557,13 +570,15 @@ impl<'py, T: Clone> Worker<'py, T> {
 /// What the run of a case saw besides its result, its mark and its readings.
 /// It holds the first fault of each check of the form, each beside the name of
 /// its check. It holds the text of a `with` whose entry or cleanup raised what
-/// the call raised. It holds the faults of the paths, each beside the name of
-/// its check, and whether one lies in a `try` of another shape than one path.
+/// the call raised, and the frame that the call's raise came from. It holds
+/// the faults of the paths, each beside the name of its check, and whether one
+/// lies in a `try` of another shape than one path.
 /// It holds the words of each missed `try`. It also holds each check that a
 /// suppression of the test reaches, beside its reason.
 struct Seen<'a> {
     form: Vec<(&'static str, String)>,
     with: Option<String>,
+    whence: Option<String>,
     path: Vec<(&'static str, String)>,
     in_another_try: bool,
     missed: Vec<String>,
@@ -572,10 +587,11 @@ struct Seen<'a> {
 
 /// The checks that execution sees, of those that a suppression turns into a
 /// warning.
-const SUPPRESSIBLE: [&str; 3] = [
+const SUPPRESSIBLE: [&str; 4] = [
     "second-path",
     "assert-before-expectation",
     "swallowed-raise",
+    "iterator-read",
 ];
 
 /// A violation of a check that execution sees, which a suppression turned
@@ -803,6 +819,7 @@ fn decide(
             break 'decide (
                 Ok(Kind::Raised {
                     exception: err.to_string(),
+                    whence: seen.whence.clone(),
                 }),
                 false,
             );
@@ -868,9 +885,13 @@ fn of_the_readings(
                     Some(Quote {
                         assert: loaded.expectation(*index)?.to_owned(),
                         shown: readings.shown.iter().find(|(shown, _)| shown == index).map(
-                            |(_, shown)| Shown {
-                                expected: shown.expected.clone(),
-                                reading: shown.reading.clone(),
+                            |(_, shown)| match shown.clone() {
+                                purba_assertion::Shown::Values { expected, reading } => {
+                                    Shown::Values { expected, reading }
+                                }
+                                purba_assertion::Shown::Items { heading, items } => {
+                                    Shown::Items { heading, items }
+                                }
                             },
                         ),
                     })
