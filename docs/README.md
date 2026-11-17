@@ -35,6 +35,7 @@
 
 - [A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](decisions/a-stand-in-enters-a-test-as-an-argument.md)
 - [A test carries only purba's own decorators](decisions/a-test-carries-only-purbas-own-decorators.md)
+- [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)
 - [A test returns nothing, and the first part that sees a breach of a test refuses it](decisions/a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md)
 
 ### parsing
@@ -90,6 +91,7 @@
 
 - [A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](decisions/a-stand-in-enters-a-test-as-an-argument.md)
 - [A suppression is an outcome and not a switch](decisions/a-suppression-is-an-outcome-and-not-a-switch.md)
+- [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)
 - [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
 - [purba is always strict](decisions/purba-is-always-strict.md)
 

@@ -54,7 +54,7 @@ The test then runs.
 - **Selection does not see a patch or a mock in a function that the test calls.** It reads only the test's body, as it does for a private name.
 - **Selection does not see a patch that a library makes,** such as freezegun's `freeze_time`, nor one in a module that the test imports.
 - **Selection does not see a call that changes an imported value in place,** such as `os.environ.update(…)` or `sys.path.insert(…)`.
-- **Selection does not see a patch through pytest's `MonkeyPatch`.** Neither check refuses it.
+- **Selection does not see a patch through pytest's `MonkeyPatch`.** Neither check refuses it. [A test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) refuses each import of pytest, which `MonkeyPatch` needs.
 - **A tester who sets an attribute of an imported class gets a refusal,** since selection cannot tell the class from a module.
 - **Selection does not read the `mock` package on PyPI, which copies `unittest.mock`.**
 
