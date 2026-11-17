@@ -29,12 +29,13 @@ A report of the agent's sessions found that the person who decides corrected the
 
 ## Decision Outcome
 
-**Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [post pass](../../CONTEXT.md#post-pass) `docs/decisions/*.md` `/AGENTS.md` `/CONTEXT.md` `docs/decisions/.template.md` `docs/agents/post-pass.md`
+**Reach:** [issue](../../CONTEXT.md#issue) [design spec](../../CONTEXT.md#design-spec) [pull request](../../CONTEXT.md#pull-request) [post pass](../../CONTEXT.md#post-pass) [test critique](../../CONTEXT.md#test-critique) `docs/decisions/*.md` `/AGENTS.md` `/CONTEXT.md` `docs/decisions/.template.md` `docs/agents/post-pass.md` `docs/agents/test-critique.md`
 
 **Area:** writing
 
 **Each [claim](../../CONTEXT.md#claim) that an agent posts links what decides it.**
 The rule holds in an issue body, a design spec, a pull request body, a post pass and a record.
+It holds in the report of a blind rating and the comment of a test critique too.
 The person decides on each of them.
 
 | the claim states | it links |
@@ -89,9 +90,11 @@ The person decides on each of them.
 
 No command checks a claim.
 Step 5 of [the post pass](../agents/post-pass.md) judges each claim in the pull request body and the design spec.
-The reviewer judges the claims of the issue and the records.
+The reviewer judges the claims of the issue, the records and the post pass.
+The reviewer also judges the claims in the report of a blind rating and in the comment of a test critique.
 
 [What does a claim in a spec or a resolution carry, so that its reader can check it?](https://github.com/kalonji-tools/purba/issues/1053) decided the rule.
 [Where does a writer cite the primary source of a concept that purba borrows?](https://github.com/kalonji-tools/purba/issues/1054) decided the borrowed concept.
 [Does the post pass judge each claim that a change posts in its pull request body and its spec?](https://github.com/kalonji-tools/purba/issues/1064) decided the post pass.
 [Does each record get its fact and source table and the source of its borrowed concepts now, or when it is next rewritten?](https://github.com/kalonji-tools/purba/issues/1065) decided the table of an old record.
+[Does the claim record name the blind rating and the test critique in its reach and its Confirmation?](https://github.com/kalonji-tools/purba/issues/1077) decided where the rule holds for a rating and a critique. The same issue decided who judges the claims of the post pass, a rating and a critique.
