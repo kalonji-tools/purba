@@ -456,3 +456,24 @@ fn defs(body: &[Stmt]) -> Vec<&StmtFunctionDef> {
     }
     found
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{NO_EXPECTATION, OUTCOME, PRACTICE};
+
+    #[test]
+    fn each_strict_check_has_a_case_in_the_file_of_strictness() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/strictness.bats");
+        let cases = std::fs::read_to_string(path).unwrap_or_else(|error| panic!("{path}: {error}"));
+
+        let missing: Vec<&str> = PRACTICE
+            .iter()
+            .chain(&OUTCOME)
+            .chain(&NO_EXPECTATION)
+            .copied()
+            .filter(|check| !cases.contains(&format!("@test \"[{check}]")))
+            .collect();
+
+        assert!(missing.is_empty(), "{path} holds no case of {missing:?}");
+    }
+}
