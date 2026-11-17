@@ -1,0 +1,66 @@
+CPython 3.12.14
+- an import statement raises the audit event `import`
+    True
+- importlib.import_module raises no audit event `import` for its module
+    False True
+- importlib.import_module never calls builtins.__import__ for its module
+    False True
+- -X importtime prints no line for a module that import_module loads
+    import colorsys -> True
+import importlib; importlib.import_module('colorsys') -> False
+- a meta path finder is not asked about a module already in sys.modules
+    []
+- builtins.__import__ is called for a module already in sys.modules
+    ['colorsys']
+- None in sys.modules makes find_spec report the module as absent
+    True None
+- a finder that raises makes find_spec raise, though find_spec runs no module
+    raised refused False
+- an audit hook cannot be removed by Python code, and stays for each later import
+    False ['addaudithook', 'audit']
+- spec_from_file_location runs a module without the meta path and without sys.modules
+    [] False False <function rgb_to_hsv at 0x71f11e738fe0>
+CPython 3.13.13
+- an import statement raises the audit event `import`
+    True
+- importlib.import_module raises no audit event `import` for its module
+    False True
+- importlib.import_module never calls builtins.__import__ for its module
+    False True
+- -X importtime prints no line for a module that import_module loads
+    import colorsys -> True
+import importlib; importlib.import_module('colorsys') -> False
+- a meta path finder is not asked about a module already in sys.modules
+    []
+- builtins.__import__ is called for a module already in sys.modules
+    ['colorsys']
+- None in sys.modules makes find_spec report the module as absent
+    True None
+- a finder that raises makes find_spec raise, though find_spec runs no module
+    raised refused False
+- an audit hook cannot be removed by Python code, and stays for each later import
+    False ['addaudithook', 'audit']
+- spec_from_file_location runs a module without the meta path and without sys.modules
+    [] False False <function rgb_to_hsv at 0x77be0339f560>
+CPython 3.14.4
+- an import statement raises the audit event `import`
+    True
+- importlib.import_module raises no audit event `import` for its module
+    False True
+- importlib.import_module never calls builtins.__import__ for its module
+    False True
+- -X importtime prints no line for a module that import_module loads
+    import colorsys -> True
+import importlib; importlib.import_module('colorsys') -> False
+- a meta path finder is not asked about a module already in sys.modules
+    []
+- builtins.__import__ is called for a module already in sys.modules
+    ['colorsys']
+- None in sys.modules makes find_spec report the module as absent
+    True None
+- a finder that raises makes find_spec raise, though find_spec runs no module
+    raised refused False
+- an audit hook cannot be removed by Python code, and stays for each later import
+    False ['addaudithook', 'audit']
+- spec_from_file_location runs a module without the meta path and without sys.modules
+    [] False False <function rgb_to_hsv at 0x767b1dbaeae0>

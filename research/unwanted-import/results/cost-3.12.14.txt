@@ -1,0 +1,26 @@
+== imports pytest
+none                      96.7 ms
+modules-diff              94.6 ms
+audit-open                97.5 ms
+monitoring-code          101.1 ms
+modules-none              18.0 ms
+meta-path-finder          17.3 ms
+builtins-import           16.4 ms
+audit-import              17.8 ms
+path-without-target       42.8 ms
+importtime                97.1 ms
+strace-open              135.1 ms
+modulefinder            1270.0 ms, 450 modules walked
+== imports json
+none                      16.7 ms
+modules-diff              15.9 ms
+audit-open                17.0 ms
+monitoring-code           18.8 ms
+modules-none              16.2 ms
+meta-path-finder          17.9 ms
+builtins-import           17.3 ms
+audit-import              17.0 ms
+path-without-target       42.3 ms
+importtime                17.2 ms
+strace-open               27.2 ms
+modulefinder             900.0 ms, 321 modules walked
