@@ -49,6 +49,7 @@ CI runs on the head of a push, so only a push of its own runs the test alone.
 `ci.yml` cancels a run when a new push lands, and a cancelled run proves nothing.
 The failed head outlives a reduction of the commits, because each head that a force push replaced keeps the commits below it.
 No gate proves the order.
+The code also waits for a [test critique](../../CONTEXT.md#test-critique), as [a test critique reads a change's tests before its code is pushed](a-test-critique-reads-a-changes-tests-before-its-code-is-pushed.md#decision-outcome) decides.
 
 **A change with no new behaviour proves its coverage first.**
 The plan names the test that covers the code.

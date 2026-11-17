@@ -152,6 +152,10 @@ purba seen whole, in one file, at the level of its parts. It states purba's purp
 
 A set of lints that `Quality` runs when a [pull request](#pull-request) changes a path that one of them reads. The lane `always` runs on every pull request.
 
+### Layer
+
+One of the five places where a test of purba runs: Rust unit tests, the tests under `crates/*/tests`, the `bats` tests of its scripts, the tests inside a cargo script, and the end-to-end tests on the wheel.
+
 ### Liability
 
 A statement about who is answerable for a change. Each one is written from the act that makes it true.
@@ -327,6 +331,10 @@ The [actor](#actor) that writes purba's documentation for a [reader](#reader) ou
 ### Test
 
 A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, and is not a generator. A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
+
+### Test critique
+
+A read of a change's tests, by a context that did not write them, before the code is pushed. It looks for a behaviour that no test checks, a repeat, a test in the wrong [layer](#layer), and a test that fails for the wrong reason. It leaves its findings as a comment on the [pull request](#pull-request).
 
 ### Tester
 
