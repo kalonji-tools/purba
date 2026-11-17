@@ -1,6 +1,18 @@
 use std::path::PathBuf;
+use std::sync::{Mutex, PoisonError};
 
-use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown};
+use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown, Worker};
+
+/// The turn of a test to run Python:
+/// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
+static TURN: Mutex<()> = Mutex::new(());
+
+/// Gives `work` a worker while no other test of this file runs Python. Each
+/// test of this file calls it, never `purba_execution::attach`.
+fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
+    let _turn = TURN.lock().unwrap_or_else(PoisonError::into_inner);
+    purba_execution::attach(work)
+}
 
 /// The quote of an expectation that did not hold, with what it shows.
 fn shown(assert: &str, expected: &str, reading: &str) -> Quote {
@@ -21,7 +33,7 @@ fn module(name: &str, source: &str) -> Module {
 }
 
 fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
-    purba_execution::attach(|worker| {
+    attach(|worker| {
         worker.load(module).expect("the module loads");
         functions
             .iter()
@@ -36,7 +48,7 @@ fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
 }
 
 fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
-    purba_execution::attach(|worker| {
+    attach(|worker| {
         worker.load(module).expect("the module loads");
         functions
             .iter()
@@ -320,7 +332,7 @@ fn a_name_that_is_not_callable_is_an_error() {
          def test_bound():\n    pass\n\ntest_bound = 5\n\n\
          def test_deque():\n    pass\n\ntest_deque = collections.deque()\n",
     );
-    let errors: Vec<String> = purba_execution::attach(|worker| {
+    let errors: Vec<String> = attach(|worker| {
         worker.load(&test_bound).expect("the module loads");
         ["test_bound", "test_deque"]
             .iter()
@@ -356,7 +368,7 @@ fn a_module_that_fails_to_load_runs_its_body_once() {
          raise ValueError(f'load {builtins.purba_loads}')\n\n\
          def test_one():\n    pass\n\ndef test_two():\n    pass\n",
     );
-    let errors: Vec<String> = purba_execution::attach(|worker| {
+    let errors: Vec<String> = attach(|worker| {
         let loaded = worker
             .load(&loads)
             .expect_err("the module raises")
@@ -390,7 +402,7 @@ fn a_load_that_fails_gives_its_error_once() {
          raise ValueError(f'load {builtins.purba_load_fails}')\n\n\
          def test_one():\n    pass\n",
     );
-    let errors: Vec<String> = purba_execution::attach(|worker| {
+    let errors: Vec<String> = attach(|worker| {
         vec![
             worker
                 .load(&fails)
@@ -425,7 +437,7 @@ fn a_test_runs_on_the_module_that_load_loaded() {
          builtins.purba_load_once = getattr(builtins, 'purba_load_once', 0) + 1\n\n\
          def test_one():\n    assert builtins.purba_load_once == 1\n",
     );
-    let kind = purba_execution::attach(|worker| {
+    let kind = attach(|worker| {
         worker.load(&loads).expect("the module loads");
         worker
             .load(&loads)
@@ -678,7 +690,7 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
              test_three = 5\n"
         ),
     );
-    let results: Vec<Result<Kind, String>> = purba_execution::attach(|worker| {
+    let results: Vec<Result<Kind, String>> = attach(|worker| {
         worker.load(&test_panic).expect("the module loads");
         ["test_one", "test_two", "test_three"]
             .iter()
@@ -722,7 +734,7 @@ fn suppressed_runs(
     functions: &[&str],
     suppressions: &[(&str, &str)],
 ) -> Vec<(Result<Kind, String>, Warned)> {
-    purba_execution::attach(|worker| {
+    attach(|worker| {
         worker.load(module).expect("the module loads");
         functions
             .iter()
@@ -945,7 +957,7 @@ fn a_case_judges_its_suppressions_only_when_it_reads_the_paths() {
          assert value == 2\n",
     );
 
-    let judged = purba_execution::attach(|worker| {
+    let judged = attach(|worker| {
         worker.load(&test_judged).expect("the module loads");
         ["test_holds", "test_fails", "test_raises", "test_form"]
             .into_iter()
