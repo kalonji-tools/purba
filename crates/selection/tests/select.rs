@@ -936,7 +936,8 @@ fn a_def_under_statements_that_nest_deeper_than_the_stack_does_not_crash_selecti
 fn not_one(line: usize) -> String {
     format!(
         "[not-one-comparison] line {line} is not one comparison, \
-         and an expectation compares a reading by one operator"
+         and an expectation compares a reading by one operator, \
+         or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)"
     )
 }
 
@@ -945,15 +946,32 @@ fn computes(line: usize, text: &str) -> String {
     format!("[computed-expected] line {line} computes {text}, and an expected value is a literal")
 }
 
-/// The words of a fault of a private name that a test reads.
-fn private(line: usize, name: &str) -> String {
+/// The words of a fault of an input on the expected side.
+fn input(line: usize, name: &str) -> String {
     format!(
-        "[private-name] line {line} reads the private name {name}, and a test reads no private name"
+        "[computed-expected] line {line} compares to the input {name}, \
+         and an expected value is a literal until purba has cases"
     )
 }
 
+/// The words of a notice of a private name that a test reads.
+fn private(line: usize, name: &str) -> String {
+    format!("line {line} reads the private name {name}")
+}
+
+/// Each selected test of the module that `text` holds, with its notices.
+fn noticed(name: &str, text: &str) -> Vec<(String, Vec<String>)> {
+    let file = write(name, text);
+    let module = purba_parsing::parse(&file).expect("the module parses");
+    purba_selection::select(Path::new("test_m.py"), &module)
+        .0
+        .iter()
+        .map(|test| (test.to_string(), test.notices().to_vec()))
+        .collect()
+}
+
 #[test]
-fn an_expectation_that_is_not_one_comparison_is_refused() {
+fn an_expectation_that_is_not_one_comparison_or_one_of_four_reads_is_refused() {
     let (tests, refused) = judged(
         "test_not_one.py",
         concat!(
@@ -968,27 +986,42 @@ fn an_expectation_that_is_not_one_comparison_is_refused() {
             "def test_ops():\n",
             "    assert x == 1\n    assert x != 1\n    assert x < 1\n    assert x <= 1\n",
             "    assert x > 1\n    assert x >= 1\n    assert x in [1]\n    assert x not in [1]\n",
-            "    assert x is None\n    assert x is not None, \"with a message\"\n",
+            "    assert x is None\n    assert x is not None, \"with a message\"\n\n",
+            "def test_reads():\n    assert x.startswith(\"a\")\n    assert x.endswith(\"a\")\n\n",
+            "def test_keyword():\n    assert isinstance(x, T=int)\n\n",
+            "def test_three():\n    assert isinstance(x, int, y)\n\n",
+            "def test_two_args():\n    assert x.startswith(\"a\", 1)\n\n",
+            "def test_method():\n    assert x.upper()\n",
         ),
     );
 
     assert_eq!(
         tests,
-        ["test_m.py::test_act", "test_m.py::test_ops"],
-        "an assert in the act is no expectation, and each of the ten operators is one comparison"
+        [
+            "test_m.py::test_not",
+            "test_m.py::test_call",
+            "test_m.py::test_act",
+            "test_m.py::test_ops",
+            "test_m.py::test_reads",
+        ],
+        "an assert in the act is no expectation, each of the ten operators is one comparison, \
+         and not x, isinstance(x, T), x.startswith(y) and x.endswith(y) each read"
     );
     assert_eq!(
         refused,
         [
             format!("test_m.py::test_bare {}", not_one(3)),
-            format!("test_m.py::test_not {}", not_one(6)),
-            format!("test_m.py::test_call {}", not_one(9)),
             format!("test_m.py::test_chain {}", not_one(12)),
             format!("test_m.py::test_and {}", not_one(15)),
             format!("test_m.py::test_tuple {}", not_one(19)),
             format!("test_m.py::test_empty {}", not_one(22)),
+            format!("test_m.py::test_keyword {}", not_one(46)),
+            format!("test_m.py::test_three {}", not_one(49)),
+            format!("test_m.py::test_two_args {}", not_one(52)),
+            format!("test_m.py::test_method {}", not_one(55)),
         ],
-        "a bare value, a not, a call, a chain, an and, and a tuple at the end are each refused"
+        "a bare value, a chain, an and, a tuple, a keyword or a third argument of isinstance, \
+         a second argument of startswith, and another method are each refused"
     );
 }
 
@@ -1050,72 +1083,64 @@ fn an_expected_value_that_is_not_a_literal_is_refused() {
             format!("test_m.py::test_constant {}", computes(4, "N")),
             format!("test_m.py::test_call {}", computes(7, "f()")),
             format!("test_m.py::test_format {}", computes(10, "f\"{y}\"")),
-            format!("test_m.py::test_input {}", computes(13, "n")),
+            format!("test_m.py::test_input {}", input(13, "n")),
             format!("test_m.py::test_both {}", computes(16, "g( 1)")),
         ],
-        "a constant, a call, an f-string with a placeholder, an input, and two readings \
-         are each refused, by the text on the right, on one line"
+        "a constant, a call, an f-string with a placeholder, and two readings are each \
+         refused, by the text on the right, on one line, and an input by its own words"
     );
 }
 
 #[test]
-fn a_test_that_reads_a_private_name_is_refused() {
-    let (tests, refused) = judged(
-        "test_private.py",
-        concat!(
-            "import os\n",
-            "from lib import _hidden, shown\n",
-            "from lib._impl import Thing\n",
-            "import _thread\n",
-            "from gettext import gettext as _\n",
-            "from . import _sibling\n",
-            "\n",
-            "def _make():\n    return 1\n\n",
-            "def test_attribute():\n    w = os.getcwd()\n    w._flush()\n",
-            "    assert w.__len__() == 1\n\n",
-            "def test_imported():\n    _hidden()\n    assert Thing() == 1\n\n",
-            "def test_module():\n    assert _thread.get_ident() == 1\n\n",
-            "def test_relative():\n    _sibling()\n    assert 1 == 1\n\n",
-            "def test_inside():\n    from lib import _x\n    import lib._inner as inner\n",
-            "    assert 1 == 1\n\n",
-            "def test_store():\n    obj = shown()\n    obj._x = 1\n",
-            "    assert f\"{obj._y}\" == \"1\"\n\n",
-            "def test_free():\n    _local = _make()\n    _(\"text\")\n    shown()\n",
-            "    assert _local == 1\n\n",
-            "def test_once():\n    assert w._a + w._a == 2\n",
-        ),
+fn a_test_that_reads_a_private_name_runs_with_a_notice_for_each_line() {
+    let text = concat!(
+        "import os\n",
+        "from lib import _hidden, shown\n",
+        "from lib._impl import Thing\n",
+        "import _thread\n",
+        "from gettext import gettext as _\n",
+        "from . import _sibling\n",
+        "\n",
+        "def _make():\n    return 1\n\n",
+        "def test_attribute():\n    w = os.getcwd()\n    w._flush()\n",
+        "    assert w.__len__() == 1\n\n",
+        "def test_imported():\n    _hidden()\n    assert Thing() == 1\n\n",
+        "def test_module():\n    assert _thread.get_ident() == 1\n\n",
+        "def test_relative():\n    _sibling()\n    assert 1 == 1\n\n",
+        "def test_inside():\n    from lib import _x\n    import lib._inner as inner\n",
+        "    assert 1 == 1\n\n",
+        "def test_store():\n    obj = shown()\n    obj._x = 1\n",
+        "    assert f\"{obj._y}\" == \"1\"\n\n",
+        "def test_free():\n    _local = _make()\n    _(\"text\")\n    shown()\n",
+        "    assert _local == 1\n\n",
+        "def test_once():\n    assert w._a + w._a == 2\n",
     );
 
+    let (_, refused) = judged("test_private.py", text);
+
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
+    let each = |test: &str, notices: &[String]| (format!("test_m.py::{test}"), notices.to_vec());
     assert_eq!(
-        tests,
-        ["test_m.py::test_free"],
-        "a name of the test's own module, a local, a dunder and a public import are free"
-    );
-    assert_eq!(
-        refused,
+        noticed("test_private_notices.py", text),
         [
-            format!("test_m.py::test_attribute {}", private(13, "_flush")),
-            format!(
-                "test_m.py::test_imported {}; {}",
-                private(17, "lib._hidden"),
-                private(18, "lib._impl.Thing")
+            each("test_attribute", &[private(13, "_flush")]),
+            each(
+                "test_imported",
+                &[private(17, "lib._hidden"), private(18, "lib._impl.Thing")]
             ),
-            format!("test_m.py::test_module {}", private(21, "_thread")),
-            format!("test_m.py::test_relative {}", private(24, "._sibling")),
-            format!(
-                "test_m.py::test_inside {}; {}",
-                private(28, "lib._x"),
-                private(29, "lib._inner")
+            each("test_module", &[private(21, "_thread")]),
+            each("test_relative", &[private(24, "._sibling")]),
+            each(
+                "test_inside",
+                &[private(28, "lib._x"), private(29, "lib._inner")]
             ),
-            format!(
-                "test_m.py::test_store {}; {}",
-                private(34, "_x"),
-                private(35, "_y")
-            ),
-            format!("test_m.py::test_once {}", private(44, "_a")),
+            each("test_store", &[private(34, "_x"), private(35, "_y")]),
+            each("test_free", &[]),
+            each("test_once", &[private(44, "_a")]),
         ],
         "an attribute, an import from another module, and a private part of a module's path \
-         are each refused, once a line, in source order"
+         each give a notice, once a line, in source order; a name of the test's own module, \
+         a local, a dunder and a public import give none"
     );
 }
 
@@ -1134,8 +1159,7 @@ fn a_refused_line_names_the_reasons_of_the_def_then_each_fault_of_the_body_in_so
         refused,
         [format!(
             "test_m.py::test_mixed [foreign-decorator] the decorator dec is not purba's, \
-             and purba cannot see what it does; {}; {}; {}",
-            private(3, "_a"),
+             and purba cannot see what it does; {}; {}",
             computes(4, "N"),
             not_one(5)
         )],
@@ -1214,11 +1238,12 @@ const SUPPRESSED: &str = concat!(
     "@keep\n",
     "def test_decorated():\n",
     "    assert 1 == 1\n\n\n",
-    "# purba: suppress[private-name] the cache has no public view\n",
+    "# purba: suppress[computed-expected] the parse is its own expected value\n",
     "# an ordinary comment between them\n",
     "# purba: suppress[not-one-comparison] a subset reads best as one call\n",
     "def test_two():\n",
-    "    got = json._default_encoder\n",
+    "    got = json.loads(\"[1]\")\n",
+    "    assert got == json.loads(\"[1]\")\n",
     "    assert got.issubset({1})\n",
 );
 
@@ -1253,16 +1278,16 @@ fn a_suppression_above_a_def_or_its_decorator_turns_a_practice_check_into_a_warn
             ),
             verdict(
                 "test_two",
-                "private-name",
-                "line 20 reads the private name _default_encoder, \
-                 and a test reads no private name",
-                "the cache has no public view",
+                "computed-expected",
+                "line 21 computes json.loads(\"[1]\"), and an expected value is a literal",
+                "the parse is its own expected value",
             ),
             verdict(
                 "test_two",
                 "not-one-comparison",
-                "line 21 is not one comparison, \
-                 and an expectation compares a reading by one operator",
+                "line 22 is not one comparison, \
+                 and an expectation compares a reading by one operator, \
+                 or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)",
                 "a subset reads best as one call",
             ),
         ],
@@ -1347,10 +1372,11 @@ fn a_suppression_of_the_module_reaches_each_test_of_it() {
 #[test]
 fn a_suppression_that_does_not_reach_every_reason_leaves_the_test_refused_with_its_verdict() {
     let text = concat!(
-        "# purba: suppress[private-name] the cache has no public view\n",
-        "def test_private_and_computed():\n",
-        "    got = cache._slots\n",
+        "# purba: suppress[computed-expected] the cache is its own expected value\n",
+        "def test_computed_and_bare():\n",
+        "    got = cache.slots\n",
         "    assert got == expected\n",
+        "    assert got\n",
     );
 
     let (tests, refused) = judged("test_partial.py", text);
@@ -1358,19 +1384,16 @@ fn a_suppression_that_does_not_reach_every_reason_leaves_the_test_refused_with_i
     assert!(tests.is_empty(), "no test: {tests:?}");
     assert_eq!(
         refused,
-        [format!(
-            "test_m.py::test_private_and_computed {}",
-            computes(4, "expected")
-        )],
+        [format!("test_m.py::test_computed_and_bare {}", not_one(5))],
         "the reason that no suppression reaches still refuses the test"
     );
     assert_eq!(
         suppressed("test_partial_verdicts.py", text),
         [verdict(
-            "test_private_and_computed",
-            "private-name",
-            "line 3 reads the private name _slots, and a test reads no private name",
-            "the cache has no public view",
+            "test_computed_and_bare",
+            "computed-expected",
+            "line 4 computes expected, and an expected value is a literal",
+            "the cache is its own expected value",
         )],
         "the refused test keeps its suppressed verdict"
     );
@@ -1469,15 +1492,19 @@ fn each_fault_of_a_suppression_directly_above_a_test_refuses_that_test() {
             "def test_unread():\n",
             "    got = len(\"ab\")\n",
             "    assert got == 2\n\n\n",
-            "# purba: suppress[private-name] the cache has no public view\n",
-            "# purba: suppress[private-name] the slots are private\n",
+            "# purba: suppress[computed-expected] the cache is its own expected value\n",
+            "# purba: suppress[computed-expected] the slots are their own expected value\n",
             "def test_twice():\n",
-            "    got = cache._slots\n",
+            "    got = cache.slots\n",
             "    assert got == 1\n\n\n",
-            "# purba: suppress-module[private-name] the cache has no public view\n",
+            "# purba: suppress-module[computed-expected] the cache is its own expected value\n",
             "def test_module_below():\n",
             "    got = len(\"ab\")\n",
-            "    assert got == 2\n",
+            "    assert got == 2\n\n\n",
+            "# purba: suppress[private-name] the cache has no public view\n",
+            "def test_private():\n",
+            "    got = cache._slots\n",
+            "    assert got == 1\n",
         ),
     );
 
@@ -1496,9 +1523,10 @@ fn each_fault_of_a_suppression_directly_above_a_test_refuses_that_test() {
             "test_m.py::test_unknown line 23 suppresses slow-test, which is no strict check",
             "test_m.py::test_unread line 29 is a purba comment that reads as no suppression, \
              and a suppression reads # purba: suppress[<check>] <reason>",
-            "test_m.py::test_twice line 36 suppresses private-name again, \
+            "test_m.py::test_twice line 36 suppresses computed-expected again, \
              and a site names each check once",
             "test_m.py::test_module_below line 42 suppresses the module below its first statement",
+            "test_m.py::test_private line 48 suppresses private-name, which is no strict check",
         ],
         "each fault of a suppression, then each check that no suppression reaches"
     );
@@ -1559,7 +1587,6 @@ fn a_suppression_of_each_check_of_the_practice_tier_is_in_its_place() {
         "name-bound-again",
         "not-one-comparison",
         "computed-expected",
-        "private-name",
         "second-path",
         "assert-before-expectation",
         "swallowed-raise",
@@ -1641,14 +1668,14 @@ fn a_fault_of_a_suppression_that_sits_above_no_test_is_the_modules() {
                 "# purba: suppress-module[slow-test] it takes a second\n",
                 "# purba: suppress-module[computed-expected]\n",
                 "# purba: suppress-module[no-expectation] it only logs\n",
-                "# purba: suppress-module[private-name] one\n",
-                "# purba: suppress-module[private-name] two\n",
+                "# purba: suppress-module[foreign-decorator] one\n",
+                "# purba: suppress-module[foreign-decorator] two\n",
                 "import json\n",
             ),
             "line 1 suppresses slow-test, which is no strict check; \
              line 2 suppresses computed-expected with no reason, and a suppression gives one; \
              line 3 suppresses no-expectation, and an outcome cannot stand without that check; \
-             line 5 suppresses private-name again, and a site names each check once",
+             line 5 suppresses foreign-decorator again, and a site names each check once",
         ),
     ];
     for (name, text, fault) in cases {
@@ -2101,16 +2128,17 @@ fn unused(
 #[test]
 fn a_suppression_that_selection_judged_and_that_suppressed_nothing_is_unused() {
     let text = concat!(
-        "# purba: suppress-module[private-name] one test reads os._exit\n",
+        "# purba: suppress-module[foreign-decorator] one test is wrapped\n",
         "# purba: suppress-module[computed-expected] no test computes\n",
         "import os\n\n\n",
         "# purba: suppress[not-one-comparison] the test once compared twice\n",
         "def test_plain():\n",
         "    value = 1\n",
         "    assert value == 1\n\n\n",
-        "def test_reads():\n",
-        "    value = os._exit is not None\n",
-        "    assert value == True\n",
+        "@keep\n",
+        "def test_wrapped():\n",
+        "    value = os.sep\n",
+        "    assert value == \"/\"\n",
     );
 
     assert_eq!(
@@ -2126,17 +2154,18 @@ fn a_suppression_that_selection_judged_and_that_suppressed_nothing_is_unused() {
 #[test]
 fn a_module_suppression_that_each_test_names_itself_reaches_no_test_and_is_unused() {
     let text = concat!(
-        "# purba: suppress-module[private-name] the module reads os._exit\n",
+        "# purba: suppress-module[foreign-decorator] the module wraps its tests\n",
         "import os\n\n\n",
-        "# purba: suppress[private-name] the test reads os._exit\n",
-        "def test_reads():\n",
-        "    value = os._exit is not None\n",
-        "    assert value == True\n",
+        "# purba: suppress[foreign-decorator] the test is wrapped\n",
+        "@keep\n",
+        "def test_wrapped():\n",
+        "    value = os.sep\n",
+        "    assert value == \"/\"\n",
     );
 
     assert_eq!(
         unused("test_unused_shadowed.py", text, |_| true, |_| Vec::new()),
-        ["line 1 suppresses private-name, which no test of the module breaks"],
+        ["line 1 suppresses foreign-decorator, which no test of the module breaks"],
         "the test's own suppression is used, so the module's reaches no test"
     );
 }
@@ -2144,11 +2173,11 @@ fn a_module_suppression_that_each_test_names_itself_reaches_no_test_and_is_unuse
 #[test]
 fn a_refused_test_judges_its_suppressions_unless_purba_cannot_call_it() {
     let text = concat!(
-        "# purba: suppress[private-name] purba cannot call the test\n",
+        "# purba: suppress[foreign-decorator] purba cannot call the test\n",
         "async def test_async():\n",
         "    value = 1\n",
         "    assert value == 1\n\n\n",
-        "# purba: suppress[private-name] the test once read a private name\n",
+        "# purba: suppress[foreign-decorator] the test was once wrapped\n",
         "def test_computes():\n",
         "    value = 1\n",
         "    assert value == int(\"1\")\n",
@@ -2156,7 +2185,7 @@ fn a_refused_test_judges_its_suppressions_unless_purba_cannot_call_it() {
 
     assert_eq!(
         unused("test_unused_refused.py", text, |_| true, |_| Vec::new()),
-        ["line 7 suppresses private-name, which test_computes does not break"],
+        ["line 7 suppresses foreign-decorator, which test_computes does not break"],
         "the test refused for a computed value judges its suppression; the async test does not"
     );
 }
@@ -2196,19 +2225,21 @@ fn a_suppression_of_a_check_of_execution_is_judged_only_where_execution_read_it(
 fn a_second_suppression_above_a_test_that_the_module_defines_twice_is_unused() {
     let text = concat!(
         "import os\n\n\n",
-        "# purba: suppress[private-name] the first def reads os._exit\n",
-        "def test_reads():\n",
-        "    value = os._exit is not None\n",
-        "    assert value == True\n\n\n",
-        "# purba: suppress[private-name] the second def reads os._exit\n",
-        "def test_reads():\n",
-        "    value = os._exit is not None\n",
-        "    assert value == True\n",
+        "# purba: suppress[foreign-decorator] the first def is wrapped\n",
+        "@keep\n",
+        "def test_wrapped():\n",
+        "    value = os.sep\n",
+        "    assert value == \"/\"\n\n\n",
+        "# purba: suppress[foreign-decorator] the second def is wrapped\n",
+        "@keep\n",
+        "def test_wrapped():\n",
+        "    value = os.sep\n",
+        "    assert value == \"/\"\n",
     );
 
     assert_eq!(
         unused("test_unused_twice.py", text, |_| true, |_| Vec::new()),
-        ["line 10 suppresses private-name, which test_reads does not break"],
+        ["line 11 suppresses foreign-decorator, which test_wrapped does not break"],
         "only the first suppression of a check reaches the test"
     );
 }

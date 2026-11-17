@@ -388,9 +388,81 @@ fn a_comparison_hands_each_side_in_parentheses_and_keeps_each_line() {
             "(got)\n",
             ", ((\n",
             "        1, 2)))\n",
-            "    _purba_reads(1) and _purba_read(1, not got)\n",
+            "    _purba_reads(1) and _purba_read(1, (got))\n",
         ),
         "each side of one comparison goes to the hook in parentheses, without the operator, \
-         and the line breaks between them stay; any other expectation hands its condition"
+         and the line breaks between them stay; not x hands x"
+    );
+}
+
+#[test]
+fn each_of_the_four_reads_hands_its_reading_and_its_argument_in_parentheses() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    got = 'ann'\n",
+            "    assert not got\n",
+            "    assert isinstance(got, str)\n",
+            "    assert got.startswith(\n",
+            "        'a')\n",
+            "    assert got.endswith('n')\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    got = 'ann'; _purba_step(2)\n",
+            "    _purba_reads(0) and _purba_read(0, (got))\n",
+            "    _purba_reads(1) and _purba_read(1, (got), (str))\n",
+            "    _purba_reads(2) and _purba_read(2, (got)\n",
+            ", ('a'))\n",
+            "    _purba_reads(3) and _purba_read(3, (got), ('n'))\n",
+        ),
+        "not x hands x; isinstance, startswith and endswith hand the reading, then the type \
+         or the argument, and the line breaks between them stay"
+    );
+}
+
+#[test]
+fn the_statement_of_a_try_of_one_path_calls_the_hook_of_a_missed_try_after_its_step() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    seen = []\n",
+            "    try:\n",
+            "        int('1')\n",
+            "    except ValueError:\n",
+            "        seen.append(1)\n",
+            "    try:\n",
+            "        int('2')\n",
+            "    except ValueError as error:\n",
+            "        seen.append(error)\n",
+            "    assert seen == [1]\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    seen = []; _purba_step(2)\n",
+            "    try:\n",
+            "        int('1'); _purba_step(4); _purba_missed(0)\n",
+            "    except ValueError:\n",
+            "        seen.append(1); _purba_step(6)\n",
+            "    try:\n",
+            "        int('2'); _purba_step(8)\n",
+            "    except ValueError as error:\n",
+            "        seen.append(error); _purba_step(10)\n",
+            "    _purba_reads(0) and _purba_read(0, (seen), ([1]))\n",
+        ),
+        "a try of one statement and one except SomeError: calls the hook; a handler that \
+         binds a name makes another try, which gains no hook"
     );
 }

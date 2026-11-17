@@ -17,7 +17,8 @@ warning='purba: warning: Python runs with -O, so an assert outside a test module
   run -4 --separate-stderr env PYTHONOPTIMIZE=1 purba test_helper.py
 
   local refusal='[assert-before-expectation] line 6 reaches line 2 of check, '
-  refusal+='which asserts before the first expectation, and only an expectation asserts'
+  refusal+='which ran an assert in the act; one test checks one state; check this state in a '
+  refusal+='test of its own'
   diff -u - <(printf '%s\n' "${output}") <<LINES || false
 test_helper.py::test_helper project error: ${refusal}
 1 case: 1 blocked; 1 project error
@@ -31,7 +32,8 @@ LINES
   run -4 --separate-stderr env PYTHONOPTIMIZE=256 purba test_helper.py
 
   local refusal='[assert-before-expectation] line 6 reaches line 2 of check, '
-  refusal+='which asserts before the first expectation, and only an expectation asserts'
+  refusal+='which ran an assert in the act; one test checks one state; check this state in a '
+  refusal+='test of its own'
   diff -u - <(printf '%s\n' "${output}") <<LINES || false
 test_helper.py::test_helper project error: ${refusal}
 1 case: 1 blocked; 1 project error

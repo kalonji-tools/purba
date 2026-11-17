@@ -4,19 +4,25 @@
 //! <https://docs.python.org/3.12/library/sys.monitoring.html>
 //!
 //! Code is part of the case when the test starts it, or when code that is part
-//! of the case starts it. A generator under `contextlib.contextmanager` is part
-//! of the case when code that is part of the case enters it, through a `with` or
-//! through `ExitStack.enter_context`. The lines after the `yield` where it waits
-//! at the first expectation are its cleanup. The watch does not judge them.
-//! Other code that a library calls back is free, and so is a module that the
-//! test imports, since only the test module's code is watched.
+//! of the case calls it by name: the callable of the last call that the caller
+//! made is its function, a bound method of it, or a class whose `__init__` or
+//! `__new__` it is.
+//! A generator is part of the case when code that is part of the case starts
+//! it, since a `for` resumes it with no call. A generator under
+//! `contextlib.contextmanager` is part of the case when code that is part of
+//! the case enters it, through a `with` or through `ExitStack.enter_context`.
+//! The lines after the `yield` where it waits at the first expectation are its
+//! cleanup. The watch does not judge them.
+//! Other code is free: a function of the test module that C code calls back,
+//! such as `sorted` with `key=`, or that a library calls back, and a module that
+//! the test imports, since only the test module's code is watched.
 
 use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, MutexGuard, PoisonError};
 use std::thread::{self, ThreadId};
 
 use pyo3::sync::PyOnceLock;
-use pyo3::types::PyAnyMethods;
+use pyo3::types::{PyAnyMethods, PyType};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 
 /// The rule that each fault of a path names.
@@ -45,6 +51,9 @@ struct Case {
     /// For each code object but the test's, the line of the test that ran
     /// when the code object first started, and the name of its function.
     reached: HashMap<usize, (usize, String)>,
+    /// For each code object of the case, the callable of the last call that it
+    /// made.
+    calls: HashMap<usize, Py<PyAny>>,
     /// Each generator that a `with` of the case entered.
     managers: HashSet<usize>,
     /// The line of the `yield` where each such generator waits.
@@ -82,6 +91,7 @@ fn key(code: &Bound<'_, PyAny>) -> usize {
 #[derive(Clone, Copy)]
 enum Kind {
     Start,
+    Call,
     Line,
     Branch,
     Yield,
@@ -96,12 +106,13 @@ struct Event {
 
 #[pymethods]
 impl Event {
-    #[pyo3(signature = (code, at, to = None))]
+    #[pyo3(signature = (code, at, to = None, _argument = None))]
     fn __call__(
         &self,
         code: &Bound<'_, PyAny>,
         at: usize,
         to: Option<&Bound<'_, PyAny>>,
+        _argument: Option<&Bound<'_, PyAny>>,
     ) -> PyResult<Py<PyAny>> {
         let py = code.py();
         let disable = match self.kind {
@@ -109,6 +120,7 @@ impl Event {
                 started(code)?;
                 false
             }
+            Kind::Call => to.is_some_and(|callable| !called(code, callable)),
             Kind::Line => line(code, at),
             Kind::Branch => {
                 let to = to.map(PyAnyMethods::extract).transpose()?;
@@ -194,6 +206,16 @@ fn started(code: &Bound<'_, PyAny>) -> PyResult<()> {
         return Ok(());
     }
     let caller = key(&caller.getattr("f_code")?);
+    let flags: u32 = code.getattr("co_flags")?.extract()?;
+    if !manager && flags & RESUMES == 0 {
+        let last = on_this_thread(|case| case.calls.get(&caller).map(|last| last.clone_ref(py)));
+        let Some(Some(last)) = last else {
+            return Ok(());
+        };
+        if !by_name(last.bind(py), code)? {
+            return Ok(());
+        }
+    }
     let mut reached = None;
     while !frame.is_none() {
         if key(&frame.getattr("f_code")?) == test {
@@ -218,6 +240,53 @@ fn started(code: &Bound<'_, PyAny>) -> PyResult<()> {
         }
     });
     Ok(())
+}
+
+/// Keeps `callable` as the last call of `code`, when `code` is part of the
+/// case. Gives whether it is.
+fn called(code: &Bound<'_, PyAny>, callable: &Bound<'_, PyAny>) -> bool {
+    let id = key(code);
+    on_this_thread(|case| {
+        if !case.on || !case.codes.contains_key(&id) {
+            return false;
+        }
+        case.calls.insert(id, callable.clone().unbind());
+        true
+    })
+    .unwrap_or(false)
+}
+
+/// The flags of a code object that runs as a generator, a coroutine or an
+/// asynchronous generator: `CO_GENERATOR`, `CO_COROUTINE`,
+/// `CO_ITERABLE_COROUTINE` and `CO_ASYNC_GENERATOR`.
+/// <https://docs.python.org/3.12/library/inspect.html#code-objects-bit-flags>
+const RESUMES: u32 = 0x20 | 0x80 | 0x100 | 0x200;
+
+/// Whether `callable` calls `code` by name: it is the function of `code`, a
+/// bound method of it, or a class whose `__init__` or `__new__` it is, which a
+/// call of the class runs.
+fn by_name(callable: &Bound<'_, PyAny>, code: &Bound<'_, PyAny>) -> PyResult<bool> {
+    let runs = |function: &Bound<'_, PyAny>| -> PyResult<bool> {
+        let function = function
+            .getattr("__func__")
+            .unwrap_or_else(|_| function.clone());
+        Ok(function
+            .getattr("__code__")
+            .is_ok_and(|function_code| function_code.is(code)))
+    };
+    if runs(callable)? {
+        return Ok(true);
+    }
+    if callable.is_instance_of::<PyType>() {
+        for name in ["__init__", "__new__"] {
+            if let Ok(method) = callable.getattr(name)
+                && runs(&method)?
+            {
+                return Ok(true);
+            }
+        }
+    }
+    Ok(false)
 }
 
 /// Keeps the line of the `yield` at `at`, where a generator waits. It does
@@ -379,6 +448,7 @@ fn tool(py: Python<'_>) -> Option<&Tool> {
             let mut mask = 0_u32;
             for (name, kind) in [
                 ("PY_START", Kind::Start),
+                ("CALL", Kind::Call),
                 ("LINE", Kind::Line),
                 ("PY_YIELD", Kind::Yield),
                 ("PY_RESUME", Kind::Resume),
@@ -448,6 +518,7 @@ pub fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
             on: true,
             codes: HashMap::from([(key(test), test.clone().unbind())]),
             reached: HashMap::new(),
+            calls: HashMap::new(),
             managers: HashSet::new(),
             waiting: HashMap::new(),
             cleanup: HashMap::new(),

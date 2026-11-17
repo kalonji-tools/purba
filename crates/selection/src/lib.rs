@@ -35,6 +35,7 @@ pub use suppression::Suppression;
 ///     suppressed: Vec::new(),
 ///     suppressions: Vec::new(),
 ///     reaching: Vec::new(),
+///     notices: Vec::new(),
 /// };
 /// ```
 ///
@@ -57,6 +58,7 @@ pub struct TestId {
     suppressed: Vec<Suppressed>,
     suppressions: Vec<Suppression>,
     reaching: Vec<Suppression>,
+    notices: Vec<String>,
 }
 
 /// A violation of a strict check that a suppression turned into a warning: the
@@ -79,6 +81,7 @@ impl TestId {
             suppressed: Vec::new(),
             suppressions: Vec::new(),
             reaching: Vec::new(),
+            notices: Vec::new(),
         }
     }
 
@@ -87,6 +90,13 @@ impl TestId {
     #[must_use]
     pub fn suppressed(&self) -> &[Suppressed] {
         &self.suppressed
+    }
+
+    /// Each notice of the test: a line that reads a private name, in source
+    /// order. A notice refuses nothing.
+    #[must_use]
+    pub fn notices(&self) -> &[String] {
+        &self.notices
     }
 
     /// Each suppression that reaches the test for a check that execution sees:
@@ -169,7 +179,7 @@ enum Reason {
     Method,
     NotOneComparison(usize),
     Computes(usize, String),
-    Private(usize, String),
+    Input(usize, String),
     Patched(usize, String),
     WithoutSpec(usize),
 }
@@ -186,8 +196,7 @@ impl Reason {
             Self::NoDef(..) => "name-without-def",
             Self::Under(_) => "def-under-block",
             Self::NotOneComparison(_) => "not-one-comparison",
-            Self::Computes(..) => "computed-expected",
-            Self::Private(..) => "private-name",
+            Self::Computes(..) | Self::Input(..) => "computed-expected",
             Self::Patched(..) => "patched-name",
             Self::WithoutSpec(_) => "mock-without-spec",
             Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
@@ -306,15 +315,17 @@ impl fmt::Display for Reason {
             Self::NotOneComparison(line) => write!(
                 formatter,
                 "line {line} is not one comparison, \
-                 and an expectation compares a reading by one operator"
+                 and an expectation compares a reading by one operator, \
+                 or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)"
             ),
             Self::Computes(line, text) => write!(
                 formatter,
                 "line {line} computes {text}, and an expected value is a literal"
             ),
-            Self::Private(line, name) => write!(
+            Self::Input(line, name) => write!(
                 formatter,
-                "line {line} reads the private name {name}, and a test reads no private name"
+                "line {line} compares to the input {name}, \
+                 and an expected value is a literal until purba has cases"
             ),
             Self::Patched(line, target) => write!(
                 formatter,
@@ -381,6 +392,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             .filter(Suppression::seen_by_execution)
             .collect();
         if reasons.is_empty() {
+            test.notices = notices_of(function, module, &imported);
             tests.push(test);
         } else {
             refused.push((first, Refused { test, reasons }));
@@ -1253,6 +1265,11 @@ fn faults_of(
 ) -> Vec<Reason> {
     let line = |offset: TextSize| module.position(offset).line();
     let mut faults: Vec<(TextSize, Reason)> = Vec::new();
+    let inputs = parameters_of(function);
+    let input = |side: &Expr| match side {
+        Expr::Name(name) if inputs.contains(name.id.as_str()) => Some(name.id.to_string()),
+        _ => None,
+    };
     for assert in expectations(&function.body) {
         let start = assert.start();
         match &*assert.test {
@@ -1260,37 +1277,21 @@ fn faults_of(
                 let [left, right] = &*compare.operands else {
                     continue;
                 };
-                if !purba_parsing::is_literal(left) && !purba_parsing::is_literal(right) {
-                    let text = on_one_line(&module.source()[right.range()]);
-                    faults.push((start, Reason::Computes(line(start), text)));
+                if purba_parsing::is_literal(left) || purba_parsing::is_literal(right) {
+                    continue;
                 }
+                let reason = input(right).or_else(|| input(left)).map_or_else(
+                    || Reason::Computes(line(start), on_one_line(&module.source()[right.range()])),
+                    |name| Reason::Input(line(start), name),
+                );
+                faults.push((start, reason));
             }
+            test if purba_parsing::read(test).is_some() => {}
             _ => faults.push((start, Reason::NotOneComparison(line(start)))),
         }
     }
-    let mut locals: HashSet<&str> = Scope::of(&function.body)
-        .names
-        .into_iter()
-        .map(|(name, _)| name)
-        .collect();
-    let parameters = &function.parameters;
-    locals.extend(
-        parameters
-            .posonlyargs
-            .iter()
-            .chain(&parameters.args)
-            .chain(&parameters.kwonlyargs)
-            .map(|parameter| parameter.parameter.name.as_str())
-            .chain(parameters.vararg.iter().map(|vararg| vararg.name.as_str()))
-            .chain(parameters.kwarg.iter().map(|kwarg| kwarg.name.as_str())),
-    );
-    let mut seen = HashSet::new();
-    for (offset, name) in Names::of(&function.body, &locals, imported) {
-        if seen.insert((line(offset), name.clone())) {
-            faults.push((offset, Reason::Private(line(offset), name)));
-        }
-    }
     let mut targets = HashSet::new();
+    let locals = locals_of(function);
     let mut mocks = HashSet::new();
     for (offset, fault) in patch::faults(&function.body, &locals, imported, module.source()) {
         let at = line(offset);
@@ -1306,6 +1307,51 @@ fn faults_of(
     }
     faults.sort_by_key(|(offset, _)| *offset);
     faults.into_iter().map(|(_, fault)| fault).collect()
+}
+
+/// The name of each parameter of `function`.
+fn parameters_of(function: &StmtFunctionDef) -> HashSet<&str> {
+    let parameters = &function.parameters;
+    parameters
+        .posonlyargs
+        .iter()
+        .chain(&parameters.args)
+        .chain(&parameters.kwonlyargs)
+        .map(|parameter| parameter.parameter.name.as_str())
+        .chain(parameters.vararg.iter().map(|vararg| vararg.name.as_str()))
+        .chain(parameters.kwarg.iter().map(|kwarg| kwarg.name.as_str()))
+        .collect()
+}
+
+/// Each name that `function` binds: its parameters, and each name its body binds.
+fn locals_of(function: &StmtFunctionDef) -> HashSet<&str> {
+    let mut locals: HashSet<&str> = Scope::of(&function.body)
+        .names
+        .into_iter()
+        .map(|(name, _)| name)
+        .collect();
+    locals.extend(parameters_of(function));
+    locals
+}
+
+/// The notice of each line of the body of `function` that reads a private
+/// name, in source order: `line N reads the private name X`, once for each
+/// name of a line.
+fn notices_of(
+    function: &StmtFunctionDef,
+    module: &Module,
+    imported: &HashMap<&str, String>,
+) -> Vec<String> {
+    let line = |offset: TextSize| module.position(offset).line();
+    let locals = locals_of(function);
+    let mut found = Names::of(&function.body, &locals, imported);
+    found.sort_by_key(|(offset, _)| *offset);
+    let mut seen = HashSet::new();
+    found
+        .into_iter()
+        .filter(|(offset, name)| seen.insert((line(*offset), name.clone())))
+        .map(|(offset, name)| format!("line {} reads the private name {name}", line(offset)))
+        .collect()
 }
 
 /// Each private name that a test's body reads, by its offset: an attribute, a

@@ -108,7 +108,8 @@ LINES
 
   run -4 --separate-stderr purba test_tup.py
 
-  local one='and an expectation compares a reading by one operator'
+  local one='and an expectation compares a reading by one operator, or reads not x,'
+  one+=' isinstance(x, T), x.startswith(y) or x.endswith(y)'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_tup.py::test_tuple project error: [not-one-comparison] line 3 is not one comparison, ${one}
 1 case: 1 blocked; 1 project error
@@ -141,13 +142,12 @@ LINES
 
   run -4 --separate-stderr purba test_rules.py
 
-  local private='[private-name] line 5 reads the private name _checkClosed'
-  private+=', and a test reads no private name'
   local one='[not-one-comparison] line 6 is not one comparison'
-  one+=', and an expectation compares a reading by one operator'
+  one+=', and an expectation compares a reading by one operator, or reads not x,'
+  one+=' isinstance(x, T), x.startswith(y) or x.endswith(y)'
   local literal='[computed-expected] line 7 computes N, and an expected value is a literal'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_rules.py::test_x project error: ${private}; ${one}; ${literal}
+test_rules.py::test_x project error: ${one}; ${literal}
 test_rules.py::test_y passed
 2 cases: 1 passed, 1 blocked; 1 project error
 LINES
@@ -161,9 +161,10 @@ LINES
 
   run -4 --separate-stderr purba test_empty.py
 
-  local asserts='asserts before the first expectation, and only an expectation asserts'
+  local asserts='an assert ran in the act; one test checks one state; check this state in a test'
+  asserts+=' of its own'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_empty.py::test_empty project error: [assert-before-expectation] line 2 ${asserts}
+test_empty.py::test_empty project error: [assert-before-expectation] line 2: ${asserts}
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]

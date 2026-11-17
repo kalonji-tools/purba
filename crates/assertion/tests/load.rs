@@ -848,3 +848,125 @@ fn a_failed_expectation_shows_its_expected_value_and_its_reading() {
         );
     });
 }
+
+const READS: &str = "def test_not():\n    got = [1]\n    assert not got\n\n\
+    def test_not_holds():\n    got = []\n    assert not got\n\n\
+    def test_kind():\n    got = 1\n    assert isinstance(got, str)\n\n\
+    def test_kinds():\n    got = 1\n    assert isinstance(got, (str, bytes))\n\n\
+    def test_kind_holds():\n    got = 'a'\n    assert isinstance(got, str)\n\n\
+    def test_start():\n    got = 'lee-ann'\n    assert got.startswith('ann')\n\n\
+    def test_end():\n    got = 'ann-lee'\n    assert got.endswith('ann')\n\n\
+    def test_end_raises():\n    got = 1\n    assert got.endswith('ann')\n";
+
+#[test]
+fn a_failed_check_of_each_of_the_four_reads_shows_its_expected_value_in_words() {
+    let tests = [
+        "test_not",
+        "test_not_holds",
+        "test_kind",
+        "test_kinds",
+        "test_kind_holds",
+        "test_start",
+        "test_end",
+        "test_end_raises",
+    ];
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(READS, &tests).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_reads.py"), &rewrite)
+            .expect("the module loads");
+        let seen: Vec<Seen> = tests
+            .iter()
+            .map(|name| {
+                let test = loaded.module().getattr(*name).unwrap();
+                let Watched {
+                    result, readings, ..
+                } = loaded.watch(&NO_READER, || test.call0());
+                let result = result.map_or_else(|err| err.to_string(), |_| "returned".to_owned());
+                let shown = readings
+                    .shown
+                    .into_iter()
+                    .map(|(_, shown)| (shown.expected, shown.reading))
+                    .collect();
+                (result, readings.in_order, shown)
+            })
+            .collect();
+        let failed = |index: usize, expected: &str, reading: &str| {
+            (
+                "returned".to_owned(),
+                vec![(index, false)],
+                vec![(expected.to_owned(), reading.to_owned())],
+            )
+        };
+        let held = |index: usize| ("returned".to_owned(), vec![(index, true)], Vec::new());
+        assert_eq!(
+            seen,
+            [
+                failed(0, "empty or false", "[1]"),
+                held(1),
+                failed(2, "an instance of str", "1 (int)"),
+                failed(3, "an instance of (str, bytes)", "1 (int)"),
+                held(4),
+                failed(5, "to start with 'ann'", "'lee-ann'"),
+                failed(6, "to end with 'ann'", "'ann-lee'"),
+                (
+                    "AttributeError: 'int' object has no attribute 'endswith'".to_owned(),
+                    Vec::new(),
+                    Vec::new()
+                ),
+            ],
+            "not x reads empty or false; isinstance names its type as written, and the \
+             reading's class; startswith and endswith show the repr of their argument; \
+             Python decides each, and its raise stays the test's"
+        );
+    });
+}
+
+/// What a test of `TRIES` gave: the words of each missed `try`, and each verdict in
+/// order.
+type Missed = (Vec<String>, Vec<(usize, bool)>);
+
+const TRIES: &str = "def test_missed():\n    seen = []\n    try:\n        int('1')\n\
+    \x20   except ValueError:\n        seen.append(1)\n    assert seen == [1]\n\n\
+    def test_raised():\n    seen = []\n    try:\n        int('x')\n\
+    \x20   except ValueError:\n        seen.append(1)\n    assert seen == [1]\n\n\
+    def test_finally():\n    seen = []\n    try:\n        int('1')\n\
+    \x20   finally:\n        seen.append(1)\n    assert seen == [1]\n";
+
+#[test]
+fn a_try_of_one_path_whose_statement_does_not_raise_is_missed_and_its_expectations_read() {
+    let tests = ["test_missed", "test_raised", "test_finally"];
+    Python::initialize();
+    Python::attach(|py| {
+        let rewrite = Rewrite::of_source(TRIES, &tests).expect("the source parses");
+        let loaded = purba_assertion::load(py, Path::new("test_tries.py"), &rewrite)
+            .expect("the module loads");
+        let seen: Vec<Missed> = tests
+            .iter()
+            .map(|name| {
+                let test = loaded.module().getattr(*name).unwrap();
+                let watched = loaded.watch(&NO_READER, || test.call0());
+                assert!(watched.result.is_ok(), "{name}: the test returned");
+                (watched.missed, watched.readings.in_order)
+            })
+            .collect();
+        assert_eq!(
+            seen,
+            [
+                (
+                    vec![
+                        "the try at line 3 expects ValueError, \
+                         and the statement did not raise it"
+                            .to_owned()
+                    ],
+                    vec![(0, false)]
+                ),
+                (Vec::new(), vec![(1, true)]),
+                (Vec::new(), vec![(2, true)]),
+            ],
+            "a try of one path misses when its statement does not raise, and the act still \
+             reaches its expectations; one whose statement raises, and a try with a finally, \
+             miss nothing"
+        );
+    });
+}

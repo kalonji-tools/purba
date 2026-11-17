@@ -87,6 +87,17 @@ impl<W: Write> Report<W> {
         self.flushed(written)
     }
 
+    /// Writes `words`, a notice of the case, under its line as `⚠ <words>`. It
+    /// changes no count and no exit code.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn noticed(&mut self, words: &str) -> Result<(), Refused> {
+        let written = writeln!(self.out, "    \u{26a0} {}", one_line(words));
+        self.flushed(written)
+    }
+
     /// Adds one suppressed verdict of `check` to the tally. Writes it under the
     /// line of its case as `⚠ suppressed [<check>] <words>`, then `reason:
     /// <reason>` on the next line. It changes no exit code.
@@ -935,5 +946,26 @@ mod tests {
             "each verdict under its case, on one line, with its reason on the next"
         );
         assert_eq!(code, 0, "a suppressed verdict changes no exit code");
+    }
+
+    #[test]
+    fn each_notice_prints_under_its_case_and_changes_no_count_or_exit_code() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .add(&"t.py::test_private", Ok(&Kind::Passed))
+            .expect("a Vec takes every write");
+        report
+            .noticed("line 12 reads the private name\n_default_encoder")
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "t.py::test_private passed\n    \u{26a0} line 12 reads the private name \
+             _default_encoder\n1 case: 1 passed\n",
+            "the notice under its case, on one line, and no count of it"
+        );
+        assert_eq!(code, 0, "a notice changes no exit code");
     }
 }

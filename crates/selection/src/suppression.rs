@@ -8,12 +8,11 @@ use ruff_python_ast::{Expr, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
 /// The checks that a suppression turns into a warning.
-pub const PRACTICE: [&str; 10] = [
+pub const PRACTICE: [&str; 9] = [
     "foreign-decorator",
     "name-bound-again",
     "not-one-comparison",
     "computed-expected",
-    "private-name",
     "second-path",
     "assert-before-expectation",
     "swallowed-raise",

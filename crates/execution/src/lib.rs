@@ -22,7 +22,7 @@ use std::path::PathBuf;
 
 /// Assertion's rewrite of a module, which a [`Module`] holds.
 pub use purba_assertion::Rewrite;
-use purba_assertion::{Loaded, Readings, Swallowed, Verdict, Watched};
+use purba_assertion::{Loaded, Readings, Swallowed, Try, Verdict, Watched};
 use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Py, PyAny, PyErr, Python};
@@ -310,14 +310,16 @@ impl<'py, T: Clone> Worker<'py, T> {
         let (own, interrupted) = if window.landed() {
             (Ok(None), true)
         } else {
+            thread::hold_filters(py);
             let (loaded, landed) = interrupt::calling(py, || {
                 purba_assertion::load(py, &module.path, &module.rewrite)
             });
             let own = loaded.map_err(|err| error(&err)).and_then(|loaded| {
-                if let Some(name) = thread::replaced(py) {
+                if let Some(replaced) = thread::replaced(py) {
                     return Err(Error::project(format!(
-                        "[hook-replaced] the module replaced {name} as it loaded, \
-                         and a test keeps purba's hooks"
+                        "[hook-replaced] the module replaced {} as it loaded, and {}",
+                        replaced.what(),
+                        replaced.rule()
                     )));
                 }
                 paths::arm(loaded.code()).map_err(|err| error(&err))?;
@@ -451,6 +453,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             return (Ok(Kind::Interrupted), true);
         }
         let before = loaded.first_expectation(function).unwrap_or(usize::MAX);
+        thread::hold_filters(py);
         if let Ok(code) = test.getattr("__code__") {
             paths::start(py, &code, before);
         }
@@ -470,7 +473,9 @@ impl<'py, T: Clone> Worker<'py, T> {
             form,
             raised,
             swallowed,
+            missed,
         } = watched;
+        let (path, in_another_try) = path_faults(path, &swallowed, loaded.tries(function));
         let result = match result {
             Ok(Ok(called)) => called.map(drop),
             Ok(Err(payload)) => {
@@ -488,7 +493,9 @@ impl<'py, T: Clone> Worker<'py, T> {
         let seen = Seen {
             form,
             with,
-            path: path_faults(path, &swallowed),
+            path,
+            in_another_try,
+            missed,
             suppressions,
         };
         let decided = decide(py, result, mark, &readings, &seen, loaded, function);
@@ -551,12 +558,15 @@ impl<'py, T: Clone> Worker<'py, T> {
 /// It holds the first fault of each check of the form, each beside the name of
 /// its check. It holds the text of a `with` whose entry or cleanup raised what
 /// the call raised. It holds the faults of the paths, each beside the name of
-/// its check. It also holds each check that a suppression of the test reaches,
-/// beside its reason.
+/// its check, and whether one lies in a `try` of another shape than one path.
+/// It holds the words of each missed `try`. It also holds each check that a
+/// suppression of the test reaches, beside its reason.
 struct Seen<'a> {
     form: Vec<(&'static str, String)>,
     with: Option<String>,
     path: Vec<(&'static str, String)>,
+    in_another_try: bool,
+    missed: Vec<String>,
     suppressions: &'a [(&'a str, &'a str)],
 }
 
@@ -623,10 +633,20 @@ impl Suppressing<'_> {
     }
 }
 
+/// The shape that a fault of a line of a `try` of another shape names.
+const ONE_PATH: &str =
+    "a try of one path holds one statement and one except SomeError:, with no else and no finally";
+
 /// The faults of the paths of a case, in the order of their lines, beside the
 /// name of each check: each `with` that swallowed a raise and skipped a line,
-/// and each fault of `path` that no such `with` explains.
-fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<(&'static str, String)> {
+/// and each fault of `path` that no such `with` explains. A fault of a line of
+/// the test in the `except` of a `try` of one path of `tries` is no fault. It
+/// also says whether a fault lies on a line of the test in another `try`.
+fn path_faults(
+    path: Vec<paths::Fault>,
+    swallowed: &[Swallowed],
+    tries: &[Try],
+) -> (Vec<(&'static str, String)>, bool) {
     let mut faults: Vec<(usize, _, String, &'static str)> = path
         .into_iter()
         .filter(|(line, reached, _)| {
@@ -634,6 +654,12 @@ fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<(&'stati
                 || !swallowed
                     .iter()
                     .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
+                    && !tries.iter().any(|attempt| {
+                        attempt
+                            .except
+                            .as_ref()
+                            .is_some_and(|except| except.contains(line))
+                    })
         })
         .map(|(line, reached, fault)| (line, reached, fault, "second-path"))
         .chain(swallowed.iter().map(|swallow| {
@@ -650,10 +676,19 @@ fn path_faults(path: Vec<paths::Fault>, swallowed: &[Swallowed]) -> Vec<(&'stati
         .collect();
     faults.sort();
     faults.dedup();
-    faults
-        .into_iter()
-        .map(|(_, _, fault, check)| (check, fault))
-        .collect()
+    let in_another_try = faults.iter().any(|(line, reached, _, _)| {
+        reached.is_none()
+            && tries
+                .iter()
+                .any(|attempt| attempt.except.is_none() && attempt.lines.contains(line))
+    });
+    (
+        faults
+            .into_iter()
+            .map(|(_, _, fault, check)| (check, fault))
+            .collect(),
+        in_another_try,
+    )
 }
 
 /// The line of two readings of the expectation `text` that differ, or of a
@@ -703,7 +738,8 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// 3. a project error for the faults of the paths, joined by `; `;
 /// 4. a project error when a fork to read a later expectation alone failed, or
 ///    when the two readings of one expectation differ;
-/// 5. `failed` when an expectation did not hold;
+/// 5. `failed` when a `try` of one path missed, or an expectation did not
+///    hold;
 /// 6. a project error when no expectation ran;
 /// 7. `passed`.
 ///
@@ -778,7 +814,12 @@ fn decide(
             .filter_map(|(check, words)| suppressing.clause(check, words))
             .collect();
         if !path.is_empty() {
-            break 'decide (Err(Error::project(path.join("; "))), false);
+            let mut line = path.join("; ");
+            if seen.in_another_try {
+                line.push_str("; ");
+                line.push_str(ONE_PATH);
+            }
+            break 'decide (Err(Error::project(line)), false);
         }
         if let Some(refused) = &readings.refused {
             break 'decide (Err(Error::project(refused.clone())), false);
@@ -793,7 +834,7 @@ fn decide(
                 break 'decide (Err(Error::project(line)), false);
             }
         }
-        of_the_readings(readings, loaded, function)
+        of_the_readings(readings, &seen.missed, loaded, function)
     };
     (
         own,
@@ -806,30 +847,36 @@ fn decide(
 }
 
 /// The outcome of the case of `function` from the readings of its expectations
-/// in order, and whether they gave it: `failed` when an expectation did not
+/// in order and each `try` of one path that `missed`, and whether they gave it:
+/// `failed`, with each missed `try` and then each expectation that did not
 /// hold, a project error when no expectation ran, or else `passed`.
 fn of_the_readings(
     readings: &Readings,
+    missed: &[String],
     loaded: &Loaded<'_>,
     function: &str,
 ) -> (Result<Kind, Error>, bool) {
-    let failed: Vec<Quote> =
-        readings
-            .in_order
-            .iter()
-            .filter(|(_, held)| !held)
-            .filter_map(|(index, _)| {
-                Some(Quote {
-                    assert: loaded.expectation(*index)?.to_owned(),
-                    shown: readings.shown.iter().find(|(shown, _)| shown == index).map(
-                        |(_, shown)| Shown {
-                            expected: shown.expected.clone(),
-                            reading: shown.reading.clone(),
-                        },
-                    ),
-                })
-            })
-            .collect();
+    let failed: Vec<Quote> = missed
+        .iter()
+        .map(|words| Quote::alone(words.clone()))
+        .chain(
+            readings
+                .in_order
+                .iter()
+                .filter(|(_, held)| !held)
+                .filter_map(|(index, _)| {
+                    Some(Quote {
+                        assert: loaded.expectation(*index)?.to_owned(),
+                        shown: readings.shown.iter().find(|(shown, _)| shown == index).map(
+                            |(_, shown)| Shown {
+                                expected: shown.expected.clone(),
+                                reading: shown.reading.clone(),
+                            },
+                        ),
+                    })
+                }),
+        )
+        .collect();
     if !failed.is_empty() {
         (Ok(Kind::Failed { asserts: failed }), true)
     } else if !readings.in_order.is_empty() {

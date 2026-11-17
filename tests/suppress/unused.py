@@ -1,7 +1,7 @@
 # purba: suppress-module[computed-expected] the module once computed its values
 
 
-# purba: suppress[private-name] the test once read a private name
+# purba: suppress[not-one-comparison] the test once checked a subset
 def test_renamed():
     value = int("3")
     assert value == 3

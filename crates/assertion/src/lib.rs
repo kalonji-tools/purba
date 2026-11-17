@@ -6,7 +6,7 @@
 //! of a test before its first expectation, and each item of each `with` of a
 //! test is wrapped, so that the case sees its hooks and its `with`s.
 
-use purba_parsing::Module;
+use purba_parsing::{Module, Reads};
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyIndexError, PyNameError, PyTypeError};
 use pyo3::types::{
@@ -15,12 +15,14 @@ use pyo3::types::{
 };
 use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
-use ruff_python_ast::{CmpOp, ExceptHandler, Expr, ExprCompare, Stmt, StmtAssert, StmtFunctionDef};
+use ruff_python_ast::{
+    CmpOp, ExceptHandler, Expr, ExprCompare, Stmt, StmtAssert, StmtFunctionDef, StmtTry,
+};
 use ruff_text_size::{Ranged, TextRange, TextSize};
 use std::collections::{HashMap, HashSet};
 use std::io;
 use std::iter;
-use std::ops::Range;
+use std::ops::{Range, RangeInclusive};
 use std::panic::{self, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, MutexGuard, PoisonError};
@@ -37,6 +39,9 @@ const STEP: &str = "_purba_step";
 /// The name that wraps each item of each `with` of a test, with the line of
 /// the `with`.
 const WITH: &str = "_purba_with";
+/// The name that the one statement of a `try` of one path calls when it did
+/// not raise, with the index of the `try`.
+const MISSED: &str = "_purba_missed";
 
 /// The rewritten text of one module, the text and the line of each assert
 /// that it marks, the text and the line of each expectation of each test, and
@@ -50,15 +55,27 @@ pub struct Rewrite {
     lines: Vec<usize>,
     tests: Vec<(String, Range<usize>)>,
     bodies: HashMap<usize, Body>,
+    missed: Vec<String>,
+    tries: Vec<(String, Vec<Try>)>,
 }
 
-/// The operator of an expectation that compares two values by one, and
-/// whether its expected value is the left side: the left is a literal, and
-/// the right is not.
-#[derive(Clone, Copy, Debug)]
-struct Check {
-    op: CmpOp,
-    expected_left: bool,
+/// A `try` of a test: its lines, and the lines of its `except` when it is a
+/// `try` of one path, which holds one simple statement and one
+/// `except SomeError:`, with no `else` and no `finally`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Try {
+    pub lines: RangeInclusive<usize>,
+    pub except: Option<RangeInclusive<usize>>,
+}
+
+/// How an expectation checks its reading: by the operator of a comparison of
+/// two values, with whether its expected value is the left side, since the left
+/// is a literal and the right is not; or by one of the four reads, with the
+/// text of the type of `isinstance`.
+#[derive(Clone, Debug)]
+enum Check {
+    Compare { op: CmpOp, expected_left: bool },
+    Read { read: Reads, kind: String },
 }
 
 /// The two sides of `test` when it compares two values by one operator.
@@ -70,6 +87,35 @@ fn sides(test: &Expr) -> Option<(&ExprCompare, &Expr, &Expr)> {
         ([_], [left, right]) => Some((compare, left, right)),
         _ => None,
     }
+}
+
+/// What `test` hands the hook: both sides of a comparison of two values by one
+/// operator, or the reading of one of the four reads and the type or the
+/// argument that it takes. `None` for any other test, which hands its condition.
+fn parts(test: &Expr) -> Option<(&Expr, Option<&Expr>)> {
+    sides(test)
+        .map(|(_, left, right)| (left, Some(right)))
+        .or_else(|| purba_parsing::read(test).map(|(_, reading, other)| (reading, other)))
+}
+
+/// How `test` checks its reading, or `None` when it compares no two values and
+/// takes none of the four reads.
+fn check_of(test: &Expr, source: &str) -> Option<Check> {
+    if let Some((compare, left, right)) = sides(test) {
+        return Some(Check::Compare {
+            op: compare.ops[0],
+            expected_left: purba_parsing::is_literal(left) && !purba_parsing::is_literal(right),
+        });
+    }
+    purba_parsing::read(test).map(|(read, _, other)| Check::Read {
+        read,
+        kind: other.map_or_else(String::new, |other| {
+            source[other.range()]
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+        }),
+    })
 }
 
 /// The body of a `with`: the line of each statement in it, at any depth, in
@@ -334,6 +380,7 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
         edits.push(read_edit(index, assert, source));
     }
     let bodies = watch_each_test(module, &by_test, &expected, &mut edits);
+    let (missed, tries) = mark_each_try(module, &by_test, &mut edits);
     edits.sort_by_key(|edit| (edit.start, edit.end));
 
     let mut rewritten = String::with_capacity(source.len());
@@ -369,28 +416,26 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
             .collect(),
         checks: all
             .iter()
-            .map(|assert| {
-                sides(&assert.test).map(|(compare, left, right)| Check {
-                    op: compare.ops[0],
-                    expected_left: purba_parsing::is_literal(left)
-                        && !purba_parsing::is_literal(right),
-                })
-            })
+            .map(|assert| check_of(&assert.test, source))
             .collect(),
         lines: all.iter().map(|assert| line(assert.start())).collect(),
         tests: ranges,
         bodies,
+        missed,
+        tries,
     }
 }
 
 /// The edit that makes `assert`, the expectation at `index`, a call of the
-/// hook. A comparison of two values by one operator hands the hook each side.
+/// hook. A comparison of two values by one operator hands the hook each side,
+/// and one of the four reads hands its reading and the type or the argument
+/// that it takes.
 fn read_edit(index: usize, assert: &StmtAssert, source: &str) -> Edit {
     let whole = assert.range();
     let mut text = format!("{READS}({index}) and {READ}({index}, ");
     let mut copied = whole.start();
-    if let Some((_, left, right)) = sides(&assert.test) {
-        for (side, start) in [(left, ""), (right, ", ")] {
+    if let Some((first, second)) = parts(&assert.test) {
+        for (side, start) in iter::once((first, "")).chain(second.map(|second| (second, ", "))) {
             push_breaks(&mut text, &source[TextRange::new(copied, side.start())]);
             text.push_str(start);
             push_side(&mut text, source, side);
@@ -485,44 +530,119 @@ fn holds(op: CmpOp, left: &Bound<'_, PyAny>, right: &Bound<'_, PyAny>) -> PyResu
     }
 }
 
-/// What an expectation that compares `left` and `right` by `check` shows.
-fn shown(check: Check, left: &Bound<'_, PyAny>, right: &Bound<'_, PyAny>) -> Shown {
-    let (expected, reading) = if check.expected_left {
-        (left, right)
+/// Whether `value`, and `other` when the expectation hands one, hold by
+/// `check`, as Python decides. With no check, `value` holds when it is true.
+fn held(
+    check: Option<&Check>,
+    value: &Bound<'_, PyAny>,
+    other: Option<&Bound<'_, PyAny>>,
+) -> PyResult<bool> {
+    let read = |method: &str, argument: &Bound<'_, PyAny>| {
+        value.call_method1(method, (argument,))?.is_truthy()
+    };
+    match (check, other) {
+        (Some(Check::Compare { op, .. }), Some(right)) => holds(*op, value, right),
+        (
+            Some(Check::Read {
+                read: Reads::Not, ..
+            }),
+            None,
+        ) => value.is_truthy().map(|truthy| !truthy),
+        (
+            Some(Check::Read {
+                read: Reads::Instance,
+                ..
+            }),
+            Some(kind),
+        ) => value.is_instance(kind),
+        (
+            Some(Check::Read {
+                read: Reads::Start, ..
+            }),
+            Some(argument),
+        ) => read("startswith", argument),
+        (
+            Some(Check::Read {
+                read: Reads::End, ..
+            }),
+            Some(argument),
+        ) => read("endswith", argument),
+        _ => value.is_truthy(),
+    }
+}
+
+/// The `repr` of `value`, or the words of its raise.
+fn text_of(value: &Bound<'_, PyAny>) -> Result<String, String> {
+    value
+        .repr()
+        .map(|text| text.to_string())
+        .map_err(|err| format!("(repr raised {err})"))
+}
+
+/// The name of the class of `value`.
+fn class_of(value: &Bound<'_, PyAny>) -> String {
+    value
+        .get_type()
+        .name()
+        .map_or_default(|name| name.to_string())
+}
+
+/// What an expectation that checks `value`, and `other` when it hands one, by
+/// `check` shows.
+fn shown(
+    check: &Check,
+    value: &Bound<'_, PyAny>,
+    other: Option<&Bound<'_, PyAny>>,
+) -> Option<Shown> {
+    let (op, expected_left, right) = match (check, other) {
+        (Check::Compare { op, expected_left }, Some(right)) => (*op, *expected_left, right),
+        (Check::Read { read, kind }, other) => {
+            let argument = || {
+                other.map_or_else(String::new, |other| {
+                    text_of(other).unwrap_or_else(|text| text)
+                })
+            };
+            let reading = text_of(value).unwrap_or_else(|text| text);
+            let (expected, reading) = match read {
+                Reads::Not => ("empty or false".to_owned(), reading),
+                Reads::Instance => (
+                    format!("an instance of {kind}"),
+                    format!("{reading} ({})", class_of(value)),
+                ),
+                Reads::Start => (format!("to start with {}", argument()), reading),
+                Reads::End => (format!("to end with {}", argument()), reading),
+            };
+            return Some(Shown { expected, reading });
+        }
+        (Check::Compare { .. }, None) => return None,
+    };
+    let (expected, reading) = if expected_left {
+        (value, right)
     } else {
-        (right, left)
+        (right, value)
     };
-    let text = |value: &Bound<'_, PyAny>| {
-        value
-            .repr()
-            .map(|text| text.to_string())
-            .map_err(|err| format!("(repr raised {err})"))
-    };
-    let (mut expected_text, mut reading_text) = (text(expected), text(reading));
+    let (mut expected_text, mut reading_text) = (text_of(expected), text_of(reading));
     if let (Ok(expected_text), Ok(reading_text)) = (&mut expected_text, &mut reading_text)
         && expected_text == reading_text
     {
         for (text, value) in [(expected_text, expected), (reading_text, reading)] {
-            let class = value
-                .get_type()
-                .name()
-                .map_or_default(|name| name.to_string());
             text.push_str(" (");
-            text.push_str(&class);
+            text.push_str(&class_of(value));
             text.push(')');
         }
     }
-    Shown {
-        expected: rule(check, expected_text.unwrap_or_else(|text| text)),
+    Some(Shown {
+        expected: rule(op, expected_left, expected_text.unwrap_or_else(|text| text)),
         reading: reading_text.unwrap_or_else(|text| text),
-    }
+    })
 }
 
-/// The text of `expected` under the rule of the operator of `check`, read from
-/// the side of the reading: `== 2` shows `2`, `< 2` shows `< 2`, `2 < x` shows
-/// `> 2`, and `'z' in x` shows `to contain 'z'`.
-fn rule(check: Check, expected: String) -> String {
-    let words = match (check.op, check.expected_left) {
+/// The text of `expected` under the rule of `op`, read from the side of the
+/// reading, where `expected_left` says whether the expected value is the left
+/// side: `== 2` shows `2`, `< 2` shows `< 2`, `2 < x` shows `> 2`, and
+/// `'z' in x` shows `to contain 'z'`.
+fn rule(op: CmpOp, expected_left: bool, expected: String) -> String {
+    let words = match (op, expected_left) {
         (CmpOp::Eq, _) => return expected,
         (CmpOp::NotEq, _) => "!=",
         (CmpOp::Lt, false) | (CmpOp::Gt, true) => "<",
@@ -545,6 +665,28 @@ fn rule(check: Check, expected: String) -> String {
 /// innermost frame. The test is the outermost frame whose code comes from
 /// `file`, the module's file.
 fn place(py: Python<'_>, line: usize, file: &Bound<'_, PyAny>) -> PyResult<String> {
+    Ok(match reach(py, file)? {
+        None => format!("line {line}"),
+        Some((reaches, name)) => format!("line {reaches} reaches line {line} of {name}, which"),
+    })
+}
+
+/// The words of an assert at `line` that ran in the act, where `file` is the
+/// module's file, at the place that [`place`] names.
+fn in_the_act(py: Python<'_>, line: usize, file: &Bound<'_, PyAny>) -> PyResult<String> {
+    const RULE: &str = "one test checks one state; check this state in a test of its own";
+    Ok(match reach(py, file)? {
+        None => format!("line {line}: an assert ran in the act; {RULE}"),
+        Some((reaches, name)) => format!(
+            "line {reaches} reaches line {line} of {name}, which ran an assert in the act; {RULE}"
+        ),
+    })
+}
+
+/// The line that the test runs and the function of the innermost frame, or
+/// `None` when the innermost frame is the test's own. The test is the
+/// outermost frame whose code comes from `file`, the module's file.
+fn reach(py: Python<'_>, file: &Bound<'_, PyAny>) -> PyResult<Option<(usize, String)>> {
     let innermost = py.import("sys")?.getattr("_getframe")?.call0()?;
     let mut test = None;
     let mut frame = innermost.clone();
@@ -555,13 +697,11 @@ fn place(py: Python<'_>, line: usize, file: &Bound<'_, PyAny>) -> PyResult<Strin
         frame = frame.getattr("f_back")?;
     }
     let Some(test) = test.filter(|test| !test.is(&innermost)) else {
-        return Ok(format!("line {line}"));
+        return Ok(None);
     };
     let reaches: usize = test.getattr("f_lineno")?.extract()?;
     let name: String = innermost.getattr("f_code")?.getattr("co_name")?.extract()?;
-    Ok(format!(
-        "line {reaches} reaches line {line} of {name}, which"
-    ))
+    Ok(Some((reaches, name)))
 }
 
 /// Whether a frame of the call that runs now, from the innermost out, runs an
@@ -639,10 +779,7 @@ impl Ran {
         } else if read.before_the_first_expectation() && !in_cleanup(py)? {
             read.fault(
                 "assert-before-expectation",
-                format!(
-                    "{} asserts before the first expectation, and only an expectation asserts",
-                    place(py, line, self.file.bind(py))?
-                ),
+                in_the_act(py, line, self.file.bind(py))?,
             );
         }
         let held = value.is_truthy()?;
@@ -694,14 +831,42 @@ pub trait Readers: Sync {
     /// Ends a reader, with `verdict`.
     fn end(&self, verdict: Verdict) -> !;
 
-    /// Puts back each hook of the process that the case replaced, and names
-    /// the first, or gives `None` when the case replaced none.
-    fn replaced(&self, _py: Python<'_>) -> Option<&'static str> {
+    /// Names what the case replaced: a hook of the process, which it puts back,
+    /// or the warning filters. Gives `None` when the case replaced neither.
+    fn replaced(&self, _py: Python<'_>) -> Option<Replaced> {
         None
     }
 
     /// Hears that the case reached its first expectation.
     fn expecting(&self, _py: Python<'_>) {}
+}
+
+/// What a case or a module replaced that a test keeps: the first hook of the
+/// process that it replaced, by its name, or the warning filters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Replaced {
+    Hook(&'static str),
+    Filters,
+}
+
+impl Replaced {
+    /// The name of what was replaced.
+    #[must_use]
+    pub const fn what(self) -> &'static str {
+        match self {
+            Self::Hook(name) => name,
+            Self::Filters => "the warning filters",
+        }
+    }
+
+    /// The rule that a replacement breaks.
+    #[must_use]
+    pub const fn rule(self) -> &'static str {
+        match self {
+            Self::Hook(_) => "a test keeps purba's hooks",
+            Self::Filters => "a test keeps the filters that the run began with",
+        }
+    }
 }
 
 /// What the expectations of one case gave.
@@ -739,6 +904,7 @@ struct State {
     form: Vec<(&'static str, String)>,
     raised: Vec<(Py<PyAny>, String)>,
     swallowed: Vec<Swallowed>,
+    missed: Vec<String>,
 }
 
 /// A `with` that swallowed a raise, and the lines that the raise skipped.
@@ -760,6 +926,7 @@ struct Read {
     tests: Vec<Range<usize>>,
     checks: Vec<Option<Check>>,
     bodies: HashMap<usize, Body>,
+    missed: Vec<String>,
     state: Mutex<State>,
 }
 
@@ -894,16 +1061,14 @@ impl Read {
         rest: &Bound<'_, PyTuple>,
     ) -> PyResult<()> {
         self.known(index)?;
-        let compared = match rest.len() {
+        let check = self.checks.get(index).cloned().flatten();
+        let other = match rest.len() {
             0 => None,
+            1 if check.is_some() => Some(rest.get_item(0)?),
             1 => {
-                let right = rest.get_item(0)?;
-                let check = self.checks.get(index).copied().flatten().ok_or_else(|| {
-                    PyTypeError::new_err(format!(
-                        "{READ}({index}): the expectation compares no two values"
-                    ))
-                })?;
-                Some((check, right))
+                return Err(PyTypeError::new_err(format!(
+                    "{READ}({index}): the expectation compares no two values"
+                )));
             }
             _ => {
                 return Err(PyTypeError::new_err(format!(
@@ -911,10 +1076,7 @@ impl Read {
                 )));
             }
         };
-        let held = match &compared {
-            Some((check, right)) => holds(check.op, value, right),
-            None => value.is_truthy(),
-        };
+        let held = held(check.as_ref(), value, other.as_ref());
         let (reader, readers) = {
             let mut state = self.state();
             state.reading = false;
@@ -929,11 +1091,29 @@ impl Read {
         }
         fault();
         let held = held?;
-        if !held && let Some((check, right)) = &compared {
-            let shown = shown(*check, value, right);
+        if !held
+            && let Some(check) = &check
+            && let Some(shown) = shown(check, value, other.as_ref())
+        {
             self.state().readings.shown.push((index, shown));
         }
         self.state().readings.in_order.push((index, held));
+        Ok(())
+    }
+
+    /// Records the `try` at `index` as missed: its one statement did not raise.
+    ///
+    /// # Errors
+    ///
+    /// `IndexError` when no `try` of one path has `index`.
+    fn missed(&self, index: usize) -> PyResult<()> {
+        let words = self.missed.get(index).ok_or_else(|| {
+            PyIndexError::new_err(format!(
+                "{MISSED}({index}): the module has {} tries of one path",
+                self.missed.len()
+            ))
+        })?;
+        self.state().missed.push(words.clone());
         Ok(())
     }
 
@@ -948,10 +1128,14 @@ impl Read {
             }
             state.readers
         };
-        if let Some(name) = readers.and_then(|readers| readers.replaced(py)) {
+        if let Some(replaced) = readers.and_then(|readers| readers.replaced(py)) {
             self.fault(
                 "hook-replaced",
-                format!("line {line} replaced {name}, and a test keeps purba's hooks"),
+                format!(
+                    "line {line} replaced {}, and {}",
+                    replaced.what(),
+                    replaced.rule()
+                ),
             );
         }
     }
@@ -1050,6 +1234,7 @@ pub struct Loaded<'py> {
     expectations: Vec<String>,
     lines: Vec<usize>,
     tests: Vec<(String, Range<usize>)>,
+    tries: Vec<(String, Vec<Try>)>,
 }
 
 /// What [`Loaded::watch`] saw of one call.
@@ -1070,6 +1255,9 @@ pub struct Watched<'a, T> {
     pub raised: Vec<(Py<PyAny>, String)>,
     /// Each `with` that swallowed a raise and skipped a line.
     pub swallowed: Vec<Swallowed>,
+    /// The words of each `try` of one path whose statement did not raise, in
+    /// the order they ran.
+    pub missed: Vec<String>,
 }
 
 impl<'py> Loaded<'py> {
@@ -1098,6 +1286,16 @@ impl<'py> Loaded<'py> {
         self.tests
             .iter()
             .any(|(name, range)| name == test && !range.is_empty())
+    }
+
+    /// Each `try` of `test`, in source order. A function that is not a test of
+    /// the rewrite has none.
+    #[must_use]
+    pub fn tries(&self, test: &str) -> &[Try] {
+        self.tries
+            .iter()
+            .find(|(name, _)| name == test)
+            .map_or(&[], |(_, tries)| tries)
     }
 
     /// The line of the first expectation of `test`, when it states one.
@@ -1175,6 +1373,7 @@ impl<'py> Loaded<'py> {
             form: state.form,
             raised: state.raised,
             swallowed: state.swallowed,
+            missed: state.missed,
         }
     }
 }
@@ -1183,13 +1382,14 @@ impl<'py> Loaded<'py> {
 fn hooks<'py>(
     ran: &Bound<'py, Ran>,
     read: &Bound<'py, Read>,
-) -> PyResult<[(&'static str, Bound<'py, PyAny>); 5]> {
+) -> PyResult<[(&'static str, Bound<'py, PyAny>); 6]> {
     Ok([
         (RAN, ran.as_any().clone()),
         (READ, read.as_any().clone()),
         (READS, read.getattr("reads")?),
         (STEP, read.getattr("step")?),
         (WITH, read.getattr("wrap")?),
+        (MISSED, read.getattr("missed")?),
     ])
 }
 
@@ -1246,6 +1446,7 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
             tests,
             checks: rewrite.checks.clone(),
             bodies: rewrite.bodies.clone(),
+            missed: rewrite.missed.clone(),
             state: Mutex::new(State::default()),
         },
     )?;
@@ -1287,6 +1488,7 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
         expectations: rewrite.expectations.clone(),
         lines: rewrite.lines.clone(),
         tests: rewrite.tests.clone(),
+        tries: rewrite.tries.clone(),
     })
 }
 
@@ -1348,7 +1550,7 @@ fn check_locals(code: &Bound<'_, PyAny>, path: &Path) -> PyResult<()> {
     while let Some(current) = waiting.pop() {
         for names in ["co_varnames", "co_cellvars", "co_freevars"] {
             let names = current.getattr(names)?;
-            for hook in [RAN, READ, READS, STEP, WITH] {
+            for hook in [RAN, READ, READS, STEP, WITH, MISSED] {
                 if names.contains(hook)? {
                     return Err(bound(path, hook));
                 }
@@ -1370,6 +1572,7 @@ fn bound(path: &Path, name: &str) -> PyErr {
         RAN => "assert hook",
         STEP => "step hook",
         WITH => "with hook",
+        MISSED => "try hook",
         _ => "expectation hook",
     };
     PyNameError::new_err(format!(
@@ -1425,4 +1628,76 @@ fn watch_each_test(
         }
     }
     bodies
+}
+
+/// The text of the type that `attempt` expects when it is a `try` of one path:
+/// one simple statement, and one `except SomeError:` whose type is a name or a
+/// dotted name, with no `as`, no `else` and no `finally`. Else `None`.
+fn one_path<'a>(attempt: &StmtTry, source: &'a str) -> Option<&'a str> {
+    let ([statement], [ExceptHandler::ExceptHandler(handler)]) =
+        (&*attempt.body, &*attempt.handlers)
+    else {
+        return None;
+    };
+    if attempt.is_star
+        || !is_simple(statement)
+        || !attempt.orelse.is_empty()
+        || !attempt.finalbody.is_empty()
+        || handler.name.is_some()
+    {
+        return None;
+    }
+    let kind = handler.type_.as_deref()?;
+    let mut part = kind;
+    loop {
+        match part {
+            Expr::Name(_) => return Some(&source[kind.range()]),
+            Expr::Attribute(attribute) => part = &attribute.value,
+            _ => return None,
+        }
+    }
+}
+
+/// Adds to `edits` a call of the hook of a missed `try` after the step of the
+/// one statement of each `try` of one path of each test of `by_test`. Gives the
+/// words of each such `try`, by its index, and each `try` of each test.
+fn mark_each_try(
+    module: &Module,
+    by_test: &[(&StmtFunctionDef, Vec<&StmtAssert>)],
+    edits: &mut Vec<Edit>,
+) -> (Vec<String>, Vec<(String, Vec<Try>)>) {
+    let line = |offset: TextSize| module.position(offset).line();
+    let mut missed = Vec::new();
+    let mut tries = Vec::new();
+    for (function, _) in by_test {
+        let mut found = Vec::new();
+        for statement in statements(&function.body) {
+            let Stmt::Try(attempt) = statement else {
+                continue;
+            };
+            let at = line(attempt.start());
+            let lines = at..=line(attempt.end());
+            let Some(kind) = one_path(attempt, module.source()) else {
+                found.push(Try {
+                    lines,
+                    except: None,
+                });
+                continue;
+            };
+            edits.push(Edit::insert(
+                attempt.body[0].end().to_usize(),
+                format!("; {MISSED}({})", missed.len()),
+            ));
+            missed.push(format!(
+                "the try at line {at} expects {kind}, and the statement did not raise it"
+            ));
+            let handler = &attempt.handlers[0];
+            found.push(Try {
+                lines,
+                except: Some(line(handler.start())..=line(handler.end())),
+            });
+        }
+        tries.push((function.name.to_string(), found));
+    }
+    (missed, tries)
 }

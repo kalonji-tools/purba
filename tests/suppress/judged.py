@@ -1,10 +1,10 @@
-# purba: suppress-module[private-name] one test reads os._exit
+# purba: suppress-module[computed-expected] one test computes its expected value
 import os
 
 
 def test_reads():
-    value = os._exit is not None
-    assert value == True
+    value = os.sep
+    assert value == os.sep
 
 
 def test_plain():

@@ -41,14 +41,14 @@ LINES
 
   run -1 --separate-stderr purba test_cleanup_assert.py
 
-  local asserts='asserts before the first expectation, and only an expectation asserts'
-  local before='[assert-before-expectation] line 21'
+  local act='[assert-before-expectation] line 21: an assert ran in the act; one test checks one'
+  act+=' state; check this state in a test of its own'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_cleanup_assert.py::test_inside_a_checking_context failed
     assert 1 + 1 == 3
       expected  3
       reading   2
-test_cleanup_assert.py::test_with_a_finally_check project error: ${before} ${asserts}
+test_cleanup_assert.py::test_with_a_finally_check project error: ${act}
 2 cases: 1 failed, 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]

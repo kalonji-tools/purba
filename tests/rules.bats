@@ -17,14 +17,15 @@ bats_require_minimum_version 1.5.0
   run -1 --separate-stderr purba test_m.py
 
   local path='the lines before the first expectation take one path'
-  local asserts='asserts before the first expectation, and only an expectation asserts'
+  local asserts='an assert ran in the act; one test checks one state; check this state in a test'
+  asserts+=' of its own'
   local hooks="replaced threading.excepthook, and a test keeps purba's hooks"
   local swallowed='the with at line 40 swallowed a raise'
   local patched='line 35 patches threading.excepthook, and a stand-in enters a test as an argument'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 test_m.py::test_path project error: [second-path] line 15 did not run, and ${path}
 test_m.py::test_branch project error: [second-path] line 21 went one way only, and ${path}
-test_m.py::test_assert project error: [assert-before-expectation] line 28 ${asserts}
+test_m.py::test_assert project error: [assert-before-expectation] line 28: ${asserts}
 test_m.py::test_hook project error: [hook-replaced] line 35 ${hooks}
     ⚠ suppressed [patched-name] ${patched}
       reason: execution must still refuse a hook that the test replaced
@@ -81,9 +82,10 @@ LINES
 
   run -4 --separate-stderr purba test_order.py
 
-  local asserts='asserts before the first expectation, and only an expectation asserts'
+  local asserts='an assert ran in the act; one test checks one state; check this state in a test'
+  asserts+=' of its own'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-test_order.py::test_asserts project error: [assert-before-expectation] line 3 ${asserts}
+test_order.py::test_asserts project error: [assert-before-expectation] line 3: ${asserts}
 test_order.py::test_raises raised: KeyError: 'k'
 2 cases: 1 raised, 1 blocked; 1 project error
 LINES
@@ -239,6 +241,90 @@ LINES
 test_alone.py::test_reader project error: [assert-in-reading] assert check() is True ${alone}
 test_alone.py::test_replay project error: [assert-in-reading] assert check() is True ${alone}
 2 cases: 2 blocked; 2 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a try of one statement and one except takes one path, and another try names that shape" {
+  cd "${BATS_TEST_DIRNAME}/rules"
+
+  run -4 --separate-stderr purba test_try.py
+
+  local path='the lines before the first expectation take one path'
+  local shape='a try of one path holds one statement and one except SomeError:'
+  shape+=', with no else and no finally'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_try.py::test_raises passed
+test_try.py::test_finally passed
+test_try.py::test_else project error: [second-path] line 23 did not run, and ${path}; \
+[second-path] line 24 did not run, and ${path}; ${shape}
+test_try.py::test_named project error: [second-path] line 34 did not run, and ${path}; \
+[second-path] line 35 did not run, and ${path}; ${shape}
+test_try.py::test_other_raise raised: KeyError: 'k'
+5 cases: 2 passed, 1 raised, 2 blocked; 2 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a function that C code calls back is free, and one that the test calls by name is not" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def key(x):' '    if x < 0:' '        return -x' '    return x' '' '' \
+    'def check(x):' '    assert x == 1' '    return x' '' '' \
+    'class Box:' '    def __init__(self, x):' '        if x:' '            self.x = x' '' '' \
+    'def test_by_name():' '    total = key(1)' '    assert total == 1' '' '' \
+    'def test_sorted():' '    total = sorted([3, 1, 2], key=key)' '    assert total == [1, 2, 3]' \
+    '' '' 'def test_map():' '    total = list(map(key, [1]))' '    assert total == [1]' '' '' \
+    'def test_class():' '    box = Box(1)' '    assert box.x == 1' '' '' \
+    'def test_assert_in_callback():' '    total = sorted([1], key=check)' \
+    '    assert total == [1]' >test_call.py
+
+  run -4 --separate-stderr purba test_call.py
+
+  local path='the lines before the first expectation take one path'
+  local act='ran an assert in the act; one test checks one state; check this state in a test'
+  act+=' of its own'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_call.py::test_by_name project error: [second-path] line 19 reaches line 2 of key, \
+which went one way only, and ${path}; [second-path] line 19 reaches line 3 of key, \
+which did not run, and ${path}
+test_call.py::test_sorted passed
+test_call.py::test_map passed
+test_call.py::test_class project error: [second-path] line 34 reaches line 14 of __init__, \
+which went one way only, and ${path}
+test_call.py::test_assert_in_callback project error: [assert-before-expectation] line 39 \
+reaches line 8 of check, which ${act}
+5 cases: 2 passed, 3 blocked; 3 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test that changes the warning filters is refused, and so is a module that does" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import warnings' '' '' 'def test_filter():' \
+    '    warnings.filterwarnings("ignore", category=DeprecationWarning)' '    assert 1 == 1' \
+    '' '' 'def test_record():' '    with warnings.catch_warnings(record=True) as seen:' \
+    '        warnings.warn("old", UserWarning)' '    assert len(seen) == 1' >test_filters.py
+  printf '%s\n' 'import warnings' '' 'warnings.simplefilter("error")' '' '' \
+    'def test_one():' '    assert 1 == 1' >test_load_filters.py
+
+  run -4 --separate-stderr purba test_filters.py
+
+  local kept='a test keeps the filters that the run began with'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_filters.py::test_filter project error: [hook-replaced] line 5 replaced the warning \
+filters, and ${kept}
+test_filters.py::test_record passed
+2 cases: 1 passed, 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]] || false
+
+  run -4 --separate-stderr purba test_load_filters.py
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_load_filters.py project error: [hook-replaced] the module replaced the warning filters \
+as it loaded, and ${kept}
+test_load_filters.py::test_one blocked: test_load_filters.py did not load
+1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
 }
