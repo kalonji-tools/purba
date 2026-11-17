@@ -61,6 +61,7 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 | takes each [stand-in](../../CONTEXT.md#stand-in) as an argument | a [patch](../../CONTEXT.md#patch) in the test's body, a nested `def`, `lambda` or `class` included | selection |
 | | a mock with no spec in the test's body | selection |
 | sits in a module that imports no other test framework | an import of pytest in its module outside every test, or in its body, by an import line or by a call that names it in a string | selection |
+| expects a raise by more than its type | an `except` in its body that only passes | selection |
 | takes one path in the lines before its first expectation, and in each line of the test module that those lines call by name or enter as a generator under `contextlib.contextmanager` | a line that did not run, or a branch that went one way only | execution |
 | | a `with` that swallowed a raise and skipped a line | execution |
 | asserts only in its expectations | a marked assert that runs before the first expectation, outside the cleanup of a `with` | execution |
@@ -78,8 +79,9 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **The rules of a test's code judge every test, with inputs or without.** An input on either side of a comparison is no literal. Its refused line names the input: `[computed-expected] line 66 compares to the input expected, and an expected value is a literal until purba has cases`.
 - **A refused line names each fault of a suppression above the test first.** It then names each reason of the `def`, and each reason of the body by its line number. A test in a class also names each import of pytest outside every test, as [a test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) says.
 - **Selection reports each [private name](../../CONTEXT.md#private-name) in a test's body, and refuses none.** The body takes in a nested `def`, `lambda` or `class`. The case runs. After the lines of its outcome, one [notice](../../CONTEXT.md#notice) shows for each name of each line: `⚠ line 12 reads the private name _default_encoder`. A test that selection refuses for another reason shows its refusal alone.
-- **A `try` of one path in a test's body holds one simple statement and one `except SomeError:`, with no `else` and no `finally`.** Its handler binds no name with `as`, and names its type by a name or a dotted name. The lines of its `except` that did not run are no fault. A raise of another type is `raised`.
+- **A `try` of one path in a test's body holds one simple statement and one `except SomeError:`, with no `else` and no `finally`.** Its handler may bind the raise with `as`, and names its type by a name or a dotted name. The lines of its `except` that did not run are no fault. A raise of another type is `raised`.
 - **When the statement of a `try` of one path does not raise, the case fails.** Its first quote reads `the try at line 38 expects ValueError, and the statement did not raise it`. purba still reads each expectation, and shows each that did not hold after that quote.
+- **A name that the `except` binds needs a value before the `try`.** `got = None` before the `try`, and `got = str(e)` in the `except`, give `the try at line 70 expects Closed, and the statement did not raise it` when the statement does not raise.
 - **Execution judges any other `try` by its paths, and so a `try` in a helper.** When a line of a `try` of another shape in a test's body did not run, the refused line ends with `; a try of one path holds one statement and one except SomeError:, with no else and no finally`.
 - **The words of each breach of a [strict check](../../CONTEXT.md#strict-check) start with the name of the check in brackets, such as `[second-path]`.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds each name and its tier.
 - **A suppression of a check of the [practice tier](../../CONTEXT.md#practice-tier) lets the test run.** The case then gets the outcome that it would get without that check.
@@ -109,7 +111,7 @@ The text of a test shows a `return` of a value before any test runs, so selectio
 - **A `while` that polls may run no round.** A tester polls in a module that the test imports.
 - **`x = a or b`, a conditional expression, the `if` of a comprehension and a `match` are branches.** Execution refuses the case unless each goes both ways before the first expectation.
 - **A function that the interpreter calls for an operator or an attribute takes any path.** `__eq__` and the getter of a property are such functions, since no call names them.
-- **A `try` whose handler binds the raise with `as` is another `try`.** Execution refuses the case when a line of its `except` did not run.
+- **A name that the `except` binds, and that no line before the `try` binds, gives `raised: UnboundLocalError` when the statement does not raise.** The outcome `raised` ranks above a `try` that did not raise, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) orders them.
 - **Each branch of a context manager of the test module goes both ways before the first expectation, or execution refuses the case.** This holds for a class, and for a generator that a `with` or `ExitStack.enter_context` enters. Execution does not judge a context manager from `contextlib.contextmanager` that decorates a function, since `contextlib` enters it.
 - **A hook that a reading replaces stays unseen.** It hides the exception of each thread that raises after it.
 - **`not-one-comparison` names each `all()` and `any()` that selection refuses for its shape, though none of them is a comparison.**
@@ -142,6 +144,7 @@ The designs in depth of fixtures and execution, which [the landscape](../../LAND
 [What keeps a test from changing an input that other tests share outside its process?](https://github.com/kalonji-tools/purba/issues/692) decides which types prove a value immutable.
 
 [A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](a-stand-in-enters-a-test-as-an-argument.md#decision-outcome) says which patches selection refuses.
+[A test that expects a raise names more than its type, so selection refuses an except that only passes](a-test-that-expects-a-raise-names-more-than-its-type.md#decision-outcome) says which `except` selection refuses.
 [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) names the kind of each breach.
 [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) says what each breach stops.
 [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says what may change around a test.

@@ -37,6 +37,7 @@
 - [A test carries only purba's own decorators](decisions/a-test-carries-only-purbas-own-decorators.md)
 - [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)
 - [A test returns nothing, and the first part that sees a breach of a test refuses it](decisions/a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md)
+- [A test that expects a raise names more than its type, so selection refuses an except that only passes](decisions/a-test-that-expects-a-raise-names-more-than-its-type.md)
 
 ### parsing
 
@@ -93,6 +94,7 @@
 - [A suppression is an outcome and not a switch](decisions/a-suppression-is-an-outcome-and-not-a-switch.md)
 - [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)
 - [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
+- [A test that expects a raise names more than its type, so selection refuses an except that only passes](decisions/a-test-that-expects-a-raise-names-more-than-its-type.md)
 - [purba is always strict](decisions/purba-is-always-strict.md)
 
 ### interrupt handling
