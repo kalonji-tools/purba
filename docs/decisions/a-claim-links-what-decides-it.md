@@ -48,6 +48,7 @@ The person decides on each of them.
 - **A claim that no probe can decide says that it is unmeasured.** It says why.
 - **A judgement says that it is one, and links nothing.**
 - **A claim links only what decides it.** [Evidence density](an-artifact-holds-the-minimum-that-conveys-its-point.md#decision-outcome) counts any link.
+- **The report of a [blind rating](../../CONTEXT.md#blind-rating) holds claims.** [A form that a tester meets is rated blind before it is decided](a-form-that-a-tester-meets-is-rated-blind-before-it-is-decided.md#decision-outcome) says what those claims link.
 
 **A borrowed concept:**
 
