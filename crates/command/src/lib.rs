@@ -178,13 +178,17 @@ pub fn run_with(
     Ok(report.finish()?)
 }
 
-/// Prints each verdict of `test` that a suppression turned into a warning:
-/// those of selection, then `warnings`, those of execution.
+/// Prints each notice of `test`, then each verdict of `test` that a suppression
+/// turned into a warning: those of selection, then `warnings`, those of
+/// execution.
 fn warned(
     report: &mut purba_reporting::Report<impl Write>,
     test: &TestId,
     warnings: &[purba_execution::Warning],
 ) -> Result<(), purba_reporting::Refused> {
+    for notice in test.notices() {
+        report.noticed(notice)?;
+    }
     for verdict in test.suppressed() {
         report.warned(verdict.check, &verdict.words, &verdict.reason)?;
     }

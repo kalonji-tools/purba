@@ -14,7 +14,7 @@ use ruff_python_ast::visitor::transformer::{
 use ruff_python_ast::{
     AtomicNodeIndex, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
-    StmtPass,
+    StmtPass, UnaryOp,
 };
 use ruff_source_file::LineIndex;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
@@ -466,4 +466,47 @@ pub fn is_literal(expr: &Expr) -> bool {
         }
     }
     true
+}
+
+/// One of the four reads that an expectation may take besides a comparison.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Reads {
+    /// `not x`: the reading is empty or false.
+    Not,
+    /// `isinstance(x, T)`: the reading is an instance of `T`.
+    Instance,
+    /// `x.startswith(y)`: the reading starts with `y`.
+    Start,
+    /// `x.endswith(y)`: the reading ends with `y`.
+    End,
+}
+
+/// The read of `test`, its reading, and the type or the argument that it
+/// takes, when `test` is `not x`, `isinstance(x, T)` with two positional
+/// arguments, or `x.startswith(y)` or `x.endswith(y)` with one. Else `None`.
+#[must_use]
+pub fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)> {
+    match test {
+        Expr::UnaryOp(operation) if operation.op == UnaryOp::Not => {
+            Some((Reads::Not, &operation.operand, None))
+        }
+        Expr::Call(call) if call.arguments.keywords.is_empty() => {
+            let arguments = &*call.arguments.args;
+            if arguments.iter().any(Expr::is_starred_expr) {
+                return None;
+            }
+            match (&*call.func, arguments) {
+                (Expr::Name(name), [reading, kind]) if name.id.as_str() == "isinstance" => {
+                    Some((Reads::Instance, reading, Some(kind)))
+                }
+                (Expr::Attribute(attribute), [argument]) => match attribute.attr.as_str() {
+                    "startswith" => Some((Reads::Start, &attribute.value, Some(argument))),
+                    "endswith" => Some((Reads::End, &attribute.value, Some(argument))),
+                    _ => None,
+                },
+                _ => None,
+            }
+        }
+        _ => None,
+    }
 }

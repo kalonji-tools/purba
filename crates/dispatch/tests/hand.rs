@@ -493,8 +493,8 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
                 Ok(Kind::Passed),
                 vec![(
                     "assert-before-expectation".to_owned(),
-                    "line 3 asserts before the first expectation, \
-                     and only an expectation asserts"
+                    "line 3: an assert ran in the act; one test checks one state; \
+                     check this state in a test of its own"
                         .to_owned(),
                     "two\nlines and a \0 NUL".to_owned(),
                 )],
@@ -502,8 +502,8 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
             (
                 "test_plain",
                 Err(
-                    "[assert-before-expectation] line 9 asserts before the first expectation, \
-                     and only an expectation asserts"
+                    "[assert-before-expectation] line 9: an assert ran in the act; \
+                     one test checks one state; check this state in a test of its own"
                         .to_owned()
                 ),
                 Vec::new(),

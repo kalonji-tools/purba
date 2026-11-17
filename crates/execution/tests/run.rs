@@ -268,7 +268,10 @@ fn a_forked_child_exits_with_its_own_code() {
 
 /// The words of an assert before the first expectation, at `line`.
 fn before(line: usize) -> String {
-    format!("line {line} asserts before the first expectation, and only an expectation asserts")
+    format!(
+        "line {line}: an assert ran in the act; one test checks one state; \
+         check this state in a test of its own"
+    )
 }
 
 /// The line of a refused assert before the first expectation, at `line`.
@@ -334,7 +337,8 @@ fn an_assert_of_a_helper_names_the_line_of_the_test_that_runs_it() {
         results(&test_reach, &["test_reach"]),
         [Err(
             "[assert-before-expectation] line 7 reaches line 3 of check, \
-             which asserts before the first expectation, and only an expectation asserts"
+             which ran an assert in the act; one test checks one state; \
+             check this state in a test of its own"
                 .to_owned()
         )],
         "line 6 reaches check first, and line 7 runs its assert"
@@ -742,5 +746,129 @@ fn a_case_judges_its_suppressions_only_when_it_reads_the_paths() {
         ],
         "a case that passed or failed on its expectations read the paths; \
          a raise or a fault of the form stops before"
+    );
+}
+
+#[test]
+fn a_try_of_one_path_whose_statement_does_not_raise_fails_and_shows_each_failed_expectation() {
+    let test_try = module(
+        "test_try.py",
+        "def test_missed():\n    seen = []\n    try:\n        int('1')\n\
+         \x20   except ValueError:\n        seen.append(1)\n    assert seen == [1]\n\n\
+         def test_missed_held():\n    seen = []\n    try:\n        int('1')\n\
+         \x20   except ValueError:\n        seen.append(1)\n    assert seen == []\n\n\
+         def test_raised():\n    seen = []\n    try:\n        int('x')\n\
+         \x20   except ValueError:\n        seen.append(1)\n    assert seen == [1]\n",
+    );
+    let missed = |line: usize| Quote {
+        assert: format!(
+            "the try at line {line} expects ValueError, and the statement did not raise it"
+        ),
+        shown: None,
+    };
+    assert_eq!(
+        results(
+            &test_try,
+            &["test_missed", "test_missed_held", "test_raised"]
+        ),
+        [
+            Ok(Kind::Failed {
+                asserts: vec![missed(3), shown("assert seen == [1]", "[1]", "[]")],
+            }),
+            Ok(Kind::Failed {
+                asserts: vec![missed(11)],
+            }),
+            Ok(Kind::Passed),
+        ],
+        "the missed try comes first, then each expectation that did not hold; the lines of \
+         its except that did not run are no fault; a statement that raises passes"
+    );
+}
+
+#[test]
+fn an_act_that_changes_the_warning_filters_is_refused_and_one_that_keeps_them_runs() {
+    let test_filters = module(
+        "test_filters.py",
+        "import warnings\n\n\
+         def test_filter():\n    warnings.simplefilter('ignore')\n    assert 1 == 1\n\n\
+         def test_caught():\n    with warnings.catch_warnings():\n\
+         \x20       warnings.simplefilter('error')\n    assert 1 == 1\n\n\
+         def test_kept():\n    with warnings.catch_warnings(record=True) as seen:\n\
+         \x20       warnings.warn('old', UserWarning)\n    assert len(seen) == 1\n",
+    );
+    let replaced = |line: usize| {
+        Err(format!(
+            "[hook-replaced] line {line} replaced the warning filters, \
+             and a test keeps the filters that the run began with"
+        ))
+    };
+    assert_eq!(
+        results(&test_filters, &["test_kept", "test_filter", "test_caught"]),
+        [Ok(Kind::Passed), replaced(4), replaced(9)],
+        "catch_warnings with no filter keeps them; a filter that the act adds is refused, also \
+         inside catch_warnings, which puts the filters back before the first expectation. \
+         purba does not put a refused case's filters back, since each case runs in a \
+         process of its own, so the case that keeps them runs first here"
+    );
+}
+
+#[test]
+fn a_function_of_the_test_module_that_c_code_calls_back_takes_any_path() {
+    let test_callback = module(
+        "test_callback.py",
+        "def key(x):\n    if x < 0:\n        return -x\n    return x\n\n\
+         def test_sorted():\n    got = sorted([3, 1, 2], key=key)\n    assert got == [1, 2, 3]\n\n\
+         def test_by_name():\n    got = key(1)\n    assert got == 1\n",
+    );
+    let path = "the lines before the first expectation take one path";
+    assert_eq!(
+        results(&test_callback, &["test_sorted", "test_by_name"]),
+        [
+            Ok(Kind::Passed),
+            Err(format!(
+                "[second-path] line 11 reaches line 2 of key, which went one way only, \
+                 and {path}; [second-path] line 11 reaches line 3 of key, which did not run, \
+                 and {path}"
+            )),
+        ],
+        "sorted calls key, so its paths are free; the test calls key by name, so its \
+         paths keep the rule"
+    );
+}
+
+#[test]
+fn a_method_that_the_interpreter_calls_for_an_operator_takes_any_path() {
+    let test_eq = module(
+        "test_eq.py",
+        "class Point:\n    def __init__(self, x):\n        self.x = x\n\n\
+         \x20   def __eq__(self, other):\n        if isinstance(other, Point):\n\
+         \x20           return self.x == other.x\n        return NotImplemented\n\n\
+         def test_eq():\n    got = Point(1) == Point(1)\n    assert got is True\n",
+    );
+    assert_eq!(
+        results(&test_eq, &["test_eq"]),
+        [Ok(Kind::Passed)],
+        "the test calls Point by name, which runs __init__; == calls __eq__, and no call names it"
+    );
+}
+
+#[test]
+fn the_refused_line_of_another_try_ends_with_the_shape_of_a_try_of_one_path() {
+    let test_else = module(
+        "test_else.py",
+        "def test_else():\n    seen = []\n    try:\n        seen.append(1)\n\
+         \x20   except ValueError:\n        seen.append(2)\n    else:\n        seen.append(3)\n\
+         \x20   for name in []:\n        print(name)\n    assert seen == [1, 3]\n",
+    );
+    let path = "the lines before the first expectation take one path";
+    let shape = "a try of one path holds one statement and one except SomeError:, \
+                 with no else and no finally";
+    assert_eq!(
+        results(&test_else, &["test_else"]),
+        [Err(format!(
+            "[second-path] line 5 did not run, and {path}; [second-path] line 6 did not run, \
+             and {path}; [second-path] line 10 did not run, and {path}; {shape}"
+        ))],
+        "the shape comes once, after every fault, though the last fault lies outside the try"
     );
 }

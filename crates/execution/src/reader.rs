@@ -6,7 +6,7 @@
 
 use std::io;
 
-use purba_assertion::{Readers, Verdict};
+use purba_assertion::{Readers, Replaced, Verdict};
 use pyo3::Python;
 
 use crate::fork::{Forked, fork};
@@ -51,7 +51,7 @@ impl Readers for Forks {
         unsafe { libc::_exit(code) }
     }
 
-    fn replaced(&self, py: Python<'_>) -> Option<&'static str> {
+    fn replaced(&self, py: Python<'_>) -> Option<Replaced> {
         crate::thread::replaced(py)
     }
 

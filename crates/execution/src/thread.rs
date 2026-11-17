@@ -3,6 +3,7 @@
 
 use std::sync::{Mutex, PoisonError};
 
+use purba_assertion::Replaced;
 use pyo3::exceptions::PySystemExit;
 use pyo3::sync::PyOnceLock;
 use pyo3::types::PyAnyMethods;
@@ -153,10 +154,65 @@ pub fn hook(py: Python<'_>) -> PyResult<&'static Py<Hook>> {
     })
 }
 
+/// Names what the process replaced since the filters were last held: the first
+/// place of `threading.excepthook` and `sys.unraisablehook` that holds anything
+/// but the hook, which [`hooks_replaced`] puts back, or else the warning
+/// filters, when they differ from those held, or hold them in another order.
+/// Gives `None` when neither changed.
+pub fn replaced(py: Python<'_>) -> Option<Replaced> {
+    hooks_replaced(py)
+        .map(Replaced::Hook)
+        .or_else(|| filters_differ(py).then_some(Replaced::Filters))
+}
+
+/// The warning filters that a case or a load began with: a copy of
+/// `warnings.filters`.
+static FILTERS: Mutex<Option<Py<PyAny>>> = Mutex::new(None);
+
+/// Holds a copy of `warnings.filters`, which [`replaced`] compares with the
+/// filters it finds.
+pub fn hold_filters(py: Python<'_>) {
+    let held = filters(py)
+        .and_then(|filters| filters.call_method0("copy"))
+        .ok()
+        .map(Bound::unbind);
+    *FILTERS.lock().unwrap_or_else(PoisonError::into_inner) = held;
+}
+
+/// Whether `warnings.filters` differs from the filters held, by a filter or by
+/// their order. No filters held is no difference.
+fn filters_differ(py: Python<'_>) -> bool {
+    let held = FILTERS
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .as_ref()
+        .map(|held| held.clone_ref(py));
+    let Some(held) = held else {
+        return false;
+    };
+    filters(py)
+        .and_then(|filters| filters.eq(held.bind(py)))
+        .is_ok_and(|same| !same)
+}
+
+/// The warning filters that apply now. From `CPython` 3.14, `catch_warnings` keeps
+/// them in a context variable when `sys.flags.context_aware_warnings` is set,
+/// which a free-threaded build sets by default, and `warnings.filters` then stays
+/// as it was. `warnings._get_filters` gives the filters of the context:
+/// <https://github.com/python/cpython/blob/v3.14.0/Lib/_py_warnings.py>
+/// <https://docs.python.org/3.14/library/warnings.html#concurrent-safety-of-context-managers>
+/// Before 3.14 no such function exists, and `warnings.filters` is the list.
+fn filters(py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
+    let warnings = py.import("warnings")?;
+    warnings
+        .getattr("_get_filters")
+        .map_or_else(|_| warnings.getattr("filters"), |get| get.call0())
+}
+
 /// Puts the hook back in each place of `threading.excepthook` and
 /// `sys.unraisablehook` that holds anything else, and names the first such
 /// place. Gives `None` when both hold the hook, or before the hook takes them.
-pub fn replaced(py: Python<'_>) -> Option<&'static str> {
+fn hooks_replaced(py: Python<'_>) -> Option<&'static str> {
     let hook = HOOK.get(py)?;
     let threading = py.import("threading").ok()?;
     let sys = py.import("sys").ok()?;

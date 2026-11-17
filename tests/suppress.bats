@@ -22,10 +22,11 @@ bats_require_minimum_version 1.5.0
   local computed='⚠ suppressed [computed-expected]'
   local reason='reason: the payload is its own expected value'
   local digest='hashlib.sha256(b"abc").hexdigest()'
-  local act='⚠ suppressed [assert-before-expectation] line 23 asserts before the first'
-  act+=' expectation, and only an expectation asserts'
+  local act='⚠ suppressed [assert-before-expectation] line 23: an assert ran in the act; one'
+  act+=' test checks one state; check this state in a test of its own'
   local subset='⚠ suppressed [not-one-comparison] line 30 is not one comparison'
-  subset+=', and an expectation compares a reading by one operator'
+  subset+=', and an expectation compares a reading by one operator, or reads not x,'
+  subset+=' isinstance(x, T), x.startswith(y) or x.endswith(y)'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 suppress.py::test_fixture project error: ${fixture}; \
 [computed-expected] line 35 computes len("xy"), ${literal}
@@ -101,7 +102,7 @@ unused.py::test_failed failed
       reading   3
 unused.py::test_raised ${raised}
 unused.py project error: line 1 suppresses computed-expected, which no test of the module breaks
-unused.py project error: line 4 suppresses private-name, which test_renamed does not break
+unused.py project error: line 4 suppresses not-one-comparison, which test_renamed does not break
 unused.py project error: line 10 suppresses swallowed-raise, which test_failed does not break
 3 cases: 1 passed, 1 failed, 1 raised; 3 project errors
 LINES
@@ -113,13 +114,13 @@ LINES
 
   run -4 --separate-stderr purba judged.py
 
-  local private='⚠ suppressed [private-name] line 6 reads the private name _exit'
-  private+=', and a test reads no private name'
+  local computed='⚠ suppressed [computed-expected] line 7 computes os.sep'
+  computed+=', and an expected value is a literal'
   diff -u - <(printf '%s\n' "${output}") <<LINES
 judged.py::test_async project error: purba cannot run an async test yet
 judged.py::test_reads passed
-    ${private}
-      reason: one test reads os._exit
+    ${computed}
+      reason: one test computes its expected value
 judged.py::test_plain passed
 3 cases: 2 passed, 1 blocked; 1 project error; 1 suppressed
 LINES
