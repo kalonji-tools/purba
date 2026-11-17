@@ -30,6 +30,8 @@ The boundary holds for each step before that hand-off, so a new step needs no ex
 | a module with a syntax error | [Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) |
 | a module whose parse, selection or rewrite panics, and each test that a panic in the rewrite blocks | [A panic inside a test gives that test an internal error](a-panic-inside-a-test-gives-that-test-an-internal-error.md#decision-outcome) |
 
+After dispatch hands on the last test, command hands reporting the line of each unused suppression, as [a suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) decides.
+
 **Downside:**
 
 - **Two parts hand reporting the line of a module.** A reader who looks for one module's line looks in command and in dispatch.

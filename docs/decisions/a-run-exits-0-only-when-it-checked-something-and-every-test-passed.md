@@ -85,7 +85,7 @@ flowchart TD
 - **An integrator cannot tell a test that raised from a project error by the code.** A run with either exits 4. The line tells them apart.
 - **A crash before `_main` exits 1, as a failed test does.** CPython exits 1 when `import purba` fails.
 - **A wrapped run's 125 can be the wrapper's.** `timeout` and `env` exit 125 when they fail themselves.
-- **None of the codes 0, 1, 2, 3, 4 and 125 covers a run that a suppression fails, or a skipped test.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) fails such a run. The design in depth of strictness chooses each code.
+- **None of the codes 0, 1, 2, 3, 4 and 125 covers a skipped test.** The design in depth of strictness chooses its code.
 - **A thread that calls `os._exit` after its test wrote its outcome changes no outcome.** The process of that test then ends before it joins its other threads.
 - **Nothing refuses a call of an argument parser that ends the process.** Only a reviewer finds a call such as `get_matches_from`.
 

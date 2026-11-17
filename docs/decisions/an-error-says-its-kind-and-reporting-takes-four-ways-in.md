@@ -29,7 +29,7 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 A new kind and the rule that counts it change in execution alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
-- **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression.
+- **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression. It also builds one for each unused suppression.
 - **Only execution builds an internal error.**
 - **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
 - **Reporting takes five ways in.** `finish` ends the report. The five ways in are these:

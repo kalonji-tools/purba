@@ -52,8 +52,12 @@ A way past one verdict must therefore show in the report.
 - **The count line counts each suppressed verdict after the errors, such as `; 5 suppressed`.** A suppressed verdict changes no exit code.
 - **Each fault of a suppression is a project error, and a suppression with a fault does not count.** A fault is a `# purba:` comment that does not read as a suppression, or a suppression with no reason. A site that names one check twice has a fault. A name that no check has is a fault. A suppression of a check outside the practice tier is a fault. A `suppress[…]` above no test is a fault. A `suppress-module[…]` below the module's first statement is a fault. A fault directly above a test refuses that test. Any other fault is the module's, and blocks each test of the module.
 - **purba counts a suppression as used only when it turns a violation of a selected test into a warning.** A verdict of `unknown` or `clean` passes through it unchanged.
-- **A suppression that suppresses nothing fails the run.** If purba only warned about such a suppression, the suppression would stay. The Python study above finds such suppressions common.
-- **purba does not judge a suppression whose tests the run did not select.**
+- **A suppression that purba judged and that suppresses nothing is a project error, and fails the run.** If purba only warned about such a suppression, the suppression would stay. The Python study above finds suppressions that suppress nothing common.
+- **purba judges a suppression of a check that selection sees at each test that purba can call, whether selection refuses the test or not.**
+- **purba judges a suppression of a check that execution sees only in a case where execution read the paths of the act.** A case that raised leaves such a suppression unjudged. A case that a project error blocked before execution read its paths, and a test that did not run, leave it unjudged too.
+- **A suppression above a test that purba cannot call stays unjudged.** A module's suppression that reaches such a test stays unjudged too.
+- **purba judges a module's suppression only when it judged that suppression at each test that the suppression reaches.** A module's suppression of a check reaches no test when each test carries its own suppression of that check, so it suppresses nothing. When the module defines one test twice, with a suppression of one check above each `def`, the second suppression reaches no test.
+- **An unused suppression changes no outcome and no warning of a case.** Its line is a project error of the module, and [a tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) places it. The line reads `line <n> suppresses <check>, which <test> does not break`, or `line <n> suppresses <check>, which no test of the module breaks` for a module's suppression. It names no check in brackets, since an unused suppression is no strict check of a test.
 - **An [integrator](../../CONTEXT.md#integrator) caps the suppressed verdicts with a configuration key and a flag.** The cap bounds how many violations a tester suppresses, whether a person or an agent occupies the tester. Where the integrator sets both, the lower value applies. The integrator can refuse every suppression with the cap.
 - **The cap counts verdicts and not sites.** A count of sites would charge a module suppression once, however many verdicts it suppresses. A run over the cap fails. The report still lists every suppressed verdict.
 - **The cap only tightens strictness, so it is not a switch.**
@@ -63,6 +67,8 @@ A way past one verdict must therefore show in the report.
 - **A suppression hides a true violation as well as a false positive.** purba cannot judge a reason. The Java study above finds false positives a minor share of suppressions.
 - **A module suppression covers tests that the tester did not read.**
 - **A better check fails a run whose suppression it empties.** The tester must then remove the suppression.
+- **purba reports an unused suppression above a test whose act raises only in a run in which the act returns.**
+- **A run with a failed case exits 1, even when a suppression is unused.** Its exit code alone does not show an unused suppression.
 - **The rule for configuration admits a value that states no fact about the project.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) calls the line between a fact and a switch thin. The cap moves that line.
 - **Selection and execution each write the names of the checks that execution sees.** Selection checks the name of each suppression, and execution names each fault that it sees. Neither part reaches the other. The tests quote each name.
 - **A tester cannot suppress a `def` under a block, a test name with no `def`, or a `return` of a value.** The tester rewrites such a test instead.
@@ -70,12 +76,14 @@ A way past one verdict must therefore show in the report.
 
 ## Confirmation
 
-`mise run test:rust` checks in `crates/selection/tests/select.rs` each site, each tier and each fault of a suppression.
+`mise run test:rust` checks in `crates/selection/tests/select.rs` each site, each tier and each fault of a suppression, and which suppressions selection judges and counts as used.
 It checks in `crates/execution/tests/run.rs` each of the three checks that execution sees and a suppression reaches.
+It checks there in which cases execution judges such a suppression.
+
 `mise run test:wheel` checks in `tests/suppress.bats` the warning under a case that passed and under one that failed, and the count line.
 It checks five faults of a suppression above a test, and a fault of the module.
+It checks the line of each unused suppression after the last case, and a suppression that a raise left unjudged.
+It checks that a module's suppression that one test used, and a suppression above a test that purba cannot call, print nothing.
 
 No command checks the cap yet.
-No command checks yet that a suppression that suppresses nothing fails the run.
-[Fail the run on a suppression that suppresses nothing](https://github.com/kalonji-tools/purba/issues/1032) builds the first.
 [A flag joins the public surface only with a change that purba needs to work as a command](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome), so the cap waits for one.
