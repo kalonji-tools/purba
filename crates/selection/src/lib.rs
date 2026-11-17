@@ -386,10 +386,11 @@ fn type_alone(
 /// The tests of `module` that selection hands on, and each test it refuses.
 ///
 /// Each list keeps source order. `path` is the module's path as the tester
-/// typed it. A name defined twice is one test, at its first definition: import
-/// binds the name there and binds it again at each later `def`, so selection
-/// judges the last body. A `def` under a statement at the module's level is a
-/// test that selection refuses, unless a `def` at the top binds the name.
+/// typed it. A name defined twice is one test at its first `def`. Selection
+/// judges the last `def` of the name at the top, or the last `def` of the name
+/// under a statement when no `def` at the top binds the name. A `def` under a
+/// statement at the module's level is a test that selection refuses, unless a
+/// `def` at the top binds the name.
 /// A `test` name that the module binds with no `def` is a test that selection
 /// refuses, where a binding of it can hold a function. A refused test sits at
 /// its first `def`, or else at its first binding that can hold one.
@@ -593,8 +594,9 @@ pub fn module_fault(module: &Module) -> Option<String> {
 
 /// The tests of a module at its top or under a statement there.
 struct Found<'a> {
-    /// For each name, the block it sits under, the `def` that import binds
-    /// last, and the offset of its first `def`.
+    /// For each name, the block of the first `def` that `found` keeps, the
+    /// `def` that selection judges, and the offset of the first `def` of the
+    /// name.
     last: Vec<(Option<&'static str>, &'a StmtFunctionDef, TextSize)>,
     /// The place of each name in `last`.
     places: HashMap<&'a str, usize>,
@@ -616,31 +618,41 @@ fn found(module: &Module) -> Found<'_> {
     let mut last: Vec<(Option<&'static str>, &StmtFunctionDef, TextSize)> = Vec::new();
     let mut places: HashMap<&str, usize> = HashMap::new();
     let mut defs: HashMap<&str, Vec<TextSize>> = HashMap::new();
+    let mut firsts: HashMap<&str, TextSize> = HashMap::new();
     for statement in statements {
         let found = match (statement, keyword(statement)) {
             (Stmt::FunctionDef(function), _) => vec![(None, function)],
             (_, Some(keyword)) => defs_under(statement)
                 .into_iter()
-                .filter(|function| !top.contains(function.name.as_str()))
                 .map(|function| (Some(keyword), function))
                 .collect(),
             (_, None) => Vec::new(),
         };
         for (under, function) in found {
-            if !function.name.starts_with("test") {
+            let name = function.name.as_str();
+            if !name.starts_with("test") {
                 continue;
             }
-            defs.entry(function.name.as_str())
-                .or_default()
-                .push(function.range.start());
-            match places.entry(function.name.as_str()) {
+            let first = *firsts.entry(name).or_insert_with(|| function.range.start());
+            if under.is_some() && top.contains(name) {
+                continue;
+            }
+            defs.entry(name).or_default().push(function.range.start());
+            match places.entry(name) {
                 Entry::Occupied(place) => last[*place.get()].1 = function,
                 Entry::Vacant(place) => {
                     place.insert(last.len());
-                    last.push((under, function, function.range.start()));
+                    last.push((under, function, first));
                 }
             }
         }
+    }
+    // A name enters `last` at the first `def` that the loop keeps, which is a
+    // `def` at the top when the name has one. The sort moves each name to its
+    // first `def`, which can sit under a statement before that `def` at the top.
+    last.sort_unstable_by_key(|&(_, _, first)| first);
+    for (place, (_, function, _)) in last.iter().enumerate() {
+        places.insert(function.name.as_str(), place);
     }
     Found { last, places, defs }
 }
@@ -941,18 +953,32 @@ fn on_one_line(text: &str) -> String {
     text.lines().map(str::trim).collect::<Vec<_>>().join(" ")
 }
 
-/// Each line that binds the name of `function` after its `def`, or under
-/// `global` in any function, before or after it. In source order.
+/// Each line that binds the name of `function` after the first `def` of that
+/// name, or under `global` in any function, before or after it. A later `def`
+/// is such a binding. In source order.
 fn rebound(
     function: &StmtFunctionDef,
     module: &Module,
     bindings: &HashMap<&str, Vec<Binding>>,
 ) -> Vec<usize> {
+    let name = function.name.as_str();
+    let first_end = module
+        .syntax()
+        .body
+        .iter()
+        .flat_map(|statement| match statement {
+            Stmt::FunctionDef(top) => vec![top],
+            _ => defs_under(statement),
+        })
+        .find(|def| def.name.as_str() == name)
+        .unwrap_or(function)
+        .range
+        .end();
     let mut offsets: Vec<TextSize> = bindings
-        .get(function.name.as_str())
+        .get(name)
         .into_iter()
         .flatten()
-        .filter(|binding| binding.in_function || binding.offset >= function.range.end())
+        .filter(|binding| binding.in_function || binding.offset >= first_end)
         .map(|binding| binding.offset)
         .collect();
     offsets.sort_unstable();
