@@ -50,6 +50,10 @@ One call of a [test](#test), which a [run](#run) gives at most one [outcome](#ou
 
 An [input](#input) that outlives one [test](#test), and whose type proves that no test can change it.
 
+### Claim
+
+A sentence that states a fact, which a command or a link can decide. A sentence that judges is not one.
+
 ### Coder
 
 The [actor](#actor) that implements a settled decision in code.
@@ -203,6 +207,10 @@ The [strict checks](#strict-check) whose violation a [suppression](#suppression)
 ### Private name
 
 A name that starts with `_`, written as an attribute or imported from another module, or a name imported through a part of a module's path that starts with `_`. A name that starts and ends with `__`, such as `__len__`, is not one. purba reports each one that a [test's](#test) body reads, and refuses none.
+
+### Probe
+
+A comment that holds a command, the head it ran on, and its output, so that it decides a [claim](#claim).
 
 ### Project error
 

@@ -69,6 +69,10 @@ Each line links the file that states its rule, and the section of a record that 
 - Write the minimum that conveys the point. Leave out what your session left behind. ([an artifact holds the minimum that conveys its point](docs/decisions/an-artifact-holds-the-minimum-that-conveys-its-point.md#decision-outcome))
 - Outside a tracked file, write `issue`, never `ticket`. ([issue](CONTEXT.md#issue), [the glossary stays open, and a gate rewrites each word it avoids](docs/decisions/the-glossary-stays-open-and-a-gate-rewrites-each-word-it-avoids.md#decision-outcome))
 - Write a comment in the tree only for what no other location carries. Cite the primary source, never an issue number. ([an unpublished comment carries what no other location carries](docs/decisions/an-unpublished-comment-carries-what-no-other-location-carries.md#decision-outcome))
+- Link each claim to what decides it: a line at a commit, or a probe that shows its command, its head and its output. ([a claim links what decides it](docs/decisions/a-claim-links-what-decides-it.md#decision-outcome))
+- Probe purba on a wheel built from a named commit, never on a script that imitates it. ([a claim links what decides it](docs/decisions/a-claim-links-what-decides-it.md#decision-outcome))
+- Where no probe can run, say that the claim is unmeasured. Say that a judgement is one. ([a claim links what decides it](docs/decisions/a-claim-links-what-decides-it.md#decision-outcome))
+- Cite the originator of a concept that purba borrows in the record that adopts it, or label the source `secondary`. Say where purba departs from it, and why. ([a claim links what decides it](docs/decisions/a-claim-links-what-decides-it.md#decision-outcome))
 
 ## After the merge
 

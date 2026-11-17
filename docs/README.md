@@ -137,6 +137,7 @@
 
 ## How a record is written
 
+- [A claim links what decides it](decisions/a-claim-links-what-decides-it.md)
 - [A commit message outlives its review](decisions/a-commit-outlives-its-review.md)
 - [A figure in a record is a fence GitHub renders](decisions/a-figure-in-a-record-is-a-fence-github-renders.md)
 - [A link whose server does not answer passes the link gate with a warning](decisions/a-link-whose-server-does-not-answer-passes-the-link-gate-with-a-warning.md)
