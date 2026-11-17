@@ -19,6 +19,7 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
+mod framework;
 mod patch;
 mod suppression;
 
@@ -182,6 +183,7 @@ enum Reason {
     Input(usize, String),
     Patched(usize, String),
     WithoutSpec(usize),
+    Imported(usize, String),
 }
 
 impl Reason {
@@ -199,6 +201,7 @@ impl Reason {
             Self::Computes(..) | Self::Input(..) => "computed-expected",
             Self::Patched(..) => "patched-name",
             Self::WithoutSpec(_) => "mock-without-spec",
+            Self::Imported(..) => "foreign-framework",
             Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
                 return None;
             }
@@ -336,6 +339,10 @@ impl fmt::Display for Reason {
                 "line {line} makes a mock with no spec, \
                  and a mock has the spec of what it stands for"
             ),
+            Self::Imported(line, module) => write!(
+                formatter,
+                "line {line} imports {module}, and a test module imports no other test framework"
+            ),
         }
     }
 }
@@ -372,6 +379,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
     let sites = suppression::sites(module, &test_defs(module, &defs));
     let bindings = bindings(module.syntax());
     let imported = imports(module.syntax());
+    let outside = outside_tests(module.syntax(), &imported, &bindings);
     let mut tests = Vec::new();
     let mut refused = Vec::new();
     for (under, function, first) in last {
@@ -382,7 +390,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         let mut reasons: Vec<Reason> = sites.faults_of(at).into_iter().map(Reason::Fault).collect();
         reasons.extend(under.map(Reason::Under));
         reasons.extend(reasons_of(function, module, &bindings));
-        reasons.extend(faults_of(function, module, &imported));
+        reasons.extend(faults_of(function, module, &imported, &outside));
         let suppressions = sites.of(at);
         let (reasons, suppressed) = suppress(reasons, &suppressions);
         test.suppressed = suppressed;
@@ -398,7 +406,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             refused.push((first, Refused { test, reasons }));
         }
     }
-    refused.extend(refused_methods(path, module, &imported, &sites));
+    refused.extend(refused_methods(path, module, &imported, &outside, &sites));
     let never = never_a_function(module.syntax());
     for (name, found) in &bindings {
         if !name.starts_with("test") || places.contains_key(name) {
@@ -756,6 +764,7 @@ fn refused_methods(
     path: &Path,
     module: &Module,
     imported: &HashMap<&str, String>,
+    outside: &Outside<'_>,
     sites: &suppression::Sites,
 ) -> Vec<(TextSize, Refused)> {
     let mut methods: Vec<(Vec<&str>, &StmtFunctionDef, TextSize)> = Vec::new();
@@ -785,7 +794,7 @@ fn refused_methods(
                 .collect();
             reasons.push(Reason::Method);
             reasons.extend(own_reasons(function, module, Some("self")));
-            reasons.extend(faults_of(function, module, imported));
+            reasons.extend(faults_of(function, module, imported, outside));
             (first, Refused { test, reasons })
         })
         .collect()
@@ -1255,13 +1264,15 @@ fn imports(module: &ModModule) -> HashMap<&str, String> {
 
 /// Each fault of the rules that selection reads from the body of `function`,
 /// in source order: an expectation that is not one comparison, an expected
-/// value that is not a literal, a private name, a patch, and a mock with no
-/// spec. Each patch comes once for each target of a line, and each mock with
-/// no spec comes once for each line.
+/// value that is not a literal, a patch, a mock with no spec, and an import of
+/// another test framework, in the body or in `outside`. Each patch comes once
+/// for each target of a line, each mock with no spec once for each line, and
+/// each import once for each module of a line.
 fn faults_of(
     function: &StmtFunctionDef,
     module: &Module,
     imported: &HashMap<&str, String>,
+    outside: &Outside<'_>,
 ) -> Vec<Reason> {
     let line = |offset: TextSize| module.position(offset).line();
     let mut faults: Vec<(TextSize, Reason)> = Vec::new();
@@ -1305,8 +1316,65 @@ fn faults_of(
             _ => {}
         }
     }
+    let mut modules = HashSet::new();
+    for (offset, name) in framework::imports(&function.body, &locals, imported, &outside.bound)
+        .into_iter()
+        .chain(outside.imports.iter().cloned())
+    {
+        let at = line(offset);
+        if modules.insert((at, name.clone())) {
+            faults.push((offset, Reason::Imported(at, name)));
+        }
+    }
     faults.sort_by_key(|(offset, _)| *offset);
     faults.into_iter().map(|(_, fault)| fault).collect()
+}
+
+/// What a test reads of another test framework outside its own body.
+struct Outside<'a> {
+    /// Each import outside every test, by its offset.
+    imports: Vec<(TextSize, String)>,
+    /// Each name that the module binds, which is then no builtin.
+    bound: HashSet<&'a str>,
+}
+
+/// Each import of another test framework in `module` outside every test, by
+/// its offset: at the module's level, in a block there, in a helper, in a
+/// class, and in what runs when a `def` at the module's level is made. A test
+/// here is a `def` at the module's level with a `test` name.
+fn outside_tests<'a>(
+    module: &'a ModModule,
+    imported: &HashMap<&'a str, String>,
+    bindings: &HashMap<&'a str, Vec<Binding>>,
+) -> Outside<'a> {
+    let bound: HashSet<&str> = bindings.keys().copied().collect();
+    let none = HashSet::new();
+    let mut found = Vec::new();
+    for statement in &module.body {
+        match statement {
+            Stmt::FunctionDef(function) => {
+                found.extend(framework::made(function, imported, &bound));
+                if !function.name.starts_with("test") {
+                    found.extend(framework::imports(
+                        &function.body,
+                        &locals_of(function),
+                        imported,
+                        &bound,
+                    ));
+                }
+            }
+            other => found.extend(framework::imports(
+                std::slice::from_ref(other),
+                &none,
+                imported,
+                &bound,
+            )),
+        }
+    }
+    Outside {
+        imports: found,
+        bound,
+    }
 }
 
 /// The name of each parameter of `function`.

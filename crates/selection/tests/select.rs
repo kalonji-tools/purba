@@ -1584,6 +1584,7 @@ fn a_suppression_of_a_check_of_the_never_suppressed_tier_is_refused_by_its_tier(
 fn a_suppression_of_each_check_of_the_practice_tier_is_in_its_place() {
     for check in [
         "foreign-decorator",
+        "foreign-framework",
         "name-bound-again",
         "not-one-comparison",
         "computed-expected",
@@ -2241,5 +2242,301 @@ fn a_second_suppression_above_a_test_that_the_module_defines_twice_is_unused() {
         unused("test_unused_twice.py", text, |_| true, |_| Vec::new()),
         ["line 11 suppresses foreign-decorator, which test_wrapped does not break"],
         "only the first suppression of a check reaches the test"
+    );
+}
+
+/// The words of a fault of an import of another test framework.
+fn imported(line: usize, module: &str) -> String {
+    format!(
+        "[foreign-framework] line {line} imports {module}, \
+         and a test module imports no other test framework"
+    )
+}
+
+#[test]
+fn an_import_of_pytest_outside_a_test_reaches_every_test_of_the_module() {
+    let (tests, refused) = judged(
+        "test_framework_module.py",
+        concat!(
+            "import os\n",
+            "import pytest\n",
+            "import pytest as pt\n",
+            "from _pytest.monkeypatch import MonkeyPatch\n",
+            "from pytest import *\n",
+            "import unittest.mock\n",
+            "from typing import TYPE_CHECKING\n",
+            "\n",
+            "try:\n",
+            "    import _pytest.python_api\n",
+            "except ImportError:\n",
+            "    pass\n",
+            "\n",
+            "if TYPE_CHECKING:\n",
+            "    from pytest import fixture\n",
+            "\n",
+            "\n",
+            "def helper():\n",
+            "    import pytest.mark\n",
+            "\n",
+            "\n",
+            "class Shop:\n",
+            "    import _pytest\n",
+            "\n",
+            "\n",
+            "def test_a():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_b():\n",
+            "    assert 2 == 2\n",
+        ),
+    );
+    let reasons = [
+        imported(2, "pytest"),
+        imported(3, "pytest"),
+        imported(4, "_pytest.monkeypatch"),
+        imported(5, "pytest"),
+        imported(10, "_pytest.python_api"),
+        imported(15, "pytest"),
+        imported(19, "pytest.mark"),
+        imported(23, "_pytest"),
+    ]
+    .join("; ");
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_a {reasons}"),
+            format!("test_m.py::test_b {reasons}"),
+        ],
+        "each import line of pytest or _pytest outside a test, in a block, under TYPE_CHECKING, \
+         in a helper or in a class, reaches every test, in line order, and unittest gives none"
+    );
+}
+
+#[test]
+fn an_import_or_a_known_call_in_a_test_reaches_that_test_only() {
+    let (tests, refused) = judged(
+        "test_framework_calls.py",
+        concat!(
+            "import importlib\n",
+            "import importlib.util\n",
+            "import pkgutil\n",
+            "import runpy\n",
+            "from importlib import import_module as load\n",
+            "from importlib.resources import files\n",
+            "from unittest import mock\n",
+            "\n",
+            "\n",
+            "def test_statement():\n",
+            "    import pytest\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_calls():\n",
+            "    importlib.import_module(\"pytest\")\n",
+            "    load(\"_pytest.fixtures\")\n",
+            "    __import__(\"pytest\")\n",
+            "    importlib.__import__(\"pytest\")\n",
+            "    importlib.util.find_spec(\"pytest.mark\")\n",
+            "    pkgutil.resolve_name(\"pytest:approx\")\n",
+            "    runpy.run_module(\"pytest\")\n",
+            "    files(\"pytest\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_patch():\n",
+            "    with mock.patch(\"pytest.approx\", print):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+            "\n",
+            "\n",
+            "def test_no_import():\n",
+            "    importlib.util.find_spec(\"pytest\")\n",
+            "    importlib.import_module(\"unittest\")\n",
+            "    name = \"pytest\"\n",
+            "    importlib.import_module(name)\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_no_import"],
+        "find_spec of pytest alone imports nothing, and a name that is no literal is not read"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_statement {}", imported(11, "pytest")),
+            format!(
+                "test_m.py::test_calls {}",
+                [
+                    imported(16, "pytest"),
+                    imported(17, "_pytest.fixtures"),
+                    imported(18, "pytest"),
+                    imported(19, "pytest"),
+                    imported(20, "pytest.mark"),
+                    imported(21, "pytest:approx"),
+                    imported(22, "pytest"),
+                    imported(23, "pytest"),
+                ]
+                .join("; ")
+            ),
+            format!(
+                "test_m.py::test_patch {}; {}",
+                patched(28, "pytest.approx"),
+                imported(28, "pytest.approx")
+            ),
+        ],
+        "each import line and each known call through the imports reaches its own test only, \
+         and names the module as its literal writes it"
+    );
+}
+
+#[test]
+fn a_call_that_no_import_makes_known_and_a_module_that_is_not_pytest_give_no_reason() {
+    let (tests, refused) = judged(
+        "test_framework_lookalike.py",
+        concat!(
+            "import pytest_mock\n",
+            "from shop import files\n",
+            "\n",
+            "\n",
+            "def test_lookalike():\n",
+            "    files(\"pytest\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_local():\n",
+            "    def __import__(name):\n",
+            "        return name\n",
+            "\n",
+            "    __import__(\"pytest\")\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_lookalike", "test_m.py::test_local"],
+        "a files() of another module, a local __import__, and pytest_mock import no pytest"
+    );
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
+}
+
+#[test]
+fn a_suppression_of_foreign_framework_lets_the_test_run_with_each_import_in_its_warning() {
+    let text = concat!(
+        "# purba: suppress-module[foreign-framework] the suite still runs under pytest\n",
+        "import pytest\n",
+        "\n",
+        "\n",
+        "def test_a():\n",
+        "    import _pytest\n",
+        "    assert 1 == 1\n",
+    );
+
+    assert_eq!(
+        suppressed("test_framework_suppressed.py", text),
+        [verdict(
+            "test_a",
+            "foreign-framework",
+            "line 2 imports pytest, and a test module imports no other test framework; \
+             line 6 imports _pytest, and a test module imports no other test framework",
+            "the suite still runs under pytest",
+        )],
+        "the module's suppression lifts each import, and the warning names each"
+    );
+}
+
+#[test]
+fn what_runs_when_a_def_is_made_and_a_call_outside_a_test_reach_every_test() {
+    let (tests, refused) = judged(
+        "test_framework_made.py",
+        concat!(
+            "import importlib\n",
+            "\n",
+            "import pytest, _pytest\n",
+            "import pytest; import pytest\n",
+            "\n",
+            "\n",
+            "def helper():\n",
+            "    importlib.import_module(\"pytest\")\n",
+            "\n",
+            "\n",
+            "def made(module=__import__(\"_pytest\")):\n",
+            "    return module\n",
+            "\n",
+            "\n",
+            "@importlib.import_module(\"pytest.mark\").skip\n",
+            "def test_a():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_b():\n",
+            "    assert 2 == 2\n",
+        ),
+    );
+    let reasons = [
+        imported(3, "pytest"),
+        imported(3, "_pytest"),
+        imported(4, "pytest"),
+        imported(8, "pytest"),
+        imported(11, "_pytest"),
+        imported(15, "pytest.mark"),
+    ]
+    .join("; ");
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!(
+                "test_m.py::test_a [foreign-decorator] the decorator \
+                 importlib.import_module(\"pytest.mark\").skip is not purba's, \
+                 and purba cannot see what it does; {reasons}"
+            ),
+            format!("test_m.py::test_b {reasons}"),
+        ],
+        "a call in a helper, and a call in a decorator or a default of a def, reach every test; \
+         each module of a line gives one reason"
+    );
+}
+
+#[test]
+fn a_def_of_the_module_and_a_patch_of_pytest_alone_import_no_pytest() {
+    let (tests, refused) = judged(
+        "test_framework_no_import.py",
+        concat!(
+            "from unittest import mock\n",
+            "\n",
+            "\n",
+            "def __import__(name):\n",
+            "    return name\n",
+            "\n",
+            "\n",
+            "def test_def():\n",
+            "    __import__(\"pytest\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_patch():\n",
+            "    with mock.patch(\"pytest\", print):\n",
+            "        got = 1\n",
+            "    assert got == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_def"],
+        "a name that the module binds with a def is no builtin"
+    );
+    assert_eq!(
+        refused,
+        [format!("test_m.py::test_patch {}", patched(14, "pytest"))],
+        "a patch imports only the parent of a dotted target"
     );
 }
