@@ -23,6 +23,8 @@ use std::path::PathBuf;
 
 /// Assertion's rewrite of a module, which a [`Module`] holds.
 pub use purba_assertion::Rewrite;
+/// What an expectation that did not hold shows, which a [`Quote`] holds.
+pub use purba_assertion::Shown;
 use purba_assertion::{Loaded, Readings, Swallowed, Try, Verdict, Watched};
 use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
@@ -100,16 +102,6 @@ pub enum Kind {
 pub struct Quote {
     pub assert: String,
     pub shown: Option<Shown>,
-}
-
-/// What an expectation shows when it does not hold, as assertion gives it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Shown {
-    /// A check of one value: its expected value and its reading.
-    Values { expected: String, reading: String },
-    /// An `all()` or an `any()`: a heading, and a line for each item that a
-    /// failure names.
-    Items { heading: String, items: Vec<String> },
 }
 
 impl Quote {
@@ -908,16 +900,11 @@ fn of_the_readings(
                 .filter_map(|(index, _)| {
                     Some(Quote {
                         assert: loaded.expectation(*index)?.to_owned(),
-                        shown: readings.shown.iter().find(|(shown, _)| shown == index).map(
-                            |(_, shown)| match shown.clone() {
-                                purba_assertion::Shown::Values { expected, reading } => {
-                                    Shown::Values { expected, reading }
-                                }
-                                purba_assertion::Shown::Items { heading, items } => {
-                                    Shown::Items { heading, items }
-                                }
-                            },
-                        ),
+                        shown: readings
+                            .shown
+                            .iter()
+                            .find(|(shown, _)| shown == index)
+                            .map(|(_, shown)| shown.clone()),
                     })
                 }),
         )

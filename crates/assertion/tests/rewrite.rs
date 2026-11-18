@@ -218,6 +218,26 @@ fn the_asserts_at_the_end_of_a_test_are_its_expectations() {
 }
 
 #[test]
+fn a_tuple_assert_at_the_end_of_a_test_leaves_the_rewrite_no_assert_to_read() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_t():\n",
+            "    x = 1\n",
+            "    assert x == 1\n",
+            "    assert (x, 1)\n",
+        ),
+        &["test_t"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.expectations("test_t"),
+        [] as [&str; 0],
+        "the tuple stops the walk, so the rewrite reads neither assert"
+    );
+}
+
+#[test]
 fn an_all_whose_target_spans_two_lines_keeps_the_number_of_each_later_line() {
     let source = concat!(
         "def test_pairs():\n",
