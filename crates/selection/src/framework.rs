@@ -6,7 +6,8 @@ use ruff_python_ast::visitor::Visitor;
 use ruff_python_ast::{Expr, InterpolatedStringElement, Pattern, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
-use super::{Node, bound, origins, walk_node};
+use super::lookup::{Lookup, Origin};
+use super::{Node, walk_node};
 
 /// The modules of another test framework: pytest, and the package that holds
 /// its code.
@@ -57,10 +58,7 @@ pub fn imports<'a>(
     bound: &HashSet<&'a str>,
 ) -> Vec<(TextSize, String)> {
     let mut found = Found {
-        own: own_imports(statements),
-        locals,
-        imported,
-        bound,
+        lookup: Lookup::new(statements, locals, imported, bound),
         imports: Vec::new(),
         pending: Vec::new(),
     };
@@ -83,10 +81,7 @@ pub fn made<'a>(
 ) -> Vec<(TextSize, String)> {
     let none = HashSet::new();
     let mut found = Found {
-        own: HashMap::new(),
-        locals: &none,
-        imported,
-        bound,
+        lookup: Lookup::new(&[], &none, imported, bound),
         imports: Vec::new(),
         pending: Vec::new(),
     };
@@ -103,55 +98,8 @@ pub fn made<'a>(
     found.imports
 }
 
-/// Where each name that an `import` in `statements` binds comes from, at any
-/// depth.
-fn own_imports(statements: &[Stmt]) -> HashMap<&str, String> {
-    let mut found = Bindings {
-        own: HashMap::new(),
-        pending: Vec::new(),
-    };
-    for statement in statements {
-        found.visit_stmt(statement);
-    }
-    while let Some(node) = found.pending.pop() {
-        walk_node(&mut found, node);
-    }
-    found.own
-}
-
-struct Bindings<'a> {
-    own: HashMap<&'a str, String>,
-    pending: Vec<Node<'a>>,
-}
-
-// Each visit pushes its node, and the caller walks each node pushed, so a body
-// that nests deeper than the stack does not overflow it.
-impl<'a> Visitor<'a> for Bindings<'a> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
-        for (name, origin) in origins(statement) {
-            self.own.insert(bound(name), origin);
-        }
-        self.pending.push(Node::Stmt(statement));
-    }
-
-    fn visit_expr(&mut self, expr: &'a Expr) {
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
-    }
-}
-
 struct Found<'a, 'b> {
-    own: HashMap<&'a str, String>,
-    locals: &'b HashSet<&'a str>,
-    imported: &'b HashMap<&'a str, String>,
-    bound: &'b HashSet<&'a str>,
+    lookup: Lookup<'a, 'b>,
     imports: Vec<(TextSize, String)>,
     pending: Vec<Node<'a>>,
 }
@@ -171,16 +119,10 @@ impl Found<'_, '_> {
             return None;
         };
         let root = name.id.as_str();
-        let origin = if let Some(origin) = self.own.get(root) {
-            origin.clone()
-        } else if self.locals.contains(root) {
-            return None;
-        } else if let Some(origin) = self.imported.get(root) {
-            origin.clone()
-        } else if self.bound.contains(root) {
-            return None;
-        } else {
-            format!("builtins.{root}")
+        let origin = match self.lookup.origin(root) {
+            Origin::Own(origin) | Origin::Imported(origin) => origin.to_owned(),
+            Origin::Local | Origin::Module => return None,
+            Origin::Builtin => format!("builtins.{root}"),
         };
         let mut qualified = origin;
         for part in parts.iter().rev() {

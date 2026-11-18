@@ -7,44 +7,88 @@ use purba_parsing::Module;
 use ruff_python_ast::{Expr, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
-/// The checks that a suppression turns into a warning.
-pub const PRACTICE: [&str; 12] = [
-    "foreign-decorator",
-    "foreign-framework",
-    "name-bound-again",
-    "not-one-comparison",
-    "computed-expected",
-    "second-path",
-    "assert-before-expectation",
-    "swallowed-raise",
-    "patched-name",
-    "mock-without-spec",
-    "iterator-read",
-    "type-alone",
+/// What a suppression of a strict check does.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Tier {
+    /// It turns a violation into a warning, and the test runs.
+    Practice,
+    /// It does not count: an outcome would stand on what purba did not check.
+    Outcome,
+    /// It cannot help: purba reads no expectation of such a test.
+    NoExpectation,
+}
+
+/// Where a breach of a strict check shows.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Seen {
+    /// In the text of the module, which selection reads.
+    Selection,
+    /// While a case runs, where execution and assertion see it.
+    Run,
+}
+
+/// A strict check: its name, its tier, and the part that sees it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Check {
+    pub name: &'static str,
+    pub tier: Tier,
+    pub seen: Seen,
+}
+
+const fn check(name: &'static str, tier: Tier, seen: Seen) -> Check {
+    Check { name, tier, seen }
+}
+
+pub const FOREIGN_DECORATOR: Check = check("foreign-decorator", Tier::Practice, Seen::Selection);
+pub const FOREIGN_FRAMEWORK: Check = check("foreign-framework", Tier::Practice, Seen::Selection);
+pub const NAME_BOUND_AGAIN: Check = check("name-bound-again", Tier::Practice, Seen::Selection);
+pub const NOT_ONE_COMPARISON: Check = check("not-one-comparison", Tier::Practice, Seen::Selection);
+pub const COMPUTED_EXPECTED: Check = check("computed-expected", Tier::Practice, Seen::Selection);
+pub const PATCHED_NAME: Check = check("patched-name", Tier::Practice, Seen::Selection);
+pub const MOCK_WITHOUT_SPEC: Check = check("mock-without-spec", Tier::Practice, Seen::Selection);
+pub const TYPE_ALONE: Check = check("type-alone", Tier::Practice, Seen::Selection);
+pub const DEF_UNDER_BLOCK: Check = check("def-under-block", Tier::NoExpectation, Seen::Selection);
+pub const NAME_WITHOUT_DEF: Check = check("name-without-def", Tier::NoExpectation, Seen::Selection);
+pub const RETURNED_VALUE: Check = check("returned-value", Tier::NoExpectation, Seen::Selection);
+
+/// Each strict check, once.
+const CHECKS: [Check; 20] = [
+    FOREIGN_DECORATOR,
+    FOREIGN_FRAMEWORK,
+    NAME_BOUND_AGAIN,
+    NOT_ONE_COMPARISON,
+    COMPUTED_EXPECTED,
+    PATCHED_NAME,
+    MOCK_WITHOUT_SPEC,
+    TYPE_ALONE,
+    check("second-path", Tier::Practice, Seen::Run),
+    check("assert-before-expectation", Tier::Practice, Seen::Run),
+    check("swallowed-raise", Tier::Practice, Seen::Run),
+    check("iterator-read", Tier::Practice, Seen::Run),
+    check("no-expectation", Tier::Outcome, Seen::Run),
+    check("readings-differ", Tier::Outcome, Seen::Run),
+    check("assert-in-reading", Tier::Outcome, Seen::Run),
+    check("hook-replaced", Tier::Outcome, Seen::Run),
+    check("no-item", Tier::Outcome, Seen::Run),
+    DEF_UNDER_BLOCK,
+    NAME_WITHOUT_DEF,
+    RETURNED_VALUE,
 ];
 
-/// The checks that execution sees, of those that a suppression turns into a
-/// warning.
-const OF_EXECUTION: [&str; 4] = [
-    "second-path",
-    "assert-before-expectation",
-    "swallowed-raise",
-    "iterator-read",
-];
+/// The strict check named `name`, or `None` when no check has that name.
+fn by_name(name: &str) -> Option<&'static Check> {
+    CHECKS.iter().find(|check| check.name == name)
+}
 
-/// The checks without which an outcome would stand on what purba did not
-/// check.
-const OUTCOME: [&str; 5] = [
-    "no-expectation",
-    "readings-differ",
-    "assert-in-reading",
-    "hook-replaced",
-    "no-item",
-];
-
-/// The checks of a test whose expectations the run never reads, so that a
-/// suppressed one still reaches no outcome.
-const NO_EXPECTATION: [&str; 3] = ["def-under-block", "name-without-def", "returned-value"];
+/// The names of the checks of the practice tier whose breach shows while a
+/// case runs. Execution writes the same names, and a test of dispatch compares
+/// the two.
+pub fn seen_by_the_run() -> impl Iterator<Item = &'static str> {
+    CHECKS
+        .iter()
+        .filter(|check| check.tier == Tier::Practice && check.seen == Seen::Run)
+        .map(|check| check.name)
+}
 
 /// A suppression that reaches a test: its check, its reason, its line, and the
 /// test above it, or `None` for a module's suppression.
@@ -60,7 +104,7 @@ impl Suppression {
     /// Whether execution, and not selection, sees its check.
     #[must_use]
     pub fn seen_by_execution(&self) -> bool {
-        OF_EXECUTION.contains(&self.check)
+        by_name(self.check).is_some_and(|check| check.seen == Seen::Run)
     }
 }
 
@@ -311,11 +355,9 @@ impl Sites {
             (Site::Test(test), Some(words)) => push(&mut self.test_faults, test, line, words),
             (Site::Module, Some(words)) => self.module_faults.push((line, words)),
             (site, None) => {
-                let check = PRACTICE
-                    .iter()
-                    .copied()
-                    .find(|named| *named == check)
-                    .unwrap_or_default();
+                let check = by_name(check)
+                    .filter(|check| check.tier == Tier::Practice)
+                    .map_or("", |check| check.name);
                 let suppression = Suppression {
                     check,
                     reason: reason.to_owned(),
@@ -358,16 +400,17 @@ fn comments(module: &Module) -> Vec<(usize, bool, &str)> {
 /// The words of the fault of a suppression of `check` with `reason` at
 /// `line`, at a site that already holds `named`, or `None` when it has none.
 fn fault(line: usize, check: &str, reason: &str, named: &[Suppression]) -> Option<String> {
-    if OUTCOME.contains(&check) {
+    let tier = by_name(check).map(|check| check.tier);
+    if tier == Some(Tier::Outcome) {
         Some(format!(
             "line {line} suppresses {check}, and an outcome cannot stand without that check"
         ))
-    } else if NO_EXPECTATION.contains(&check) {
+    } else if tier == Some(Tier::NoExpectation) {
         Some(format!(
             "line {line} suppresses {check}, and a suppression cannot help: \
              purba reads no expectation of such a test"
         ))
-    } else if !PRACTICE.contains(&check) {
+    } else if tier.is_none() {
         Some(format!(
             "line {line} suppresses {check}, which is no strict check"
         ))
@@ -459,18 +502,16 @@ fn defs(body: &[Stmt]) -> Vec<&StmtFunctionDef> {
 
 #[cfg(test)]
 mod tests {
-    use super::{NO_EXPECTATION, OUTCOME, PRACTICE};
+    use super::CHECKS;
 
     #[test]
     fn each_strict_check_has_a_case_in_the_file_of_strictness() {
         let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/strictness.bats");
         let cases = std::fs::read_to_string(path).unwrap_or_else(|error| panic!("{path}: {error}"));
 
-        let missing: Vec<&str> = PRACTICE
+        let missing: Vec<&str> = CHECKS
             .iter()
-            .chain(&OUTCOME)
-            .chain(&NO_EXPECTATION)
-            .copied()
+            .map(|check| check.name)
             .filter(|check| !cases.contains(&format!("@test \"[{check}]")))
             .collect();
 

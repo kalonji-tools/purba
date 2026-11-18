@@ -602,8 +602,9 @@ struct Seen<'a> {
 }
 
 /// The checks that execution sees, of those that a suppression turns into a
-/// warning.
-const SUPPRESSIBLE: [&str; 4] = [
+/// warning. Selection's table names the same checks, and a test of dispatch
+/// compares the two.
+pub const SUPPRESSIBLE: [&str; 4] = [
     "second-path",
     "assert-before-expectation",
     "swallowed-raise",

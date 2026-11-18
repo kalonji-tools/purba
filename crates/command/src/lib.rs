@@ -105,34 +105,30 @@ pub fn run_with(
         }
         Err(error) => return stopped(report, &path, &error),
     };
-    let (tests, refused_tests) =
+    let mut selected =
         match purba_execution::catch("command", || Ok(purba_selection::select(&path, &parsed))) {
             Ok(selected) => selected,
             Err(error) => return stopped(report, &path, &error),
         };
     not_interrupted()?;
-    let mut ledger = purba_selection::Ledger::new(&parsed, &tests, &refused_tests);
-    let fault =
-        match purba_execution::catch("command", || Ok(purba_selection::module_fault(&parsed))) {
-            Ok(fault) => fault,
-            Err(error) => return stopped(report, &path, &error),
-        };
-    for refused in &refused_tests {
+    for refused in selected.refused() {
         report.line(
             refused.test(),
             &Err(purba_execution::Error::project(refused.to_string())),
         )?;
         warned(&mut report, refused.test(), &[])?;
-        ledger.refused(refused);
     }
-    if let Some(fault) = fault {
-        report.error(&path.display(), &purba_execution::Error::project(fault))?;
-        for test in &tests {
+    if let Some(fault) = selected.fault() {
+        report.error(
+            &path.display(),
+            &purba_execution::Error::project(fault.to_owned()),
+        )?;
+        for test in selected.tests() {
             report.blocked(test, &path.display())?;
         }
         return Ok(report.finish()?);
     }
-    let found = rewritten(&path, &parsed, tests, &rewrite);
+    let found = rewritten(&path, &parsed, selected.tests().to_vec(), &rewrite);
     drop(parsed);
     let modules = match found {
         Found::Modules(modules) => modules,
@@ -152,7 +148,7 @@ pub fn run_with(
                     .iter()
                     .map(|warning| warning.check.as_str())
                     .collect();
-                ledger.judge(&test, &checks, suppressed.judged);
+                selected.judge(&test, &checks, suppressed.judged);
                 report
                     .line(&test, &result)
                     .and_then(|()| warned(&mut report, &test, &suppressed.warnings))
@@ -172,7 +168,7 @@ pub fn run_with(
     if let ControlFlow::Break(refused) = flow {
         return Err(refused.into());
     }
-    for words in ledger.unused() {
+    for words in selected.unused() {
         report.error(&path.display(), &purba_execution::Error::project(words))?;
     }
     Ok(report.finish()?)

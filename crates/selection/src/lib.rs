@@ -20,10 +20,12 @@ use ruff_python_ast::{
 use ruff_text_size::{Ranged, TextSize};
 
 mod framework;
+mod lookup;
 mod patch;
 mod suppression;
 
-pub use suppression::Suppression;
+use suppression::Check;
+pub use suppression::{Suppression, seen_by_the_run};
 
 /// A test's identity. Only selection constructs one. It displays its path,
 /// then each class on the way to the test, then its function, joined by `::`.
@@ -158,7 +160,7 @@ impl fmt::Display for Refused {
                 formatter.write_str("; ")?;
             }
             if let Some(check) = reason.check() {
-                write!(formatter, "[{check}] ")?;
+                write!(formatter, "[{}] ", check.name)?;
             }
             write!(formatter, "{reason}")?;
         }
@@ -193,22 +195,21 @@ enum Reason {
 }
 
 impl Reason {
-    /// The name of the strict check that gives this reason, or `None` for a
-    /// reason that says purba cannot call the test, or for a fault of a
-    /// suppression.
-    const fn check(&self) -> Option<&'static str> {
+    /// The strict check that gives this reason, or `None` for a reason that
+    /// says purba cannot call the test, or for a fault of a suppression.
+    const fn check(&self) -> Option<&'static Check> {
         Some(match self {
-            Self::Decorated(_) => "foreign-decorator",
-            Self::ReturnsValue => "returned-value",
-            Self::Rebound(..) => "name-bound-again",
-            Self::NoDef(..) => "name-without-def",
-            Self::Under(_) => "def-under-block",
-            Self::NotOneComparison(_) | Self::EachShape(..) => "not-one-comparison",
-            Self::Computes(..) | Self::Input(..) => "computed-expected",
-            Self::Patched(..) => "patched-name",
-            Self::WithoutSpec(_) => "mock-without-spec",
-            Self::Imported(..) => "foreign-framework",
-            Self::TypeAlone(..) => "type-alone",
+            Self::Decorated(_) => &suppression::FOREIGN_DECORATOR,
+            Self::ReturnsValue => &suppression::RETURNED_VALUE,
+            Self::Rebound(..) => &suppression::NAME_BOUND_AGAIN,
+            Self::NoDef(..) => &suppression::NAME_WITHOUT_DEF,
+            Self::Under(_) => &suppression::DEF_UNDER_BLOCK,
+            Self::NotOneComparison(_) | Self::EachShape(..) => &suppression::NOT_ONE_COMPARISON,
+            Self::Computes(..) | Self::Input(..) => &suppression::COMPUTED_EXPECTED,
+            Self::Patched(..) => &suppression::PATCHED_NAME,
+            Self::WithoutSpec(_) => &suppression::MOCK_WITHOUT_SPEC,
+            Self::Imported(..) => &suppression::FOREIGN_FRAMEWORK,
+            Self::TypeAlone(..) => &suppression::TYPE_ALONE,
             Self::Fault(_) | Self::Async | Self::Generator | Self::NoDefault(_) | Self::Method => {
                 return None;
             }
@@ -236,7 +237,7 @@ fn suppress(reasons: Vec<Reason>, suppressions: &[Suppression]) -> (Vec<Reason>,
     for reason in reasons {
         let found = reason
             .check()
-            .and_then(|check| suppressions.iter().find(|named| named.check == check));
+            .and_then(|check| suppressions.iter().find(|named| named.check == check.name));
         let Some(suppression) = found else {
             kept.push(reason);
             continue;
@@ -383,12 +384,15 @@ fn type_alone(
     }
 }
 
-/// The tests of `module` that selection hands on, and each test it refuses.
+/// The tests of `module` that selection hands on, each test it refuses, the
+/// fault of its suppressions, and what became of each suppression.
 ///
-/// Each list keeps source order. `path` is the module's path as the tester
-/// typed it. A name defined twice is one test at its first `def`. Selection
-/// judges the last `def` of the name at the top, or the last `def` of the name
-/// under a statement when no `def` at the top binds the name. A `def` under a
+/// Selection reads the module's suppressions once. It judges them at each test
+/// that it refuses and that purba can call. Each list keeps source order.
+/// `path` is the module's path as the tester typed it. A name defined twice is
+/// one test at its first `def`. Selection judges the last `def` of the name at
+/// the top, or the last `def` of the name under a statement when no `def` at
+/// the top binds the name. A `def` under a
 /// statement at the module's level is a test that selection refuses, unless a
 /// `def` at the top binds the name.
 /// A `test` name that the module binds with no `def` is a test that selection
@@ -406,7 +410,7 @@ fn type_alone(
 ///
 /// In a build with the feature `fault`, when `PURBA_FAULT` is `selection`.
 #[must_use]
-pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
+pub fn select(path: &Path, module: &Module) -> Selected {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "selection")
     {
@@ -437,7 +441,7 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
             .filter(Suppression::seen_by_execution)
             .collect();
         if reasons.is_empty() {
-            test.notices = notices_of(function, module, &imported);
+            test.notices = notices_of(function, module, &imported, &outside.bound);
             tests.push(test);
         } else {
             refused.push((first, Refused { test, reasons }));
@@ -473,15 +477,69 @@ pub fn select(path: &Path, module: &Module) -> (Vec<TestId>, Vec<Refused>) {
         ));
     }
     refused.sort_by_key(|(offset, _)| *offset);
-    (
+    let refused: Vec<Refused> = refused.into_iter().map(|(_, refused)| refused).collect();
+    let mut ledger = Ledger::new(&sites, &tests, &refused);
+    for test in &refused {
+        ledger.refused(test);
+    }
+    Selected {
         tests,
-        refused.into_iter().map(|(_, refused)| refused).collect(),
-    )
+        refused,
+        fault: sites.module_fault(),
+        ledger,
+    }
+}
+
+/// What selection made of a module: its tests, the tests that it refuses, the
+/// fault of its suppressions, and what became of each suppression.
+pub struct Selected {
+    tests: Vec<TestId>,
+    refused: Vec<Refused>,
+    fault: Option<String>,
+    ledger: Ledger,
+}
+
+impl Selected {
+    /// The tests that selection selects, in source order.
+    #[must_use]
+    pub fn tests(&self) -> &[TestId] {
+        &self.tests
+    }
+
+    /// The tests that selection refuses, in source order.
+    #[must_use]
+    pub fn refused(&self) -> &[Refused] {
+        &self.refused
+    }
+
+    /// The fault of the module's suppressions, or `None` when there is none.
+    ///
+    /// It holds each fault of a suppression of the module, and each `# purba:`
+    /// comment that sits above no test, joined by `; `.
+    #[must_use]
+    pub fn fault(&self) -> Option<&str> {
+        self.fault.as_deref()
+    }
+
+    /// Judges each suppression that reaches `test`, one of a check that
+    /// execution sees only when `judged`. A check that selection sees counts
+    /// as used when the test suppressed it, and a check that execution sees
+    /// when `warned` names it.
+    pub fn judge(&mut self, test: &TestId, warned: &[&str], judged: bool) {
+        self.ledger.judge(test, warned, judged);
+    }
+
+    /// The words of each unused suppression that purba judged at each test it
+    /// reaches, in source order.
+    #[must_use]
+    pub fn unused(&self) -> Vec<String> {
+        self.ledger.unused()
+    }
 }
 
 /// Each suppression of a module, beside how many tests it reaches, at how many
 /// of them purba judged it, and whether purba counts it as used.
-pub struct Ledger {
+struct Ledger {
     entries: Vec<Line>,
 }
 
@@ -494,12 +552,10 @@ struct Line {
 }
 
 impl Ledger {
-    /// The suppressions of `module`, each beside how many tests of `tests` and
+    /// The suppressions of `sites`, each beside how many tests of `tests` and
     /// `refused` it reaches.
-    #[must_use]
-    pub fn new(module: &Module, tests: &[TestId], refused: &[Refused]) -> Self {
-        let Found { defs, .. } = found(module);
-        let mut entries: Vec<Line> = suppression::sites(module, &test_defs(module, &defs))
+    fn new(sites: &suppression::Sites, tests: &[TestId], refused: &[Refused]) -> Self {
+        let mut entries: Vec<Line> = sites
             .all()
             .into_iter()
             .map(|suppression| Line {
@@ -522,11 +578,8 @@ impl Ledger {
         Self { entries }
     }
 
-    /// Judges each suppression that reaches `test`, one of a check that execution
-    /// sees only when `judged`. A check that selection sees counts as used when
-    /// the test suppressed it, and a check that execution sees when `warned`
-    /// names it.
-    pub fn judge(&mut self, test: &TestId, warned: &[&str], judged: bool) {
+    /// Judges each suppression that reaches `test`, as [`Selected::judge`] says.
+    fn judge(&mut self, test: &TestId, warned: &[&str], judged: bool) {
         for reaching in &test.reaching {
             let Some(entry) = self
                 .entries
@@ -552,16 +605,14 @@ impl Ledger {
 
     /// Judges each suppression of a check that selection sees that reaches the
     /// refused test, unless purba cannot call the test.
-    pub fn refused(&mut self, refused: &Refused) {
+    fn refused(&mut self, refused: &Refused) {
         if !refused.reasons.iter().any(Reason::cannot_call) {
             self.judge(&refused.test, &[], false);
         }
     }
 
-    /// The words of each unused suppression that purba judged at each test it
-    /// reaches, in source order.
-    #[must_use]
-    pub fn unused(&self) -> Vec<String> {
+    /// The words of each unused suppression, as [`Selected::unused`] says.
+    fn unused(&self) -> Vec<String> {
         self.entries
             .iter()
             .filter(|entry| !entry.used && entry.judged == entry.reaches)
@@ -580,16 +631,6 @@ impl Ledger {
             })
             .collect()
     }
-}
-
-/// The fault of the module's suppressions, or `None` when there is none.
-///
-/// It holds each fault of a suppression of the module, and each `# purba:`
-/// comment that sits above no test, joined by `; `.
-#[must_use]
-pub fn module_fault(module: &Module) -> Option<String> {
-    let Found { defs, .. } = found(module);
-    suppression::sites(module, &test_defs(module, &defs)).module_fault()
 }
 
 /// The tests of a module at its top or under a statement there.
@@ -1376,7 +1417,13 @@ fn faults_of(
     let mut targets = HashSet::new();
     let locals = locals_of(function);
     let mut mocks = HashSet::new();
-    for (offset, fault) in patch::faults(&function.body, &locals, imported, module.source()) {
+    for (offset, fault) in patch::faults(
+        &function.body,
+        &locals,
+        imported,
+        &outside.bound,
+        module.source(),
+    ) {
         let at = line(offset);
         match fault {
             patch::Fault::Patched(target) if targets.insert((at, target.clone())) => {
@@ -1526,10 +1573,11 @@ fn notices_of(
     function: &StmtFunctionDef,
     module: &Module,
     imported: &HashMap<&str, String>,
+    bound: &HashSet<&str>,
 ) -> Vec<String> {
     let line = |offset: TextSize| module.position(offset).line();
     let locals = locals_of(function);
-    let mut found = Names::of(&function.body, &locals, imported);
+    let mut found = Names::of(&function.body, &locals, imported, bound);
     found.sort_by_key(|(offset, _)| *offset);
     let mut seen = HashSet::new();
     found
@@ -1544,8 +1592,7 @@ fn notices_of(
 /// not, and a private origin of an `import` in the body. The body of a nested
 /// `def`, `lambda` or `class` is the test's too.
 struct Names<'a, 'b> {
-    locals: &'b HashSet<&'a str>,
-    imported: &'b HashMap<&'a str, String>,
+    lookup: lookup::Lookup<'a, 'b>,
     found: Vec<(TextSize, String)>,
     pending: Vec<Node<'a>>,
 }
@@ -1555,10 +1602,10 @@ impl<'a, 'b> Names<'a, 'b> {
         statements: &'a [Stmt],
         locals: &'b HashSet<&'a str>,
         imported: &'b HashMap<&'a str, String>,
+        bound: &'b HashSet<&'a str>,
     ) -> Vec<(TextSize, String)> {
         let mut names = Self {
-            locals,
-            imported,
+            lookup: lookup::Lookup::new(statements, locals, imported, bound),
             found: Vec::new(),
             pending: Vec::new(),
         };
@@ -1600,11 +1647,10 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
                     .push((attribute.attr.start(), attribute.attr.to_string()));
             }
             Expr::Name(name) if name.ctx == ExprContext::Load => {
-                if let Some(origin) = self.imported.get(name.id.as_str())
+                if let lookup::Origin::Imported(origin) = self.lookup.origin(name.id.as_str())
                     && of_a_private_path(origin)
-                    && !self.locals.contains(name.id.as_str())
                 {
-                    self.found.push((name.start(), origin.clone()));
+                    self.found.push((name.start(), origin.to_owned()));
                 }
             }
             _ => {}
