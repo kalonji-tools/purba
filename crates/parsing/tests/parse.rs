@@ -4,7 +4,8 @@ use std::path::PathBuf;
 use std::thread;
 
 use purba_parsing::{Error, SyntaxError};
-use ruff_python_ast::Stmt;
+use ruff_python_ast::{Expr, Stmt, StmtAssert};
+use ruff_text_size::Ranged;
 
 const SMALL_STACK: usize = 256 * 1024;
 
@@ -360,4 +361,97 @@ fn an_assert_with_no_value_or_a_starred_value_gives_ruffs_message() {
             "{name}: ruff's words for its first error"
         );
     }
+}
+
+/// The text of each expectation at the end of the module's first `def`, as
+/// `ending` gives them when `keeps` decides which asserts count.
+fn ending_of(name: &str, text: &str, keeps: impl Fn(&StmtAssert) -> bool) -> Vec<String> {
+    let module = purba_parsing::parse(&write(name, text)).expect("the module parses");
+    let Some(Stmt::FunctionDef(function)) = module.syntax().body.first() else {
+        panic!("{name}: the module starts with a def");
+    };
+    purba_parsing::ending(&function.body, keeps)
+        .into_iter()
+        .map(|assert| module.source()[assert.range()].to_owned())
+        .collect()
+}
+
+fn of_a_tuple(assert: &StmtAssert) -> bool {
+    matches!(&*assert.test, Expr::Tuple(_))
+}
+
+#[test]
+fn the_expectations_are_the_asserts_at_the_end_of_a_body() {
+    let text = concat!(
+        "def test_a():\n",
+        "    x = 1\n",
+        "    assert x == 2\n",
+        "    y = 3\n",
+        "    assert x == 1\n",
+        "    assert y == 3\n",
+    );
+
+    assert_eq!(
+        ending_of("test_end.py", text, |_| true),
+        ["assert x == 1", "assert y == 3"],
+        "the asserts after the last other statement, in source order"
+    );
+}
+
+#[test]
+fn the_asserts_at_the_end_of_a_with_before_them_come_first() {
+    let nested = concat!(
+        "def test_a():\n",
+        "    with open('a') as a:\n",
+        "        with open('b') as b:\n",
+        "            assert a == 1\n",
+        "        assert b == 2\n",
+        "    assert a == 3\n",
+    );
+    let awaited =
+        "async def test_b():\n    async with c as d:\n        assert d == 1\n    assert d == 2\n";
+
+    assert_eq!(
+        ending_of("test_with.py", nested, |_| true),
+        ["assert a == 1", "assert b == 2", "assert a == 3"],
+        "the walk enters each with just before the asserts, at two depths"
+    );
+    assert_eq!(
+        ending_of("test_async_with.py", awaited, |_| true),
+        ["assert d == 2"],
+        "an async with ends the walk"
+    );
+}
+
+#[test]
+fn a_with_that_a_statement_keeps_from_the_asserts_is_not_entered() {
+    let apart = concat!(
+        "def test_c():\n",
+        "    with open('c') as c:\n",
+        "        assert c == 1\n",
+        "    x = 2\n",
+        "    assert x == 2\n",
+    );
+
+    assert_eq!(
+        ending_of("test_with_apart.py", apart, |_| true),
+        ["assert x == 2"],
+        "the walk enters only a with just before the asserts"
+    );
+}
+
+#[test]
+fn an_assert_that_keeps_refuses_ends_the_walk() {
+    let text = "def test_a():\n    x = 1\n    assert x == 1\n    assert (x, 1)\n";
+
+    assert_eq!(
+        ending_of("test_tuple_end.py", text, |assert| !of_a_tuple(assert)),
+        Vec::<String>::new(),
+        "a refused tuple assert at the end hides the assert before it"
+    );
+    assert_eq!(
+        ending_of("test_tuple_kept.py", text, |_| true),
+        ["assert x == 1", "assert (x, 1)"],
+        "an assert that keeps takes counts like any other"
+    );
 }

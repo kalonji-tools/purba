@@ -15,7 +15,7 @@ use ruff_python_ast::visitor::{self, Visitor};
 use ruff_python_ast::{
     AtomicNodeIndex, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
-    StmtPass, UnaryOp,
+    StmtAssert, StmtPass, UnaryOp,
 };
 use ruff_source_file::LineIndex;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
@@ -601,4 +601,34 @@ pub fn each(test: &Expr) -> Option<Each<'_>> {
         [_, _, _] => other("with three for"),
         _ => other("with more than three for"),
     }
+}
+
+/// The asserts at the end of `body` that `keeps` takes, in source order.
+///
+/// The walk starts at the last statement of `body`, and goes up. It stops at
+/// the first statement that is not an assert that `keeps` takes. When that
+/// statement is a `with`, the walk goes on from the end of the `with`'s body.
+/// An `async with` stops the walk.
+#[must_use]
+pub fn ending(body: &[Stmt], keeps: impl Fn(&StmtAssert) -> bool) -> Vec<&StmtAssert> {
+    let mut segments: Vec<Vec<&StmtAssert>> = Vec::new();
+    let mut current = body;
+    loop {
+        let mut asserts: Vec<&StmtAssert> = current
+            .iter()
+            .rev()
+            .map_while(|statement| match statement {
+                Stmt::Assert(assert) if keeps(assert) => Some(assert),
+                _ => None,
+            })
+            .collect();
+        asserts.reverse();
+        let before = current.len() - asserts.len();
+        segments.push(asserts);
+        match before.checked_sub(1).map(|last| &current[last]) {
+            Some(Stmt::With(with)) if !with.is_async => current = &with.body,
+            _ => break,
+        }
+    }
+    segments.into_iter().rev().flatten().collect()
 }

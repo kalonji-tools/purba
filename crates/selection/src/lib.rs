@@ -15,7 +15,7 @@ use ruff_python_ast::visitor::{
 };
 use ruff_python_ast::{
     Alias, Comprehension, Decorator, ExceptHandler, Expr, ExprContext, Identifier,
-    InterpolatedStringElement, ModModule, Parameters, Pattern, Stmt, StmtAssert, StmtFunctionDef,
+    InterpolatedStringElement, ModModule, Parameters, Pattern, Stmt, StmtFunctionDef,
 };
 use ruff_text_size::{Ranged, TextSize};
 
@@ -1345,7 +1345,7 @@ fn faults_of(
         Expr::Name(name) if inputs.contains(name.id.as_str()) => Some(name.id.to_string()),
         _ => None,
     };
-    for assert in expectations(&function.body) {
+    for assert in purba_parsing::ending(&function.body, |_| true) {
         let start = assert.start();
         let check = match purba_parsing::each(&assert.test) {
             Some(Each::One { check, .. }) => check,
@@ -1619,30 +1619,4 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
     fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
         self.pending.push(Node::Element(element));
     }
-}
-
-/// The expectations at the end of `body`: the asserts at its end, with no other
-/// statement after them, after those at the end of the body of a `with` just
-/// before them, at any depth. Each comes in source order.
-fn expectations(body: &[Stmt]) -> Vec<&StmtAssert> {
-    let mut segments: Vec<Vec<&StmtAssert>> = Vec::new();
-    let mut current = body;
-    loop {
-        let mut asserts: Vec<&StmtAssert> = current
-            .iter()
-            .rev()
-            .map_while(|statement| match statement {
-                Stmt::Assert(assert) => Some(assert),
-                _ => None,
-            })
-            .collect();
-        asserts.reverse();
-        let before = current.len() - asserts.len();
-        segments.push(asserts);
-        match before.checked_sub(1).map(|last| &current[last]) {
-            Some(Stmt::With(with)) if !with.is_async => current = &with.body,
-            _ => break,
-        }
-    }
-    segments.into_iter().rev().flatten().collect()
 }

@@ -263,32 +263,6 @@ impl<'a> StatementVisitor<'a> for Asserts<'a> {
     }
 }
 
-/// The expectations at the end of `body`: the asserts at its end, with no other
-/// statement after them, after those at the end of the body of a `with` just
-/// before them, at any depth. Each comes in source order.
-fn ending(body: &[Stmt]) -> Vec<&StmtAssert> {
-    let mut segments: Vec<Vec<&StmtAssert>> = Vec::new();
-    let mut current = body;
-    loop {
-        let mut asserts: Vec<&StmtAssert> = current
-            .iter()
-            .rev()
-            .map_while(|statement| match statement {
-                Stmt::Assert(assert) if !of_a_tuple(assert) => Some(assert),
-                _ => None,
-            })
-            .collect();
-        asserts.reverse();
-        let before = current.len() - asserts.len();
-        segments.push(asserts);
-        match before.checked_sub(1).map(|last| &current[last]) {
-            Some(Stmt::With(with)) if !with.is_async => current = &with.body,
-            _ => break,
-        }
-    }
-    segments.into_iter().rev().flatten().collect()
-}
-
 /// The `def` of each test of `module` that `tests` names, in source order, at
 /// the top of the module. When two `def`s bind one name, the last binds it.
 fn tests_of<'a>(module: &'a Module, tests: &[&str]) -> Vec<&'a StmtFunctionDef> {
@@ -420,7 +394,12 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
     let line = |offset: TextSize| module.position(offset).line();
     let by_test: Vec<(&StmtFunctionDef, Vec<&StmtAssert>)> = tests_of(module, tests)
         .into_iter()
-        .map(|function| (function, ending(&function.body)))
+        .map(|function| {
+            (
+                function,
+                purba_parsing::ending(&function.body, |assert| !of_a_tuple(assert)),
+            )
+        })
         .collect();
     let all: Vec<&StmtAssert> = by_test
         .iter()
@@ -1162,7 +1141,7 @@ pub struct Readings {
 }
 
 /// What an expectation that did not hold shows.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Shown {
     /// A check of one value: its expected value and its reading. Each is the
     /// `repr` of its value, beside the name of its class when the two `repr`s
