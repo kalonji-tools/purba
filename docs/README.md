@@ -5,6 +5,7 @@
 ## Product design
 
 - [A concern is what no part can own](decisions/a-concern-is-what-no-part-can-own.md)
+- [A concern's shared names may live in a part](decisions/a-concerns-shared-names-may-live-in-a-part.md)
 - [A crate joins when its relief exceeds its pain](decisions/a-crate-joins-when-its-relief-exceeds-its-pain.md)
 - [A design in depth waits for what it assumes](decisions/a-design-in-depth-waits-for-what-it-assumes.md)
 - [A forecast finds the crates for each stated need](decisions/a-forecast-finds-the-crates-for-each-stated-need.md)
@@ -91,6 +92,7 @@
 ### strictness
 
 - [A case of each strict check shows its refusal and its departure](decisions/a-case-of-each-strict-check-shows-its-refusal-and-its-departure.md)
+- [A concern's shared names may live in a part](decisions/a-concerns-shared-names-may-live-in-a-part.md)
 - [A stand-in enters a test as an argument, so selection refuses a patch and a mock with no spec](decisions/a-stand-in-enters-a-test-as-an-argument.md)
 - [A suppression is an outcome and not a switch](decisions/a-suppression-is-an-outcome-and-not-a-switch.md)
 - [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)

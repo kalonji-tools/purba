@@ -45,6 +45,7 @@ The definition keeps out what a part owns, and what has no design of its own.
 
 [purba is always strict](purba-is-always-strict.md#decision-outcome) holds why no switch turns strictness off.
 [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds why a value that tightens a check is not a switch.
+[A concern's shared names may live in a part](a-concerns-shared-names-may-live-in-a-part.md#decision-outcome) holds which part keeps the names that a concern's parts share.
 
 **A part crosses the seam when its job needs a live Python object.**
 Command takes the arguments and returns an exit code, both data, so it does not cross the seam.

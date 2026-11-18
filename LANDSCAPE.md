@@ -152,7 +152,7 @@ sequenceDiagram
 ## The cross-cutting concerns
 
 - **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.
-- **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in selection, execution, fixtures and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
+- **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in command, selection, dispatch, execution, fixtures, assertion and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on an interrupt and tears down what was built, in command, dispatch, execution, fixtures and reporting. [An interrupt stops the run, and a second one exits at once](docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds its design in depth.
 - **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.

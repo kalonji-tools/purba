@@ -70,7 +70,7 @@ A way past one verdict must therefore show in the report.
 - **purba reports an unused suppression above a test whose act raises only in a run in which the act returns.**
 - **A run with a failed case exits 1, even when a suppression is unused.** Its exit code alone does not show an unused suppression.
 - **The rule for configuration admits a value that states no fact about the project.** [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) calls the line between a fact and a switch thin. The cap moves that line.
-- **Selection and execution each write the names of the checks that execution sees.** Selection checks the name of each suppression, and execution names each fault that it sees. Neither part reaches the other. The tests quote each name.
+- **Execution keeps a copy of the names of the checks of the practice tier that it sees.** Selection's table holds each name. Execution cannot reach selection. A test of dispatch, which reaches both, fails when the copy and the table differ. Execution still names each fault that it sees as a literal. The tests quote each name.
 - **A tester cannot suppress a `def` under a block, a test name with no `def`, or a `return` of a value.** The tester rewrites such a test instead.
 - **A suppression of a test in a class does not count.** No suppression reaches a test that purba cannot call.
 
