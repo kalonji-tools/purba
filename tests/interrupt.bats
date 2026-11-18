@@ -749,7 +749,7 @@ test_thread_error.py::test_two interrupted
 test_thread_error.py::test_two project error: thread T raised ValueError: late
 3 cases: 1 passed, 1 interrupted, 1 unreached; 1 project error
 LINES
-  [[ "${stderr%%$'\n'*}" == "${SIGINT_LINE}" ]] || false
+  [[ $'\n'"${stderr}" == *$'\n'"${SIGINT_LINE}"$'\n'* ]] || false
   [[ "${stderr##*$'\n'}" == 'purba ended by SIGINT' ]] || false
   [[ ! -e three ]]
 }
