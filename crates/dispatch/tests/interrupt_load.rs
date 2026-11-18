@@ -35,7 +35,7 @@ fn module(name: &str, source: &str, tests: Vec<Named>) -> Module<Named> {
 // So the one signal of this binary lives in this one test.
 #[test]
 fn dispatch_hands_on_each_test_after_an_interrupt_in_a_load_as_unreached() {
-    purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+    purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
     let first = module(
         "test_first.py",
         "import signal\n\nsignal.raise_signal(signal.SIGINT)\n\n\

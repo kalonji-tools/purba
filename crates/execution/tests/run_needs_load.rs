@@ -17,7 +17,7 @@ fn a_run_on_a_module_never_given_to_load_is_an_internal_error_and_runs_none_of_i
             .expect("the source parses"),
     );
     let (shown, kept) = purba_execution::attach(|worker| {
-        purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+        purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         let error = worker
             .run(&module, "test_one", &[], "test_one")
             .expect_err("a run needs a load of its module first");

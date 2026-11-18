@@ -60,8 +60,7 @@ fn main(py: Python<'_>) -> u8 {
         Ok(argv) => argv,
         Err(error) => return stop(&error),
     };
-    purba_execution::panic::wrap_hook();
-    if let Err(error) = purba_execution::interrupt::install() {
+    if let Err(error) = purba_execution::set_hooks() {
         return stop(&error);
     }
     let code = match panic::catch_unwind(|| {

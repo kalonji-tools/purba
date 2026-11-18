@@ -328,7 +328,7 @@ fn end_children() {
 
 /// The first interrupt signal that this process kept, or else the one that
 /// arrived, or 0.
-pub(crate) fn first() -> i32 {
+pub fn first() -> i32 {
     match KEPT.load(Ordering::SeqCst) {
         0 => ARRIVED.load(Ordering::SeqCst),
         kept => kept,
@@ -337,7 +337,7 @@ pub(crate) fn first() -> i32 {
 
 /// Takes `signum`, the first interrupt of a zygote or of a test's process, as
 /// purba's own, when purba kept none: a mask can hold it from purba alone.
-pub(crate) fn adopt(signum: i32) {
+pub fn adopt(signum: i32) {
     if !SIGNALS.contains(&signum) {
         return;
     }
@@ -357,19 +357,19 @@ pub(crate) fn adopt(signum: i32) {
 }
 
 /// Ends purba by `signum` when it is an interrupt signal.
-pub(crate) fn die_with(signum: i32) {
+pub fn die_with(signum: i32) {
     if SIGNALS.contains(&signum) {
         die_by(signum);
     }
 }
 
 /// Keeps `pid` as the zygote that runs now, or 0 once it ended.
-pub(crate) fn follow_zygote(pid: libc::pid_t) {
+pub fn follow_zygote(pid: libc::pid_t) {
     ZYGOTE.store(pid, Ordering::SeqCst);
 }
 
 /// Keeps `pid` as the test's process that runs now, or 0 once it ended.
-pub(crate) fn follow_test(pid: libc::pid_t) {
+pub fn follow_test(pid: libc::pid_t) {
     TEST.store(pid, Ordering::SeqCst);
 }
 
@@ -524,7 +524,7 @@ fn give_back_in_child(py: Python<'_>) -> PyResult<()> {
 
 /// Whether the signal handler kept a signal. A signal that waits runs the
 /// signal handler before this check.
-pub(crate) fn kept(py: Python<'_>) -> bool {
+pub fn kept(py: Python<'_>) -> bool {
     // While the command runs, purba's signal handler raises nothing outside a
     // call. A signal handler that a test installed may raise here. Its error
     // has no test to charge, so `kept` drops it.
@@ -534,7 +534,7 @@ pub(crate) fn kept(py: Python<'_>) -> bool {
 
 /// Whether the signal handler kept a signal. It runs no Python, so a signal
 /// that waits still waits after it.
-pub(crate) fn kept_now() -> bool {
+pub fn kept_now() -> bool {
     KEPT.load(Ordering::SeqCst) != 0
 }
 
@@ -542,7 +542,7 @@ pub(crate) fn kept_now() -> bool {
 /// `KeyboardInterrupt`. Also says whether the first signal landed inside it.
 /// Then gives each interrupt signal back what `put_back` names, if the test or
 /// the module changed it.
-pub(crate) fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
+pub fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
     struct Close;
     impl Drop for Close {
         fn drop(&mut self) {

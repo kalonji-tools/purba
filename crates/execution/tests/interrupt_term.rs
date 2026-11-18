@@ -45,7 +45,7 @@ fn a_sigterm_in_a_call_makes_the_test_interrupted_and_each_signal_keeps_a_handle
     // A signal that purba's parent ignores stays ignored.
     let before = SIGNALS.map(disposition);
     let kind = purba_execution::attach(|worker| {
-        purba_execution::interrupt::install().expect("purba's signal handler takes each signal");
+        purba_execution::set_hooks().expect("purba's signal handler takes each signal");
         worker.load(&module).expect("the module loads");
         worker
             .run(&module, "test_term", &[], "test_term")

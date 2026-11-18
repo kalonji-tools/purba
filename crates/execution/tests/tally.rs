@@ -115,3 +115,27 @@ fn a_tally_counts_an_unreached_test_apart_from_each_outcome() {
         "one passed test, and two that the run never reached"
     );
 }
+
+#[test]
+fn a_tally_counts_its_cases_and_no_error_or_suppression() {
+    // Each counter holds its own power of two, so the sum names each counter
+    // that it took.
+    let tally = Tally {
+        passed: 1,
+        failed: 2,
+        raised: 4,
+        interrupted: 8,
+        blocked: 16,
+        unreached: 32,
+        project_errors: 64,
+        internal_errors: 128,
+        invocation_errors: 256,
+        suppressed: 512,
+    };
+    assert_eq!(
+        tally.cases(),
+        63,
+        "a case passed, failed, raised, is interrupted, is blocked or is unreached; \
+         an error and a suppression are no case"
+    );
+}

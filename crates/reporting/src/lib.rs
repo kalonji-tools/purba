@@ -184,12 +184,7 @@ impl<W: Write> Report<W> {
 }
 
 fn count_line(tally: &Tally) -> String {
-    let cases = tally.passed
-        + tally.failed
-        + tally.raised
-        + tally.interrupted
-        + tally.blocked
-        + tally.unreached;
+    let cases = tally.cases();
     let outcomes: Vec<String> = [
         (tally.passed, "passed"),
         (tally.failed, "failed"),

@@ -42,7 +42,7 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
     let signal_module = module("test_load_signal.py", TEST_LOAD_SIGNAL);
     let (steps, handler, after): (Vec<Step>, String, Result<(), String>) =
         purba_execution::attach(|worker: &mut Worker<'_, ()>| {
-            purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+            purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
             let mut steps = Vec::new();
             let loaded = worker
                 .load(&handler_module)
