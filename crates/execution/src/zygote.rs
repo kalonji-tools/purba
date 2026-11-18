@@ -7,69 +7,326 @@
 //! test's process loads the module before its test.
 
 use std::fs::File;
-use std::io::{self, ErrorKind};
+use std::io::{self, ErrorKind, Read, Write};
 use std::os::fd::{FromRawFd, OwnedFd};
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use pyo3::Python;
 use pyo3::types::PyAnyMethods;
 
-use crate::fork::{Forked, fork};
-use purba_assertion::{Readers, Verdict};
+use purba_assertion::{Readers, Replaced, Verdict};
 
+use crate::fork::{Forked, fork};
 use crate::{
     Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Suppressed, Warning, Worker, frame,
-    interrupt, panic, reader,
+    interrupt, panic,
 };
 
-/// The tags of the frames.
-mod tag {
-    /// purba names the test to run: the name of its function, then the name of
-    /// each check that a suppression of the test reaches and its reason, each
-    /// as `put` writes it.
-    pub const TEST: u8 = b'n';
-    /// purba asks for a replay of a test: the name of its function, a NUL,
-    /// and the index of the expectation that the replay reads alone.
-    pub const REPLAY: u8 = b'y';
-    /// Each later expectation that a replay must read alone: its index, `1`
-    /// when it held in order or `0`, and its text, each after a NUL but the
-    /// first.
-    pub const LATER: u8 = b'q';
+/// Each message that crosses a pipe between purba, a zygote and a test's
+/// process. Each one is one frame: the tag of its kind, then each of its
+/// fields, as `put` writes it. A field holds any text, a NUL too.
+#[derive(Debug)]
+enum Message {
+    /// purba names the test to run: the name of its function, and each check
+    /// that a suppression of the test reaches, beside its reason.
+    Test {
+        function: String,
+        suppressions: Vec<(String, String)>,
+    },
+    /// purba asks for a replay of the test `function` that reads the
+    /// expectation at `index` alone.
+    Replay { function: String, index: usize },
+    /// Each later expectation that a replay must read alone: its index,
+    /// whether it held in order, and its text.
+    Later(Vec<(usize, bool, String)>),
     /// The load ended, and the zygote forks each test from now on.
-    pub const READY: u8 = b'g';
+    Ready,
     /// A thread is alive after the load, and the zygote ends.
-    pub const THREADED: u8 = b't';
+    Threaded,
     /// The load returned, and kept its module or met an interrupt.
-    pub const LOADED: u8 = b'l';
+    Loaded,
     /// The test's process started: its pid.
+    Forked(libc::pid_t),
+    /// A warning of the case. Each comes before the outcome.
+    Warned(Warning),
+    /// Execution read the paths of the case, and so judged each suppression of
+    /// its checks. It comes before the outcome.
+    Judged,
+    /// The outcome of the case.
+    Outcome(Kind),
+    /// The error in place of the result of a load or the outcome of a case.
+    Error(Error),
+    /// The error of a thread that the test left, as text.
+    TestThread(String),
+    /// The error of a thread that the load left, as text.
+    LoadThread(String),
+    /// The first interrupt that the process kept: the number of its signal.
+    Kept(i32),
+    /// The test's process ended: its wait status.
+    Ended(libc::c_int),
+}
+
+/// The tag of each kind of message.
+mod tag {
+    pub const TEST: u8 = b'n';
+    pub const REPLAY: u8 = b'y';
+    pub const LATER: u8 = b'q';
+    pub const READY: u8 = b'g';
+    pub const THREADED: u8 = b't';
+    pub const LOADED: u8 = b'l';
     pub const FORKED: u8 = b'c';
+    pub const WARNED: u8 = b'u';
+    pub const JUDGED: u8 = b'j';
     pub const PASSED: u8 = b'p';
     pub const INTERRUPTED: u8 = b'i';
-    /// Each quote of a failed case, as `quotes_frame` writes it. The `repr` of a
-    /// reading may hold a NUL, so each field carries its length.
     pub const FAILED: u8 = b'f';
-    /// A warning of the case: its check, its words and its reason, each as
-    /// `put` writes it. Each comes before the outcome.
-    pub const WARNED: u8 = b'u';
-    /// Execution read the paths of the case, and so judged each suppression of
-    /// its checks. It comes before the outcome, with no text.
-    pub const JUDGED: u8 = b'j';
-    /// The exception, as text, then the frame that it came from when one is
-    /// named, each as `put` writes it.
     pub const RAISED: u8 = b'r';
-    /// A project error, as text.
     pub const PROJECT: u8 = b'e';
-    /// An internal error: the part, a line feed, and the message.
     pub const INTERNAL: u8 = b'x';
-    /// The error of a thread that the test left, as text.
     pub const TEST_THREAD: u8 = b'h';
-    /// The error of a thread that the load left, as text.
     pub const LOAD_THREAD: u8 = b'H';
-    /// The first interrupt that the process kept: the number of its signal.
     pub const KEPT: u8 = b'k';
-    /// The test's process ended: its wait status.
     pub const ENDED: u8 = b'w';
+}
+
+impl Message {
+    /// Writes the message as one frame.
+    fn write(&self, to: &mut impl Write) -> io::Result<()> {
+        let mut text = String::new();
+        let mut put = |field: &str| put(&mut text, field);
+        let tag = match self {
+            Self::Test {
+                function,
+                suppressions,
+            } => {
+                put(function);
+                for (check, reason) in suppressions {
+                    put(check);
+                    put(reason);
+                }
+                tag::TEST
+            }
+            Self::Replay { function, index } => {
+                put(function);
+                put(&index.to_string());
+                tag::REPLAY
+            }
+            Self::Later(later) => {
+                for (index, held, expectation) in later {
+                    put(&index.to_string());
+                    put(if *held { "1" } else { "0" });
+                    put(expectation);
+                }
+                tag::LATER
+            }
+            Self::Ready => tag::READY,
+            Self::Threaded => tag::THREADED,
+            Self::Loaded => tag::LOADED,
+            Self::Forked(pid) => {
+                put(&pid.to_string());
+                tag::FORKED
+            }
+            Self::Warned(warning) => {
+                put(&warning.check);
+                put(&warning.words);
+                put(&warning.reason);
+                tag::WARNED
+            }
+            Self::Judged => tag::JUDGED,
+            Self::Outcome(Kind::Passed) => tag::PASSED,
+            Self::Outcome(Kind::Interrupted) => tag::INTERRUPTED,
+            Self::Outcome(Kind::Failed { asserts }) => {
+                for quote in asserts {
+                    put(&quote.assert);
+                    match &quote.shown {
+                        Some(Shown::Values { expected, reading }) => {
+                            put("1");
+                            put(expected);
+                            put(reading);
+                        }
+                        Some(Shown::Items { heading, items }) => {
+                            put("2");
+                            put(heading);
+                            put(&items.len().to_string());
+                            for item in items {
+                                put(item);
+                            }
+                        }
+                        None => put("0"),
+                    }
+                }
+                tag::FAILED
+            }
+            Self::Outcome(Kind::Raised { exception, whence }) => {
+                put(exception);
+                if let Some(whence) = whence {
+                    put(whence);
+                }
+                tag::RAISED
+            }
+            Self::Error(Error(Reason::Project(project))) => {
+                put(project);
+                tag::PROJECT
+            }
+            Self::Error(Error(Reason::Internal(caught))) => {
+                put(&caught.part);
+                put(&caught.message);
+                tag::INTERNAL
+            }
+            Self::TestThread(error) => {
+                put(error);
+                tag::TEST_THREAD
+            }
+            Self::LoadThread(error) => {
+                put(error);
+                tag::LOAD_THREAD
+            }
+            Self::Kept(signum) => {
+                put(&signum.to_string());
+                tag::KEPT
+            }
+            Self::Ended(status) => {
+                put(&status.to_string());
+                tag::ENDED
+            }
+        };
+        frame::write(to, tag, &text)
+    }
+
+    /// Reads one message. Gives `None` when the pipe ends before a frame
+    /// starts. A frame that holds no message gives an internal error of
+    /// execution in its place.
+    fn read(from: &mut impl Read) -> io::Result<Option<Result<Self, Error>>> {
+        Ok(frame::read(from)?.map(|(tag, text)| {
+            Self::of(tag, &text).ok_or_else(|| {
+                Error(Reason::Internal(panic::Caught {
+                    part: "execution".to_owned(),
+                    message: format!("the frame {:?} holds no message", char::from(tag)),
+                }))
+            })
+        }))
+    }
+
+    /// The message that the frame of `tag` and `text` holds, or `None` when it
+    /// holds none.
+    fn of(tag: u8, text: &str) -> Option<Self> {
+        let mut fields = Fields(text);
+        let message = match tag {
+            tag::TEST => {
+                let function = fields.text()?;
+                let mut suppressions = Vec::new();
+                while !fields.0.is_empty() {
+                    suppressions.push((fields.text()?, fields.text()?));
+                }
+                Self::Test {
+                    function,
+                    suppressions,
+                }
+            }
+            tag::REPLAY => Self::Replay {
+                function: fields.text()?,
+                index: fields.number()?,
+            },
+            tag::LATER => {
+                let mut later = Vec::new();
+                while !fields.0.is_empty() {
+                    let index = fields.number()?;
+                    let held = match fields.text()?.as_str() {
+                        "1" => true,
+                        "0" => false,
+                        _ => return None,
+                    };
+                    later.push((index, held, fields.text()?));
+                }
+                Self::Later(later)
+            }
+            tag::READY => Self::Ready,
+            tag::THREADED => Self::Threaded,
+            tag::LOADED => Self::Loaded,
+            tag::FORKED => Self::Forked(fields.number()?),
+            tag::WARNED => Self::Warned(Warning {
+                check: fields.text()?,
+                words: fields.text()?,
+                reason: fields.text()?,
+            }),
+            tag::JUDGED => Self::Judged,
+            tag::PASSED => Self::Outcome(Kind::Passed),
+            tag::INTERRUPTED => Self::Outcome(Kind::Interrupted),
+            tag::FAILED => {
+                let mut asserts = Vec::new();
+                while !fields.0.is_empty() {
+                    let assert = fields.text()?;
+                    let shown = match fields.text()?.as_str() {
+                        "1" => Some(Shown::Values {
+                            expected: fields.text()?,
+                            reading: fields.text()?,
+                        }),
+                        "2" => {
+                            let heading = fields.text()?;
+                            let length: usize = fields.number()?;
+                            let items = (0..length)
+                                .map(|_| fields.text())
+                                .collect::<Option<Vec<String>>>()?;
+                            Some(Shown::Items { heading, items })
+                        }
+                        "0" => None,
+                        _ => return None,
+                    };
+                    asserts.push(Quote { assert, shown });
+                }
+                Self::Outcome(Kind::Failed { asserts })
+            }
+            tag::RAISED => {
+                let exception = fields.text()?;
+                let whence = if fields.0.is_empty() {
+                    None
+                } else {
+                    Some(fields.text()?)
+                };
+                Self::Outcome(Kind::Raised { exception, whence })
+            }
+            tag::PROJECT => Self::Error(Error::project(fields.text()?)),
+            tag::INTERNAL => Self::Error(Error(Reason::Internal(panic::Caught {
+                part: fields.text()?,
+                message: fields.text()?,
+            }))),
+            tag::TEST_THREAD => Self::TestThread(fields.text()?),
+            tag::LOAD_THREAD => Self::LoadThread(fields.text()?),
+            tag::KEPT => Self::Kept(fields.number()?),
+            tag::ENDED => Self::Ended(fields.number()?),
+            _ => return None,
+        };
+        fields.0.is_empty().then_some(message)
+    }
+}
+
+/// The fields of a frame that are left to read.
+struct Fields<'a>(&'a str);
+
+impl Fields<'_> {
+    /// Takes the next field, which `put` wrote.
+    fn text(&mut self) -> Option<String> {
+        let (length, rest) = self.0.split_once('\0')?;
+        let length: usize = length.parse().ok()?;
+        let field = rest.get(..length)?;
+        self.0 = &rest[length..];
+        Some(field.to_owned())
+    }
+
+    /// Takes the next field as a number.
+    fn number<N: FromStr>(&mut self) -> Option<N> {
+        self.text()?.parse().ok()
+    }
+}
+
+/// Writes `field` after its length in bytes and a NUL, so that a field holds
+/// any text, a NUL too.
+fn put(frame: &mut String, field: &str) {
+    frame.push_str(&field.len().to_string());
+    frame.push('\0');
+    frame.push_str(field);
 }
 
 /// A zygote that purba forked, seen from purba.
@@ -121,8 +378,8 @@ impl<T> Worker<'_, T> {
                 }))
                 .err();
                 if let (Ok(mut spare), Some(payload)) = (spare, payload) {
-                    let (tag, text) = error_frame(&Error::caught(payload.as_ref(), "execution"));
-                    drop(frame::write(&mut spare, tag, &text));
+                    let error = Error::caught(payload.as_ref(), "execution");
+                    drop(Message::Error(error).write(&mut spare));
                 }
                 exit(125)
             }
@@ -154,27 +411,48 @@ impl Zygote {
         };
         let before = interrupt::first();
         loop {
-            match frame::read(&mut self.frames) {
-                Ok(Some((tag::READY, _))) => return load,
-                Ok(Some((tag::THREADED, _))) => {
+            match self.next() {
+                Ok(Message::Ready) => return load,
+                Ok(Message::Threaded) => {
                     load.threaded = true;
                     return load;
                 }
-                Ok(Some((tag::LOADED, _))) => load.result = Ok(()),
-                Ok(Some((tag::LOAD_THREAD, text))) => load.threads.push(Error::project(text)),
-                Ok(Some((tag::KEPT, signum))) => interrupt::adopt(signum.parse().unwrap_or(0)),
-                Ok(Some((tag, text))) => {
-                    load.result = Err(error_of(tag, text));
-                }
-                Ok(None) | Err(_) => {
-                    let lost = lost(self.wait(), "its load ended");
-                    if load.result.is_ok() && (before != 0 || interrupt::first() == 0) {
+                Ok(Message::Loaded) => load.result = Ok(()),
+                Ok(Message::LoadThread(text)) => load.threads.push(Error::project(text)),
+                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
+                Ok(Message::Error(error)) => load.result = Err(error),
+                Ok(_) => {}
+                Err(unreadable) => {
+                    let lost = lost(self.abandon(), "its load ended");
+                    if let Some(error) = unreadable {
+                        load.result = Err(error);
+                    } else if load.result.is_ok() && (before != 0 || interrupt::first() == 0) {
                         load.result = Err(Error::project(lost));
                     }
                     return load;
                 }
             }
         }
+    }
+
+    /// Reads the next message from the zygote or a test's process. Gives an
+    /// error when no message comes: the internal error of a frame that holds no
+    /// message, or `None` when the pipe ended or failed. Either way, the reader
+    /// then calls `abandon`, since no frame after it can be trusted.
+    fn next(&mut self) -> Result<Message, Option<Error>> {
+        match Message::read(&mut self.frames) {
+            Ok(Some(read)) => read.map_err(Some),
+            Ok(None) | Err(_) => Err(None),
+        }
+    }
+
+    /// Closes the pipe of test names, reads each frame left until the pipe of
+    /// frames ends, and waits for the zygote to end. Gives its wait status. A
+    /// process that still writes frames then never waits on a full pipe.
+    fn abandon(&mut self) -> libc::c_int {
+        self.tests = None;
+        drop(io::copy(&mut self.frames, &mut io::sink()));
+        self.wait()
     }
 
     /// Asks the zygote to fork a process for the test `function`, which
@@ -192,9 +470,16 @@ impl Zygote {
     ) -> (Result<Outcome, Error>, Suppressed, Threads<T>) {
         let mut threads = Vec::new();
         let mut suppressed = Suppressed::default();
+        let test = Message::Test {
+            function: function.to_owned(),
+            suppressions: suppressions
+                .iter()
+                .map(|(check, reason)| ((*check).to_owned(), (*reason).to_owned()))
+                .collect(),
+        };
         let asked = self.tests.as_mut().map_or_else(
             || Err(ErrorKind::BrokenPipe.into()),
-            |tests| frame::write(tests, tag::TEST, &test_frame(function, suppressions)),
+            |tests| test.write(tests),
         );
         if asked.is_err() {
             let ended = ended(self.wait());
@@ -208,39 +493,34 @@ impl Zygote {
         let mut result = None;
         let mut later = Vec::new();
         let status = loop {
-            match frame::read(&mut self.frames) {
-                Ok(Some((tag::ENDED, status))) => break status.parse().ok(),
-                Ok(Some((tag::LATER, text))) => later = later_of(&text),
-                Ok(Some((tag::WARNED, text))) => suppressed.warnings.extend(warning_of(&text)),
-                Ok(Some((tag::JUDGED, _))) => suppressed.judged = true,
-                Ok(Some((tag::FORKED, pid))) => {
-                    interrupt::follow_test(pid.parse().unwrap_or(0));
+            match self.next() {
+                Ok(Message::Ended(status)) => break status,
+                Ok(Message::Later(found)) => later = found,
+                Ok(Message::Warned(warning)) => suppressed.warnings.push(warning),
+                Ok(Message::Judged) => suppressed.judged = true,
+                Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
+                Ok(Message::TestThread(raised)) => {
+                    threads.push((Owner::Test(owner.clone()), Error::project(raised)));
                 }
-                Ok(Some((tag::TEST_THREAD, text))) => {
-                    threads.push((Owner::Test(owner.clone()), Error::project(text)));
+                Ok(Message::LoadThread(raised)) => {
+                    threads.push((Owner::Load(self.path.clone()), Error::project(raised)));
                 }
-                Ok(Some((tag::LOAD_THREAD, text))) => {
-                    threads.push((Owner::Load(self.path.clone()), Error::project(text)));
-                }
-                Ok(Some((tag::KEPT, signum))) => interrupt::adopt(signum.parse().unwrap_or(0)),
-                Ok(Some((tag, text))) => result = Some(outcome_of(tag, text)),
-                Ok(None) | Err(_) => {
+                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
+                Ok(Message::Outcome(kind)) => result = Some(Ok(Outcome { kind })),
+                Ok(Message::Error(error)) => result = Some(Err(error)),
+                Ok(_) => {}
+                Err(unreadable) => {
                     interrupt::follow_test(0);
-                    let ended = ended(self.wait());
-                    return (
-                        result.unwrap_or_else(|| {
-                            Err(Error::project(format!("the module's process {ended}")))
-                        }),
-                        suppressed,
-                        threads,
-                    );
+                    let ended = ended(self.abandon());
+                    let result = unreadable.map(Err).or(result).unwrap_or_else(|| {
+                        Err(Error::project(format!("the module's process {ended}")))
+                    });
+                    return (result, suppressed, threads);
                 }
             }
         };
         interrupt::follow_test(0);
-        if let Some(status) = status
-            && libc::WIFSIGNALED(status)
-        {
+        if libc::WIFSIGNALED(status) {
             interrupt::die_with(libc::WTERMSIG(status));
         }
         let result = result.unwrap_or_else(|| {
@@ -248,10 +528,7 @@ impl Zygote {
                 Kind::Interrupted
             } else {
                 Kind::Raised {
-                    exception: status.map_or_else(
-                        || "its process ended before its outcome".to_owned(),
-                        |status| lost(status, "its outcome"),
-                    ),
+                    exception: lost(status, "its outcome"),
                     whence: None,
                 }
             };
@@ -310,9 +587,13 @@ impl Zygote {
         owner: &T,
         threads: &mut Threads<T>,
     ) -> Result<Verdict, Error> {
+        let replay = Message::Replay {
+            function: function.to_owned(),
+            index,
+        };
         let asked = self.tests.as_mut().map_or_else(
             || Err(ErrorKind::BrokenPipe.into()),
-            |tests| frame::write(tests, tag::REPLAY, &format!("{function}\0{index}")),
+            |tests| replay.write(tests),
         );
         if asked.is_err() {
             let ended = ended(self.wait());
@@ -320,30 +601,27 @@ impl Zygote {
         }
         let mut refused = None;
         loop {
-            match frame::read(&mut self.frames) {
-                Ok(Some((tag::ENDED, status))) => {
+            match self.next() {
+                Ok(Message::Ended(status)) => {
                     interrupt::follow_test(0);
-                    return refused.map_or_else(
-                        || Ok(status.parse().map_or(Verdict::Raises, reader::verdict)),
-                        |text| Err(Error::project(text)),
-                    );
+                    return refused.map_or_else(|| Ok(verdict(status)), Err);
                 }
-                Ok(Some((tag::FORKED, pid))) => {
-                    interrupt::follow_test(pid.parse().unwrap_or(0));
-                }
-                Ok(Some((tag::TEST_THREAD, text))) => {
+                Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
+                Ok(Message::TestThread(text)) => {
                     threads.push((Owner::Test(owner.clone()), Error::project(text)));
                 }
-                Ok(Some((tag::LOAD_THREAD, text))) => {
+                Ok(Message::LoadThread(text)) => {
                     threads.push((Owner::Load(self.path.clone()), Error::project(text)));
                 }
-                Ok(Some((tag::KEPT, signum))) => interrupt::adopt(signum.parse().unwrap_or(0)),
-                Ok(Some((tag::PROJECT, text))) => refused = Some(text),
-                Ok(Some(_)) => {}
-                Ok(None) | Err(_) => {
+                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
+                Ok(Message::Error(error @ Error(Reason::Project(_)))) => refused = Some(error),
+                Ok(_) => {}
+                Err(unreadable) => {
                     interrupt::follow_test(0);
-                    let ended = ended(self.wait());
-                    return Err(Error::project(format!("the module's process {ended}")));
+                    let ended = ended(self.abandon());
+                    return Err(unreadable.unwrap_or_else(|| {
+                        Error::project(format!("the module's process {ended}"))
+                    }));
                 }
             }
         }
@@ -411,199 +689,6 @@ fn signal_name(signum: libc::c_int) -> String {
     name.to_owned()
 }
 
-/// The error that the frame of `tag` and `text` carries.
-fn error_of(tag: u8, text: String) -> Error {
-    if tag == tag::INTERNAL {
-        let (part, message) = text.split_once('\n').unwrap_or(("execution", &text));
-        Error(Reason::Internal(panic::Caught {
-            part: part.to_owned(),
-            message: message.to_owned(),
-        }))
-    } else {
-        Error::project(text)
-    }
-}
-
-/// The outcome or the error that the frame of `tag` and `text` carries.
-fn outcome_of(tag: u8, text: String) -> Result<Outcome, Error> {
-    let kind = match tag {
-        tag::PASSED => Kind::Passed,
-        tag::INTERRUPTED => Kind::Interrupted,
-        tag::FAILED => Kind::Failed {
-            asserts: quotes_of(&text).ok_or_else(|| {
-                Error(Reason::Internal(panic::Caught {
-                    part: "execution".to_owned(),
-                    message: "the frame of a failed case is cut short".to_owned(),
-                }))
-            })?,
-        },
-        tag::RAISED => raised_of(&text).ok_or_else(|| {
-            Error(Reason::Internal(panic::Caught {
-                part: "execution".to_owned(),
-                message: "the frame of a raised case is cut short".to_owned(),
-            }))
-        })?,
-        _ => return Err(error_of(tag, text)),
-    };
-    Ok(Outcome { kind })
-}
-
-/// Writes `field` after its length in bytes and a NUL, so that a field holds
-/// any text, a NUL too.
-fn put(frame: &mut String, field: &str) {
-    frame.push_str(&field.len().to_string());
-    frame.push('\0');
-    frame.push_str(field);
-}
-
-/// Takes the field that `put` wrote at the start of `frame`.
-fn take<'a>(frame: &mut &'a str) -> Option<&'a str> {
-    let (length, rest) = frame.split_once('\0')?;
-    let length: usize = length.parse().ok()?;
-    let field = rest.get(..length)?;
-    *frame = &rest[length..];
-    Some(field)
-}
-
-/// The frame that names the test `function` to the zygote, with `suppressions`.
-fn test_frame(function: &str, suppressions: &[(&str, &str)]) -> String {
-    let mut frame = String::new();
-    put(&mut frame, function);
-    for (check, reason) in suppressions {
-        put(&mut frame, check);
-        put(&mut frame, reason);
-    }
-    frame
-}
-
-/// The function and the suppressions that `test_frame` wrote, or `None` when
-/// the frame is cut short.
-fn test_of(mut frame: &str) -> Option<(String, Vec<(String, String)>)> {
-    let function = take(&mut frame)?.to_owned();
-    let mut suppressions = Vec::new();
-    while !frame.is_empty() {
-        let check = take(&mut frame)?.to_owned();
-        suppressions.push((check, take(&mut frame)?.to_owned()));
-    }
-    Some((function, suppressions))
-}
-
-/// The frame of a warning: its check, its words and its reason.
-fn warning_frame(warning: &Warning) -> String {
-    let mut frame = String::new();
-    put(&mut frame, &warning.check);
-    put(&mut frame, &warning.words);
-    put(&mut frame, &warning.reason);
-    frame
-}
-
-/// The warning that `warning_frame` wrote, or `None` when the frame is cut
-/// short.
-fn warning_of(mut frame: &str) -> Option<Warning> {
-    Some(Warning {
-        check: take(&mut frame)?.to_owned(),
-        words: take(&mut frame)?.to_owned(),
-        reason: take(&mut frame)?.to_owned(),
-    })
-}
-
-/// The frame of the quotes of a failed case: for each, its text, then `1`, its
-/// expected value and its reading, or `2`, its heading, the number of its items
-/// and each item, or `0` when it shows nothing.
-fn quotes_frame(quotes: &[Quote]) -> String {
-    let mut frame = String::new();
-    for quote in quotes {
-        put(&mut frame, &quote.assert);
-        match &quote.shown {
-            Some(Shown::Values { expected, reading }) => {
-                put(&mut frame, "1");
-                put(&mut frame, expected);
-                put(&mut frame, reading);
-            }
-            Some(Shown::Items { heading, items }) => {
-                put(&mut frame, "2");
-                put(&mut frame, heading);
-                put(&mut frame, &items.len().to_string());
-                for item in items {
-                    put(&mut frame, item);
-                }
-            }
-            None => put(&mut frame, "0"),
-        }
-    }
-    frame
-}
-
-/// The quotes that `quotes_frame` wrote, or `None` when the frame is cut short.
-fn quotes_of(mut frame: &str) -> Option<Vec<Quote>> {
-    let mut quotes = Vec::new();
-    while !frame.is_empty() {
-        let assert = take(&mut frame)?.to_owned();
-        let shown = match take(&mut frame)? {
-            "1" => Some(Shown::Values {
-                expected: take(&mut frame)?.to_owned(),
-                reading: take(&mut frame)?.to_owned(),
-            }),
-            "2" => {
-                let heading = take(&mut frame)?.to_owned();
-                let length: usize = take(&mut frame)?.parse().ok()?;
-                let items = (0..length)
-                    .map(|_| take(&mut frame).map(str::to_owned))
-                    .collect::<Option<Vec<String>>>()?;
-                Some(Shown::Items { heading, items })
-            }
-            "0" => None,
-            _ => return None,
-        };
-        quotes.push(Quote { assert, shown });
-    }
-    Some(quotes)
-}
-
-/// The raised case that the frame of `tag::RAISED` wrote, or `None` when the
-/// frame is cut short.
-fn raised_of(mut frame: &str) -> Option<Kind> {
-    let exception = take(&mut frame)?.to_owned();
-    let named = if frame.is_empty() {
-        None
-    } else {
-        Some(take(&mut frame)?.to_owned())
-    };
-    frame.is_empty().then_some(Kind::Raised {
-        exception,
-        whence: named,
-    })
-}
-
-/// The frame of an error.
-fn error_frame(error: &Error) -> (u8, String) {
-    match &error.0 {
-        Reason::Project(text) => (tag::PROJECT, text.clone()),
-        Reason::Internal(caught) => (
-            tag::INTERNAL,
-            format!("{}\n{}", caught.part, caught.message),
-        ),
-    }
-}
-
-/// The frame of an outcome or of the error in its place.
-fn outcome_frame(result: &Result<Kind, Error>) -> (u8, String) {
-    match result {
-        Ok(Kind::Passed) => (tag::PASSED, String::new()),
-        Ok(Kind::Interrupted) => (tag::INTERRUPTED, String::new()),
-        Ok(Kind::Failed { asserts }) => (tag::FAILED, quotes_frame(asserts)),
-        Ok(Kind::Raised { exception, whence }) => {
-            let mut text = String::new();
-            put(&mut text, exception);
-            if let Some(whence) = whence {
-                put(&mut text, whence);
-            }
-            (tag::RAISED, text)
-        }
-        Err(error) => error_frame(error),
-    }
-}
-
 /// A pipe whose ends a process closes as it runs another program.
 fn pipe() -> io::Result<(OwnedFd, OwnedFd)> {
     let mut ends = [0; 2];
@@ -624,7 +709,7 @@ fn pipe() -> io::Result<(OwnedFd, OwnedFd)> {
 }
 
 /// Waits for the child `pid` to end, and gives its wait status.
-pub fn wait(pid: libc::pid_t) -> libc::c_int {
+fn wait(pid: libc::pid_t) -> libc::c_int {
     let mut status = 0;
     loop {
         // SAFETY: `waitpid` writes the status of `pid` into `status`.
@@ -640,7 +725,7 @@ pub fn wait(pid: libc::pid_t) -> libc::c_int {
 
 /// Writes what Python buffered for stdout and stderr, so that no child writes
 /// it again. A stream that is gone or that refuses the write keeps its buffer.
-pub fn flush(py: Python<'_>) {
+fn flush(py: Python<'_>) {
     if let Ok(sys) = py.import("sys") {
         for name in ["stdout", "stderr"] {
             if let Ok(stream) = sys.getattr(name) {
@@ -650,10 +735,10 @@ pub fn flush(py: Python<'_>) {
     }
 }
 
-/// Writes a frame, and ends the process when the pipe refuses it: purba no
+/// Writes `message`, and ends the process when the pipe refuses it: purba no
 /// longer reads.
-fn send(frames: &mut File, (tag, text): (u8, String)) {
-    if frame::write(frames, tag, &text).is_err() {
+fn send(frames: &mut File, message: &Message) {
+    if message.write(frames).is_err() {
         exit(0);
     }
 }
@@ -692,32 +777,30 @@ fn live_as_zygote(
     call_atexit(py, "_clear");
     if load {
         let result = crate::catch("execution", || worker.load(module));
-        match &result {
-            Ok(()) => send(&mut frames, (tag::LOADED, String::new())),
-            Err(error) => send(&mut frames, error_frame(error)),
-        }
+        let failed = result.is_err();
+        send(
+            &mut frames,
+            &result.map_or_else(Message::Error, |()| Message::Loaded),
+        );
         send_threads(&mut worker, &mut frames);
         send_kept(&mut frames);
-        if result.is_err() {
-            send(&mut frames, (tag::READY, String::new()));
+        if failed {
+            send(&mut frames, &Message::Ready);
             end(py);
         }
         if threaded(py) {
-            send(&mut frames, (tag::THREADED, String::new()));
+            send(&mut frames, &Message::Threaded);
             end(py);
         }
     }
-    send(&mut frames, (tag::READY, String::new()));
-    while let Ok(Some((tag, text))) = frame::read(&mut tests) {
-        let (function, suppressions, replay) = match tag {
-            tag::TEST => match test_of(&text) {
-                Some((function, suppressions)) => (function, suppressions, None),
-                None => break,
-            },
-            tag::REPLAY => match text.split_once('\0') {
-                Some((function, index)) => (function.to_owned(), Vec::new(), index.parse().ok()),
-                None => break,
-            },
+    send(&mut frames, &Message::Ready);
+    while let Ok(Some(Ok(message))) = Message::read(&mut tests) {
+        let (function, suppressions, replay) = match message {
+            Message::Test {
+                function,
+                suppressions,
+            } => (function, suppressions, None),
+            Message::Replay { function, index } => (function, Vec::new(), Some(index)),
             _ => break,
         };
         flush(py);
@@ -741,7 +824,7 @@ fn live_as_zygote(
             }
             Ok(Forked::Parent(pid)) => {
                 let status = wait(pid);
-                send(&mut frames, (tag::ENDED, status.to_string()));
+                send(&mut frames, &Message::Ended(status));
             }
             Err(error) => {
                 let text = if replay.is_some() {
@@ -749,8 +832,8 @@ fn live_as_zygote(
                 } else {
                     format!("purba cannot fork: {error}")
                 };
-                send(&mut frames, (tag::PROJECT, text));
-                send(&mut frames, (tag::ENDED, "0".to_owned()));
+                send(&mut frames, &Message::Error(Error::project(text)));
+                send(&mut frames, &Message::Ended(0));
             }
         }
     }
@@ -758,7 +841,7 @@ fn live_as_zygote(
 }
 
 /// Whether a Python thread other than the main one is alive.
-pub fn threaded(py: Python<'_>) -> bool {
+fn threaded(py: Python<'_>) -> bool {
     let Ok(main) = py
         .import("threading")
         .and_then(|threading| threading.getattr("main_thread")?.call0())
@@ -792,7 +875,7 @@ fn live_as_test(
         .collect();
     // SAFETY: `getpid` only gives the pid of the process.
     let own = unsafe { libc::getpid() };
-    send(&mut frames, (tag::FORKED, own.to_string()));
+    send(&mut frames, &Message::Forked(own));
     call_atexit(py, "_clear");
     let result = crate::catch("execution", || {
         if load {
@@ -813,22 +896,18 @@ fn live_as_test(
         exit(0);
     }
     if result.is_ok() && !worker.replays().is_empty() {
-        let later: Vec<String> = worker
-            .replays()
-            .iter()
-            .flat_map(|(index, held, text)| {
-                [index.to_string(), u8::from(*held).to_string(), text.clone()]
-            })
-            .collect();
-        send(&mut frames, (tag::LATER, later.join("\0")));
+        send(&mut frames, &Message::Later(worker.replays().to_vec()));
     }
     for warning in worker.warnings() {
-        send(&mut frames, (tag::WARNED, warning_frame(warning)));
+        send(&mut frames, &Message::Warned(warning.clone()));
     }
     if worker.judged() {
-        send(&mut frames, (tag::JUDGED, String::new()));
+        send(&mut frames, &Message::Judged);
     }
-    send(&mut frames, outcome_frame(&result));
+    send(
+        &mut frames,
+        &result.map_or_else(Message::Error, Message::Outcome),
+    );
     interrupt::calling(py, || join(py, worker));
     call_atexit(py, "_run_exitfuncs");
     send_threads(worker, &mut frames);
@@ -862,32 +941,19 @@ fn join(py: Python<'_>, worker: &Worker<'_, String>) {
 fn send_kept(frames: &mut File) {
     let signum = interrupt::first();
     if signum != 0 {
-        send(frames, (tag::KEPT, signum.to_string()));
+        send(frames, &Message::Kept(signum));
     }
 }
 
 /// Writes the error of each thread that the worker took.
 fn send_threads(worker: &mut Worker<'_, String>, frames: &mut File) {
     for (owner, error) in worker.threads() {
-        let tag = match owner {
-            Owner::Load(_) => tag::LOAD_THREAD,
-            Owner::Test(_) => tag::TEST_THREAD,
+        let message = match owner {
+            Owner::Load(_) => Message::LoadThread(error.to_string()),
+            Owner::Test(_) => Message::TestThread(error.to_string()),
         };
-        send(frames, (tag, error.to_string()));
+        send(frames, &message);
     }
-}
-
-/// Each later expectation that a `LATER` frame names: its index, whether it
-/// held in order, and its text.
-fn later_of(text: &str) -> Vec<(usize, bool, String)> {
-    let parts: Vec<&str> = text.split('\0').collect();
-    let (triples, _) = parts.as_chunks::<3>();
-    triples
-        .iter()
-        .filter_map(|[index, held, text]| {
-            Some((index.parse().ok()?, *held == "1", (*text).to_owned()))
-        })
-        .collect()
 }
 
 /// The life of a replay, in the child of the zygote: it runs the test
@@ -907,7 +973,7 @@ fn live_as_replay(
     // SAFETY: `getpid` only gives the pid of the process.
     let own = unsafe { libc::getpid() };
     let mut frames = frames.try_clone().unwrap_or_else(|_| exit(0));
-    send(&mut frames, (tag::FORKED, own.to_string()));
+    send(&mut frames, &Message::Forked(own));
     drop(frames);
     if let Ok(null) = File::options().write(true).open("/dev/null") {
         use std::os::fd::AsRawFd;
@@ -930,5 +996,375 @@ fn live_as_replay(
     if unsafe { libc::getpid() } != own {
         exit(0);
     }
-    reader::READERS.end(Verdict::Raises)
+    READERS.end(Verdict::Raises)
+}
+
+/// The readers of a case: a process that the case's process forks for each
+/// expectation after the first, before any reading, to read that expectation
+/// alone. A reader ends with its verdict as its exit code. The steps of a case
+/// also ask here what it replaced, and the first expectation stops the watch
+/// of its paths.
+pub struct Forks;
+
+pub static READERS: Forks = Forks;
+
+const HOLDS: libc::c_int = 0;
+const FAILS: libc::c_int = 1;
+const RAISES: libc::c_int = 2;
+const REFUSED: libc::c_int = 3;
+
+impl Readers for Forks {
+    fn threaded(&self, py: Python<'_>) -> bool {
+        threaded(py)
+    }
+
+    fn fork(&self, py: Python<'_>) -> io::Result<Option<i32>> {
+        flush(py);
+        Ok(match fork(py)? {
+            Forked::Child => None,
+            Forked::Parent(pid) => Some(pid),
+        })
+    }
+
+    fn wait(&self, pid: i32) -> Verdict {
+        verdict(wait(pid))
+    }
+
+    fn end(&self, verdict: Verdict) -> ! {
+        exit(match verdict {
+            Verdict::Holds => HOLDS,
+            Verdict::Fails => FAILS,
+            Verdict::Raises => RAISES,
+            Verdict::Refused => REFUSED,
+        })
+    }
+
+    fn replaced(&self, py: Python<'_>) -> Option<Replaced> {
+        crate::replaced(py)
+    }
+
+    fn expecting(&self, _py: Python<'_>) {
+        crate::paths::stop();
+    }
+}
+
+/// The verdict of a reader or a replay that ended with the wait status
+/// `status`. One that a signal ends gives `Raises`, as does any exit code but
+/// the four of a verdict.
+const fn verdict(status: libc::c_int) -> Verdict {
+    if !libc::WIFEXITED(status) {
+        return Verdict::Raises;
+    }
+    match libc::WEXITSTATUS(status) {
+        HOLDS => Verdict::Holds,
+        FAILS => Verdict::Fails,
+        REFUSED => Verdict::Refused,
+        _ => Verdict::Raises,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::sync::mpsc;
+    use std::time::Duration;
+
+    /// One message of each variant, with a NUL, a line feed and text that is
+    /// not ASCII in its fields, an empty field, and each shape of a field that
+    /// is optional.
+    fn each_variant() -> Vec<Message> {
+        let text = |words: &str| format!("{words}\0\n é");
+        vec![
+            Message::Test {
+                function: text("test_one"),
+                suppressions: vec![(text("second-path"), String::new())],
+            },
+            Message::Test {
+                function: text("test_two"),
+                suppressions: Vec::new(),
+            },
+            Message::Replay {
+                function: text("test_one"),
+                index: 2,
+            },
+            Message::Later(vec![(1, true, text("x == 1")), (2, false, text("y == 2"))]),
+            Message::Ready,
+            Message::Threaded,
+            Message::Loaded,
+            Message::Forked(4321),
+            Message::Warned(Warning {
+                check: text("iterator-read"),
+                words: text("words"),
+                reason: text("reason"),
+            }),
+            Message::Judged,
+            Message::Outcome(Kind::Passed),
+            Message::Outcome(Kind::Interrupted),
+            Message::Outcome(Kind::Failed {
+                asserts: vec![
+                    Quote {
+                        assert: text("assert x == 1"),
+                        shown: Some(Shown::Values {
+                            expected: text("1"),
+                            reading: text("2"),
+                        }),
+                    },
+                    Quote {
+                        assert: text("assert all(items)"),
+                        shown: Some(Shown::Items {
+                            heading: text("the first item that breaks"),
+                            items: vec![text("0"), String::new()],
+                        }),
+                    },
+                    Quote {
+                        assert: text("with raises(ValueError):"),
+                        shown: None,
+                    },
+                ],
+            }),
+            Message::Outcome(Kind::Raised {
+                exception: text("ValueError: no"),
+                whence: Some(text("helper")),
+            }),
+            Message::Outcome(Kind::Raised {
+                exception: text("ValueError: no"),
+                whence: None,
+            }),
+            Message::Error(Error::project(text("[no-expectation] no expectation ran"))),
+            Message::Error(Error(Reason::Internal(panic::Caught {
+                part: text("assertion"),
+                message: text("a panic"),
+            }))),
+            Message::TestThread(text("thread A raised ValueError")),
+            Message::LoadThread(text("thread L raised ValueError")),
+            Message::Kept(libc::SIGTERM),
+            Message::Ended(256),
+        ]
+    }
+
+    /// The number of arms of `variant`, one for each variant of `Message`.
+    const VARIANTS: usize = 15;
+
+    /// The name of the variant of `message`. A variant that this match lacks
+    /// fails to compile. The count above it must then grow, and
+    /// `each_variant` must send the new one.
+    const fn variant(message: &Message) -> &'static str {
+        match message {
+            Message::Test { .. } => "Test",
+            Message::Replay { .. } => "Replay",
+            Message::Later(_) => "Later",
+            Message::Ready => "Ready",
+            Message::Threaded => "Threaded",
+            Message::Loaded => "Loaded",
+            Message::Forked(_) => "Forked",
+            Message::Warned(_) => "Warned",
+            Message::Judged => "Judged",
+            Message::Outcome(_) => "Outcome",
+            Message::Error(_) => "Error",
+            Message::TestThread(_) => "TestThread",
+            Message::LoadThread(_) => "LoadThread",
+            Message::Kept(_) => "Kept",
+            Message::Ended(_) => "Ended",
+        }
+    }
+
+    #[test]
+    fn each_message_reads_back_as_itself() {
+        let sent = each_variant();
+        let mut pipe = Vec::new();
+        for message in &sent {
+            message.write(&mut pipe).expect("a Vec takes the write");
+        }
+        let mut from = pipe.as_slice();
+        for message in &sent {
+            let read = Message::read(&mut from)
+                .expect("a whole frame reads")
+                .expect("a frame is left")
+                .expect("the frame holds a message");
+            assert_eq!(
+                format!("{read:?}"),
+                format!("{message:?}"),
+                "a {} message reads back as itself",
+                variant(message)
+            );
+        }
+        assert!(
+            Message::read(&mut from).expect("the end reads").is_none(),
+            "the pipe ends after the last message"
+        );
+        let mut names: Vec<&str> = sent.iter().map(variant).collect();
+        names.sort_unstable();
+        names.dedup();
+        assert_eq!(names.len(), VARIANTS, "each variant is sent: {names:?}");
+    }
+
+    /// The internal error of a frame of `tag` that holds no message.
+    fn no_message(tag: char) -> String {
+        format!(
+            "{:?}",
+            Error(Reason::Internal(panic::Caught {
+                part: "execution".to_owned(),
+                message: format!("the frame {tag:?} holds no message"),
+            }))
+        )
+    }
+
+    #[test]
+    fn a_frame_that_holds_no_message_reads_as_an_internal_error() {
+        let frames: [(u8, &str, &str); 8] = [
+            (tag::FAILED, "9\0cut", "a field longer than the frame"),
+            (b'?', "", "a tag of no message"),
+            (tag::FORKED, "1\0x", "a pid that is no number"),
+            (
+                tag::WARNED,
+                "1\0a1\0b",
+                "a warning with two of its three fields",
+            ),
+            (tag::ENDED, "1\0x", "a wait status that is no number"),
+            (tag::KEPT, "1\0x", "a signal that is no number"),
+            (tag::READY, "1\0x", "a field left over"),
+            (
+                tag::LATER,
+                "1\x0011\x0021\x00x",
+                "a flag of an expectation that is neither 0 nor 1",
+            ),
+        ];
+        let mut pipe = Vec::new();
+        for (tag, text, _) in frames {
+            frame::write(&mut pipe, tag, text).expect("a Vec takes the write");
+        }
+        let mut from = pipe.as_slice();
+        for (tag, _, what) in frames {
+            let read = Message::read(&mut from)
+                .expect("a whole frame reads")
+                .expect("a frame is left");
+            assert_eq!(
+                read.map_err(|error| format!("{error:?}"))
+                    .map(|message| format!("{message:?}")),
+                Err(no_message(char::from(tag))),
+                "{what}"
+            );
+        }
+    }
+
+    /// What a run of the case `test_one` gave, and how to end it.
+    struct Ran {
+        /// The outcome, or the `Debug` text of the error.
+        outcome: Result<Kind, String>,
+        /// Hears when the sender of the frames ends.
+        sent: mpsc::Receiver<()>,
+        /// Lets the `Zygote` drop.
+        release: mpsc::Sender<()>,
+    }
+
+    /// Runs the case `test_one` on `frames`, as `Zygote::run` reads them.
+    ///
+    /// A thread stands in for the zygote and the test's process. It writes
+    /// each frame, then holds the pipe of frames open until the pipe of test
+    /// names closes, as a zygote does. The `Zygote` lives on after the run, as
+    /// dispatch keeps it for the next test, until `release` drops. A run that
+    /// waits for a frame that does not come fails the case after 10 seconds.
+    fn run_on(frames: Vec<(u8, String)>) -> Ran {
+        let (frames_in, frames_out) = pipe().expect("a pipe opens");
+        let (tests_in, tests_out) = pipe().expect("a pipe opens");
+        let (sender_done, sent) = mpsc::channel();
+        std::thread::spawn(move || {
+            let mut sending = File::from(frames_out);
+            for (tag, text) in &frames {
+                if frame::write(&mut sending, *tag, text).is_err() {
+                    break;
+                }
+            }
+            drop(io::copy(&mut File::from(tests_in), &mut io::sink()));
+            drop(sending);
+            sender_done.send(()).ok();
+        });
+        let mut zygote = Zygote {
+            // No child has this pid, so a wait for it returns at once.
+            pid: libc::pid_t::MAX,
+            path: PathBuf::from("test_one.py"),
+            tests: Some(File::from(tests_out)),
+            frames: File::from(frames_in),
+        };
+        let (done, outcome) = mpsc::channel();
+        let (release, released) = mpsc::channel::<()>();
+        std::thread::spawn(move || {
+            let (result, _, _) = zygote.run("test_one", &[], ());
+            drop(
+                done.send(
+                    result
+                        .map(|outcome| outcome.kind().clone())
+                        .map_err(|error| format!("{error:?}")),
+                ),
+            );
+            released.recv().ok();
+        });
+        let outcome = outcome
+            .recv_timeout(Duration::from_secs(10))
+            .expect("the run returns without a frame that does not come");
+        Ran {
+            outcome,
+            sent,
+            release,
+        }
+    }
+
+    /// The frame of `message`.
+    fn frame_of(message: &Message) -> (u8, String) {
+        let mut pipe = Vec::new();
+        message.write(&mut pipe).expect("a Vec takes the write");
+        frame::read(&mut pipe.as_slice())
+            .expect("a whole frame reads")
+            .expect("a frame is left")
+    }
+
+    #[test]
+    fn a_case_skips_a_message_that_comes_out_of_its_turn() {
+        let frames = vec![
+            frame_of(&Message::Outcome(Kind::Passed)),
+            frame_of(&Message::Ready),
+            frame_of(&Message::Loaded),
+            frame_of(&Message::Ended(0)),
+        ];
+        assert_eq!(
+            run_on(frames).outcome,
+            Ok(Kind::Passed),
+            "a message of the load, after the outcome of a case, changes nothing"
+        );
+    }
+
+    #[test]
+    fn a_frame_that_holds_no_message_ends_the_case_with_its_error() {
+        let frames = vec![
+            frame_of(&Message::Outcome(Kind::Passed)),
+            (tag::ENDED, "1\0x".to_owned()),
+        ];
+        assert_eq!(
+            run_on(frames).outcome,
+            Err(no_message('w')),
+            "the internal error takes the place of the outcome, and the run waits for no \
+             frame that its process does not send"
+        );
+    }
+
+    #[test]
+    fn a_frame_that_holds_no_message_reads_each_frame_after_it() {
+        // More than a pipe holds: a sender that nobody reads waits on it.
+        let after = frame_of(&Message::TestThread("x".repeat(1024)));
+        let frames = std::iter::once((tag::ENDED, "1\0x".to_owned()))
+            .chain(std::iter::repeat_n(after, 256))
+            .collect();
+        let ran = run_on(frames);
+        assert_eq!(
+            ran.outcome,
+            Err(no_message('w')),
+            "the internal error takes the place of the outcome"
+        );
+        assert!(
+            ran.sent.recv_timeout(Duration::from_secs(10)).is_ok(),
+            "the run reads each frame after it, so its sender never waits on a full pipe"
+        );
+        drop(ran.release);
+    }
 }

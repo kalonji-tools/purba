@@ -9,7 +9,6 @@ mod frame;
 pub mod interrupt;
 pub mod panic;
 mod paths;
-mod reader;
 mod step;
 mod thread;
 mod whence;
@@ -176,6 +175,13 @@ fn error(err: &PyErr) -> Error {
     Error::project(err.to_string())
 }
 
+/// Names what a load or a case replaced since the filters were last held: a
+/// hook of the process or the warning filters, as the hook names them, or else
+/// the events of the watch of the paths. Gives `None` when it replaced none.
+fn replaced(py: Python<'_>) -> Option<purba_assertion::Replaced> {
+    thread::replaced(py).or_else(paths::replaced)
+}
+
 /// Runs `work`, and gives an internal error for a panic that crosses it. The
 /// part comes from the note of the panic hook when the note holds the
 /// panic's message, and is `catcher` otherwise.
@@ -307,49 +313,25 @@ impl<'py, T: Clone> Worker<'py, T> {
         }
         let window = self.open();
         let py = self.py;
-        let holders = paths::holders(py);
         let (own, interrupted) = if window.landed() {
             (Ok(None), true)
-        } else if !paths::tried(py)
-            && let [(_, Some(third)), (_, Some(fourth))] = &holders
-        {
-            let own = Err(Error::project(format!(
-                "sys.monitoring holds the tool ids 3 and 4 for {third} and {fourth}, \
-                 and execution needs one of them to watch"
-            )));
-            (own, false)
         } else {
             thread::hold_filters(py);
-            let free: Vec<u8> = holders
-                .iter()
-                .filter(|(_, holder)| holder.is_none())
-                .map(|(id, _)| *id)
-                .collect();
-            let (loaded, landed) = interrupt::calling(py, || {
-                paths::wrap(py)?;
-                purba_assertion::load(py, &module.path, &module.rewrite)
+            let (own, landed) = interrupt::calling(py, || {
+                paths::load(py, || {
+                    let loaded = purba_assertion::load(py, &module.path, &module.rewrite)
+                        .map_err(|err| error(&err))?;
+                    if let Some(replaced) = replaced(py) {
+                        return Err(Error::project(format!(
+                            "[hook-replaced] the module replaced {} as it loaded, and {}",
+                            replaced.what(),
+                            replaced.rule()
+                        )));
+                    }
+                    Ok(loaded)
+                })
             });
-            let own = loaded.map_err(|err| error(&err)).and_then(|loaded| {
-                if let Some(replaced) = thread::replaced(py) {
-                    return Err(Error::project(format!(
-                        "[hook-replaced] the module replaced {} as it loaded, and {}",
-                        replaced.what(),
-                        replaced.rule()
-                    )));
-                }
-                if !paths::arm(loaded.code()).map_err(|err| error(&err))? {
-                    let took = match free.as_slice() {
-                        [id] => format!("the tool id {id}"),
-                        _ => "the tool ids 3 and 4".to_owned(),
-                    };
-                    return Err(Error::project(format!(
-                        "[hook-replaced] the module took {took} of sys.monitoring as it \
-                         loaded, and a test keeps purba's hooks"
-                    )));
-                }
-                Ok(Some(loaded))
-            });
-            (own, landed)
+            (own.map(Some), landed)
         };
         let met = self.close(&window, Owner::Load(module.path.clone()), interrupted);
         let (kept, result) = match step::decide(own, met) {
@@ -478,18 +460,16 @@ impl<'py, T: Clone> Worker<'py, T> {
         }
         let before = loaded.first_expectation(function).unwrap_or(usize::MAX);
         thread::hold_filters(py);
-        if let Ok(code) = test.getattr("__code__") {
-            paths::start(py, &code, before);
-        }
+        let watch = paths::Watch::start(py, test.getattr("__code__").ok().as_ref(), before);
         let mut landed = false;
-        let watched = loaded.watch(&reader::READERS, || {
+        let watched = loaded.watch(&zygote::READERS, || {
             let (called, inside) = interrupt::calling(py, || {
                 std::panic::catch_unwind(AssertUnwindSafe(|| test.call0()))
             });
             landed = inside;
             Ok(called)
         });
-        let path = paths::finish(py);
+        let path = watch.finish(py);
         let Watched {
             result,
             mark,
@@ -557,7 +537,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             return;
         };
         let _ = interrupt::calling(py, || {
-            loaded.replay(&reader::READERS, index, || test.call0())
+            loaded.replay(&zygote::READERS, index, || test.call0())
         });
     }
 

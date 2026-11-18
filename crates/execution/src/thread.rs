@@ -157,14 +157,12 @@ pub fn hook(py: Python<'_>) -> PyResult<&'static Py<Hook>> {
 /// Names what the process replaced since the filters were last held: the first
 /// place of `threading.excepthook` and `sys.unraisablehook` that holds anything
 /// but the hook, which [`hooks_replaced`] puts back, or else the warning
-/// filters, when they differ from those held, or hold them in another order,
-/// or else the events of the watch of the paths, when a call changed them.
-/// Gives `None` when none changed.
+/// filters, when they differ from those held, or hold them in another order.
+/// Gives `None` when neither changed.
 pub fn replaced(py: Python<'_>) -> Option<Replaced> {
     hooks_replaced(py)
         .map(Replaced::Hook)
         .or_else(|| filters_differ(py).then_some(Replaced::Filters))
-        .or_else(|| crate::paths::events_changed().then_some(Replaced::Events))
 }
 
 /// The warning filters that a case or a load began with: a copy of

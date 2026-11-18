@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
-use purba_execution::{Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown, Worker};
+use purba_execution::{
+    Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown, Suppressed, Worker,
+};
 
 /// The turn of a test to run Python:
 /// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
@@ -32,35 +34,51 @@ fn module(name: &str, source: &str) -> Module {
     )
 }
 
-fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
-    attach(|worker| {
-        worker.load(module).expect("the module loads");
-        functions
+/// The outcome or the error of one case that a zygote ran, and what its
+/// suppressions gave.
+type Ran = (Result<Kind, Error>, Suppressed);
+
+/// The result of the load, then each of `functions`, run under `suppressions`
+/// in a process that a zygote forks, as dispatch runs them.
+fn through(
+    module: &Module,
+    functions: &[&str],
+    suppressions: &[(&str, &str)],
+) -> (Result<(), String>, Vec<Ran>) {
+    attach(|worker: &mut Worker<'_, String>| {
+        let mut zygote = worker.zygote(module, true).expect("the zygote forks");
+        let loaded = zygote.loaded();
+        assert!(
+            !loaded.threaded,
+            "no thread is alive after the load, or dispatch would fork a zygote that loads nothing"
+        );
+        let load = loaded.result.map_err(|error| reason(&error));
+        let out = functions
             .iter()
             .map(|function| {
-                worker
-                    .run(module, function, &[], *function)
-                    .map(|outcome| outcome.kind().clone())
-                    .map_err(|error| error.to_string())
+                let (result, suppressed, _) =
+                    zygote.run(function, suppressions, (*function).to_owned());
+                (result.map(|outcome| outcome.kind().clone()), suppressed)
             })
-            .collect()
+            .collect();
+        zygote.end();
+        (load, out)
     })
 }
 
+fn results(module: &Module, functions: &[&str]) -> Vec<Result<Kind, String>> {
+    let (load, out) = through(module, functions, &[]);
+    load.expect("the module loads");
+    out.into_iter()
+        .map(|(result, _)| result.map_err(|error| error.to_string()))
+        .collect()
+}
+
 fn kinds(module: &Module, functions: &[&str]) -> Vec<Kind> {
-    attach(|worker| {
-        worker.load(module).expect("the module loads");
-        functions
-            .iter()
-            .map(|function| {
-                worker
-                    .run(module, function, &[], *function)
-                    .expect("the test runs")
-                    .kind()
-                    .clone()
-            })
-            .collect()
-    })
+    results(module, functions)
+        .into_iter()
+        .map(|result| result.expect("the test runs"))
+        .collect()
 }
 
 #[test]
@@ -105,8 +123,22 @@ fn a_worker_loads_each_module_once() {
          def test_first():\n    calls.append(1)\n    assert calls == [1]\n\n\
          def test_second():\n    calls.append(2)\n    assert calls == [1, 2]\n",
     );
+    // One worker, in one process: a zygote would fork each test from the load.
+    let kinds: Vec<Kind> = attach(|worker| {
+        worker.load(&test_once).expect("the module loads");
+        ["test_first", "test_second"]
+            .iter()
+            .map(|function| {
+                worker
+                    .run(&test_once, function, &[], *function)
+                    .expect("the test runs")
+                    .kind()
+                    .clone()
+            })
+            .collect()
+    });
     assert_eq!(
-        kinds(&test_once, &["test_first", "test_second"]),
+        kinds,
         [Kind::Passed, Kind::Passed],
         "the second test sees the list that the first test changed",
     );
@@ -332,18 +364,10 @@ fn a_name_that_is_not_callable_is_an_error() {
          def test_bound():\n    pass\n\ntest_bound = 5\n\n\
          def test_deque():\n    pass\n\ntest_deque = collections.deque()\n",
     );
-    let errors: Vec<String> = attach(|worker| {
-        worker.load(&test_bound).expect("the module loads");
-        ["test_bound", "test_deque"]
-            .iter()
-            .map(|function| {
-                worker
-                    .run(&test_bound, function, &[], *function)
-                    .expect_err("an object that is not callable is not a test")
-                    .to_string()
-            })
-            .collect()
-    });
+    let errors: Vec<String> = results(&test_bound, &["test_bound", "test_deque"])
+        .into_iter()
+        .map(|result| result.expect_err("an object that is not callable is not a test"))
+        .collect();
     assert_eq!(
         errors,
         [
@@ -690,18 +714,12 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
              test_three = 5\n"
         ),
     );
-    let results: Vec<Result<Kind, String>> = attach(|worker| {
-        worker.load(&test_panic).expect("the module loads");
-        ["test_one", "test_two", "test_three"]
-            .iter()
-            .map(|function| {
-                worker
-                    .run(&test_panic, function, &[], *function)
-                    .map(|outcome| outcome.kind().clone())
-                    .map_err(|error| reason(&error))
-            })
-            .collect()
-    });
+    let (load, out) = through(&test_panic, &["test_one", "test_two", "test_three"], &[]);
+    load.expect("the module loads");
+    let results: Vec<Result<Kind, String>> = out
+        .into_iter()
+        .map(|(result, _)| result.map_err(|error| reason(&error)))
+        .collect();
     assert_eq!(
         results,
         [
@@ -734,30 +752,24 @@ fn suppressed_runs(
     functions: &[&str],
     suppressions: &[(&str, &str)],
 ) -> Vec<(Result<Kind, String>, Warned)> {
-    attach(|worker| {
-        worker.load(module).expect("the module loads");
-        functions
-            .iter()
-            .map(|function| {
-                let result = worker
-                    .run(module, function, suppressions, *function)
-                    .map(|outcome| outcome.kind().clone())
-                    .map_err(|error| error.to_string());
-                let warned = worker
-                    .warnings()
-                    .iter()
-                    .map(|warning| {
-                        (
-                            warning.check.clone(),
-                            warning.words.clone(),
-                            warning.reason.clone(),
-                        )
-                    })
-                    .collect();
-                (result, warned)
-            })
-            .collect()
-    })
+    let (load, out) = through(module, functions, suppressions);
+    load.expect("the module loads");
+    out.into_iter()
+        .map(|(result, suppressed)| {
+            let warned = suppressed
+                .warnings
+                .iter()
+                .map(|warning| {
+                    (
+                        warning.check.clone(),
+                        warning.words.clone(),
+                        warning.reason.clone(),
+                    )
+                })
+                .collect();
+            (result.map_err(|error| error.to_string()), warned)
+        })
+        .collect()
 }
 
 /// One warning of `check`, with its `words` and its `reason`.
@@ -957,29 +969,25 @@ fn a_case_judges_its_suppressions_only_when_it_reads_the_paths() {
          assert value == 2\n",
     );
 
-    let judged = attach(|worker| {
-        worker.load(&test_judged).expect("the module loads");
-        ["test_holds", "test_fails", "test_raises", "test_form"]
-            .into_iter()
-            .map(|function| {
-                let result = worker
-                    .run(
-                        &test_judged,
-                        function,
-                        &[("second-path", "the act branches")],
-                        function,
-                    )
-                    .map(|outcome| outcome.kind().clone())
-                    .map_err(|error| error.to_string());
-                (
-                    function,
-                    result.is_ok(),
-                    worker.judged(),
-                    worker.warnings().len(),
-                )
-            })
-            .collect::<Vec<_>>()
-    });
+    let functions = ["test_holds", "test_fails", "test_raises", "test_form"];
+    let (load, out) = through(
+        &test_judged,
+        &functions,
+        &[("second-path", "the act branches")],
+    );
+    load.expect("the module loads");
+    let judged: Vec<_> = functions
+        .into_iter()
+        .zip(out)
+        .map(|(function, (result, suppressed))| {
+            (
+                function,
+                result.is_ok(),
+                suppressed.judged,
+                suppressed.warnings.len(),
+            )
+        })
+        .collect();
 
     assert_eq!(
         judged,
@@ -1053,7 +1061,7 @@ fn an_act_that_changes_the_warning_filters_is_refused_and_one_that_keeps_them_ru
         "catch_warnings with no filter keeps them; a filter that the act adds is refused, also \
          inside catch_warnings, which puts the filters back before the first expectation. \
          purba does not put a refused case's filters back, since each case runs in a \
-         process of its own, so the case that keeps them runs first here"
+         process of its own"
     );
 }
 

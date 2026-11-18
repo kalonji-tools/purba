@@ -22,9 +22,12 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, MutexGuard, PoisonError};
 use std::thread::{self, ThreadId};
 
+use purba_assertion::{Loaded, Replaced};
 use pyo3::sync::PyOnceLock;
 use pyo3::types::{PyAnyMethods, PyDict, PyTuple, PyType};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
+
+use crate::Error;
 
 /// The rule that each fault of a path names.
 const RULE: &str = "the lines before the first expectation take one path";
@@ -476,14 +479,55 @@ fn tool(py: Python<'_>) -> Option<&Tool> {
 /// The tool ids that the watch can take, in the order it tries them.
 const IDS: [u8; 2] = [3, 4];
 
-/// Whether the watch tried to take a tool id already, in this process.
-pub fn tried(py: Python<'_>) -> bool {
-    TOOL.get(py).is_some()
+/// Watches the paths of each test of the module that `load` loads.
+///
+/// It refuses the load when other tools hold both tool ids that the watch can
+/// take, before the watch took one in this process. It puts its wrapper in the
+/// place of `sys.monitoring.set_local_events` before the load, as the hook of
+/// the events must hear a module that changes them. After the load, it sets
+/// the events of the watch on each code object of the module, and refuses a
+/// module that took the tool ids that the watch found free.
+///
+/// # Errors
+///
+/// The error of `load`, a project error of each refusal, or the error of
+/// `sys.monitoring`.
+pub fn load<'py>(
+    py: Python<'py>,
+    load: impl FnOnce() -> Result<Loaded<'py>, Error>,
+) -> Result<Loaded<'py>, Error> {
+    let holders = holders(py);
+    if TOOL.get(py).is_none()
+        && let [(_, Some(third)), (_, Some(fourth))] = &holders
+    {
+        return Err(Error::project(format!(
+            "sys.monitoring holds the tool ids 3 and 4 for {third} and {fourth}, \
+             and execution needs one of them to watch"
+        )));
+    }
+    let free: Vec<u8> = holders
+        .iter()
+        .filter(|(_, holder)| holder.is_none())
+        .map(|(id, _)| *id)
+        .collect();
+    wrap(py).map_err(|err| crate::error(&err))?;
+    let loaded = load()?;
+    if !arm(loaded.code()).map_err(|err| crate::error(&err))? {
+        let took = match free.as_slice() {
+            [id] => format!("the tool id {id}"),
+            _ => "the tool ids 3 and 4".to_owned(),
+        };
+        return Err(Error::project(format!(
+            "[hook-replaced] the module took {took} of sys.monitoring as it \
+             loaded, and a test keeps purba's hooks"
+        )));
+    }
+    Ok(loaded)
 }
 
 /// Each tool id that the watch can take, and the name of the tool that holds
 /// it, or `None` when it is free.
-pub fn holders(py: Python<'_>) -> [(u8, Option<String>); 2] {
+fn holders(py: Python<'_>) -> [(u8, Option<String>); 2] {
     let monitoring = py.import("sys").and_then(|sys| sys.getattr("monitoring"));
     IDS.map(|id| {
         let name = monitoring
@@ -501,7 +545,7 @@ pub fn holders(py: Python<'_>) -> [(u8, Option<String>); 2] {
 static SETTER: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
 /// Whether a call of the wrapper changed the events of the watch's tool since
-/// [`events_changed`] last looked.
+/// [`replaced`] last looked.
 static CHANGED: AtomicBool = AtomicBool::new(false);
 
 /// Takes the place of `sys.monitoring.set_local_events`. It notes a call that
@@ -555,7 +599,7 @@ fn setter(py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
 /// # Errors
 ///
 /// `sys.monitoring` lacks `set_local_events`, or refuses the wrapper.
-pub fn wrap(py: Python<'_>) -> PyResult<()> {
+fn wrap(py: Python<'_>) -> PyResult<()> {
     let monitoring = py.import("sys")?.getattr("monitoring")?;
     SETTER.get_or_try_init(py, || {
         monitoring.getattr("set_local_events").map(Bound::unbind)
@@ -563,16 +607,18 @@ pub fn wrap(py: Python<'_>) -> PyResult<()> {
     monitoring.setattr("set_local_events", Bound::new(py, Setter)?)
 }
 
-/// Whether a call changed the events of the watch's tool since this last
-/// looked.
-pub fn events_changed() -> bool {
-    CHANGED.swap(false, Ordering::Relaxed)
+/// Names the events of the watch when a call changed them since this last
+/// looked, or gives `None`.
+pub fn replaced() -> Option<Replaced> {
+    CHANGED
+        .swap(false, Ordering::Relaxed)
+        .then_some(Replaced::Events)
 }
 
 /// Sets the events of the watch on each code object inside `code`, the code of
 /// a module, at any depth. The module's own code stays unwatched. Gives
 /// `false` when every tool id that the watch can take is taken.
-pub fn arm(code: &Bound<'_, PyAny>) -> PyResult<bool> {
+fn arm(code: &Bound<'_, PyAny>) -> PyResult<bool> {
     let py = code.py();
     let Some(tool) = tool(py) else {
         return Ok(false);
@@ -595,9 +641,43 @@ pub fn arm(code: &Bound<'_, PyAny>) -> PyResult<bool> {
     Ok(true)
 }
 
+/// The watch of one case's paths, on the thread that runs the case. Its end
+/// gives each fault of the paths that the case took. A watch that drops with
+/// no end forgets what it saw.
+#[must_use]
+pub struct Watch(());
+
+impl Watch {
+    /// Starts the watch of a case on this thread, whose test runs the code
+    /// `test`, and whose first expectation is at the line `before`. A test with
+    /// no code, or a process with no tool id, watches nothing.
+    pub fn start(py: Python<'_>, test: Option<&Bound<'_, PyAny>>, before: usize) -> Self {
+        if let Some(test) = test {
+            start(py, test, before);
+        }
+        Self(())
+    }
+
+    /// Ends the watch, and gives each fault of the paths of the case, in the
+    /// order of the test's lines, then of the lines that each reached.
+    pub fn finish(self, py: Python<'_>) -> Vec<Fault> {
+        let faults = finish(py);
+        drop(self);
+        faults
+    }
+}
+
+impl Drop for Watch {
+    fn drop(&mut self) {
+        if let Some(cases) = cases().as_mut() {
+            cases.remove(&thread::current().id());
+        }
+    }
+}
+
 /// Starts the watch of a case on this thread, whose test runs `test`, and
 /// whose first expectation is at the line `before`.
-pub fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
+fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
     if tool(py).is_none() {
         return;
     }
@@ -647,7 +727,7 @@ pub type Fault = (usize, Option<usize>, String);
 /// Ends the watch of the case on this thread, and gives each fault of its
 /// paths, in the order of the test's lines, then of the lines that each
 /// reached.
-pub fn finish(py: Python<'_>) -> Vec<Fault> {
+fn finish(py: Python<'_>) -> Vec<Fault> {
     let Some(case) = cases()
         .as_mut()
         .and_then(|cases| cases.remove(&thread::current().id()))
@@ -712,4 +792,35 @@ fn lines(code: &Bound<'_, PyAny>) -> PyResult<Vec<usize>> {
     found.sort_unstable();
     found.dedup();
     Ok(found)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Whether a case is watched on this thread.
+    fn watched() -> bool {
+        cases()
+            .as_ref()
+            .is_some_and(|cases| cases.contains_key(&thread::current().id()))
+    }
+
+    #[test]
+    fn a_watch_that_drops_with_no_finish_forgets_its_case() {
+        Python::initialize();
+        let (started, dropped) = Python::attach(|py| {
+            let test = py
+                .eval(c"(lambda: 1).__code__", None, None)
+                .expect("a lambda has code");
+            let watch = Watch::start(py, Some(&test), 1);
+            let started = watched();
+            drop(watch);
+            (started, watched())
+        });
+        assert_eq!(
+            (started, dropped),
+            (true, false),
+            "a started watch holds its case on this thread, and its drop forgets it"
+        );
+    }
 }
