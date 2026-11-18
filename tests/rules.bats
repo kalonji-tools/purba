@@ -328,3 +328,151 @@ test_load_filters.py::test_one blocked: test_load_filters.py did not load
 LINES
   [[ -z "${stderr}" ]]
 }
+
+# The module of each test of the tool ids of `sys.monitoring`: `pick` goes one
+# way when the test calls it, so the watch refuses the case.
+pick=('' '' 'def pick(x):' '    if x > 0:' '        return "pos"' '    return "neg"'
+  '' '' 'def test_one_way():' '    got = pick(1)' '    assert got == "pos"')
+
+@test "a module that takes the tool ids 3 and 4 as it loads is refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(3, "other")' \
+    'sys.monitoring.use_tool_id(4, "other")' "${pick[@]}" >test_ids.py
+
+  run -4 --separate-stderr purba test_ids.py
+
+  local took='the module took the tool ids 3 and 4 of sys.monitoring as it loaded'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_ids.py project error: [hook-replaced] ${took}, and a test keeps purba's hooks
+test_ids.py::test_one_way blocked: test_ids.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module that takes the tool id 4 where a tool holds 3 is refused for the id 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  mkdir site
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(3, "coverage")' \
+    >site/sitecustomize.py
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(4, "other")' "${pick[@]}" \
+    >test_four.py
+
+  run -4 --separate-stderr env PYTHONPATH="${PWD}/site" purba test_four.py
+
+  local took='the module took the tool id 4 of sys.monitoring as it loaded'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_four.py project error: [hook-replaced] ${took}, and a test keeps purba's hooks
+test_four.py::test_one_way blocked: test_four.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module under a tool that holds the tool ids 3 and 4 is refused, and does not run" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  mkdir site
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(3, "coverage")' \
+    'sys.monitoring.use_tool_id(4, "profiler")' >site/sitecustomize.py
+  printf '%s\n' 'open("loaded.txt", "w").close()' "${pick[@]}" >test_held.py
+
+  run -4 --separate-stderr env PYTHONPATH="${PWD}/site" purba test_held.py
+
+  local held='sys.monitoring holds the tool ids 3 and 4 for coverage and profiler'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_held.py project error: ${held}, and execution needs one of them to watch
+test_held.py::test_one_way blocked: test_held.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]] || false
+  [[ ! -e loaded.txt ]]
+}
+
+@test "a module or a tool that takes the tool id 3 alone leaves execution the id 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(3, "other")' "${pick[@]}" \
+    >test_three.py
+  mkdir site
+  printf '%s\n' 'import sys' '' 'sys.monitoring.use_tool_id(3, "coverage")' \
+    >site/sitecustomize.py
+  printf '%s\n' "${pick[@]}" >test_watched.py
+
+  run -4 --separate-stderr purba test_three.py
+
+  local path='the lines before the first expectation take one path'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_three.py::test_one_way project error: [second-path] line 13 reaches line 7 of pick, \
+which went one way only, and ${path}; [second-path] line 13 reaches line 9 of pick, which \
+did not run, and ${path}
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]] || false
+
+  run -4 --separate-stderr env PYTHONPATH="${PWD}/site" purba test_watched.py
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_watched.py::test_one_way project error: [second-path] line 10 reaches line 4 of pick, \
+which went one way only, and ${path}; [second-path] line 10 reaches line 6 of pick, which \
+did not run, and ${path}
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test that changes the events that execution watches with is refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' '' 'def pick(x):' '    if x > 0:' '        return "pos"' \
+    '    return "neg"' '' '' 'def test_one_way():' \
+    '    sys.monitoring.set_local_events(3, pick.__code__, 0)' '    got = pick(1)' \
+    '    assert got == "pos"' >test_events.py
+
+  run -4 --separate-stderr purba test_events.py
+
+  local replaced='line 11 replaced the events of sys.monitoring that purba watches with'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_events.py::test_one_way project error: [hook-replaced] ${replaced}, and a test keeps \
+purba's hooks
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test that changes the events and puts them back inside one statement is refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' '' 'def pick(x):' '    if x > 0:' '        return "pos"' \
+    '    return "neg"' '' '' 'def quiet(x):' \
+    '    saved = sys.monitoring.get_local_events(3, pick.__code__)' \
+    '    sys.monitoring.set_local_events(3, pick.__code__, 0)' '    got = pick(x)' \
+    '    sys.monitoring.set_local_events(3, pick.__code__, saved)' '    return got' '' '' \
+    'def test_one_way():' '    got = quiet(1)' '    assert got == "pos"' >test_restores.py
+
+  run -4 --separate-stderr purba test_restores.py
+
+  local replaced='line 19 replaced the events of sys.monitoring that purba watches with'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_restores.py::test_one_way project error: [hook-replaced] ${replaced}, and a test keeps \
+purba's hooks
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a test that sets the events to their own value is free" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' '' 'def pick(x):' '    if x > 0:' '        return "pos"' \
+    '    return "neg"' '' '' 'def test_one_way():' \
+    '    events = sys.monitoring.get_local_events(3, pick.__code__)' \
+    '    sys.monitoring.set_local_events(3, pick.__code__, events)' '    got = pick(1)' \
+    '    assert got == "pos"' >test_same.py
+
+  run -4 --separate-stderr purba test_same.py
+
+  local path='the lines before the first expectation take one path'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_same.py::test_one_way project error: [second-path] line 13 reaches line 5 of pick, \
+which went one way only, and ${path}; [second-path] line 13 reaches line 7 of pick, which \
+did not run, and ${path}
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
