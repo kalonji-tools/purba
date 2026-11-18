@@ -17,7 +17,7 @@ fn each_test_function_in_source_order() {
     let module = purba_parsing::parse(&file).expect("the module parses");
 
     let names: Vec<String> = purba_selection::select(Path::new("test_a.py"), &module)
-        .0
+        .tests()
         .iter()
         .map(ToString::to_string)
         .collect();
@@ -34,8 +34,8 @@ fn an_identity_gives_its_path_and_function() {
     let file = write("test_parts.py", "def test_one():\n    pass\n");
     let module = purba_parsing::parse(&file).expect("the module parses");
 
-    let selected = purba_selection::select(Path::new("tests/test_a.py"), &module).0;
-    let test = selected.first().expect("the module holds one test");
+    let selected = purba_selection::select(Path::new("tests/test_a.py"), &module);
+    let test = selected.tests().first().expect("the module holds one test");
 
     assert_eq!(
         test.path(),
@@ -77,7 +77,8 @@ fn a_name_defined_twice_is_one_refused_test() {
 fn judged(name: &str, text: &str) -> (Vec<String>, Vec<String>) {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let (tests, refused) = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let (tests, refused) = (selected.tests(), selected.refused());
     (
         tests.iter().map(ToString::to_string).collect(),
         refused
@@ -992,7 +993,7 @@ fn noticed(name: &str, text: &str) -> Vec<(String, Vec<String>)> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
     purba_selection::select(Path::new("test_m.py"), &module)
-        .0
+        .tests()
         .iter()
         .map(|test| (test.to_string(), test.notices().to_vec()))
         .collect()
@@ -1322,7 +1323,8 @@ fn an_expectation_that_nests_deeper_than_the_stack_does_not_crash_selection() {
 fn suppressed(name: &str, text: &str) -> Vec<(String, String, String, String)> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let (tests, refused) = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let (tests, refused) = (selected.tests(), selected.refused());
     tests
         .iter()
         .chain(refused.iter().map(purba_selection::Refused::test))
@@ -1343,7 +1345,9 @@ fn suppressed(name: &str, text: &str) -> Vec<(String, String, String, String)> {
 fn module_fault(name: &str, text: &str) -> Option<String> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    purba_selection::module_fault(&module)
+    purba_selection::select(Path::new("test_m.py"), &module)
+        .fault()
+        .map(ToOwned::to_owned)
 }
 
 /// One suppressed verdict of `test_m.py::<test>`.
@@ -1566,7 +1570,8 @@ fn a_test_carries_each_suppression_that_reaches_it_for_the_checks_of_the_run() {
     let file = write("test_run_checks.py", text);
     let module = purba_parsing::parse(&file).expect("the module parses");
 
-    let (tests, refused) = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let (tests, refused) = (selected.tests(), selected.refused());
 
     assert!(
         refused.is_empty(),
@@ -2005,6 +2010,97 @@ fn a_change_to_a_local_a_patch_that_is_not_unittest_mocks_and_a_decorator_are_no
 }
 
 #[test]
+fn a_call_of_a_setattr_that_the_module_defines_is_no_patch() {
+    let (tests, refused) = judged(
+        "test_own_setattr.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "\n",
+            "class Box:\n",
+            "    pass\n",
+            "\n",
+            "\n",
+            "def setattr(target, name, value):\n",
+            "    return (target, name, value)\n",
+            "\n",
+            "\n",
+            "def delattr(target, name):\n",
+            "    return (target, name)\n",
+            "\n",
+            "\n",
+            "def test_record():\n",
+            "    got = setattr(lending, \"shelf\", 1)\n",
+            "    assert got[1] == \"shelf\"\n",
+            "\n",
+            "\n",
+            "def test_forget():\n",
+            "    got = delattr(lending, \"shelf\")\n",
+            "    assert got[1] == \"shelf\"\n",
+            "\n",
+            "\n",
+            "def test_class():\n",
+            "    Box.item = 1\n",
+            "    assert Box.item == 1\n",
+        ),
+    );
+
+    assert!(refused.is_empty(), "no test is refused: {refused:?}");
+    assert_eq!(
+        tests,
+        [
+            "test_m.py::test_record",
+            "test_m.py::test_forget",
+            "test_m.py::test_class",
+        ],
+        "a call of the module's own setattr or delattr, and a store to its own class, patch nothing"
+    );
+}
+
+#[test]
+fn a_call_of_a_setattr_that_the_module_assigns_is_no_patch() {
+    let (tests, refused) = judged(
+        "test_assigned_setattr.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "setattr = lambda target, name, value: (target, name, value)\n",
+            "\n",
+            "\n",
+            "def test_record():\n",
+            "    got = setattr(lending, \"shelf\", 1)\n",
+            "    assert got[1] == \"shelf\"\n",
+        ),
+    );
+
+    assert!(refused.is_empty(), "no test is refused: {refused:?}");
+    assert_eq!(
+        tests,
+        ["test_m.py::test_record"],
+        "a name that the module binds with no def is the module's own, not the builtin"
+    );
+}
+
+#[test]
+fn a_read_of_a_private_name_that_the_test_imports_gives_one_notice_at_its_import() {
+    let text = concat!(
+        "def test_inside():\n",
+        "    from lib import _x\n",
+        "    _x()\n",
+        "    assert 1 == 1\n",
+    );
+
+    assert_eq!(
+        noticed("test_private_read.py", text),
+        [(
+            "test_m.py::test_inside".to_owned(),
+            vec![private(2, "lib._x")]
+        )],
+        "the import gives the notice, and a read of the name that it binds gives none"
+    );
+}
+
+#[test]
 fn a_mock_with_no_spec_is_refused_once_a_line() {
     let (tests, refused) = judged(
         "test_mocks.py",
@@ -2246,15 +2342,11 @@ fn unused(
 ) -> Vec<String> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let (tests, refused) = purba_selection::select(Path::new(name), &module);
-    let mut ledger = purba_selection::Ledger::new(&module, &tests, &refused);
-    for test in &refused {
-        ledger.refused(test);
+    let mut selected = purba_selection::select(Path::new(name), &module);
+    for test in selected.tests().to_vec() {
+        selected.judge(&test, &warned(test.function()), judged(test.function()));
     }
-    for test in &tests {
-        ledger.judge(test, &warned(test.function()), judged(test.function()));
-    }
-    ledger.unused()
+    selected.unused()
 }
 
 #[test]

@@ -8,7 +8,8 @@ use ruff_python_ast::{
 };
 use ruff_text_size::{Ranged, TextSize};
 
-use super::{Node, on_one_line, origins, walk_node};
+use super::lookup::{Lookup, Origin};
+use super::{Node, on_one_line, walk_node};
 
 /// A fault that a patch or a mock with no spec gives.
 pub enum Fault {
@@ -47,12 +48,11 @@ pub fn faults<'a>(
     body: &'a [Stmt],
     locals: &HashSet<&'a str>,
     imported: &HashMap<&'a str, String>,
+    bound: &HashSet<&'a str>,
     source: &'a str,
 ) -> Vec<(TextSize, Fault)> {
     let mut stand_ins = StandIns {
-        own: own_imports(body),
-        locals,
-        imported,
+        lookup: Lookup::new(body, locals, imported, bound),
         source,
         found: Vec::new(),
         pending: Vec::new(),
@@ -66,28 +66,8 @@ pub fn faults<'a>(
     stand_ins.found
 }
 
-/// Where each name that an `import` in `body` binds comes from, at any depth.
-fn own_imports(body: &[Stmt]) -> HashMap<&str, String> {
-    let mut own = HashMap::new();
-    let mut pending: Vec<&Stmt> = body.iter().collect();
-    while let Some(statement) = pending.pop() {
-        for (name, origin) in origins(statement) {
-            own.insert(super::bound(name), origin);
-        }
-        pending.extend(super::blocks(statement).into_iter().flatten());
-        if let Stmt::FunctionDef(function) = statement {
-            pending.extend(&function.body);
-        } else if let Stmt::ClassDef(class) = statement {
-            pending.extend(&class.body);
-        }
-    }
-    own
-}
-
 struct StandIns<'a, 'b> {
-    own: HashMap<&'a str, String>,
-    locals: &'b HashSet<&'a str>,
-    imported: &'b HashMap<&'a str, String>,
+    lookup: Lookup<'a, 'b>,
     source: &'a str,
     found: Vec<(TextSize, Fault)>,
     pending: Vec<Node<'a>>,
@@ -97,13 +77,10 @@ impl StandIns<'_, '_> {
     /// Where the import that binds `name` comes from, or `None` when no import
     /// binds it.
     fn origin(&self, name: &str) -> Option<&str> {
-        if let Some(origin) = self.own.get(name) {
-            return Some(origin);
+        match self.lookup.origin(name) {
+            Origin::Own(origin) | Origin::Imported(origin) => Some(origin),
+            Origin::Local | Origin::Module | Origin::Builtin => None,
         }
-        if self.locals.contains(name) {
-            return None;
-        }
-        self.imported.get(name).map(String::as_str)
     }
 
     /// The dotted name of `expr` through the imports, such as
@@ -278,9 +255,7 @@ impl StandIns<'_, '_> {
             return;
         };
         let builtin = matches!(name.id.as_str(), "setattr" | "delattr")
-            && !self.own.contains_key(name.id.as_str())
-            && !self.locals.contains(name.id.as_str())
-            && !self.imported.contains_key(name.id.as_str());
+            && self.lookup.origin(name.id.as_str()) == Origin::Builtin;
         let Some(object) = call.arguments.find_positional(0) else {
             return;
         };
