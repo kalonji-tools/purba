@@ -18,7 +18,7 @@ fn a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module
         Rewrite::of_source(TEST_WAITING, &tests_in(TEST_WAITING)).expect("the source parses"),
     );
     let (loaded, ran, kept) = purba_execution::attach(|worker: &mut Worker<'_, ()>| {
-        purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+        purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         // SAFETY: `raise` takes a signal number. Python's own C handler only
         // marks the signal as waiting, so purba's signal handler runs at the
         // next line of Python, which is inside the load's window.

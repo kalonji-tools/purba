@@ -7,7 +7,7 @@ use pyo3::Python;
 // So the signal of this binary lives in this one test.
 #[test]
 fn an_interrupt_in_the_rewrite_leaves_each_test_unreached() {
-    purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+    purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("test_interrupt_in_rewrite.py");
     fs::write(
         &path,

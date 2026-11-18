@@ -53,7 +53,7 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
         Rewrite::of_source(TEST_SIGNALS, &tests_in(TEST_SIGNALS)).expect("the source parses"),
     );
     let (steps, handlers): (Vec<Step>, [String; 2]) = purba_execution::attach(|worker| {
-        purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+        purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         worker.load(&module).expect("the module loads");
         let mut steps = Vec::new();
         let kind = run(worker, &module, "test_bare");

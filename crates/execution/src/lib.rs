@@ -6,7 +6,7 @@ compile_error!("purba runs on Linux and macOS. On Windows, run it under WSL2.");
 
 mod fork;
 mod frame;
-pub mod interrupt;
+mod interrupt;
 pub mod panic;
 mod paths;
 mod step;
@@ -950,6 +950,14 @@ impl Tally {
         }
     }
 
+    /// How many cases the run has: each case that passed, failed, raised, is
+    /// `interrupted`, is blocked or is unreached. An error and a suppression
+    /// are no case.
+    #[must_use]
+    pub const fn cases(&self) -> usize {
+        self.passed + self.failed + self.raised + self.interrupted + self.blocked + self.unreached
+    }
+
     /// Counts one test that the error of its module blocked.
     pub const fn add_blocked(&mut self) {
         self.blocked += 1;
@@ -979,6 +987,21 @@ impl Tally {
             ErrorKind::Internal { .. } => self.internal_errors += 1,
         }
     }
+}
+
+/// Sets each hook of the process that a run needs.
+///
+/// It wraps Rust's panic hook first, then gives each interrupt signal purba's
+/// signal handler. A test of the signal handler makes this call, so it runs
+/// the process that a run has.
+///
+/// # Errors
+///
+/// `signal` refused the signal handler, or `os.register_at_fork` refused the
+/// function that gives a forked child back the signal handlers.
+pub fn set_hooks() -> pyo3::PyResult<()> {
+    panic::wrap_hook();
+    interrupt::install()
 }
 
 /// Whether purba's signal handler kept an interrupt.

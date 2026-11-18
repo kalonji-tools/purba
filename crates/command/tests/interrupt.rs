@@ -24,7 +24,7 @@ fn run_module(name: &str, source: &str) -> (Result<u8, Error>, String) {
 // So the signal of this binary lives in this one test.
 #[test]
 fn an_interrupt_before_selection_ends_gives_no_count() {
-    purba_execution::interrupt::install().expect("purba's signal handler takes SIGINT");
+    purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
     Python::attach(|py| {
         py.run(
             c"import signal\nsignal.raise_signal(signal.SIGINT)",
