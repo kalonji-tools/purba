@@ -315,11 +315,26 @@ impl<'py, T: Clone> Worker<'py, T> {
         }
         let window = self.open();
         let py = self.py;
+        let holders = paths::holders(py);
         let (own, interrupted) = if window.landed() {
             (Ok(None), true)
+        } else if !paths::tried(py)
+            && let [(_, Some(third)), (_, Some(fourth))] = &holders
+        {
+            let own = Err(Error::project(format!(
+                "sys.monitoring holds the tool ids 3 and 4 for {third} and {fourth}, \
+                 and execution needs one of them to watch"
+            )));
+            (own, false)
         } else {
             thread::hold_filters(py);
+            let free: Vec<u8> = holders
+                .iter()
+                .filter(|(_, holder)| holder.is_none())
+                .map(|(id, _)| *id)
+                .collect();
             let (loaded, landed) = interrupt::calling(py, || {
+                paths::wrap(py)?;
                 purba_assertion::load(py, &module.path, &module.rewrite)
             });
             let own = loaded.map_err(|err| error(&err)).and_then(|loaded| {
@@ -330,7 +345,16 @@ impl<'py, T: Clone> Worker<'py, T> {
                         replaced.rule()
                     )));
                 }
-                paths::arm(loaded.code()).map_err(|err| error(&err))?;
+                if !paths::arm(loaded.code()).map_err(|err| error(&err))? {
+                    let took = match free.as_slice() {
+                        [id] => format!("the tool id {id}"),
+                        _ => "the tool ids 3 and 4".to_owned(),
+                    };
+                    return Err(Error::project(format!(
+                        "[hook-replaced] the module took {took} of sys.monitoring as it \
+                         loaded, and a test keeps purba's hooks"
+                    )));
+                }
                 Ok(Some(loaded))
             });
             (own, landed)

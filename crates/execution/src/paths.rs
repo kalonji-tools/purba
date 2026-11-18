@@ -18,11 +18,12 @@
 //! the test imports, since only the test module's code is watched.
 
 use std::collections::{HashMap, HashSet};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, MutexGuard, PoisonError};
 use std::thread::{self, ThreadId};
 
 use pyo3::sync::PyOnceLock;
-use pyo3::types::{PyAnyMethods, PyType};
+use pyo3::types::{PyAnyMethods, PyDict, PyTuple, PyType};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 
 /// The rule that each fault of a path names.
@@ -426,9 +427,7 @@ fn tool(py: Python<'_>) -> Option<&Tool> {
             let monitoring = py.import("sys")?.getattr("monitoring")?;
             let events = monitoring.getattr("events")?;
             let mut id = None;
-            // 0 to 2 and 5 are named for a debugger, coverage, a profiler and
-            // an optimizer; 3 and 4 have no name.
-            for free in [3_u8, 4] {
+            for free in IDS {
                 if monitoring
                     .call_method1("use_tool_id", (free, "purba"))
                     .is_ok()
@@ -474,14 +473,111 @@ fn tool(py: Python<'_>) -> Option<&Tool> {
     .as_ref()
 }
 
+/// The tool ids that the watch can take, in the order it tries them.
+const IDS: [u8; 2] = [3, 4];
+
+/// Whether the watch tried to take a tool id already, in this process.
+pub fn tried(py: Python<'_>) -> bool {
+    TOOL.get(py).is_some()
+}
+
+/// Each tool id that the watch can take, and the name of the tool that holds
+/// it, or `None` when it is free.
+pub fn holders(py: Python<'_>) -> [(u8, Option<String>); 2] {
+    let monitoring = py.import("sys").and_then(|sys| sys.getattr("monitoring"));
+    IDS.map(|id| {
+        let name = monitoring
+            .as_ref()
+            .ok()
+            .and_then(|monitoring| monitoring.call_method1("get_tool", (id,)).ok())
+            .filter(|name| !name.is_none())
+            .map(|name| name.to_string());
+        (id, name)
+    })
+}
+
+/// The function that `sys.monitoring.set_local_events` held before [`wrap`]
+/// replaced it. The watch sets its own events through it.
+static SETTER: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
+
+/// Whether a call of the wrapper changed the events of the watch's tool since
+/// [`events_changed`] last looked.
+static CHANGED: AtomicBool = AtomicBool::new(false);
+
+/// Takes the place of `sys.monitoring.set_local_events`. It notes a call that
+/// changes the events of the watch's tool on a code object, then calls the
+/// function that it replaced.
+#[pyclass(frozen)]
+struct Setter;
+
+#[pymethods]
+impl Setter {
+    #[pyo3(signature = (*args, **kwargs))]
+    fn __call__(
+        _slf: &Bound<'_, Self>,
+        args: &Bound<'_, PyTuple>,
+        kwargs: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Py<PyAny>> {
+        let py = args.py();
+        if let Some(Some(tool)) = TOOL.get(py)
+            && let Ok((id, code, events)) = args.extract::<(u8, Bound<'_, PyAny>, u32)>()
+            && id == tool.id
+        {
+            // A call that the setter refuses raises in the setter's own words.
+            let now = py
+                .import("sys")
+                .and_then(|sys| sys.getattr("monitoring"))
+                .and_then(|monitoring| monitoring.call_method1("get_local_events", (id, code)))
+                .and_then(|now| now.extract::<u32>());
+            if now.is_ok_and(|now| now != events) {
+                CHANGED.store(true, Ordering::Relaxed);
+            }
+        }
+        setter(py)?.call(args, kwargs).map(Bound::unbind)
+    }
+}
+
+/// The function that sets the events of a code object, as `sys.monitoring`
+/// held it before [`wrap`].
+fn setter(py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
+    match SETTER.get(py) {
+        Some(setter) => Ok(setter.bind(py).clone()),
+        None => py
+            .import("sys")?
+            .getattr("monitoring")?
+            .getattr("set_local_events"),
+    }
+}
+
+/// Puts the wrapper in the place of `sys.monitoring.set_local_events`, so that
+/// the watch hears each call that changes its events.
+///
+/// # Errors
+///
+/// `sys.monitoring` lacks `set_local_events`, or refuses the wrapper.
+pub fn wrap(py: Python<'_>) -> PyResult<()> {
+    let monitoring = py.import("sys")?.getattr("monitoring")?;
+    SETTER.get_or_try_init(py, || {
+        monitoring.getattr("set_local_events").map(Bound::unbind)
+    })?;
+    monitoring.setattr("set_local_events", Bound::new(py, Setter)?)
+}
+
+/// Whether a call changed the events of the watch's tool since this last
+/// looked.
+pub fn events_changed() -> bool {
+    CHANGED.swap(false, Ordering::Relaxed)
+}
+
 /// Sets the events of the watch on each code object inside `code`, the code of
-/// a module, at any depth. The module's own code stays unwatched.
-pub fn arm(code: &Bound<'_, PyAny>) -> PyResult<()> {
+/// a module, at any depth. The module's own code stays unwatched. Gives
+/// `false` when every tool id that the watch can take is taken.
+pub fn arm(code: &Bound<'_, PyAny>) -> PyResult<bool> {
     let py = code.py();
     let Some(tool) = tool(py) else {
-        return Ok(());
+        return Ok(false);
     };
-    let monitoring = py.import("sys")?.getattr("monitoring")?;
+    let setter = setter(py)?;
     let code_type = code.get_type();
     let mut waiting: Vec<Bound<'_, PyAny>> = Vec::new();
     for constant in code.getattr("co_consts")?.try_iter()? {
@@ -491,12 +587,12 @@ pub fn arm(code: &Bound<'_, PyAny>) -> PyResult<()> {
         if !current.is_instance(&code_type)? {
             continue;
         }
-        monitoring.call_method1("set_local_events", (tool.id, &current, tool.events))?;
+        setter.call1((tool.id, &current, tool.events))?;
         for constant in current.getattr("co_consts")?.try_iter()? {
             waiting.push(constant?);
         }
     }
-    Ok(())
+    Ok(true)
 }
 
 /// Starts the watch of a case on this thread, whose test runs `test`, and
@@ -505,6 +601,9 @@ pub fn start(py: Python<'_>, test: &Bound<'_, PyAny>, before: usize) {
     if tool(py).is_none() {
         return;
     }
+    // A change of the events after an earlier case's first expectation, where
+    // no step looks, is no fault of this case.
+    CHANGED.store(false, Ordering::Relaxed);
     // Each case sees each event again, though an earlier case disabled it.
     drop(
         py.import("sys")

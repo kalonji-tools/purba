@@ -1105,7 +1105,8 @@ pub trait Readers: Sync {
     fn end(&self, verdict: Verdict) -> !;
 
     /// Names what the case replaced: a hook of the process, which it puts back,
-    /// or the warning filters. Gives `None` when the case replaced neither.
+    /// the warning filters, or the events of the watch of the paths. Gives
+    /// `None` when the case replaced none.
     fn replaced(&self, _py: Python<'_>) -> Option<Replaced> {
         None
     }
@@ -1115,11 +1116,13 @@ pub trait Readers: Sync {
 }
 
 /// What a case or a module replaced that a test keeps: the first hook of the
-/// process that it replaced, by its name, or the warning filters.
+/// process that it replaced, by its name, the warning filters, or the events
+/// that the watch of the paths set.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Replaced {
     Hook(&'static str),
     Filters,
+    Events,
 }
 
 impl Replaced {
@@ -1129,6 +1132,7 @@ impl Replaced {
         match self {
             Self::Hook(name) => name,
             Self::Filters => "the warning filters",
+            Self::Events => "the events of sys.monitoring that purba watches with",
         }
     }
 
@@ -1136,7 +1140,7 @@ impl Replaced {
     #[must_use]
     pub const fn rule(self) -> &'static str {
         match self {
-            Self::Hook(_) => "a test keeps purba's hooks",
+            Self::Hook(_) | Self::Events => "a test keeps purba's hooks",
             Self::Filters => "a test keeps the filters that the run began with",
         }
     }
@@ -1445,8 +1449,8 @@ impl Read {
     }
 
     /// Runs after each statement of a test before its first expectation, at
-    /// `line`. Records a hook of the process that the case replaced as the
-    /// fault of the form, and the process puts it back.
+    /// `line`. Records what the case replaced as the fault of the form, and the
+    /// process puts back a hook that it replaced.
     fn step(&self, py: Python<'_>, line: usize) {
         let readers = {
             let state = self.state();
