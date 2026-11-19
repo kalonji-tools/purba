@@ -494,7 +494,7 @@ fn defs(body: &[Stmt]) -> Vec<&StmtFunctionDef> {
                 pending.extend(function.body.iter().rev());
             }
             Stmt::ClassDef(class) => pending.extend(class.body.iter().rev()),
-            other => pending.extend(crate::blocks(other).into_iter().flatten().rev()),
+            other => pending.extend(purba_parsing::blocks(other).into_iter().flatten().rev()),
         }
     }
     found

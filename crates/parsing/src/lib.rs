@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::fmt;
 use std::fs;
 use std::io;
+use std::iter;
 use std::mem;
 use std::path::Path;
 
@@ -13,7 +14,7 @@ use ruff_python_ast::visitor::transformer::{
 };
 use ruff_python_ast::visitor::{self, Visitor};
 use ruff_python_ast::{
-    AtomicNodeIndex, Expr, ExprNoneLiteral, InterpolatedStringElement,
+    AtomicNodeIndex, ExceptHandler, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
     StmtAssert, StmtPass, UnaryOp,
 };
@@ -603,14 +604,14 @@ pub fn each(test: &Expr) -> Option<Each<'_>> {
     }
 }
 
-/// The asserts at the end of `body` that `keeps` takes, in source order.
+/// The asserts at the end of `body`, in source order.
 ///
 /// The walk starts at the last statement of `body`, and goes up. It stops at
-/// the first statement that is not an assert that `keeps` takes. When that
-/// statement is a `with`, the walk goes on from the end of the `with`'s body.
-/// An `async with` stops the walk.
+/// the first statement that is not an assert. When that statement is a `with`,
+/// the walk goes on from the end of the `with`'s body. An `async with` stops
+/// the walk.
 #[must_use]
-pub fn ending(body: &[Stmt], keeps: impl Fn(&StmtAssert) -> bool) -> Vec<&StmtAssert> {
+pub fn ending(body: &[Stmt]) -> Vec<&StmtAssert> {
     let mut segments: Vec<Vec<&StmtAssert>> = Vec::new();
     let mut current = body;
     loop {
@@ -618,7 +619,7 @@ pub fn ending(body: &[Stmt], keeps: impl Fn(&StmtAssert) -> bool) -> Vec<&StmtAs
             .iter()
             .rev()
             .map_while(|statement| match statement {
-                Stmt::Assert(assert) if keeps(assert) => Some(assert),
+                Stmt::Assert(assert) => Some(assert),
                 _ => None,
             })
             .collect();
@@ -631,4 +632,36 @@ pub fn ending(body: &[Stmt], keeps: impl Fn(&StmtAssert) -> bool) -> Vec<&StmtAs
         }
     }
     segments.into_iter().rev().flatten().collect()
+}
+
+/// The blocks of `statement` that hold other statements, in source order. The
+/// body of a `def` or a `class` is not one of them.
+#[must_use]
+pub fn blocks(statement: &Stmt) -> Vec<&[Stmt]> {
+    match statement {
+        Stmt::If(branch) => iter::once(branch.body.as_slice())
+            .chain(
+                branch
+                    .elif_else_clauses
+                    .iter()
+                    .map(|clause| clause.body.as_slice()),
+            )
+            .collect(),
+        Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
+            .chain(attempt.handlers.iter().map(|handler| {
+                let ExceptHandler::ExceptHandler(clause) = handler;
+                clause.body.as_slice()
+            }))
+            .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
+            .collect(),
+        Stmt::With(with) => vec![with.body.as_slice()],
+        Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+        Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
+        Stmt::Match(choice) => choice
+            .cases
+            .iter()
+            .map(|case| case.body.as_slice())
+            .collect(),
+        _ => Vec::new(),
+    }
 }

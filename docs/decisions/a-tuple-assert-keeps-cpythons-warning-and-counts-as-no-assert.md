@@ -17,7 +17,7 @@ The rewrite puts the tuple in a call, so CPython never warns.
 
 - **Assertion rewrites a tuple assert as it rewrites any other assert.** The test then prints `passed`, and the tester never sees CPython's warning.
 - **Selection refuses a test whose own body holds a tuple assert.** Selection does not judge an assert in a helper or at the module's level, so those asserts still lose the warning.
-- **A tuple assert at a test's end counts as no expectation.** The line says `no expectation stated`, though the test states the tuple. No assert above the tuple is an expectation.
+- **Selection lets a test that ends with a tuple assert run with no suppression.** The tuple counts as no expectation. No assert above the tuple is an expectation. The line says `no expectation stated` and does not name the tuple assert.
 
 ## Decision Outcome
 
@@ -26,7 +26,9 @@ The rewrite puts the tuple in a call, so CPython never warns.
 **Area:** assertion
 
 **Assertion leaves an assert of a tuple with items as written, so CPython warns.**
-At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation). A tuple assert takes none of the forms of an expectation, so selection refuses its test. A suppression of `not-one-comparison` lets it run.
+At a test's end, a tuple assert stands where an [expectation](../../CONTEXT.md#expectation) stands, and takes none of the forms of one. So selection refuses its test. A suppression of `not-one-comparison` lets it run.
+
+With that suppression, the tuple assert counts as no assert that ran. The other asserts at the test's end are the test's expectations. A test whose only assert at its end is a tuple then states no expectation.
 
 - **Assertion leaves a tuple assert as written anywhere in a module.** CPython warns for an assert in a test, in a helper or at the module's level, when it compiles the module. Away from a test's end, the assert counts as no assert that ran.
 - **The refused line names the tuple assert's line number.** [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says how.
@@ -42,9 +44,12 @@ At a test's end, a tuple assert is an [expectation](../../CONTEXT.md#expectation
 
 `mise run test:wheel` checks that selection refuses a test that ends with a tuple assert.
 It checks that the refused line names the tuple's line number.
+It checks that a test with a suppressed tuple assert at its end passes because the assert above it holds.
+It checks that CPython warns for that test.
 It checks that a tuple assert in a helper keeps CPython's warning.
 It checks that execution refuses an assert of an empty tuple above a statement that is not an assert, and that stderr is empty.
 
 `mise run test:rust` checks that selection refuses a test that ends with a tuple assert or an assert of an empty tuple.
+It checks that the rewrite reads the asserts above and below a tuple assert at a test's end.
 It checks that the rewrite leaves a tuple assert as written and gives it no index.
 A property test of `mise run test:rust` checks the same for each tuple assert that it generates.

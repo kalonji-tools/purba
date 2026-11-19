@@ -4,10 +4,9 @@
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
-use std::iter;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::{Each, Module};
+use purba_parsing::{Each, Module, blocks};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::visitor::{
     Visitor, walk_except_handler, walk_expr, walk_interpolated_string_element, walk_pattern,
@@ -815,37 +814,6 @@ fn defs_under(statement: &Stmt) -> Vec<&StmtFunctionDef> {
     found
 }
 
-/// The blocks of `statement` that import may run or skip, in source order. The
-/// body of a `def` or a `class` is not one of them.
-fn blocks(statement: &Stmt) -> Vec<&[Stmt]> {
-    match statement {
-        Stmt::If(branch) => iter::once(branch.body.as_slice())
-            .chain(
-                branch
-                    .elif_else_clauses
-                    .iter()
-                    .map(|clause| clause.body.as_slice()),
-            )
-            .collect(),
-        Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
-            .chain(attempt.handlers.iter().map(|handler| {
-                let ExceptHandler::ExceptHandler(clause) = handler;
-                clause.body.as_slice()
-            }))
-            .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
-            .collect(),
-        Stmt::With(with) => vec![with.body.as_slice()],
-        Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-        Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-        Stmt::Match(choice) => choice
-            .cases
-            .iter()
-            .map(|case| case.body.as_slice())
-            .collect(),
-        _ => Vec::new(),
-    }
-}
-
 /// Each test in a class of `module`, refused, beside the offset of its first
 /// `def`. A name defined twice in one class is one test, and selection judges
 /// its last `def`.
@@ -1386,7 +1354,7 @@ fn faults_of(
         Expr::Name(name) if inputs.contains(name.id.as_str()) => Some(name.id.to_string()),
         _ => None,
     };
-    for assert in purba_parsing::ending(&function.body, |_| true) {
+    for assert in purba_parsing::ending(&function.body) {
         let start = assert.start();
         let check = match purba_parsing::each(&assert.test) {
             Some(Each::One { check, .. }) => check,
