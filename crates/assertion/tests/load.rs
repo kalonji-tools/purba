@@ -979,3 +979,95 @@ fn values(shown: Shown) -> (String, String) {
         Shown::Items { heading, .. } => panic!("a check of one value shows no items: {heading}"),
     }
 }
+
+#[test]
+fn a_call_that_hands_the_hook_values_that_do_not_match_its_check_panics() {
+    let cases = [
+        ("one value for a comparison", "_purba_read(0, 1)"),
+        ("two values for not", "_purba_read(1, 1, 2)"),
+        ("three values", "_purba_read(0, 1, 1, 1)"),
+        ("one value for an all()", "_purba_read(2, [1])"),
+        (
+            "a row of two values for the check of an all()",
+            "_purba_read(2, [1], lambda items: ((i, i) for i in items))",
+        ),
+        ("a second value for no check", "_purba_read(3, 1, 2)"),
+    ];
+    Python::initialize();
+    for (what, call) in cases {
+        let text = format!(
+            "def test_hand():\n    {call}\n    assert 1 == 1\n    assert not 0\n    \
+             assert all(v == 1 for v in [1])\n    assert bool(1)\n"
+        );
+        let rewrite = Rewrite::of_source(&text, &["test_hand"]).expect("the source parses");
+        Python::attach(|py| {
+            let loaded = purba_assertion::load(py, Path::new("test_hand.py"), &rewrite)
+                .expect("the module loads");
+            let case = loaded.module().getattr("test_hand").unwrap();
+            // PyO3 resumes its own `PanicException` as a Rust panic.
+            let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                drop(loaded.watch(&NO_READER, || case.call0()));
+            }));
+            let payload = panicked.expect_err(what);
+            let message = payload
+                .downcast_ref::<String>()
+                .cloned()
+                .unwrap_or_default();
+            assert!(
+                message.ends_with("the values do not match the check of the expectation"),
+                "{what}: the hook's own panic, not the truth of the value: {message:?}"
+            );
+        });
+    }
+}
+
+/// Readers of a replay, whose `end` panics with its verdict.
+struct Ending;
+
+static ENDING: Ending = Ending;
+
+impl Readers for Ending {
+    fn threaded(&self, _py: Python<'_>) -> bool {
+        unreachable!("a replay forks no reader")
+    }
+
+    fn fork(&self, _py: Python<'_>) -> std::io::Result<Option<i32>> {
+        unreachable!("a replay forks no reader")
+    }
+
+    fn wait(&self, _pid: i32) -> Verdict {
+        unreachable!("a replay forks no reader")
+    }
+
+    fn end(&self, verdict: Verdict) -> ! {
+        panic!("the reader ends with {verdict:?}")
+    }
+}
+
+#[test]
+fn a_reader_handed_values_that_do_not_match_its_check_ends_with_raises() {
+    Python::initialize();
+    let rewrite = Rewrite::of_source(
+        "def test_hand():\n    _purba_read(0, 1)\n    assert 1 == 1\n",
+        &["test_hand"],
+    )
+    .expect("the source parses");
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(py, Path::new("test_hand_alone.py"), &rewrite)
+            .expect("the module loads");
+        let case = loaded.module().getattr("test_hand").unwrap();
+        // PyO3 resumes its own `PanicException` as a Rust panic.
+        let ended = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            drop(loaded.replay(&ENDING, 0, || case.call0()));
+        }));
+        let payload = ended.expect_err("the reader ends");
+        let message = payload
+            .downcast_ref::<String>()
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(
+            message, "the reader ends with Raises",
+            "a reader ends with Raises, and not with the truth of the value"
+        );
+    });
+}

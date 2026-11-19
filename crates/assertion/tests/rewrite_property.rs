@@ -249,3 +249,101 @@ proptest! {
         prop_assert_eq!(text(second), right, "the right side, as written");
     }
 }
+
+/// One value of a check: a literal, or the name `x`.
+fn value() -> impl Strategy<Value = &'static str> {
+    prop::sample::select(&["1", "'ab'", "None", "[1]", "(1, 2)", "x"][..])
+}
+
+/// One check: a comparison of two values by one operator, or one of the four
+/// reads.
+fn one_check() -> impl Strategy<Value = String> {
+    prop_oneof![
+        (value(), prop::sample::select(&OPERATORS[..]), value())
+            .prop_map(|(left, op, right)| format!("{left} {op} {right}")),
+        value().prop_map(|reading| format!("not {reading}")),
+        value().prop_map(|reading| format!("isinstance({reading}, str)")),
+        (value(), value()).prop_map(|(reading, start)| format!("({reading}).startswith({start})")),
+        (value(), value()).prop_map(|(reading, end)| format!("({reading}).endswith({end})")),
+    ]
+}
+
+/// The test of an assert in each shape that parsing names: one check, an
+/// `all()` or an `any()` of one check, another `all()` or `any()`, and a test
+/// that is no check.
+fn any_shape() -> impl Strategy<Value = String> {
+    let function = prop::sample::select(&["all", "any"][..]);
+    prop_oneof![
+        one_check(),
+        (function.clone(), one_check())
+            .prop_map(|(function, check)| format!("{function}({check} for x in [1, 'ab', None])")),
+        (function.clone(), one_check())
+            .prop_map(|(function, check)| format!("{function}({check} for x in x if x)")),
+        function.prop_map(|function| format!("{function}([x])")),
+        value().prop_map(|reading| format!("bool({reading})")),
+        (value(), value()).prop_map(|(left, right)| format!("{left} == 1 == {right}")),
+    ]
+}
+
+/// Readers that fork none, since a Python thread always seems alive.
+struct NoReader;
+
+static NO_READER: NoReader = NoReader;
+
+impl purba_assertion::Readers for NoReader {
+    fn threaded(&self, _py: pyo3::Python<'_>) -> bool {
+        true
+    }
+
+    fn fork(&self, _py: pyo3::Python<'_>) -> std::io::Result<Option<i32>> {
+        unreachable!("a process with a thread forks no reader")
+    }
+
+    fn wait(&self, _pid: i32) -> purba_assertion::Verdict {
+        unreachable!("a process with a thread forks no reader")
+    }
+
+    fn end(&self, _verdict: purba_assertion::Verdict) -> ! {
+        unreachable!("no process is a reader")
+    }
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig {
+        cases: 1024,
+        rng_seed: RngSeed::Fixed(1103),
+        failure_persistence: None,
+        ..ProptestConfig::default()
+    })]
+
+    #[test]
+    fn the_call_of_each_expectation_hands_the_hook_the_values_of_its_check(test in any_shape()) {
+        use pyo3::types::PyAnyMethods;
+        let text = format!("x = 'ab'\n\ndef test_case():\n    assert {test}\n");
+        let rewrite = purba_assertion::Rewrite::of_source(&text, &["test_case"])
+            .map_err(|error| TestCaseError::fail(format!("the module parses: {error:?}")))?;
+        pyo3::Python::initialize();
+        // The hook panics when the values that the call hands it do not match
+        // the check, and PyO3 resumes that panic here.
+        let read = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            pyo3::Python::attach(|py| {
+                // CPython warns of `is` with a literal when it compiles the module.
+                let quiet = c"import warnings; warnings.simplefilter('ignore', SyntaxWarning)";
+                py.run(quiet, None, None).expect("the filter is set");
+                let path = std::path::Path::new("test_shape.py");
+                let loaded = purba_assertion::load(py, path, &rewrite).expect("the module loads");
+                let case = loaded.module().getattr("test_case").expect("the test is bound");
+                let watched = loaded.watch(&NO_READER, || case.call0());
+                (watched.result.is_ok(), watched.readings.in_order.len())
+            })
+        }));
+        let Ok((returned, read)) = read else {
+            return Err(TestCaseError::fail(format!("the hook panicked on: assert {test}")));
+        };
+        prop_assert!(
+            !returned || read == 1,
+            "a test that returns read its one expectation: assert {}",
+            test
+        );
+    }
+}

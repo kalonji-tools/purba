@@ -14,7 +14,7 @@ use ruff_python_ast::visitor::transformer::{
 };
 use ruff_python_ast::visitor::{self, Visitor};
 use ruff_python_ast::{
-    AtomicNodeIndex, ExceptHandler, Expr, ExprNoneLiteral, InterpolatedStringElement,
+    AtomicNodeIndex, CmpOp, ExceptHandler, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
     StmtAssert, StmtPass, UnaryOp,
 };
@@ -483,11 +483,103 @@ pub enum Reads {
     End,
 }
 
-/// The read of `test`, its reading, and the type or the argument that it
-/// takes, when `test` is `not x`, `isinstance(x, T)` with two positional
-/// arguments, or `x.startswith(y)` or `x.endswith(y)` with one. Else `None`.
+/// One check: a comparison of two values by one operator, or one of the four
+/// reads.
+#[derive(Clone, Copy, Debug)]
+pub enum Check<'a> {
+    /// `left <op> right`.
+    Compare {
+        op: CmpOp,
+        left: &'a Expr,
+        right: &'a Expr,
+    },
+    /// One of the four reads: its reading, and the type or the argument that
+    /// it takes. `not x` takes none.
+    Read {
+        read: Reads,
+        reading: &'a Expr,
+        other: Option<&'a Expr>,
+    },
+}
+
+impl<'a> Check<'a> {
+    /// The values of this check, in source order. A comparison gives both
+    /// sides. A read gives its reading, and the type or the argument that it
+    /// takes.
+    #[must_use]
+    pub const fn values(self) -> (&'a Expr, Option<&'a Expr>) {
+        match self {
+            Self::Compare { left, right, .. } => (left, Some(right)),
+            Self::Read { reading, other, .. } => (reading, other),
+        }
+    }
+}
+
+/// The shape of an assert's test.
+#[derive(Clone, Copy, Debug)]
+pub enum Shape<'a> {
+    /// The test is one check.
+    Check(Check<'a>),
+    /// `all(<check> for <target> in <reading>)`, or `any(…)`: a generator with
+    /// one `for` and no `if`, whose item is one check.
+    Each {
+        any: bool,
+        check: Check<'a>,
+        item: &'a Expr,
+        target: &'a Expr,
+        reading: &'a Expr,
+    },
+    /// Another `all()` or `any()`: its function, and the words that name its
+    /// shape, such as `with an if`.
+    OtherEach {
+        function: &'static str,
+        shape: &'static str,
+    },
+    /// Any other test. It is no check.
+    Other,
+}
+
+/// The shape of `test`.
+///
+/// A comparison is one check when it has one operator. A read is one check
+/// when it is `not x`, `isinstance(x, T)` with two positional arguments, or
+/// `x.startswith(y)` or `x.endswith(y)` with one.
+///
+/// An `all()` or an `any()` is `Each` or `OtherEach` only when it takes one
+/// positional argument, a generator or a list. An `if`, a second `for` or a `:=` in the
+/// item names its shape first. An `all()` or an `any()` of another argument,
+/// or of a generator whose one `for` is async or whose item is no check, is
+/// `Other`.
 #[must_use]
-pub fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)> {
+pub fn shape(test: &Expr) -> Shape<'_> {
+    if let Some(check) = check(test) {
+        return Shape::Check(check);
+    }
+    each(test).unwrap_or(Shape::Other)
+}
+
+/// The check that `test` is, or `None`.
+fn check(test: &Expr) -> Option<Check<'_>> {
+    match test {
+        Expr::Compare(compare) => match (&*compare.ops, &*compare.operands) {
+            ([op], [left, right]) => Some(Check::Compare {
+                op: *op,
+                left,
+                right,
+            }),
+            _ => None,
+        },
+        _ => read(test).map(|(read, reading, other)| Check::Read {
+            read,
+            reading,
+            other,
+        }),
+    }
+}
+
+/// The read of `test`, its reading, and the type or the argument that it
+/// takes, or `None`.
+fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)> {
     match test {
         Expr::UnaryOp(operation) if operation.op == UnaryOp::Not => {
             Some((Reads::Not, &operation.operand, None))
@@ -533,40 +625,8 @@ fn holds_a_walrus(expr: &Expr) -> bool {
     false
 }
 
-/// Whether `test` is one shape of a check: a comparison of two values by one
-/// operator, or one of the four reads.
-fn is_check(test: &Expr) -> bool {
-    matches!(test, Expr::Compare(compare) if compare.ops.len() == 1) || read(test).is_some()
-}
-
-/// An `all()` or an `any()` that an expectation asserts.
-#[derive(Clone, Copy, Debug)]
-pub enum Each<'a> {
-    /// `all(<check> for <target> in <reading>)`, or `any(…)`: a generator with
-    /// one `for` and no `if`, whose item is one shape of a check.
-    One {
-        any: bool,
-        check: &'a Expr,
-        target: &'a Expr,
-        reading: &'a Expr,
-    },
-    /// Another `all()` or `any()`: its function, and the words that name its
-    /// shape, such as `with an if`.
-    Other {
-        function: &'static str,
-        shape: &'static str,
-    },
-}
-
-/// The `all()` or the `any()` that `test` is.
-///
-/// It is one when `test` calls one of them with one positional argument, a
-/// generator or a list. An `if`, a second `for` or a `:=` in the item names the
-/// shape first. `None` for any other test, and for an `all()` or an `any()` of
-/// another argument, or of a generator whose one `for` is async or whose item
-/// is no check.
-#[must_use]
-pub fn each(test: &Expr) -> Option<Each<'_>> {
+/// The `all()` or the `any()` that `test` is, as `shape` gives it, or `None`.
+fn each(test: &Expr) -> Option<Shape<'_>> {
     let Expr::Call(call) = test else {
         return None;
     };
@@ -582,7 +642,7 @@ pub fn each(test: &Expr) -> Option<Each<'_>> {
         "any" => ("any", true),
         _ => return None,
     };
-    let other = |shape| Some(Each::Other { function, shape });
+    let other = |shape| Some(Shape::OtherEach { function, shape });
     let generator = match argument {
         Expr::Generator(generator) => generator,
         Expr::ListComp(_) => return other("of a list, not a generator"),
@@ -591,9 +651,10 @@ pub fn each(test: &Expr) -> Option<Each<'_>> {
     match &*generator.generators {
         [one] if !one.ifs.is_empty() => other("with an if"),
         [_] if holds_a_walrus(&generator.elt) => other("with a :="),
-        [one] if !one.is_async && is_check(&generator.elt) => Some(Each::One {
+        [one] if !one.is_async => check(&generator.elt).map(|check| Shape::Each {
             any,
-            check: &generator.elt,
+            check,
+            item: &generator.elt,
             target: &one.target,
             reading: &one.iter,
         }),
