@@ -351,11 +351,12 @@ LINES
 @test "a daemon thread that a test leaves ends with the test's process, and charges nothing" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
-    'import threading, time' \
-    'def late():' '    time.sleep(0.2)' '    raise ValueError("late")' \
+    'import threading' \
+    'def late():' '    threading.Event().wait()' '    raise ValueError("late")' \
     'def test_a():' \
     '    threading.Thread(target=late, name="T", daemon=True).start()' '    assert 1 == 1' \
-    'def test_b():' '    time.sleep(0.5)' '    assert 1 == 1' >test_late.py
+    'def test_b():' \
+    '    assert "T" not in [thread.name for thread in threading.enumerate()]' >test_late.py
 
   run -0 --separate-stderr purba test_late.py
 
