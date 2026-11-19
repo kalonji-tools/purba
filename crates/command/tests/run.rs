@@ -336,6 +336,28 @@ fn a_module_that_did_not_load_prints_its_error_once() {
 }
 
 #[test]
+fn a_module_that_did_not_load_prints_the_error_of_each_thread_of_its_load() {
+    let text = concat!(
+        "import threading\n\n",
+        "loader = threading.Thread(target=lambda: 1 / 0, name=\"L\")\n",
+        "loader.start()\nloader.join()\n",
+        "raise ValueError(\"x\")\n\n",
+        "def test_one():\n    assert 1 == 1\n",
+    );
+    let (path, kinds, code) = run_module("test_command_load_thread.py", text);
+    assert_eq!(
+        kinds,
+        [
+            (path.display().to_string(), "project error"),
+            (path.display().to_string(), "project error"),
+            (id(&path, "test_one"), "blocked"),
+        ],
+        "the module's error, then the error of the thread of its load, then its test as blocked"
+    );
+    assert_eq!(code, 4, "an error exits 4");
+}
+
+#[test]
 fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
     let text = concat!(
         "def test_ok():\n    assert 1 == 1\n\n",

@@ -1,7 +1,7 @@
 //! Dispatch: forks for each module a zygote that loads it once, and runs each
 //! selected test in a process that the zygote forks. It hands on what each test's
-//! process gives, and the error of a module that did not load or of a thread. It
-//! also hands on each test that an interrupt left unreached.
+//! process gives, each module that stopped before its tests, and the error of a
+//! thread. It also hands on each test that an interrupt left unreached.
 
 use std::ops::ControlFlow;
 use std::path::PathBuf;
@@ -54,19 +54,21 @@ impl<T> Module<T> {
     }
 }
 
-/// What dispatch hands on: a test with its outcome or its own error, and with
-/// what its suppressions gave; the error of a module that did not load; a test
-/// of that module; or the error of a thread.
+/// What dispatch hands on: a test with what it gave, a module that stopped
+/// before its tests, the error of a thread, or an unreached test.
 pub enum Handed<T> {
     /// A test that ran, beside its outcome, or the error that it gave in
     /// place of one, and what the suppressions of its case gave.
     Test(T, Result<Outcome, Error>, Suppressed),
-    /// A module that did not load, by its path, and the load's error, or the
-    /// internal error of a panic during the load.
-    NotLoaded(PathBuf, Error),
-    /// A test that no call reached, because its module, by its path, did not
-    /// load.
-    Blocked(T, PathBuf),
+    /// A module that stopped before any test of it ran, by its path: the error
+    /// that stopped it, the error of each thread that its load took, and each
+    /// of its tests, which no call reached.
+    Stopped {
+        path: PathBuf,
+        error: Error,
+        threads: Vec<Error>,
+        tests: Vec<T>,
+    },
     /// The error of a thread's exception, beside the test or the module that
     /// it charges. It blocks no test.
     Thread(Charged<T>, Error),
@@ -86,14 +88,15 @@ pub enum Charged<T> {
 /// The zygote loads the module once. `each` takes what each test's process
 /// gives.
 ///
-/// When a module does not load, `each` takes its error once, then each of its
-/// tests as blocked, and no test of it runs. Once `each` breaks, nothing
+/// When a module stops before its tests, `each` takes it once, with its error,
+/// the error of each thread that its load took, and its tests, and no test of
+/// it runs. A module stops when its zygote cannot fork, when its load fails, or
+/// when the zygote that loads nothing cannot fork. Once `each` breaks, nothing
 /// further runs, and `hand` returns the break.
 ///
 /// After each load and each test, `each` takes the error of each thread that
 /// the load or the test's process took, beside the test or the module that it
-/// charges. After a load, they come before the first test or the first blocked
-/// test.
+/// charges. After a load, they come before the first test.
 ///
 /// When a Python thread is alive after the load, purba forks a zygote that loads
 /// nothing, and each test's process loads the module again before its test.
@@ -122,58 +125,20 @@ pub fn hand<T: Test + Clone, B>(
             }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.rewrite);
-            let started = worker.zygote(&executable, true).map(|mut zygote| {
-                let load = zygote.loaded();
-                (zygote, load)
-            });
-            let (mut zygote, load) = match started {
+            let (mut zygote, threads) = match started(worker, &executable) {
                 Ok(started) => started,
-                Err(error) => {
-                    each(Handed::NotLoaded(path.clone(), error))?;
-                    for test in module.tests {
-                        each(Handed::Blocked(test, path.clone()))?;
-                    }
+                Err(Stop { error, threads }) => {
+                    each(Handed::Stopped {
+                        path,
+                        error,
+                        threads,
+                        tests: module.tests,
+                    })?;
                     continue;
                 }
             };
-            let Load {
-                result,
-                threads,
-                threaded,
-            } = load;
-            if let Err(error) = result {
-                zygote.end();
-                each(Handed::NotLoaded(path.clone(), error))?;
-                for error in threads {
-                    each(Handed::Thread(Charged::Module(path.clone()), error))?;
-                }
-                for test in module.tests {
-                    each(Handed::Blocked(test, path.clone()))?;
-                }
-                continue;
-            }
             for error in threads {
                 each(Handed::Thread(Charged::Module(path.clone()), error))?;
-            }
-            if threaded {
-                zygote.end();
-                zygote = match worker.zygote(&executable, false) {
-                    Ok(mut zygote) => {
-                        zygote.loaded();
-                        zygote
-                    }
-                    Err(error) => {
-                        let text = error.to_string();
-                        for test in module.tests {
-                            each(Handed::Test(
-                                test,
-                                Err(Error::project(text.clone())),
-                                Suppressed::default(),
-                            ))?;
-                        }
-                        continue;
-                    }
-                };
             }
             let flow = run(&mut zygote, module.tests, &mut each);
             zygote.end();
@@ -181,6 +146,49 @@ pub fn hand<T: Test + Clone, B>(
         }
         ControlFlow::Continue(())
     })
+}
+
+/// What stopped a module before its tests: the error, and the error of each
+/// thread that its load took.
+struct Stop {
+    error: Error,
+    threads: Vec<Error>,
+}
+
+/// Forks the zygote that forks a process for each test of `module`, and gives
+/// it with the error of each thread that the load took, or gives what stopped
+/// the module.
+///
+/// The zygote loads the module. When a Python thread is alive after the load,
+/// that zygote ends, and a zygote that loads nothing forks the processes.
+fn started<T>(
+    worker: &Worker<'_, T>,
+    module: &purba_execution::Module,
+) -> Result<(Zygote, Vec<Error>), Stop> {
+    let mut zygote = worker.zygote(module, true).map_err(|error| Stop {
+        error,
+        threads: Vec::new(),
+    })?;
+    let Load {
+        result,
+        threads,
+        threaded,
+    } = zygote.loaded();
+    if let Err(error) = result {
+        zygote.end();
+        return Err(Stop { error, threads });
+    }
+    if !threaded {
+        return Ok((zygote, threads));
+    }
+    zygote.end();
+    match worker.zygote(module, false) {
+        Ok(mut zygote) => {
+            zygote.loaded();
+            Ok((zygote, threads))
+        }
+        Err(error) => Err(Stop { error, threads }),
+    }
 }
 
 /// Runs each of `tests` in a process that `zygote` forks, and hands `each` what

@@ -35,7 +35,7 @@ A new kind and the rule that counts it change in execution alone.
 - **Reporting takes six ways in.** `finish` ends the report. The six ways in are these:
   - `line` takes a test with its outcome or its error.
   - `error` takes a module or a test, with its error. It counts no blocked test.
-  - `blocked` takes a test that its module blocked.
+  - `stopped` takes a module that stopped before its tests ran, with its error, each thread's error, and its tests. It writes the error once, then each thread's error, then each test as blocked.
   - `unreached` takes an [unreached test](../../CONTEXT.md#unreached-test). It writes no line.
   - `warned` takes a verdict that a suppression turned into a warning, under the line of its case. It counts no test.
   - `noticed` takes a [notice](../../CONTEXT.md#notice), under the line of its case. It counts nothing.
@@ -50,6 +50,7 @@ A new kind and the rule that counts it change in execution alone.
 
 `mise run test:rust` checks that a tally counts an error of each kind, for a test and for a module.
 It checks that an error says its kind.
-It checks that reporting prints a project error and an internal error through `line` and through `error`.
+It checks that reporting prints a project error and an internal error through `line` and through `stopped`, and a project error through `error`.
+It checks that `stopped` writes the module's error, then each thread's error, then each test as blocked, and counts the module's error once.
 It checks that `unreached` writes no line, and that the count names `unreached`.
 `mise run lint:wiring` checks that the manifest of command names execution along an arrow of the parts diagram.

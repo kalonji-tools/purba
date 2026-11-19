@@ -26,8 +26,8 @@ fn module(name: &str, source: &str, tests: &[&'static str]) -> Module<Named> {
 #[derive(Debug, PartialEq)]
 enum Seen {
     Test(&'static str, Result<Kind, String>),
-    NotLoaded(PathBuf, String),
-    Blocked(&'static str, PathBuf),
+    /// A stopped module: its path, its error, each thread's, and its tests.
+    Stopped(PathBuf, String, Vec<String>, Vec<&'static str>),
     Thread(String),
     Unreached(&'static str),
 }
@@ -54,8 +54,17 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                     .map(|outcome| outcome.kind().clone())
                     .map_err(|err| reason(&err)),
             ),
-            Handed::NotLoaded(path, err) => Seen::NotLoaded(path, reason(&err)),
-            Handed::Blocked(test, path) => Seen::Blocked(test.0, path),
+            Handed::Stopped {
+                path,
+                error,
+                threads,
+                tests,
+            } => Seen::Stopped(
+                path,
+                reason(&error),
+                threads.iter().map(reason).collect(),
+                tests.iter().map(|test| test.0).collect(),
+            ),
             Handed::Thread(_, err) => Seen::Thread(reason(&err)),
             Handed::Unreached(test) => Seen::Unreached(test.0),
         });
@@ -210,7 +219,7 @@ fn dispatch_calls_no_test_after_a_break() {
 }
 
 #[test]
-fn a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked() {
+fn a_module_that_does_not_load_is_handed_once_with_its_error_and_its_tests() {
     let test_fails = module(
         "test_not_loaded.py",
         "raise ValueError('x')\n\n\
@@ -218,15 +227,38 @@ fn a_module_that_does_not_load_hands_its_error_once_then_each_test_as_blocked() 
          def test_two():\n    pass\n",
         &["test_one", "test_two"],
     );
-    let path = PathBuf::from("test_not_loaded.py");
     assert_eq!(
         seen(test_fails),
-        [
-            Seen::NotLoaded(path.clone(), "ValueError: x".to_owned()),
-            Seen::Blocked("test_one", path.clone()),
-            Seen::Blocked("test_two", path),
-        ],
-        "the load's error once, and each test as blocked",
+        [Seen::Stopped(
+            PathBuf::from("test_not_loaded.py"),
+            "ValueError: x".to_owned(),
+            Vec::new(),
+            vec!["test_one", "test_two"],
+        )],
+        "the module once, with the load's error and each of its tests",
+    );
+}
+
+#[test]
+fn a_module_that_does_not_load_is_handed_with_the_error_of_each_thread_of_its_load() {
+    let test_fails = module(
+        "test_not_loaded_thread.py",
+        "import threading\n\n\
+         loader = threading.Thread(target=lambda: 1 / 0, name=\"L\")\n\
+         loader.start()\nloader.join()\n\
+         raise ValueError('x')\n\n\
+         def test_one():\n    pass\n",
+        &["test_one"],
+    );
+    assert_eq!(
+        seen(test_fails),
+        [Seen::Stopped(
+            PathBuf::from("test_not_loaded_thread.py"),
+            "ValueError: x".to_owned(),
+            vec!["thread L raised ZeroDivisionError: division by zero".to_owned()],
+            vec!["test_one"],
+        )],
+        "the thread's error rides with the module, and is not handed on its own",
     );
 }
 
@@ -255,7 +287,7 @@ fn a_load_that_leaves_a_thread_alive_hands_its_threads_error_once() {
 }
 
 #[test]
-fn a_module_whose_load_exits_hands_its_exit_code_once_then_each_test_as_blocked() {
+fn a_module_whose_load_exits_is_handed_once_with_its_exit_code_and_its_tests() {
     let test_exits = module(
         "test_load_exits.py",
         "import os\n\n\
@@ -263,34 +295,42 @@ fn a_module_whose_load_exits_hands_its_exit_code_once_then_each_test_as_blocked(
          def test_one():\n    pass\n",
         &["test_one"],
     );
-    let path = PathBuf::from("test_load_exits.py");
     assert_eq!(
         seen(test_exits),
-        [
-            Seen::NotLoaded(
-                path.clone(),
-                "its process exited 5 before its load ended".to_owned()
-            ),
-            Seen::Blocked("test_one", path),
-        ],
+        [Seen::Stopped(
+            PathBuf::from("test_load_exits.py"),
+            "its process exited 5 before its load ended".to_owned(),
+            Vec::new(),
+            vec!["test_one"],
+        )],
         "a call to os._exit ends the zygote, though the module catches every exception",
     );
 }
 
 #[test]
-fn a_break_at_a_module_that_does_not_load_hands_no_blocked_test() {
+fn a_break_at_a_module_that_does_not_load_loads_no_further_module() {
+    let ran = ran_at("test_dispatch_stopped_break.ran");
     let test_fails = module(
         "test_not_loaded_break.py",
         "raise ValueError('x')\n\ndef test_one():\n    pass\n",
         &["test_one"],
     );
+    let test_after = module(
+        "test_after_break.py",
+        &format!(
+            "open({:?}, \"w\").close()\n\ndef test_one():\n    assert True\n",
+            ran.to_str().expect("the path is UTF-8")
+        ),
+        &["test_one"],
+    );
     let mut handed = 0;
-    let flow = purba_dispatch::hand(vec![test_fails], |_| {
+    let flow = purba_dispatch::hand(vec![test_fails, test_after], |_| {
         handed += 1;
         ControlFlow::Break("stop")
     });
     assert_eq!(flow, ControlFlow::Break("stop"), "hand returns the break");
     assert_eq!(handed, 1, "dispatch hands nothing after the break");
+    assert!(!ran.exists(), "the next module's body never ran");
 }
 
 #[test]
@@ -319,7 +359,7 @@ const PANIC_EXCEPTION: &str = "def panic_exception():\n\
     \x20   raise LookupError('no PanicException')\n\n";
 
 #[test]
-fn a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blocked() {
+fn a_module_whose_load_panics_is_handed_once_with_an_internal_error_and_its_tests() {
     let test_panics = module(
         "test_load_panics.py",
         &format!(
@@ -330,17 +370,14 @@ fn a_module_whose_load_panics_hands_an_internal_error_once_then_each_test_as_blo
         ),
         &["test_one", "test_two"],
     );
-    let path = PathBuf::from("test_load_panics.py");
     assert_eq!(
         seen(test_panics),
-        [
-            Seen::NotLoaded(
-                path.clone(),
-                "internal error: execution: raised while it loads".to_owned()
-            ),
-            Seen::Blocked("test_one", path.clone()),
-            Seen::Blocked("test_two", path),
-        ],
+        [Seen::Stopped(
+            PathBuf::from("test_load_panics.py"),
+            "internal error: execution: raised while it loads".to_owned(),
+            Vec::new(),
+            vec!["test_one", "test_two"],
+        )],
         "execution catches the panic of the load in the zygote, and names itself",
     );
 }
