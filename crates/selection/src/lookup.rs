@@ -4,7 +4,9 @@ use std::collections::{HashMap, HashSet};
 
 use ruff_python_ast::Stmt;
 
-use super::{blocks, bound, origins};
+use purba_parsing::blocks;
+
+use super::{bound, origins};
 
 /// Where a name that a test reads comes from.
 #[derive(Debug, PartialEq, Eq)]

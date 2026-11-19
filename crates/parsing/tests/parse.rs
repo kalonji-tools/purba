@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::thread;
 
 use purba_parsing::{Error, SyntaxError};
-use ruff_python_ast::{Expr, Stmt, StmtAssert};
+use ruff_python_ast::Stmt;
 use ruff_text_size::Ranged;
 
 const SMALL_STACK: usize = 256 * 1024;
@@ -363,25 +363,21 @@ fn an_assert_with_no_value_or_a_starred_value_gives_ruffs_message() {
     }
 }
 
-/// The text of each expectation at the end of the module's first `def`, as
-/// `ending` gives them when `keeps` decides which asserts count.
-fn ending_of(name: &str, text: &str, keeps: impl Fn(&StmtAssert) -> bool) -> Vec<String> {
+/// The text of each assert at the end of the module's first `def`, as `ending`
+/// gives them.
+fn ending_of(name: &str, text: &str) -> Vec<String> {
     let module = purba_parsing::parse(&write(name, text)).expect("the module parses");
     let Some(Stmt::FunctionDef(function)) = module.syntax().body.first() else {
         panic!("{name}: the module starts with a def");
     };
-    purba_parsing::ending(&function.body, keeps)
+    purba_parsing::ending(&function.body)
         .into_iter()
         .map(|assert| module.source()[assert.range()].to_owned())
         .collect()
 }
 
-fn of_a_tuple(assert: &StmtAssert) -> bool {
-    matches!(&*assert.test, Expr::Tuple(_))
-}
-
 #[test]
-fn the_expectations_are_the_asserts_at_the_end_of_a_body() {
+fn the_ending_is_the_asserts_at_the_end_of_a_body() {
     let text = concat!(
         "def test_a():\n",
         "    x = 1\n",
@@ -392,7 +388,7 @@ fn the_expectations_are_the_asserts_at_the_end_of_a_body() {
     );
 
     assert_eq!(
-        ending_of("test_end.py", text, |_| true),
+        ending_of("test_end.py", text),
         ["assert x == 1", "assert y == 3"],
         "the asserts after the last other statement, in source order"
     );
@@ -412,12 +408,12 @@ fn the_asserts_at_the_end_of_a_with_before_them_come_first() {
         "async def test_b():\n    async with c as d:\n        assert d == 1\n    assert d == 2\n";
 
     assert_eq!(
-        ending_of("test_with.py", nested, |_| true),
+        ending_of("test_with.py", nested),
         ["assert a == 1", "assert b == 2", "assert a == 3"],
         "the walk enters each with just before the asserts, at two depths"
     );
     assert_eq!(
-        ending_of("test_async_with.py", awaited, |_| true),
+        ending_of("test_async_with.py", awaited),
         ["assert d == 2"],
         "an async with ends the walk"
     );
@@ -434,24 +430,65 @@ fn a_with_that_a_statement_keeps_from_the_asserts_is_not_entered() {
     );
 
     assert_eq!(
-        ending_of("test_with_apart.py", apart, |_| true),
+        ending_of("test_with_apart.py", apart),
         ["assert x == 2"],
         "the walk enters only a with just before the asserts"
     );
 }
 
 #[test]
-fn an_assert_that_keeps_refuses_ends_the_walk() {
+fn a_tuple_assert_at_the_end_counts_like_any_other_assert() {
     let text = "def test_a():\n    x = 1\n    assert x == 1\n    assert (x, 1)\n";
 
     assert_eq!(
-        ending_of("test_tuple_end.py", text, |assert| !of_a_tuple(assert)),
-        Vec::<String>::new(),
-        "a refused tuple assert at the end hides the assert before it"
-    );
-    assert_eq!(
-        ending_of("test_tuple_kept.py", text, |_| true),
+        ending_of("test_tuple_end.py", text),
         ["assert x == 1", "assert (x, 1)"],
-        "an assert that keeps takes counts like any other"
+        "the walk takes a tuple assert, and goes on above it"
+    );
+}
+
+#[test]
+fn the_blocks_of_a_statement_are_the_bodies_it_holds_in_source_order() {
+    let text = concat!(
+        "if a:\n    x = 1\nelif b:\n    x = 2\nelse:\n    x = 3\n",
+        "for i in c:\n    x = 4\nelse:\n    x = 5\n",
+        "while d:\n    x = 6\nelse:\n    x = 7\n",
+        "with e:\n    x = 8\n",
+        "try:\n    x = 9\nexcept E:\n    x = 10\nexcept F:\n    x = 11\n",
+        "else:\n    x = 12\nfinally:\n    x = 13\n",
+        "match f:\n    case 1:\n        x = 14\n    case _:\n        x = 15\n",
+        "def g():\n    x = 16\n",
+        "class H:\n    x = 17\n",
+        "x = 18\n",
+    );
+    let module = purba_parsing::parse(&write("test_blocks.py", text)).expect("the module parses");
+
+    let firsts: Vec<Vec<&str>> = module
+        .syntax()
+        .body
+        .iter()
+        .map(|statement| {
+            purba_parsing::blocks(statement)
+                .into_iter()
+                .map(|block| &module.source()[block[0].range()])
+                .collect()
+        })
+        .collect();
+
+    assert_eq!(
+        firsts,
+        [
+            vec!["x = 1", "x = 2", "x = 3"],
+            vec!["x = 4", "x = 5"],
+            vec!["x = 6", "x = 7"],
+            vec!["x = 8"],
+            vec!["x = 9", "x = 10", "x = 11", "x = 12", "x = 13"],
+            vec!["x = 14", "x = 15"],
+            vec![],
+            vec![],
+            vec![],
+        ],
+        "each block of if, for, while, with, try with two handlers, and match, in source order; \
+         a def, a class and a simple statement hold none"
     );
 }

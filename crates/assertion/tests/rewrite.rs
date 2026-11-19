@@ -218,7 +218,7 @@ fn the_asserts_at_the_end_of_a_test_are_its_expectations() {
 }
 
 #[test]
-fn a_tuple_assert_at_the_end_of_a_test_leaves_the_rewrite_no_assert_to_read() {
+fn a_tuple_assert_at_the_end_of_a_test_leaves_the_asserts_above_it_to_read() {
     let rewritten = purba_assertion::Rewrite::of_source(
         concat!(
             "def test_t():\n",
@@ -232,8 +232,29 @@ fn a_tuple_assert_at_the_end_of_a_test_leaves_the_rewrite_no_assert_to_read() {
 
     assert_eq!(
         rewritten.expectations("test_t"),
-        [] as [&str; 0],
-        "the tuple stops the walk, so the rewrite reads neither assert"
+        ["assert x == 1"],
+        "the walk goes on above the tuple, and the rewrite leaves the tuple as written"
+    );
+}
+
+#[test]
+fn a_tuple_assert_between_the_asserts_at_the_end_of_a_test_is_no_expectation() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_t():\n",
+            "    x = 1\n",
+            "    assert x == 1\n",
+            "    assert (x, 1)\n",
+            "    assert x > 0\n",
+        ),
+        &["test_t"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.expectations("test_t"),
+        ["assert x == 1", "assert x > 0"],
+        "the rewrite reads the asserts on each side of the tuple, and leaves the tuple as written"
     );
 }
 

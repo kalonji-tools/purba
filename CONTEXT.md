@@ -92,7 +92,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations after it. It compares two values by one operator, with a literal on one side. Or it takes one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`. Or it checks each item of an `all()` or an `any()` by one of these. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations, or tuple asserts, after it. It compares two values by one operator, with a literal on one side. Or it takes one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`. Or it checks each item of an `all()` or an `any()` by one of these. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Form
 

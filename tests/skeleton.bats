@@ -101,7 +101,7 @@ test_abort.py::test_three passed
 LINES
 }
 
-@test "a tuple assert at a test's end is refused as an expectation that is not one comparison" {
+@test "a tuple assert at a test's end is refused as not one comparison" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
     'def test_tuple():' '    assert 1 == 1' '    assert (1 == 2, "msg")' >test_tup.py
@@ -115,6 +115,25 @@ test_tup.py::test_tuple project error: [not-one-comparison] line 3 is not one co
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
+}
+
+@test "with a suppressed tuple assert at a test's end, the asserts above it are the expectations" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    '# purba: suppress[not-one-comparison] the tuple is a known slip' \
+    'def test_tuple():' '    x = 1' '    assert x == 1' '    assert (x, 1)' >test_tup.py
+
+  run -0 --separate-stderr purba test_tup.py
+
+  local one='and an expectation compares a reading by one operator, or reads not x,'
+  one+=' isinstance(x, T), x.startswith(y) or x.endswith(y)'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_tup.py::test_tuple passed
+    ⚠ suppressed [not-one-comparison] line 5 is not one comparison, ${one}
+      reason: the tuple is a known slip
+1 case: 1 passed; 1 suppressed
+LINES
+  [[ "${stderr}" == *'test_tup.py:5: SyntaxWarning: assertion is always true'* ]]
 }
 
 @test "a tuple assert in a helper keeps CPython's warning" {

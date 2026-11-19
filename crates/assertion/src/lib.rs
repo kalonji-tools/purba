@@ -1,10 +1,11 @@
 //! Assertion: rewrites the asserts of a module, and loads the rewritten module.
 //! An assert at the end of a test's body, or at the end of the body of a `with`
-//! just before such asserts, is an expectation, which becomes a reading that
-//! execution compares. Every other assert, except a tuple assert, keeps a mark
-//! that records that it ran, and whether it held. A step follows each statement
-//! of a test before its first expectation, and each item of each `with` of a
-//! test is wrapped, so that the case sees its hooks and its `with`s.
+//! just before such asserts, is an expectation. A tuple assert is never an
+//! expectation. An expectation becomes a reading that execution compares.
+//! Every other assert, except a tuple assert, keeps a mark that records that it
+//! ran, and whether it held. A step follows each statement of a test before its first expectation,
+//! and each item of each `with` of a test is wrapped, so that the case sees its
+//! hooks and its `with`s.
 
 use purba_parsing::{Each, Module, Reads};
 use pyo3::basic::CompareOp;
@@ -241,6 +242,15 @@ fn of_a_tuple(assert: &StmtAssert) -> bool {
     matches!(&*assert.test, Expr::Tuple(tuple) if !tuple.elts.is_empty())
 }
 
+/// The expectations of `function`: the asserts at the end of its body, except
+/// each tuple assert, which the rewrite leaves as written.
+fn expectations_of(function: &StmtFunctionDef) -> Vec<&StmtAssert> {
+    purba_parsing::ending(&function.body)
+        .into_iter()
+        .filter(|assert| !of_a_tuple(assert))
+        .collect()
+}
+
 /// Each assert of a module that the rewrite marks, in source order, at any
 /// depth.
 struct Asserts<'a> {
@@ -289,34 +299,8 @@ fn statements(body: &[Stmt]) -> Vec<&Stmt> {
     let mut pending: Vec<&Stmt> = body.iter().rev().collect();
     while let Some(statement) = pending.pop() {
         found.push(statement);
-        let blocks: Vec<&[Stmt]> = match statement {
-            Stmt::If(branch) => iter::once(branch.body.as_slice())
-                .chain(
-                    branch
-                        .elif_else_clauses
-                        .iter()
-                        .map(|clause| clause.body.as_slice()),
-                )
-                .collect(),
-            Stmt::For(each) => vec![&each.body, &each.orelse],
-            Stmt::While(each) => vec![&each.body, &each.orelse],
-            Stmt::With(with) => vec![&with.body],
-            Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
-                .chain(attempt.handlers.iter().map(|handler| {
-                    let ExceptHandler::ExceptHandler(clause) = handler;
-                    clause.body.as_slice()
-                }))
-                .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
-                .collect(),
-            Stmt::Match(choice) => choice
-                .cases
-                .iter()
-                .map(|case| case.body.as_slice())
-                .collect(),
-            _ => Vec::new(),
-        };
         pending.extend(
-            blocks
+            purba_parsing::blocks(statement)
                 .into_iter()
                 .rev()
                 .flat_map(|block| block.iter().rev()),
@@ -394,12 +378,7 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
     let line = |offset: TextSize| module.position(offset).line();
     let by_test: Vec<(&StmtFunctionDef, Vec<&StmtAssert>)> = tests_of(module, tests)
         .into_iter()
-        .map(|function| {
-            (
-                function,
-                purba_parsing::ending(&function.body, |assert| !of_a_tuple(assert)),
-            )
-        })
+        .map(|function| (function, expectations_of(function)))
         .collect();
     let all: Vec<&StmtAssert> = by_test
         .iter()
