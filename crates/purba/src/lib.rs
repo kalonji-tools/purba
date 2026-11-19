@@ -67,6 +67,7 @@ fn main(py: Python<'_>) -> u8 {
         purba_command::run(&argv, writable_stdout().map(|()| io::stdout()))
     }) {
         Ok(Ok(code)) => code,
+        // `die` decides the status after an interrupt: it ends purba by the kept signal at exit.
         Ok(Err(purba_command::Error::Interrupted)) => 130,
         Ok(Err(error @ purba_command::Error::Refused { code, .. })) => {
             stop(&error);

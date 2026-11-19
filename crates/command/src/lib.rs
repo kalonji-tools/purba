@@ -119,13 +119,12 @@ pub fn run_with(
         warned(&mut report, refused.test(), &[])?;
     }
     if let Some(fault) = selected.fault() {
-        report.error(
+        report.stopped(
             &path.display(),
             &purba_execution::Error::project(fault.to_owned()),
+            &[],
+            selected.tests(),
         )?;
-        for test in selected.tests() {
-            report.blocked(test, &path.display())?;
-        }
         return Ok(report.finish()?);
     }
     let found = rewritten(&path, &parsed, selected.tests().to_vec(), &rewrite);
@@ -133,10 +132,7 @@ pub fn run_with(
     let modules = match found {
         Found::Modules(modules) => modules,
         Found::NotRewritten(error, tests) => {
-            report.error(&path.display(), &error)?;
-            for test in &tests {
-                report.blocked(test, &path.display())?;
-            }
+            report.stopped(&path.display(), &error, &[], &tests)?;
             return Ok(report.finish()?);
         }
     };
@@ -153,10 +149,13 @@ pub fn run_with(
                     .line(&test, &result)
                     .and_then(|()| warned(&mut report, &test, &suppressed.warnings))
             }
-            Handed::NotLoaded(path, error) | Handed::Thread(Charged::Module(path), error) => {
-                report.error(&path.display(), &error)
-            }
-            Handed::Blocked(test, path) => report.blocked(&test, &path.display()),
+            Handed::Stopped {
+                path,
+                error,
+                threads,
+                tests,
+            } => report.stopped(&path.display(), &error, &threads, &tests),
+            Handed::Thread(Charged::Module(path), error) => report.error(&path.display(), &error),
             Handed::Thread(Charged::Test(test), error) => report.error(&test, &error),
             Handed::Unreached(_) => {
                 report.unreached();

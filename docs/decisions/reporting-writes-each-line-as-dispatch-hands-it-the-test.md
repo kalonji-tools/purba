@@ -27,26 +27,27 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reporting writes each line as dispatch hands it the test.**
 
-- **Dispatch calls a function that command gives it, once for each test, each module that does not load, and each error of a thread.** Command names no type of an outcome, and the parts diagram draws each call. The function returns `ControlFlow`, and no test runs after a `Break`.
+- **Dispatch calls command's function once for each module that stops before its tests, and once for every other test and every other thread's error.** Command names no type of an outcome, and the parts diagram draws each call. The function returns `ControlFlow`, and no test runs after a `Break`.
 
   ```mermaid
   sequenceDiagram
     participant worker
     participant dispatch
     participant function as command's function
-    alt the module loads
+    alt a zygote forks a process for each test
       dispatch->>function: the error of each thread the load took
       loop each test
         worker->>dispatch: its outcome or error
         dispatch->>function: that outcome or error
         dispatch->>function: the error of each thread the test took
       end
-    else the module does not load
-      dispatch->>function: the error of the module
-      dispatch->>function: the error of each thread the load took
-      dispatch->>function: each of its tests, as blocked, and runs none of them
+    else the module stops before its tests
+      dispatch->>function: the module, its error, the error of each thread the load took, and its tests
+      Note over dispatch: it runs none of the tests
     end
   ```
+
+- **Reporting's `stopped` writes the lines of a module that stopped before its tests.** It writes the module's error once, then each thread's error, then each test as blocked. Command calls it for each module that dispatch hands as stopped, and for a module whose suppression has a fault or whose rewrite panicked.
 
 - **Parsing and selection keep returning what they find, and command hands it on at once.**
 - **A line from the parse, selection or the rewrite never reaches dispatch.** [Command hands reporting each line from before dispatch takes the module](command-hands-reporting-each-line-from-before-dispatch-takes-the-module.md#decision-outcome) says which lines.
@@ -61,7 +62,7 @@ A crash inside a test then left the tester no line, though the tests before it r
 ## Confirmation
 
 `mise run test:rust` checks that dispatch hands each test on before it runs the next, and calls no test after a `Break`.
-It checks that, for a module that does not load, dispatch hands on its error once, then each of its tests as blocked.
+It checks that dispatch hands on once a module that does not load, with its error, each thread's error, and its tests.
 It checks that reporting flushes each line before the next test, and returns the error of a refused write with the code of the run.
 It checks that command runs no test after a refused write.
 `mise run test:wheel` checks that a test that aborts purba leaves the line of each test before it.

@@ -1,8 +1,8 @@
-//! Reporting: prints one line for each test, for each module that did not
-//! load, and for the error of each thread, as it takes them, then a count, and
-//! renders the exit code. Reporting prints `interrupted` for a test that an
-//! interrupt landed in. It prints no line for an unreached test. The count
-//! names it.
+//! Reporting: prints one line for each test, for each module that stopped
+//! before its tests, and for the error of each thread. It prints each line as
+//! it takes it, then prints a count and renders the exit code. Reporting prints
+//! `interrupted` for a test that an interrupt landed in. It prints no line for
+//! an unreached test. The count names it.
 
 use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
@@ -31,8 +31,9 @@ impl Display for Reason<'_> {
     }
 }
 
-/// Prints each test beside its outcome or error to `out`, each module that did
-/// not load, and the error of each thread, as it takes them, then the count.
+/// Prints each test beside its outcome or error to `out`, each module that
+/// stopped before its tests, and the error of each thread, as it takes them,
+/// then the count.
 /// Keeps only the tally.
 pub struct Report<W: Write> {
     out: W,
@@ -76,13 +77,34 @@ impl<W: Write> Report<W> {
         self.flushed(written)
     }
 
-    /// Adds `test` to the tally as blocked, because `module` did not load, and
-    /// writes its line and flushes it.
+    /// Takes `module`, which `error` stopped before any test of it ran. Writes
+    /// the error once, then the error of each thread that its load took, then
+    /// each of `tests` as blocked, each on its own line, and adds each to the
+    /// tally.
     ///
     /// # Errors
     ///
-    /// When `out` refuses the write or the flush.
-    pub fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> Result<(), Refused> {
+    /// When `out` refuses a write or a flush. Nothing is written after it.
+    pub fn stopped<M: Display, T: Display>(
+        &mut self,
+        module: &M,
+        error: &Error,
+        threads: &[Error],
+        tests: &[T],
+    ) -> Result<(), Refused> {
+        self.error(module, error)?;
+        for thread in threads {
+            self.error(module, thread)?;
+        }
+        for test in tests {
+            self.blocked(test, module)?;
+        }
+        Ok(())
+    }
+
+    /// Adds `test` to the tally as blocked, because `module` stopped before its
+    /// tests, and writes its line and flushes it.
+    fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> Result<(), Refused> {
         self.tally.add_blocked();
         let written = writeln!(self.out, "{test} blocked: {module} did not load");
         self.flushed(written)
@@ -183,31 +205,46 @@ impl<W: Write> Report<W> {
     }
 }
 
+/// The count of the run. It names every field of `Tally`, so that a new field
+/// fails the build here until the count says where it goes.
 fn count_line(tally: &Tally) -> String {
+    let &Tally {
+        passed,
+        failed,
+        raised,
+        interrupted,
+        blocked,
+        unreached,
+        project_errors,
+        internal_errors,
+        // A refused write stops the run, so the count never prints it.
+        invocation_errors: _,
+        suppressed,
+    } = tally;
     let cases = tally.cases();
     let outcomes: Vec<String> = [
-        (tally.passed, "passed"),
-        (tally.failed, "failed"),
-        (tally.raised, "raised"),
-        (tally.interrupted, "interrupted"),
-        (tally.blocked, "blocked"),
-        (tally.unreached, "unreached"),
+        (passed, "passed"),
+        (failed, "failed"),
+        (raised, "raised"),
+        (interrupted, "interrupted"),
+        (blocked, "blocked"),
+        (unreached, "unreached"),
     ]
     .into_iter()
     .filter(|&(count, _)| count > 0)
     .map(|(count, outcome)| format!("{count} {outcome}"))
     .collect();
     let errors: Vec<String> = [
-        (tally.project_errors, "project error"),
-        (tally.internal_errors, "internal error"),
+        (project_errors, "project error"),
+        (internal_errors, "internal error"),
     ]
     .into_iter()
     .filter(|&(count, _)| count > 0)
     .map(|(count, error)| format!("{count} {error}{}", plural(count)))
     .collect();
     let mut line = format!("{cases} case{}", plural(cases));
-    let suppressed: Vec<String> = (tally.suppressed > 0)
-        .then(|| format!("{} suppressed", tally.suppressed))
+    let suppressed: Vec<String> = (suppressed > 0)
+        .then(|| format!("{suppressed} suppressed"))
         .into_iter()
         .collect();
     for (mark, columns) in [(':', outcomes), (';', errors), (';', suppressed)] {
@@ -220,16 +257,34 @@ fn count_line(tally: &Tally) -> String {
     line
 }
 
+/// The exit code of the run. It names every field of `Tally`, so that a new
+/// field fails the build here until the code says what it weighs.
 const fn exit_code(tally: &Tally) -> u8 {
-    if tally.internal_errors > 0 {
+    let &Tally {
+        passed,
+        failed,
+        raised,
+        project_errors,
+        internal_errors,
+        invocation_errors,
+        // A run with an interrupted or an unreached test dies by the signal at
+        // exit, whatever its code.
+        interrupted: _,
+        unreached: _,
+        // A blocked test comes with an error, and the error weighs.
+        blocked: _,
+        // A suppressed verdict changes no exit code.
+        suppressed: _,
+    } = tally;
+    if internal_errors > 0 {
         125
-    } else if tally.invocation_errors > 0 {
+    } else if invocation_errors > 0 {
         3
-    } else if tally.failed > 0 {
+    } else if failed > 0 {
         1
-    } else if tally.raised > 0 || tally.project_errors > 0 {
+    } else if raised > 0 || project_errors > 0 {
         4
-    } else if tally.passed == 0 {
+    } else if passed == 0 {
         2
     } else {
         0
@@ -424,6 +479,60 @@ mod tests {
         );
     }
 
+    /// Takes each write, except the first write after one whole line.
+    #[derive(Default)]
+    struct RefusesOnlySecondLine {
+        taken: Vec<u8>,
+        refused: bool,
+    }
+
+    impl Write for RefusesOnlySecondLine {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            if !self.refused && self.taken.contains(&b'\n') {
+                self.refused = true;
+                return Err(io::Error::other("refused"));
+            }
+            self.taken.extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn a_stopped_module_writes_nothing_after_a_refused_line() {
+        for (threads, second) in [
+            (
+                vec![project(
+                    "thread L raised ZeroDivisionError: division by zero",
+                )],
+                "the thread's line",
+            ),
+            (Vec::new(), "the first blocked line"),
+        ] {
+            let mut out = RefusesOnlySecondLine::default();
+            let refused = Report::new(&mut out)
+                .stopped(
+                    &"test_b.py",
+                    &project("ValueError: x"),
+                    &threads,
+                    &["test_b.py::test_one", "test_b.py::test_two"],
+                )
+                .expect_err("the writer refuses the second line");
+            assert_eq!(
+                (
+                    String::from_utf8(out.taken).expect("reporting writes UTF-8"),
+                    refused.code
+                ),
+                ("test_b.py project error: ValueError: x\n".to_owned(), 3),
+                "the writer refuses {second}, and takes no line after it, though it would; \
+                 3 for a run with no internal error"
+            );
+        }
+    }
+
     #[test]
     fn a_write_refused_after_an_internal_error_keeps_125() {
         let mut report = Report::new(RefusesSecondLine::default());
@@ -466,25 +575,31 @@ mod tests {
     }
 
     #[test]
-    fn a_module_that_did_not_load_prints_once_and_each_test_as_blocked() {
+    fn a_stopped_module_prints_its_error_once_then_each_threads_then_each_test_as_blocked() {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .error(&"test_b.py", &project("ValueError: x"))
+            .stopped(
+                &"test_b.py",
+                &project("ValueError: x"),
+                &[
+                    project("thread L raised ZeroDivisionError: division by zero"),
+                    project("thread M raised OSError: gone"),
+                ],
+                &["test_b.py::test_one", "test_b.py::test_two"],
+            )
             .expect("a Vec takes every write");
-        for test in ["test_b.py::test_one", "test_b.py::test_two"] {
-            report
-                .blocked(&test, &"test_b.py")
-                .expect("a Vec takes every write");
-        }
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
             "test_b.py project error: ValueError: x\n\
+             test_b.py project error: thread L raised ZeroDivisionError: division by zero\n\
+             test_b.py project error: thread M raised OSError: gone\n\
              test_b.py::test_one blocked: test_b.py did not load\n\
              test_b.py::test_two blocked: test_b.py did not load\n\
-             2 cases: 2 blocked; 1 project error\n",
-            "the error once, then each test that it blocked"
+             2 cases: 2 blocked; 3 project errors\n",
+            "the module's error once, then each thread's, then each test that it blocked, \
+             and one error for the module, not one for each test"
         );
         assert_eq!(
             code, 4,
@@ -553,13 +668,13 @@ mod tests {
         let mut out = Vec::new();
         let mut report = Report::new(&mut out);
         report
-            .error(&"test_m.py", &internal("dispatch", "boom\n  at the load"))
+            .stopped(
+                &"test_m.py",
+                &internal("dispatch", "boom\n  at the load"),
+                &[],
+                &["test_m.py::test_one", "test_m.py::test_two"],
+            )
             .expect("a Vec takes every write");
-        for test in ["test_m.py::test_one", "test_m.py::test_two"] {
-            report
-                .blocked(&test, &"test_m.py")
-                .expect("a Vec takes every write");
-        }
         let code = report.finish().expect("a Vec takes every write");
         assert_eq!(
             String::from_utf8(out).expect("reporting writes UTF-8"),
