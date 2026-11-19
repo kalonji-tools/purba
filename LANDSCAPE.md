@@ -56,7 +56,7 @@ flowchart LR
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
-- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error.
+- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error. It holds what selection and assertion share: the asserts at the end of a test, the blocks of a statement, and each assert's shape.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It forks a zygote for each module. The zygote loads the module on its worker before its tests, and forks a process for each test. For a module that does not load, dispatch hands on the error once, and each of its tests as blocked. For a load that the first interrupt lands in, dispatch hands on no project error. After each load and each test, dispatch hands on the error of each thread that the zygote or the test's process took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
@@ -133,6 +133,7 @@ sequenceDiagram
 [purba divides by responsibility and not by language](docs/decisions/purba-divides-by-responsibility-and-not-by-language.md) holds why.
 [Command lends one parse to selection and assertion](docs/decisions/command-lends-one-parse-to-selection-and-assertion.md) holds why command hands each parsed module on.
 [A worker loads each module once, and command hands each module once](docs/decisions/a-worker-loads-each-module-once.md) holds why command hands dispatch each module once, and why a worker loads it once.
+[Parsing walks a test's ending asserts and a body's blocks once, for selection and assertion](https://github.com/kalonji-tools/purba/issues/1102) and [Parsing names the form of each expectation once, for selection and assertion](https://github.com/kalonji-tools/purba/issues/1103) hold why parsing holds what selection and assertion share.
 [Execution calls a test by its function's name, and reporting prints the identity it is given](docs/decisions/execution-calls-a-test-by-its-functions-name.md) holds why execution and reporting never name the identity's type.
 [Reporting renders the exit code, and command returns it](docs/decisions/reporting-renders-the-exit-code-and-command-returns-it.md) says which part holds the rule that counts, and which part renders the exit code.
 

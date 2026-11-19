@@ -7,9 +7,9 @@
 //! and each item of each `with` of a test is wrapped, so that the case sees its
 //! hooks and its `with`s.
 
-use purba_parsing::{Each, Module, Reads};
+use purba_parsing::{Module, Reads, Shape};
 use pyo3::basic::CompareOp;
-use pyo3::exceptions::{PyIndexError, PyNameError, PyTypeError};
+use pyo3::exceptions::{PyIndexError, PyNameError};
 use pyo3::types::{
     PyAnyMethods, PyDict, PyDictMethods, PyModule, PyModuleMethods, PyTuple, PyTupleMethods,
     PyTypeMethods,
@@ -18,8 +18,7 @@ use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pym
 use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
 use ruff_python_ast::visitor::{Visitor, walk_expr};
 use ruff_python_ast::{
-    CmpOp, ExceptHandler, Expr, ExprCompare, ExprContext, Parameters, Stmt, StmtAssert,
-    StmtFunctionDef, StmtTry,
+    CmpOp, ExceptHandler, Expr, ExprContext, Parameters, Stmt, StmtAssert, StmtFunctionDef, StmtTry,
 };
 use ruff_text_size::{Ranged, TextRange, TextSize};
 use std::collections::{HashMap, HashSet};
@@ -130,62 +129,49 @@ fn spaced(expr: &Expr, source: &str) -> String {
         .join(" ")
 }
 
-/// The two sides of `test` when it compares two values by one operator.
-fn sides(test: &Expr) -> Option<(&ExprCompare, &Expr, &Expr)> {
-    let Expr::Compare(compare) = test else {
-        return None;
-    };
-    match (&*compare.ops, &*compare.operands) {
-        ([_], [left, right]) => Some((compare, left, right)),
-        _ => None,
+/// How `check`, one check that parsing names, checks its reading.
+fn checked(check: purba_parsing::Check<'_>, source: &str) -> Check {
+    match check {
+        purba_parsing::Check::Compare { op, left, right } => Check::Compare {
+            op,
+            expected_left: purba_parsing::is_literal(left) && !purba_parsing::is_literal(right),
+        },
+        purba_parsing::Check::Read { read, other, .. } => Check::Read {
+            read,
+            kind: other.map_or_else(String::new, |other| spaced(other, source)),
+        },
     }
-}
-
-/// What `test` hands the hook: both sides of a comparison of two values by one
-/// operator, or the reading of one of the four reads and the type or the
-/// argument that it takes. `None` for any other test, which hands its condition.
-fn parts(test: &Expr) -> Option<(&Expr, Option<&Expr>)> {
-    sides(test)
-        .map(|(_, left, right)| (left, Some(right)))
-        .or_else(|| purba_parsing::read(test).map(|(_, reading, other)| (reading, other)))
 }
 
 /// How `test`, the condition of the assert at `line`, checks its reading, or
-/// `None` when it compares no two values, takes none of the four reads, and is
-/// no `all()` or `any()` of one check.
+/// `None` when parsing names no check in it.
 fn check_of(test: &Expr, source: &str, line: usize) -> Option<Check> {
-    if let Some(Each::One {
-        any,
-        check,
-        target,
-        reading: over,
-    }) = purba_parsing::each(test)
-    {
-        let item = check_of(check, source, line)?;
-        let over = spaced(over, source);
-        let (first, second) = parts(check)?;
-        let side = reading_side(&item, first, second);
-        let (side, target) = (spaced(side, source), spaced(target, source));
-        return Some(Check::Each(Box::new(Items {
+    match purba_parsing::shape(test) {
+        Shape::Check(check) => Some(checked(check, source)),
+        Shape::Each {
             any,
-            item,
-            label: spaced(check, source),
-            bare: side == target,
-            side,
+            check,
+            item: label,
             target,
-            empty: format!("line {line} checks each item of {over}, and {over} holds no item"),
-        })));
+            reading: over,
+        } => {
+            let item = checked(check, source);
+            let over = spaced(over, source);
+            let (first, second) = check.values();
+            let side = reading_side(&item, first, second);
+            let (side, target) = (spaced(side, source), spaced(target, source));
+            Some(Check::Each(Box::new(Items {
+                any,
+                item,
+                label: spaced(label, source),
+                bare: side == target,
+                side,
+                target,
+                empty: format!("line {line} checks each item of {over}, and {over} holds no item"),
+            })))
+        }
+        Shape::OtherEach { .. } | Shape::Other => None,
     }
-    if let Some((compare, left, right)) = sides(test) {
-        return Some(Check::Compare {
-            op: compare.ops[0],
-            expected_left: purba_parsing::is_literal(left) && !purba_parsing::is_literal(right),
-        });
-    }
-    purba_parsing::read(test).map(|(read, _, other)| Check::Read {
-        read,
-        kind: other.map_or_else(String::new, |other| spaced(other, source)),
-    })
 }
 
 /// The body of a `with`: the line of each statement in it, at any depth, in
@@ -477,14 +463,15 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
 fn read_edit(index: usize, assert: &StmtAssert, source: &str) -> Edit {
     let whole = assert.range();
     let mut text = format!("{READS}({index}) and {READ}({index}, ");
-    if let Some(Each::One {
+    let shape = purba_parsing::shape(&assert.test);
+    if let Shape::Each {
         check,
         target,
         reading,
         ..
-    }) = purba_parsing::each(&assert.test)
-        && let Some((first, second)) = parts(check)
+    } = shape
     {
+        let (first, second) = check.values();
         push_side(&mut text, source, reading);
         text.push_str(", lambda ");
         text.push_str(ITEMS);
@@ -515,7 +502,8 @@ fn read_edit(index: usize, assert: &StmtAssert, source: &str) -> Edit {
         };
     }
     let mut copied = whole.start();
-    if let Some((first, second)) = parts(&assert.test) {
+    if let Shape::Check(check) = shape {
+        let (first, second) = check.values();
         for (side, start) in iter::once((first, "")).chain(second.map(|second| (second, ", "))) {
             push_breaks(&mut text, &source[TextRange::new(copied, side.start())]);
             text.push_str(start);
@@ -613,15 +601,19 @@ fn holds(op: CmpOp, left: &Bound<'_, PyAny>, right: &Bound<'_, PyAny>) -> PyResu
 
 /// Whether `value`, and `other` when the expectation hands one, hold by
 /// `check`, as Python decides. With no check, `value` holds when it is true.
+/// It is `None` when the values do not match the check. Then no check or `not`
+/// gets two values, a check of two values gets one, or the check is of an
+/// `all()` or an `any()`.
 fn held(
     check: Option<&Check>,
     value: &Bound<'_, PyAny>,
     other: Option<&Bound<'_, PyAny>>,
-) -> PyResult<bool> {
+) -> PyResult<Option<bool>> {
     let read = |method: &str, argument: &Bound<'_, PyAny>| {
         value.call_method1(method, (argument,))?.is_truthy()
     };
     match (check, other) {
+        (None, None) => value.is_truthy(),
         (Some(Check::Compare { op, .. }), Some(right)) => holds(*op, value, right),
         (
             Some(Check::Read {
@@ -648,8 +640,9 @@ fn held(
             }),
             Some(argument),
         ) => read("endswith", argument),
-        _ => value.is_truthy(),
+        _ => return Ok(None),
     }
+    .map(Some)
 }
 
 /// Whether `value` is an iterator that one reading empties: its type has
@@ -801,26 +794,30 @@ type Row<'py> = (usize, bool, Bound<'py, PyAny>, Bound<'py, PyAny>);
 /// first item that holds, and an `all()` at its first item that breaks, as
 /// Python's own do. An `any()` of no item fails, and an `all()` of no item
 /// holds. It takes no `repr`, so a reader ends with its verdict before any.
+/// It gives `None` when the parts of an item do not match the check of an item.
 fn read_each<'py>(
     items: &Items,
     reading: &Bound<'py, PyAny>,
     make: &Bound<'py, PyAny>,
-) -> PyResult<(bool, Vec<Row<'py>>, usize)> {
-    let row_of = |index: usize, row: Bound<'py, PyAny>| -> PyResult<Row<'py>> {
-        let first = row.get_item(1)?;
-        let second = if row.len()? > 2 {
-            Some(row.get_item(2)?)
-        } else {
-            None
+) -> PyResult<Option<(bool, Vec<Row<'py>>, usize)>> {
+    let row_of = |index: usize, row: Bound<'py, PyAny>| -> PyResult<Option<Row<'py>>> {
+        let (first, second) = match row.len()? {
+            2 => (row.get_item(1)?, None),
+            3 => (row.get_item(1)?, Some(row.get_item(2)?)),
+            _ => return Ok(None),
         };
-        let holds = held(Some(&items.item), &first, second.as_ref())?;
+        let Some(holds) = held(Some(&items.item), &first, second.as_ref())? else {
+            return Ok(None);
+        };
         let value = reading_side(&items.item, first, second);
-        Ok((index, holds, row.get_item(0)?, value))
+        Ok(Some((index, holds, row.get_item(0)?, value)))
     };
     let mut rows: Vec<Row<'py>> = Vec::new();
     let mut read = 0;
     for (index, row) in make.call1((reading,))?.try_iter()?.enumerate() {
-        let row = row_of(index, row?)?;
+        let Some(row) = row_of(index, row?)? else {
+            return Ok(None);
+        };
         read += 1;
         let holds = row.1;
         if items.any || !holds {
@@ -833,7 +830,7 @@ fn read_each<'py>(
     // Each reading stops at the row that decides it, so the last row gives the
     // verdict, and a reading of no row gives Python's verdict of no item.
     let held = rows.last().map_or(!items.any, |row| row.1);
-    Ok((held, rows, read))
+    Ok(Some((held, rows, read)))
 }
 
 /// What a failed `all()` or `any()` of `items` shows from its `rows`, after it
@@ -1201,6 +1198,17 @@ impl Read {
         state.reader.and(state.readers)
     }
 
+    /// Closes the reading of the expectation at `index`, whose call handed
+    /// values that do not match its check. A reader ends with `Raises`. Any
+    /// other process panics, since the rewrite writes no such call.
+    fn mismatched(&self, index: usize) -> ! {
+        self.state().reading = false;
+        if let Some(readers) = self.reader() {
+            readers.end(Verdict::Raises);
+        }
+        panic!("{READ}({index}): the values do not match the check of the expectation");
+    }
+
     /// Records `text` as a fault of the form, by the name of its `check`, unless
     /// a fault of that check is on record.
     fn fault(&self, check: &'static str, text: String) {
@@ -1323,13 +1331,14 @@ impl Read {
     ///
     /// # Errors
     ///
-    /// `IndexError` when no expectation has `index`, `TypeError` when `rest`
-    /// holds a value for an expectation that compares no two values, or more
-    /// than one, or the error that testing `value` raised.
+    /// `IndexError` when no expectation has `index`, or the error that the check
+    /// of `value` raised.
     ///
     /// # Panics
     ///
-    /// In a build with the feature `fault`, when `PURBA_FAULT` is `assert`.
+    /// It panics when the values do not match the check of the expectation. A
+    /// reader ends with `Raises` instead. It also panics in a build with the
+    /// feature `fault`, when `PURBA_FAULT` is `assert`.
     #[pyo3(signature = (index, value, *rest))]
     fn __call__(
         &self,
@@ -1341,26 +1350,18 @@ impl Read {
         let check = self.checks.get(index).cloned().flatten();
         let other = match rest.len() {
             0 => None,
-            1 if check.is_some() => Some(rest.get_item(0)?),
-            1 => {
-                return Err(PyTypeError::new_err(format!(
-                    "{READ}({index}): the expectation compares no two values"
-                )));
-            }
-            _ => {
-                return Err(PyTypeError::new_err(format!(
-                    "{READ}({index}): an expectation compares at most two values"
-                )));
-            }
+            1 => Some(rest.get_item(0)?),
+            _ => self.mismatched(index),
         };
         let (held, rows, read) = match (&check, &other) {
             (Some(Check::Each(items)), Some(make)) => match read_each(items, value, make) {
-                Ok((held, rows, read)) => {
+                Ok(Some((held, rows, read))) => {
                     if read == 0 && !items.any {
                         self.fault("no-item", items.empty.clone());
                     }
-                    (Ok(held), rows, read)
+                    (Ok(Some(held)), rows, read)
                 }
+                Ok(None) => (Ok(None), Vec::new(), 0),
                 Err(err) => (Err(err), Vec::new(), 0),
             },
             _ => (held(check.as_ref(), value, other.as_ref()), Vec::new(), 0),
@@ -1372,13 +1373,15 @@ impl Read {
         };
         if let (Some(_), Some(readers)) = (reader, readers) {
             readers.end(match held {
-                Ok(true) => Verdict::Holds,
-                Ok(false) => Verdict::Fails,
-                Err(_) => Verdict::Raises,
+                Ok(Some(true)) => Verdict::Holds,
+                Ok(Some(false)) => Verdict::Fails,
+                Ok(None) | Err(_) => Verdict::Raises,
             });
         }
         fault();
-        let held = held?;
+        let Some(held) = held? else {
+            self.mismatched(index)
+        };
         let shown = |check: &Check| match check {
             Check::Each(items) => Some(shown_items(items, &rows, read)),
             check => shown(check, value, other.as_ref()),

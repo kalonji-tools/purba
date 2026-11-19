@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::{Each, Module, blocks};
+use purba_parsing::{Module, Shape, blocks};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::visitor::{
     Visitor, walk_except_handler, walk_expr, walk_interpolated_string_element, walk_pattern,
@@ -1356,30 +1356,26 @@ fn faults_of(
     };
     for assert in purba_parsing::ending(&function.body) {
         let start = assert.start();
-        let check = match purba_parsing::each(&assert.test) {
-            Some(Each::One { check, .. }) => check,
-            Some(Each::Other { function, shape }) => {
+        let check = match purba_parsing::shape(&assert.test) {
+            Shape::Check(check) | Shape::Each { check, .. } => check,
+            Shape::OtherEach { function, shape } => {
                 faults.push((start, Reason::EachShape(line(start), function, shape)));
                 continue;
             }
-            None => &*assert.test,
-        };
-        match check {
-            Expr::Compare(compare) if compare.ops.len() == 1 => {
-                let [left, right] = &*compare.operands else {
-                    continue;
-                };
-                if purba_parsing::is_literal(left) || purba_parsing::is_literal(right) {
-                    continue;
-                }
-                let reason = input(right).or_else(|| input(left)).map_or_else(
-                    || Reason::Computes(line(start), on_one_line(&module.source()[right.range()])),
-                    |name| Reason::Input(line(start), name),
-                );
-                faults.push((start, reason));
+            Shape::Other => {
+                faults.push((start, Reason::NotOneComparison(line(start))));
+                continue;
             }
-            test if purba_parsing::read(test).is_some() => {}
-            _ => faults.push((start, Reason::NotOneComparison(line(start)))),
+        };
+        if let purba_parsing::Check::Compare { left, right, .. } = check
+            && !purba_parsing::is_literal(left)
+            && !purba_parsing::is_literal(right)
+        {
+            let reason = input(right).or_else(|| input(left)).map_or_else(
+                || Reason::Computes(line(start), on_one_line(&module.source()[right.range()])),
+                |name| Reason::Input(line(start), name),
+            );
+            faults.push((start, reason));
         }
     }
     let mut targets = HashSet::new();

@@ -492,3 +492,100 @@ fn the_blocks_of_a_statement_are_the_bodies_it_holds_in_source_order() {
          a def, a class and a simple statement hold none"
     );
 }
+
+/// What `shape` names in the test of each assert of `text`, as text: the kind
+/// of shape, and the text of each part that it hands back.
+fn shapes_of(name: &str, text: &str) -> Vec<String> {
+    use purba_parsing::{Check, Shape};
+    let module = purba_parsing::parse(&write(name, text)).expect("the module parses");
+    let part = |expr: &dyn Ranged| module.source()[expr.range()].to_owned();
+    let check = |check: Check<'_>| match check {
+        Check::Compare { op, left, right } => {
+            format!("compare {} {} {}", part(left), op.as_str(), part(right))
+        }
+        Check::Read {
+            read,
+            reading,
+            other,
+        } => format!(
+            "read {read:?} {} {}",
+            part(reading),
+            other.map_or_else(|| "-".to_owned(), |other| part(other))
+        ),
+    };
+    module
+        .syntax()
+        .body
+        .iter()
+        .map(|statement| {
+            let Stmt::Assert(assert) = statement else {
+                panic!("{name}: each statement is an assert");
+            };
+            match purba_parsing::shape(&assert.test) {
+                Shape::Check(one) => check(one),
+                Shape::Each {
+                    any,
+                    check: one,
+                    item,
+                    target,
+                    reading,
+                } => format!(
+                    "each any={any} [{}] item {} for {} in {}",
+                    check(one),
+                    part(item),
+                    part(target),
+                    part(reading)
+                ),
+                Shape::OtherEach { function, shape } => format!("other {function} {shape}"),
+                Shape::Other => "no check".to_owned(),
+            }
+        })
+        .collect()
+}
+
+#[test]
+fn the_shape_of_a_test_names_its_check_or_why_it_has_none() {
+    let text = concat!(
+        "assert x == 1\n",
+        "assert not x\n",
+        "assert isinstance(x, int)\n",
+        "assert x.startswith('a')\n",
+        "assert x.endswith('z')\n",
+        "assert all(v > 0 for v in xs)\n",
+        "assert any(v.startswith('a') for v in xs)\n",
+        "assert all(v for v in xs if v)\n",
+        "assert any([v == 1 for v in xs])\n",
+        "assert all(f(v) for v in xs)\n",
+        "assert 0 < x < 2\n",
+        "assert isinstance(x, int, y)\n",
+        "assert x\n",
+        "assert all(v > 0 async for v in xs)\n",
+        "assert isinstance(*xs)\n",
+        "assert isinstance(*xs, int)\n",
+    );
+
+    assert_eq!(
+        shapes_of("test_shapes.py", text),
+        [
+            "compare x == 1",
+            "read Not x -",
+            "read Instance x int",
+            "read Start x 'a'",
+            "read End x 'z'",
+            "each any=false [compare v > 0] item v > 0 for v in xs",
+            "each any=true [read Start v 'a'] item v.startswith('a') for v in xs",
+            "other all with an if",
+            "other any of a list, not a generator",
+            "no check",
+            "no check",
+            "no check",
+            "no check",
+            "no check",
+            "no check",
+            "no check",
+        ],
+        "a comparison by one operator and each of the four reads are one check; an all() or an \
+         any() of one check hands it back; another all() or any() names its shape; an all() of \
+         an async generator, a read with a starred argument and any other test is no check"
+    );
+}
