@@ -410,26 +410,64 @@ impl Zygote {
             threaded: false,
         };
         let before = interrupt::first();
-        loop {
-            match self.next() {
-                Ok(Message::Ready) => return load,
+        let mut threads: Threads<()> = Vec::new();
+        let end = loop {
+            match self.own(None, &mut threads) {
+                Ok(Message::Ready) => break None,
                 Ok(Message::Threaded) => {
                     load.threaded = true;
-                    return load;
+                    break None;
                 }
                 Ok(Message::Loaded) => load.result = Ok(()),
-                Ok(Message::LoadThread(text)) => load.threads.push(Error::project(text)),
-                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
                 Ok(Message::Error(error)) => load.result = Err(error),
                 Ok(_) => {}
+                Err(end) => break Some(end),
+            }
+        };
+        load.threads = threads.into_iter().map(|(_, error)| error).collect();
+        if let Some((unreadable, status)) = end {
+            if let Some(error) = unreadable {
+                load.result = Err(error);
+            } else if load.result.is_ok() && !interrupt::landed_since(before) {
+                load.result = Err(Error::project(lost(status, "its load ended")));
+            }
+        }
+        load
+    }
+
+    /// Reads the next message that is the caller's own. On the way, it takes
+    /// each message that every caller takes alike. They are an interrupt that
+    /// a child kept, the pid of a test's process that the zygote forked, and
+    /// the error of a thread. The error of a thread goes into `threads`, with
+    /// its owner. `owner` owns the error of a test's thread. The module owns
+    /// the error of a load's thread, or of a test's thread with no `owner`.
+    ///
+    /// When no message comes, it calls `abandon`. It then gives the error of
+    /// the frame and the wait status. The error is `None` when the pipe ended
+    /// or failed.
+    fn own<T: Clone>(
+        &mut self,
+        owner: Option<&T>,
+        threads: &mut Threads<T>,
+    ) -> Result<Message, (Option<Error>, libc::c_int)> {
+        loop {
+            match self.next() {
+                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
+                Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
+                Ok(Message::TestThread(text)) => {
+                    let owner = owner.map_or_else(
+                        || Owner::Load(self.path.clone()),
+                        |owner| Owner::Test(owner.clone()),
+                    );
+                    threads.push((owner, Error::project(text)));
+                }
+                Ok(Message::LoadThread(text)) => {
+                    threads.push((Owner::Load(self.path.clone()), Error::project(text)));
+                }
+                Ok(message) => return Ok(message),
                 Err(unreadable) => {
-                    let lost = lost(self.abandon(), "its load ended");
-                    if let Some(error) = unreadable {
-                        load.result = Err(error);
-                    } else if load.result.is_ok() && (before != 0 || interrupt::first() == 0) {
-                        load.result = Err(Error::project(lost));
-                    }
-                    return load;
+                    interrupt::follow_test(0);
+                    return Err((unreadable, self.abandon()));
                 }
             }
         }
@@ -459,9 +497,9 @@ impl Zygote {
     /// `suppressions` reach. Reads the outcome of the process, its warnings,
     /// whether execution judged its suppressions, and the error of each thread
     /// that it found. `owner` owns each thread that the test left. A process
-    /// that ended with no outcome gives `Raised`, which names the signal or the
-    /// exit code, or `Interrupted` when the first interrupt arrived as it ran. A
-    /// process that an interrupt signal ended ends purba by that signal.
+    /// that ended with no outcome gives `Interrupted` when the first interrupt
+    /// arrived as it ran. Otherwise it gives `Raised`, which names the signal or
+    /// the exit code.
     pub fn run<T: Clone>(
         &mut self,
         function: &str,
@@ -493,38 +531,28 @@ impl Zygote {
         let mut result = None;
         let mut later = Vec::new();
         let status = loop {
-            match self.next() {
+            match self.own(Some(&owner), &mut threads) {
                 Ok(Message::Ended(status)) => break status,
                 Ok(Message::Later(found)) => later = found,
                 Ok(Message::Warned(warning)) => suppressed.warnings.push(warning),
                 Ok(Message::Judged) => suppressed.judged = true,
-                Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
-                Ok(Message::TestThread(raised)) => {
-                    threads.push((Owner::Test(owner.clone()), Error::project(raised)));
-                }
-                Ok(Message::LoadThread(raised)) => {
-                    threads.push((Owner::Load(self.path.clone()), Error::project(raised)));
-                }
-                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
                 Ok(Message::Outcome(kind)) => result = Some(Ok(Outcome { kind })),
                 Ok(Message::Error(error)) => result = Some(Err(error)),
                 Ok(_) => {}
-                Err(unreadable) => {
-                    interrupt::follow_test(0);
-                    let ended = ended(self.abandon());
+                Err((unreadable, status)) => {
                     let result = unreadable.map(Err).or(result).unwrap_or_else(|| {
-                        Err(Error::project(format!("the module's process {ended}")))
+                        Err(Error::project(format!(
+                            "the module's process {}",
+                            ended(status)
+                        )))
                     });
                     return (result, suppressed, threads);
                 }
             }
         };
         interrupt::follow_test(0);
-        if libc::WIFSIGNALED(status) {
-            interrupt::die_with(libc::WTERMSIG(status));
-        }
         let result = result.unwrap_or_else(|| {
-            let kind = if before == 0 && interrupt::first() != 0 {
+            let kind = if interrupt::landed_since(before) {
                 Kind::Interrupted
             } else {
                 Kind::Raised {
@@ -566,7 +594,7 @@ impl Zygote {
                 Ok(verdict) => verdict,
                 Err(error) => return Some(Err(error)),
             };
-            if before == 0 && interrupt::first() != 0 {
+            if interrupt::landed_since(before) {
                 return Some(Ok(Outcome {
                     kind: Kind::Interrupted,
                 }));
@@ -601,26 +629,16 @@ impl Zygote {
         }
         let mut refused = None;
         loop {
-            match self.next() {
+            match self.own(Some(owner), threads) {
                 Ok(Message::Ended(status)) => {
                     interrupt::follow_test(0);
                     return refused.map_or_else(|| Ok(verdict(status)), Err);
                 }
-                Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
-                Ok(Message::TestThread(text)) => {
-                    threads.push((Owner::Test(owner.clone()), Error::project(text)));
-                }
-                Ok(Message::LoadThread(text)) => {
-                    threads.push((Owner::Load(self.path.clone()), Error::project(text)));
-                }
-                Ok(Message::Kept(signum)) => interrupt::adopt(signum),
                 Ok(Message::Error(error @ Error(Reason::Project(_)))) => refused = Some(error),
                 Ok(_) => {}
-                Err(unreadable) => {
-                    interrupt::follow_test(0);
-                    let ended = ended(self.abandon());
+                Err((unreadable, status)) => {
                     return Err(unreadable.unwrap_or_else(|| {
-                        Error::project(format!("the module's process {ended}"))
+                        Error::project(format!("the module's process {}", ended(status)))
                     }));
                 }
             }
@@ -638,9 +656,6 @@ impl Zygote {
         self.tests = None;
         let status = wait(self.pid);
         interrupt::follow_zygote(0);
-        if libc::WIFSIGNALED(status) {
-            interrupt::die_with(libc::WTERMSIG(status));
-        }
         status
     }
 }
@@ -1266,27 +1281,7 @@ mod tests {
     /// dispatch keeps it for the next test, until `release` drops. A run that
     /// waits for a frame that does not come fails the case after 10 seconds.
     fn run_on(frames: Vec<(u8, String)>) -> Ran {
-        let (frames_in, frames_out) = pipe().expect("a pipe opens");
-        let (tests_in, tests_out) = pipe().expect("a pipe opens");
-        let (sender_done, sent) = mpsc::channel();
-        std::thread::spawn(move || {
-            let mut sending = File::from(frames_out);
-            for (tag, text) in &frames {
-                if frame::write(&mut sending, *tag, text).is_err() {
-                    break;
-                }
-            }
-            drop(io::copy(&mut File::from(tests_in), &mut io::sink()));
-            drop(sending);
-            sender_done.send(()).ok();
-        });
-        let mut zygote = Zygote {
-            // No child has this pid, so a wait for it returns at once.
-            pid: libc::pid_t::MAX,
-            path: PathBuf::from("test_one.py"),
-            tests: Some(File::from(tests_out)),
-            frames: File::from(frames_in),
-        };
+        let (mut zygote, sent) = zygote_on(frames);
         let (done, outcome) = mpsc::channel();
         let (release, released) = mpsc::channel::<()>();
         std::thread::spawn(move || {
@@ -1308,6 +1303,105 @@ mod tests {
             sent,
             release,
         }
+    }
+
+    /// A `Zygote` of the module `test_one.py` that reads `frames`, and a
+    /// receiver that hears when their sender ends.
+    ///
+    /// A thread stands in for the zygote and the test's process. It writes
+    /// each frame, then holds the pipe of frames open until the pipe of test
+    /// names closes, as a zygote does.
+    fn zygote_on(frames: Vec<(u8, String)>) -> (Zygote, mpsc::Receiver<()>) {
+        let (frames_in, frames_out) = pipe().expect("a pipe opens");
+        let (tests_in, tests_out) = pipe().expect("a pipe opens");
+        let (sender_done, sent) = mpsc::channel();
+        std::thread::spawn(move || {
+            let mut sending = File::from(frames_out);
+            for (tag, text) in &frames {
+                if frame::write(&mut sending, *tag, text).is_err() {
+                    break;
+                }
+            }
+            drop(io::copy(&mut File::from(tests_in), &mut io::sink()));
+            drop(sending);
+            sender_done.send(()).ok();
+        });
+        let zygote = Zygote {
+            // No child has this pid, so a wait for it returns at once.
+            pid: libc::pid_t::MAX,
+            path: PathBuf::from("test_one.py"),
+            tests: Some(File::from(tests_out)),
+            frames: File::from(frames_in),
+        };
+        (zygote, sent)
+    }
+
+    /// Replays the expectation at index 1 of `test_one` on `frames`. It gives
+    /// the `Debug` text of the verdict or the error, beside the `Debug` text of
+    /// each thread's owner and error. A replay that waits for a frame that does
+    /// not come fails the case after 10 seconds.
+    fn replay_on(frames: Vec<(u8, String)>) -> (Result<String, String>, Vec<String>) {
+        let (mut zygote, _sent) = zygote_on(frames);
+        let (done, replayed) = mpsc::channel();
+        std::thread::spawn(move || {
+            let mut threads = Vec::new();
+            let verdict = zygote
+                .replay("test_one", 1, &"test_one", &mut threads)
+                .map(|verdict| format!("{verdict:?}"))
+                .map_err(|error| format!("{error:?}"));
+            let threads = threads
+                .iter()
+                .map(|(owner, error)| format!("{owner:?} {error:?}"))
+                .collect::<Vec<_>>();
+            drop(done.send((verdict, threads)));
+        });
+        replayed
+            .recv_timeout(Duration::from_secs(10))
+            .expect("the replay returns without a frame that does not come")
+    }
+
+    #[test]
+    fn a_replay_charges_each_thread_to_its_owner_and_reads_its_verdict() {
+        let frames = vec![
+            frame_of(&Message::Forked(0)),
+            frame_of(&Message::TestThread("of the test".to_owned())),
+            frame_of(&Message::LoadThread("of the load".to_owned())),
+            frame_of(&Message::Ended(HOLDS)),
+        ];
+        let (verdict, threads) = replay_on(frames);
+        assert_eq!(
+            verdict,
+            Ok(format!("{:?}", Verdict::Holds)),
+            "a replay whose process exits with HOLDS reads that the expectation holds"
+        );
+        assert_eq!(
+            threads,
+            vec![
+                format!(
+                    "{:?} {:?}",
+                    Owner::Test("test_one"),
+                    Error::project("of the test".to_owned())
+                ),
+                format!(
+                    "{:?} {:?}",
+                    Owner::<&str>::Load(PathBuf::from("test_one.py")),
+                    Error::project("of the load".to_owned())
+                ),
+            ],
+            "a replay charges a test's thread to the test, and a load's thread to the module, \
+             as a case does"
+        );
+    }
+
+    #[test]
+    fn a_frame_that_holds_no_message_ends_the_replay_with_its_error() {
+        let (verdict, threads) = replay_on(vec![(tag::ENDED, "1\0x".to_owned())]);
+        assert_eq!(
+            verdict,
+            Err(no_message('w')),
+            "the internal error takes the place of the verdict, as it does for a case"
+        );
+        assert!(threads.is_empty(), "no thread is charged: {threads:?}");
     }
 
     /// The frame of `message`.

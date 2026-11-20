@@ -335,6 +335,13 @@ pub fn first() -> i32 {
     }
 }
 
+/// Whether the first interrupt arrived after `before`, which `first` gave
+/// earlier. purba asks this while it waits for a child. purba's own signal
+/// handler runs no Python then, so a signal that arrived counts as kept.
+pub fn landed_since(before: i32) -> bool {
+    before == 0 && first() != 0
+}
+
 /// Takes `signum`, the first interrupt of a zygote or of a test's process, as
 /// purba's own, when purba kept none: a mask can hold it from purba alone.
 pub fn adopt(signum: i32) {
@@ -353,13 +360,6 @@ pub fn adopt(signum: i32) {
     if is_purba() && !PRINTED.swap(true, Ordering::SeqCst) {
         // stderr may refuse the write. The run stops either way.
         let _ = io::stderr().write_all(interrupt_line(signum));
-    }
-}
-
-/// Ends purba by `signum` when it is an interrupt signal.
-pub fn die_with(signum: i32) {
-    if SIGNALS.contains(&signum) {
-        die_by(signum);
     }
 }
 
