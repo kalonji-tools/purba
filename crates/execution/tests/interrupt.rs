@@ -1,6 +1,6 @@
-use std::path::PathBuf;
+mod common;
 
-use purba_execution::{Kind, Module, Rewrite, Worker};
+use purba_execution::{Kind, Module, Worker};
 use pyo3::Python;
 use pyo3::types::{PyAnyMethods, PyTypeMethods};
 
@@ -48,10 +48,7 @@ fn handler(name: &str) -> String {
 // order.
 #[test]
 fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
-    let module = Module::new(
-        PathBuf::from("test_signals.py"),
-        Rewrite::of_source(TEST_SIGNALS, &tests_in(TEST_SIGNALS)).expect("the source parses"),
-    );
+    let module = common::module("test_signals.py", TEST_SIGNALS);
     let (steps, handlers): (Vec<Step>, [String; 2]) = purba_execution::attach(|worker| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         worker.load(&module).expect("the module loads");
@@ -88,14 +85,4 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
          signal in a call makes the test interrupted, though it caught the \
          KeyboardInterrupt and passed."
     );
-}
-
-/// The name of each `def test_…` at the top of `source`, as selection names
-/// the tests of a module.
-fn tests_in(source: &str) -> Vec<&str> {
-    source
-        .lines()
-        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
-        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
-        .collect()
 }

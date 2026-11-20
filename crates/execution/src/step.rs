@@ -50,10 +50,7 @@ mod tests {
         match result {
             Ok(Gives::Own(kind)) => format!("own: {kind:?}"),
             Ok(Gives::Interrupted) => "interrupted".to_owned(),
-            Err(error) => match error.kind() {
-                ErrorKind::Project => format!("project error: {error}"),
-                ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
-            },
+            Err(error) => error.line(),
         }
     }
 

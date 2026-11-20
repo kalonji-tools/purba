@@ -1,9 +1,9 @@
-use std::path::PathBuf;
+mod common;
+
 use std::sync::{Mutex, PoisonError};
 
-use purba_execution::{
-    Error, ErrorKind, Kind, Module, Outcome, Quote, Rewrite, Shown, Suppressed, Worker,
-};
+use common::module;
+use purba_execution::{Error, Kind, Module, Outcome, Quote, Shown, Suppressed, Worker};
 
 /// The turn of a test to run Python:
 /// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
@@ -27,13 +27,6 @@ fn shown(assert: &str, expected: &str, reading: &str) -> Quote {
     }
 }
 
-fn module(name: &str, source: &str) -> Module {
-    Module::new(
-        PathBuf::from(name),
-        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
-    )
-}
-
 /// The outcome or the error of one case that a zygote ran, and what its
 /// suppressions gave.
 type Ran = (Result<Kind, Error>, Suppressed);
@@ -52,7 +45,7 @@ fn through(
             !loaded.threaded,
             "no thread is alive after the load, or dispatch would fork a zygote that loads nothing"
         );
-        let load = loaded.result.map_err(|error| reason(&error));
+        let load = loaded.result.map_err(|error| error.line());
         let out = functions
             .iter()
             .map(|function| {
@@ -685,14 +678,6 @@ fn a_with_whose_cleanup_raises_fails_and_names_the_with() {
     );
 }
 
-/// The text of a project error, or `internal error: <part>: <message>`.
-fn reason(error: &Error) -> String {
-    match error.kind() {
-        ErrorKind::Project => error.to_string(),
-        ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
-    }
-}
-
 /// Python that finds `PyO3`'s `PanicException`, which no module exports.
 const PANIC_EXCEPTION: &str = "def panic_exception():\n\
     \x20   pending = [BaseException]\n\
@@ -718,28 +703,18 @@ fn purbas_own_panic_exception_gives_an_internal_error_and_the_next_test_runs() {
     load.expect("the module loads");
     let results: Vec<Result<Kind, String>> = out
         .into_iter()
-        .map(|(result, _)| result.map_err(|error| reason(&error)))
+        .map(|(result, _)| result.map_err(|error| error.line()))
         .collect();
     assert_eq!(
         results,
         [
             Err("internal error: execution: raised by the test".to_owned()),
             Ok(Kind::Passed),
-            Err("TypeError: 'int' object is not callable".to_owned()),
+            Err("project error: TypeError: 'int' object is not callable".to_owned()),
         ],
         "the panic that crosses the call is an internal error of execution, the next test \
          passes, and a project error names no part"
     );
-}
-
-/// The name of each `def test_…` at the top of `source`, as selection names
-/// the tests of a module.
-fn tests_in(source: &str) -> Vec<&str> {
-    source
-        .lines()
-        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
-        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
-        .collect()
 }
 
 /// The words, the check and the reason of each warning that a run gave.

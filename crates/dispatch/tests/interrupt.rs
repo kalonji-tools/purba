@@ -1,17 +1,10 @@
+mod common;
+
 use std::ops::ControlFlow;
-use std::path::PathBuf;
 
-use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Kind, Rewrite};
-
-#[derive(Clone)]
-struct Named(&'static str);
-
-impl Test for Named {
-    fn function(&self) -> &str {
-        self.0
-    }
-}
+use common::module;
+use purba_dispatch::Handed;
+use purba_execution::Kind;
 
 /// What dispatch hands on, as data a test can compare.
 #[derive(Debug, PartialEq)]
@@ -19,14 +12,6 @@ enum Seen {
     Test(&'static str, Result<Kind, String>),
     Unreached(&'static str),
     Other,
-}
-
-fn module(name: &str, source: &str, tests: Vec<Named>) -> Module<Named> {
-    Module::new(
-        PathBuf::from(name),
-        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
-        tests,
-    )
 }
 
 // purba's signal handler keeps the first signal for the life of the process.
@@ -40,12 +25,12 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
          def test_one():\n    assert True\n\n\
          def test_two():\n    signal.raise_signal(signal.SIGINT)\n\n\
          def test_three():\n    assert True\n",
-        vec![Named("test_one"), Named("test_two"), Named("test_three")],
+        &["test_one", "test_two", "test_three"],
     );
     let second = module(
         "test_second.py",
         "raise ValueError(\"loaded\")\n\ndef test_four():\n    assert True\n",
-        vec![Named("test_four")],
+        &["test_four"],
     );
     let mut seen = Vec::new();
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![first, second], |handed| {
@@ -73,14 +58,4 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
         "the signal's test is interrupted. Each later test is unreached. The next \
          module never loads."
     );
-}
-
-/// The name of each `def test_…` at the top of `source`, as selection names
-/// the tests of a module.
-fn tests_in(source: &str) -> Vec<&str> {
-    source
-        .lines()
-        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
-        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
-        .collect()
 }

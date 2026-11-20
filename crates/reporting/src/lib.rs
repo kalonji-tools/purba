@@ -8,7 +8,7 @@ use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
 use std::iter;
 
-use purba_execution::{Error, ErrorKind, Kind, Outcome, Shown, Tally};
+use purba_execution::{Error, Kind, Outcome, Shown, Tally};
 
 /// A write that the writer refused, and the exit code of what the run met by
 /// then: 125 after an internal error, and 3 otherwise.
@@ -18,16 +18,12 @@ pub struct Refused {
     pub code: u8,
 }
 
-/// The line of an error: its kind, and its text on one line.
+/// The line of an error, with its text on one line.
 struct Reason<'a>(&'a Error);
 
 impl Display for Reason<'_> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let text = one_line(&self.0.to_string());
-        match self.0.kind() {
-            ErrorKind::Project => write!(formatter, "project error: {text}"),
-            ErrorKind::Internal { part } => write!(formatter, "internal error: {part}: {text}"),
-        }
+        formatter.write_str(&self.0.line_with(one_line))
     }
 }
 
@@ -877,6 +873,39 @@ mod tests {
                 "test_a.py::test_two project error: a b c d e",
             ],
             "each character that str.splitlines reads as a line break joins as one space"
+        );
+    }
+
+    #[test]
+    fn the_text_of_an_error_loses_the_whitespace_at_its_ends() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        for (test, error) in [
+            ("test_a.py::test_one", project("")),
+            ("test_a.py::test_two", project("  x")),
+            ("test_a.py::test_three", project("\tx")),
+            ("test_a.py::test_four", project("\u{a0}x")),
+            ("test_a.py::test_five", internal("command", "")),
+            ("test_a.py::test_six", internal("command", "  y")),
+        ] {
+            report
+                .line(&test, &Err(error))
+                .expect("a Vec takes every write");
+        }
+        report.finish().expect("a Vec takes every write");
+        let text = String::from_utf8(out).expect("reporting writes UTF-8");
+        assert_eq!(
+            text.lines().take(6).collect::<Vec<_>>(),
+            [
+                "test_a.py::test_one project error: ",
+                "test_a.py::test_two project error: x",
+                "test_a.py::test_three project error: x",
+                "test_a.py::test_four project error: x",
+                "test_a.py::test_five internal error: command: ",
+                "test_a.py::test_six internal error: command: y",
+            ],
+            "the text of an error loses the whitespace at its ends, and the kind keeps the \
+             space before it"
         );
     }
 

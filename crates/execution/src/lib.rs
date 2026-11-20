@@ -154,6 +154,25 @@ impl Error {
         }
     }
 
+    /// The line of this error: `project error: <text>`, or
+    /// `internal error: <part>: <message>`. It keeps each break of the text.
+    #[must_use]
+    pub fn line(&self) -> String {
+        self.line_with(str::to_owned)
+    }
+
+    /// The line of this error, with its text or its message as `text` gives
+    /// it.
+    #[must_use]
+    pub fn line_with(&self, text: impl FnOnce(&str) -> String) -> String {
+        match &self.0 {
+            Reason::Project(own) => format!("project error: {}", text(own)),
+            Reason::Internal(caught) => {
+                format!("internal error: {}: {}", caught.part, text(&caught.message))
+            }
+        }
+    }
+
     fn caught(payload: &(dyn Any + Send), catcher: &str) -> Self {
         Self(Reason::Internal(panic::caught(payload, catcher)))
     }

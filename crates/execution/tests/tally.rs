@@ -100,6 +100,22 @@ fn an_error_says_its_kind() {
 }
 
 #[test]
+fn an_error_gives_its_line() {
+    assert_eq!(
+        [
+            Error::project("ValueError: x\ny".to_owned()).line(),
+            internal("command").line(),
+        ],
+        [
+            "project error: ValueError: x\ny",
+            "internal error: command: boom"
+        ],
+        "a project error gives its kind and its text, with each break kept, and an internal \
+         error gives its kind, its part and its message"
+    );
+}
+
+#[test]
 fn a_tally_counts_an_unreached_test_apart_from_each_outcome() {
     let mut tally = Tally::default();
     tally.add(Ok(&Kind::Passed));

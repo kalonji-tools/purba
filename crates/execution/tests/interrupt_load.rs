@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+mod common;
 
-use purba_execution::{Module, Rewrite, Worker};
+use common::module;
+use purba_execution::Worker;
 use pyo3::Python;
 use pyo3::types::{PyAnyMethods, PyTypeMethods};
 
@@ -12,13 +13,6 @@ const TEST_LOAD_SIGNAL: &str = "import signal\n\ntry:\n    signal.raise_signal(s
 
 /// The error of one load, if any, then whether purba kept a signal.
 type Step = (Result<(), String>, bool);
-
-fn module(name: &str, source: &str) -> Module {
-    Module::new(
-        PathBuf::from(name),
-        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
-    )
-}
 
 /// The name of the type of the signal handler that SIGINT has now.
 fn sigint_handler() -> String {
@@ -74,14 +68,4 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
         Err("test_load_signal.py did not load".to_owned()),
         "a load that the first interrupt lands in keeps no module, so a later run names it"
     );
-}
-
-/// The name of each `def test_…` at the top of `source`, as selection names
-/// the tests of a module.
-fn tests_in(source: &str) -> Vec<&str> {
-    source
-        .lines()
-        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
-        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
-        .collect()
 }
