@@ -59,7 +59,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **purba forwards each first interrupt to the test's process, or else to the zygote.** An interrupt that another process sends to purba alone reaches the test too.
 - **purba alone judges the second interrupt.** It gets one copy of each Ctrl-C, and the process that purba forwards to gets two. Those processes ignore each interrupt after their first.
 - **A second interrupt ends the zygote and the test's process, then purba.** No process of the run outlives it.
-- **purba takes as its own the first interrupt that a zygote or a test's process kept.** A mask of the parent's can hold the signal from purba alone. A zygote or a test's process that an interrupt signal ends, ends purba by that signal.
+- **purba takes as its own the first interrupt that a zygote or a test's process kept.** A mask of the parent's can hold the signal from purba alone. A zygote or a test's process that an interrupt signal ends does not end purba. purba dies by a signal only when it takes an interrupt as its own.
 
 [A KeyboardInterrupt that no signal caused is the test's own raise](a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md#decision-outcome) says when a `KeyboardInterrupt` does not stop the run.
 [An interrupt puts back no more than a normal end does](an-interrupt-puts-back-no-more-than-a-normal-end-does.md#decision-outcome) says what each part puts back.
@@ -71,6 +71,7 @@ No record says what an interrupt stops, what a second one does, or which signals
 - **A Ctrl-C during a test that installed its own signal handler, in Python or below it, does not stop that test.** The test's signal handler takes it, as the test asked. A test that registers `faulthandler` for SIGINT can then pass. The run stops when the test returns.
 - **A Ctrl-C during a test that called `signal.siginterrupt` with `False` waits until the system call that it lands in returns.** That flag holds for the call, as the test asked.
 - **When a test's mask, and not the parent's, holds a Ctrl-C until the call returns, the run stops only then.** The test keeps its outcome, and is not `interrupted`.
+- **An interrupt signal that the parent's ignore or mask holds from purba can end a test or a load that gives it its default action.** Under the mask, that process must also unmask it. The test has the outcome `raised`, or the module is a project error, and the run goes on. Its process dies before it can write that it kept the interrupt, so purba cannot tell the signal from that process's own. It excepts [the line of a load](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome), [the kind of an interrupt](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) and [the outcome of an interrupted test](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome).
 - **A second interrupt that the parent's ignore or mask holds does not exit at once.** It never arrives, so a cleanup that hangs traps the tester. purba dies by the first interrupt's signal once Python finalizes, as [an interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says.
 - **Two interrupts that a test's process sends itself count as one.** Only purba judges a second.
 - **A second interrupt that reaches the test's process alone, and not purba, does not end it.** A Ctrl-C and an interrupt sent to purba both reach purba.
@@ -105,3 +106,7 @@ It checks that purba masks again a signal that the parent masks, after the call 
 `mise run test:wheel` also checks that a signal handler and an ignore that a test gives SIGINT below Python live only for its call.
 It checks that the flag that a test gives SIGINT through `signal.siginterrupt` lives only for the test's call.
 It checks that the parent's ignore comes back after a test gives SIGINT its default action below Python.
+
+`mise run test:wheel` also checks that a test or a load that its own interrupt signal ends does not end purba, and that the run goes on.
+It checks the same for an interrupt signal that the parent's mask holds, in a test or a load that unmasks it and sets `SIG_DFL`.
+It checks the same for a SIGINT that the parent's ignore holds, in a test or a load that sets `SIG_DFL`.
