@@ -50,7 +50,7 @@ flowchart TD
 Each test after the interrupted one is an [unreached test](../../CONTEXT.md#unreached-test).
 
 - **A first interrupt while a test's process joins its threads ends only that wait.** That process then runs the test's `atexit` functions, and ends. Then purba prints the count, and dies by the signal. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says what a second one does.
-- **A first interrupt that the parent's mask holds arrives only in a zygote or a test's process that unmasks it.** That process writes to purba the interrupt that it kept. purba takes it as its own. purba then prints its interrupt line, and dies by the signal. When nothing unmasks it, or when the parent's ignore holds it, purba exits with the code of its count.
+- **A first interrupt that the parent's mask holds arrives only in a zygote or a test's process that unmasks it.** That process writes to purba the interrupt that it kept. purba takes it as its own. purba then prints its interrupt line, and dies by the signal. A process that gives the signal its default action dies before it writes, as [the interrupt record's Downside](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) says. When nothing unmasks it, or when the parent's ignore holds it, purba exits with the code of its count.
 
 **Downside:**
 

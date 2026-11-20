@@ -65,7 +65,7 @@ A case gets the line of the first of these that it meets. A suppression of a che
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
 - **A module named after a loaded module is a project error.** The tester fixes it by a new name for the file. Assertion sees the name before it loads the module.
 - **The text of an internal error names the part that found it.**
-- **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) gives the test that the interrupt lands in the outcome `interrupted`, whether its call then passes, fails or raises.
+- **An interrupt is no kind of failure.** [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds what an interrupt stops. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) gives the test that the interrupt lands in the outcome `interrupted`, whether its call then passes, fails or raises. [The interrupt record's Downside](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names exceptions, as when the parent's ignore or mask holds an interrupt signal.
 
 The figure shows each part and the kinds that it first sees.
 
