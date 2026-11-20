@@ -8,7 +8,7 @@ use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
 use std::iter;
 
-use purba_execution::{Error, Kind, Outcome, Shown, Tally};
+use purba_execution::{Error, Kind, Outcome, Shown, Tally, Warning};
 
 /// A write that the writer refused, and the exit code of what the run met by
 /// then: 125 after an internal error, and 3 otherwise.
@@ -45,13 +45,36 @@ impl<W: Write> Report<W> {
         }
     }
 
-    /// Adds `test` to the tally, beside its outcome or its own error, and
-    /// writes its line and flushes it.
+    /// Takes a case whole. Adds `test` to the tally beside its outcome or its
+    /// own error, and writes its line. Under the line, it writes each of
+    /// `notices`, then each verdict that a suppression turned into a warning:
+    /// those of `selected`, which selection judged, then those of `executed`,
+    /// which execution judged.
     ///
     /// # Errors
     ///
-    /// When `out` refuses the write or the flush.
-    pub fn line<T: Display>(
+    /// When `out` refuses a write or a flush. Nothing is written after it.
+    pub fn case<T: Display>(
+        &mut self,
+        test: &T,
+        result: &Result<Outcome, Error>,
+        notices: &[String],
+        selected: &[Warning],
+        executed: &[Warning],
+    ) -> Result<(), Refused> {
+        self.line(test, result)?;
+        for notice in notices {
+            self.noticed(notice)?;
+        }
+        for warning in selected.iter().chain(executed) {
+            self.warned(warning)?;
+        }
+        Ok(())
+    }
+
+    /// Adds `test` to the tally, beside its outcome or its own error, and
+    /// writes its line and flushes it.
+    fn line<T: Display>(
         &mut self,
         test: &T,
         result: &Result<Outcome, Error>,
@@ -108,29 +131,22 @@ impl<W: Write> Report<W> {
 
     /// Writes `words`, a notice of the case, under its line as `⚠ <words>`. It
     /// changes no count and no exit code.
-    ///
-    /// # Errors
-    ///
-    /// When `out` refuses the write or the flush.
-    pub fn noticed(&mut self, words: &str) -> Result<(), Refused> {
+    fn noticed(&mut self, words: &str) -> Result<(), Refused> {
         let written = writeln!(self.out, "    \u{26a0} {}", one_line(words));
         self.flushed(written)
     }
 
-    /// Adds one suppressed verdict of `check` to the tally. Writes it under the
-    /// line of its case as `⚠ suppressed [<check>] <words>`, then `reason:
-    /// <reason>` on the next line. It changes no exit code.
-    ///
-    /// # Errors
-    ///
-    /// When `out` refuses the write or the flush.
-    pub fn warned(&mut self, check: &str, words: &str, reason: &str) -> Result<(), Refused> {
+    /// Adds one suppressed verdict to the tally. Writes it under the line of
+    /// its case as `⚠ suppressed [<check>] <words>`, then `reason: <reason>` on
+    /// the next line. It changes no exit code.
+    fn warned(&mut self, warning: &Warning) -> Result<(), Refused> {
         self.tally.add_suppressed();
         let written = write!(
             self.out,
-            "    \u{26a0} suppressed [{check}] {}\n      reason: {}\n",
-            one_line(words),
-            one_line(reason)
+            "    \u{26a0} suppressed [{}] {}\n      reason: {}\n",
+            warning.check,
+            one_line(&warning.words),
+            one_line(&warning.reason)
         );
         self.flushed(written)
     }
@@ -523,6 +539,51 @@ mod tests {
                     refused.code
                 ),
                 ("test_b.py project error: ValueError: x\n".to_owned(), 3),
+                "the writer refuses {second}, and takes no line after it, though it would; \
+                 3 for a run with no internal error"
+            );
+        }
+    }
+
+    #[test]
+    fn a_case_writes_nothing_after_a_refused_line() {
+        let notices = ["notice 1".to_owned(), "notice 2".to_owned()];
+        let selected = [warning("computed-expected", "selected 1", "reason s1")];
+        let executed = [
+            warning("iterator-read", "executed 1", "reason e1"),
+            warning("iterator-read", "executed 2", "reason e2"),
+        ];
+        for (notices, selected, executed, second) in [
+            (&notices[..], &[][..], &[][..], "the first notice"),
+            (
+                &[][..],
+                &selected[..],
+                &executed[..1],
+                "the warning of selection",
+            ),
+            (
+                &[][..],
+                &[][..],
+                &executed[..],
+                "the first warning of execution",
+            ),
+        ] {
+            let mut out = RefusesOnlySecondLine::default();
+            let refused = Report::new(&mut out)
+                .case(
+                    &"t.py::test_one",
+                    &Err(project("NameError: x")),
+                    notices,
+                    selected,
+                    executed,
+                )
+                .expect_err("the writer refuses the second line");
+            assert_eq!(
+                (
+                    String::from_utf8(out.taken).expect("reporting writes UTF-8"),
+                    refused.code
+                ),
+                ("t.py::test_one project error: NameError: x\n".to_owned(), 3),
                 "the writer refuses {second}, and takes no line after it, though it would; \
                  3 for a run with no internal error"
             );
@@ -1120,18 +1181,18 @@ mod tests {
             .add(&"t.py::test_round_trip", Ok(&Kind::Passed))
             .expect("a Vec takes every write");
         report
-            .warned(
+            .warned(&warning(
                 "computed-expected",
                 "line 10 computes obj, and an expected value is a literal",
                 "the payload is its own expected value",
-            )
+            ))
             .expect("a Vec takes every write");
         report
-            .warned(
+            .warned(&warning(
                 "assert-before-expectation",
                 "line 3 asserts before the first expectation,\nand only an expectation asserts",
                 "the act checks its input",
-            )
+            ))
             .expect("a Vec takes every write");
         let code = report.finish().expect("a Vec takes every write");
 
@@ -1167,5 +1228,52 @@ mod tests {
             "the notice under its case, on one line, and no count of it"
         );
         assert_eq!(code, 0, "a notice changes no exit code");
+    }
+
+    fn warning(check: &str, words: &str, reason: &str) -> Warning {
+        Warning {
+            check: check.to_owned(),
+            words: words.to_owned(),
+            reason: reason.to_owned(),
+        }
+    }
+
+    #[test]
+    fn a_case_writes_its_line_then_each_notice_then_selections_warnings_then_executions() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        let notices = ["notice 1".to_owned(), "notice 2".to_owned()];
+        let selected = [
+            warning("computed-expected", "selected 1", "reason s1"),
+            warning("computed-expected", "selected 2", "reason s2"),
+        ];
+        let executed = [
+            warning("iterator-read", "executed 1", "reason e1"),
+            warning("iterator-read", "executed 2", "reason e2"),
+        ];
+        report
+            .case(
+                &"t.py::test_one",
+                &Err(project("NameError: x")),
+                &notices,
+                &selected,
+                &executed,
+            )
+            .expect("a Vec takes every write");
+        report.finish().expect("a Vec takes every write");
+
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "t.py::test_one project error: NameError: x\n\
+             \x20   \u{26a0} notice 1\n\
+             \x20   \u{26a0} notice 2\n\
+             \x20   \u{26a0} suppressed [computed-expected] selected 1\n      reason: reason s1\n\
+             \x20   \u{26a0} suppressed [computed-expected] selected 2\n      reason: reason s2\n\
+             \x20   \u{26a0} suppressed [iterator-read] executed 1\n      reason: reason e1\n\
+             \x20   \u{26a0} suppressed [iterator-read] executed 2\n      reason: reason e2\n\
+             1 case: 1 blocked; 1 project error; 4 suppressed\n",
+            "the line, then each notice, then selection's warnings, then execution's, each in \
+             the order given"
+        );
     }
 }

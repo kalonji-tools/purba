@@ -52,6 +52,23 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test that selection refuses prints its suppressed warning under its line" {
+  cd "${BATS_TEST_DIRNAME}/suppress"
+
+  run -4 --separate-stderr purba refused.py
+
+  local subset='[not-one-comparison] line 8 is not one comparison'
+  subset+=', and an expectation compares a reading by one operator, or reads not x,'
+  subset+=' isinstance(x, T), x.startswith(y) or x.endswith(y)'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+refused.py::test_refused project error: ${subset}
+    ⚠ suppressed [computed-expected] line 7 computes obj, and an expected value is a literal
+      reason: the payload is its own expected value
+1 case: 1 blocked; 1 project error; 1 suppressed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a suppression that does not read, has no reason or names no check refuses its test" {
   cd "${BATS_TEST_DIRNAME}/suppress"
 
