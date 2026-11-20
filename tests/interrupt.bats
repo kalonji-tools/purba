@@ -20,11 +20,12 @@ bats_require_minimum_version 1.5.0
 # sends each further signal one second after the one before. The signals are
 # SIGINT by default, or the names after <hold>, such as `INT TERM`. With
 # `none`, it sends no signal. With `ignored`, purba starts with SIGINT ignored,
-# and gets one SIGINT. With `masked` first, purba starts with SIGINT masked, and
-# gets the signals named after it, or no signal. With `alone` first, each signal
-# goes to purba alone, and not to its group. With `forwarded`, purba gets one
-# SIGINT alone, and 50 ms later each other process of its group gets one, as a
-# signal to the group can reach them after purba forwards its own.
+# and gets one SIGINT. With `masked` first, purba starts with SIGINT and the
+# signals named after it masked, and gets those signals, or no signal. With
+# `alone` first, each signal goes to purba alone, and not to its group. With
+# `forwarded`, purba gets one SIGINT alone, and 50 ms later each other process
+# of its group gets one, as a signal to the group can reach them after purba
+# forwards its own.
 #
 # It reads stdout only <hold> seconds after the last signal. A pipe holds less
 # than a line of 300 KB, so purba waits in its write until then. It prints
@@ -48,10 +49,11 @@ if masked:
 if ignored or forwarded or not names:
     names = ["INT"]
 disposition = signal.SIG_IGN if ignored else signal.SIG_DFL
+held = {signal.SIGINT} | {getattr(signal, "SIG" + name) for name in names if name != "none"}
 def start():
     signal.signal(signal.SIGINT, disposition)
     if masked:
-        signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})
+        signal.pthread_sigmask(signal.SIG_BLOCK, held)
 child = subprocess.Popen(
     [purba, module],
     stdout=subprocess.PIPE,
@@ -284,6 +286,109 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a test that ends its own process by an interrupt signal is raised, and the next test runs" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  for name in TERM INT HUP; do
+    printf '%s\n' 'import os, signal' \
+      'def test_one():' "    signal.signal(signal.SIG${name}, signal.SIG_DFL)" \
+      "    os.kill(os.getpid(), signal.SIG${name})" '    assert 1 == 1' \
+      'def test_two():' '    assert 1 == 1' >test_self.py
+
+    run -4 --separate-stderr purba test_self.py
+
+    diff -u - <(printf '%s\n' "${output}") <<LINES
+test_self.py::test_one raised: its process died by SIG${name}
+test_self.py::test_two passed
+2 cases: 1 passed, 1 raised
+LINES
+    [[ -z "${stderr}" ]] || false
+  done
+}
+
+@test "a module whose load its own interrupt signal ends is a project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  for name in TERM INT HUP; do
+    printf '%s\n' 'import os, signal' "signal.signal(signal.SIG${name}, signal.SIG_DFL)" \
+      "os.kill(os.getpid(), signal.SIG${name})" \
+      'def test_one():' '    assert 1 == 1' >test_load_self.py
+
+    run -4 --separate-stderr purba test_load_self.py
+
+    diff -u - <(printf '%s\n' "${output}") <<LINES
+test_load_self.py project error: its process died by SIG${name}
+test_load_self.py::test_one blocked: test_load_self.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+    [[ -z "${stderr}" ]] || false
+  done
+}
+
+@test "a Ctrl-C that ends a test by SIGINT makes it interrupted, and purba dies after the count" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    assert 1 == 1' \
+    'def test_two():' '    signal.signal(signal.SIGINT, signal.SIG_DFL)' \
+    '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_three():' '    assert 1 == 1' >test_dfl.py
+
+  run -0 --separate-stderr interrupt test_dfl.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_dfl.py::test_one passed
+test_dfl.py::test_two interrupted
+3 cases: 1 passed, 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
+}
+
+@test "a Ctrl-C that ends a load by SIGINT prints the count, and purba dies by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'signal.signal(signal.SIGINT, signal.SIG_DFL)' \
+    'Path("marker").touch()' 'time.sleep(3)' \
+    'def test_one():' '    assert 1 == 1' >test_dfl_load.py
+
+  run -0 --separate-stderr interrupt test_dfl_load.py 0
+
+  [[ "${output}" == '1 case: 1 unreached' ]] || false
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
+}
+
+@test "a Ctrl-C during a replay makes the test interrupted, and purba dies by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import threading, time' 'from pathlib import Path' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path(["ran", "marker"][replay]).touch()' \
+    '    time.sleep(3 * replay)' '    assert 1 == 1' '    assert 2 == 2' >test_replay.py
+
+  run -0 --separate-stderr interrupt test_replay.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_replay.py::test_one interrupted
+1 case: 1 interrupted
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
+}
+
+@test "a zygote that a signal ends after its tests ends the run as the zygote's own exit does" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  for end in 'os.kill(os.getpid(), signal.SIGTERM)' 'os._exit(3)'; do
+    printf '%s\n' 'import atexit, os, signal' 'ZYGOTE = os.getpid()' \
+      'def bye():' '    if os.getpid() == ZYGOTE:' \
+      '        signal.signal(signal.SIGTERM, signal.SIG_DFL)' "        ${end}" \
+      'atexit.register(bye)' 'def test_one():' '    assert 1 == 1' >test_zygote_end.py
+
+    run -0 --separate-stderr purba test_zygote_end.py
+
+    diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_zygote_end.py::test_one passed
+1 case: 1 passed
+LINES
+    [[ -z "${stderr}" ]] || false
+  done
+}
+
 @test "a signal handler that a test installs lives only for its call" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
@@ -458,6 +563,48 @@ LINES
   [[ ! -e two ]]
 }
 
+@test "a test that unmasks a signal the parent masks and sets SIG_DFL is raised by it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  for name in TERM INT HUP; do
+    rm -f marker
+    printf '%s\n' 'import signal, time' 'from pathlib import Path' 'def test_one():' \
+      "    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIG${name}})" \
+      "    signal.signal(signal.SIG${name}, signal.SIG_DFL)" \
+      '    Path("marker").touch()' '    time.sleep(3)' \
+      'def test_two():' '    assert 1 == 1' >test_unmasked_dfl.py
+
+    run -0 --separate-stderr interrupt test_unmasked_dfl.py 0 masked "${name}"
+
+    diff -u - <(printf '%s\n' "${output}") <<LINES
+test_unmasked_dfl.py::test_one raised: its process died by SIG${name}
+test_unmasked_dfl.py::test_two passed
+2 cases: 1 passed, 1 raised
+LINES
+    [[ "${stderr}" == 'purba exited 4' ]] || false
+  done
+}
+
+@test "a module whose load unmasks a signal the parent masks and sets SIG_DFL is a project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  for name in TERM INT HUP; do
+    rm -f marker
+    printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+      "signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIG${name}})" \
+      "signal.signal(signal.SIG${name}, signal.SIG_DFL)" \
+      'Path("marker").touch()' 'time.sleep(3)' \
+      'def test_one():' '    assert 1 == 1' >test_load_unmasked_dfl.py
+
+    run -0 --separate-stderr interrupt test_load_unmasked_dfl.py 0 masked "${name}"
+
+    diff -u - <(printf '%s\n' "${output}") <<LINES
+test_load_unmasked_dfl.py project error: its process died by SIG${name}
+test_load_unmasked_dfl.py::test_one blocked: test_load_unmasked_dfl.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+    [[ "${stderr}" == 'purba exited 4' ]] || false
+  done
+}
+
 @test "a Ctrl-C that a test's mask holds stops the run, though the test has its own handler" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import signal, time' 'from pathlib import Path' \
@@ -578,6 +725,40 @@ test_ignored_below.py::test_three passed
 3 cases: 3 passed
 LINES
   [[ "${stderr}" == 'purba exited 0' ]]
+}
+
+@test "a test that sets SIG_DFL for a SIGINT the parent ignores is raised by it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.signal(signal.SIGINT, signal.SIG_DFL)' \
+    '    Path("marker").touch()' '    time.sleep(3)' \
+    'def test_two():' '    assert 1 == 1' >test_ignored_dfl.py
+
+  run -0 --separate-stderr interrupt test_ignored_dfl.py 0 ignored
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ignored_dfl.py::test_one raised: its process died by SIGINT
+test_ignored_dfl.py::test_two passed
+2 cases: 1 passed, 1 raised
+LINES
+  [[ "${stderr}" == 'purba exited 4' ]]
+}
+
+@test "a module whose load sets SIG_DFL for a SIGINT the parent ignores is a project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, time' 'from pathlib import Path' \
+    'signal.signal(signal.SIGINT, signal.SIG_DFL)' \
+    'Path("marker").touch()' 'time.sleep(3)' \
+    'def test_one():' '    assert 1 == 1' >test_load_ignored_dfl.py
+
+  run -0 --separate-stderr interrupt test_load_ignored_dfl.py 0 ignored
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_load_ignored_dfl.py project error: its process died by SIGINT
+test_load_ignored_dfl.py::test_one blocked: test_load_ignored_dfl.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ "${stderr}" == 'purba exited 4' ]]
 }
 
 @test "a Ctrl-C that a test's mask holds stops the run when the call returns" {
