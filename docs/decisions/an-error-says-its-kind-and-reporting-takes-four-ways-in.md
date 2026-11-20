@@ -1,4 +1,4 @@
-# An error says its kind, and reporting takes six ways in
+# An error says its kind, and reporting takes four ways in
 
 ## Context and Problem Statement
 
@@ -25,26 +25,25 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 **Area:** errors
 
-**An error says its kind, and reporting takes six ways in.**
+**An error says its kind, and reporting takes four ways in.**
 A new kind and the rule that counts it change in execution alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
 - **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression. It also builds one for each unused suppression.
 - **Only execution builds an internal error.**
 - **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
-- **Reporting takes six ways in.** `finish` ends the report. The six ways in are these:
-  - `line` takes a test with its outcome or its error.
+- **Reporting takes four ways in.** `finish` ends the report. The four ways in are these:
+  - `case` takes a test with its outcome or its error, each [notice](../../CONTEXT.md#notice) of the test, and each verdict that a suppression turned into a warning. It writes the line, then each notice, then each warning that selection judged, then each warning that execution judged. A notice and a warning count no test.
   - `error` takes a module or a test, with its error. It counts no blocked test.
   - `stopped` takes a module that stopped before its tests ran, with its error, each thread's error, and its tests. It writes the error once, then each thread's error, then each test as blocked.
   - `unreached` takes an [unreached test](../../CONTEXT.md#unreached-test). It writes no line.
-  - `warned` takes a verdict that a suppression turned into a warning, under the line of its case. It counts no test.
-  - `noticed` takes a [notice](../../CONTEXT.md#notice), under the line of its case. It counts nothing.
-- **Reporting's tests reach it through the six ways in and `finish`.** An outcome goes through the private `add`.
+- **Reporting's tests reach it through the four ways in and `finish`.** An outcome goes through the private `add`. A notice and a warning go through their own private writers.
 
 **Downside:**
 
 - **Command names a type of execution to build a project error.** The arrow from command to execution carries it.
-- **Reporting keeps one private way in for its own tests.** `line` maps an outcome to its kind. Only command's tests run that map.
+- **Reporting keeps one private way in for its own tests.** `case` maps an outcome to its kind. Only command's tests run that map.
+- **Command copies each warning that selection judged into execution's shape.** Reporting names no type of selection, so command builds an execution `Warning` from each.
 
 ## Confirmation
 
@@ -53,4 +52,6 @@ It checks that an error says its kind.
 It checks that reporting prints a project error and an internal error through `line` and through `stopped`, and a project error through `error`.
 It checks that `stopped` writes the module's error, then each thread's error, then each test as blocked, and counts the module's error once.
 It checks that `unreached` writes no line, and that the count names `unreached`.
+It checks that `case` writes the line, then each notice, then each warning that selection judged, then each warning that execution judged.
+
 `mise run lint:wiring` checks that the manifest of command names execution along an arrow of the parts diagram.

@@ -112,11 +112,14 @@ pub fn run_with(
         };
     not_interrupted()?;
     for refused in selected.refused() {
-        report.line(
-            refused.test(),
+        let test = refused.test();
+        report.case(
+            test,
             &Err(purba_execution::Error::project(refused.to_string())),
+            test.notices(),
+            &judged(test),
+            &[],
         )?;
-        warned(&mut report, refused.test(), &[])?;
     }
     if let Some(fault) = selected.fault() {
         report.stopped(
@@ -145,9 +148,13 @@ pub fn run_with(
                     .map(|warning| warning.check.as_str())
                     .collect();
                 selected.judge(&test, &checks, suppressed.judged);
-                report
-                    .line(&test, &result)
-                    .and_then(|()| warned(&mut report, &test, &suppressed.warnings))
+                report.case(
+                    &test,
+                    &result,
+                    test.notices(),
+                    &judged(&test),
+                    &suppressed.warnings,
+                )
             }
             Handed::Stopped {
                 path,
@@ -173,24 +180,17 @@ pub fn run_with(
     Ok(report.finish()?)
 }
 
-/// Prints each notice of `test`, then each verdict of `test` that a suppression
-/// turned into a warning: those of selection, then `warnings`, those of
-/// execution.
-fn warned(
-    report: &mut purba_reporting::Report<impl Write>,
-    test: &TestId,
-    warnings: &[purba_execution::Warning],
-) -> Result<(), purba_reporting::Refused> {
-    for notice in test.notices() {
-        report.noticed(notice)?;
-    }
-    for verdict in test.suppressed() {
-        report.warned(verdict.check, &verdict.words, &verdict.reason)?;
-    }
-    for warning in warnings {
-        report.warned(&warning.check, &warning.words, &warning.reason)?;
-    }
-    Ok(())
+/// Each verdict of `test` that selection judged and a suppression turned into a
+/// warning, in the shape that reporting takes.
+fn judged(test: &TestId) -> Vec<purba_execution::Warning> {
+    test.suppressed()
+        .iter()
+        .map(|verdict| purba_execution::Warning {
+            check: verdict.check.to_owned(),
+            words: verdict.words.clone(),
+            reason: verdict.reason.clone(),
+        })
+        .collect()
 }
 
 /// Prints the line of a module whose error stops the run before any test, then
