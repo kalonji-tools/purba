@@ -1,26 +1,12 @@
+mod common;
+
 use std::fs;
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
+use common::{Named, module};
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Error, ErrorKind, Kind, Quote, Rewrite, Shown};
-
-#[derive(Clone)]
-struct Named(&'static str);
-
-impl Test for Named {
-    fn function(&self) -> &str {
-        self.0
-    }
-}
-
-fn module(name: &str, source: &str, tests: &[&'static str]) -> Module<Named> {
-    Module::new(
-        PathBuf::from(name),
-        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
-        tests.iter().map(|&test| Named(test)).collect(),
-    )
-}
+use purba_execution::{Error, Kind, Quote, Shown};
 
 /// What dispatch hands on, as data a test can compare.
 #[derive(Debug, PartialEq)]
@@ -30,14 +16,6 @@ enum Seen {
     Stopped(PathBuf, String, Vec<String>, Vec<&'static str>),
     Thread(String),
     Unreached(&'static str),
-}
-
-/// The text of a project error, or `internal error: <part>: <message>`.
-fn reason(error: &Error) -> String {
-    match error.kind() {
-        ErrorKind::Project => error.to_string(),
-        ErrorKind::Internal { part } => format!("internal error: {part}: {error}"),
-    }
 }
 
 fn test(name: &'static str, result: Result<Kind, &str>) -> Seen {
@@ -52,7 +30,7 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())
-                    .map_err(|err| reason(&err)),
+                    .map_err(|err| err.line()),
             ),
             Handed::Stopped {
                 path,
@@ -61,11 +39,11 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                 tests,
             } => Seen::Stopped(
                 path,
-                reason(&error),
-                threads.iter().map(reason).collect(),
+                error.line(),
+                threads.iter().map(Error::line).collect(),
                 tests.iter().map(|test| test.0).collect(),
             ),
-            Handed::Thread(_, err) => Seen::Thread(reason(&err)),
+            Handed::Thread(_, err) => Seen::Thread(err.line()),
             Handed::Unreached(test) => Seen::Unreached(test.0),
         });
         ControlFlow::Continue(())
@@ -122,7 +100,10 @@ fn each_outcome_stands_beside_its_test() {
                     }]
                 })
             ),
-            test("test_three", Err("[no-expectation] no expectation stated")),
+            test(
+                "test_three",
+                Err("project error: [no-expectation] no expectation stated"),
+            ),
         ],
         "each outcome beside its test, in order",
     );
@@ -173,7 +154,10 @@ fn an_error_stands_beside_its_test_and_the_run_goes_on() {
     assert_eq!(
         seen(test_err),
         [
-            test("test_one", Err("TypeError: 'int' object is not callable")),
+            test(
+                "test_one",
+                Err("project error: TypeError: 'int' object is not callable"),
+            ),
             test("test_two", Ok(Kind::Passed)),
         ],
         "the error beside its test, and the next test runs",
@@ -231,7 +215,7 @@ fn a_module_that_does_not_load_is_handed_once_with_its_error_and_its_tests() {
         seen(test_fails),
         [Seen::Stopped(
             PathBuf::from("test_not_loaded.py"),
-            "ValueError: x".to_owned(),
+            "project error: ValueError: x".to_owned(),
             Vec::new(),
             vec!["test_one", "test_two"],
         )],
@@ -254,8 +238,8 @@ fn a_module_that_does_not_load_is_handed_with_the_error_of_each_thread_of_its_lo
         seen(test_fails),
         [Seen::Stopped(
             PathBuf::from("test_not_loaded_thread.py"),
-            "ValueError: x".to_owned(),
-            vec!["thread L raised ZeroDivisionError: division by zero".to_owned()],
+            "project error: ValueError: x".to_owned(),
+            vec!["project error: thread L raised ZeroDivisionError: division by zero".to_owned()],
             vec!["test_one"],
         )],
         "the thread's error rides with the module, and is not handed on its own",
@@ -277,7 +261,9 @@ fn a_load_that_leaves_a_thread_alive_hands_its_threads_error_once() {
     assert_eq!(
         seen(test_twice),
         [
-            Seen::Thread("thread L raised ZeroDivisionError: division by zero".to_owned()),
+            Seen::Thread(
+                "project error: thread L raised ZeroDivisionError: division by zero".to_owned(),
+            ),
             test("test_one", Ok(Kind::Passed)),
             test("test_two", Ok(Kind::Passed)),
         ],
@@ -299,7 +285,7 @@ fn a_module_whose_load_exits_is_handed_once_with_its_exit_code_and_its_tests() {
         seen(test_exits),
         [Seen::Stopped(
             PathBuf::from("test_load_exits.py"),
-            "its process exited 5 before its load ended".to_owned(),
+            "project error: its process exited 5 before its load ended".to_owned(),
             Vec::new(),
             vec!["test_one"],
         )],
@@ -405,16 +391,6 @@ fn a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_t
         "the lookup of test_gone panics before its call, execution names itself, and \
          test_two runs",
     );
-}
-
-/// The name of each `def test_…` at the top of `source`, as selection names
-/// the tests of a module.
-fn tests_in(source: &str) -> Vec<&str> {
-    source
-        .lines()
-        .filter_map(|line| line.strip_prefix("def test_").map(|_| &line[4..]))
-        .filter_map(|line| line.split_once('(').map(|(name, _)| name))
-        .collect()
 }
 
 #[test]
@@ -523,9 +499,9 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
                   assert got == 2\n\n\
                   def test_plain():\n    data = 1\n    assert data == 1\n    got = data + 1\n    \
                   assert got == 2\n";
-    let module = Module::new(
-        PathBuf::from("test_act.py"),
-        Rewrite::of_source(source, &tests_in(source)).expect("the source parses"),
+    let module = common::module_of(
+        "test_act.py",
+        source,
         vec![
             Suppressing(
                 "test_act",
@@ -542,7 +518,7 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
                 test.0,
                 result
                     .map(|outcome| outcome.kind().clone())
-                    .map_err(|err| reason(&err)),
+                    .map_err(|err| err.line()),
                 suppressed
                     .warnings
                     .iter()
@@ -577,7 +553,7 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
             (
                 "test_plain",
                 Err(
-                    "[assert-before-expectation] line 9: an assert ran in the act; \
+                    "project error: [assert-before-expectation] line 9: an assert ran in the act; \
                      one test checks one state; check this state in a test of its own"
                         .to_owned()
                 ),
