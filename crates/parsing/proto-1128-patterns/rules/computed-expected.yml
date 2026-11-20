@@ -1,0 +1,33 @@
+# [computed-expected]: an assert at the end of a test that compares two
+# values, neither of them a literal. The item of `all()` or `any()` keeps
+# the rule.
+# Rust: selection, `faults_of`, `Check::Compare` where neither side
+# `is_literal`.
+id: computed-expected
+language: python
+severity: warning
+message: the expected value is not a literal
+utils:
+  computed:
+    any:
+      - all:
+          - matches: compare
+          - not:
+              has:
+                matches: literal
+      - kind: parenthesized_expression
+        has:
+          matches: computed
+rule:
+  matches: ending
+  has:
+    nthChild: 1
+    any:
+      - matches: computed
+      - all:
+          - matches: each
+          - has:
+              field: arguments
+              has:
+                field: body
+                matches: computed

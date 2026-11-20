@@ -1,0 +1,22 @@
+# `Reads`: `not x`, `isinstance(x, T)`, `x.startswith(y)`, `x.endswith(y)`,
+# each with no keyword and no `*` argument.
+# Rust: parsing, `fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)>`.
+id: read
+language: python
+rule:
+  any:
+    - kind: not_operator
+    - all:
+        - kind: call
+        - any:
+            - pattern: isinstance($READING, $TYPE)
+            - pattern: $READING.startswith($ARGUMENT)
+            - pattern: $READING.endswith($ARGUMENT)
+        - not:
+            has:
+              field: arguments
+              has:
+                any:
+                  - kind: keyword_argument
+                  - kind: list_splat
+                  - kind: dictionary_splat

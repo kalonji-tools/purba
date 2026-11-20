@@ -1,0 +1,25 @@
+# A statement with only asserts after it, in a test's body or in the body of
+# a `with` that is itself at the end. The recursion stands for the Rust loop
+# in `ending` that steps into a `with`.
+id: at-the-end
+language: python
+rule:
+  not:
+    precedes:
+      stopBy: end
+      not:
+        any:
+          - kind: assert_statement
+          - kind: comment
+  inside:
+    kind: block
+    any:
+      - inside:
+          field: body
+          matches: test-def
+      - inside:
+          field: body
+          kind: with_statement
+          not:
+            regex: ^async
+          matches: at-the-end

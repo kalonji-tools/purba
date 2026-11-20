@@ -1,0 +1,9 @@
+# `Check::Compare`: a comparison with one operator, so two operands.
+# Rust: `([op], [left, right]) => Some(Check::Compare { .. })`.
+id: compare
+language: python
+rule:
+  kind: comparison_operator
+  not:
+    has:
+      nthChild: 3

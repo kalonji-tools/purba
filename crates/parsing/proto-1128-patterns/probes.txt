@@ -1,0 +1,155 @@
+### test_syntax_error.py
+def test_sum(:
+    total = 1
+    assert total == len("ab")
+### test_comment_in_list.py
+def test_one():
+    got = [1, 2]
+    assert got == [
+        1,  # one
+        2,
+    ]
+### test_comment_in_comparison.py
+def test_one():
+    got = [1]
+    assert (
+        got  # the reading
+        == [1]
+    )
+### test_backslash_in_comparison.py
+def test_one():
+    got = [1]
+    assert got \
+        == [1]
+### test_double_parens_generator.py
+def test_one():
+    rows = [1, 1]
+    assert all((row == 1 for row in rows))
+### test_comment_after_assert.py
+def test_one():
+    got = 1
+    assert got == 1
+    # done
+### test_comment_between_asserts.py
+def test_one():
+    got = 1
+    assert got == len("a")
+    # then
+    assert got == 1
+### test_parens_check.py
+def test_one():
+    got, want = 1, 1
+    assert (got == want)
+### test_chained.py
+def test_one():
+    got = 1
+    assert 0 < got < 2
+### test_each_computed.py
+def test_one():
+    rows, want = [1, 1], 1
+    assert all(row == want for row in rows)
+### test_each_with_if.py
+def test_one():
+    rows = [1, 1]
+    assert all(row == 1 for row in rows if row)
+### test_each_of_list.py
+def test_one():
+    rows = [1, 1]
+    assert all([row == 1 for row in rows])
+### test_each_walrus.py
+def test_one():
+    rows = [1, 1]
+    assert all((n := row) == 1 for row in rows)
+### test_each_two_for.py
+def test_one():
+    rows = [[1], [1]]
+    assert all(cell == 1 for row in rows for cell in row)
+### test_reads.py
+def test_isinstance():
+    assert isinstance(1, int)
+
+
+def test_isinstance_three():
+    assert isinstance(1, int, )
+
+
+def test_startswith_two():
+    assert "ab".startswith("a", 0)
+
+
+def test_startswith_keyword():
+    assert "ab".startswith(prefix="a")
+
+
+def test_star():
+    pair = (1, int)
+    assert isinstance(*pair)
+
+
+def test_not_compare():
+    got, want = 1, 1
+    assert not got == want
+### test_class.py
+class TestOne:
+    def test_one(self):
+        got, want = 1, 1
+        assert got == want
+### test_bound_twice.py
+def test_one():
+    got, want = 1, 1
+    assert got == want
+
+
+def test_one():
+    got = 1
+    assert got == 1
+### test_nested_with.py
+import contextlib
+
+
+def test_one():
+    with contextlib.nullcontext():
+        with contextlib.nullcontext():
+            got, want = 1, 1
+            assert got == want
+### test_literals.py
+def test_concat():
+    got = "ab"
+    assert got == "a" "b"
+
+
+def test_fstring():
+    got = "a"
+    assert got == f"a"
+
+
+def test_fstring_placeholder():
+    got, n = "a1", 1
+    assert got == f"a{n}"
+
+
+def test_negative():
+    got = -1
+    assert got == -1
+
+
+def test_dict_splat():
+    got, rest = {1: 2}, {}
+    assert got == {1: 2, **rest}
+
+
+def test_not_true():
+    got = False
+    assert got == (not True)
+### test_tab_indent.py
+def test_one():
+	got, want = 1, 1
+	assert got == want
+### test_decorated.py
+import functools
+
+
+@functools.cache
+def test_one():
+    got, want = 1, 1
+    assert got == want

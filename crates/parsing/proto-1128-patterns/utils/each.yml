@@ -1,0 +1,32 @@
+# `Shape::Each`: `all(<check> for <target> in <reading>)` or `any(…)`, with
+# one `for` that is not async, no `if`, no `:=` in the item, and a check as
+# the item.
+# Rust: parsing, `fn each(test: &Expr) -> Option<Shape<'_>>`, its `Each` arm.
+id: each
+language: python
+rule:
+  matches: all-or-any
+  has:
+    field: arguments
+    matches: one-generator
+    all:
+      - has:
+          field: body
+          matches: check
+          not:
+            any:
+              - kind: named_expression
+              - has:
+                  kind: named_expression
+                  stopBy: end
+      - not:
+          has:
+            kind: if_clause
+      - not:
+          has:
+            kind: for_in_clause
+            nthChild: 3
+      - has:
+          kind: for_in_clause
+          not:
+            regex: ^async

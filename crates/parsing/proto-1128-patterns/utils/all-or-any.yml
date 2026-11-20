@@ -1,0 +1,9 @@
+# A call of `all` or `any` with one argument and no keyword: the generator of
+# `all(x for x in y)`, or the one item of `all([x for x in y])`.
+id: all-or-any
+language: python
+rule:
+  kind: call
+  has:
+    field: function
+    regex: ^(all|any)$

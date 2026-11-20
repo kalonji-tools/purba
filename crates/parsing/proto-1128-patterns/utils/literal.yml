@@ -1,0 +1,69 @@
+# `is_literal`: a string, bytes, a number, True, False, None, `...`, an
+# f-string with no placeholder, an operator on literals, or a list, tuple,
+# set or dict of these.
+# Rust: parsing, `pub fn is_literal(expr: &Expr) -> bool`.
+#
+# A negative `has` sees tree-sitter's unnamed tokens too (`[`, `,`, `:`),
+# so "every item is a literal" must let each of them through by its text.
+id: literal
+language: python
+rule:
+  any:
+    - kind: integer
+    - kind: float
+    - kind: "true"
+    - kind: "false"
+    - kind: none
+    - kind: ellipsis
+    - kind: string
+      not:
+        has:
+          kind: interpolation
+    - kind: concatenated_string
+      not:
+        has:
+          kind: interpolation
+          stopBy: end
+    - kind: unary_operator
+      has:
+        field: argument
+        matches: literal
+    - kind: not_operator
+      has:
+        field: argument
+        matches: literal
+    - kind: binary_operator
+      all:
+        - has:
+            field: left
+            matches: literal
+        - has:
+            field: right
+            matches: literal
+    - any:
+        - kind: list
+        - kind: tuple
+        - kind: set
+      not:
+        has:
+          not:
+            any:
+              - matches: literal
+              - regex: '^[\[\](){},]$'
+    - kind: dictionary
+      not:
+        has:
+          not:
+            any:
+              - regex: '^[{},]$'
+              - kind: pair
+                all:
+                  - has:
+                      field: key
+                      matches: literal
+                  - has:
+                      field: value
+                      matches: literal
+    - kind: parenthesized_expression
+      has:
+        matches: literal

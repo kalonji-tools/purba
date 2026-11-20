@@ -1,0 +1,13 @@
+# `Check`: one comparison by one operator, or one of the four reads. ruff's
+# tree holds no parentheses, and tree-sitter's does, so a check in
+# parentheses is still a check.
+# Rust: parsing, `fn check(test: &Expr) -> Option<Check<'_>>`.
+id: check
+language: python
+rule:
+  any:
+    - matches: compare
+    - matches: read
+    - kind: parenthesized_expression
+      has:
+        matches: check

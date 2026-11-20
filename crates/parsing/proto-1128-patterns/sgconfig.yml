@@ -1,0 +1,6 @@
+# PROTOTYPE for "How do the shapes of an expectation look as tree patterns?"
+# (purba issue 1128). Throwaway: this branch is never merged.
+ruleDirs:
+  - rules
+utilDirs:
+  - utils

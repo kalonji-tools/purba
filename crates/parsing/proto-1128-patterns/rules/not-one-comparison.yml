@@ -1,0 +1,16 @@
+# [not-one-comparison]: an assert at the end of a test whose test is not one
+# check, and not `all()` or `any()` of one check. `OtherEach` and `Other`
+# both land here.
+# Rust: selection, `faults_of`, the arms `Shape::OtherEach` and `Shape::Other`.
+id: not-one-comparison
+language: python
+severity: warning
+message: is not one comparison
+rule:
+  matches: ending
+  has:
+    nthChild: 1
+    not:
+      any:
+        - matches: check
+        - matches: each

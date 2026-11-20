@@ -1,0 +1,16 @@
+# A test: a `def` at the top of the module whose name starts with `test`.
+# Rust: selection, `name.starts_with("test")` over the module's bindings.
+id: test-def
+language: python
+rule:
+  kind: function_definition
+  has:
+    field: name
+    regex: ^test
+  any:
+    - inside:
+        kind: module
+    - inside:
+        kind: decorated_definition
+        inside:
+          kind: module

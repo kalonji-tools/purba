@@ -1,0 +1,9 @@
+# The argument of `all(…)` or `any(…)` when it is a generator: tree-sitter
+# makes `all(x for x in y)`'s generator the call's arguments.
+id: one-generator
+language: python
+rule:
+  kind: generator_expression
+  inside:
+    field: arguments
+    matches: all-or-any

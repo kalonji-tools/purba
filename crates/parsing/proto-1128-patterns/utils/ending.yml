@@ -1,0 +1,10 @@
+# `ending`: an assert at the end of a test's body. Every statement after it
+# is an assert, and its block is the test's body, or the body of a `with`
+# that is itself at the end. tree-sitter keeps comments as statements, and
+# ruff does not, so a comment does not stop the walk.
+# Rust: parsing, `ending(body: &[Stmt]) -> Vec<&StmtAssert>`.
+id: ending
+language: python
+rule:
+  kind: assert_statement
+  matches: at-the-end
