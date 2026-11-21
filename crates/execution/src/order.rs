@@ -81,6 +81,33 @@ pub fn order(facts: &Facts, suppressions: &[(&str, &str)]) -> (Result<Kind, Erro
 mod tests {
     use super::*;
 
+    // EXERCISE (#1118, step 5). Remove these EXERCISE comments when you are done.
+    //
+    // A. Warm-up, in the chat, before any row. One line each: what does it mean?
+    //    `Facts`: form, called, with, mark, path, in_another_try, refused,
+    //             in_order, shown, alone, later, texts, missed, stated.
+    //    `Called`: Returned, and Raised with its `assertion`.
+    //    Read the doc of `Facts` and of `Called` above. The answer is there.
+    //
+    // B. The rows. One row for each sentence of the doc of `order`. Two tests
+    //    hold them: `each_step_of_the_order_beats_each_step_below_it` (it reads
+    //    `line`) and `a_suppressed_fault_gives_a_warning_and_the_case_goes_on`
+    //    (it reads `warned`). Each test lists its open rows at its EXERCISE mark.
+    //
+    // C. How to write one row.
+    //    1. Give the row two facts: the one that must win, and one that a lower
+    //       step would take. A row with one fact cannot fail when two steps
+    //       swap.
+    //    2. Write the expected text from the format of `shown`, or of `warned`.
+    //       Say in the chat which arm of `shown` gives it. Do not type it from
+    //       memory.
+    //    3. Write `// fails when:` as an edit of the body of `order`: "the check
+    //       of X moves below the check of Y", or "the check of X is deleted".
+    //    4. The rows fail now, at `todo!()`. That is expected. Say "rows done".
+    //    5. Later, the agent lands the body. Then make each `// fails when:`
+    //       edit yourself, run `mise run test:rust`, and paste the red line in
+    //       the chat. Undo the edit after each run.
+
     /// The line that `order` gives for `facts` with no suppression, as text a
     /// row can compare.
     fn line(facts: &Facts) -> String {
@@ -170,7 +197,36 @@ mod tests {
                 },
                 "project error: [no-expectation] no expectation ran",
             ),
-            // EXERCISE: one row for each sentence of the doc of `order`.
+            // EXERCISE: the open rows of this test, one for each step. Each line
+            // names the fact that must win, and the fact of a lower step that
+            // must lose. You choose the values.
+            //
+            // step 1, its first half: a fault of the form (`form`) beats a
+            //   reading alone that reached an assert (`alone`).
+            // step 2, `failed`, from a `with`: the call raised (`called`), and a
+            //   `with`'s entry or cleanup raised it (`with`). It beats a plain
+            //   `raised`.
+            // step 2, `failed`, from a marked assert: the call raised an
+            //   `AssertionError` (`called`, with `assertion: true`), and the last
+            //   marked assert did not hold (`mark`). It beats a plain `raised`.
+            // step 2, `raised`: the call raised (`called`). It beats a fault of
+            //   the paths (`path`).
+            // step 3: two faults of the paths (`path`), joined by `; `. They beat
+            //   two readings that differ (`alone` against `in_order`).
+            // step 4: two readings that differ (`alone` against `in_order`). They
+            //   beat an expectation that did not hold (`in_order`).
+            // step 4, its other half: a fork that failed (`refused`). It beats an
+            //   expectation that did not hold (`in_order`).
+            // step 5: a `try` of one path that missed (`missed`), and an
+            //   expectation that did not hold (`in_order`). Both are quoted, the
+            //   missed `try` first.
+            // step 6, its other line: a test that states no expectation
+            //   (`stated: false`) and runs none.
+            // step 7: each expectation held (`in_order`). The case passed.
+            //
+            // The sentence "each project error of a strict check names its check
+            // in brackets" needs no row of its own. Your project-error rows show
+            // it, so name a check in brackets in each of them.
         ];
         for (row, facts, gives) in rows {
             assert_eq!(line(&facts), gives, "{row}");
@@ -199,7 +255,15 @@ mod tests {
                     true,
                 ),
             ),
-            // EXERCISE: a row for the last sentence of the doc of `order`.
+            // EXERCISE: the open row of this test. It is the last sentence of
+            // the doc of `order`: "The order judges each suppression of a check
+            // that execution sees only when it reaches step 3."
+            //
+            // Give the row a suppressed fault of the paths (`path`, and its
+            // suppression), and a call that raised (`called`). The order stops
+            // at step 2, before step 3. So the row expects the `raised:` line,
+            // no warning, and `false` for whether the order judged.
+            // Copy the shape of the model row above.
         ];
         for (row, facts, suppressions, gives) in rows {
             assert_eq!(warned(&facts, suppressions), gives, "{row}");
