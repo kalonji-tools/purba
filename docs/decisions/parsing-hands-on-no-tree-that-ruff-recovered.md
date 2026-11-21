@@ -39,7 +39,7 @@ test_paren.py project error: SyntaxError: Expected a parameter or the end of the
 
 - **The printed line names no line or column.** CPython's text names the line. Reporting renders the location in its design in depth.
 - **ruff's words and lines are not CPython's.** For `x = (` on the last line, ruff names the line after it.
-- **Two parts find syntax errors, and print two texts.** A syntax error that ruff passes, such as `return` outside a function, shows at load in CPython's words.
+- **Two parts find syntax errors, and print two texts.** A syntax error that ruff passes, such as `return` outside a function, shows at load in CPython's words. [CPython alone refuses the syntax that its version lacks](cpython-alone-refuses-the-syntax-that-its-version-lacks.md#decision-outcome) keeps the syntax of a version at load too.
 - **A second mistake in a module shows only after the first is fixed.** It is an exception to [an error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome), where a part names every error that it finds.
 - **The count names no test of a module that does not parse.** It reads `0 cases`, though the file holds tests.
 

@@ -390,6 +390,35 @@ fn a_utf_8_declaration_or_a_comment_that_declares_nothing_keeps_the_module() {
 }
 
 #[test]
+fn a_module_in_the_syntax_of_a_newer_or_older_python_parses() {
+    for (name, text) in [
+        ("test_type_param_default.py", "def f[T = int](): pass\n"),
+        (
+            "test_unparenthesized_except.py",
+            "try:\n    pass\nexcept ValueError, TypeError:\n    pass\n",
+        ),
+        ("test_template_string.py", "x = t'{1}'\n"),
+        ("test_lazy_import.py", "lazy import os\n"),
+        (
+            "test_unpacking_in_comprehension.py",
+            "x = [*a for a in b]\n",
+        ),
+        ("test_unpacking_in_set.py", "x = {*a for a in b}\n"),
+        ("test_unpacking_in_generator.py", "x = (*a for a in b)\n"),
+        ("test_unpacking_in_dict.py", "x = {**a for a in b}\n"),
+        (
+            "test_unary_plus_pattern.py",
+            "match x:\n    case +1:\n        pass\n",
+        ),
+        ("test_parenthesized_keyword.py", "f((a)=1)\n"),
+    ] {
+        if let Err(error) = purba_parsing::parse(&write(name, text)) {
+            panic!("{name}: the CPython that loads the module refuses it, not parsing: {error:?}");
+        }
+    }
+}
+
+#[test]
 fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
     for (name, text) in [
         (
