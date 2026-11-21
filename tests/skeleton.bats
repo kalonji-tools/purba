@@ -352,6 +352,33 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a module named after a loaded module does not load, and names the module" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_x():' '    assert 1 == 1' >builtins.py
+
+  run -4 --separate-stderr purba builtins.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+builtins.py project error: ImportError: sys.modules already holds the name builtins
+builtins.py::test_x blocked: builtins.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module named after a module that is not loaded yet loads" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'def test_x():' '    assert 1 == 1' >json.py
+
+  run -0 --separate-stderr purba json.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+json.py::test_x passed
+1 case: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a thread's exception in a test prints a project error, and the test keeps its outcome" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \
