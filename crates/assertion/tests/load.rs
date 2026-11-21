@@ -1,6 +1,6 @@
 use purba_assertion::{Readers, Readings, Rewrite, Shown, Verdict, Watched};
 use pyo3::Python;
-use pyo3::exceptions::{PyIndexError, PyNameError, PySystemExit};
+use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -248,21 +248,31 @@ fn a_new_name_leaves_sys_modules_when_its_body_raises() {
 }
 
 #[test]
-fn a_shadowed_name_gets_its_module_back_when_the_body_raises() {
+fn a_name_that_sys_modules_holds_refuses_the_load_before_the_body_runs() {
     Python::initialize();
     Python::attach(|py| {
         let modules = py.import("sys").unwrap().getattr("modules").unwrap();
         let before = PyModule::new(py, "test_shadowed").unwrap();
         modules.set_item("test_shadowed", &before).unwrap();
-        let loaded = purba_assertion::load(
+        let err = purba_assertion::load(
             py,
             Path::new("test_shadowed.py"),
-            &source("raise ValueError('x')\n"),
+            &source("raise ValueError('the body ran')\n"),
+        )
+        .err()
+        .expect("the load is refused");
+        assert!(
+            err.is_instance_of::<PyImportError>(py),
+            "the ImportError of the taken name, and not the body's ValueError: {err}"
         );
-        assert!(loaded.is_err(), "the body raised");
+        assert_eq!(
+            err.value(py).to_string(),
+            "sys.modules already holds the name test_shadowed",
+            "the error names the name"
+        );
         assert!(
             modules.get_item("test_shadowed").unwrap().is(&before),
-            "the name holds the module it held before the load"
+            "the name still holds the module it held before the load"
         );
     });
 }
@@ -994,15 +1004,15 @@ fn a_call_that_hands_the_hook_values_that_do_not_match_its_check_panics() {
         ("a second value for no check", "_purba_read(3, 1, 2)"),
     ];
     Python::initialize();
-    for (what, call) in cases {
+    for (index, (what, call)) in cases.into_iter().enumerate() {
         let text = format!(
             "def test_hand():\n    {call}\n    assert 1 == 1\n    assert not 0\n    \
              assert all(v == 1 for v in [1])\n    assert bool(1)\n"
         );
         let rewrite = Rewrite::of_source(&text, &["test_hand"]).expect("the source parses");
+        let path = PathBuf::from(format!("test_hand_{index}.py"));
         Python::attach(|py| {
-            let loaded = purba_assertion::load(py, Path::new("test_hand.py"), &rewrite)
-                .expect("the module loads");
+            let loaded = purba_assertion::load(py, &path, &rewrite).expect("the module loads");
             let case = loaded.module().getattr("test_hand").unwrap();
             // PyO3 resumes its own `PanicException` as a Rust panic.
             let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {

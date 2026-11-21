@@ -9,7 +9,7 @@
 
 use purba_parsing::{Module, Reads, Shape};
 use pyo3::basic::CompareOp;
-use pyo3::exceptions::{PyIndexError, PyNameError};
+use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError};
 use pyo3::types::{
     PyAnyMethods, PyDict, PyDictMethods, PyModule, PyModuleMethods, PyTuple, PyTupleMethods,
     PyTypeMethods,
@@ -1701,8 +1701,9 @@ fn bind(
 
 /// Loads the text of `rewrite` as the module at `path`, in this order:
 ///
-/// 1. names the module after the file of `path`, without `.py`, and sets its
-///    `__file__` to `path`;
+/// 1. names the module after the file of `path`, without `.py`, refuses the
+///    name when `sys.modules` holds it, and sets the module's `__file__` to
+///    `path`;
 /// 2. gives it `_purba_ran`, which holds the text and the line of each assert
 ///    of `rewrite` at the index that its mark records, and `_purba_read`,
 ///    `_purba_reads`, `_purba_step` and `_purba_with`, the hooks of its
@@ -1716,9 +1717,9 @@ fn bind(
 ///
 /// # Errors
 ///
-/// The error that step 4 raises, such as one from `compile()` or the module's
-/// body. `NameError` when the body bound a name of a hook to anything but the
-/// hook.
+/// `ImportError` when `sys.modules` holds the module's name. The error that
+/// step 4 raises, such as one from `compile()` or the module's body.
+/// `NameError` when the body bound a name of a hook to anything but the hook.
 ///
 /// # Panics
 ///
@@ -1726,6 +1727,12 @@ fn bind(
 pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Loaded<'py>> {
     let text = rewrite.text.as_str();
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
+    let modules = py.import("sys")?.getattr("modules")?;
+    if modules.contains(&*name)? {
+        return Err(PyImportError::new_err(format!(
+            "sys.modules already holds the name {name}"
+        )));
+    }
     let module = PyModule::new(py, &name)?;
     module.setattr("__file__", path.as_os_str())?;
     let mut tests = vec![0..0; rewrite.expectations.len()];
@@ -1757,7 +1764,6 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
         },
     )?;
     bind(&module, &ran, &read)?;
-    let modules = py.import("sys")?.getattr("modules")?;
     let before = modules.get_item(&*name).ok();
     modules.set_item(&*name, &module)?;
     let ran_body = panic::catch_unwind(AssertUnwindSafe(|| {

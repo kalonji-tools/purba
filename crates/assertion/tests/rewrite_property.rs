@@ -330,6 +330,9 @@ proptest! {
                 // CPython warns of `is` with a literal when it compiles the module.
                 let quiet = c"import warnings; warnings.simplefilter('ignore', SyntaxWarning)";
                 py.run(quiet, None, None).expect("the filter is set");
+                // The case before loaded a module under the same name.
+                let fresh = c"import sys; sys.modules.pop('test_shape', None)";
+                py.run(fresh, None, None).expect("the name is free");
                 let path = std::path::Path::new("test_shape.py");
                 let loaded = purba_assertion::load(py, path, &rewrite).expect("the module loads");
                 let case = loaded.module().getattr("test_case").expect("the test is bound");
