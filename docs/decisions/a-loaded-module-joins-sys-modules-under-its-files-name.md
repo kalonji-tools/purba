@@ -18,6 +18,11 @@ It runs the text through `compile()` and `exec()`.
 
 [The probe](https://github.com/kalonji-tools/purba/issues/570#issuecomment-6311718092) gave the same results on Python 3.12.14 and 3.14.7.
 
+| fact | source |
+|---|---|
+| dispatch's process loads no module, and forks a zygote for each module | [`dispatch`](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/dispatch/src/lib.rs#L113-L126) |
+| a zygote, a test's process and a replay each load at most once, so no process of purba loads two modules | [the zygote](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L909-L912), [a test's process](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L999-L1000), [a replay](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L1101-L1102) |
+
 ## Considered Options
 
 - **Keep the module out of `sys.modules`.** A module with a `@dataclass` under `from __future__ import annotations` does not load. A test that pickles its own class or function fails.
@@ -38,7 +43,7 @@ That name is also the module's `__name__`, so `dir/test_a.py` loads as `test_a`.
 **Downside:**
 
 - **A module takes the name of a module that `sys.modules` does not hold yet.** A test module named `test.py` takes the name of the standard library's `test` package in `sys.modules`. A later `import test` then gets the test module. Assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides.
-- **Two modules with one name share one key.** A run of the skeleton takes one module, so two never meet. The design in depth of execution decides the key for a worker that loads many.
+- **Two modules with one name share one key.** No process of purba loads two modules, so they never meet.
 
 ## Confirmation
 

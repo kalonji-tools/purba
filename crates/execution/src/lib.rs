@@ -16,7 +16,6 @@ mod whence;
 mod zygote;
 
 use std::any::Any;
-use std::collections::HashMap;
 use std::fmt;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
@@ -224,12 +223,14 @@ pub enum Owner<T> {
     Test(T),
 }
 
-/// Runs tests in this process. It loads each module once, and keeps it under its
-/// path, or keeps that its load failed. It keeps the owner of each thread that a
+/// Runs tests in this process.
+///
+/// It loads at most one module, the one of its process, and keeps it, or keeps
+/// no module when its load failed. It keeps the owner of each thread that a
 /// load or a test left alive.
 pub struct Worker<'py, T> {
     py: Python<'py>,
-    loaded: HashMap<PathBuf, Option<Loaded<'py>>>,
+    loaded: Option<Loaded<'py>>,
     hook: &'static Py<thread::Hook>,
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
@@ -270,7 +271,7 @@ impl<'py, T> Worker<'py, T> {
         whence::keep_the_folder();
         Self {
             py,
-            loaded: HashMap::new(),
+            loaded: None,
             hook: thread::hook(py)
                 .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
             owners: Vec::new(),
@@ -302,19 +303,17 @@ impl<'py, T: Clone> Worker<'py, T> {
         (facts, step::decide(own, met))
     }
 
-    /// Loads `module` once, and keeps it, or keeps that its load failed. The
-    /// load takes the note of a panic, so no later test takes it. Each thread that the load
-    /// leaves alive gets the load as its owner. When the first interrupt
-    /// landed in the load, it gives no project error, and keeps no module.
+    /// Loads `module`, the one module of its process, and keeps it, or keeps
+    /// no module when its load fails. The load takes the note of a panic, so
+    /// no later test takes it. Each thread that the load leaves alive gets the
+    /// load as its owner. When the first interrupt landed in the load, it gives
+    /// no project error, and keeps no module.
     ///
     /// # Errors
     ///
     /// The load raised. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
     pub(crate) fn load(&mut self, module: &Module) -> Result<(), Error> {
-        if self.loaded.contains_key(&module.path) {
-            return self.module(module).map(|_| ());
-        }
         let window = self.open();
         let py = self.py;
         let (own, interrupted) = if window.landed() {
@@ -343,23 +342,15 @@ impl<'py, T: Clone> Worker<'py, T> {
             Ok(Gives::Interrupted) => (None, Ok(())),
             Err(error) => (None, Err(error)),
         };
-        self.loaded.insert(module.path.clone(), kept);
+        self.loaded = kept;
         result
     }
 
-    /// The module that `load` loaded for `module`.
+    /// The module that `load` loaded.
     fn module(&self, module: &Module) -> Result<&Loaded<'py>, Error> {
-        match self.loaded.get(&module.path) {
-            None => Err(Error(Reason::Internal(panic::Caught {
-                part: "execution".to_owned(),
-                message: format!("{} was never given to load", module.path.display()),
-            }))),
-            Some(None) => Err(Error::project(format!(
-                "{} did not load",
-                module.path.display()
-            ))),
-            Some(Some(loaded)) => Ok(loaded),
-        }
+        self.loaded
+            .as_ref()
+            .ok_or_else(|| Error::project(format!("{} did not load", module.path.display())))
     }
 
     /// Opens the window of a step, before its first line of Python.
