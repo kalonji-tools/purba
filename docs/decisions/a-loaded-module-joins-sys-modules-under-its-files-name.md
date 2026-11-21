@@ -2,7 +2,7 @@
 
 ## Context and Problem Statement
 
-Assertion's load makes a module from the rewritten text, as [the skeleton crosses the seam in execution and assertion](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) states.
+Assertion's load makes a module from the rewritten text, as [the skeleton crosses the seam in execution, assertion and parsing](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) states.
 It runs the text through `compile()` and `exec()`.
 `importlib` does not run, so nothing puts the module in `sys.modules`.
 `dataclasses`, `pickle`, `typing` and `inspect` look a module up there by its `__name__`.

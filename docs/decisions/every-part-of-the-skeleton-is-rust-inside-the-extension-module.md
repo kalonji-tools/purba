@@ -49,5 +49,5 @@ A part needs its language before anyone writes it.
 
 `mise run test:wheel` checks that the installed `purba` runs a module through `_main`, inside the extension module.
 No command checks that each part is Rust.
-[The skeleton crosses the seam in execution and assertion](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) holds what crosses between Rust and Python.
+[The skeleton crosses the seam in execution, assertion and parsing](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) holds what crosses between Rust and Python.
 [Each part is a crate](each-part-is-a-crate.md#decision-outcome) says which crate holds each part's code.

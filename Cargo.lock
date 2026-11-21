@@ -514,6 +514,7 @@ version = "0.0.0"
 name = "purba-parsing"
 version = "0.0.0"
 dependencies = [
+ "pyo3",
  "ruff_python_ast",
  "ruff_python_parser",
  "ruff_source_file",

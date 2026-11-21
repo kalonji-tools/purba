@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) has a failed line quote the text of its assert, on one line.
-[The skeleton crosses the seam in execution and assertion](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) keeps the traceback in Python, so execution learns which assert did not hold only from assertion's hook.
+[The skeleton crosses the seam in execution, assertion and parsing](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) keeps the traceback in Python, so execution learns which assert did not hold only from assertion's hook.
 A test can run an assert after the one that did not hold, in a `finally` block or in the exit of a context manager.
 An assert can hold a comment or a line continuation.
 ruff's tree holds neither.

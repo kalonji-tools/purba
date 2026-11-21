@@ -44,6 +44,7 @@
 
 - [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [Parsing decodes a module by its declaration, with CPython's codecs](decisions/parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md)
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [Parsing matches the shape of each expectation in Rust, on ruff's AST](decisions/parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md)
 - [purba parses Python with ruff's parser](decisions/purba-parses-python-with-ruff.md)
@@ -88,7 +89,7 @@
 
 ### the Rust/Python seam
 
-- [The skeleton crosses the seam in execution and assertion](decisions/the-skeleton-crosses-the-seam-in-execution-and-assertion.md)
+- [The skeleton crosses the seam in execution, assertion and parsing](decisions/the-skeleton-crosses-the-seam-in-execution-and-assertion.md)
 
 ### strictness
 

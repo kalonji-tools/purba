@@ -47,34 +47,6 @@ owner-in-purba = 3
 unmeasured = []
 needs = 3
 
-[decode-by-encoding.encoding_rs]
-version = "0.8.44"
-measured = "2026-11-14"
-blast-area = 1
-upkeep = 1
-maintainers = 3
-upstream-review = 3
-tests = 1
-unsafe = 3
-api-churn = 2
-owner-in-purba = 3
-unmeasured = []
-needs = 2
-
-[decode-by-encoding.textcode]
-version = "0.5.1"
-measured = "2026-11-14"
-blast-area = 1
-upkeep = 1
-maintainers = 3
-upstream-review = 3
-tests = 2
-unsafe = 3
-api-churn = 3
-owner-in-purba = 3
-unmeasured = []
-needs = 2
-
 [read-config-file.toml]
 version = "1.2.1+spec-1.1.0"
 measured = "2026-11-14"

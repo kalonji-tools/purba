@@ -50,17 +50,45 @@ LINES
   [[ "${stderr}" == "${refused}" ]]
 }
 
-@test "purba with a module that declares latin-1 exits 3, and says why on stderr" {
+@test "purba decodes a module that declares latin-1, and runs its test" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '# -*- coding: latin-1 -*-\ndef test_cookie():\n    assert len("\303\251") == 1\n' \
+  printf '# -*- coding: latin-1 -*-\ndef test_cookie():\n    assert len("\351") == 1\n' \
     >test_cookie.py
 
-  run -3 --separate-stderr purba test_cookie.py
+  run -0 --separate-stderr purba test_cookie.py
 
-  local refused='purba: invocation error: cannot read test_cookie.py: '
-  refused+='it declares the encoding latin-1, and purba reads only UTF-8'
-  [[ "${stderr}" == "${refused}" ]] || false
-  [[ -z "${output}" ]]
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_cookie.py::test_cookie passed
+1 case: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "purba with a byte order mark before a latin-1 declaration gives a project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '\357\273\277# -*- coding: latin-1 -*-\ndef test_cookie():\n    assert 1 == 1\n' \
+    >test_bom_latin1.py
+
+  run -4 --separate-stderr purba test_bom_latin1.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "purba with a module that declares an unknown encoding gives the codec's project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '# coding: foobar\ndef test_cookie():\n    assert 1 == 1\n' >test_foobar.py
+
+  run -4 --separate-stderr purba test_foobar.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_foobar.py project error: SyntaxError: unknown encoding: foobar
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
 }
 
 @test "purba with no sys.abiflags runs its tests" {
