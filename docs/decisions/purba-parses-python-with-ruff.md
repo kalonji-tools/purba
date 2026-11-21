@@ -50,8 +50,10 @@ Nobody can suppress that report for one dependency alone.
 Cargo misses some ruff crates that nothing calls, so the reviewer checks each one.
 
 One module owns parsing and returns an AST, and everything else takes the AST.
+[Parsing matches the shape of each expectation in Rust, on ruff's AST](parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md#decision-outcome) holds how parsing reads an expectation in that AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 Holding that seam keeps even a late reversal a one-decision change.
+
 Parsing returns a syntax error as an error, not a panic, because a file that fails to parse is a project error, not a crash.
 [Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) says what that error holds.
 MSRV is the upgrade clock, not the API.
