@@ -632,6 +632,59 @@ fn a_module_that_cpythons_compiler_refuses_parses() {
 }
 
 #[test]
+fn match_as_a_name_after_a_semicolon_and_a_bare_raise_before_one_parse() {
+    let refused: Vec<String> = [
+        (
+            "test_match_after_semicolon.py",
+            "m = 1; match = 2\ndef test_one():\n    assert m == 1\n",
+        ),
+        (
+            "test_raise_before_semicolon.py",
+            concat!(
+                "def reraise():\n",
+                "    try:\n",
+                "        raise ValueError\n",
+                "    except ValueError:\n",
+                "        raise;\n",
+                "def test_one():\n",
+                "    assert 1 == 1\n",
+            ),
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(name, text)| {
+        purba_parsing::parse(&write(name, text))
+            .err()
+            .map(|error| format!("{name}: {error:?}"))
+    })
+    .collect();
+
+    assert!(
+        refused.is_empty(),
+        "each supported CPython runs each module, so parsing passes it: {refused:#?}"
+    );
+}
+
+#[test]
+fn a_tab_that_ruff_counts_to_two_columns_refuses_a_module_that_cpython_runs() {
+    let error = syntax_error(
+        "test_tab_width.py",
+        "x = 1\nif x:\n \t \tpass\n  \t\tpass\ndef test_one():\n    assert x == 1\n",
+    );
+
+    assert_eq!(
+        error.message(),
+        "unindent does not match any outer indentation level",
+        "ruff's words for a line whose columns and characters disagree"
+    );
+    assert_eq!(
+        error.start().line(),
+        4,
+        "ruff counts line 3 to 4 columns and line 4 to 6, each of 4 characters"
+    );
+}
+
+#[test]
 fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
     for (name, text) in [
         (
