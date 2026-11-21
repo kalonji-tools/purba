@@ -44,6 +44,7 @@
 
 - [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [CPython alone refuses the syntax that its version lacks](decisions/cpython-alone-refuses-the-syntax-that-its-version-lacks.md)
 - [Parsing decodes a module by its declaration, with CPython's codecs](decisions/parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md)
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [Parsing matches the shape of each expectation in Rust, on ruff's AST](decisions/parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md)

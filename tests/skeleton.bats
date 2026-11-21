@@ -477,3 +477,33 @@ test_paren.py project error: SyntaxError: Expected a parameter or the end of the
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a module in a newer Python's syntax prints CPython's error once, and its test as blocked" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'lazy import os' 'def test_one():' '    assert 1 == 1' >test_lazy.py
+
+  run -4 --separate-stderr purba test_lazy.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_lazy.py project error: SyntaxError: invalid syntax (test_lazy.py, line 1)
+test_lazy.py::test_one blocked: test_lazy.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module in a syntax Python removed prints CPython's error once, and its test as blocked" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'f((a)=1)' 'def test_one():' '    assert 1 == 1' >test_kw.py
+
+  run -4 --separate-stderr purba test_kw.py
+
+  local error='test_kw.py project error: SyntaxError: '
+  error+='expression cannot contain assignment, perhaps you meant "=="? (test_kw.py, line 1)'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+${error}
+test_kw.py::test_one blocked: test_kw.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
