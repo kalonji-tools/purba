@@ -32,7 +32,7 @@ use pyo3::types::PyAnyMethods;
 use pyo3::{Bound, Py, PyAny, PyErr, Python};
 use serde::{Deserialize, Serialize};
 use step::{Gives, Met};
-pub use zygote::{Load, Zygote};
+pub use zygote::{Stop, Zygote};
 
 /// A module that dispatch hands a worker.
 pub struct Module {
@@ -217,7 +217,7 @@ pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Resul
 
 /// The load or the test that left a thread alive, which a thread's exception
 /// charges. A load names the path of its module. A test is the one that the
-/// caller handed to [`Worker::run`].
+/// caller handed to [`Zygote::run`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Owner<T> {
     Load(PathBuf),
@@ -280,39 +280,6 @@ impl<'py, T> Worker<'py, T> {
 }
 
 impl<'py, T: Clone> Worker<'py, T> {
-    /// Calls `function` of `module`, which `load` loaded, and makes its
-    /// outcome. When the first interrupt landed in the step, the outcome is
-    /// `Interrupted`, and when it landed before the test's call, the call does
-    /// not run. Each thread that the step leaves alive gets `test` as its owner,
-    /// unless it has one.
-    ///
-    /// `suppressions` names each check that a suppression of the test reaches,
-    /// beside its reason. A fault of such a check gives a warning in place of
-    /// its project error, and the case gets the outcome that it would get
-    /// without that check. This process reads no expectation again as a
-    /// replay, so a zygote runs each test that dispatch hands on.
-    ///
-    /// # Errors
-    ///
-    /// An internal error when `module` was never given to `load`, when a panic
-    /// crossed the test's call, or when the test caught a panic and the panic
-    /// hook noted it. A project error when the module did not load, it has no
-    /// `function`, or `function` is not callable.
-    pub fn run(
-        &mut self,
-        module: &Module,
-        function: &str,
-        suppressions: &[(&str, &str)],
-        test: T,
-    ) -> Result<Outcome, Error> {
-        let (facts, gives) = self.gather(module, function, test);
-        let kind = match (gives?, facts) {
-            (Gives::Own(()), Some(facts)) => order::order(&facts, suppressions).0?,
-            (Gives::Own(()) | Gives::Interrupted, _) => Kind::Interrupted,
-        };
-        Ok(Outcome { kind })
-    }
-
     /// Calls `function` of `module`, which `load` loaded, and gathers the
     /// facts of its case, when the call ran. Also gives what the step gives
     /// besides them: `Interrupted` when the first interrupt landed in the
@@ -344,7 +311,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     ///
     /// The load raised. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
-    pub fn load(&mut self, module: &Module) -> Result<(), Error> {
+    pub(crate) fn load(&mut self, module: &Module) -> Result<(), Error> {
         if self.loaded.contains_key(&module.path) {
             return self.module(module).map(|_| ());
         }
@@ -418,7 +385,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// order threads raised them, as a project error with its owner. A thread
     /// with no owner charges the load or the test that ran last. Before any
     /// load or test, it takes nothing.
-    pub fn threads(&mut self) -> Vec<(Owner<T>, Error)> {
+    pub(crate) fn threads(&self) -> Vec<(Owner<T>, Error)> {
         let Some(last) = &self.last else {
             return Vec::new();
         };
@@ -569,7 +536,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// Runs `function` of `module` again as a replay that reads only the
     /// expectation at `index`, and ends the process with its verdict. It
     /// returns only when `module` did not load or has no `function`.
-    pub fn replay(&self, module: &Module, function: &str, index: usize) {
+    pub(crate) fn replay(&self, module: &Module, function: &str, index: usize) {
         let py = self.py;
         let Ok(loaded) = self.module(module) else {
             return;

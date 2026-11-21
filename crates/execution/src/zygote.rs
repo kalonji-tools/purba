@@ -398,10 +398,61 @@ pub struct Load {
     pub threaded: bool,
 }
 
+/// What stopped a module before its tests: the error, and the error of each
+/// thread that its load took.
+#[derive(Debug)]
+pub struct Stop {
+    pub error: Error,
+    pub threads: Vec<Error>,
+}
+
 /// The error of each thread that a test's process found, beside its owner.
 type Threads<T> = Vec<(Owner<T>, Error)>;
 
 impl<T> Worker<'_, T> {
+    /// Forks the zygote that forks a process for each test of `module`. Gives
+    /// the zygote and the error of each thread that the load took, or gives
+    /// what stopped the module.
+    ///
+    /// The zygote loads the module. When a Python thread is alive after the
+    /// load, that zygote ends. A zygote that loads nothing then forks the
+    /// processes. Each of them loads the module again before its test.
+    ///
+    /// # Errors
+    ///
+    /// The module stops when a zygote cannot fork, when the load fails, or
+    /// when a zygote ends before it is ready.
+    pub fn zygote(&self, module: &Module) -> Result<(Zygote, Vec<Error>), Stop> {
+        let mut zygote = self.forked(module, true).map_err(|error| Stop {
+            error,
+            threads: Vec::new(),
+        })?;
+        let Load {
+            result,
+            threads,
+            threaded,
+        } = zygote.loaded();
+        if let Err(error) = result {
+            zygote.end();
+            return Err(Stop { error, threads });
+        }
+        if !threaded {
+            return Ok((zygote, threads));
+        }
+        zygote.end();
+        let mut zygote = match self.forked(module, false) {
+            Ok(zygote) => zygote,
+            Err(error) => return Err(Stop { error, threads }),
+        };
+        match zygote.loaded().result {
+            Ok(()) => Ok((zygote, threads)),
+            Err(error) => {
+                zygote.end();
+                Err(Stop { error, threads })
+            }
+        }
+    }
+
     /// Forks a zygote for `module`. With `load`, the zygote loads the module
     /// once, and each test's process runs its test. Without it, each test's
     /// process loads the module, then runs its test.
@@ -409,7 +460,7 @@ impl<T> Worker<'_, T> {
     /// # Errors
     ///
     /// A project error when the operating system refused a pipe or the fork.
-    pub fn zygote(&self, module: &Module, load: bool) -> Result<Zygote, Error> {
+    fn forked(&self, module: &Module, load: bool) -> Result<Zygote, Error> {
         let fork_error = |error: io::Error| Error::project(format!("purba cannot fork: {error}"));
         let (tests_in, tests_out) = pipe().map_err(fork_error)?;
         let (frames_in, frames_out) = pipe().map_err(fork_error)?;
@@ -456,7 +507,7 @@ impl Zygote {
     /// A zygote that ends before its load ends gives a project error that names
     /// the signal or the exit code, unless the first interrupt arrived as it
     /// loaded.
-    pub fn loaded(&mut self) -> Load {
+    pub(crate) fn loaded(&mut self) -> Load {
         let mut load = Load {
             result: Ok(()),
             threads: Vec::new(),
@@ -856,7 +907,7 @@ fn live_as_zygote(
             &mut frames,
             &result.map_or_else(Message::Error, |()| Message::Loaded),
         );
-        send_threads(&mut worker, &mut frames);
+        send_threads(&worker, &mut frames);
         send_kept(&mut frames);
         if failed {
             send(&mut frames, &Message::Ready);
@@ -1000,7 +1051,7 @@ fn send_kept(frames: &mut File) {
 }
 
 /// Writes the error of each thread that the worker took.
-fn send_threads(worker: &mut Worker<'_, String>, frames: &mut File) {
+fn send_threads(worker: &Worker<'_, String>, frames: &mut File) {
     for (owner, error) in worker.threads() {
         let message = match owner {
             Owner::Load(_) => Message::LoadThread(error.to_string()),

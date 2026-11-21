@@ -1,32 +1,21 @@
 mod common;
 
 use common::module;
-use purba_execution::Worker;
-use pyo3::Python;
-use pyo3::types::{PyAnyMethods, PyTypeMethods};
+use purba_execution::{Kind, Worker};
 
-const TEST_LOAD_HANDLER: &str =
-    "import signal\n\nsignal.signal(signal.SIGINT, lambda signum, frame: None)\n";
+/// A module whose load takes SIGINT, and whose test holds when purba put its
+/// own signal handler back after the load.
+const TEST_LOAD_HANDLER: &str = "import signal\n\n\
+    signal.signal(signal.SIGINT, lambda signum, frame: None)\n\n\
+    def test_handler():\n    \
+    assert type(signal.getsignal(signal.SIGINT)).__name__ == 'SignalHandler'\n";
 
 const TEST_LOAD_SIGNAL: &str = "import signal\n\ntry:\n    signal.raise_signal(signal.SIGINT)\n\
-    except KeyboardInterrupt:\n    pass\n";
+    except KeyboardInterrupt:\n    pass\n\n\
+    def test_one():\n    assert True\n";
 
 /// The error of one load, if any, then whether purba kept a signal.
 type Step = (Result<(), String>, bool);
-
-/// The name of the type of the signal handler that SIGINT has now.
-fn sigint_handler() -> String {
-    Python::attach(|py| {
-        py.import("signal")
-            .and_then(|signal| {
-                let handler = signal
-                    .getattr("getsignal")?
-                    .call1((signal.getattr("SIGINT")?,))?;
-                handler.get_type().name()?.extract::<String>()
-            })
-            .expect("signal.getsignal names SIGINT's signal handler")
-    })
-}
 
 // purba's signal handler keeps the first signal for the life of the process.
 // So the one signal of this binary lives in this one test.
@@ -34,27 +23,31 @@ fn sigint_handler() -> String {
 fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_its_load() {
     let handler_module = module("test_load_handler.py", TEST_LOAD_HANDLER);
     let signal_module = module("test_load_signal.py", TEST_LOAD_SIGNAL);
-    let (steps, handler, after): (Vec<Step>, String, Result<(), String>) =
-        purba_execution::attach(|worker: &mut Worker<'_, ()>| {
+    let (steps, handler, after): (Vec<Step>, Result<Kind, String>, Result<Kind, String>) =
+        purba_execution::attach(|worker: &mut Worker<'_, &str>| {
             purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
             let mut steps = Vec::new();
-            let loaded = worker
-                .load(&handler_module)
-                .map_err(|error| error.to_string());
-            let handler = sigint_handler();
-            steps.push((loaded, purba_execution::interrupted()));
-            let loaded = worker
-                .load(&signal_module)
-                .map_err(|error| error.to_string());
-            steps.push((loaded, purba_execution::interrupted()));
-            let after = worker
-                .run(&signal_module, "test_one", &[], ())
-                .map(|_| ())
-                .map_err(|error| error.to_string());
+            let mut run = |module, function| match worker.zygote(module) {
+                Ok((mut zygote, _)) => {
+                    steps.push((Ok(()), purba_execution::interrupted()));
+                    let (result, _, _) = zygote.run(function, &[], function);
+                    zygote.end();
+                    result
+                        .map(|outcome| outcome.kind().clone())
+                        .map_err(|error| error.to_string())
+                }
+                Err(stop) => {
+                    steps.push((Err(stop.error.to_string()), purba_execution::interrupted()));
+                    Err("the module stopped".to_owned())
+                }
+            };
+            let handler = run(&handler_module, "test_handler");
+            let after = run(&signal_module, "test_one");
             (steps, handler, after)
         });
     assert_eq!(
-        handler, "SignalHandler",
+        handler,
+        Ok(Kind::Passed),
         "purba puts its own signal handler back when the load of a module that took SIGINT returns"
     );
     assert_eq!(
