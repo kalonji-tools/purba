@@ -546,3 +546,47 @@ LINES
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a module that names a variable match after a semicolon runs its test" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'm = 1; match = 2' 'def test_one():' '    assert m == 1' >test_match.py
+
+  run -0 --separate-stderr purba test_match.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_match.py::test_one passed
+1 case: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module with a bare raise before a semicolon runs its test" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'def reraise():' '    try:' '        raise ValueError' \
+    '    except ValueError:' '        raise;' \
+    'def test_one():' '    assert 1 == 1' >test_reraise.py
+
+  run -0 --separate-stderr purba test_reraise.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_reraise.py::test_one passed
+1 case: 1 passed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module whose tabs ruff counts to 2 columns prints ruff's error once, and no test of it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' \
+    'x = 1' 'if x:' $' \t \tpass' $'  \t\tpass' \
+    'def test_one():' '    assert x == 1' >test_tabs.py
+
+  run -4 --separate-stderr purba test_tabs.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_tabs.py project error: SyntaxError: unindent does not match any outer indentation level
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
