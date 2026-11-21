@@ -39,7 +39,7 @@ sequenceDiagram
   Note over selection: constructs each identity alone, because its fields are private
   selection-->>command: each selected test, as its identity
   command->>dispatch: dispatch's input, which command builds
-  Note over dispatch: builds execution's module, and forks a zygote for it
+  Note over dispatch: builds execution's module, and asks execution for a loaded zygote
   Note over execution: the zygote's worker loads the module once
   loop each selected test
     dispatch->>execution: the name of one function in the module, each suppression that reaches it, and the test that it hands back as a thread's owner
