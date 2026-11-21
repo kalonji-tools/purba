@@ -19,9 +19,10 @@ use pyo3::types::PyAnyMethods;
 use purba_assertion::{Readers, Replaced, Verdict};
 
 use crate::fork::{Forked, fork};
+use crate::order::{Called, Facts};
+use crate::step::Gives;
 use crate::{
-    Error, Kind, Module, Outcome, Owner, Quote, Reason, Shown, Suppressed, Warning, Worker, frame,
-    interrupt, panic,
+    Error, Kind, Module, Outcome, Owner, Reason, Shown, Suppressed, Worker, frame, interrupt, panic,
 };
 
 /// Each message that crosses a pipe between purba, a zygote and a test's
@@ -29,18 +30,11 @@ use crate::{
 /// fields, as `put` writes it. A field holds any text, a NUL too.
 #[derive(Debug)]
 enum Message {
-    /// purba names the test to run: the name of its function, and each check
-    /// that a suppression of the test reaches, beside its reason.
-    Test {
-        function: String,
-        suppressions: Vec<(String, String)>,
-    },
+    /// purba names the test to run: the name of its function.
+    Test { function: String },
     /// purba asks for a replay of the test `function` that reads the
     /// expectation at `index` alone.
     Replay { function: String, index: usize },
-    /// Each later expectation that a replay must read alone: its index,
-    /// whether it held in order, and its text.
-    Later(Vec<(usize, bool, String)>),
     /// The load ended, and the zygote forks each test from now on.
     Ready,
     /// A thread is alive after the load, and the zygote ends.
@@ -49,13 +43,11 @@ enum Message {
     Loaded,
     /// The test's process started: its pid.
     Forked(libc::pid_t),
-    /// A warning of the case. Each comes before the outcome.
-    Warned(Warning),
-    /// Execution read the paths of the case, and so judged each suppression of
-    /// its checks. It comes before the outcome.
-    Judged,
-    /// The outcome of the case.
-    Outcome(Kind),
+    /// The facts of the case, from which purba decides its outcome.
+    Facts(Box<Facts>),
+    /// The first interrupt landed in the test's step, so the case is
+    /// `interrupted`. It comes after the facts, when the call ran.
+    Interrupted,
     /// The error in place of the result of a load or the outcome of a case.
     Error(Error),
     /// The error of a thread that the test left, as text.
@@ -72,17 +64,12 @@ enum Message {
 mod tag {
     pub const TEST: u8 = b'n';
     pub const REPLAY: u8 = b'y';
-    pub const LATER: u8 = b'q';
     pub const READY: u8 = b'g';
     pub const THREADED: u8 = b't';
     pub const LOADED: u8 = b'l';
     pub const FORKED: u8 = b'c';
-    pub const WARNED: u8 = b'u';
-    pub const JUDGED: u8 = b'j';
-    pub const PASSED: u8 = b'p';
+    pub const FACTS: u8 = b'a';
     pub const INTERRUPTED: u8 = b'i';
-    pub const FAILED: u8 = b'f';
-    pub const RAISED: u8 = b'r';
     pub const PROJECT: u8 = b'e';
     pub const INTERNAL: u8 = b'x';
     pub const TEST_THREAD: u8 = b'h';
@@ -97,29 +84,14 @@ impl Message {
         let mut text = String::new();
         let mut put = |field: &str| put(&mut text, field);
         let tag = match self {
-            Self::Test {
-                function,
-                suppressions,
-            } => {
+            Self::Test { function } => {
                 put(function);
-                for (check, reason) in suppressions {
-                    put(check);
-                    put(reason);
-                }
                 tag::TEST
             }
             Self::Replay { function, index } => {
                 put(function);
                 put(&index.to_string());
                 tag::REPLAY
-            }
-            Self::Later(later) => {
-                for (index, held, expectation) in later {
-                    put(&index.to_string());
-                    put(if *held { "1" } else { "0" });
-                    put(expectation);
-                }
-                tag::LATER
             }
             Self::Ready => tag::READY,
             Self::Threaded => tag::THREADED,
@@ -128,44 +100,11 @@ impl Message {
                 put(&pid.to_string());
                 tag::FORKED
             }
-            Self::Warned(warning) => {
-                put(&warning.check);
-                put(&warning.words);
-                put(&warning.reason);
-                tag::WARNED
+            Self::Facts(facts) => {
+                put_facts(&mut put, facts);
+                tag::FACTS
             }
-            Self::Judged => tag::JUDGED,
-            Self::Outcome(Kind::Passed) => tag::PASSED,
-            Self::Outcome(Kind::Interrupted) => tag::INTERRUPTED,
-            Self::Outcome(Kind::Failed { asserts }) => {
-                for quote in asserts {
-                    put(&quote.assert);
-                    match &quote.shown {
-                        Some(Shown::Values { expected, reading }) => {
-                            put("1");
-                            put(expected);
-                            put(reading);
-                        }
-                        Some(Shown::Items { heading, items }) => {
-                            put("2");
-                            put(heading);
-                            put(&items.len().to_string());
-                            for item in items {
-                                put(item);
-                            }
-                        }
-                        None => put("0"),
-                    }
-                }
-                tag::FAILED
-            }
-            Self::Outcome(Kind::Raised { exception, whence }) => {
-                put(exception);
-                if let Some(whence) = whence {
-                    put(whence);
-                }
-                tag::RAISED
-            }
+            Self::Interrupted => tag::INTERRUPTED,
             Self::Error(Error(Reason::Project(project))) => {
                 put(project);
                 tag::PROJECT
@@ -214,79 +153,19 @@ impl Message {
     fn of(tag: u8, text: &str) -> Option<Self> {
         let mut fields = Fields(text);
         let message = match tag {
-            tag::TEST => {
-                let function = fields.text()?;
-                let mut suppressions = Vec::new();
-                while !fields.0.is_empty() {
-                    suppressions.push((fields.text()?, fields.text()?));
-                }
-                Self::Test {
-                    function,
-                    suppressions,
-                }
-            }
+            tag::TEST => Self::Test {
+                function: fields.text()?,
+            },
             tag::REPLAY => Self::Replay {
                 function: fields.text()?,
                 index: fields.number()?,
             },
-            tag::LATER => {
-                let mut later = Vec::new();
-                while !fields.0.is_empty() {
-                    let index = fields.number()?;
-                    let held = match fields.text()?.as_str() {
-                        "1" => true,
-                        "0" => false,
-                        _ => return None,
-                    };
-                    later.push((index, held, fields.text()?));
-                }
-                Self::Later(later)
-            }
             tag::READY => Self::Ready,
             tag::THREADED => Self::Threaded,
             tag::LOADED => Self::Loaded,
             tag::FORKED => Self::Forked(fields.number()?),
-            tag::WARNED => Self::Warned(Warning {
-                check: fields.text()?,
-                words: fields.text()?,
-                reason: fields.text()?,
-            }),
-            tag::JUDGED => Self::Judged,
-            tag::PASSED => Self::Outcome(Kind::Passed),
-            tag::INTERRUPTED => Self::Outcome(Kind::Interrupted),
-            tag::FAILED => {
-                let mut asserts = Vec::new();
-                while !fields.0.is_empty() {
-                    let assert = fields.text()?;
-                    let shown = match fields.text()?.as_str() {
-                        "1" => Some(Shown::Values {
-                            expected: fields.text()?,
-                            reading: fields.text()?,
-                        }),
-                        "2" => {
-                            let heading = fields.text()?;
-                            let length: usize = fields.number()?;
-                            let items = (0..length)
-                                .map(|_| fields.text())
-                                .collect::<Option<Vec<String>>>()?;
-                            Some(Shown::Items { heading, items })
-                        }
-                        "0" => None,
-                        _ => return None,
-                    };
-                    asserts.push(Quote { assert, shown });
-                }
-                Self::Outcome(Kind::Failed { asserts })
-            }
-            tag::RAISED => {
-                let exception = fields.text()?;
-                let whence = if fields.0.is_empty() {
-                    None
-                } else {
-                    Some(fields.text()?)
-                };
-                Self::Outcome(Kind::Raised { exception, whence })
-            }
+            tag::FACTS => Self::Facts(Box::new(fields.facts()?)),
+            tag::INTERRUPTED => Self::Interrupted,
             tag::PROJECT => Self::Error(Error::project(fields.text()?)),
             tag::INTERNAL => Self::Error(Error(Reason::Internal(panic::Caught {
                 part: fields.text()?,
@@ -319,6 +198,180 @@ impl Fields<'_> {
     fn number<N: FromStr>(&mut self) -> Option<N> {
         self.text()?.parse().ok()
     }
+
+    /// Takes the next field as a flag, which `put_facts` wrote as `1` or `0`.
+    fn flag(&mut self) -> Option<bool> {
+        match self.text()?.as_str() {
+            "1" => Some(true),
+            "0" => Some(false),
+            _ => None,
+        }
+    }
+
+    /// Takes a count, then that many items, each of which `item` takes.
+    fn list<I>(&mut self, mut item: impl FnMut(&mut Self) -> Option<I>) -> Option<Vec<I>> {
+        let count: usize = self.number()?;
+        (0..count).map(|_| item(self)).collect()
+    }
+
+    /// Takes an option, which `put_facts` wrote as a list of no field or one.
+    /// Gives the list, which `pop` turns into the option.
+    fn optional(&mut self) -> Option<Vec<String>> {
+        let list = self.list(Self::text)?;
+        (list.len() <= 1).then_some(list)
+    }
+
+    /// Takes the facts of a case, which `put_facts` wrote.
+    fn facts(&mut self) -> Option<Facts> {
+        let pair = |fields: &mut Self| Some((fields.text()?, fields.text()?));
+        Some(Facts {
+            form: self.list(pair)?,
+            called: if self.flag()? {
+                Called::Raised {
+                    exception: self.text()?,
+                    whence: self.optional()?.pop(),
+                    assertion: self.flag()?,
+                }
+            } else {
+                Called::Returned
+            },
+            with: self.optional()?.pop(),
+            mark: if self.flag()? {
+                Some((self.text()?, self.flag()?))
+            } else {
+                None
+            },
+            path: self.list(pair)?,
+            in_another_try: self.flag()?,
+            refused: self.optional()?.pop(),
+            in_order: self.list(|fields| Some((fields.number()?, fields.flag()?)))?,
+            shown: self.list(|fields| Some((fields.number()?, fields.shown()?)))?,
+            alone: self.list(|fields| {
+                let index = fields.number()?;
+                let verdict = match fields.text()?.as_str() {
+                    "h" => Verdict::Holds,
+                    "f" => Verdict::Fails,
+                    "r" => Verdict::Raises,
+                    "x" => Verdict::Refused,
+                    _ => return None,
+                };
+                Some((index, verdict))
+            })?,
+            later: self.list(Self::number)?,
+            texts: self.list(|fields| Some((fields.number()?, fields.text()?)))?,
+            missed: self.list(Self::text)?,
+            stated: self.flag()?,
+        })
+    }
+
+    /// Takes what an expectation that did not hold shows.
+    fn shown(&mut self) -> Option<Shown> {
+        Some(match self.text()?.as_str() {
+            "1" => Shown::Values {
+                expected: self.text()?,
+                reading: self.text()?,
+            },
+            "2" => Shown::Items {
+                heading: self.text()?,
+                items: self.list(Self::text)?,
+            },
+            _ => return None,
+        })
+    }
+}
+
+/// Writes the fields of `facts` through `put`, in the order that
+/// [`Fields::facts`] takes them. A list is its count, then its items, and an
+/// option is a list of no item or one.
+fn put_facts(put: &mut impl FnMut(&str), facts: &Facts) {
+    let flag = |set: bool| if set { "1" } else { "0" };
+    let option = |put: &mut dyn FnMut(&str), value: Option<&str>| {
+        put(flag(value.is_some()));
+        if let Some(value) = value {
+            put(value);
+        }
+    };
+    let pairs = |put: &mut dyn FnMut(&str), pairs: &[(String, String)]| {
+        put(&pairs.len().to_string());
+        for (first, second) in pairs {
+            put(first);
+            put(second);
+        }
+    };
+    pairs(put, &facts.form);
+    match &facts.called {
+        Called::Returned => put("0"),
+        Called::Raised {
+            exception,
+            whence,
+            assertion,
+        } => {
+            put("1");
+            put(exception);
+            option(put, whence.as_deref());
+            put(flag(*assertion));
+        }
+    }
+    option(put, facts.with.as_deref());
+    match &facts.mark {
+        Some((assert, held)) => {
+            put("1");
+            put(assert);
+            put(flag(*held));
+        }
+        None => put("0"),
+    }
+    pairs(put, &facts.path);
+    put(flag(facts.in_another_try));
+    option(put, facts.refused.as_deref());
+    put(&facts.in_order.len().to_string());
+    for (index, held) in &facts.in_order {
+        put(&index.to_string());
+        put(flag(*held));
+    }
+    put(&facts.shown.len().to_string());
+    for (index, shown) in &facts.shown {
+        put(&index.to_string());
+        match shown {
+            Shown::Values { expected, reading } => {
+                put("1");
+                put(expected);
+                put(reading);
+            }
+            Shown::Items { heading, items } => {
+                put("2");
+                put(heading);
+                put(&items.len().to_string());
+                for item in items {
+                    put(item);
+                }
+            }
+        }
+    }
+    put(&facts.alone.len().to_string());
+    for (index, verdict) in &facts.alone {
+        put(&index.to_string());
+        put(match verdict {
+            Verdict::Holds => "h",
+            Verdict::Fails => "f",
+            Verdict::Raises => "r",
+            Verdict::Refused => "x",
+        });
+    }
+    put(&facts.later.len().to_string());
+    for index in &facts.later {
+        put(&index.to_string());
+    }
+    put(&facts.texts.len().to_string());
+    for (index, text) in &facts.texts {
+        put(&index.to_string());
+        put(text);
+    }
+    put(&facts.missed.len().to_string());
+    for words in &facts.missed {
+        put(words);
+    }
+    put(flag(facts.stated));
 }
 
 /// Writes `field` after its length in bytes and a NUL, so that a field holds
@@ -494,12 +547,17 @@ impl Zygote {
     }
 
     /// Asks the zygote to fork a process for the test `function`, which
-    /// `suppressions` reach. Reads the outcome of the process, its warnings,
-    /// whether execution judged its suppressions, and the error of each thread
-    /// that it found. `owner` owns each thread that the test left. A process
-    /// that ended with no outcome gives `Interrupted` when the first interrupt
-    /// arrived as it ran. Otherwise it gives `Raised`, which names the signal or
-    /// the exit code.
+    /// `suppressions` reach. Reads the facts of its case, and the error of each
+    /// thread that it found. `owner` owns each thread that the test left. When
+    /// the facts name later expectations, it asks for a replay of each, and
+    /// then decides the outcome and the warnings of the case in one order,
+    /// with the readings alone that a test's process that forked its readers
+    /// would have.
+    ///
+    /// The process can give `Interrupted` or an error in place of the outcome.
+    /// A process that ended with no outcome gives `Interrupted` when the first
+    /// interrupt arrived as it ran. Otherwise it gives `Raised`, which names
+    /// the signal or the exit code.
     pub fn run<T: Clone>(
         &mut self,
         function: &str,
@@ -507,13 +565,8 @@ impl Zygote {
         owner: T,
     ) -> (Result<Outcome, Error>, Suppressed, Threads<T>) {
         let mut threads = Vec::new();
-        let mut suppressed = Suppressed::default();
         let test = Message::Test {
             function: function.to_owned(),
-            suppressions: suppressions
-                .iter()
-                .map(|(check, reason)| ((*check).to_owned(), (*reason).to_owned()))
-                .collect(),
         };
         let asked = self.tests.as_mut().map_or_else(
             || Err(ErrorKind::BrokenPipe.into()),
@@ -523,74 +576,79 @@ impl Zygote {
             let ended = ended(self.wait());
             return (
                 Err(Error::project(format!("the module's process {ended}"))),
-                suppressed,
+                Suppressed::default(),
                 threads,
             );
         }
         let before = interrupt::first();
+        let mut facts = None;
         let mut result = None;
-        let mut later = Vec::new();
         let status = loop {
             match self.own(Some(&owner), &mut threads) {
-                Ok(Message::Ended(status)) => break status,
-                Ok(Message::Later(found)) => later = found,
-                Ok(Message::Warned(warning)) => suppressed.warnings.push(warning),
-                Ok(Message::Judged) => suppressed.judged = true,
-                Ok(Message::Outcome(kind)) => result = Some(Ok(Outcome { kind })),
+                Ok(Message::Ended(status)) => break Ok(status),
+                Ok(Message::Facts(found)) => facts = Some(*found),
+                Ok(Message::Interrupted) => {
+                    result = Some(Ok(Outcome {
+                        kind: Kind::Interrupted,
+                    }));
+                }
                 Ok(Message::Error(error)) => result = Some(Err(error)),
                 Ok(_) => {}
                 Err((unreadable, status)) => {
-                    let result = unreadable.map(Err).or(result).unwrap_or_else(|| {
-                        Err(Error::project(format!(
-                            "the module's process {}",
-                            ended(status)
-                        )))
-                    });
-                    return (result, suppressed, threads);
+                    if let Some(error) = unreadable {
+                        result = Some(Err(error));
+                    }
+                    break Err(status);
                 }
             }
         };
-        interrupt::follow_test(0);
-        let result = result.unwrap_or_else(|| {
-            let kind = if interrupt::landed_since(before) {
-                Kind::Interrupted
-            } else {
-                Kind::Raised {
+        if status.is_ok() {
+            interrupt::follow_test(0);
+            if result.is_none()
+                && let Some(facts) = facts.as_mut()
+            {
+                result = self.replays(function, facts, &owner, &mut threads);
+            }
+        }
+        let decided = facts.map(|facts| crate::order::order(&facts, suppressions));
+        let (own, suppressed) = decided.map_or_else(
+            || (None, Suppressed::default()),
+            |(own, suppressed)| (Some(own.map(|kind| Outcome { kind })), suppressed),
+        );
+        let result = result.or(own).unwrap_or_else(|| match status {
+            Ok(_) if interrupt::landed_since(before) => Ok(Outcome {
+                kind: Kind::Interrupted,
+            }),
+            Ok(status) => Ok(Outcome {
+                kind: Kind::Raised {
                     exception: lost(status, "its outcome"),
                     whence: None,
-                }
-            };
-            Ok(Outcome { kind })
+                },
+            }),
+            Err(status) => Err(Error::project(format!(
+                "the module's process {}",
+                ended(status)
+            ))),
         });
-        let result = match result {
-            Ok(outcome)
-                if !later.is_empty()
-                    && matches!(outcome.kind, Kind::Passed | Kind::Failed { .. }) =>
-            {
-                self.replays(function, &later, &owner, &mut threads)
-                    .unwrap_or(Ok(outcome))
-            }
-            other => other,
-        };
         (result, suppressed, threads)
     }
 
-    /// Asks the zygote for a replay of `function` for each of `later`, in
-    /// order, and gives the result that the first replay whose reading differs
-    /// from the one in order makes: a project error. A replay that the zygote
-    /// could not fork gives a project error too, and an interrupt that lands
-    /// during the replays gives `Interrupted`. Gives `None` when every replay
-    /// agrees.
+    /// Asks the zygote for a replay of `function` for each later expectation
+    /// that `facts` name, in order, and adds the verdict of each to the
+    /// readings alone of `facts`. Gives the result in place of the outcome: a
+    /// project error when the zygote could not fork a replay, or
+    /// `Interrupted` when an interrupt lands during the replays. Gives `None`
+    /// when each replay gave its verdict.
     fn replays<T: Clone>(
         &mut self,
         function: &str,
-        later: &[(usize, bool, String)],
+        facts: &mut Facts,
         owner: &T,
         threads: &mut Threads<T>,
     ) -> Option<Result<Outcome, Error>> {
         let before = interrupt::first();
-        for (index, held, text) in later {
-            let verdict = match self.replay(function, *index, owner, threads) {
+        for index in std::mem::take(&mut facts.later) {
+            let verdict = match self.replay(function, index, owner, threads) {
                 Ok(verdict) => verdict,
                 Err(error) => return Some(Err(error)),
             };
@@ -599,9 +657,7 @@ impl Zygote {
                     kind: Kind::Interrupted,
                 }));
             }
-            if let Some(line) = crate::differ_line(text, verdict, *held) {
-                return Some(Err(Error::project(line)));
-            }
+            facts.alone.push((index, verdict));
         }
         None
     }
@@ -810,12 +866,9 @@ fn live_as_zygote(
     }
     send(&mut frames, &Message::Ready);
     while let Ok(Some(Ok(message))) = Message::read(&mut tests) {
-        let (function, suppressions, replay) = match message {
-            Message::Test {
-                function,
-                suppressions,
-            } => (function, suppressions, None),
-            Message::Replay { function, index } => (function, Vec::new(), Some(index)),
+        let (function, replay) = match message {
+            Message::Test { function } => (function, None),
+            Message::Replay { function, index } => (function, Some(index)),
             _ => break,
         };
         flush(py);
@@ -826,15 +879,7 @@ fn live_as_zygote(
                     Some(index) => {
                         live_as_replay(py, &mut worker, module, !load, &function, index, &frames)
                     }
-                    None => live_as_test(
-                        py,
-                        &mut worker,
-                        module,
-                        !load,
-                        &function,
-                        &suppressions,
-                        frames,
-                    ),
+                    None => live_as_test(py, &mut worker, module, !load, &function, frames),
                 }
             }
             Ok(Forked::Parent(pid)) => {
@@ -881,17 +926,13 @@ fn live_as_test(
     module: &Module,
     load: bool,
     function: &str,
-    suppressions: &[(String, String)],
     mut frames: File,
 ) -> ! {
-    let suppressions: Vec<(&str, &str)> = suppressions
-        .iter()
-        .map(|(check, reason)| (check.as_str(), reason.as_str()))
-        .collect();
     // SAFETY: `getpid` only gives the pid of the process.
     let own = unsafe { libc::getpid() };
     send(&mut frames, &Message::Forked(own));
     call_atexit(py, "_clear");
+    let mut facts = None;
     let result = crate::catch("execution", || {
         if load {
             worker.load(module)?;
@@ -899,30 +940,25 @@ fn live_as_test(
             // threads.
             drop(worker.threads());
             if interrupt::kept_now() {
-                return Ok(Kind::Interrupted);
+                return Ok(Gives::Interrupted);
             }
         }
-        worker
-            .run(module, function, &suppressions, function.to_owned())
-            .map(|outcome| outcome.kind)
+        let (gathered, gives) = worker.gather(module, function, function.to_owned());
+        facts = gathered;
+        gives
     });
     // SAFETY: `getpid` only gives the pid of the process.
     if unsafe { libc::getpid() } != own {
         exit(0);
     }
-    if result.is_ok() && !worker.replays().is_empty() {
-        send(&mut frames, &Message::Later(worker.replays().to_vec()));
+    if let Some(facts) = facts {
+        send(&mut frames, &Message::Facts(Box::new(facts)));
     }
-    for warning in worker.warnings() {
-        send(&mut frames, &Message::Warned(warning.clone()));
+    match result {
+        Ok(Gives::Own(())) => {}
+        Ok(Gives::Interrupted) => send(&mut frames, &Message::Interrupted),
+        Err(error) => send(&mut frames, &Message::Error(error)),
     }
-    if worker.judged() {
-        send(&mut frames, &Message::Judged);
-    }
-    send(
-        &mut frames,
-        &result.map_or_else(Message::Error, Message::Outcome),
-    );
     interrupt::calling(py, || join(py, worker));
     call_atexit(py, "_run_exitfuncs");
     send_threads(worker, &mut frames);
@@ -1093,59 +1129,68 @@ mod tests {
         vec![
             Message::Test {
                 function: text("test_one"),
-                suppressions: vec![(text("second-path"), String::new())],
-            },
-            Message::Test {
-                function: text("test_two"),
-                suppressions: Vec::new(),
             },
             Message::Replay {
                 function: text("test_one"),
                 index: 2,
             },
-            Message::Later(vec![(1, true, text("x == 1")), (2, false, text("y == 2"))]),
             Message::Ready,
             Message::Threaded,
             Message::Loaded,
             Message::Forked(4321),
-            Message::Warned(Warning {
-                check: text("iterator-read"),
-                words: text("words"),
-                reason: text("reason"),
-            }),
-            Message::Judged,
-            Message::Outcome(Kind::Passed),
-            Message::Outcome(Kind::Interrupted),
-            Message::Outcome(Kind::Failed {
-                asserts: vec![
-                    Quote {
-                        assert: text("assert x == 1"),
-                        shown: Some(Shown::Values {
+            Message::Facts(Box::new(Facts {
+                form: vec![
+                    (text("iterator-read"), text("words")),
+                    (String::new(), String::new()),
+                ],
+                called: Called::Raised {
+                    exception: text("ValueError: no"),
+                    whence: Some(text("helper")),
+                    assertion: true,
+                },
+                with: Some(text("with raises(ValueError):")),
+                mark: Some((text("assert x == 1"), false)),
+                path: vec![(text("second-path"), text("line 3"))],
+                in_another_try: true,
+                refused: Some(text("purba cannot fork")),
+                in_order: vec![(1, true), (2, false)],
+                shown: vec![
+                    (
+                        2,
+                        Shown::Values {
                             expected: text("1"),
                             reading: text("2"),
-                        }),
-                    },
-                    Quote {
-                        assert: text("assert all(items)"),
-                        shown: Some(Shown::Items {
+                        },
+                    ),
+                    (
+                        3,
+                        Shown::Items {
                             heading: text("the first item that breaks"),
                             items: vec![text("0"), String::new()],
-                        }),
-                    },
-                    Quote {
-                        assert: text("with raises(ValueError):"),
-                        shown: None,
-                    },
+                        },
+                    ),
                 ],
-            }),
-            Message::Outcome(Kind::Raised {
-                exception: text("ValueError: no"),
-                whence: Some(text("helper")),
-            }),
-            Message::Outcome(Kind::Raised {
-                exception: text("ValueError: no"),
-                whence: None,
-            }),
+                alone: vec![
+                    (2, Verdict::Holds),
+                    (3, Verdict::Fails),
+                    (4, Verdict::Raises),
+                    (5, Verdict::Refused),
+                ],
+                later: vec![2, 3],
+                texts: vec![(1, text("assert x == 1")), (2, String::new())],
+                missed: vec![text("try: x()")],
+                stated: true,
+            })),
+            Message::Facts(Box::new(Facts {
+                called: Called::Raised {
+                    exception: text("ValueError: no"),
+                    whence: None,
+                    assertion: false,
+                },
+                ..Facts::default()
+            })),
+            Message::Facts(Box::default()),
+            Message::Interrupted,
             Message::Error(Error::project(text("[no-expectation] no expectation ran"))),
             Message::Error(Error(Reason::Internal(panic::Caught {
                 part: text("assertion"),
@@ -1159,7 +1204,7 @@ mod tests {
     }
 
     /// The number of arms of `variant`, one for each variant of `Message`.
-    const VARIANTS: usize = 15;
+    const VARIANTS: usize = 13;
 
     /// The name of the variant of `message`. A variant that this match lacks
     /// fails to compile. The count above it must then grow, and
@@ -1168,14 +1213,12 @@ mod tests {
         match message {
             Message::Test { .. } => "Test",
             Message::Replay { .. } => "Replay",
-            Message::Later(_) => "Later",
             Message::Ready => "Ready",
             Message::Threaded => "Threaded",
             Message::Loaded => "Loaded",
             Message::Forked(_) => "Forked",
-            Message::Warned(_) => "Warned",
-            Message::Judged => "Judged",
-            Message::Outcome(_) => "Outcome",
+            Message::Facts(_) => "Facts",
+            Message::Interrupted => "Interrupted",
             Message::Error(_) => "Error",
             Message::TestThread(_) => "TestThread",
             Message::LoadThread(_) => "LoadThread",
@@ -1228,21 +1271,17 @@ mod tests {
     #[test]
     fn a_frame_that_holds_no_message_reads_as_an_internal_error() {
         let frames: [(u8, &str, &str); 8] = [
-            (tag::FAILED, "9\0cut", "a field longer than the frame"),
+            (tag::FACTS, "9\0cut", "a field longer than the frame"),
             (b'?', "", "a tag of no message"),
             (tag::FORKED, "1\0x", "a pid that is no number"),
-            (
-                tag::WARNED,
-                "1\0a1\0b",
-                "a warning with two of its three fields",
-            ),
+            (tag::REPLAY, "1\0a", "a replay with one of its two fields"),
             (tag::ENDED, "1\0x", "a wait status that is no number"),
             (tag::KEPT, "1\0x", "a signal that is no number"),
             (tag::READY, "1\0x", "a field left over"),
             (
-                tag::LATER,
-                "1\x0011\x0021\x00x",
-                "a flag of an expectation that is neither 0 nor 1",
+                tag::FACTS,
+                "1\x0001\x002",
+                "a flag of the facts that is neither 0 nor 1",
             ),
         ];
         let mut pipe = Vec::new();
@@ -1413,10 +1452,19 @@ mod tests {
             .expect("a frame is left")
     }
 
+    /// The facts of a case whose one expectation held, so that it passed.
+    fn passed() -> Message {
+        Message::Facts(Box::new(Facts {
+            in_order: vec![(1, true)],
+            stated: true,
+            ..Facts::default()
+        }))
+    }
+
     #[test]
     fn a_case_skips_a_message_that_comes_out_of_its_turn() {
         let frames = vec![
-            frame_of(&Message::Outcome(Kind::Passed)),
+            frame_of(&passed()),
             frame_of(&Message::Ready),
             frame_of(&Message::Loaded),
             frame_of(&Message::Ended(0)),
@@ -1430,10 +1478,7 @@ mod tests {
 
     #[test]
     fn a_frame_that_holds_no_message_ends_the_case_with_its_error() {
-        let frames = vec![
-            frame_of(&Message::Outcome(Kind::Passed)),
-            (tag::ENDED, "1\0x".to_owned()),
-        ];
+        let frames = vec![frame_of(&passed()), (tag::ENDED, "1\0x".to_owned())];
         assert_eq!(
             run_on(frames).outcome,
             Err(no_message('w')),
