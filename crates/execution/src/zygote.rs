@@ -685,12 +685,13 @@ impl Zygote {
     }
 
     /// Asks the zygote for a replay of `function` for each later expectation
-    /// that `facts` name, in order. When each replay gave its verdict, it adds
-    /// each verdict to the readings alone of `facts`, and gives `None`.
-    /// Otherwise it leaves `facts` as the test's process sent them, and gives
-    /// the result in place of the outcome: a project error when the zygote
-    /// could not fork a replay, or `Interrupted` when an interrupt lands during
-    /// the replays.
+    /// that `facts` name, in order, and adds each verdict to the readings alone
+    /// of `facts`. When the zygote cannot fork a replay, it puts the refusal in
+    /// `facts` and asks for no later replay, as a test's process does when it
+    /// cannot fork a reader. Either way, it gives `None`, and the order decides
+    /// the case. It gives a result in place of the outcome only when the
+    /// module's process ends, a frame holds no message, or an interrupt lands
+    /// during the replays.
     fn replays<T: Clone>(
         &mut self,
         function: &str,
@@ -701,8 +702,8 @@ impl Zygote {
         let before = interrupt::first();
         let mut alone = Vec::new();
         for &index in &facts.later {
-            let verdict = match self.replay(function, index, owner, threads) {
-                Ok(verdict) => verdict,
+            let replayed = match self.replay(function, index, owner, threads) {
+                Ok(replayed) => replayed,
                 Err(error) => return Some(Err(error)),
             };
             if interrupt::landed_since(before) {
@@ -710,21 +711,28 @@ impl Zygote {
                     kind: Kind::Interrupted,
                 }));
             }
-            alone.push((index, verdict));
+            match replayed {
+                Ok(verdict) => alone.push((index, verdict)),
+                Err(refused) => {
+                    facts.refused = Some(refused);
+                    break;
+                }
+            }
         }
         facts.alone.extend(alone);
         None
     }
 
     /// Asks the zygote for one replay of `function` that reads the expectation
-    /// at `index` alone, and gives its verdict.
+    /// at `index` alone, and gives its verdict, or the words of the zygote that
+    /// could not fork it.
     fn replay<T: Clone>(
         &mut self,
         function: &str,
         index: usize,
         owner: &T,
         threads: &mut Threads<T>,
-    ) -> Result<Verdict, Error> {
+    ) -> Result<Result<Verdict, String>, Error> {
         let replay = Message::Replay {
             function: function.to_owned(),
             index,
@@ -742,9 +750,9 @@ impl Zygote {
             match self.own(Some(owner), threads) {
                 Ok(Message::Ended(status)) => {
                     interrupt::follow_test(0);
-                    return refused.map_or_else(|| Ok(verdict(status)), Err);
+                    return Ok(refused.map_or_else(|| Ok(verdict(status)), Err));
                 }
-                Ok(Message::Error(error @ Error(Reason::Project(_)))) => refused = Some(error),
+                Ok(Message::Error(Error(Reason::Project(text)))) => refused = Some(text),
                 Ok(_) => {}
                 Err((unreadable, status)) => {
                     return Err(unreadable.unwrap_or_else(|| {
@@ -1464,7 +1472,7 @@ mod tests {
         let (verdict, threads) = replay_on(frames);
         assert_eq!(
             verdict,
-            Ok(format!("{:?}", Verdict::Holds)),
+            Ok(format!("{:?}", Ok::<_, String>(Verdict::Holds))),
             "a replay whose process exits with HOLDS reads that the expectation holds"
         );
         assert_eq!(
@@ -1557,6 +1565,134 @@ mod tests {
         assert!(
             ran.sent.recv_timeout(Duration::from_secs(10)).is_ok(),
             "the run reads each frame after it, so its sender never waits on a full pipe"
+        );
+        drop(ran.release);
+    }
+
+    /// The words of a fork that the operating system refused.
+    const REFUSAL: &str = "purba cannot fork to read an expectation alone: EAGAIN";
+
+    /// The frames of a test's process that sent `facts`, and ended.
+    fn case(facts: Facts) -> [(u8, String); 2] {
+        [
+            frame_of(&Message::Facts(Box::new(facts))),
+            frame_of(&Message::Ended(0)),
+        ]
+    }
+
+    /// The frames that the zygote sends when it cannot fork a replay.
+    fn refused_replay() -> [(u8, String); 2] {
+        [
+            frame_of(&Message::Error(Error::project(REFUSAL.to_owned()))),
+            frame_of(&Message::Ended(0)),
+        ]
+    }
+
+    /// The frames of a replay whose process exits with `code`.
+    fn replayed(code: libc::c_int) -> [(u8, String); 2] {
+        [
+            frame_of(&Message::Forked(0)),
+            frame_of(&Message::Ended(code << 8)),
+        ]
+    }
+
+    /// The line that `order` gives for `facts`, when a test's process with no
+    /// thread alive sent them, as `Ran::outcome` holds it.
+    fn forked(facts: &Facts) -> Result<Kind, String> {
+        crate::order::order(facts, &[])
+            .0
+            .map_err(|error| format!("{error:?}"))
+    }
+
+    /// The facts of a case whose call raised after its first expectation held.
+    fn raised() -> Facts {
+        Facts {
+            called: crate::order::Called::Raised {
+                exception: "ValueError: boom".to_owned(),
+                whence: None,
+                assertion: false,
+            },
+            in_order: vec![(0, true)],
+            stated: true,
+            ..Facts::default()
+        }
+    }
+
+    #[test]
+    fn a_replay_that_the_zygote_cannot_fork_leaves_the_case_to_the_order() {
+        let sent = Facts {
+            later: vec![1, 2],
+            ..raised()
+        };
+        let frames = case(sent).into_iter().chain(refused_replay()).collect();
+        let ran = run_on(frames);
+        let without_a_thread = Facts {
+            refused: Some(REFUSAL.to_owned()),
+            ..raised()
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&without_a_thread),
+            "a case that raised gives raised, as it does when no thread is alive, and asks \
+             for no replay after the one that the zygote could not fork"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_that_the_zygote_cannot_fork_gives_its_refusal_at_the_step_of_a_fork() {
+        let held = Facts {
+            in_order: vec![(0, true)],
+            stated: true,
+            ..Facts::default()
+        };
+        let sent = Facts {
+            later: vec![1],
+            ..held.clone()
+        };
+        let frames = case(sent).into_iter().chain(refused_replay()).collect();
+        let ran = run_on(frames);
+        let without_a_thread = Facts {
+            refused: Some(REFUSAL.to_owned()),
+            ..held
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&without_a_thread),
+            "a case that would pass gives the refusal as a project error, as it does when no \
+             thread is alive"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_that_the_zygote_cannot_fork_keeps_each_verdict_before_it() {
+        let held = Facts {
+            in_order: vec![(0, true), (1, true), (2, true)],
+            texts: vec![(1, "assert x == 1".to_owned())],
+            stated: true,
+            ..Facts::default()
+        };
+        let sent = Facts {
+            later: vec![1, 2],
+            ..held.clone()
+        };
+        let frames = case(sent)
+            .into_iter()
+            .chain(replayed(REFUSED))
+            .chain(refused_replay())
+            .collect();
+        let ran = run_on(frames);
+        let without_a_thread = Facts {
+            alone: vec![(1, Verdict::Refused)],
+            refused: Some(REFUSAL.to_owned()),
+            ..held
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&without_a_thread),
+            "an assert that the replay before the refusal reached beats the refusal, as a \
+             reader's does when no thread is alive"
         );
         drop(ran.release);
     }
