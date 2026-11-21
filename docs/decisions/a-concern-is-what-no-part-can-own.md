@@ -37,7 +37,7 @@ The definition keeps out what a part owns, and what has no design of its own.
 
 | concern | why no part can own it |
 |---|---|
-| the Rust/Python seam | execution, fixtures and assertion each hold a live Python object |
+| the Rust/Python seam | parsing, execution, fixtures and assertion each hold a live Python object |
 | strictness | each part that makes or shows an outcome must refuse to show as passed what was not checked |
 | configuration | the part that reads a value owns what it means, and every reader follows one rule: a value states a fact about the project or tightens a check, and never turns a check off |
 | interrupt handling | each part that holds a test while it runs must stop the test, and each part that holds what was built for it must tear that down |
