@@ -1,4 +1,4 @@
-# The skeleton crosses the seam in execution and assertion
+# The skeleton crosses the seam in execution, assertion and parsing
 
 ## Context and Problem Statement
 
@@ -27,15 +27,17 @@ Each part that reaches Python must say what crosses, and what stays in Python.
 
 **Area:** the Rust/Python seam
 
-**The walking skeleton crosses the seam in execution and assertion.**
+**The walking skeleton crosses the seam in execution, assertion and parsing.**
 Each other part takes data.
 
 | part | what crosses into Rust | what stays in Python |
 |---|---|---|
 | assertion | the module that assertion's load makes from the rewritten source, the index of the last marked assert that did not hold, or else of the last one that ran, and whether it held, whether each [expectation](../../CONTEXT.md#expectation) held, read in order and alone, the `repr` of each side of an expectation that did not hold, and the heading and each item line that a failed `all()` or `any()` shows, as text, the first assert before the first expectation or inside a reading, the first hook replaced before it, an `all()` of no item, or a name of an expectation that holds an iterator, and each exception that a `with` of a test raised or swallowed | the module's namespace |
 | execution | whether the call returned or raised `AssertionError`, the type and message of each other exception, and the frame of the call's raise, as text, and each line and branch that `sys.monitoring` hands execution | the traceback, the frames that execution and assertion walk to find who called a function, the line of the test and the frame of a raise, and the locals of the test's frame that assertion reads for an iterator |
-| command, selection, parsing, dispatch, fixtures and reporting | nothing | |
+| parsing | the text that the codec of a declared encoding gives, or the codec's error, as text | the codec |
+| command, selection, dispatch, fixtures and reporting | nothing | |
 
+- **Parsing hands the bytes of a module that declares an encoding other than UTF-8 to CPython's codec of that name.** [Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#decision-outcome) says when.
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the expectation of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, (1), (2))`.** The first call says whether this process reads the expectation. The second compares the two sides once by `==`, and records the index of the expectation and whether it held. When they did not, it records the `repr` of each side, as text.
@@ -79,5 +81,7 @@ It checks that the rewrite wraps each item of each `with` of a test.
 
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 It checks that a thread alive at the first expectation gives a replay for each later expectation.
+
+[Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#confirmation) names what checks parsing's row.
 
 No command checks the rest.

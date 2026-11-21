@@ -1,13 +1,14 @@
 [package]
 name = "purba-parsing"
 version = "0.0.0"
-description = "Reads a test module and parses it with ruff"
+description = "Reads a test module, decodes it, and parses it with ruff"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 publish.workspace = true
 
 [dependencies]
+pyo3.workspace = true
 ruff_python_ast.workspace = true
 ruff_python_parser.workspace = true
 ruff_source_file.workspace = true

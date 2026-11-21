@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::thread;
 
 use purba_parsing::{Error, SyntaxError};
+use pyo3::Python;
 use ruff_python_ast::Stmt;
 use ruff_text_size::Ranged;
 
@@ -25,31 +26,27 @@ fn write_bytes(name: &str, bytes: &[u8]) -> PathBuf {
     path
 }
 
-fn assert_refused(name: &str, bytes: &[u8], encoding: &str) {
-    let error = match purba_parsing::parse(&write_bytes(name, bytes)) {
-        Err(Error::Read(error)) => error,
-        Err(Error::Syntax(error)) => {
-            panic!("{name}: the read refuses the module, not ruff: {error}")
-        }
-        Ok(_) => panic!("{name}: a module that declares an encoding other than UTF-8 is refused"),
-    };
+/// The text of the module that `bytes` holds, as parsing decodes it.
+fn decoded(name: &str, bytes: &[u8]) -> String {
+    match purba_parsing::parse(&write_bytes(name, bytes)) {
+        Ok(module) => module.source().to_owned(),
+        Err(error) => panic!("{name}: the module decodes and parses, not {error:?}"),
+    }
+}
 
-    assert_eq!(
-        error.kind(),
-        ErrorKind::InvalidData,
-        "{name}: the read refuses the data"
-    );
-    assert_eq!(
-        error.to_string(),
-        format!("it declares the encoding {encoding}, and purba reads only UTF-8"),
-        "{name}: the error names the declared encoding"
-    );
+/// The line of the error that refuses to decode the module that `bytes` holds.
+fn undecodable(name: &str, bytes: &[u8]) -> String {
+    match purba_parsing::parse(&write_bytes(name, bytes)) {
+        Err(Error::Decode(error)) => error.to_string(),
+        Err(error) => panic!("{name}: the decode refuses the module, not {error:?}"),
+        Ok(_) => panic!("{name}: a module that its encoding cannot decode is refused"),
+    }
 }
 
 fn syntax_error(name: &str, text: &str) -> SyntaxError {
     match purba_parsing::parse(&write(name, text)) {
         Err(Error::Syntax(error)) => error,
-        Err(Error::Read(error)) => panic!("{name}: the module is read, but the read gave {error}"),
+        Err(error) => panic!("{name}: ruff refuses the module, not {error:?}"),
         Ok(_) => panic!("{name}: a module with a syntax error gives an error"),
     }
 }
@@ -78,7 +75,7 @@ fn a_missing_file_is_not_found() {
         Err(Error::Read(error)) => {
             assert_eq!(error.kind(), ErrorKind::NotFound, "the error is the read's");
         }
-        Err(Error::Syntax(error)) => panic!("a missing file gives the read's error, not {error}"),
+        Err(error) => panic!("a missing file gives the read's error, not {error:?}"),
         Ok(_) => panic!("a missing file is an error"),
     }
 }
@@ -135,98 +132,209 @@ fn a_byte_order_mark_is_not_part_of_the_text() {
 }
 
 #[test]
-fn a_declaration_other_than_utf_8_refuses_the_module() {
-    for (name, bytes, encoding) in [
+fn a_declaration_other_than_utf_8_decodes_the_module_with_its_codec() {
+    Python::initialize();
+    for (name, bytes, text) in [
         (
             "test_latin_first.py",
             &b"# -*- coding: latin-1 -*-\nx = '\xc3\xa9'\n"[..],
-            "latin-1",
+            "# -*- coding: latin-1 -*-\nx = '\u{c3}\u{a9}'\n",
         ),
         (
             "test_latin_after_comment.py",
-            b"#!/usr/bin/env python\n# coding: latin-1\nx = '\xc3\xa9'\n",
-            "latin-1",
+            b"#!/usr/bin/env python\n# coding: latin-1\nx = '\xe9'\n",
+            "#!/usr/bin/env python\n# coding: latin-1\nx = 'é'\n",
         ),
         (
             "test_latin_after_blank.py",
-            b"\n# coding: latin-1\nx = '\xc3\xa9'\n",
-            "latin-1",
+            b"\n# coding: latin-1\nx = '\xe9'\n",
+            "\n# coding: latin-1\nx = 'é'\n",
         ),
         (
             "test_latin_vim.py",
-            b"# vim: set fileencoding=latin-1 :\nx = '\xc3\xa9'\n",
-            "latin-1",
+            b"# vim: set fileencoding=latin-1 :\nx = '\xe9'\n",
+            "# vim: set fileencoding=latin-1 :\nx = 'é'\n",
         ),
+        (
+            "test_ascii.py",
+            b"# coding: ascii\nx = 'e'\n",
+            "# coding: ascii\nx = 'e'\n",
+        ),
+        (
+            "test_iso_8859_1.py",
+            b"# coding: iso-8859-1\nx = '\x80'\n",
+            "# coding: iso-8859-1\nx = '\u{80}'\n",
+        ),
+        (
+            "test_cp1252.py",
+            b"# coding: cp1252\nx = '\x80'\n",
+            "# coding: cp1252\nx = '€'\n",
+        ),
+        (
+            "test_euc_jp.py",
+            b"# coding: euc_jp\nx = '\xc6\xfc\xcb\xdc'\n",
+            "# coding: euc_jp\nx = '日本'\n",
+        ),
+        (
+            "test_cr_blank.py",
+            b"\r# coding: latin-1\rx = '\xe9'\r",
+            "\r# coding: latin-1\rx = 'é'\r",
+        ),
+        (
+            "test_cr_comment.py",
+            b"#!\r# coding: latin-1\rx = '\xe9'\r",
+            "#!\r# coding: latin-1\rx = 'é'\r",
+        ),
+        (
+            "test_crlf_comment.py",
+            b"#!\r\n# coding: latin-1\r\nx = '\xe9'\r\n",
+            "#!\r\n# coding: latin-1\r\nx = 'é'\r\n",
+        ),
+        (
+            "test_tab_before.py",
+            b"\t# coding: latin-1\nx = '\xe9'\n",
+            "\t# coding: latin-1\nx = 'é'\n",
+        ),
+        (
+            "test_form_feed_before.py",
+            b"\x0c# coding: latin-1\nx = '\xe9'\n",
+            "\x0c# coding: latin-1\nx = 'é'\n",
+        ),
+        (
+            "test_space_tab_form_feed_before.py",
+            b" \t\x0c# coding: latin-1\nx = '\xe9'\n",
+            " \t\x0c# coding: latin-1\nx = 'é'\n",
+        ),
+        (
+            "test_declaration_only.py",
+            b"# coding: latin-1",
+            "# coding: latin-1",
+        ),
+    ] {
+        assert_eq!(
+            decoded(name, bytes),
+            text,
+            "{name}: the codec of the declared encoding gives the text"
+        );
+    }
+}
+
+#[test]
+fn a_syntax_error_after_a_decode_counts_the_columns_of_the_decoded_text() {
+    Python::initialize();
+    let path = write_bytes("test_latin_broken.py", b"# coding: latin-1\n\xe9 = = 1\n");
+    let error = match purba_parsing::parse(&path) {
+        Err(Error::Syntax(error)) => error,
+        Err(error) => panic!("ruff refuses the decoded module, not {error:?}"),
+        Ok(_) => panic!("a decoded module with a syntax error gives an error"),
+    };
+
+    assert_eq!(
+        (error.start().line(), error.start().column()),
+        (2, 5),
+        "the second = is the fifth scalar of line 2, as CPython counts it"
+    );
+}
+
+#[test]
+fn a_module_that_its_encoding_cannot_decode_is_refused_with_cpythons_words() {
+    Python::initialize();
+    for (name, bytes, line) in [
         (
             "test_latin_bom.py",
-            b"\xef\xbb\xbf# coding: latin-1\nx = '\xc3\xa9'\n",
-            "latin-1",
-        ),
-        ("test_ascii.py", b"# coding: ascii\nx = 'e'\n", "ascii"),
-        ("test_utf_dot_8.py", b"# coding: utf.8\nx = 'e'\n", "utf.8"),
-        (
-            "test_utf_dot_8_upper.py",
-            b"# coding: UTF.8\nx = 'e'\n",
-            "UTF.8",
-        ),
-        ("test_u_dot_8.py", b"# coding: u.8\nx = 'e'\n", "u.8"),
-        (
-            "test_utf8_sig.py",
-            b"# coding: utf8-sig\nx = 'e'\n",
-            "utf8-sig",
+            &b"\xef\xbb\xbf# coding: latin-1\nx = 'e'\n"[..],
+            "SyntaxError: encoding problem: latin-1 with BOM",
         ),
         (
-            "test_cp_dot_65001.py",
-            b"# coding: cp.65001\nx = 'e'\n",
-            "cp.65001",
+            "test_latin_bom_line_two.py",
+            b"\xef\xbb\xbf#!\n# coding: latin-1\nx = 'e'\n",
+            "SyntaxError: encoding problem: latin-1 with BOM",
         ),
         (
             "test_bom_utf8.py",
             b"\xef\xbb\xbf# coding: utf8\nx = 'e'\n",
-            "utf8",
+            "SyntaxError: encoding problem: utf8 with BOM",
         ),
         (
             "test_bom_u8.py",
             b"\xef\xbb\xbf# coding: u8\nx = 'e'\n",
-            "u8",
+            "SyntaxError: encoding problem: u8 with BOM",
         ),
         (
             "test_bom_cp65001.py",
             b"\xef\xbb\xbf# coding: cp65001\nx = 'e'\n",
-            "cp65001",
+            "SyntaxError: encoding problem: cp65001 with BOM",
         ),
         (
-            "test_cr_blank.py",
-            b"\r# coding: latin-1\rx = 'e'\r",
-            "latin-1",
+            "test_utf_dot_8.py",
+            b"# coding: utf.8\nx = 'e'\n",
+            "SyntaxError: unknown encoding: utf.8",
         ),
         (
-            "test_cr_comment.py",
-            b"#!\r# coding: latin-1\rx = 'e'\r",
-            "latin-1",
+            "test_utf_dot_8_upper.py",
+            b"# coding: UTF.8\nx = 'e'\n",
+            "SyntaxError: unknown encoding: UTF.8",
         ),
         (
-            "test_crlf_comment.py",
-            b"#!\r\n# coding: latin-1\r\nx = 'e'\r\n",
-            "latin-1",
+            "test_u_dot_8.py",
+            b"# coding: u.8\nx = 'e'\n",
+            "SyntaxError: unknown encoding: u.8",
         ),
         (
-            "test_tab_before.py",
-            b"\t# coding: latin-1\nx = 'e'\n",
-            "latin-1",
+            "test_utf8_sig.py",
+            b"# coding: utf8-sig\nx = 'e'\n",
+            "SyntaxError: unknown encoding: utf8-sig",
         ),
         (
-            "test_form_feed_before.py",
-            b"\x0c# coding: latin-1\nx = 'e'\n",
-            "latin-1",
+            "test_cp_dot_65001.py",
+            b"# coding: cp.65001\nx = 'e'\n",
+            "SyntaxError: unknown encoding: cp.65001",
         ),
         (
-            "test_space_tab_form_feed_before.py",
-            b" \t\x0c# coding: latin-1\nx = 'e'\n",
-            "latin-1",
+            "test_unknown.py",
+            b"# coding: foobar\nx = 'e'\n",
+            "SyntaxError: unknown encoding: foobar",
+        ),
+        (
+            "test_rot13.py",
+            b"# coding: rot13\nx = 'e'\n",
+            concat!(
+                "SyntaxError: 'rot13' is not a text encoding; ",
+                "use codecs.decode() to handle arbitrary codecs"
+            ),
+        ),
+        (
+            "test_cp1252_0x81.py",
+            b"# coding: cp1252\nx = '\x81'\n",
+            concat!(
+                "SyntaxError: 'charmap' codec can't decode byte 0x81 in position 22: ",
+                "character maps to <undefined>"
+            ),
+        ),
+        (
+            "test_ascii_0xe9.py",
+            b"# coding: ascii\nx = '\xe9'\n",
+            concat!(
+                "SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 21: ",
+                "ordinal not in range(128)"
+            ),
+        ),
+        (
+            "test_no_declaration_0xff.py",
+            b"x = '\xff'\n",
+            "SyntaxError: stream did not contain valid UTF-8",
+        ),
+        (
+            "test_utf_8_0xff.py",
+            b"# coding: utf-8\nx = '\xff'\n",
+            "SyntaxError: stream did not contain valid UTF-8",
         ),
     ] {
-        assert_refused(name, bytes, encoding);
+        assert_eq!(
+            undecodable(name, bytes),
+            line,
+            "{name}: the error gives the words of CPython's codec, or of purba's UTF-8"
+        );
     }
 }
 

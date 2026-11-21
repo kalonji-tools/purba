@@ -1,12 +1,16 @@
 //! Parsing: reads a test module and turns its text into ruff's AST.
 
 use std::cell::RefCell;
+use std::ffi::CString;
 use std::fmt;
 use std::fs;
 use std::io;
 use std::iter;
 use std::mem;
 use std::path::Path;
+
+use pyo3::Python;
+use pyo3::types::{PyBytes, PyString, PyStringMethods};
 
 use ruff_python_ast::token::{Token, TokenKind};
 use ruff_python_ast::visitor::transformer::{
@@ -143,8 +147,31 @@ impl Transformer for Detached {
 pub enum Error {
     /// The file cannot be read.
     Read(io::Error),
+    /// The bytes of the file give no text in their encoding.
+    Decode(DecodeError),
     /// ruff found a syntax error in the text.
     Syntax(SyntaxError),
+}
+
+/// Why the bytes of a module give no text, in the words of the interpreter's
+/// codec, or in purba's.
+#[derive(Debug)]
+pub struct DecodeError {
+    message: String,
+}
+
+impl DecodeError {
+    fn error(message: impl Into<String>) -> Error {
+        Error::Decode(Self {
+            message: message.into(),
+        })
+    }
+}
+
+impl fmt::Display for DecodeError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(formatter, "SyntaxError: {}", self.message)
+    }
 }
 
 /// The first syntax error that ruff lists for a module.
@@ -206,9 +233,10 @@ impl Position {
 ///
 /// # Errors
 ///
-/// When the file cannot be read, or declares an encoding other than UTF-8,
-/// the error is [`Error::Read`]. When ruff finds a syntax error in the file,
-/// the error is [`Error::Syntax`], and it holds the first one that ruff lists.
+/// When the file cannot be read, the error is [`Error::Read`]. When its bytes
+/// give no text in the encoding it declares, or in UTF-8, the error is
+/// [`Error::Decode`]. When ruff finds a syntax error in the file, the error is
+/// [`Error::Syntax`], and it holds the first one that ruff lists.
 ///
 /// # Panics
 ///
@@ -221,19 +249,33 @@ pub fn parse(path: &Path) -> Result<Module, Error> {
     }
     let bytes = fs::read(path).map_err(Error::Read)?;
     let marked = bytes.starts_with(b"\xef\xbb\xbf");
-    if let Some(name) = declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {
-        return Err(Error::Read(io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!("it declares the encoding {name}, and purba reads only UTF-8"),
-        )));
-    }
-    let source = String::from_utf8(bytes).map_err(|_| {
-        Error::Read(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "stream did not contain valid UTF-8",
-        ))
-    })?;
+    let source = match declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {
+        // https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L423-L431
+        Some(name) if marked => {
+            return Err(DecodeError::error(format!(
+                "encoding problem: {name} with BOM"
+            )));
+        }
+        Some(name) => decode(&bytes, &name)?,
+        None => String::from_utf8(bytes)
+            .map_err(|_| DecodeError::error("stream did not contain valid UTF-8"))?,
+    };
     parse_source(source)
+}
+
+/// The text of `bytes` in the text encoding `name`, as the interpreter's codec
+/// of that name gives it.
+//
+// `PyUnicode_FromEncodedObject` decodes through `PyUnicode_Decode`, which
+// refuses a codec that is not a text encoding, as CPython's reader does.
+// https://github.com/python/cpython/blob/v3.14.0/Objects/unicodeobject.c#L3712
+fn decode(bytes: &[u8], name: &str) -> Result<String, Error> {
+    let name = CString::new(name).expect("a declared name holds no NUL");
+    Python::attach(|py| {
+        PyString::from_encoded_object(&PyBytes::new(py, bytes), Some(&name), None)
+            .and_then(|text| text.to_str().map(str::to_owned))
+            .map_err(|error| DecodeError::error(error.value(py).to_string()))
+    })
 }
 
 /// The encoding that the module declares, if it declares one.

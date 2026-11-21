@@ -4,7 +4,6 @@
 #   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
 #   the task:      mise run lint:needs
 
-decode-by-encoding = { part = "parsing", need = "decode a module by its encoding declaration, as CPython does", words = ["charset"], have = "std decodes UTF-8 only, and parsing finds the declaration", stated = "https://github.com/kalonji-tools/purba/issues/644" }
 read-config-file = { part = "configuration", need = "read a configuration file that holds keys", words = ["toml", "pyproject"], stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/a-suppression-is-an-outcome-and-not-a-switch.md#L40" }
 find-test-files = { part = "selection", need = "find the test files under a directory", words = ["walk", "gitignore"], have = "std fs::read_dir, with the recursion written by hand", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/docs/decisions/purba-divides-by-responsibility-and-not-by-language.md#L40" }
 parse-test-query = { part = "selection", need = "parse the query language that names tests", words = ["parser-combinators", "grammar", "combinator"], have = "std, with a parser written by hand", stated = "https://github.com/kalonji-tools/purba/blob/2790c1e/LANDSCAPE.md#L58" }
