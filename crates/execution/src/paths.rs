@@ -483,10 +483,11 @@ const IDS: [u8; 2] = [3, 4];
 ///
 /// It refuses the load when other tools hold both tool ids that the watch can
 /// take, before the watch took one in this process. It puts its wrapper in the
-/// place of `sys.monitoring.set_local_events` before the load, as the hook of
-/// the events must hear a module that changes them. After the load, it sets
-/// the events of the watch on each code object of the module, and refuses a
-/// module that took the tool ids that the watch found free.
+/// place of `sys.monitoring.set_local_events` before the load, so that a name
+/// that the module binds to that function as it loads calls the wrapper. After
+/// the load, it sets the events of the watch on each code object of the
+/// module, and refuses a module that took the tool ids that the watch found
+/// free.
 ///
 /// # Errors
 ///

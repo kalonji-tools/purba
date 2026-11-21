@@ -196,9 +196,9 @@ fn error(err: &PyErr) -> Error {
     Error::project(err.to_string())
 }
 
-/// Names what a load or a case replaced since the filters were last held: a
-/// hook of the process or the warning filters, as the hook names them, or else
-/// the events of the watch of the paths. Gives `None` when it replaced none.
+/// Names what a case replaced since the filters were last held: a hook of the
+/// process or the warning filters, as the hook names them, or else the events
+/// of the watch of the paths. Gives `None` when it replaced none.
 fn replaced(py: Python<'_>) -> Option<purba_assertion::Replaced> {
     thread::replaced(py).or_else(paths::replaced)
 }
@@ -325,7 +325,7 @@ impl<'py, T: Clone> Worker<'py, T> {
                 paths::load(py, || {
                     let loaded = purba_assertion::load(py, &module.path, &module.rewrite)
                         .map_err(|err| error(&err))?;
-                    if let Some(replaced) = replaced(py) {
+                    if let Some(replaced) = thread::replaced(py) {
                         return Err(Error::project(format!(
                             "[hook-replaced] the module replaced {} as it loaded, and {}",
                             replaced.what(),
