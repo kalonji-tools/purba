@@ -20,3 +20,23 @@ fn a_module_read_as_utf_8_parses_with_no_interpreter() {
         }
     }
 }
+
+#[test]
+fn a_byte_that_is_not_utf_8_is_refused_with_no_interpreter() {
+    for (name, bytes) in [
+        ("test_comment_no_declaration.py", &b"# ok \xe9\nx = 1\n"[..]),
+        (
+            "test_comment_declares_utf_8.py",
+            b"# coding: utf-8\n# ok \xe9\nx = 1\n",
+        ),
+    ] {
+        let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
+        fs::write(&path, bytes).expect("the test writes its module");
+
+        match purba_parsing::parse(&path) {
+            Err(purba_parsing::Error::Decode(_)) => {}
+            Err(error) => panic!("{name}: the decode refuses the module, not {error:?}"),
+            Ok(_) => panic!("{name}: a byte that is not UTF-8 refuses the module"),
+        }
+    }
+}

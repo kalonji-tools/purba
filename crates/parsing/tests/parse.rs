@@ -319,21 +319,101 @@ fn a_module_that_its_encoding_cannot_decode_is_refused_with_cpythons_words() {
                 "ordinal not in range(128)"
             ),
         ),
-        (
-            "test_no_declaration_0xff.py",
-            b"x = '\xff'\n",
-            "SyntaxError: stream did not contain valid UTF-8",
-        ),
-        (
-            "test_utf_8_0xff.py",
-            b"# coding: utf-8\nx = '\xff'\n",
-            "SyntaxError: stream did not contain valid UTF-8",
-        ),
     ] {
         assert_eq!(
             undecodable(name, bytes),
             line,
-            "{name}: the error gives the words of CPython's codec, or of purba's UTF-8"
+            "{name}: the error gives the words of CPython's codec"
+        );
+    }
+}
+
+#[test]
+fn an_alias_of_utf_8_that_the_tokenizer_does_not_read_gives_the_codecs_words() {
+    Python::initialize();
+    for (name, bytes, position) in [
+        (
+            "test_utf8_comment_0xe9.py",
+            &b"# coding: utf8\n# ok \xe9\n"[..],
+            20,
+        ),
+        ("test_u8_comment_0xe9.py", b"# coding: u8\n# ok \xe9\n", 18),
+        (
+            "test_cp65001_comment_0xe9.py",
+            b"# coding: cp65001\n# ok \xe9\n",
+            23,
+        ),
+    ] {
+        assert_eq!(
+            undecodable(name, bytes),
+            format!(
+                "SyntaxError: 'utf-8' codec can't decode byte 0xe9 in position {position}: \
+                 invalid continuation byte"
+            ),
+            "{name}: the error gives the words of CPython's codec of UTF-8"
+        );
+    }
+}
+
+#[test]
+fn a_byte_that_is_not_utf_8_is_refused_with_cpython_3_14_1s_words_and_its_line() {
+    for (name, bytes, byte, line) in [
+        ("test_no_declaration_0xff.py", &b"x = '\xff'\n"[..], "ff", 1),
+        (
+            "test_utf_8_0xff.py",
+            b"# coding: utf-8\nx = '\xff'\n",
+            "ff",
+            2,
+        ),
+        (
+            "test_utf_8_sig_0xff.py",
+            b"# coding: utf-8-sig\nx = '\xff'\n",
+            "ff",
+            2,
+        ),
+        (
+            "test_upper_utf_8_comment.py",
+            b"# coding: UTF_8\n# ok \xe9\n",
+            "e9",
+            2,
+        ),
+        ("test_first_on_its_line.py", b"x = 1\n\xe9 = 2\n", "e9", 2),
+        ("test_first_in_the_file.py", b"\xe9\n", "e9", 1),
+        ("test_first_after_crlf.py", b"x = 1\r\n\xe9\r\n", "e9", 2),
+        (
+            "test_comment.py",
+            b"# ok \xe9\ndef test_one():\n    pass\n",
+            "e9",
+            1,
+        ),
+        (
+            "test_comment_line_3.py",
+            b"x = 1\ny = 2\n# ok \xe9\n",
+            "e9",
+            3,
+        ),
+        ("test_comment_after_code.py", b"x = 1  # ok \xe9\n", "e9", 1),
+        ("test_comment_after_cr.py", b"x = 1\r# ok \xe9\r", "e9", 2),
+        (
+            "test_comment_after_crlf.py",
+            b"x = 1\r\n# ok \xe9\r\n",
+            "e9",
+            2,
+        ),
+        ("test_bom_comment.py", b"\xef\xbb\xbf# ok \xe9\n", "e9", 1),
+        ("test_first_of_two.py", b"x = 1\n# \xe9\xe9 \xff\n", "e9", 2),
+        ("test_cut_at_the_end.py", b"x = 1\n# ok \xc3", "c3", 2),
+        ("test_overlong.py", b"# \xc0\x80\n", "c0", 1),
+        ("test_surrogate.py", b"# \xed\xa0\x80\n", "ed", 1),
+    ] {
+        assert_eq!(
+            undecodable(name, bytes),
+            format!(
+                "SyntaxError: Non-UTF-8 code starting with '\\x{byte}' on line {line}, \
+                 but no encoding declared; see https://peps.python.org/pep-0263/ for details"
+            ),
+            "{name}: the error names the first byte that is not UTF-8 and its line, \
+             in the words of CPython 3.14.1"
         );
     }
 }

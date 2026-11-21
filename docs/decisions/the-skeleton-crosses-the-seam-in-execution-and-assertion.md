@@ -37,7 +37,7 @@ Each other part takes data.
 | parsing | the text that the codec of a declared encoding gives, or the codec's error, as text | the codec |
 | command, selection, dispatch, fixtures and reporting | nothing | |
 
-- **Parsing hands the bytes of a module that declares an encoding other than UTF-8 to CPython's codec of that name.** [Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#decision-outcome) says when.
+- **Parsing hands the bytes of a module that declares an encoding other than UTF-8 to CPython's codec of that name.** It also hands the codec a module that declares an alias of UTF-8, such as `utf8`, and that Rust cannot decode. [Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#decision-outcome) and [Parsing refuses a byte that is not UTF-8 in a comment, as CPython 3.14.1 does](parsing-refuses-a-byte-that-is-not-utf-8-in-a-comment.md#decision-outcome) say when.
 - **Command's entry `_main` copies `sys.argv` into a list of strings, and keeps no Python object.** Command takes the arguments as data, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) states.
 - **Fixtures builds nothing in the skeleton, so it holds no Python object.**
 - **Assertion rewrites the expectation of `test_two` in `test_a.py` to `_purba_reads(1) and _purba_read(1, (1), (2))`.** The first call says whether this process reads the expectation. The second compares the two sides once by `==`, and records the index of the expectation and whether it held. When they did not, it records the `repr` of each side, as text.
@@ -82,6 +82,6 @@ It checks that the rewrite wraps each item of each `with` of a test.
 `mise run test:wheel` checks that `_main` hands command the arguments of the console script.
 It checks that a thread alive at the first expectation gives a replay for each later expectation.
 
-[Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#confirmation) names what checks parsing's row.
+[Parsing decodes a module by its declaration, with CPython's codecs](parsing-decodes-a-module-by-its-declaration-with-cpythons-codecs.md#confirmation) and [Parsing refuses a byte that is not UTF-8 in a comment, as CPython 3.14.1 does](parsing-refuses-a-byte-that-is-not-utf-8-in-a-comment.md#confirmation) name what checks parsing's row.
 
 No command checks the rest.
