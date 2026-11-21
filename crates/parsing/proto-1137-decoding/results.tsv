@@ -1,0 +1,485 @@
+python	module	way	refusal	exit	first line
+3.12	test_ascii_e9.py	CPYTHON	-	-	SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_bad_code.py	CPYTHON	-	-	SyntaxError: (unicode error) 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+3.12	test_bad_comment.py	CPYTHON	-	-	passed
+3.12	test_bom_latin1.py	CPYTHON	-	-	SyntaxError: encoding problem: iso-8859-1 with BOM
+3.12	test_cp1252.py	CPYTHON	-	-	passed
+3.12	test_crlf.py	CPYTHON	-	-	passed
+3.12	test_euc_jp.py	CPYTHON	-	-	passed
+3.12	test_iso8859_80.py	CPYTHON	-	-	passed
+3.12	test_latin1_80.py	CPYTHON	-	-	passed
+3.12	test_latin1_ascii.py	CPYTHON	-	-	passed
+3.12	test_latin1.py	CPYTHON	-	-	passed
+3.12	test_ascii_e9.py	utf8	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: it declares the encoding ascii, and purba reads only UTF-8
+3.12	test_ascii_e9.py	utf8	project	4	test_ascii_e9.py project error: SyntaxError: it declares the encoding ascii, and purba reads only UTF-8
+3.12	test_ascii_e9.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_ascii_e9.py	latin1-ascii	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_ascii_e9.py	encoding_rs	invocation	0	test_ascii_e9.py::test_one passed
+3.12	test_ascii_e9.py	encoding_rs	project	0	test_ascii_e9.py::test_one passed
+3.12	test_ascii_e9.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_ascii_e9.py	cpython-codecs	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_ascii_e9.py	cpython	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_ascii_e9.py	cpython	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.12	test_bad_code.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.12	test_bad_code.py	utf8	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_code.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.12	test_bad_code.py	latin1-ascii	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_code.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.12	test_bad_code.py	encoding_rs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_code.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.12	test_bad_code.py	cpython-codecs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_code.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_code.py: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.12	test_bad_code.py	cpython	project	4	test_bad_code.py project error: SyntaxError: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.12	test_bad_comment.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	utf8	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	latin1-ascii	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	encoding_rs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	cpython-codecs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.12	test_bad_comment.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_comment.py: invalid or missing encoding declaration
+3.12	test_bad_comment.py	cpython	project	4	test_bad_comment.py project error: SyntaxError: invalid or missing encoding declaration
+3.12	test_bom_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_bom_latin1.py	utf8	project	4	test_bom_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_bom_latin1.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	latin1-ascii	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	encoding_rs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	cpython-codecs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.12	test_bom_latin1.py	cpython	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: utf-8
+3.12	test_bom_latin1.py	cpython	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: utf-8
+3.12	test_cp1252.py	utf8	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba reads only UTF-8
+3.12	test_cp1252.py	utf8	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba reads only UTF-8
+3.12	test_cp1252.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.12	test_cp1252.py	latin1-ascii	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.12	test_cp1252.py	encoding_rs	invocation	0	test_cp1252.py::test_one passed
+3.12	test_cp1252.py	encoding_rs	project	0	test_cp1252.py::test_one passed
+3.12	test_cp1252.py	cpython-codecs	invocation	0	test_cp1252.py::test_one passed
+3.12	test_cp1252.py	cpython-codecs	project	0	test_cp1252.py::test_one passed
+3.12	test_cp1252.py	cpython	invocation	0	test_cp1252.py::test_one passed
+3.12	test_cp1252.py	cpython	project	0	test_cp1252.py::test_one passed
+3.12	test_crlf.py	utf8	invocation	3	purba: invocation error: cannot read test_crlf.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_crlf.py	utf8	project	4	test_crlf.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_crlf.py	latin1-ascii	invocation	0	test_crlf.py::test_one passed
+3.12	test_crlf.py	latin1-ascii	project	0	test_crlf.py::test_one passed
+3.12	test_crlf.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_crlf.py: encoding_rs knows no label latin-1
+3.12	test_crlf.py	encoding_rs	project	4	test_crlf.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.12	test_crlf.py	cpython-codecs	invocation	0	test_crlf.py::test_one passed
+3.12	test_crlf.py	cpython-codecs	project	0	test_crlf.py::test_one passed
+3.12	test_crlf.py	cpython	invocation	0	test_crlf.py::test_one passed
+3.12	test_crlf.py	cpython	project	0	test_crlf.py::test_one passed
+3.12	test_euc_jp.py	utf8	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba reads only UTF-8
+3.12	test_euc_jp.py	utf8	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba reads only UTF-8
+3.12	test_euc_jp.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.12	test_euc_jp.py	latin1-ascii	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.12	test_euc_jp.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_euc_jp.py: encoding_rs knows no label euc_jp
+3.12	test_euc_jp.py	encoding_rs	project	4	test_euc_jp.py project error: SyntaxError: encoding_rs knows no label euc_jp
+3.12	test_euc_jp.py	cpython-codecs	invocation	0	test_euc_jp.py::test_one passed
+3.12	test_euc_jp.py	cpython-codecs	project	0	test_euc_jp.py::test_one passed
+3.12	test_euc_jp.py	cpython	invocation	0	test_euc_jp.py::test_one passed
+3.12	test_euc_jp.py	cpython	project	0	test_euc_jp.py::test_one passed
+3.12	test_iso8859_80.py	utf8	invocation	3	purba: invocation error: cannot read test_iso8859_80.py: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.12	test_iso8859_80.py	utf8	project	4	test_iso8859_80.py project error: SyntaxError: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.12	test_iso8859_80.py	latin1-ascii	invocation	0	test_iso8859_80.py::test_one passed
+3.12	test_iso8859_80.py	latin1-ascii	project	0	test_iso8859_80.py::test_one passed
+3.12	test_iso8859_80.py	encoding_rs	invocation	1	test_iso8859_80.py::test_one failed
+3.12	test_iso8859_80.py	encoding_rs	project	1	test_iso8859_80.py::test_one failed
+3.12	test_iso8859_80.py	cpython-codecs	invocation	0	test_iso8859_80.py::test_one passed
+3.12	test_iso8859_80.py	cpython-codecs	project	0	test_iso8859_80.py::test_one passed
+3.12	test_iso8859_80.py	cpython	invocation	0	test_iso8859_80.py::test_one passed
+3.12	test_iso8859_80.py	cpython	project	0	test_iso8859_80.py::test_one passed
+3.12	test_latin1_80.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_80.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1_80.py	utf8	project	4	test_latin1_80.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1_80.py	latin1-ascii	invocation	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_80.py	latin1-ascii	project	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_80.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_80.py: encoding_rs knows no label latin-1
+3.12	test_latin1_80.py	encoding_rs	project	4	test_latin1_80.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.12	test_latin1_80.py	cpython-codecs	invocation	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_80.py	cpython-codecs	project	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_80.py	cpython	invocation	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_80.py	cpython	project	0	test_latin1_80.py::test_one passed
+3.12	test_latin1_ascii.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1_ascii.py	utf8	project	4	test_latin1_ascii.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1_ascii.py	latin1-ascii	invocation	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1_ascii.py	latin1-ascii	project	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1_ascii.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: encoding_rs knows no label latin-1
+3.12	test_latin1_ascii.py	encoding_rs	project	4	test_latin1_ascii.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.12	test_latin1_ascii.py	cpython-codecs	invocation	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1_ascii.py	cpython-codecs	project	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1_ascii.py	cpython	invocation	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1_ascii.py	cpython	project	0	test_latin1_ascii.py::test_one passed
+3.12	test_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1.py	utf8	project	4	test_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.12	test_latin1.py	latin1-ascii	invocation	0	test_latin1.py::test_one passed
+3.12	test_latin1.py	latin1-ascii	project	0	test_latin1.py::test_one passed
+3.12	test_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1.py: encoding_rs knows no label latin-1
+3.12	test_latin1.py	encoding_rs	project	4	test_latin1.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.12	test_latin1.py	cpython-codecs	invocation	0	test_latin1.py::test_one passed
+3.12	test_latin1.py	cpython-codecs	project	0	test_latin1.py::test_one passed
+3.12	test_latin1.py	cpython	invocation	0	test_latin1.py::test_one passed
+3.12	test_latin1.py	cpython	project	0	test_latin1.py::test_one passed
+3.13	test_ascii_e9.py	CPYTHON	-	-	SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_bad_code.py	CPYTHON	-	-	SyntaxError: (unicode error) 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+3.13	test_bad_comment.py	CPYTHON	-	-	passed
+3.13	test_bom_latin1.py	CPYTHON	-	-	SyntaxError: encoding problem: iso-8859-1 with BOM
+3.13	test_cp1252.py	CPYTHON	-	-	passed
+3.13	test_crlf.py	CPYTHON	-	-	passed
+3.13	test_euc_jp.py	CPYTHON	-	-	passed
+3.13	test_iso8859_80.py	CPYTHON	-	-	passed
+3.13	test_latin1_80.py	CPYTHON	-	-	passed
+3.13	test_latin1_ascii.py	CPYTHON	-	-	passed
+3.13	test_latin1.py	CPYTHON	-	-	passed
+3.13	test_ascii_e9.py	utf8	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: it declares the encoding ascii, and purba reads only UTF-8
+3.13	test_ascii_e9.py	utf8	project	4	test_ascii_e9.py project error: SyntaxError: it declares the encoding ascii, and purba reads only UTF-8
+3.13	test_ascii_e9.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_ascii_e9.py	latin1-ascii	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_ascii_e9.py	encoding_rs	invocation	0	test_ascii_e9.py::test_one passed
+3.13	test_ascii_e9.py	encoding_rs	project	0	test_ascii_e9.py::test_one passed
+3.13	test_ascii_e9.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_ascii_e9.py	cpython-codecs	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_ascii_e9.py	cpython	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_ascii_e9.py	cpython	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.13	test_bad_code.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.13	test_bad_code.py	utf8	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_code.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.13	test_bad_code.py	latin1-ascii	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_code.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.13	test_bad_code.py	encoding_rs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_code.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.13	test_bad_code.py	cpython-codecs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_code.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_code.py: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.13	test_bad_code.py	cpython	project	4	test_bad_code.py project error: SyntaxError: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.13	test_bad_comment.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	utf8	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	latin1-ascii	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	encoding_rs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	cpython-codecs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.13	test_bad_comment.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_comment.py: invalid or missing encoding declaration
+3.13	test_bad_comment.py	cpython	project	4	test_bad_comment.py project error: SyntaxError: invalid or missing encoding declaration
+3.13	test_bom_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_bom_latin1.py	utf8	project	4	test_bom_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_bom_latin1.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	latin1-ascii	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	encoding_rs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	cpython-codecs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.13	test_bom_latin1.py	cpython	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: utf-8
+3.13	test_bom_latin1.py	cpython	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: utf-8
+3.13	test_cp1252.py	utf8	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba reads only UTF-8
+3.13	test_cp1252.py	utf8	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba reads only UTF-8
+3.13	test_cp1252.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.13	test_cp1252.py	latin1-ascii	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.13	test_cp1252.py	encoding_rs	invocation	0	test_cp1252.py::test_one passed
+3.13	test_cp1252.py	encoding_rs	project	0	test_cp1252.py::test_one passed
+3.13	test_cp1252.py	cpython-codecs	invocation	0	test_cp1252.py::test_one passed
+3.13	test_cp1252.py	cpython-codecs	project	0	test_cp1252.py::test_one passed
+3.13	test_cp1252.py	cpython	invocation	0	test_cp1252.py::test_one passed
+3.13	test_cp1252.py	cpython	project	0	test_cp1252.py::test_one passed
+3.13	test_crlf.py	utf8	invocation	3	purba: invocation error: cannot read test_crlf.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_crlf.py	utf8	project	4	test_crlf.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_crlf.py	latin1-ascii	invocation	0	test_crlf.py::test_one passed
+3.13	test_crlf.py	latin1-ascii	project	0	test_crlf.py::test_one passed
+3.13	test_crlf.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_crlf.py: encoding_rs knows no label latin-1
+3.13	test_crlf.py	encoding_rs	project	4	test_crlf.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.13	test_crlf.py	cpython-codecs	invocation	0	test_crlf.py::test_one passed
+3.13	test_crlf.py	cpython-codecs	project	0	test_crlf.py::test_one passed
+3.13	test_crlf.py	cpython	invocation	0	test_crlf.py::test_one passed
+3.13	test_crlf.py	cpython	project	0	test_crlf.py::test_one passed
+3.13	test_euc_jp.py	utf8	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba reads only UTF-8
+3.13	test_euc_jp.py	utf8	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba reads only UTF-8
+3.13	test_euc_jp.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.13	test_euc_jp.py	latin1-ascii	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.13	test_euc_jp.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_euc_jp.py: encoding_rs knows no label euc_jp
+3.13	test_euc_jp.py	encoding_rs	project	4	test_euc_jp.py project error: SyntaxError: encoding_rs knows no label euc_jp
+3.13	test_euc_jp.py	cpython-codecs	invocation	0	test_euc_jp.py::test_one passed
+3.13	test_euc_jp.py	cpython-codecs	project	0	test_euc_jp.py::test_one passed
+3.13	test_euc_jp.py	cpython	invocation	0	test_euc_jp.py::test_one passed
+3.13	test_euc_jp.py	cpython	project	0	test_euc_jp.py::test_one passed
+3.13	test_iso8859_80.py	utf8	invocation	3	purba: invocation error: cannot read test_iso8859_80.py: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.13	test_iso8859_80.py	utf8	project	4	test_iso8859_80.py project error: SyntaxError: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.13	test_iso8859_80.py	latin1-ascii	invocation	0	test_iso8859_80.py::test_one passed
+3.13	test_iso8859_80.py	latin1-ascii	project	0	test_iso8859_80.py::test_one passed
+3.13	test_iso8859_80.py	encoding_rs	invocation	1	test_iso8859_80.py::test_one failed
+3.13	test_iso8859_80.py	encoding_rs	project	1	test_iso8859_80.py::test_one failed
+3.13	test_iso8859_80.py	cpython-codecs	invocation	0	test_iso8859_80.py::test_one passed
+3.13	test_iso8859_80.py	cpython-codecs	project	0	test_iso8859_80.py::test_one passed
+3.13	test_iso8859_80.py	cpython	invocation	0	test_iso8859_80.py::test_one passed
+3.13	test_iso8859_80.py	cpython	project	0	test_iso8859_80.py::test_one passed
+3.13	test_latin1_80.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_80.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1_80.py	utf8	project	4	test_latin1_80.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1_80.py	latin1-ascii	invocation	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_80.py	latin1-ascii	project	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_80.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_80.py: encoding_rs knows no label latin-1
+3.13	test_latin1_80.py	encoding_rs	project	4	test_latin1_80.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.13	test_latin1_80.py	cpython-codecs	invocation	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_80.py	cpython-codecs	project	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_80.py	cpython	invocation	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_80.py	cpython	project	0	test_latin1_80.py::test_one passed
+3.13	test_latin1_ascii.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1_ascii.py	utf8	project	4	test_latin1_ascii.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1_ascii.py	latin1-ascii	invocation	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1_ascii.py	latin1-ascii	project	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1_ascii.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: encoding_rs knows no label latin-1
+3.13	test_latin1_ascii.py	encoding_rs	project	4	test_latin1_ascii.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.13	test_latin1_ascii.py	cpython-codecs	invocation	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1_ascii.py	cpython-codecs	project	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1_ascii.py	cpython	invocation	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1_ascii.py	cpython	project	0	test_latin1_ascii.py::test_one passed
+3.13	test_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1.py	utf8	project	4	test_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.13	test_latin1.py	latin1-ascii	invocation	0	test_latin1.py::test_one passed
+3.13	test_latin1.py	latin1-ascii	project	0	test_latin1.py::test_one passed
+3.13	test_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1.py: encoding_rs knows no label latin-1
+3.13	test_latin1.py	encoding_rs	project	4	test_latin1.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.13	test_latin1.py	cpython-codecs	invocation	0	test_latin1.py::test_one passed
+3.13	test_latin1.py	cpython-codecs	project	0	test_latin1.py::test_one passed
+3.13	test_latin1.py	cpython	invocation	0	test_latin1.py::test_one passed
+3.13	test_latin1.py	cpython	project	0	test_latin1.py::test_one passed
+3.14	test_ascii_e9.py	CPYTHON	-	-	SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_bad_code.py	CPYTHON	-	-	SyntaxError: Non-UTF-8 code starting with '\xff' on line 2, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+3.14	test_bad_comment.py	CPYTHON	-	-	SyntaxError: Non-UTF-8 code starting with '\xe9' on line 1, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+3.14	test_bom_latin1.py	CPYTHON	-	-	SyntaxError: encoding problem: iso-8859-1 with BOM
+3.14	test_cp1252.py	CPYTHON	-	-	passed
+3.14	test_crlf.py	CPYTHON	-	-	passed
+3.14	test_euc_jp.py	CPYTHON	-	-	passed
+3.14	test_iso8859_80.py	CPYTHON	-	-	passed
+3.14	test_latin1_80.py	CPYTHON	-	-	passed
+3.14	test_latin1_ascii.py	CPYTHON	-	-	passed
+3.14	test_latin1.py	CPYTHON	-	-	passed
+3.14	test_ascii_e9.py	utf8	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: it declares the encoding ascii, and purba reads only UTF-8
+3.14	test_ascii_e9.py	utf8	project	4	test_ascii_e9.py project error: SyntaxError: it declares the encoding ascii, and purba reads only UTF-8
+3.14	test_ascii_e9.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_ascii_e9.py	latin1-ascii	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_ascii_e9.py	encoding_rs	invocation	0	test_ascii_e9.py::test_one passed
+3.14	test_ascii_e9.py	encoding_rs	project	0	test_ascii_e9.py::test_one passed
+3.14	test_ascii_e9.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_ascii_e9.py	cpython-codecs	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_ascii_e9.py	cpython	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_ascii_e9.py	cpython	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14	test_bad_code.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14	test_bad_code.py	utf8	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_code.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14	test_bad_code.py	latin1-ascii	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_code.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14	test_bad_code.py	encoding_rs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_code.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14	test_bad_code.py	cpython-codecs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_code.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_code.py: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.14	test_bad_code.py	cpython	project	4	test_bad_code.py project error: SyntaxError: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.14	test_bad_comment.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	utf8	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	latin1-ascii	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	encoding_rs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	cpython-codecs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14	test_bad_comment.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_comment.py: invalid or missing encoding declaration
+3.14	test_bad_comment.py	cpython	project	4	test_bad_comment.py project error: SyntaxError: invalid or missing encoding declaration
+3.14	test_bom_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_bom_latin1.py	utf8	project	4	test_bom_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_bom_latin1.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	latin1-ascii	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	encoding_rs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	cpython-codecs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14	test_bom_latin1.py	cpython	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: utf-8
+3.14	test_bom_latin1.py	cpython	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: utf-8
+3.14	test_cp1252.py	utf8	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba reads only UTF-8
+3.14	test_cp1252.py	utf8	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba reads only UTF-8
+3.14	test_cp1252.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.14	test_cp1252.py	latin1-ascii	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.14	test_cp1252.py	encoding_rs	invocation	0	test_cp1252.py::test_one passed
+3.14	test_cp1252.py	encoding_rs	project	0	test_cp1252.py::test_one passed
+3.14	test_cp1252.py	cpython-codecs	invocation	0	test_cp1252.py::test_one passed
+3.14	test_cp1252.py	cpython-codecs	project	0	test_cp1252.py::test_one passed
+3.14	test_cp1252.py	cpython	invocation	0	test_cp1252.py::test_one passed
+3.14	test_cp1252.py	cpython	project	0	test_cp1252.py::test_one passed
+3.14	test_crlf.py	utf8	invocation	3	purba: invocation error: cannot read test_crlf.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_crlf.py	utf8	project	4	test_crlf.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_crlf.py	latin1-ascii	invocation	0	test_crlf.py::test_one passed
+3.14	test_crlf.py	latin1-ascii	project	0	test_crlf.py::test_one passed
+3.14	test_crlf.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_crlf.py: encoding_rs knows no label latin-1
+3.14	test_crlf.py	encoding_rs	project	4	test_crlf.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14	test_crlf.py	cpython-codecs	invocation	0	test_crlf.py::test_one passed
+3.14	test_crlf.py	cpython-codecs	project	0	test_crlf.py::test_one passed
+3.14	test_crlf.py	cpython	invocation	0	test_crlf.py::test_one passed
+3.14	test_crlf.py	cpython	project	0	test_crlf.py::test_one passed
+3.14	test_euc_jp.py	utf8	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba reads only UTF-8
+3.14	test_euc_jp.py	utf8	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba reads only UTF-8
+3.14	test_euc_jp.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.14	test_euc_jp.py	latin1-ascii	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.14	test_euc_jp.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_euc_jp.py: encoding_rs knows no label euc_jp
+3.14	test_euc_jp.py	encoding_rs	project	4	test_euc_jp.py project error: SyntaxError: encoding_rs knows no label euc_jp
+3.14	test_euc_jp.py	cpython-codecs	invocation	0	test_euc_jp.py::test_one passed
+3.14	test_euc_jp.py	cpython-codecs	project	0	test_euc_jp.py::test_one passed
+3.14	test_euc_jp.py	cpython	invocation	0	test_euc_jp.py::test_one passed
+3.14	test_euc_jp.py	cpython	project	0	test_euc_jp.py::test_one passed
+3.14	test_iso8859_80.py	utf8	invocation	3	purba: invocation error: cannot read test_iso8859_80.py: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.14	test_iso8859_80.py	utf8	project	4	test_iso8859_80.py project error: SyntaxError: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.14	test_iso8859_80.py	latin1-ascii	invocation	0	test_iso8859_80.py::test_one passed
+3.14	test_iso8859_80.py	latin1-ascii	project	0	test_iso8859_80.py::test_one passed
+3.14	test_iso8859_80.py	encoding_rs	invocation	1	test_iso8859_80.py::test_one failed
+3.14	test_iso8859_80.py	encoding_rs	project	1	test_iso8859_80.py::test_one failed
+3.14	test_iso8859_80.py	cpython-codecs	invocation	0	test_iso8859_80.py::test_one passed
+3.14	test_iso8859_80.py	cpython-codecs	project	0	test_iso8859_80.py::test_one passed
+3.14	test_iso8859_80.py	cpython	invocation	0	test_iso8859_80.py::test_one passed
+3.14	test_iso8859_80.py	cpython	project	0	test_iso8859_80.py::test_one passed
+3.14	test_latin1_80.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_80.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1_80.py	utf8	project	4	test_latin1_80.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1_80.py	latin1-ascii	invocation	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_80.py	latin1-ascii	project	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_80.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_80.py: encoding_rs knows no label latin-1
+3.14	test_latin1_80.py	encoding_rs	project	4	test_latin1_80.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14	test_latin1_80.py	cpython-codecs	invocation	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_80.py	cpython-codecs	project	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_80.py	cpython	invocation	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_80.py	cpython	project	0	test_latin1_80.py::test_one passed
+3.14	test_latin1_ascii.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1_ascii.py	utf8	project	4	test_latin1_ascii.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1_ascii.py	latin1-ascii	invocation	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1_ascii.py	latin1-ascii	project	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1_ascii.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: encoding_rs knows no label latin-1
+3.14	test_latin1_ascii.py	encoding_rs	project	4	test_latin1_ascii.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14	test_latin1_ascii.py	cpython-codecs	invocation	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1_ascii.py	cpython-codecs	project	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1_ascii.py	cpython	invocation	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1_ascii.py	cpython	project	0	test_latin1_ascii.py::test_one passed
+3.14	test_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1.py	utf8	project	4	test_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14	test_latin1.py	latin1-ascii	invocation	0	test_latin1.py::test_one passed
+3.14	test_latin1.py	latin1-ascii	project	0	test_latin1.py::test_one passed
+3.14	test_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1.py: encoding_rs knows no label latin-1
+3.14	test_latin1.py	encoding_rs	project	4	test_latin1.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14	test_latin1.py	cpython-codecs	invocation	0	test_latin1.py::test_one passed
+3.14	test_latin1.py	cpython-codecs	project	0	test_latin1.py::test_one passed
+3.14	test_latin1.py	cpython	invocation	0	test_latin1.py::test_one passed
+3.14	test_latin1.py	cpython	project	0	test_latin1.py::test_one passed
+3.14t	test_ascii_e9.py	CPYTHON	-	-	SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_bad_code.py	CPYTHON	-	-	SyntaxError: Non-UTF-8 code starting with '\xff' on line 2, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+3.14t	test_bad_comment.py	CPYTHON	-	-	SyntaxError: Non-UTF-8 code starting with '\xe9' on line 1, but no encoding declared; see https://peps.python.org/pep-0263/ for details
+3.14t	test_bom_latin1.py	CPYTHON	-	-	SyntaxError: encoding problem: iso-8859-1 with BOM
+3.14t	test_cp1252.py	CPYTHON	-	-	passed
+3.14t	test_crlf.py	CPYTHON	-	-	passed
+3.14t	test_euc_jp.py	CPYTHON	-	-	passed
+3.14t	test_iso8859_80.py	CPYTHON	-	-	passed
+3.14t	test_latin1_80.py	CPYTHON	-	-	passed
+3.14t	test_latin1_ascii.py	CPYTHON	-	-	passed
+3.14t	test_latin1.py	CPYTHON	-	-	passed
+3.14t	test_ascii_e9.py	utf8	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: it declares the encoding ascii, and purba reads only UTF-8
+3.14t	test_ascii_e9.py	utf8	project	4	test_ascii_e9.py project error: SyntaxError: it declares the encoding ascii, and purba reads only UTF-8
+3.14t	test_ascii_e9.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_ascii_e9.py	latin1-ascii	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_ascii_e9.py	encoding_rs	invocation	0	test_ascii_e9.py::test_one passed
+3.14t	test_ascii_e9.py	encoding_rs	project	0	test_ascii_e9.py::test_one passed
+3.14t	test_ascii_e9.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_ascii_e9.py	cpython-codecs	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_ascii_e9.py	cpython	invocation	3	purba: invocation error: cannot read test_ascii_e9.py: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_ascii_e9.py	cpython	project	4	test_ascii_e9.py project error: SyntaxError: 'ascii' codec can't decode byte 0xe9 in position 41: ordinal not in range(128)
+3.14t	test_bad_code.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	utf8	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	latin1-ascii	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	encoding_rs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_code.py: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	cpython-codecs	project	4	test_bad_code.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_code.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_code.py: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.14t	test_bad_code.py	cpython	project	4	test_bad_code.py project error: SyntaxError: 'utf-8' codec can't decode byte 0xff in position 25: invalid start byte
+3.14t	test_bad_comment.py	utf8	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	utf8	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	latin1-ascii	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	encoding_rs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bad_comment.py: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	cpython-codecs	project	4	test_bad_comment.py project error: SyntaxError: stream did not contain valid UTF-8
+3.14t	test_bad_comment.py	cpython	invocation	3	purba: invocation error: cannot read test_bad_comment.py: invalid or missing encoding declaration
+3.14t	test_bad_comment.py	cpython	project	4	test_bad_comment.py project error: SyntaxError: invalid or missing encoding declaration
+3.14t	test_bom_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_bom_latin1.py	utf8	project	4	test_bom_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_bom_latin1.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	latin1-ascii	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	encoding_rs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	cpython-codecs	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	cpython-codecs	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: latin-1 with BOM
+3.14t	test_bom_latin1.py	cpython	invocation	3	purba: invocation error: cannot read test_bom_latin1.py: encoding problem: utf-8
+3.14t	test_bom_latin1.py	cpython	project	4	test_bom_latin1.py project error: SyntaxError: encoding problem: utf-8
+3.14t	test_cp1252.py	utf8	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba reads only UTF-8
+3.14t	test_cp1252.py	utf8	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba reads only UTF-8
+3.14t	test_cp1252.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_cp1252.py: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.14t	test_cp1252.py	latin1-ascii	project	4	test_cp1252.py project error: SyntaxError: it declares the encoding cp1252, and purba decodes only latin-1, ascii and UTF-8
+3.14t	test_cp1252.py	encoding_rs	invocation	0	test_cp1252.py::test_one passed
+3.14t	test_cp1252.py	encoding_rs	project	0	test_cp1252.py::test_one passed
+3.14t	test_cp1252.py	cpython-codecs	invocation	0	test_cp1252.py::test_one passed
+3.14t	test_cp1252.py	cpython-codecs	project	0	test_cp1252.py::test_one passed
+3.14t	test_cp1252.py	cpython	invocation	0	test_cp1252.py::test_one passed
+3.14t	test_cp1252.py	cpython	project	0	test_cp1252.py::test_one passed
+3.14t	test_crlf.py	utf8	invocation	3	purba: invocation error: cannot read test_crlf.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_crlf.py	utf8	project	4	test_crlf.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_crlf.py	latin1-ascii	invocation	0	test_crlf.py::test_one passed
+3.14t	test_crlf.py	latin1-ascii	project	0	test_crlf.py::test_one passed
+3.14t	test_crlf.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_crlf.py: encoding_rs knows no label latin-1
+3.14t	test_crlf.py	encoding_rs	project	4	test_crlf.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14t	test_crlf.py	cpython-codecs	invocation	0	test_crlf.py::test_one passed
+3.14t	test_crlf.py	cpython-codecs	project	0	test_crlf.py::test_one passed
+3.14t	test_crlf.py	cpython	invocation	0	test_crlf.py::test_one passed
+3.14t	test_crlf.py	cpython	project	0	test_crlf.py::test_one passed
+3.14t	test_euc_jp.py	utf8	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba reads only UTF-8
+3.14t	test_euc_jp.py	utf8	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba reads only UTF-8
+3.14t	test_euc_jp.py	latin1-ascii	invocation	3	purba: invocation error: cannot read test_euc_jp.py: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.14t	test_euc_jp.py	latin1-ascii	project	4	test_euc_jp.py project error: SyntaxError: it declares the encoding euc_jp, and purba decodes only latin-1, ascii and UTF-8
+3.14t	test_euc_jp.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_euc_jp.py: encoding_rs knows no label euc_jp
+3.14t	test_euc_jp.py	encoding_rs	project	4	test_euc_jp.py project error: SyntaxError: encoding_rs knows no label euc_jp
+3.14t	test_euc_jp.py	cpython-codecs	invocation	0	test_euc_jp.py::test_one passed
+3.14t	test_euc_jp.py	cpython-codecs	project	0	test_euc_jp.py::test_one passed
+3.14t	test_euc_jp.py	cpython	invocation	0	test_euc_jp.py::test_one passed
+3.14t	test_euc_jp.py	cpython	project	0	test_euc_jp.py::test_one passed
+3.14t	test_iso8859_80.py	utf8	invocation	3	purba: invocation error: cannot read test_iso8859_80.py: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.14t	test_iso8859_80.py	utf8	project	4	test_iso8859_80.py project error: SyntaxError: it declares the encoding iso-8859-1, and purba reads only UTF-8
+3.14t	test_iso8859_80.py	latin1-ascii	invocation	0	test_iso8859_80.py::test_one passed
+3.14t	test_iso8859_80.py	latin1-ascii	project	0	test_iso8859_80.py::test_one passed
+3.14t	test_iso8859_80.py	encoding_rs	invocation	1	test_iso8859_80.py::test_one failed
+3.14t	test_iso8859_80.py	encoding_rs	project	1	test_iso8859_80.py::test_one failed
+3.14t	test_iso8859_80.py	cpython-codecs	invocation	0	test_iso8859_80.py::test_one passed
+3.14t	test_iso8859_80.py	cpython-codecs	project	0	test_iso8859_80.py::test_one passed
+3.14t	test_iso8859_80.py	cpython	invocation	0	test_iso8859_80.py::test_one passed
+3.14t	test_iso8859_80.py	cpython	project	0	test_iso8859_80.py::test_one passed
+3.14t	test_latin1_80.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_80.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1_80.py	utf8	project	4	test_latin1_80.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1_80.py	latin1-ascii	invocation	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_80.py	latin1-ascii	project	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_80.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_80.py: encoding_rs knows no label latin-1
+3.14t	test_latin1_80.py	encoding_rs	project	4	test_latin1_80.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14t	test_latin1_80.py	cpython-codecs	invocation	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_80.py	cpython-codecs	project	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_80.py	cpython	invocation	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_80.py	cpython	project	0	test_latin1_80.py::test_one passed
+3.14t	test_latin1_ascii.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1_ascii.py	utf8	project	4	test_latin1_ascii.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1_ascii.py	latin1-ascii	invocation	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1_ascii.py	latin1-ascii	project	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1_ascii.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1_ascii.py: encoding_rs knows no label latin-1
+3.14t	test_latin1_ascii.py	encoding_rs	project	4	test_latin1_ascii.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14t	test_latin1_ascii.py	cpython-codecs	invocation	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1_ascii.py	cpython-codecs	project	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1_ascii.py	cpython	invocation	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1_ascii.py	cpython	project	0	test_latin1_ascii.py::test_one passed
+3.14t	test_latin1.py	utf8	invocation	3	purba: invocation error: cannot read test_latin1.py: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1.py	utf8	project	4	test_latin1.py project error: SyntaxError: it declares the encoding latin-1, and purba reads only UTF-8
+3.14t	test_latin1.py	latin1-ascii	invocation	0	test_latin1.py::test_one passed
+3.14t	test_latin1.py	latin1-ascii	project	0	test_latin1.py::test_one passed
+3.14t	test_latin1.py	encoding_rs	invocation	3	purba: invocation error: cannot read test_latin1.py: encoding_rs knows no label latin-1
+3.14t	test_latin1.py	encoding_rs	project	4	test_latin1.py project error: SyntaxError: encoding_rs knows no label latin-1
+3.14t	test_latin1.py	cpython-codecs	invocation	0	test_latin1.py::test_one passed
+3.14t	test_latin1.py	cpython-codecs	project	0	test_latin1.py::test_one passed
+3.14t	test_latin1.py	cpython	invocation	0	test_latin1.py::test_one passed
+3.14t	test_latin1.py	cpython	project	0	test_latin1.py::test_one passed

@@ -220,20 +220,149 @@ pub fn parse(path: &Path) -> Result<Module, Error> {
         panic!("PURBA_FAULT=parse");
     }
     let bytes = fs::read(path).map_err(Error::Read)?;
-    let marked = bytes.starts_with(b"\xef\xbb\xbf");
-    if let Some(name) = declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {
-        return Err(Error::Read(io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!("it declares the encoding {name}, and purba reads only UTF-8"),
-        )));
+    // PROTOTYPE #1137: `PURBA_DECODER` picks the way that decodes the module,
+    // and `PURBA_REFUSAL` picks the line of a module that it cannot decode.
+    let decoder = std::env::var("PURBA_DECODER").unwrap_or_default();
+    let source = match decoder.as_str() {
+        "cpython" => proto::cpython_decode_source(&bytes),
+        "cpython-codecs" => proto::cpython_codecs(bytes),
+        "encoding_rs" => proto::encoding_rs(bytes),
+        "latin1-ascii" => proto::latin1_ascii(bytes),
+        _ => proto::utf8(bytes),
     }
-    let source = String::from_utf8(bytes).map_err(|_| {
-        Error::Read(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "stream did not contain valid UTF-8",
-        ))
-    })?;
+    .map_err(proto::refusal)?;
     parse_source(source)
+}
+
+/// PROTOTYPE #1137: the four ways to decode a module. Throwaway.
+mod proto {
+    use super::{Error, Position, SyntaxError, declared_encoding, io, means_utf_8};
+    use pyo3::prelude::*;
+    use pyo3::types::PyBytes;
+
+    const MARK: &[u8] = b"\xef\xbb\xbf";
+
+    /// The line of a module that a way cannot decode.
+    pub fn refusal(message: String) -> Error {
+        if std::env::var("PURBA_REFUSAL").is_ok_and(|setting| setting == "project") {
+            let start = Position { line: 1, column: 1 };
+            Error::Syntax(SyntaxError { message, start, end: start })
+        } else {
+            Error::Read(io::Error::new(io::ErrorKind::InvalidData, message))
+        }
+    }
+
+    /// UTF-8 alone, as `main` reads a module.
+    pub fn utf8(bytes: Vec<u8>) -> Result<String, String> {
+        let marked = bytes.starts_with(MARK);
+        if let Some(name) = declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {
+            return Err(format!("it declares the encoding {name}, and purba reads only UTF-8"));
+        }
+        plain_utf8(bytes)
+    }
+
+    fn plain_utf8(bytes: Vec<u8>) -> Result<String, String> {
+        String::from_utf8(bytes).map_err(|_| "stream did not contain valid UTF-8".to_owned())
+    }
+
+    /// The name of a declaration other than UTF-8, or the refusal of one after a mark.
+    fn other(bytes: &[u8]) -> Result<Option<String>, String> {
+        let marked = bytes.starts_with(MARK);
+        match declared_encoding(bytes) {
+            Some(name) if means_utf_8(&name, marked) => Ok(None),
+            Some(name) if marked => Err(format!("encoding problem: {name} with BOM")),
+            name => Ok(name),
+        }
+    }
+
+    fn python_error(py: Python<'_>, error: &PyErr) -> String {
+        error.value(py).to_string()
+    }
+
+    /// `importlib.util.decode_source` on the bytes.
+    pub fn cpython_decode_source(bytes: &[u8]) -> Result<String, String> {
+        Python::attach(|py| {
+            py.import("importlib.util")
+                .and_then(|util| util.call_method1("decode_source", (PyBytes::new(py, bytes),)))
+                .and_then(|text| text.extract::<String>())
+                .map_err(|error| python_error(py, &error))
+        })
+    }
+
+    /// Rust reads the declaration, and CPython's codec of that name decodes.
+    pub fn cpython_codecs(bytes: Vec<u8>) -> Result<String, String> {
+        let Some(name) = other(&bytes)? else {
+            return plain_utf8(bytes);
+        };
+        Python::attach(|py| {
+            PyBytes::new(py, &bytes)
+                .call_method1("decode", (name.as_str(),))
+                .and_then(|text| text.extract::<String>())
+                .map_err(|error| python_error(py, &error))
+        })
+    }
+
+    /// `encoding_rs`, by the label that the module declares.
+    pub fn encoding_rs(bytes: Vec<u8>) -> Result<String, String> {
+        let Some(name) = other(&bytes)? else {
+            return plain_utf8(bytes);
+        };
+        let encoding = encoding_rs::Encoding::for_label(name.as_bytes())
+            .ok_or_else(|| format!("encoding_rs knows no label {name}"))?;
+        encoding
+            .decode_without_bom_handling_and_without_replacement(&bytes)
+            .map(std::borrow::Cow::into_owned)
+            .ok_or_else(|| format!("the bytes are not valid {}", encoding.name()))
+    }
+
+    /// Rust decodes `latin-1` and `ascii`, and refuses every other declaration.
+    pub fn latin1_ascii(bytes: Vec<u8>) -> Result<String, String> {
+        let Some(name) = other(&bytes)? else {
+            return plain_utf8(bytes);
+        };
+        let codec = codec(&name);
+        let latin1 = [
+            "latin_1", "latin1", "latin", "l1", "iso8859_1", "iso_8859_1", "8859", "cp819",
+            "iso_ir_100", "csisolatin1", "ibm819", "iso_8859_1_1987", "iso_latin_1",
+        ];
+        let ascii = [
+            "ascii", "us_ascii", "646", "ansi_x3.4_1968", "ansi_x3_4_1968", "ansi_x3.4_1986",
+            "cp367", "csascii", "ibm367", "iso646_us", "iso_646.irv_1991", "iso_ir_6", "us",
+        ];
+        if latin1.contains(&codec.as_str()) {
+            return Ok(bytes.iter().map(|&byte| char::from(byte)).collect());
+        }
+        if ascii.contains(&codec.as_str()) {
+            if let Some(at) = bytes.iter().position(|&byte| byte >= 0x80) {
+                return Err(format!(
+                    "'ascii' codec can't decode byte {:#04x} in position {at}: ordinal not in range(128)",
+                    bytes[at]
+                ));
+            }
+            return plain_utf8(bytes);
+        }
+        Err(format!(
+            "it declares the encoding {name}, and purba decodes only latin-1, ascii and UTF-8"
+        ))
+    }
+
+    /// The name as `codecs` looks it up.
+    fn codec(name: &str) -> String {
+        let mut codec = String::new();
+        let mut gap = false;
+        for c in name.chars() {
+            if c.is_ascii_alphanumeric() || c == '.' {
+                if gap && !codec.is_empty() {
+                    codec.push('_');
+                }
+                gap = false;
+                codec.push(c.to_ascii_lowercase());
+            } else {
+                gap = true;
+            }
+        }
+        codec
+    }
 }
 
 /// The encoding that the module declares, if it declares one.
