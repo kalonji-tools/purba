@@ -507,3 +507,29 @@ test_kw.py::test_one blocked: test_kw.py did not load
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a module CPython's compiler refuses prints CPython's error once, and its test as blocked" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'return 1' 'def test_one():' '    assert 1 == 1' >test_return.py
+
+  run -4 --separate-stderr purba test_return.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_return.py project error: SyntaxError: 'return' outside function (test_return.py, line 1)
+test_return.py::test_one blocked: test_return.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module CPython's compiler refuses, with no test, prints only its count" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'return 1' >test_return_alone.py
+
+  run -2 --separate-stderr purba test_return_alone.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+0 cases
+LINES
+  [[ -z "${stderr}" ]]
+}

@@ -418,6 +418,139 @@ fn a_module_in_the_syntax_of_a_newer_or_older_python_parses() {
     }
 }
 
+const COMPILER_REFUSES: &[(&str, &str)] = &[
+    ("test_return_module.py", "return 1\n"),
+    ("test_break_module.py", "break\n"),
+    ("test_continue_in_def.py", "def f():\n    continue\n"),
+    ("test_yield_module.py", "yield 1\n"),
+    ("test_await_module.py", "await x\n"),
+    ("test_await_in_def.py", "def f():\n    await x\n"),
+    (
+        "test_yield_in_listcomp.py",
+        "def f():\n    return [(yield) for x in y]\n",
+    ),
+    (
+        "test_async_with_in_def.py",
+        "def f():\n    async with x: pass\n",
+    ),
+    (
+        "test_async_comp_in_def.py",
+        "def f():\n    return [x async for x in y]\n",
+    ),
+    (
+        "test_yield_from_async.py",
+        "async def f():\n    yield from x\n",
+    ),
+    (
+        "test_return_value_async_gen.py",
+        "async def f():\n    yield 1\n    return 2\n",
+    ),
+    ("test_nonlocal_module.py", "nonlocal x\n"),
+    ("test_nonlocal_no_binding.py", "def f():\n    nonlocal x\n"),
+    ("test_param_and_global.py", "def f(x):\n    global x\n"),
+    (
+        "test_assigned_before_global.py",
+        "def f():\n    x = 1\n    global x\n",
+    ),
+    (
+        "test_annotated_global.py",
+        "def f():\n    global x\n    x: int = 1\n",
+    ),
+    (
+        "test_import_star_in_def.py",
+        "def f():\n    from os import *\n",
+    ),
+    ("test_duplicate_argument.py", "def f(a, a): pass\n"),
+    ("test_keyword_repeated.py", "f(a=1, a=2)\n"),
+    ("test_duplicate_type_param.py", "def f[T, T](): pass\n"),
+    ("test_walrus_rebind_iter.py", "[i := 0 for i in range(3)]\n"),
+    ("test_walrus_in_iterable.py", "[i for i in (y := [1])]\n"),
+    (
+        "test_walrus_class_comp.py",
+        "class C:\n    x = [(y := i) for i in z]\n",
+    ),
+    ("test_walrus_type_alias.py", "type A = (x := int)\n"),
+    (
+        "test_walrus_typevar_bound.py",
+        "def f[T: (x := int)](): pass\n",
+    ),
+    (
+        "test_walrus_generic_base.py",
+        "class C[T]((x := object)): pass\n",
+    ),
+    ("test_debug_assign.py", "__debug__ = 1\n"),
+    ("test_debug_param.py", "def f(__debug__): pass\n"),
+    ("test_debug_import_as.py", "import os as __debug__\n"),
+    ("test_debug_keyword.py", "f(__debug__=1)\n"),
+    ("test_star_single_target.py", "*a = b\n"),
+    ("test_star_two_in_target.py", "a, *b, *c = d\n"),
+    ("test_star_value.py", "x = *a\n"),
+    ("test_star_in_fstring.py", "x = f\"{*a}\"\n"),
+    (
+        "test_future_late_import.py",
+        "import os\nfrom __future__ import annotations\n",
+    ),
+    (
+        "test_future_after_bytes_doc.py",
+        "b\"doc\"\nfrom __future__ import annotations\n",
+    ),
+    ("test_future_unknown.py", "from __future__ import nope\n"),
+    ("test_future_braces.py", "from __future__ import braces\n"),
+    (
+        "test_case_irrefutable_first.py",
+        "match x:\n    case y:\n        pass\n    case 1:\n        pass\n",
+    ),
+    (
+        "test_case_name_twice.py",
+        "match x:\n    case [a, a]:\n        pass\n",
+    ),
+    (
+        "test_case_or_binds_differ.py",
+        "match x:\n    case [a] | (b,):\n        pass\n",
+    ),
+    (
+        "test_case_duplicate_key.py",
+        "match x:\n    case {1: a, 1: b}:\n        pass\n",
+    ),
+    (
+        "test_case_attr_repeated.py",
+        "match x:\n    case C(a=1, a=2):\n        pass\n",
+    ),
+    (
+        "test_case_two_stars.py",
+        "match x:\n    case [*a, *b]:\n        pass\n",
+    ),
+    (
+        "test_case_fstring.py",
+        "match x:\n    case f'x':\n        pass\n",
+    ),
+    (
+        "test_bare_except_not_last.py",
+        "try:\n    pass\nexcept:\n    pass\nexcept E:\n    pass\n",
+    ),
+    (
+        "test_break_in_except_star.py",
+        "for i in x:\n    try:\n        pass\n    except* E:\n        break\n",
+    ),
+    (
+        "test_continue_in_except_star.py",
+        "for i in x:\n    try:\n        pass\n    except* E:\n        continue\n",
+    ),
+    (
+        "test_return_in_except_star.py",
+        "def f():\n    try:\n        pass\n    except* E:\n        return\n",
+    ),
+];
+
+#[test]
+fn a_module_that_cpythons_compiler_refuses_parses() {
+    for &(name, text) in COMPILER_REFUSES {
+        if let Err(error) = purba_parsing::parse(&write(name, text)) {
+            panic!("{name}: the CPython that loads the module refuses it, not parsing: {error:?}");
+        }
+    }
+}
+
 #[test]
 fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
     for (name, text) in [

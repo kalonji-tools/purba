@@ -7,7 +7,9 @@ It lists the syntax that its target version lacks in `unsupported_syntax_errors(
 Parsing gives ruff no target, so ruff takes its default target.
 Parsing reads only `errors()`.
 A module in the syntax of a newer Python parses, and the CPython that loads it refuses it.
+
 [Parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) decides what parsing does with the errors that it reads.
+[CPython alone refuses a module that its compiler refuses](cpython-alone-refuses-a-module-that-its-compiler-refuses.md#decision-outcome) decides the checks that come after a parse.
 
 | fact | source |
 |---|---|
@@ -46,4 +48,3 @@ Parsing reads only `errors()`.
 The `wheel` job of `ci.yml` runs `mise run test:wheel` on each OS and each Python version.
 It checks that a module that opens with `lazy import os`, or with `f((a)=1)`, prints a project error in CPython's words.
 It also checks that the module's test prints as blocked.
-[Which part speaks for a syntax error that ruff passes and CPython refuses?](https://github.com/kalonji-tools/purba/issues/1131) asks which words purba prints.
