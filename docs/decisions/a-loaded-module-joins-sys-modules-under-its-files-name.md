@@ -37,7 +37,7 @@ That name is also the module's `__name__`, so `dir/test_a.py` loads as `test_a`.
 
 **Downside:**
 
-- **A module that loads under the name of a module already loaded replaces it in `sys.modules`.** A test module named `test.py` replaces the standard library's `test` package there. A later `import test` then gets the test module.
+- **A module takes the name of a module that `sys.modules` does not hold yet.** A test module named `test.py` takes the name of the standard library's `test` package in `sys.modules`. A later `import test` then gets the test module. Assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides.
 - **Two modules with one name share one key.** A run of the skeleton takes one module, so two never meet. The design in depth of execution decides the key for a worker that loads many.
 
 ## Confirmation

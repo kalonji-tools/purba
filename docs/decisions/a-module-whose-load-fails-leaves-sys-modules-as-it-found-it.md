@@ -22,8 +22,8 @@ purba printed the same lines and the same exit code under each choice.
 ## Considered Options
 
 - **Keep the module under its name.** A later import gets a half-made module, and no error.
-- **Remove the name.** A failed module that shadowed a loaded module makes the next import load a second copy, whose classes differ from the first. Once assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides, remove gives what put back gives.
-- **Put `None` under the name.** Each later import of a shadowed name halts for the rest of the run.
+- **Remove the name.** A failed module that shadowed a loaded module makes the next import load a second copy, whose classes differ from the first. Assertion refuses a module named after a loaded module, as [a failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) decides. Remove then gives what put back gives.
+- **Put `None` under the name.** Each later import of the name halts for the rest of the run.
 - **Leave it to the design in depth of execution alone.** Until that design, a later import gets a half-made module.
 
 ## Decision Outcome
@@ -46,7 +46,8 @@ purba printed the same lines and the same exit code under each choice.
 ## Confirmation
 
 `mise run test:rust` checks that a body that raises leaves no entry under a new name.
-It checks that a shadowed name holds its old module after the body raises.
+It checks that load refuses a name that `sys.modules` holds, before the body runs.
+It checks that the name keeps its module.
 It checks that a body that calls `sys.exit()` leaves no entry.
 It checks that a body that raises purba's own `PanicException` leaves no entry.
 
