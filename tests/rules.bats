@@ -503,3 +503,35 @@ did not run, and ${path}
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a test that changes the events through a name bound as its module loaded is refused" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' 'bound = sys.monitoring.set_local_events' '' '' 'def pick(x):' \
+    '    if x > 0:' '        return "pos"' '    return "neg"' '' '' 'def test_one_way():' \
+    '    bound(3, pick.__code__, 0)' '    got = pick(1)' '    assert got == "pos"' >test_bound.py
+
+  run -4 --separate-stderr purba test_bound.py
+
+  local replaced='line 13 replaced the events of sys.monitoring that purba watches with'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_bound.py::test_one_way project error: [hook-replaced] ${replaced}, and a test keeps \
+purba's hooks
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a module that changes the events of a tool id that no tool holds does not load" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import sys' '' 'sys.monitoring.set_local_events(3, (lambda: 0).__code__, 1)' \
+    "${pick[@]}" >test_free_id.py
+
+  run -4 --separate-stderr purba test_free_id.py
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_free_id.py project error: ValueError: tool 3 is not in use
+test_free_id.py::test_one_way blocked: test_free_id.py did not load
+1 case: 1 blocked; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
