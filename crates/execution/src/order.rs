@@ -29,11 +29,11 @@ pub enum Called {
 /// entry or cleanup raised what the call raised, and the last marked assert
 /// beside whether it held. It holds the faults of the paths, each beside the
 /// name of its check, and whether one lies in a `try` of another shape than
-/// one path. It holds why no reader was forked when a fork failed. It holds
-/// the verdict of each expectation read in order and of each read alone, what
-/// each that did not hold shows, and each later expectation that a replay must
-/// read alone. It holds the text of each expectation that it names, the words
-/// of each missed `try`, and whether the test states an expectation.
+/// one path. It holds why no reader or replay was forked when a fork failed.
+/// It holds the verdict of each expectation read in order and of each read
+/// alone, what each that did not hold shows, and each later expectation that a
+/// replay must read alone. It holds the text of each expectation that it names,
+/// the words of each missed `try`, and whether the test states an expectation.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Facts {
     pub form: Vec<(String, String)>,
@@ -341,7 +341,11 @@ mod tests {
 
     #[test]
     fn each_step_of_the_order_beats_each_step_below_it() {
-        for (row, facts, gives) in rows_of_the_call().into_iter().chain(rows_of_the_readings()) {
+        for (row, facts, gives) in rows_of_the_call()
+            .into_iter()
+            .chain(rows_of_the_readings())
+            .chain(rows_of_a_fork())
+        {
             assert_eq!(line(&facts), gives, "{row}");
         }
     }
@@ -467,21 +471,6 @@ mod tests {
                 "project error: [readings-differ] assert x == 1 holds after the \
                  expectations before it, and not when read alone",
             ),
-            // fails when: the check of `refused` is deleted
-            (
-                "a fork that failed beats an expectation that did not hold",
-                Facts {
-                    refused: Some(
-                        "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
-                    ),
-                    in_order: vec![(1, false)],
-                    later: vec![2],
-                    texts: texts(),
-                    stated: true,
-                    ..Facts::default()
-                },
-                "project error: purba cannot fork to read an expectation alone: EAGAIN",
-            ),
             // fails when: `of_the_readings` quotes the expectations before the
             // missed `try`s
             (
@@ -526,6 +515,46 @@ mod tests {
                     ..Facts::default()
                 },
                 "passed",
+            ),
+        ]
+    }
+
+    /// The rows of a fork that failed, which step 4 reads between the paths and
+    /// the readings.
+    fn rows_of_a_fork() -> Vec<Line<'static>> {
+        vec![
+            // fails when: the check of `refused` is deleted
+            (
+                "a fork that failed beats an expectation that did not hold",
+                Facts {
+                    refused: Some(
+                        "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
+                    ),
+                    in_order: vec![(1, false)],
+                    later: vec![2],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: purba cannot fork to read an expectation alone: EAGAIN",
+            ),
+            // fails when: the check of `refused` moves above the check of `path`
+            (
+                "a fault of the paths beats a fork that failed",
+                Facts {
+                    path: vec![(
+                        "second-path".to_owned(),
+                        "line 4 ran one way of its branch".to_owned(),
+                    )],
+                    refused: Some(
+                        "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
+                    ),
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [second-path] line 4 ran one way of its branch",
             ),
         ]
     }
