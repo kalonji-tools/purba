@@ -634,11 +634,12 @@ impl Zygote {
     }
 
     /// Asks the zygote for a replay of `function` for each later expectation
-    /// that `facts` name, in order, and adds the verdict of each to the
-    /// readings alone of `facts`. Gives the result in place of the outcome: a
-    /// project error when the zygote could not fork a replay, or
-    /// `Interrupted` when an interrupt lands during the replays. Gives `None`
-    /// when each replay gave its verdict.
+    /// that `facts` name, in order. When each replay gave its verdict, it adds
+    /// each verdict to the readings alone of `facts`, and gives `None`.
+    /// Otherwise it leaves `facts` as the test's process sent them, and gives
+    /// the result in place of the outcome: a project error when the zygote
+    /// could not fork a replay, or `Interrupted` when an interrupt lands during
+    /// the replays.
     fn replays<T: Clone>(
         &mut self,
         function: &str,
@@ -647,7 +648,8 @@ impl Zygote {
         threads: &mut Threads<T>,
     ) -> Option<Result<Outcome, Error>> {
         let before = interrupt::first();
-        for index in std::mem::take(&mut facts.later) {
+        let mut alone = Vec::new();
+        for &index in &facts.later {
             let verdict = match self.replay(function, index, owner, threads) {
                 Ok(verdict) => verdict,
                 Err(error) => return Some(Err(error)),
@@ -657,8 +659,9 @@ impl Zygote {
                     kind: Kind::Interrupted,
                 }));
             }
-            facts.alone.push((index, verdict));
+            alone.push((index, verdict));
         }
+        facts.alone.extend(alone);
         None
     }
 
