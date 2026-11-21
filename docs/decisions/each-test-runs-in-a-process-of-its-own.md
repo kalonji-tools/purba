@@ -38,7 +38,8 @@ A crash ends one test, and not the run.
 - **After its test returns, the test's process joins each thread that is not a daemon, then runs the test's `atexit` functions.** A daemon thread ends with the process.
 - **Each process runs only the `atexit` functions that it registered.** So the functions that a load registered run once, at the end of the zygote, unless the load leaves a thread alive.
 - **At its first [expectation](../../CONTEXT.md#expectation), the test's process forks once for each later expectation, one fork at a time, before any reading.** Each fork reads its one expectation alone, and ends by `_exit` with what it read as its exit code. No `finally` block, `atexit` function or join of a thread runs in it. The test's process then reads each expectation in order. An expectation whose two readings differ gives a project error. A fork whose reading reaches an assert ends at that assert, and gives a project error. An operating system that refuses the fork gives a project error too.
-- **When a Python thread is alive at the first expectation, the test's process forks none, since a fork keeps only the thread that called it.** When the case then passes or fails on its expectations, the zygote forks a [replay](../../CONTEXT.md#replay) for each later expectation. It forks them one at a time, after the test's process ends. A replay ends with what it read as its exit code. A replay that reaches an assert ends at it, and gives a project error. It writes nothing to stdout or stderr, since the case already wrote the test's output once.
+- **When a Python thread is alive at the first expectation, the test's process forks none, since a fork keeps only the thread that called it.** Whatever the case then gives, the zygote forks a [replay](../../CONTEXT.md#replay) for each later expectation. It forks them one at a time, after the test's process ends. A replay ends with what it read as its exit code. A replay that reaches an assert ends at it, and gives a project error. It writes nothing to stdout or stderr, since the case already wrote the test's output once.
+- **purba decides the outcome of each case, after its last replay.** The test's process sends the facts of its case, and reads no suppression.
 - **purba adds nothing to a test that the test does not name.**
 
 ```mermaid
@@ -51,7 +52,7 @@ sequenceDiagram
   purba->>zygote: fork
   zygote->>zygote: load the module once
   loop each selected test
-    purba->>zygote: the test's name, and each suppression that reaches it
+    purba->>zygote: the test's name
     zygote->>test: fork
     alt no Python thread alive at the first expectation
       loop each expectation after the first
@@ -59,10 +60,10 @@ sequenceDiagram
         alone->>test: what it read, as its exit code
       end
     end
-    test->>purba: each warning, the outcome, then the error of each thread
+    test->>purba: the facts of the case, then the error of each thread
     test->>zygote: ends
     zygote->>purba: how the test's process ended
-    opt a Python thread alive at the first expectation, and the case passed or failed
+    opt a Python thread alive at the first expectation
       loop each expectation after the first
         purba->>zygote: a replay of the test, for that expectation
         zygote->>replay: fork
@@ -70,6 +71,7 @@ sequenceDiagram
         zygote->>purba: how the replay ended
       end
     end
+    purba->>purba: decide the outcome, in one order
   end
 ```
 
