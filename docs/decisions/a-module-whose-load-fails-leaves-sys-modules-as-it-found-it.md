@@ -5,9 +5,15 @@
 [A loaded module joins sys.modules under its file's name, without .py](a-loaded-module-joins-sys-modules-under-its-files-name.md#decision-outcome) puts the module there before its body runs.
 Until this record, the module stayed there when a later step of load raised.
 A run takes one module.
-Execution keeps the failed load in its own map, so purba never reads the entry again.
+A process whose load fails ends, so purba never reads the entry again.
 Only code that the module started before it raised, such as a thread or an `atexit` hook, still reads the entry.
-A worker that loads more than one module, or a test's folder on `sys.path`, lets more code read the entry.
+A test's folder on `sys.path` lets more code read the entry.
+
+| fact | source |
+|---|---|
+| dispatch's process loads no module, and forks a zygote for each module | [`dispatch`](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/dispatch/src/lib.rs#L113-L126) |
+| a zygote, a test's process and a replay each load at most once, so no process of purba loads two modules | [the zygote](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L909-L912), [a test's process](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L999-L1000), [a replay](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L1101-L1102) |
+| a zygote whose load fails ends, and a test's process or a replay ends after its one step | [the zygote](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L920-L922), [a test's process](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L985-L992), [a replay](https://github.com/kalonji-tools/purba/blob/bc00a163/crates/execution/src/zygote.rs#L1077-L1085) |
 
 | what later code that reads the name gets | keep | remove | put back | `None` |
 |---|---|---|---|---|
@@ -36,7 +42,7 @@ purba printed the same lines and the same exit code under each choice.
 
 - **Load puts back the module that the name held before.** A name that held nothing leaves `sys.modules`, as [`importlib`](https://github.com/python/cpython/blob/v3.12.14/Lib/importlib/_bootstrap.py#L936-L941) does, and as oxitest chose after a half-made module broke later imports, in [`70fbc27a`](https://github.com/kalonji-tools/oxitest/commit/70fbc27a).
 - **This holds for any exception after the module joins `sys.modules`, `SystemExit` included.**
-- **The design in depth of execution decides which part puts the entry back, if any, once a worker loads many modules.**
+- **No later load reads the entry.** No process of purba loads two modules. A process whose load fails ends.
 
 **Downside:**
 
@@ -52,4 +58,3 @@ It checks that a body that calls `sys.exit()` leaves no entry.
 It checks that a body that raises purba's own `PanicException` leaves no entry.
 
 [How does a test module import a module beside it, or the package it belongs to?](https://github.com/kalonji-tools/purba/issues/637) decides when a test's folder is on `sys.path`.
-[Once a worker loads many modules, which part puts back what sys.modules held after a load fails?](https://github.com/kalonji-tools/purba/issues/669) holds that decision.
