@@ -7,6 +7,14 @@ compile_error!("purba runs on Linux and macOS. On Windows, run it under WSL2.");
 mod fork;
 mod frame;
 mod interrupt;
+#[cfg_attr(
+    not(test),
+    expect(
+        dead_code,
+        reason = "only the table test calls the order until the code lands"
+    )
+)]
+mod order;
 pub mod panic;
 mod paths;
 mod step;
