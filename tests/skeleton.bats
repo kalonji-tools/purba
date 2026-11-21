@@ -91,6 +91,19 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "purba with a byte that is not UTF-8 in a comment gives CPython 3.14.1's project error" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '# ok \xe9\ndef test_one():\n    assert 1 == 1\n' >test_comment.py
+  local error="test_comment.py project error: SyntaxError: "
+  error+="Non-UTF-8 code starting with '\\xe9' on line 1, but no encoding declared; "
+  error+="see https://peps.python.org/pep-0263/ for details"
+
+  run -4 --separate-stderr purba test_comment.py
+
+  diff -u <(printf '%s\n' "${error}" '0 cases; 1 project error') <(printf '%s\n' "${output}")
+  [[ -z "${stderr}" ]]
+}
+
 @test "purba with no sys.abiflags runs its tests" {
   local site="${BATS_TEST_TMPDIR:?set by bats}/site"
   mkdir "${site}"

@@ -36,7 +36,7 @@ Parsing read UTF-8 alone, and refused each module that declares another encoding
 Rust reads the declaration.
 Where it names an encoding other than UTF-8, parsing hands the bytes to the text codec of that name.
 
-- **Rust decodes a module with no declaration, or one that declares UTF-8.**
+- **Rust decodes a module with no declaration, or one that declares UTF-8.** [Parsing refuses a byte that is not UTF-8 in a comment, as CPython 3.14.1 does](parsing-refuses-a-byte-that-is-not-utf-8-in-a-comment.md#decision-outcome) hands the codec a module that declares an alias of UTF-8, such as `utf8`, when Rust cannot decode it.
 - **A module that its encoding cannot decode is a project error.** CPython gives it a `SyntaxError`.
 
 | a module that its encoding cannot decode | an example |
@@ -50,7 +50,6 @@ Where it names an encoding other than UTF-8, parsing hands the bytes to the text
 **Downside:**
 
 - **Parsing crosses the seam.** [The skeleton crosses the seam in execution, assertion and parsing](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) names what crosses.
-- **purba refuses a module whose comment holds a byte that is not UTF-8, which CPython 3.12 and 3.13 run.** [Does purba run a module whose comment holds a byte that is not UTF-8, as CPython 3.12 and 3.13 do?](https://github.com/kalonji-tools/purba/issues/1138) holds it.
 - **The line of the project error names the encoding as the module declares it.** For a byte order mark before a declaration of `latin-1`, purba says `latin-1 with BOM`, and CPython says `iso-8859-1 with BOM`.
 
 ## Confirmation

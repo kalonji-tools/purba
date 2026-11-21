@@ -249,18 +249,55 @@ pub fn parse(path: &Path) -> Result<Module, Error> {
     }
     let bytes = fs::read(path).map_err(Error::Read)?;
     let marked = bytes.starts_with(b"\xef\xbb\xbf");
-    let source = match declared_encoding(&bytes).filter(|name| !means_utf_8(name, marked)) {
+    let declared = declared_encoding(&bytes);
+    let source = match declared
+        .as_deref()
+        .filter(|name| !means_utf_8(name, marked))
+    {
         // https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L423-L431
         Some(name) if marked => {
             return Err(DecodeError::error(format!(
                 "encoding problem: {name} with BOM"
             )));
         }
-        Some(name) => decode(&bytes, &name)?,
-        None => String::from_utf8(bytes)
-            .map_err(|_| DecodeError::error("stream did not contain valid UTF-8"))?,
+        Some(name) => decode(&bytes, name)?,
+        // CPython hands an alias of UTF-8 that its tokenizer does not read,
+        // such as `utf8`, to the codec, and the codec's words refuse the bytes.
+        // https://github.com/python/cpython/blob/v3.14.4/Parser/tokenizer/helpers.c#L306-L331
+        // https://github.com/python/cpython/blob/v3.14.4/Parser/tokenizer/helpers.c#L418
+        None => String::from_utf8(bytes).or_else(|error| match declared.as_deref() {
+            Some(name) if !the_tokenizer_reads_as_utf_8(name) => decode(error.as_bytes(), name),
+            _ => Err(not_utf_8(
+                error.as_bytes(),
+                error.utf8_error().valid_up_to(),
+            )),
+        })?,
     };
     parse_source(source)
+}
+
+/// The error of a module read as UTF-8 whose byte at `at` starts no UTF-8
+/// character. It names that byte and its line.
+//
+// CPython 3.14.1 checks each byte, a byte of a comment too, and gives these
+// words. It turns `\r\n` and `\r` into `\n` first, then counts a line at `\n`.
+// https://github.com/python/cpython/blob/v3.14.1/Parser/tokenizer/helpers.c#L529-L535
+// https://github.com/python/cpython/blob/v3.14.4/Parser/tokenizer/helpers.c#L236-L239
+// https://github.com/python/cpython/blob/v3.14.4/Parser/tokenizer/helpers.c#L519-L520
+fn not_utf_8(bytes: &[u8], at: usize) -> Error {
+    let ends = bytes[..at]
+        .iter()
+        .enumerate()
+        .filter(|&(index, &byte)| {
+            byte == b'\n' || (byte == b'\r' && bytes.get(index + 1) != Some(&b'\n'))
+        })
+        .count();
+    DecodeError::error(format!(
+        "Non-UTF-8 code starting with '\\x{:02x}' on line {}, but no encoding declared; \
+         see https://peps.python.org/pep-0263/ for details",
+        bytes[at],
+        ends + 1
+    ))
 }
 
 /// The text of `bytes` in the text encoding `name`, as the interpreter's codec
@@ -348,17 +385,9 @@ fn coding_name(comment: &[u8]) -> Option<String> {
     })
 }
 
-/// Whether a module that declares `name` is decoded with UTF-8. `marked` says
-/// whether the file starts with a byte order mark.
-//
-// The tokenizer of CPython takes `utf-8` and `utf-8-…`, in any case and with
-// `_` for `-`. After a mark, it refuses any other name. Without a mark, it
-// gives any other name to `codecs`. The names that follow are the codecs
-// `utf_8` and `utf_8_sig`, which both decode UTF-8, and the aliases of `utf_8`.
-// https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L304-L320
-// https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L423-L431
-// https://github.com/python/cpython/blob/v3.14.0/Lib/encodings/aliases.py#L540-L546
-fn means_utf_8(name: &str, marked: bool) -> bool {
+/// Whether the tokenizer of `CPython` decodes a module that declares `name`
+/// itself, as UTF-8, and gives no codec the bytes.
+fn the_tokenizer_reads_as_utf_8(name: &str) -> bool {
     let tokenizer: String = name
         .chars()
         .take(12)
@@ -370,7 +399,21 @@ fn means_utf_8(name: &str, marked: bool) -> bool {
             }
         })
         .collect();
-    if tokenizer == "utf-8" || tokenizer.starts_with("utf-8-") {
+    tokenizer == "utf-8" || tokenizer.starts_with("utf-8-")
+}
+
+/// Whether a module that declares `name` is decoded with UTF-8. `marked` says
+/// whether the file starts with a byte order mark.
+//
+// The tokenizer of CPython takes `utf-8` and `utf-8-…`, in any case and with
+// `_` for `-`. After a mark, it refuses any other name. Without a mark, it
+// gives any other name to `codecs`. The names that follow are the codecs
+// `utf_8` and `utf_8_sig`, which both decode UTF-8, and the aliases of `utf_8`.
+// https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L304-L320
+// https://github.com/python/cpython/blob/v3.14.0/Parser/tokenizer/helpers.c#L423-L431
+// https://github.com/python/cpython/blob/v3.14.0/Lib/encodings/aliases.py#L540-L546
+fn means_utf_8(name: &str, marked: bool) -> bool {
+    if the_tokenizer_reads_as_utf_8(name) {
         return true;
     }
     if marked {
