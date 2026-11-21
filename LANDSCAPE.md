@@ -56,7 +56,7 @@ flowchart LR
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
-- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error. It holds what selection and assertion share: the asserts at the end of a test, the blocks of a statement, and each assert's shape.
+- **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error. It holds what selection and assertion share: the asserts at the end of a test, the blocks of a statement, and each assert's shape. [Wayfinder: purba's parsing, reading each module that CPython runs](https://github.com/kalonji-tools/purba/issues/1126) holds its design in depth.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It forks a zygote for each module. The zygote loads the module on its worker before its tests, and forks a process for each test. For a module that stops before its tests, dispatch hands on the module once, with its error, each thread's error and its tests. For a load that the first interrupt lands in, dispatch hands on no project error. After each load and each test, dispatch hands on the error of each thread that the zygote or the test's process took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome.
 - **fixtures.** Builds each input from the fixture that a test names, and tears it down after.
@@ -152,7 +152,7 @@ sequenceDiagram
 
 ## The cross-cutting concerns
 
-- **the Rust/Python seam.** Carries a live Python object between Rust and Python, in execution, fixtures and assertion.
+- **the Rust/Python seam.** Carries a live Python object between Rust and Python, in parsing, execution, fixtures and assertion.
 - **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in command, selection, dispatch, execution, fixtures, assertion and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on an interrupt and tears down what was built, in command, dispatch, execution, fixtures and reporting. [An interrupt stops the run, and a second one exits at once](docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds its design in depth.
@@ -170,22 +170,20 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 - **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
 - **a test imports another directory's module of the same name.** Given two test directories that each hold `helper.py`, when both run, then a test reads the other directory's `helper`, and its outcome depends on which test ran first. Lands on execution; probability medium, impact high.
 - **a change in one part edits another part.** Given a change inside one part that leaves its interface unchanged, when the change is made, then a file of another part changes. Lands on command; probability high, impact medium.
-- **parsing refuses a file that CPython runs.** Given a file that a supported CPython imports, when parsing reads it, then parsing refuses it, and selection finds no test in it. Lands on parsing; probability low, impact high.
 
 ## The order of design
 
 Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
 
-1. **parsing.**
-2. **configuration.**
-3. **selection.**
-4. **the Rust/Python seam.**
-5. **fixtures.**
-6. **assertion.**
-7. **execution.**
-8. **dispatch.**
-9. **reporting.**
-10. **command.**
+1. **configuration.**
+2. **selection.**
+3. **the Rust/Python seam.**
+4. **fixtures.**
+5. **assertion.**
+6. **execution.**
+7. **dispatch.**
+8. **reporting.**
+9. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 

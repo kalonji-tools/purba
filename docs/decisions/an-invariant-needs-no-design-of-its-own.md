@@ -44,7 +44,7 @@ One instance breaks an absence, so a reviewer can point at the breach.
 | invariant | why it holds |
 |---|---|
 | lazy work | the fast-feedback scenario counts the imports outside the selection |
-| an outcome is data | the seam stays in execution, fixtures and assertion, and a worker can be another process |
+| an outcome is data | the seam stays in execution, fixtures, assertion and parsing, and a worker can be another process |
 | an outcome is final | no outcome depends on the worker that ran the test, or on a later part |
 | one identity | the honest-outcome scenario compares outcomes by test name, so a second name can hide a test |
 | one parser | oxitest's second parser drew a large share of its calls into Python |

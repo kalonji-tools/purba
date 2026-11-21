@@ -67,5 +67,5 @@ The reviewable-core scenario in [the landscape](../../LANDSCAPE.md#the-driver-sc
 
 [The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the parts each concern crosses.
 [A concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) holds why each one is a concern.
-[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks these parts.
+[The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each of these parts whose line does not link its design.
 [A design in depth waits for what it assumes](a-design-in-depth-waits-for-what-it-assumes.md#decision-outcome) holds why.

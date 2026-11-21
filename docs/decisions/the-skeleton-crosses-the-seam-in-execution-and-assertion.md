@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 [Every part of the skeleton is Rust, inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome), so the walking skeleton reaches Python only through PyO3.
-[The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the Rust/Python seam a concern of execution, fixtures and assertion.
+[The landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names the Rust/Python seam a concern of execution, fixtures, assertion and parsing.
 Each part that reaches Python must say what crosses, and what stays in Python.
 
 | fact | source |

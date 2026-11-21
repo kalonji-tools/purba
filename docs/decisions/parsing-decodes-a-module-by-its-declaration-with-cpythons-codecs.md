@@ -50,6 +50,7 @@ Where it names an encoding other than UTF-8, parsing hands the bytes to the text
 **Downside:**
 
 - **Parsing crosses the seam.** [The skeleton crosses the seam in execution, assertion and parsing](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome) names what crosses.
+- **The design of the seam can change how parsing calls a codec.** Parsing's design ends before the design of the seam. That order is an exception to [a design in depth waits for what it assumes](a-design-in-depth-waits-for-what-it-assumes.md#decision-outcome), where a design waits for each concern that crosses it.
 - **The line of the project error names the encoding as the module declares it.** For a byte order mark before a declaration of `latin-1`, purba says `latin-1 with BOM`, and CPython says `iso-8859-1 with BOM`.
 
 ## Confirmation
