@@ -251,6 +251,7 @@ LINES
   cp "${BATS_TEST_DIRNAME}/rules/test_alone.py" thread/
   grep -v 'threading.Thread(' "${BATS_TEST_DIRNAME}/rules/test_alone.py" >none/test_alone.py
 
+  local refused='project error: [assert-in-reading]'
   local alone='reaches an assert when read alone, and only an expectation asserts'
   local worker
   for worker in thread none; do
@@ -259,11 +260,13 @@ LINES
     run -4 --separate-stderr purba test_alone.py
 
     diff -u - <(printf '%s\n' "${output}") <<LINES
-test_alone.py::test_raised project error: [assert-in-reading] assert check() is True ${alone}
-test_alone.py::test_swallowed project error: [assert-in-reading] assert check() is True ${alone}
-test_alone.py::test_differs project error: [assert-in-reading] assert check() is True ${alone}
-test_alone.py::test_suppressed project error: [assert-in-reading] assert check() is True ${alone}
-4 cases: 4 blocked; 4 project errors
+test_alone.py::test_raised ${refused} assert check() is True ${alone}
+test_alone.py::test_unreached ${refused} assert check() is True ${alone}
+test_alone.py::test_raises_in_order ${refused} assert check_raises() is True ${alone}
+test_alone.py::test_swallowed ${refused} assert check() is True ${alone}
+test_alone.py::test_differs ${refused} assert check() is True ${alone}
+test_alone.py::test_suppressed ${refused} assert check() is True ${alone}
+6 cases: 6 blocked; 6 project errors
 LINES
     [[ -z "${stderr}" ]]
   done

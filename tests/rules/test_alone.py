@@ -10,6 +10,13 @@ def check():
     return True
 
 
+def check_raises():
+    if not seen:
+        assert seen == []
+        return True
+    raise ValueError("raised in order")
+
+
 def boom():
     if seen:
         raise ValueError("raised in order")
@@ -21,6 +28,19 @@ def test_raised():
     assert seen.append(1) is None
     assert check() is True
     assert boom() is True
+
+
+def test_unreached():
+    threading.Thread(target=threading.Event().wait, daemon=True).start()
+    assert seen.append(1) is None
+    assert boom() is True
+    assert check() is True
+
+
+def test_raises_in_order():
+    threading.Thread(target=threading.Event().wait, daemon=True).start()
+    assert seen.append(1) is None
+    assert check_raises() is True
 
 
 def test_swallowed():

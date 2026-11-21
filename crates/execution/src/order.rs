@@ -84,7 +84,31 @@ mod tests {
     /// The line that `order` gives for `facts` with no suppression, as text a
     /// row can compare.
     fn line(facts: &Facts) -> String {
-        match order(facts, &[]).0 {
+        shown(order(facts, &[]).0)
+    }
+
+    /// What `warned` gives: the line, each warning as `[<check>] <words>`, and
+    /// whether the order judged the suppressions.
+    type Warned = (String, Vec<String>, bool);
+
+    /// A row of a test of suppressions: what it checks, the facts of a case,
+    /// its suppressions, and what `warned` gives.
+    type Row<'a> = (&'a str, Facts, &'a [(&'a str, &'a str)], Warned);
+
+    /// What `order` gives for `facts` under `suppressions`.
+    fn warned(facts: &Facts, suppressions: &[(&str, &str)]) -> Warned {
+        let (own, suppressed) = order(facts, suppressions);
+        let warnings = suppressed
+            .warnings
+            .iter()
+            .map(|warning| format!("[{}] {}", warning.check, warning.words))
+            .collect();
+        (shown(own), warnings, suppressed.judged)
+    }
+
+    /// An outcome or an error as the text of its line.
+    fn shown(own: Result<Kind, Error>) -> String {
+        match own {
             Ok(Kind::Passed) => "passed".to_owned(),
             Ok(Kind::Failed { asserts }) => format!(
                 "failed: {}",
@@ -150,6 +174,35 @@ mod tests {
         ];
         for (row, facts, gives) in rows {
             assert_eq!(line(&facts), gives, "{row}");
+        }
+    }
+
+    #[test]
+    fn a_suppressed_fault_gives_a_warning_and_the_case_goes_on() {
+        let swallowed = "the with at line 3 swallowed a raise, and line 4 did not run";
+        let rows: Vec<Row<'_>> = vec![
+            // fails when: `clause` gives back the clause of a check that a
+            // suppression reaches, in place of the warning
+            (
+                "a suppressed fault of the paths gives a warning, and the case passes",
+                Facts {
+                    path: vec![("swallowed-raise".to_owned(), swallowed.to_owned())],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[("swallowed-raise", "the act once swallowed a raise")],
+                (
+                    "passed".to_owned(),
+                    vec![format!("[swallowed-raise] {swallowed}")],
+                    true,
+                ),
+            ),
+            // EXERCISE: a row for the last sentence of the doc of `order`.
+        ];
+        for (row, facts, suppressions, gives) in rows {
+            assert_eq!(warned(&facts, suppressions), gives, "{row}");
         }
     }
 }
