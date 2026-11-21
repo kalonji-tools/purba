@@ -245,6 +245,30 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a reading alone that reaches an assert gives one line, whether a fork or a replay reads it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  mkdir thread none
+  cp "${BATS_TEST_DIRNAME}/rules/test_alone.py" thread/
+  grep -v 'threading.Thread(' "${BATS_TEST_DIRNAME}/rules/test_alone.py" >none/test_alone.py
+
+  local alone='reaches an assert when read alone, and only an expectation asserts'
+  local worker
+  for worker in thread none; do
+    cd "${BATS_TEST_TMPDIR}/${worker}"
+
+    run -4 --separate-stderr purba test_alone.py
+
+    diff -u - <(printf '%s\n' "${output}") <<LINES
+test_alone.py::test_raised project error: [assert-in-reading] assert check() is True ${alone}
+test_alone.py::test_swallowed project error: [assert-in-reading] assert check() is True ${alone}
+test_alone.py::test_differs project error: [assert-in-reading] assert check() is True ${alone}
+test_alone.py::test_suppressed project error: [assert-in-reading] assert check() is True ${alone}
+4 cases: 4 blocked; 4 project errors
+LINES
+    [[ -z "${stderr}" ]]
+  done
+}
+
 @test "a try of one statement and one except takes one path, and another try names that shape" {
   cd "${BATS_TEST_DIRNAME}/rules"
 
