@@ -16,6 +16,21 @@ This is also the cheapest moment to decide:
 | after a prescan exists | every statement and expression arm rewrites, 1 to 2 weeks | expensive, asymmetric |
 | after a query language ships | AST facts have become a public contract | effectively one-way |
 
+| fact | source |
+|---|---|
+| `ruff_python_parser` `0.0.18` and `0.0.19` are published from ruff's tags `0.17.1` and `0.17.2` | [the probe](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7064632646) |
+| at `0.17.1`, `ruff_python_parser` names `stacker` as a plain dependency | [`Cargo.toml` L29 at `0.17.1`](https://github.com/astral-sh/ruff/blob/0.17.1/crates/ruff_python_parser/Cargo.toml#L29) |
+| at `0.17.2`, `ruff_python_parser` names `stacker` as an optional dependency, behind a feature `stacker`, and its `[features]` names no `default` | [`Cargo.toml` L29 and L51-L52 at `0.17.2`](https://github.com/astral-sh/ruff/blob/0.17.2/crates/ruff_python_parser/Cargo.toml#L29-L52) |
+| with the feature `stacker`, ruff's parser grows the stack through `stacker::maybe_grow` | [`parser/mod.rs` L950-L961 at `0.17.6`](https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/parser/mod.rs#L950-L961) |
+| at `0.0.23` without `stacker`, the test of `test_deep_broken.py` in `crates/parsing/tests/parse.rs` aborts with a stack overflow, and with `stacker` it passes | [the probe](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7064632646) |
+| the `.cargo_vcs_info.json` of `0.0.2`, `0.0.12`, `0.0.17` and `0.0.23` names the commit of ruff's tag `0.15.19`, `0.16.6`, `0.17.0` and `0.17.6` | [the probe of the tags](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7066152058) |
+| ruff counts a tab to the next multiple of 2 columns | [`indentation.rs` L38 and L61-L69 at `0.17.6`](https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/lexer/indentation.rs#L38-L69) |
+| CPython counts a tab to the next multiple of 8 columns | [`state.c` L9](https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/state.c#L9) and [`lexer.c` L526](https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/lexer.c#L526) at `v3.14.4` |
+| at `0.0.23`, parsing refuses the module of the lines `if x:`, ` \t \tpass` and `  \t\tpass` | [the probe](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7064632646) |
+| CPython 3.12, 3.13, 3.14 and 3.14t compile that module | [the probe of the tags](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7066152058) |
+| `/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast`, `ruff_text_size` and `ruff_source_file` at `=0.0.23`, and turns on the feature `stacker` of `ruff_python_parser` | [`Cargo.toml` L19-L22 at `0fb42c27`](https://github.com/kalonji-tools/purba/blob/0fb42c27/Cargo.toml#L19-L22) |
+| `purba-selection` names `ruff_text_size` | [`crates/selection/Cargo.toml` L13 at `af978a83`](https://github.com/kalonji-tools/purba/blob/af978a83/crates/selection/Cargo.toml#L13) |
+
 ## Considered Options
 
 - **`rustpython-parser`.** It is not stale, it is abandoned, and it says so in three independent places. Its README now reads "superseded by". Its maintainer stated the repository will not be maintained and confirmed this covers the crate. The interpreter it was built for migrated onto a fork of ruff's parser and keeps no reference to it. The consequences are present rather than prospective: it declares no grammar version anywhere and fails outright on 7 of 774 CPython 3.14 source files.
@@ -25,7 +40,7 @@ The evidence is in its issues and its README, not in repository metadata.
 
 ## Decision Outcome
 
-**Reach:** `/Cargo.toml` `crates/**` `/.cargo/deny.toml` `/.cargo/clippy.toml`
+**Reach:** `/Cargo.toml` `crates/**` `/.cargo/deny.toml` `/.cargo/clippy.toml` `tests/skeleton.bats`
 
 **Area:** parsing
 
@@ -34,7 +49,12 @@ The API of `ruff_python_parser` is not meaningfully unstable for this use.
 Across six published versions over ten weeks the whole surface a prescan touches is byte-identical.
 That surface is the parse entry point, its options and result types, all 25 statement and 33 expression variants, and every visitor trait.
 The churn sits in peripheral helpers.
-`[workspace.dependencies]` pins each crate it names exactly at `=0.0.17`.
+`[workspace.dependencies]` pins each crate it names exactly at `=0.0.23`.
+
+`[workspace.dependencies]` turns on the feature `stacker` of `ruff_python_parser`.
+With it, ruff's parser grows the stack when a module nests deep.
+From `0.0.19` the feature is off by default.
+Without it, purba's test of a module that nests deeper than its stack aborts with a stack overflow.
 
 | crate | what the seam needs from it |
 |---|---|
@@ -79,6 +99,7 @@ The version mapping belongs here, because the patch number is a release counter 
 | `0.0.2` | 0.15.19 |
 | `0.0.12` | 0.16.6 |
 | `0.0.17` | 0.17.0 |
+| `0.0.23` | 0.17.6 |
 
 There is no `0.0.1`, and the mapping is not arithmetic.
 
@@ -88,6 +109,7 @@ There is no `0.0.1`, and the mapping is not arithmetic.
 - **MSRV moves about every six weeks**, three times in ten weeks, and each move is a pin somebody has to raise.
 - **The dependency count is higher**, at 61 transitive against 45, and four direct crates to name against one.
 - **Nothing notices a new ruff release.** A trigger reaches the coder only when they meet it.
+- **ruff and CPython count a tab to different columns.** ruff counts a tab to the next multiple of 2 columns. CPython counts it to the next multiple of 8. Parsing refuses a module whose lines indent alike at 8 columns to a tab and unlike at 2, such as `if x:`, then ` \t \tpass`, then `  \t\tpass`. CPython compiles it.
 
 Being wrong here is survivable, and being wrong the other way is not:
 
@@ -105,22 +127,24 @@ The pin is exact.
 Cargo treats a `0.0.x` requirement as `>=0.0.x, <0.0.(x+1)`, verified by an update that did not move a pinned requirement, so the forced upgrade cadence is none.
 `=` therefore states that intent and does not change it.
 
-`/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast`, `ruff_text_size` and `ruff_source_file` at `=0.0.17`.
+`/Cargo.toml` pins `ruff_python_parser`, `ruff_python_ast`, `ruff_text_size` and `ruff_source_file` at `=0.0.23`.
+It turns on the feature `stacker` of `ruff_python_parser`.
 
 | pinned crate | the crates that name it |
 |---|---|
 | `ruff_python_parser` | `purba-parsing` |
 | `ruff_python_ast` | `purba-parsing`, `purba-selection`, `purba-assertion` |
-| `ruff_text_size` | `purba-parsing`, `purba-assertion` |
+| `ruff_text_size` | `purba-parsing`, `purba-selection`, `purba-assertion` |
 | `ruff_source_file` | `purba-parsing` |
 
 `mise run test:rust` runs the tests in `crates/parsing/tests/parse.rs`, which parse a module through `purba-parsing`, and check that parsing refuses a module with a syntax error.
+Without `stacker`, its test of a module that nests deeper than its stack and does not parse aborts with a stack overflow.
 It also runs the tests in `crates/assertion/tests/rewrite.rs`, which rewrite a module at the ranges of its nodes.
 `mise run lint:licences` reads the exceptions in `.cargo/deny.toml`, and refuses one that no crate uses.
 
 Cargo refused an unused `itoa` in `purba`.
 It passed `ruff_text_size` and `ruff_source_file` in `purba-parsing`, when nothing there called either.
 
-`.cargo_vcs_info.json` in the published crate gives the row for `0.0.17`, because it names the commit of ruff's tag `0.17.0`.
-The `.cargo_vcs_info.json` of `0.0.12` gives its row in the same way.
+The `.cargo_vcs_info.json` of each pinned version names the commit of a ruff tag.
+That tag is the ruff release in the row of that pin.
 A prescan turns the choice of parser into a fitness function, and counts parse failures against a corpus.

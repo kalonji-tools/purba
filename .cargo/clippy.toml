@@ -2,7 +2,7 @@
 # https://doc.rust-lang.org/clippy/lint_configuration.html#warn-on-all-wildcard-imports
 warn-on-all-wildcard-imports = true
 
-# Each function of `ruff_python_parser` 0.0.17 that parses. Only purba-parsing
+# Each function of `ruff_python_parser` 0.0.23 that parses. Only purba-parsing
 # calls one.
 #
 #   the decision:  docs/decisions/a-gate-refuses-each-invariant-a-tool-can-see.md
