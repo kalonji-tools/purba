@@ -371,6 +371,29 @@ LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
 
+@test "a Ctrl-C in a later replay keeps the warnings the case had before its replays" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import contextlib, threading, time' 'from pathlib import Path' '' 'seen = []' '' \
+    'def check():' '    if not seen:' '        assert seen == []' '    return True' '' \
+    '# purba: suppress[swallowed-raise] the act once swallowed a raise' 'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    with contextlib.suppress(ValueError):' '        raise ValueError("v")' \
+    '        seen.append(2)' '    runs = len(list(Path().glob("ran*")))' \
+    '    Path(f"ran{runs}").touch()' '    Path(["case", "first", "marker"][runs]).touch()' \
+    '    time.sleep(3 * (runs == 2))' '    assert seen.append(1) is None' \
+    '    assert check() is True' '    assert 2 == 2' >test_replay.py
+
+  run -0 --separate-stderr interrupt test_replay.py 0
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_replay.py::test_one interrupted
+    ⚠ suppressed [swallowed-raise] the with at line 14 swallowed a raise, and line 16 did not run
+      reason: the act once swallowed a raise
+1 case: 1 interrupted; 1 suppressed
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
+}
+
 @test "a zygote that a signal ends after its tests ends the run as the zygote's own exit does" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   for end in 'os.kill(os.getpid(), signal.SIGTERM)' 'os._exit(3)'; do
