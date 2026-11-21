@@ -46,5 +46,5 @@ It checks that purba prints the test as `raised`, and no project error, when suc
 It checks that a `__del__` that raises in a test gives no error.
 The `wheel` job of `ci.yml` runs these checks on each Python of its matrix.
 
-`mise run test:rust` checks that such an exception charges the test that runs when the thread raises, not the test that started it.
+`mise run test:rust` checks that such an exception charges the test that runs when the thread raises, not the load that started it.
 No command checks that a `SystemExit` from such a thread gives no error.

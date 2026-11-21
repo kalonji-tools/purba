@@ -20,7 +20,7 @@ Each slice of the walking skeleton needs to know what crosses to dispatch, and h
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
-**Area:** dispatch
+**Area:** dispatch, execution
 
 **A worker loads each module once, and command hands each module once.**
 The module body runs once for its tests, as under pytest.
@@ -48,7 +48,7 @@ Dispatch runs none of that module's tests.
 
 ## Confirmation
 
-`mise run test:rust` checks that a worker of execution loads a module once for two of its tests.
+`mise run test:rust` checks that a zygote loads a module once for two of its tests.
 It checks that a module that fails to load runs its body once for two of its tests.
 It checks that dispatch runs no test of such a module, and hands each on as blocked.
 It checks that each test that dispatch hands on reads the module as its load left it.
