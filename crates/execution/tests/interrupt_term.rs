@@ -4,12 +4,28 @@
 
 mod common;
 
-use purba_execution::Kind;
+use purba_execution::{Kind, Worker};
 
-const TEST_TERM: &str = "import signal\n\n\
-    def test_term():\n    try:\n        signal.raise_signal(signal.SIGTERM)\n    \
-    except KeyboardInterrupt:\n        \
-    signal.signal(signal.SIGTERM, lambda signum, frame: None)\n    assert True\n";
+/// A module whose test takes a SIGTERM, then gives SIGTERM its own signal
+/// handler. As its process ends, it marks whether the operating system gives
+/// each of SIGINT, SIGTERM and SIGHUP its default action, ignores it, or runs
+/// a handler.
+fn test_term(marker: &str) -> String {
+    format!(
+        "import atexit\nimport ctypes\nimport signal\n\n\
+         def disposition(signum):\n    action = ctypes.create_string_buffer(256)\n    \
+         assert ctypes.CDLL(None).sigaction(signum, None, action) == 0\n    \
+         handler = ctypes.c_void_p.from_buffer(action).value or 0\n    \
+         return {{0: 'default', 1: 'ignored'}}.get(handler, 'handled')\n\n\
+         def mark():\n    with open({marker:?}, 'w') as marker:\n        \
+         marker.write(' '.join(disposition(s) \
+         for s in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)))\n\n\
+         def test_term():\n    atexit.register(mark)\n    try:\n        \
+         signal.raise_signal(signal.SIGTERM)\n    \
+         except KeyboardInterrupt:\n        \
+         signal.signal(signal.SIGTERM, lambda signum, frame: None)\n    assert True\n"
+    )
+}
 
 const SIGNALS: [libc::c_int; 3] = [libc::SIGINT, libc::SIGTERM, libc::SIGHUP];
 
@@ -38,32 +54,40 @@ fn disposition(signum: libc::c_int) -> &'static str {
 // binary.
 #[test]
 fn a_sigterm_in_a_call_makes_the_test_interrupted_and_each_signal_keeps_a_handler() {
-    let module = common::module("test_term.py", TEST_TERM);
+    let marker = std::env::temp_dir().join(format!("purba-term-{}", std::process::id()));
+    let module = common::module(
+        "test_term.py",
+        &test_term(marker.to_str().expect("the marker's path is text")),
+    );
     // A signal that purba's parent ignores stays ignored.
     let before = SIGNALS.map(disposition);
-    let kind = purba_execution::attach(|worker| {
+    let kind = purba_execution::attach(|worker: &mut Worker<'_, &str>| {
         purba_execution::set_hooks().expect("purba's signal handler takes each signal");
-        worker.load(&module).expect("the module loads");
-        worker
-            .run(&module, "test_term", &[], "test_term")
+        let (mut zygote, _) = worker.zygote(&module).expect("the zygote loads the module");
+        let (result, _, _) = zygote.run("test_term", &[], "test_term");
+        zygote.end();
+        result
             .map(|outcome| outcome.kind().clone())
             .map_err(|error| error.to_string())
     });
+    let after = std::fs::read_to_string(&marker).expect("test_term marked the dispositions");
+    std::fs::remove_file(&marker).expect("the marker goes");
     assert_eq!(
         kind,
         Ok(Kind::Interrupted),
         "a SIGTERM in a call makes the test interrupted, as a SIGINT does"
     );
-    let expected = before.map(|was| {
-        if was == "ignored" {
-            "ignored"
-        } else {
-            "handled"
-        }
-    });
+    let expected = before
+        .map(|was| {
+            if was == "ignored" {
+                "ignored"
+            } else {
+                "handled"
+            }
+        })
+        .join(" ");
     assert_eq!(
-        SIGNALS.map(disposition),
-        expected,
+        after, expected,
         "after the first interrupt, SIGINT, SIGTERM and SIGHUP each keep purba's native \
          handler, unless purba's parent ignores it. SIGTERM keeps it though the test gave \
          SIGTERM its own signal handler after the first interrupt."

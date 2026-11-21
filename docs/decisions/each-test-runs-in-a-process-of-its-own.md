@@ -24,7 +24,7 @@ When the tests of a module share one interpreter, a test can fail for what an ea
 
 **Reach:** `crates/**` `/LANDSCAPE.md`
 
-**Area:** dispatch
+**Area:** dispatch, execution
 
 **Each [test](../../CONTEXT.md#test) runs in a process of its own.**
 No change that a test makes in memory reaches another test.

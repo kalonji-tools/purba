@@ -56,6 +56,7 @@
 
 - [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)
 - [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](decisions/a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md)
+- [Each test runs in a process of its own](decisions/each-test-runs-in-a-process-of-its-own.md)
 - [Execution calls a test by its function's name, and reporting prints the identity it is given](decisions/execution-calls-a-test-by-its-functions-name.md)
 
 ### fixtures

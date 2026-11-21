@@ -3,7 +3,7 @@ mod common;
 use std::path::PathBuf;
 
 use common::module;
-use purba_execution::{Kind, Owner};
+use purba_execution::{Kind, Owner, Worker};
 
 /// The owner of a thread: the test, by the name of its function, or a load.
 type Owned = Owner<&'static str>;
@@ -46,13 +46,6 @@ const TEST_THREAD: &str = "import sys\nimport threading\n\n\
     def test_two():\n    run(\"B\", lambda: [][1])\n    run(\"C\", lambda: {}[\"k\"])\n\
     \x20   assert True\n";
 
-/// A thread that `test_leaves` leaves alive, and that raises during `test_releases`.
-const TEST_LATE: &str = "import threading\n\ngo = threading.Event()\nleft = []\n\n\
-    def late():\n    go.wait()\n    raise ValueError(\"late\")\n\n\
-    def test_leaves():\n    thread = threading.Thread(target=late, name=\"T\", daemon=True)\n\
-    \x20   thread.start()\n    left.append(thread)\n    assert True\n\n\
-    def test_releases():\n    go.set()\n    left[0].join()\n    assert True\n";
-
 /// A thread that raises while the module loads, which joins it.
 const TEST_LOAD_THREAD: &str = "import threading\n\n\
     thread = threading.Thread(target=lambda: 1 / 0, name=\"L\")\n\
@@ -74,17 +67,6 @@ const TEST_RAW_THREAD: &str = "import _thread\n\nstarted = []\n\n\
     \x20   waits.until(lambda: started and _thread._count() <= before)\n\
     \x20   assert True\n";
 
-/// A thread that `_thread` starts in `test_leaves`, and that raises during
-/// `test_releases`, which waits for `_thread._count()` to fall.
-const TEST_RAW_LATE: &str = "import _thread\n\n\
-    go = _thread.allocate_lock()\ngo.acquire()\nstarted = []\nbefore = []\n\n\
-    def late():\n    started.append(1)\n    go.acquire()\n    raise ValueError(\"late raw\")\n\n\
-    def test_leaves():\n    before.append(_thread._count())\n\
-    \x20   _thread.start_new_thread(late, ())\n    waits.until(lambda: started)\n\
-    \x20   assert True\n\n\
-    def test_releases():\n    go.release()\n\
-    \x20   waits.until(lambda: _thread._count() <= before[0])\n    assert True\n";
-
 /// `text` with the number that names a thread `_thread` started replaced, so
 /// that two runs compare equal.
 fn without_ident(text: String) -> String {
@@ -104,56 +86,56 @@ const TEST_LOAD_LEAVES: &str = "import threading\n\ngo = threading.Event()\n\n\
     thread = threading.Thread(target=late, name=\"M\", daemon=True)\nthread.start()\n\n\
     def test_releases():\n    go.set()\n    thread.join()\n    assert True\n";
 
-// The hooks on `threading.excepthook` and `sys.unraisablehook` keep one record
-// for the process, and cargo runs the tests of one binary on several threads.
-// The `threads` of another test could take the record of an exception raised
-// here. So each thread that raises in this process lives in this one test,
-// alone in its binary.
+/// The steps of `module` through a zygote, as dispatch makes them: its load,
+/// then each of `functions`. A load's threads charge the load.
+fn through(path: &str, source: &str, functions: &[&'static str]) -> Vec<Step> {
+    let module = module(path, source);
+    purba_execution::attach(|worker: &mut Worker<'_, &'static str>| {
+        let (mut zygote, threads) = match worker.zygote(&module) {
+            Ok(started) => started,
+            Err(stop) => return vec![(Err(stop.error.to_string()), Vec::new())],
+        };
+        let mut steps = vec![(
+            Ok(None),
+            threads
+                .into_iter()
+                .map(|error| (load(path), without_ident(error.to_string())))
+                .collect(),
+        )];
+        for function in functions {
+            let (result, _, threads) = zygote.run(function, &[], *function);
+            steps.push((
+                result
+                    .map(|outcome| Some(outcome.kind().clone()))
+                    .map_err(|error| error.to_string()),
+                threads
+                    .into_iter()
+                    .map(|(owner, error)| (owner, without_ident(error.to_string())))
+                    .collect(),
+            ));
+        }
+        zygote.end();
+        steps
+    })
+}
+
 #[test]
 fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
-    let test_thread = module("test_thread.py", TEST_THREAD);
-    let test_late = module("test_late.py", TEST_LATE);
-    let test_load_thread = module("test_load_thread.py", TEST_LOAD_THREAD);
-    let test_load_leaves = module("test_load_leaves.py", TEST_LOAD_LEAVES);
-    let test_raw_thread = module("test_raw_thread.py", &format!("{WAITS}{TEST_RAW_THREAD}"));
-    let test_raw_late = module("test_raw_late.py", &format!("{WAITS}{TEST_RAW_LATE}"));
-    // A step with no function is a `load` alone, as dispatch makes it.
-    let steps: Vec<Step> = purba_execution::attach(|worker| {
-        [
-            (&test_thread, None),
-            (&test_thread, Some("test_joins")),
-            (&test_thread, Some("test_exits")),
-            (&test_thread, Some("test_two")),
-            (&test_late, None),
-            (&test_late, Some("test_leaves")),
-            (&test_late, Some("test_releases")),
-            (&test_load_thread, None),
-            (&test_load_leaves, None),
-            (&test_load_leaves, Some("test_releases")),
-            (&test_raw_thread, None),
-            (&test_raw_thread, Some("test_raw")),
-            (&test_raw_late, None),
-            (&test_raw_late, Some("test_leaves")),
-            (&test_raw_late, Some("test_releases")),
-        ]
-        .iter()
-        .map(|(module, function)| {
-            let result = match function {
-                Some(function) => worker
-                    .run(module, function, &[], *function)
-                    .map(|outcome| Some(outcome.kind().clone())),
-                None => worker.load(module).map(|()| None),
-            }
-            .map_err(|error| error.to_string());
-            let threads = worker
-                .threads()
-                .into_iter()
-                .map(|(owner, error)| (owner, without_ident(error.to_string())))
-                .collect();
-            (result, threads)
-        })
-        .collect()
-    });
+    let steps: Vec<Step> = [
+        through(
+            "test_thread.py",
+            TEST_THREAD,
+            &["test_joins", "test_exits", "test_two"],
+        ),
+        through("test_load_thread.py", TEST_LOAD_THREAD, &[]),
+        through("test_load_leaves.py", TEST_LOAD_LEAVES, &["test_releases"]),
+        through(
+            "test_raw_thread.py",
+            &format!("{WAITS}{TEST_RAW_THREAD}"),
+            &["test_raw"],
+        ),
+    ]
+    .concat();
     let passed = || Some(Kind::Passed);
     let zero = "ZeroDivisionError: division by zero";
     assert_eq!(
@@ -169,9 +151,6 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
                     (test("test_two"), "C", "KeyError: 'k'"),
                 ]
             ),
-            step(None, &[]),
-            step(passed(), &[]),
-            step(passed(), &[(test("test_leaves"), "T", "ValueError: late")]),
             step(None, &[(load("test_load_thread.py"), "L", zero)]),
             step(None, &[]),
             step(
@@ -182,12 +161,6 @@ fn a_threads_exception_charges_the_test_or_the_load_that_left_the_thread() {
             step(
                 passed(),
                 &[(test("test_raw"), "<ident>", "ValueError: raw")]
-            ),
-            step(None, &[]),
-            step(passed(), &[]),
-            step(
-                passed(),
-                &[(test("test_releases"), "<ident>", "ValueError: late raw")]
             ),
         ],
         "each test keeps its outcome and each load its result. Each exception of a thread, \

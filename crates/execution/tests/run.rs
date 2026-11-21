@@ -39,13 +39,10 @@ fn through(
     suppressions: &[(&str, &str)],
 ) -> (Result<(), String>, Vec<Ran>) {
     attach(|worker: &mut Worker<'_, String>| {
-        let mut zygote = worker.zygote(module, true).expect("the zygote forks");
-        let loaded = zygote.loaded();
-        assert!(
-            !loaded.threaded,
-            "no thread is alive after the load, or dispatch would fork a zygote that loads nothing"
-        );
-        let load = loaded.result.map_err(|error| error.line());
+        let (mut zygote, _) = match worker.zygote(module) {
+            Ok(started) => started,
+            Err(stop) => return (Err(stop.error.line()), Vec::new()),
+        };
         let out = functions
             .iter()
             .map(|function| {
@@ -55,7 +52,7 @@ fn through(
             })
             .collect();
         zygote.end();
-        (load, out)
+        (Ok(()), out)
     })
 }
 
@@ -110,30 +107,23 @@ fn a_module_level_assert_is_no_expectation_of_a_test() {
 
 #[test]
 fn a_worker_loads_each_module_once() {
+    // Each test's process is a fork of the zygote, so it holds the count that
+    // the zygote's load left. A load in a test's process would count again.
     let test_once = module(
         "test_once.py",
-        "calls = []\n\n\
-         def test_first():\n    calls.append(1)\n    assert calls == [1]\n\n\
-         def test_second():\n    calls.append(2)\n    assert calls == [1, 2]\n",
+        "import builtins\n\
+         builtins.purba_once = getattr(builtins, 'purba_once', 0) + 1\n\n\
+         calls = []\n\n\
+         def test_first():\n    calls.append(1)\n    \
+         assert (builtins.purba_once, calls) == (1, [1])\n\n\
+         def test_second():\n    calls.append(2)\n    \
+         assert (builtins.purba_once, calls) == (1, [2])\n",
     );
-    // One worker, in one process: a zygote would fork each test from the load.
-    let kinds: Vec<Kind> = attach(|worker| {
-        worker.load(&test_once).expect("the module loads");
-        ["test_first", "test_second"]
-            .iter()
-            .map(|function| {
-                worker
-                    .run(&test_once, function, &[], *function)
-                    .expect("the test runs")
-                    .kind()
-                    .clone()
-            })
-            .collect()
-    });
     assert_eq!(
-        kinds,
+        kinds(&test_once, &["test_first", "test_second"]),
         [Kind::Passed, Kind::Passed],
-        "the second test sees the list that the first test changed",
+        "the module's body runs once, in the zygote, for two of its tests, and the second \
+         test does not see the list that the first test changed",
     );
 }
 
@@ -378,97 +368,27 @@ fn an_outcome_is_data() {
 }
 
 #[test]
-fn a_module_that_fails_to_load_runs_its_body_once() {
+fn a_module_that_fails_to_load_stops_with_its_error_and_runs_its_body_once() {
+    let marker = std::env::temp_dir().join(format!("purba-fails-{}", std::process::id()));
     let loads = module(
         "test_fails.py",
-        "import builtins\nbuiltins.purba_loads = getattr(builtins, 'purba_loads', 0) + 1\n\
-         raise ValueError(f'load {builtins.purba_loads}')\n\n\
-         def test_one():\n    pass\n\ndef test_two():\n    pass\n",
+        &format!(
+            "with open({marker:?}, 'a') as marker:\n    marker.write('load\\n')\n\
+             raise ValueError('load')\n\n\
+             def test_one():\n    pass\n\ndef test_two():\n    pass\n"
+        ),
     );
-    let errors: Vec<String> = attach(|worker| {
-        let loaded = worker
-            .load(&loads)
-            .expect_err("the module raises")
-            .to_string();
-        std::iter::once(loaded)
-            .chain(["test_one", "test_two"].iter().map(|function| {
-                worker
-                    .run(&loads, function, &[], *function)
-                    .expect_err("the module does not load")
-                    .to_string()
-            }))
-            .collect()
-    });
+    let (load, ran) = through(&loads, &["test_one", "test_two"], &[]);
+    let body = std::fs::read_to_string(&marker).expect("the body wrote the marker");
+    std::fs::remove_file(&marker).expect("the marker goes");
     assert_eq!(
-        errors,
-        [
-            "ValueError: load 1",
-            "test_fails.py did not load",
-            "test_fails.py did not load"
-        ],
-        "each test names the module, and the body runs once",
-    );
-}
-
-#[test]
-fn a_load_that_fails_gives_its_error_once() {
-    let fails = module(
-        "test_load_fails.py",
-        "import builtins\n\
-         builtins.purba_load_fails = getattr(builtins, 'purba_load_fails', 0) + 1\n\
-         raise ValueError(f'load {builtins.purba_load_fails}')\n\n\
-         def test_one():\n    pass\n",
-    );
-    let errors: Vec<String> = attach(|worker| {
-        vec![
-            worker
-                .load(&fails)
-                .expect_err("the module raises")
-                .to_string(),
-            worker
-                .load(&fails)
-                .expect_err("the module did not load")
-                .to_string(),
-            worker
-                .run(&fails, "test_one", &[], "test_one")
-                .expect_err("the module did not load")
-                .to_string(),
-        ]
-    });
-    assert_eq!(
-        errors,
-        [
-            "ValueError: load 1",
-            "test_load_fails.py did not load",
-            "test_load_fails.py did not load",
-        ],
-        "the load's error once, then the module's name, and the body runs once",
-    );
-}
-
-#[test]
-fn a_test_runs_on_the_module_that_load_loaded() {
-    let loads = module(
-        "test_load_once.py",
-        "import builtins\n\
-         builtins.purba_load_once = getattr(builtins, 'purba_load_once', 0) + 1\n\n\
-         def test_one():\n    assert builtins.purba_load_once == 1\n",
-    );
-    let kind = attach(|worker| {
-        worker.load(&loads).expect("the module loads");
-        worker
-            .load(&loads)
-            .expect("a second load keeps the first module");
-        worker
-            .run(&loads, "test_one", &[], "test_one")
-            .expect("the test runs")
-            .kind()
-            .clone()
-    });
-    assert_eq!(
-        kind,
-        Kind::Passed,
-        "the body ran once, for both loads and the test"
+        (load, ran.len(), body.as_str()),
+        (
+            Err("project error: ValueError: load".to_owned()),
+            0,
+            "load\n"
+        ),
+        "the module stops with its error, no test runs, and its body ran once",
     );
 }
 
