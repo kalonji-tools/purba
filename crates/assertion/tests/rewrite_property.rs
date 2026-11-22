@@ -156,7 +156,7 @@ proptest! {
             })
             .collect();
 
-        let rewrite = purba_assertion::rewrite(&original, &[]);
+        let rewrite = purba_assertion::rewrite(&purba_parsing::Facts::of(&original), &[]);
         let rewritten = parse(rewrite.text(), "the rewrite")?;
 
         let found = asserts(&rewritten);
@@ -220,7 +220,8 @@ proptest! {
         let left = &original.source()[left.range()];
         let right = &original.source()[right.range()];
 
-        let rewrite = purba_assertion::rewrite(&original, &["test_case"]);
+        let rewrite =
+            purba_assertion::rewrite(&purba_parsing::Facts::of(&original), &["test_case"]);
         let rewritten = parse(rewrite.text(), "the rewrite")?;
         prop_assert_eq!(
             rewritten.source().lines().count(),

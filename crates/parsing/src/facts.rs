@@ -1,16 +1,19 @@
-//! The facts of a module: its tests, its imports and the names it binds.
+//! The facts of a module: its tests, its imports and the names it binds. Each
+//! test also holds its own facts, which parsing finds when a part first asks
+//! for them.
 
+use std::cell::OnceCell;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 
 use ruff_python_ast::{
-    Alias, Comprehension, ExceptHandler, Expr, ExprContext, Identifier, Pattern, Stmt,
-    StmtFunctionDef,
+    Alias, Comprehension, ExceptHandler, Expr, ExprContext, Identifier, Parameters, Pattern, Stmt,
+    StmtAssert, StmtFunctionDef, StmtTry,
 };
 use ruff_text_size::{Ranged, TextSize};
 
 use crate::walk::{Arms, Enter, Node, walk};
-use crate::{Module, blocks, keyword};
+use crate::{Module, Shape, blocks, ending, keyword, shape};
 
 /// The facts of a module: its tests, its imports and the names it binds.
 /// They borrow the module, and drop before it.
@@ -35,6 +38,115 @@ pub struct Test<'m> {
     pub defs: Vec<&'m StmtFunctionDef>,
     /// Where the first `def` of the name starts.
     pub first: TextSize,
+    facts: OnceCell<TestFacts<'m>>,
+}
+
+impl<'m> Test<'m> {
+    /// The facts of the `def` that binds the name, the last of `defs`. The
+    /// first call reads them, and each later call gives the same facts.
+    pub fn facts(&self) -> &TestFacts<'m> {
+        self.facts.get_or_init(|| {
+            self.defs
+                .last()
+                .map_or_else(TestFacts::default, |function| TestFacts::of(function))
+        })
+    }
+
+    /// The facts of the test, after a part asks for them.
+    #[must_use]
+    pub fn facts_if_read(&self) -> Option<&TestFacts<'m>> {
+        self.facts.get()
+    }
+}
+
+/// The facts of the `def` of one test.
+#[derive(Default)]
+pub struct TestFacts<'m> {
+    /// The name of each parameter.
+    pub parameters: HashSet<&'m str>,
+    /// Each name that the test binds: its parameters, and each name that its
+    /// body binds.
+    pub locals: HashSet<&'m str>,
+    /// The asserts at the end of the body, as [`ending`] gives them, each with
+    /// its shape. A tuple assert can be one of them.
+    pub ending: Vec<(&'m StmtAssert, Shape<'m>)>,
+    /// Each statement of the body at any depth, in source order. The list
+    /// leaves out the body of each `def` or `class` in the body.
+    pub statements: Vec<&'m Stmt>,
+}
+
+impl<'m> TestFacts<'m> {
+    fn of(function: &'m StmtFunctionDef) -> Self {
+        Self {
+            parameters: parameters(&function.parameters),
+            locals: locals(function),
+            ending: ending(&function.body)
+                .into_iter()
+                .map(|assert| (assert, shape(&assert.test)))
+                .collect(),
+            statements: statements(&function.body),
+        }
+    }
+
+    /// Each `try` among the statements, in source order.
+    pub fn tries(&self) -> impl Iterator<Item = &'m StmtTry> + '_ {
+        self.statements
+            .iter()
+            .filter_map(|statement| match statement {
+                Stmt::Try(attempt) => Some(attempt),
+                _ => None,
+            })
+    }
+}
+
+/// The name of each parameter of `parameters`, of a `def` or of a `lambda`.
+#[must_use]
+pub fn parameters(parameters: &Parameters) -> HashSet<&str> {
+    parameters
+        .posonlyargs
+        .iter()
+        .chain(&parameters.args)
+        .chain(&parameters.kwonlyargs)
+        .map(|parameter| parameter.parameter.name.as_str())
+        .chain(parameters.vararg.iter().map(|vararg| vararg.name.as_str()))
+        .chain(parameters.kwarg.iter().map(|kwarg| kwarg.name.as_str()))
+        .collect()
+}
+
+/// Each name that `function` binds: its parameters, and each name that its
+/// body binds.
+#[must_use]
+pub fn locals(function: &StmtFunctionDef) -> HashSet<&str> {
+    let mut locals: HashSet<&str> = Scope::of(&function.body)
+        .names
+        .into_iter()
+        .map(|(name, _)| name)
+        .collect();
+    locals.extend(parameters(&function.parameters));
+    locals
+}
+
+/// Each statement of `body` at any depth, in source order. The body of a `def`
+/// or a `class` is not part of it.
+fn statements(body: &[Stmt]) -> Vec<&Stmt> {
+    #[derive(Default)]
+    struct Statements<'a>(Vec<&'a Stmt>);
+    impl<'a> Arms<'a> for Statements<'a> {
+        fn stmt(&mut self, statement: &'a Stmt) -> Enter {
+            self.0.push(statement);
+            match statement {
+                Stmt::FunctionDef(_) | Stmt::ClassDef(_) => Enter::Nothing,
+                _ => Enter::All,
+            }
+        }
+
+        fn expr(&mut self, _expr: &'a Expr) -> Enter {
+            Enter::Nothing
+        }
+    }
+    let mut statements = Statements::default();
+    walk(body.iter().map(Node::Stmt), &mut statements);
+    statements.0
 }
 
 /// A place where a module binds a name. A binding in a function binds the name
@@ -204,6 +316,7 @@ fn tests<'m>(candidates: Vec<(Place<'m>, &'m StmtFunctionDef)>) -> Vec<Test<'m>>
                     under,
                     defs: vec![function],
                     first,
+                    facts: OnceCell::new(),
                 });
             }
         }

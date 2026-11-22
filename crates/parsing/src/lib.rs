@@ -27,7 +27,7 @@ use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
 mod facts;
 mod walk;
 
-pub use facts::{Binding, Facts, Scope, Test, bound, origins};
+pub use facts::{Binding, Facts, Scope, Test, TestFacts, bound, locals, origins, parameters};
 pub use walk::{Arms, Enter, Node, walk};
 
 const BYTE_ORDER_MARK: char = '\u{feff}';

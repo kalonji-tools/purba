@@ -448,7 +448,8 @@ impl<'py, T: Clone> Worker<'py, T> {
         if window.landed() {
             return (Ok(None), true);
         }
-        let before = loaded.first_expectation(function).unwrap_or(usize::MAX);
+        let tested = loaded.test(function);
+        let before = tested.first_expectation().unwrap_or(usize::MAX);
         thread::hold_filters(py);
         let watch = paths::Watch::start(py, test.getattr("__code__").ok().as_ref(), before);
         let mut landed = false;
@@ -487,8 +488,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             refused,
             replay,
         } = readings;
-        let texts = texts(
-            loaded,
+        let texts = tested.texts(
             in_order
                 .iter()
                 .map(|(index, _)| *index)
@@ -508,7 +508,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             mark: mark.map(|(assert, held)| (assert.to_owned(), held)),
             path,
             swallowed,
-            tries: loaded.tries(function).to_vec(),
+            tries: tested.tries().to_vec(),
             refused,
             in_order,
             shown,
@@ -516,7 +516,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             later: replay,
             texts,
             missed,
-            stated: loaded.states_expectation(function),
+            stated: tested.states_expectation(),
         };
         (Ok(Some(facts)), landed)
     }
@@ -562,18 +562,6 @@ fn raised_by(
         assertion: err.is_instance_of::<PyAssertionError>(py),
     };
     (called, with)
-}
-
-/// The text of each expectation of `loaded` at one of `indexes`, once each, in
-/// the order of the indexes.
-fn texts(loaded: &Loaded<'_>, indexes: impl Iterator<Item = usize>) -> Vec<(usize, String)> {
-    let mut indexes: Vec<usize> = indexes.collect();
-    indexes.sort_unstable();
-    indexes.dedup();
-    indexes
-        .into_iter()
-        .filter_map(|index| Some((index, loaded.expectation(index)?.to_owned())))
-        .collect()
 }
 
 /// The checks that execution sees, of those that a suppression turns into a

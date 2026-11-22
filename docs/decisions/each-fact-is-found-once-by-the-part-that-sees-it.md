@@ -30,7 +30,7 @@ Two copies of one fact can disagree.
 A fact with one finder has no second copy that can disagree with it.
 
 - **Before the run, parsing finds the facts of each module once, and selection and assertion read them.** Neither part walks a tree for a fact that parsing finds.
-- **Parsing finds the facts of a module when it parses the module, and the facts of a test when a part first asks for them.** The facts of a module are its tests, its imports and the names that it binds. So parsing finds no fact of a test in a module that selection refuses. [Command lends one parse](command-lends-one-parse-to-selection-and-assertion.md#considered-options) rejects a walk that reads each module before selection decides.
+- **Parsing finds the facts of a module when it parses the module, and the facts of a test when a part first asks for them.** The facts of a module are its tests, its imports and the names that it binds. Assertion asks for the facts of each test that selection hands on, and of no other. [Command lends one parse](command-lends-one-parse-to-selection-and-assertion.md#considered-options) rejects a walk that reads each module before selection decides.
 - **Parsing holds one walk that does not overflow the stack, and each part runs it with only the nodes that it matches.**
 - **During the run, each child of the zygote gathers facts, and purba's process alone decides the outcome of each case from them.** Each child starts by the same steps, and sends each message through its pipe. A replay sends its verdict that way too.
 - **purba's process applies each suppression, then writes each fault of a case's paths, and decides the words about a `try` of one path.** A child writes no fault.

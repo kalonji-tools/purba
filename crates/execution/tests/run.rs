@@ -770,6 +770,63 @@ fn a_suppressed_path_or_swallowed_raise_gives_the_outcome_without_the_check() {
 }
 
 #[test]
+fn a_raise_in_a_block_inside_a_swallowing_with_names_the_next_line_at_any_depth() {
+    let test_nested = module(
+        "test_nested_swallow.py",
+        "import contextlib\n\n\n\
+         def test_nested():\n    seen = []\n    with contextlib.suppress(ValueError):\n        \
+         with contextlib.nullcontext():\n            int(\"x\")\n            seen.append(1)\n    \
+         assert seen == []\n",
+    );
+
+    let runs = suppressed_runs(
+        &test_nested,
+        &["test_nested"],
+        &[("swallowed-raise", "the raise is the act")],
+    );
+
+    assert_eq!(
+        runs,
+        [(
+            Ok(Kind::Passed),
+            warned(
+                "swallowed-raise",
+                "the with at line 6 swallowed a raise, and line 9 did not run",
+                "the raise is the act"
+            )
+        )],
+        "the line that did not run is the next statement at any depth of the with's body, \
+         inside the nested with"
+    );
+}
+
+#[test]
+fn a_test_that_a_later_def_binds_again_watches_the_paths_of_that_def() {
+    let twice = module(
+        "test_twice_paths.py",
+        "def test_twice():\n    assert 1 == 1\n\n\n\
+         def test_twice():\n    x = 1\n    if x == 2:\n        x = 3\n    assert x == 1\n",
+    );
+
+    let runs = suppressed_runs(&twice, &["test_twice"], &[]);
+
+    assert_eq!(
+        runs,
+        [(
+            Err(
+                "[second-path] line 7 went one way only, and the lines before the first \
+                 expectation take one path; [second-path] line 8 did not run, and the lines \
+                 before the first expectation take one path"
+                    .to_owned()
+            ),
+            Vec::new()
+        )],
+        "the second def binds the name, so the case watches its lines before its own first \
+         expectation, and not before the expectation of the first def"
+    );
+}
+
+#[test]
 fn a_check_that_reads_an_iterator_is_refused_unless_a_suppression_reaches_it() {
     let test_iterator = module(
         "test_iterator.py",
