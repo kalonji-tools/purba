@@ -58,7 +58,7 @@ A case gets the line of the first of these that it meets. A suppression of a che
 | 2 | an assert before the first expectation or inside a reading, a hook or the filters replaced, an `all()` of no item, or an expectation that read an iterator, whichever came first | a project error |
 | 3 | a raise that ends the call | `raised`, or `failed` when a `with`'s entry or cleanup raised it |
 | 4 | a line that did not run, a branch that went one way, a `with` that swallowed a raise | a project error, each breach joined by `; ` |
-| 5 | a fork refused, or two readings that differ | a project error |
+| 5 | a fork refused, a module's process that ended before a replay sent its reading, or two readings that differ | a project error |
 | 6 | a `try` of one path whose statement did not raise, or an expectation that did not hold; no expectation; or each expectation held | `failed`, a project error, or `passed` |
 
 Order 2 and order 5 hold whether a fork or a replay reads an expectation alone.

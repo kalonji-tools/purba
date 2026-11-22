@@ -36,7 +36,7 @@ fn dispatch_hands_on_a_threads_error_after_the_load_or_the_test_that_took_it() {
             ),
             Handed::Thread(Charged::Test(test), err) => Seen::Thread(Ok(test.0), err.to_string()),
             Handed::Thread(Charged::Module(path), err) => Seen::Thread(Err(path), err.to_string()),
-            Handed::Stopped { .. } | Handed::Unreached(..) => Seen::Other,
+            Handed::Stopped { .. } | Handed::Ended { .. } | Handed::Unreached(..) => Seen::Other,
         });
         ControlFlow::Continue(())
     });

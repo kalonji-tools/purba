@@ -14,6 +14,9 @@ enum Seen {
     Test(&'static str, Result<Kind, String>),
     /// A stopped module: its path, its error, each thread's, and its tests.
     Stopped(PathBuf, String, Vec<String>, Vec<&'static str>),
+    /// The tests left after the module's process ended: its path, the error
+    /// of that end, whether a case named it, and the tests.
+    Ended(PathBuf, String, bool, Vec<&'static str>),
     Thread(String),
     Unreached(&'static str),
 }
@@ -41,6 +44,17 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                 path,
                 error.line(),
                 threads.iter().map(Error::line).collect(),
+                tests.iter().map(|test| test.0).collect(),
+            ),
+            Handed::Ended {
+                path,
+                error,
+                named,
+                tests,
+            } => Seen::Ended(
+                path,
+                error.line(),
+                named,
                 tests.iter().map(|test| test.0).collect(),
             ),
             Handed::Thread(_, err) => Seen::Thread(err.line()),

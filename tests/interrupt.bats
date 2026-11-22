@@ -586,6 +586,51 @@ LINES
   [[ ! -e two ]]
 }
 
+# The thread makes the zygote replay the second expectation. Only the replay
+# writes the marker, unmasks SIGINT and sleeps, so only the replay keeps the
+# Ctrl-C.
+@test "a Ctrl-C that only a replay keeps ends purba by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, threading, time' 'from pathlib import Path' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path(["ran", "marker"][replay]).touch()' \
+    '    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})' \
+    '    time.sleep(3 * replay)' '    assert 1 == 1' '    assert 2 == 2' \
+    'def test_two():' '    Path("two").touch()' '    assert 2 == 2' >test_replay.py
+
+  run -0 --separate-stderr interrupt test_replay.py 0 masked INT
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_replay.py::test_one interrupted
+2 cases: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
+# As the case before, but the module's load leaves a thread alive, so the
+# replay loads the module itself.
+@test "a Ctrl-C that only a replay that loads its module keeps ends purba by SIGINT" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import signal, threading, time' 'from pathlib import Path' \
+    'threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    'def test_one():' \
+    '    replay = Path("ran").exists()' '    Path(["ran", "marker"][replay]).touch()' \
+    '    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})' \
+    '    time.sleep(3 * replay)' '    assert 1 == 1' '    assert 2 == 2' \
+    'def test_two():' '    Path("two").touch()' '    assert 2 == 2' >test_reload.py
+
+  run -0 --separate-stderr interrupt test_reload.py 0 masked INT
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_reload.py::test_one interrupted
+2 cases: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]]
+}
+
 @test "a test that unmasks a signal the parent masks and sets SIG_DFL is raised by it" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   for name in TERM INT HUP; do

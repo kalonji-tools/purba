@@ -38,7 +38,7 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
   ```mermaid
   flowchart LR
     error[an error stops] -->|one test or one module| place[one line on stdout, in the place of that test or module]
-    place -->|a module| blocked[then each of its selected tests, as blocked]
+    place -->|a module| blocked[then each of its selected tests left, as blocked]
     error -->|the run| stderr["one line on stderr, after purba: "]
     error -->|nothing| own[a line of its own]
   ```

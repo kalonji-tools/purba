@@ -38,7 +38,7 @@ flowchart LR
   testcall -- "the test catches the panic" --> note["execution reads the note after the call"]
   hook -- "panics while a module loads" --> moduleload["the load of a module"]
   moduleload -- "the load catches the panic" --> loadnote["execution reads the note after the load"]
-  other["execution outside the call, or the load of a module"] -- "a panic" --> outer["execution catches it in the zygote or the test's process"]
+  other["execution outside the call, or the load of a module"] -- "a panic" --> outer["execution catches it in the zygote, the test's process or a replay"]
   execution --> test["<b>internal error</b> for that test"]
   note --> test
   loadnote --> loaderror["<b>internal error</b> for that module and its tests"]
@@ -49,9 +49,9 @@ flowchart LR
   command -- "from the rewrite" --> rewritten["each refused line, then the <b>internal error</b> for that module and its tests"]
 ```
 
-- **A wrap of Rust's panic hook records each panic.** Execution catches each panic in the [zygote](../../CONTEXT.md#zygote) or the test's process. The next test keeps its line. A test that catches the panic cannot hide it.
+- **A wrap of Rust's panic hook records each panic.** Execution catches each panic in the [zygote](../../CONTEXT.md#zygote), the test's process or a [replay](../../CONTEXT.md#replay). The next test keeps its line. A test that catches the panic cannot hide it.
 - **The error that execution hands is a project error or an internal error.** What dispatch hands keeps its shape. An internal error carries the part that found it, and its message. Both are data.
-- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** The zygote and each test's process read the note of their own panics. `_main` installs the wrap.
+- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** The zygote, each test's process and each replay read the note of their own panics. `_main` installs the wrap.
 - **A panic in the source of a part names that part.** Any other panic names the part that catches it.
 - **Execution's module `panic` names the part of a panic.** Command reaches it through `catch`. `_main` calls `panic::caught` directly. The rule lives in one place. Only execution builds the internal error.
 - **Command catches a panic in the parse, in selection and in the rewrite, and gives the module an internal error.** After a panic in the rewrite, the line of each test that selection refuses prints first. Then the module's internal error blocks each test that selection hands on.

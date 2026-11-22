@@ -73,9 +73,10 @@ LINES
 }
 
 # The thread makes the zygote replay the second expectation, and the replay kills
-# the zygote. The case raises, so an end of the zygote that read as a replay it
-# could not fork would print raised.
-@test "a zygote that dies during a replay gives the case a project error, and the run exits 4" {
+# the zygote. The replay still sends what it read, so the order decides the case,
+# and its call raised. The tests after it print as blocked, and one line of the
+# module names the end.
+@test "a zygote that dies during a replay that sends its verdict blocks each later test" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import os, signal, threading' 'from pathlib import Path' \
     'def boom():' '    raise ValueError("boom")' \
@@ -83,12 +84,99 @@ LINES
     '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
     '    replay = Path("ran").exists()' '    Path("ran").touch()' \
     '    if replay:' '        os.kill(os.getppid(), signal.SIGKILL)' \
-    '    assert 1 == 1' '    assert boom() is True' >test_kill.py
+    '    assert 1 == 1' '    assert boom() is True' \
+    'def test_two():' '    assert 1 == 1' \
+    'def test_three():' '    assert 2 == 2' >test_kill.py
 
   run -4 --separate-stderr purba test_kill.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-test_kill.py::test_one project error: the module's process died by SIGKILL
+test_kill.py::test_one raised: ValueError: boom
+    raised in boom() at test_kill.py:4
+test_kill.py project error: the module's process died by SIGKILL
+test_kill.py::test_two blocked: the module's process died by SIGKILL
+test_kill.py::test_three blocked: the module's process died by SIGKILL
+3 cases: 1 raised, 2 blocked; 1 project error
+LINES
+}
+
+# The thread makes the zygote replay the second expectation. The test's process
+# kills the zygote at its exit, after it sent the facts, so no replay reads the
+# second expectation alone.
+@test "a zygote that dies before a replay gives the case the end, and blocks each later test" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import atexit, os, signal, threading' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    atexit.register(os.kill, os.getppid(), signal.SIGKILL)' \
+    '    assert 1 == 1' '    assert 2 == 2' \
+    'def test_two():' '    assert 1 == 1' >test_late.py
+
+  run -4 --separate-stderr purba test_late.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_late.py::test_one project error: the module's process died by SIGKILL
+test_late.py::test_two blocked: the module's process died by SIGKILL
+2 cases: 2 blocked; 1 project error
+LINES
+}
+
+# As the case of the replay that kills the zygote, but each expectation holds.
+# So the case passes only when purba keeps the verdict that the replay sent
+# after the zygote died.
+@test "a zygote that dies during a replay keeps the verdict that the replay sends" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, threading' 'from pathlib import Path' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path("ran").touch()' \
+    '    os.kill(os.getppid(), [0, signal.SIGKILL][replay])' \
+    '    assert 1 == 1' '    assert 2 == 2' \
+    'def test_two():' '    assert 1 == 1' >test_hold.py
+
+  run -4 --separate-stderr purba test_hold.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_hold.py::test_one passed
+test_hold.py project error: the module's process died by SIGKILL
+test_hold.py::test_two blocked: the module's process died by SIGKILL
+2 cases: 1 passed, 1 blocked; 1 project error
+LINES
+}
+
+# The same, with no test after it: nothing is left to block, so no line names
+# the end.
+@test "a zygote that dies during the replay of a module's last test names no end" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, threading' 'from pathlib import Path' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path("ran").touch()' \
+    '    os.kill(os.getppid(), [0, signal.SIGKILL][replay])' \
+    '    assert 1 == 1' '    assert 2 == 2' >test_last.py
+
+  run -0 --separate-stderr purba test_last.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_last.py::test_one passed
+1 case: 1 passed
+LINES
+}
+
+# The module's load leaves a thread alive, so each test's process and each
+# replay load the module themselves. Only the replay's load raises.
+@test "a replay whose own load raises gives the case the error of that load" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import threading' 'from pathlib import Path' \
+    'threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    'if Path("ran").exists():' '    raise ValueError("the second load")' \
+    'def test_one():' '    Path("ran").touch()' '    assert 1 == 1' '    assert 2 == 2' \
+    >test_reload.py
+
+  run -4 --separate-stderr purba test_reload.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_reload.py::test_one project error: ValueError: the second load
 1 case: 1 blocked; 1 project error
 LINES
 }

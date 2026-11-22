@@ -35,7 +35,7 @@ fn dispatch_hands_on_each_test_after_an_interrupt_in_a_load_as_unreached() {
     let flow: ControlFlow<()> = purba_dispatch::hand(vec![first, second], |handed| {
         seen.push(match handed {
             Handed::Test(test, _, _) => Seen::Test(test.0),
-            Handed::Stopped { .. } => Seen::Stopped,
+            Handed::Stopped { .. } | Handed::Ended { .. } => Seen::Stopped,
             Handed::Thread(..) => Seen::Thread,
             Handed::Unreached(test) => Seen::Unreached(test.0),
         });

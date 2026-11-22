@@ -124,7 +124,7 @@
 - [A line names its kind in the glossary's words](decisions/a-line-names-its-kind-in-the-glossarys-words.md)
 - [A panic inside a test gives that test an internal error](decisions/a-panic-inside-a-test-gives-that-test-an-internal-error.md)
 - [A test causes an internal error through a switch that only a test build carries](decisions/a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md)
-- [An error says its kind, and reporting takes four ways in](decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md)
+- [An error says its kind, and reporting takes five ways in](decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md)
 - [An error stops only the work that depends on it](decisions/an-error-stops-only-the-work-that-depends-on-it.md)
 - [Of the exceptions CPython ignores, only a thread's is a project error](decisions/of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md)
 

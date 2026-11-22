@@ -46,6 +46,15 @@ test_b.py::test_two blocked: test_b.py did not load
 2 cases: 2 blocked; 1 project error
 ```
 
+A module's process that ends after a test of it ran blocks each later test. When tests of the module are left, one line of the module names that end, unless the line of that test names it:
+
+```
+test_c.py::test_one raised: ValueError: x
+test_c.py project error: the module's process died by SIGKILL
+test_c.py::test_two blocked: the module's process died by SIGKILL
+2 cases: 1 raised, 1 blocked; 1 project error
+```
+
 **Downside:**
 
 - **The blocked column can count more tests than the `blocked` lines show.** It also counts each test whose line names the kind of an error.

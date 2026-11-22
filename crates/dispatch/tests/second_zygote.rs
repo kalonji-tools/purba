@@ -50,6 +50,17 @@ fn seen(module: Module<Named>) -> Vec<String> {
                 threads.iter().map(Error::line).collect::<Vec<_>>(),
                 tests.iter().map(|test| test.0).collect::<Vec<_>>(),
             ),
+            Handed::Ended {
+                path,
+                error,
+                named,
+                tests,
+            } => format!(
+                "ended {} {} {named} {:?}",
+                path.display(),
+                error.line(),
+                tests.iter().map(|test| test.0).collect::<Vec<_>>(),
+            ),
             Handed::Thread(_, err) => format!("thread {}", err.line()),
             Handed::Unreached(test) => format!("unreached {}", test.0),
         });
