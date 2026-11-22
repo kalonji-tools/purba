@@ -1368,8 +1368,9 @@ mod tests {
     struct Ran {
         /// The outcome, or the `Debug` text of the error.
         outcome: Result<Kind, String>,
-        /// Hears when the sender of the frames ends.
-        sent: mpsc::Receiver<()>,
+        /// Hears when the sender of the frames ends, and holds the pipe of
+        /// frames that it hands over.
+        sent: mpsc::Receiver<Option<File>>,
         /// Lets the `Zygote` drop.
         release: mpsc::Sender<()>,
     }
@@ -1382,7 +1383,13 @@ mod tests {
     /// dispatch keeps it for the next test, until `release` drops. A run that
     /// waits for a frame that does not come fails the case after 10 seconds.
     fn run_on(frames: Vec<(u8, String)>) -> Ran {
-        let (mut zygote, sent) = zygote_on(frames);
+        run_ending(frames, Ends::Never)
+    }
+
+    /// Runs the case `test_one` on `frames`, as `run_on` does, from a stand-in
+    /// that ends as `ends` says.
+    fn run_ending(frames: Vec<(u8, String)>, ends: Ends) -> Ran {
+        let (mut zygote, sent) = zygote_on(frames, ends);
         let (done, outcome) = mpsc::channel();
         let (release, released) = mpsc::channel::<()>();
         std::thread::spawn(move || {
@@ -1406,26 +1413,65 @@ mod tests {
         }
     }
 
+    /// When the stand-in for the zygote and the test's process ends, as its
+    /// pipes show it.
+    enum Ends {
+        /// Never: it holds the pipe of frames open until the pipe of test
+        /// names closes, as a zygote does.
+        Never,
+        /// Before the ask for a replay: it reads the ask for the case, closes
+        /// the pipe of test names, writes each frame, and hands the pipe of
+        /// frames to the receiver, which holds it open, as a process that the
+        /// test forked can. The ask for a replay then fails, and a read for a
+        /// frame waits.
+        BeforeTheReplay,
+        /// After its frames: it closes the pipe of frames after the last
+        /// frame, and reads each ask until the pipe of test names closes. A
+        /// read for a frame of the replay then finds the end.
+        AfterItsFrames,
+    }
+
     /// A `Zygote` of the module `test_one.py` that reads `frames`, and a
-    /// receiver that hears when their sender ends.
+    /// receiver that hears when their sender ends, and holds the pipe of
+    /// frames that it hands over.
     ///
     /// A thread stands in for the zygote and the test's process. It writes
-    /// each frame, then holds the pipe of frames open until the pipe of test
-    /// names closes, as a zygote does.
-    fn zygote_on(frames: Vec<(u8, String)>) -> (Zygote, mpsc::Receiver<()>) {
+    /// each frame, and ends as `ends` says.
+    fn zygote_on(frames: Vec<(u8, String)>, ends: Ends) -> (Zygote, mpsc::Receiver<Option<File>>) {
         let (frames_in, frames_out) = pipe().expect("a pipe opens");
         let (tests_in, tests_out) = pipe().expect("a pipe opens");
         let (sender_done, sent) = mpsc::channel();
         std::thread::spawn(move || {
+            let mut asks = File::from(tests_in);
             let mut sending = File::from(frames_out);
-            for (tag, text) in &frames {
-                if frame::write(&mut sending, *tag, text).is_err() {
-                    break;
+            let mut write_each = || {
+                for (tag, text) in &frames {
+                    if frame::write(&mut sending, *tag, text).is_err() {
+                        break;
+                    }
                 }
-            }
-            drop(io::copy(&mut File::from(tests_in), &mut io::sink()));
-            drop(sending);
-            sender_done.send(()).ok();
+            };
+            let held = match ends {
+                Ends::Never => {
+                    write_each();
+                    drop(io::copy(&mut asks, &mut io::sink()));
+                    drop(sending);
+                    None
+                }
+                Ends::BeforeTheReplay => {
+                    drop(frame::read(&mut asks));
+                    drop(asks);
+                    write_each();
+                    Some(sending)
+                }
+                Ends::AfterItsFrames => {
+                    write_each();
+                    drop(sending);
+                    drop(io::copy(&mut asks, &mut io::sink()));
+                    None
+                }
+            };
+            sender_done.send(held).ok();
         });
         let zygote = Zygote {
             // No child has this pid, so a wait for it returns at once.
@@ -1442,7 +1488,7 @@ mod tests {
     /// each thread's owner and error. A replay that waits for a frame that does
     /// not come fails the case after 10 seconds.
     fn replay_on(frames: Vec<(u8, String)>) -> (Result<String, String>, Vec<String>) {
-        let (mut zygote, _sent) = zygote_on(frames);
+        let (mut zygote, _sent) = zygote_on(frames, Ends::Never);
         let (done, replayed) = mpsc::channel();
         std::thread::spawn(move || {
             let mut threads = Vec::new();
@@ -1707,7 +1753,7 @@ mod tests {
             .chain(refused_replay())
             .chain([frame_of(&passed()), frame_of(&Message::Ended(0))])
             .collect();
-        let (mut zygote, _sent) = zygote_on(frames);
+        let (mut zygote, _sent) = zygote_on(frames, Ends::Never);
         let (done, outcomes) = mpsc::channel();
         std::thread::spawn(move || {
             for _ in 0..2 {
@@ -1752,6 +1798,46 @@ mod tests {
             ran.outcome,
             Err(no_message('w')),
             "the internal error of the replay takes the place of the line that the order gives"
+        );
+        drop(ran.release);
+    }
+
+    /// The error of the stand-in's process that ended, as `Ran::outcome` holds
+    /// it. No child has its pid, so its wait status reads 0.
+    fn ended_module() -> Result<Kind, String> {
+        Err(format!(
+            "{:?}",
+            Error::project("the module's process exited 0".to_owned())
+        ))
+    }
+
+    #[test]
+    fn a_replay_whose_module_process_ends_before_its_ask_takes_the_place_of_the_outcome() {
+        let sent = Facts {
+            later: vec![1],
+            ..raised()
+        };
+        let ran = run_ending(case(sent).into(), Ends::BeforeTheReplay);
+        assert_eq!(
+            ran.outcome,
+            ended_module(),
+            "the end of the module's process takes the place of the line that the order gives"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_whose_module_process_ends_before_its_frames_takes_the_place_of_the_outcome() {
+        let sent = Facts {
+            later: vec![1, 2],
+            ..raised()
+        };
+        let frames = case(sent).into_iter().chain(replayed(HOLDS)).collect();
+        let ran = run_ending(frames, Ends::AfterItsFrames);
+        assert_eq!(
+            ran.outcome,
+            ended_module(),
+            "the end of the module's process takes the place of the line that the order gives"
         );
         drop(ran.release);
     }
