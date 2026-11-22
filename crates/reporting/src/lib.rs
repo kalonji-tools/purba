@@ -116,16 +116,40 @@ impl<W: Write> Report<W> {
             self.error(module, thread)?;
         }
         for test in tests {
-            self.blocked(test, module)?;
+            self.blocked(test, format_args!("{module} did not load"))?;
         }
         Ok(())
     }
 
-    /// Adds `test` to the tally as blocked, because `module` stopped before its
-    /// tests, and writes its line and flushes it.
-    fn blocked<T: Display, M: Display>(&mut self, test: &T, module: &M) -> Result<(), Refused> {
+    /// Takes `tests` of `module`, which no call reached, because the module's
+    /// process ended as `error` says. Writes the error once, unless the line of
+    /// a case already `named` it, then each of `tests` as blocked by it, and
+    /// adds each to the tally.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses a write or a flush. Nothing is written after it.
+    pub fn ended<M: Display, T: Display>(
+        &mut self,
+        module: &M,
+        error: &Error,
+        named: bool,
+        tests: &[T],
+    ) -> Result<(), Refused> {
+        if !named {
+            self.error(module, error)?;
+        }
+        for test in tests {
+            self.blocked(test, error)?;
+        }
+        Ok(())
+    }
+
+    /// Adds `test` to the tally as blocked by `cause`, and writes its line and
+    /// flushes it.
+    fn blocked<T: Display>(&mut self, test: &T, cause: impl Display) -> Result<(), Refused> {
         self.tally.add_blocked();
-        let written = writeln!(self.out, "{test} blocked: {module} did not load");
+        let written = writeln!(self.out, "{test} blocked: {cause}");
         self.flushed(written)
     }
 
@@ -662,6 +686,60 @@ mod tests {
             code, 4,
             "the error sets the code, and a blocked test changes nothing"
         );
+    }
+
+    /// What reporting writes, and the exit code, for a case that gave `kind`
+    /// and the module's process that ended after it, as `named` says.
+    fn ended_after(kind: Result<&Kind, &Error>, named: bool) -> (String, u8) {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .add(&"test_c.py::test_one", kind)
+            .expect("a Vec takes every write");
+        report
+            .ended(
+                &"test_c.py",
+                &project("the module's process died by SIGKILL"),
+                named,
+                &["test_c.py::test_two", "test_c.py::test_three"],
+            )
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+        (
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            code,
+        )
+    }
+
+    #[test]
+    fn an_end_that_the_case_did_not_name_prints_once_then_each_test_left_as_blocked() {
+        let (out, code) = ended_after(Ok(&Kind::Passed), false);
+        assert_eq!(
+            out,
+            "test_c.py::test_one passed\n\
+             test_c.py project error: the module's process died by SIGKILL\n\
+             test_c.py::test_two blocked: the module's process died by SIGKILL\n\
+             test_c.py::test_three blocked: the module's process died by SIGKILL\n\
+             3 cases: 1 passed, 2 blocked; 1 project error\n",
+            "the end once under the module, then each test left, blocked by that end"
+        );
+        assert_eq!(code, 4, "the end's error sets the code");
+    }
+
+    #[test]
+    fn an_end_that_the_case_named_prints_only_each_test_left_as_blocked() {
+        let end = project("the module's process died by SIGKILL");
+        let (out, code) = ended_after(Err(&end), true);
+        assert_eq!(
+            out,
+            "test_c.py::test_one project error: the module's process died by SIGKILL\n\
+             test_c.py::test_two blocked: the module's process died by SIGKILL\n\
+             test_c.py::test_three blocked: the module's process died by SIGKILL\n\
+             3 cases: 3 blocked; 1 project error\n",
+            "the case's line names the end, so no line of the module repeats it, and it \
+             counts once"
+        );
+        assert_eq!(code, 4, "the end's error sets the code");
     }
 
     #[test]

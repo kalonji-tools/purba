@@ -12,6 +12,7 @@ use std::os::fd::{FromRawFd, OwnedFd};
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::sync::{Mutex, PoisonError};
 
 use pyo3::Python;
 use pyo3::types::PyAnyMethods;
@@ -56,7 +57,11 @@ enum Message {
     LoadThread(String),
     /// The first interrupt that the process kept: the number of its signal.
     Kept(i32),
-    /// The test's process ended: its wait status.
+    /// What a replay read of its expectation.
+    Verdict(Verdict),
+    /// The zygote could not fork a replay: its words.
+    Refused(String),
+    /// The test's process or the replay ended: its wait status.
     Ended(libc::c_int),
 }
 
@@ -75,6 +80,8 @@ mod tag {
     pub const TEST_THREAD: u8 = b'h';
     pub const LOAD_THREAD: u8 = b'H';
     pub const KEPT: u8 = b'k';
+    pub const VERDICT: u8 = b'v';
+    pub const REFUSED: u8 = b'r';
     pub const ENDED: u8 = b'w';
 }
 
@@ -126,6 +133,14 @@ impl Message {
                 put(&signum.to_string());
                 tag::KEPT
             }
+            Self::Verdict(verdict) => {
+                put(letter(*verdict));
+                tag::VERDICT
+            }
+            Self::Refused(words) => {
+                put(words);
+                tag::REFUSED
+            }
             Self::Ended(status) => {
                 put(&status.to_string());
                 tag::ENDED
@@ -174,6 +189,8 @@ impl Message {
             tag::TEST_THREAD => Self::TestThread(fields.text()?),
             tag::LOAD_THREAD => Self::LoadThread(fields.text()?),
             tag::KEPT => Self::Kept(fields.number()?),
+            tag::VERDICT => Self::Verdict(fields.verdict()?),
+            tag::REFUSED => Self::Refused(fields.text()?),
             tag::ENDED => Self::Ended(fields.number()?),
             _ => return None,
         };
@@ -197,6 +214,17 @@ impl Fields<'_> {
     /// Takes the next field as a number.
     fn number<N: FromStr>(&mut self) -> Option<N> {
         self.text()?.parse().ok()
+    }
+
+    /// Takes the next field as a verdict, which `letter` wrote.
+    fn verdict(&mut self) -> Option<Verdict> {
+        Some(match self.text()?.as_str() {
+            "h" => Verdict::Holds,
+            "f" => Verdict::Fails,
+            "r" => Verdict::Raises,
+            "x" => Verdict::Refused,
+            _ => return None,
+        })
     }
 
     /// Takes the next field as a flag, which `put_facts` wrote as `1` or `0`.
@@ -246,17 +274,7 @@ impl Fields<'_> {
             refused: self.optional()?.pop(),
             in_order: self.list(|fields| Some((fields.number()?, fields.flag()?)))?,
             shown: self.list(|fields| Some((fields.number()?, fields.shown()?)))?,
-            alone: self.list(|fields| {
-                let index = fields.number()?;
-                let verdict = match fields.text()?.as_str() {
-                    "h" => Verdict::Holds,
-                    "f" => Verdict::Fails,
-                    "r" => Verdict::Raises,
-                    "x" => Verdict::Refused,
-                    _ => return None,
-                };
-                Some((index, verdict))
-            })?,
+            alone: self.list(|fields| Some((fields.number()?, fields.verdict()?)))?,
             later: self.list(Self::number)?,
             texts: self.list(|fields| Some((fields.number()?, fields.text()?)))?,
             missed: self.list(Self::text)?,
@@ -351,12 +369,7 @@ fn put_facts(put: &mut impl FnMut(&str), facts: &Facts) {
     put(&facts.alone.len().to_string());
     for (index, verdict) in &facts.alone {
         put(&index.to_string());
-        put(match verdict {
-            Verdict::Holds => "h",
-            Verdict::Fails => "f",
-            Verdict::Raises => "r",
-            Verdict::Refused => "x",
-        });
+        put(letter(*verdict));
     }
     put(&facts.later.len().to_string());
     for index in &facts.later {
@@ -374,6 +387,16 @@ fn put_facts(put: &mut impl FnMut(&str), facts: &Facts) {
     put(flag(facts.stated));
 }
 
+/// The letter of `verdict` in a frame.
+const fn letter(verdict: Verdict) -> &'static str {
+    match verdict {
+        Verdict::Holds => "h",
+        Verdict::Fails => "f",
+        Verdict::Raises => "r",
+        Verdict::Refused => "x",
+    }
+}
+
 /// Writes `field` after its length in bytes and a NUL, so that a field holds
 /// any text, a NUL too.
 fn put(frame: &mut String, field: &str) {
@@ -388,6 +411,31 @@ pub struct Zygote {
     path: PathBuf,
     tests: Option<File>,
     frames: File,
+    /// The wait status of the zygote, once purba reaped it.
+    reaped: Option<libc::c_int>,
+    /// The end of the module's process that the last case met, until
+    /// `ended` takes it.
+    end: Option<End>,
+}
+
+/// The end of the module's process, which a case met: its error, and whether
+/// the line of the case names it.
+#[derive(Debug)]
+pub struct End {
+    pub error: Error,
+    pub named: bool,
+}
+
+/// What a child of the zygote sent, up to its end: the facts of a test, the
+/// verdict of a replay, the zygote's refusal to fork it, and what takes the
+/// place of the outcome. Its end is the wait status of the child, or the wait
+/// status of the module's process, which ended first.
+struct Sent {
+    facts: Option<Facts>,
+    verdict: Option<Verdict>,
+    refused: Option<String>,
+    result: Option<Result<Outcome, Error>>,
+    end: Result<libc::c_int, libc::c_int>,
 }
 
 /// What the load of a zygote gave: its result, the error of each thread that
@@ -494,6 +542,8 @@ impl<T> Worker<'_, T> {
                     path: module.path.clone(),
                     tests: Some(File::from(tests_out)),
                     frames: File::from(frames_in),
+                    reaped: None,
+                    end: None,
                 })
             }
         }
@@ -577,10 +627,10 @@ impl Zygote {
         }
     }
 
-    /// Reads the next message from the zygote or a test's process. Gives an
-    /// error when no message comes: the internal error of a frame that holds no
-    /// message, or `None` when the pipe ended or failed. Either way, the reader
-    /// then calls `abandon`, since no frame after it can be trusted.
+    /// Reads the next message from the zygote, a test's process or a replay.
+    /// Gives an error when no message comes: the internal error of a frame that
+    /// holds no message, or `None` when the pipe ended or failed. Either way, the
+    /// reader then calls `abandon`, since no frame after it can be trusted.
     fn next(&mut self) -> Result<Message, Option<Error>> {
         match Message::read(&mut self.frames) {
             Ok(Some(read)) => read.map_err(Some),
@@ -609,6 +659,10 @@ impl Zygote {
     /// A process that ended with no outcome gives `Interrupted` when the first
     /// interrupt arrived as it ran. Otherwise it gives `Raised`, which names
     /// the signal or the exit code.
+    ///
+    /// When the module's process ends before each replay sent its reading, the
+    /// case gets its end as a refusal, as when the zygote cannot fork a
+    /// replay. Once the module's process ended, `ended` gives that end.
     pub fn run<T: Clone>(
         &mut self,
         function: &str,
@@ -619,46 +673,52 @@ impl Zygote {
         let test = Message::Test {
             function: function.to_owned(),
         };
-        let asked = self.tests.as_mut().map_or_else(
-            || Err(ErrorKind::BrokenPipe.into()),
-            |tests| test.write(tests),
-        );
-        if asked.is_err() {
-            let ended = ended(self.wait());
-            return (
-                Err(Error::project(format!("the module's process {ended}"))),
-                Suppressed::default(),
-                threads,
-            );
-        }
-        let before = interrupt::first();
-        let mut facts = None;
-        let mut result = None;
-        let status = loop {
-            match self.own(Some(&owner), &mut threads) {
-                Ok(Message::Ended(status)) => break Ok(status),
-                Ok(Message::Facts(found)) => facts = Some(*found),
-                Ok(Message::Interrupted) => {
-                    result = Some(Ok(Outcome {
-                        kind: Kind::Interrupted,
-                    }));
-                }
-                Ok(Message::Error(error)) => result = Some(Err(error)),
-                Ok(_) => {}
-                Err((unreadable, status)) => {
-                    if let Some(error) = unreadable {
-                        result = Some(Err(error));
-                    }
-                    break Err(status);
-                }
-            }
+        let (result, suppressed) = match self.ask(&test) {
+            Ok(()) => self.case(function, suppressions, &owner, &mut threads),
+            Err(gone) => (Err(Error::project(gone)), Suppressed::default()),
         };
-        if status.is_ok() {
-            interrupt::follow_test(0);
-            if result.is_none()
-                && let Some(facts) = facts.as_mut()
-            {
-                result = self.replays(function, facts, &owner, &mut threads);
+        if let Some(status) = self.reaped {
+            let words = gone(status);
+            let named = matches!(&result, Err(Error(Reason::Project(line))) if *line == words);
+            self.end = Some(End {
+                error: Error::project(words),
+                named,
+            });
+        }
+        (result, suppressed, threads)
+    }
+
+    /// The end of the module's process that the last case met. Gives it once.
+    pub const fn ended(&mut self) -> Option<End> {
+        self.end.take()
+    }
+
+    /// Reads the case of the test `function`, which the zygote forked, and
+    /// asks for its replays. Gives the outcome or what takes its place, and
+    /// what the suppressions of the case gave.
+    fn case<T: Clone>(
+        &mut self,
+        function: &str,
+        suppressions: &[(&str, &str)],
+        owner: &T,
+        threads: &mut Threads<T>,
+    ) -> (Result<Outcome, Error>, Suppressed) {
+        let before = interrupt::first();
+        let Sent {
+            mut facts,
+            mut result,
+            end,
+            ..
+        } = self.sent(owner, threads);
+        if let Some(facts) = facts.as_mut()
+            && result.is_none()
+        {
+            match end {
+                Ok(_) => result = self.replays(function, facts, owner, threads),
+                Err(status) if !facts.later.is_empty() => {
+                    facts.refused.get_or_insert_with(|| gone(status));
+                }
+                Err(_) => {}
             }
         }
         let decided = facts.map(|facts| crate::order::order(&facts, suppressions));
@@ -666,7 +726,7 @@ impl Zygote {
             || (None, Suppressed::default()),
             |(own, suppressed)| (Some(own.map(|kind| Outcome { kind })), suppressed),
         );
-        let result = result.or(own).unwrap_or_else(|| match status {
+        let result = result.or(own).unwrap_or_else(|| match end {
             Ok(_) if interrupt::landed_since(before) => Ok(Outcome {
                 kind: Kind::Interrupted,
             }),
@@ -676,22 +736,67 @@ impl Zygote {
                     whence: None,
                 },
             }),
-            Err(status) => Err(Error::project(format!(
-                "the module's process {}",
-                ended(status)
-            ))),
+            Err(status) => Err(Error::project(gone(status))),
         });
-        (result, suppressed, threads)
+        (result, suppressed)
+    }
+
+    /// Writes `message` to the zygote. When the zygote no longer reads, it
+    /// waits for it, and gives the words of its end.
+    fn ask(&mut self, message: &Message) -> Result<(), String> {
+        let asked = self.tests.as_mut().map_or_else(
+            || Err(ErrorKind::BrokenPipe.into()),
+            |tests| message.write(tests),
+        );
+        asked.map_err(|_| gone(self.wait()))
+    }
+
+    /// Reads what a child of the zygote sends, until it ends. `owner` owns
+    /// each thread that the child's test left.
+    fn sent<T: Clone>(&mut self, owner: &T, threads: &mut Threads<T>) -> Sent {
+        let mut sent = Sent {
+            facts: None,
+            verdict: None,
+            refused: None,
+            result: None,
+            end: Ok(0),
+        };
+        sent.end = loop {
+            match self.own(Some(owner), threads) {
+                Ok(Message::Ended(status)) => {
+                    interrupt::follow_test(0);
+                    break Ok(status);
+                }
+                Ok(Message::Facts(found)) => sent.facts = Some(*found),
+                Ok(Message::Verdict(verdict)) => sent.verdict = Some(verdict),
+                Ok(Message::Refused(words)) => sent.refused = Some(words),
+                Ok(Message::Interrupted) => {
+                    sent.result = Some(Ok(Outcome {
+                        kind: Kind::Interrupted,
+                    }));
+                }
+                Ok(Message::Error(error)) => sent.result = Some(Err(error)),
+                Ok(_) => {}
+                Err((unreadable, status)) => {
+                    if let Some(error) = unreadable {
+                        sent.result = Some(Err(error));
+                    }
+                    break Err(status);
+                }
+            }
+        };
+        sent
     }
 
     /// Asks the zygote for a replay of `function` for each later expectation
     /// that `facts` name, in order, and adds each verdict to the readings alone
-    /// of `facts`. When the zygote cannot fork a replay, it puts the refusal in
+    /// of `facts`. When the zygote cannot fork a replay, or the module's
+    /// process ends before a replay sent its reading, it puts the refusal in
     /// `facts` and asks for no later replay, as a test's process does when it
     /// cannot fork a reader. Either way, it gives `None`, and the order decides
-    /// the case. It gives a result in place of the outcome only when the
-    /// module's process ends, a frame holds no message, or an interrupt lands
-    /// during the replays.
+    /// the case. It gives a result in place of the outcome only when a replay
+    /// sends an error, a frame holds no message, or an interrupt lands during
+    /// the replays.
     fn replays<T: Clone>(
         &mut self,
         function: &str,
@@ -724,8 +829,14 @@ impl Zygote {
     }
 
     /// Asks the zygote for one replay of `function` that reads the expectation
-    /// at `index` alone, and gives its verdict, or the words of the zygote that
-    /// could not fork it.
+    /// at `index` alone, and gives its verdict, or the words of a refusal: the
+    /// zygote could not fork it, or the module's process ended before its
+    /// verdict came. A replay that ends with no verdict gives `Raises`.
+    ///
+    /// # Errors
+    ///
+    /// The error that the replay sent, or the error of a frame that holds no
+    /// message.
     fn replay<T: Clone>(
         &mut self,
         function: &str,
@@ -737,30 +848,25 @@ impl Zygote {
             function: function.to_owned(),
             index,
         };
-        let asked = self.tests.as_mut().map_or_else(
-            || Err(ErrorKind::BrokenPipe.into()),
-            |tests| replay.write(tests),
-        );
-        if asked.is_err() {
-            let ended = ended(self.wait());
-            return Err(Error::project(format!("the module's process {ended}")));
+        if let Err(gone) = self.ask(&replay) {
+            return Ok(Err(gone));
         }
-        let mut refused = None;
-        loop {
-            match self.own(Some(owner), threads) {
-                Ok(Message::Ended(status)) => {
-                    interrupt::follow_test(0);
-                    return Ok(refused.map_or_else(|| Ok(verdict(status)), Err));
-                }
-                Ok(Message::Error(Error(Reason::Project(text)))) => refused = Some(text),
-                Ok(_) => {}
-                Err((unreadable, status)) => {
-                    return Err(unreadable.unwrap_or_else(|| {
-                        Error::project(format!("the module's process {}", ended(status)))
-                    }));
-                }
-            }
+        let Sent {
+            verdict,
+            refused,
+            result,
+            end,
+            ..
+        } = self.sent(owner, threads);
+        if let Some(Err(error)) = result {
+            return Err(error);
         }
+        Ok(match (refused, verdict, end) {
+            (Some(refused), _, _) => Err(refused),
+            (None, Some(verdict), _) => Ok(verdict),
+            (None, None, Ok(_)) => Ok(Verdict::Raises),
+            (None, None, Err(status)) => Err(gone(status)),
+        })
     }
 
     /// Tells the zygote that no test is left, and waits for it to end.
@@ -769,13 +875,23 @@ impl Zygote {
     }
 
     /// Closes the pipe of test names, and waits for the zygote to end. Gives
-    /// its wait status.
+    /// its wait status. Once it reaped the zygote, it gives that status again.
     fn wait(&mut self) -> libc::c_int {
         self.tests = None;
+        if let Some(status) = self.reaped {
+            return status;
+        }
         let status = wait(self.pid);
+        self.reaped = Some(status);
         interrupt::follow_zygote(0);
         status
     }
+}
+
+/// The words of the module's process that ended with the wait status
+/// `status`: `the module's process died by SIGKILL`.
+fn gone(status: libc::c_int) -> String {
+    format!("the module's process {}", ended(status))
 }
 
 /// What a process that ended before `what` gives, from its wait status: `its
@@ -927,39 +1043,57 @@ fn live_as_zygote(
         }
     }
     send(&mut frames, &Message::Ready);
+    let children = Children {
+        module,
+        loads: !load,
+    };
     while let Ok(Some(Ok(message))) = Message::read(&mut tests) {
-        let (function, replay) = match message {
-            Message::Test { function } => (function, None),
-            Message::Replay { function, index } => (function, Some(index)),
+        let (function, way) = match message {
+            Message::Test { function } => (function, Way::Test),
+            Message::Replay { function, index } => (function, Way::Replay(index)),
             _ => break,
         };
         flush(py);
         match fork(py) {
             Ok(Forked::Child) => {
                 drop(tests);
-                match replay {
-                    Some(index) => {
-                        live_as_replay(py, &mut worker, module, !load, &function, index, &frames)
-                    }
-                    None => live_as_test(py, &mut worker, module, !load, &function, frames),
-                }
+                live_as_child(py, &mut worker, &children, &function, way, frames)
             }
             Ok(Forked::Parent(pid)) => {
                 let status = wait(pid);
                 send(&mut frames, &Message::Ended(status));
             }
             Err(error) => {
-                let text = if replay.is_some() {
-                    format!("purba cannot fork to read an expectation alone: {error}")
-                } else {
-                    format!("purba cannot fork: {error}")
+                let refusal = match way {
+                    Way::Replay(_) => Message::Refused(format!(
+                        "purba cannot fork to read an expectation alone: {error}"
+                    )),
+                    Way::Test => {
+                        Message::Error(Error::project(format!("purba cannot fork: {error}")))
+                    }
                 };
-                send(&mut frames, &Message::Error(Error::project(text)));
+                send(&mut frames, &refusal);
                 send(&mut frames, &Message::Ended(0));
             }
         }
     }
     end(py)
+}
+
+/// What the zygote asks of a child: to run a test, or to replay it and read
+/// the expectation at an index alone.
+#[derive(Clone, Copy)]
+enum Way {
+    Test,
+    Replay(usize),
+}
+
+/// What each child of a zygote starts from: the module, and whether the child
+/// loads it. A child loads it when the zygote loaded nothing, since the first
+/// zygote's load left a thread alive.
+struct Children<'m> {
+    module: &'m Module,
+    loads: bool,
 }
 
 /// Whether a Python thread other than the main one is alive.
@@ -979,25 +1113,38 @@ fn threaded(py: Python<'_>) -> bool {
         .any(|thread| !thread.bind(py).is(&main))
 }
 
-/// The life of a test's process, in the child of the zygote. With `load`, it
-/// loads the module first. A process that the test forks and that returns from
-/// the test ends with no frame.
-fn live_as_test(
+/// The life of a child of the zygote: a test's process, or a replay, as `way`
+/// says. Each child sends its pid, loads the module when `children` says so,
+/// and sends what it found and the first interrupt that it kept. A process
+/// that the test forks and that returns from the test ends with no frame.
+///
+/// A test's process runs the test `function`, sends its facts, joins its
+/// threads, runs its `atexit` functions, and sends the error of each thread.
+///
+/// A replay runs the test again, and reads only the expectation at its index.
+/// It ends at that expectation, and `REPLAYS` sends its verdict. It writes
+/// nothing to stdout or stderr, since the case wrote what the test writes
+/// once. It sends no error of a thread, since the case sent them once.
+fn live_as_child(
     py: Python<'_>,
     worker: &mut Worker<'_, String>,
-    module: &Module,
-    load: bool,
+    children: &Children<'_>,
     function: &str,
+    way: Way,
     mut frames: File,
 ) -> ! {
     // SAFETY: `getpid` only gives the pid of the process.
     let own = unsafe { libc::getpid() };
     send(&mut frames, &Message::Forked(own));
+    if let Way::Replay(_) = way {
+        silence();
+        REPLAYS.hold(own, &frames);
+    }
     call_atexit(py, "_clear");
     let mut facts = None;
     let result = crate::catch("execution", || {
-        if load {
-            worker.load(module)?;
+        if children.loads {
+            worker.load(children.module)?;
             // The load in the first zygote already handed on the errors of these
             // threads.
             drop(worker.threads());
@@ -1005,9 +1152,14 @@ fn live_as_test(
                 return Ok(Gives::Interrupted);
             }
         }
-        let (gathered, gives) = worker.gather(module, function, function.to_owned());
-        facts = gathered;
-        gives
+        match way {
+            Way::Test => {
+                let (gathered, gives) = worker.gather(function, function.to_owned());
+                facts = gathered;
+                gives
+            }
+            Way::Replay(index) => worker.replay(function, index).map(Gives::Own),
+        }
     });
     // SAFETY: `getpid` only gives the pid of the process.
     if unsafe { libc::getpid() } != own {
@@ -1016,17 +1168,32 @@ fn live_as_test(
     if let Some(facts) = facts {
         send(&mut frames, &Message::Facts(Box::new(facts)));
     }
-    match result {
-        Ok(Gives::Own(())) => {}
-        Ok(Gives::Interrupted) => send(&mut frames, &Message::Interrupted),
-        Err(error) => send(&mut frames, &Message::Error(error)),
+    match (way, result) {
+        (Way::Replay(_), Ok(Gives::Own(()))) => REPLAYS.end(Verdict::Raises),
+        (_, Ok(Gives::Own(()))) | (Way::Replay(_), Ok(Gives::Interrupted)) => {}
+        (Way::Test, Ok(Gives::Interrupted)) => send(&mut frames, &Message::Interrupted),
+        (_, Err(error)) => send(&mut frames, &Message::Error(error)),
     }
-    interrupt::calling(py, || join(py, worker));
-    call_atexit(py, "_run_exitfuncs");
-    send_threads(worker, &mut frames);
+    if matches!(way, Way::Test) {
+        interrupt::calling(py, || join(py, worker));
+        call_atexit(py, "_run_exitfuncs");
+        send_threads(worker, &mut frames);
+    }
     send_kept(&mut frames);
     flush(py);
     exit(0)
+}
+
+/// Points stdout and stderr at `/dev/null`.
+fn silence() {
+    if let Ok(null) = File::options().write(true).open("/dev/null") {
+        use std::os::fd::AsRawFd;
+        for target in [libc::STDOUT_FILENO, libc::STDERR_FILENO] {
+            // SAFETY: both descriptors are open, and `dup2` only points
+            // `target` at the file of `null`.
+            unsafe { libc::dup2(null.as_raw_fd(), target) };
+        }
+    }
 }
 
 /// Joins each thread that is alive and is not a daemon, until an interrupt
@@ -1067,49 +1234,6 @@ fn send_threads(worker: &Worker<'_, String>, frames: &mut File) {
         };
         send(frames, &message);
     }
-}
-
-/// The life of a replay, in the child of the zygote: it runs the test
-/// `function` again, and reads only the expectation at `index`. With `load`,
-/// it loads the module first. It ends with the verdict of that expectation as
-/// its exit code, and writes nothing to stdout or stderr: the case wrote what
-/// the test writes once.
-fn live_as_replay(
-    py: Python<'_>,
-    worker: &mut Worker<'_, String>,
-    module: &Module,
-    load: bool,
-    function: &str,
-    index: usize,
-    frames: &File,
-) -> ! {
-    // SAFETY: `getpid` only gives the pid of the process.
-    let own = unsafe { libc::getpid() };
-    let mut frames = frames.try_clone().unwrap_or_else(|_| exit(0));
-    send(&mut frames, &Message::Forked(own));
-    drop(frames);
-    if let Ok(null) = File::options().write(true).open("/dev/null") {
-        use std::os::fd::AsRawFd;
-        for target in [libc::STDOUT_FILENO, libc::STDERR_FILENO] {
-            // SAFETY: both descriptors are open, and `dup2` only points
-            // `target` at the file of `null`.
-            unsafe { libc::dup2(null.as_raw_fd(), target) };
-        }
-    }
-    call_atexit(py, "_clear");
-    drop(crate::catch("execution", || {
-        if load {
-            worker.load(module)?;
-            drop(worker.threads());
-        }
-        worker.replay(module, function, index);
-        Ok(())
-    }));
-    // SAFETY: `getpid` only gives the pid of the process.
-    if unsafe { libc::getpid() } != own {
-        exit(0);
-    }
-    READERS.end(Verdict::Raises)
 }
 
 /// The readers of a case: a process that the case's process forks for each
@@ -1161,7 +1285,69 @@ impl Readers for Forks {
     }
 }
 
-/// The verdict of a reader or a replay that ended with the wait status
+/// The readers of a replay. A replay reads one expectation, and forks no
+/// reader. It ends by sending its verdict and the first interrupt that it
+/// kept to purba, as frames, on the pipe that it holds. A process that the
+/// test forks in the replay ends as a reader does.
+pub struct Replays {
+    frames: Mutex<Option<(libc::pid_t, File)>>,
+}
+
+pub static REPLAYS: Replays = Replays {
+    frames: Mutex::new(None),
+};
+
+impl Replays {
+    /// Holds a copy of the pipe of frames of the replay `pid`. Without one,
+    /// the replay ends as a reader does.
+    fn hold(&self, pid: libc::pid_t, frames: &File) {
+        if let Ok(copy) = frames.try_clone() {
+            *self.frames.lock().unwrap_or_else(PoisonError::into_inner) = Some((pid, copy));
+        }
+    }
+}
+
+impl Readers for Replays {
+    fn threaded(&self, py: Python<'_>) -> bool {
+        READERS.threaded(py)
+    }
+
+    fn fork(&self, py: Python<'_>) -> io::Result<Option<i32>> {
+        READERS.fork(py)
+    }
+
+    fn wait(&self, pid: i32) -> Verdict {
+        READERS.wait(pid)
+    }
+
+    fn end(&self, verdict: Verdict) -> ! {
+        let held = self
+            .frames
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take();
+        // SAFETY: `getpid` only gives the pid of the process.
+        let own = unsafe { libc::getpid() };
+        if let Some((pid, mut frames)) = held
+            && pid == own
+        {
+            send(&mut frames, &Message::Verdict(verdict));
+            send_kept(&mut frames);
+            exit(0)
+        }
+        READERS.end(verdict)
+    }
+
+    fn replaced(&self, py: Python<'_>) -> Option<Replaced> {
+        READERS.replaced(py)
+    }
+
+    fn expecting(&self, py: Python<'_>) {
+        READERS.expecting(py);
+    }
+}
+
+/// The verdict of a reader that ended with the wait status
 /// `status`. One that a signal ends gives `Raises`, as does any exit code but
 /// the four of a verdict.
 const fn verdict(status: libc::c_int) -> Verdict {
@@ -1261,12 +1447,17 @@ mod tests {
             Message::TestThread(text("thread A raised ValueError")),
             Message::LoadThread(text("thread L raised ValueError")),
             Message::Kept(libc::SIGTERM),
+            Message::Verdict(Verdict::Holds),
+            Message::Verdict(Verdict::Fails),
+            Message::Verdict(Verdict::Raises),
+            Message::Verdict(Verdict::Refused),
+            Message::Refused(text("purba cannot fork to read an expectation alone")),
             Message::Ended(256),
         ]
     }
 
     /// The number of arms of `variant`, one for each variant of `Message`.
-    const VARIANTS: usize = 13;
+    const VARIANTS: usize = 15;
 
     /// The name of the variant of `message`. A variant that this match lacks
     /// fails to compile. The count above it must then grow, and
@@ -1285,6 +1476,8 @@ mod tests {
             Message::TestThread(_) => "TestThread",
             Message::LoadThread(_) => "LoadThread",
             Message::Kept(_) => "Kept",
+            Message::Verdict(_) => "Verdict",
+            Message::Refused(_) => "Refused",
             Message::Ended(_) => "Ended",
         }
     }
@@ -1479,6 +1672,8 @@ mod tests {
             path: PathBuf::from("test_one.py"),
             tests: Some(File::from(tests_out)),
             frames: File::from(frames_in),
+            reaped: None,
+            end: None,
         };
         (zygote, sent)
     }
@@ -1513,13 +1708,14 @@ mod tests {
             frame_of(&Message::Forked(0)),
             frame_of(&Message::TestThread("of the test".to_owned())),
             frame_of(&Message::LoadThread("of the load".to_owned())),
-            frame_of(&Message::Ended(HOLDS)),
+            frame_of(&Message::Verdict(Verdict::Holds)),
+            frame_of(&Message::Ended(0)),
         ];
         let (verdict, threads) = replay_on(frames);
         assert_eq!(
             verdict,
             Ok(format!("{:?}", Ok::<_, String>(Verdict::Holds))),
-            "a replay whose process exits with HOLDS reads that the expectation holds"
+            "a replay that sends that its expectation holds reads that it holds"
         );
         assert_eq!(
             threads,
@@ -1629,16 +1825,17 @@ mod tests {
     /// The frames that the zygote sends when it cannot fork a replay.
     fn refused_replay() -> [(u8, String); 2] {
         [
-            frame_of(&Message::Error(Error::project(REFUSAL.to_owned()))),
+            frame_of(&Message::Refused(REFUSAL.to_owned())),
             frame_of(&Message::Ended(0)),
         ]
     }
 
-    /// The frames of a replay whose process exits with `code`.
-    fn replayed(code: libc::c_int) -> [(u8, String); 2] {
+    /// The frames of a replay that sends `verdict`, and ends.
+    fn replayed(verdict: Verdict) -> [(u8, String); 3] {
         [
             frame_of(&Message::Forked(0)),
-            frame_of(&Message::Ended(code << 8)),
+            frame_of(&Message::Verdict(verdict)),
+            frame_of(&Message::Ended(0)),
         ]
     }
 
@@ -1724,7 +1921,7 @@ mod tests {
         };
         let frames = case(sent)
             .into_iter()
-            .chain(replayed(REFUSED))
+            .chain(replayed(Verdict::Refused))
             .chain(refused_replay())
             .collect();
         let ran = run_on(frames);
@@ -1802,42 +1999,250 @@ mod tests {
         drop(ran.release);
     }
 
-    /// The error of the stand-in's process that ended, as `Ran::outcome` holds
-    /// it. No child has its pid, so its wait status reads 0.
-    fn ended_module() -> Result<Kind, String> {
-        Err(format!(
-            "{:?}",
-            Error::project("the module's process exited 0".to_owned())
-        ))
+    /// The words of the stand-in's process that ended. No child has its pid,
+    /// so its wait status reads 0.
+    const ENDED: &str = "the module's process exited 0";
+
+    /// The facts of a case whose two expectations held in order.
+    fn held() -> Facts {
+        Facts {
+            in_order: vec![(0, true), (1, true)],
+            stated: true,
+            ..Facts::default()
+        }
     }
 
     #[test]
-    fn a_replay_whose_module_process_ends_before_its_ask_takes_the_place_of_the_outcome() {
+    fn a_replay_whose_module_process_ends_before_its_ask_leaves_a_case_that_raised_to_the_order() {
         let sent = Facts {
             later: vec![1],
             ..raised()
         };
         let ran = run_ending(case(sent).into(), Ends::BeforeTheReplay);
+        let refused = Facts {
+            refused: Some(ENDED.to_owned()),
+            ..raised()
+        };
         assert_eq!(
             ran.outcome,
-            ended_module(),
-            "the end of the module's process takes the place of the line that the order gives"
+            forked(&refused),
+            "a case that raised gives raised, since the end is a refusal, as a fork that \
+             failed is"
         );
         drop(ran.release);
     }
 
     #[test]
-    fn a_replay_whose_module_process_ends_before_its_frames_takes_the_place_of_the_outcome() {
+    fn a_replay_whose_module_process_ends_before_its_ask_gives_the_refusal_of_its_end() {
         let sent = Facts {
-            later: vec![1, 2],
-            ..raised()
+            later: vec![1],
+            ..held()
         };
-        let frames = case(sent).into_iter().chain(replayed(HOLDS)).collect();
-        let ran = run_ending(frames, Ends::AfterItsFrames);
+        let ran = run_ending(case(sent).into(), Ends::BeforeTheReplay);
+        let refused = Facts {
+            refused: Some(ENDED.to_owned()),
+            ..held()
+        };
         assert_eq!(
             ran.outcome,
-            ended_module(),
-            "the end of the module's process takes the place of the line that the order gives"
+            forked(&refused),
+            "a case whose expectation no replay read alone gives the end of the module's \
+             process, and does not pass"
+        );
+        drop(ran.release);
+    }
+
+    /// The facts of a case whose three expectations held in order, and the
+    /// text of the second.
+    fn held_three() -> Facts {
+        Facts {
+            in_order: vec![(0, true), (1, true), (2, true)],
+            texts: vec![(1, "assert x == 1".to_owned())],
+            stated: true,
+            ..Facts::default()
+        }
+    }
+
+    /// Runs a case whose replay of the second expectation sends `verdict`,
+    /// and whose module's process then ends before the replay of the third.
+    fn ended_after_a_replay_of(verdict: Verdict) -> Ran {
+        let sent = Facts {
+            later: vec![1, 2],
+            ..held_three()
+        };
+        let frames = case(sent).into_iter().chain(replayed(verdict)).collect();
+        run_ending(frames, Ends::AfterItsFrames)
+    }
+
+    #[test]
+    fn a_replay_whose_module_process_ends_before_its_frames_gives_the_refusal_of_its_end() {
+        let ran = ended_after_a_replay_of(Verdict::Holds);
+        let refused = Facts {
+            alone: vec![(1, Verdict::Holds)],
+            refused: Some(ENDED.to_owned()),
+            ..held_three()
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&refused),
+            "a case whose last expectation no replay read alone gives the end of the \
+             module's process, and does not pass"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_whose_module_process_ends_before_its_frames_keeps_each_verdict_before_it() {
+        let ran = ended_after_a_replay_of(Verdict::Refused);
+        let refused = Facts {
+            alone: vec![(1, Verdict::Refused)],
+            refused: Some(ENDED.to_owned()),
+            ..held_three()
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&refused),
+            "an assert that the replay before the end reached beats the end, as it beats a \
+             fork that failed"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_that_ends_with_no_verdict_reads_as_one_that_raised() {
+        let (verdict, _) = replay_on(vec![
+            frame_of(&Message::Forked(0)),
+            frame_of(&Message::Ended(0)),
+        ]);
+        assert_eq!(
+            verdict,
+            Ok(format!("{:?}", Ok::<_, String>(Verdict::Raises))),
+            "a replay that exits 0 with no verdict did not read its expectation"
+        );
+    }
+
+    /// Runs the case `test_one` on `frames`, from a stand-in that ends after
+    /// them. Gives the outcome, or the `Debug` text of the error, beside what
+    /// `ended` then gives: the line of the end, and whether the case named it.
+    fn run_to_the_end(frames: Vec<(u8, String)>) -> (Result<Kind, String>, Option<(String, bool)>) {
+        let (mut zygote, _sent) = zygote_on(frames, Ends::AfterItsFrames);
+        let (done, ran) = mpsc::channel();
+        std::thread::spawn(move || {
+            let (result, _, _) = zygote.run("test_one", &[], ());
+            let end = zygote.ended().map(|end| (end.error.line(), end.named));
+            drop(
+                done.send((
+                    result
+                        .map(|outcome| outcome.kind().clone())
+                        .map_err(|error| format!("{error:?}")),
+                    end,
+                )),
+            );
+        });
+        ran.recv_timeout(Duration::from_secs(10))
+            .expect("the run returns without a frame that does not come")
+    }
+
+    #[test]
+    fn a_module_process_that_ends_after_a_case_with_no_replay_leaves_it_its_outcome() {
+        let (outcome, end) = run_to_the_end(vec![frame_of(&passed())]);
+        assert_eq!(
+            outcome,
+            Ok(Kind::Passed),
+            "each reading came, so the end is no refusal of the case"
+        );
+        assert_eq!(
+            end,
+            Some((format!("project error: {ENDED}"), false)),
+            "the end is given once, and the case's line does not name it"
+        );
+    }
+
+    #[test]
+    fn a_module_process_that_ends_before_a_replay_gives_an_end_that_the_case_named() {
+        let sent = Facts {
+            later: vec![1],
+            ..held()
+        };
+        let (_, end) = run_to_the_end(vec![frame_of(&Message::Facts(Box::new(sent)))]);
+        assert_eq!(
+            end,
+            Some((format!("project error: {ENDED}"), true)),
+            "the case's line is the end, so it names it"
+        );
+    }
+
+    #[test]
+    fn a_module_process_that_ends_after_the_facts_gives_the_refusal_of_its_end() {
+        let sent = Facts {
+            later: vec![1],
+            ..held()
+        };
+        let ran = run_ending(
+            vec![frame_of(&Message::Facts(Box::new(sent)))],
+            Ends::AfterItsFrames,
+        );
+        let refused = Facts {
+            refused: Some(ENDED.to_owned()),
+            ..held()
+        };
+        assert_eq!(
+            ran.outcome,
+            forked(&refused),
+            "a case whose expectation no replay read alone gives the end of the module's \
+             process, and does not pass"
+        );
+        drop(ran.release);
+    }
+
+    /// The frames of a replay that sends `error`, and that the zygote then
+    /// sees end with the exit code of a panic.
+    fn replay_with(error: Error) -> [(u8, String); 3] {
+        [
+            frame_of(&Message::Forked(0)),
+            frame_of(&Message::Error(error)),
+            frame_of(&Message::Ended(125 << 8)),
+        ]
+    }
+
+    #[test]
+    fn a_replay_that_sends_an_internal_error_gives_the_case_that_error() {
+        let payload: Box<dyn std::any::Any + Send> = Box::new("a panic in the replay");
+        let internal = Error::caught(payload.as_ref(), "execution");
+        let expected = format!("{internal:?}");
+        let sent = Facts {
+            later: vec![1],
+            ..held()
+        };
+        let frames = case(sent)
+            .into_iter()
+            .chain(replay_with(internal))
+            .collect();
+        let ran = run_on(frames);
+        assert_eq!(
+            ran.outcome,
+            Err(expected),
+            "the internal error of the replay takes the place of the line that the order gives, \
+             as it does for a case"
+        );
+        drop(ran.release);
+    }
+
+    #[test]
+    fn a_replay_that_sends_a_project_error_gives_the_case_that_error() {
+        let error = Error::project("test_one.py did not load".to_owned());
+        let expected = format!("{error:?}");
+        let sent = Facts {
+            later: vec![1],
+            ..raised()
+        };
+        let frames = case(sent).into_iter().chain(replay_with(error)).collect();
+        let ran = run_on(frames);
+        assert_eq!(
+            ran.outcome,
+            Err(expected),
+            "an error that the replay's own process sends takes the place of the line that the \
+             order gives, and is no refusal of the zygote"
         );
         drop(ran.release);
     }

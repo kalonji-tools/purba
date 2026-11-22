@@ -29,7 +29,8 @@ pub enum Called {
 /// entry or cleanup raised what the call raised, and the last marked assert
 /// beside whether it held. It holds the faults of the paths, each beside the
 /// name of its check, and whether one lies in a `try` of another shape than
-/// one path. It holds why no reader or replay was forked when a fork failed.
+/// one path. It holds why no reader or replay read an expectation alone, when
+/// a fork failed or the module's process ended.
 /// It holds the verdict of each expectation read in order and of each read
 /// alone, what each that did not hold shows, and each later expectation that a
 /// replay must read alone. It holds the text of each expectation that it names,
@@ -133,8 +134,9 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 ///    it, or a marked assert that did not hold raised `AssertionError`, which
 ///    are `failed`;
 /// 3. a project error for the faults of the paths, joined by `; `;
-/// 4. a project error when a fork to read a later expectation alone failed, or
-///    when the two readings of one expectation differ;
+/// 4. a project error when a fork to read a later expectation alone failed,
+///    when the module's process ended before a replay sent its reading, or when
+///    the two readings of one expectation differ;
 /// 5. `failed` when a `try` of one path missed, or an expectation did not
 ///    hold;
 /// 6. a project error when no expectation ran;

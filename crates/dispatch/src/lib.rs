@@ -1,12 +1,13 @@
 //! Dispatch: asks execution for a loaded zygote for each module, and runs each
 //! selected test in a process that the zygote forks. It hands on what each test's
-//! process gives, each module that stopped before its tests, and the error of a
-//! thread. It also hands on each test that an interrupt left unreached.
+//! process gives, each module that stopped before its tests, the tests that the
+//! end of their module's process blocked, and the error of a thread. It also
+//! hands on each test that an interrupt left unreached.
 
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{Error, Outcome, Owner, Rewrite, Stop, Suppressed, Worker, Zygote};
+use purba_execution::{End, Error, Outcome, Owner, Rewrite, Stop, Suppressed, Worker, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -69,6 +70,15 @@ pub enum Handed<T> {
         threads: Vec<Error>,
         tests: Vec<T>,
     },
+    /// The tests of a module that no call reached, because the module's process
+    /// ended after a test of it ran, by its path: the error of that end,
+    /// whether the line of that test named it, and each test left.
+    Ended {
+        path: PathBuf,
+        error: Error,
+        named: bool,
+        tests: Vec<T>,
+    },
     /// The error of a thread's exception, beside the test or the module that
     /// it charges. It blocks no test.
     Thread(Charged<T>, Error),
@@ -94,6 +104,10 @@ pub enum Charged<T> {
 /// it runs. A module stops when execution gives no zygote for it: see
 /// [`Worker::zygote`]. Once `each` breaks, nothing further runs, and `hand`
 /// returns the break.
+///
+/// When the module's process ends after a test of it ran, `each` takes the
+/// tests left once, with that end, and no test left runs. See
+/// [`Zygote::ended`].
 ///
 /// After each load and each test, `each` takes the error of each thread that
 /// the load or the test's process took, beside the test or the module that it
@@ -138,7 +152,7 @@ pub fn hand<T: Test + Clone, B>(
             for error in threads {
                 each(Handed::Thread(Charged::Module(path.clone()), error))?;
             }
-            let flow = run(&mut zygote, module.tests, &mut each);
+            let flow = run(&mut zygote, path, module.tests, &mut each);
             zygote.end();
             flow?;
         }
@@ -146,14 +160,17 @@ pub fn hand<T: Test + Clone, B>(
     })
 }
 
-/// Runs each of `tests` in a process that `zygote` forks, and hands `each` what
-/// it gives.
+/// Runs each of `tests` of the module at `path` in a process that `zygote`
+/// forks, and hands `each` what it gives. Once the module's process ended, it
+/// hands each test left as blocked by that end, and runs none of them.
 fn run<T: Test + Clone, B>(
     zygote: &mut Zygote,
+    path: PathBuf,
     tests: Vec<T>,
     each: &mut impl FnMut(Handed<T>) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
-    for test in tests {
+    let mut tests = tests.into_iter();
+    while let Some(test) = tests.next() {
         if purba_execution::interrupted() {
             each(Handed::Unreached(test))?;
             continue;
@@ -163,6 +180,21 @@ fn run<T: Test + Clone, B>(
         each(Handed::Test(test, result, suppressed))?;
         for (owner, error) in threads {
             each(Handed::Thread(charged(owner), error))?;
+        }
+        if purba_execution::interrupted() {
+            continue;
+        }
+        if let Some(End { error, named }) = zygote.ended() {
+            let left: Vec<T> = tests.collect();
+            if left.is_empty() {
+                return ControlFlow::Continue(());
+            }
+            return each(Handed::Ended {
+                path,
+                error,
+                named,
+                tests: left,
+            });
         }
     }
     ControlFlow::Continue(())

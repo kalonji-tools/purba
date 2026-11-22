@@ -36,7 +36,7 @@ A fact with one finder has no second copy that can disagree with it.
 - **purba's process applies each suppression, then writes each fault of a case's paths, and decides the words about a `try` of one path.** A child writes no fault.
 
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md#decision-outcome) holds how command lends the tree to each part.
-Until the code follows this record, [each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) holds how a replay ends, and [purba parses Python with ruff](purba-parses-python-with-ruff.md#decision-outcome) holds the seam over ruff.
+Until the code follows this record, [purba parses Python with ruff](purba-parses-python-with-ruff.md#decision-outcome) holds the seam over ruff.
 
 **Downside:**
 

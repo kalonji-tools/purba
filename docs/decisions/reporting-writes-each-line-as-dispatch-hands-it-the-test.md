@@ -27,7 +27,7 @@ A crash inside a test then left the tester no line, though the tests before it r
 
 **Reporting writes each line as dispatch hands it the test.**
 
-- **Dispatch calls command's function once for each module that stops before its tests, and once for every other test and every other thread's error.** Command names no type of an outcome, and the parts diagram draws each call. The function returns `ControlFlow`, and no test runs after a `Break`.
+- **Dispatch calls command's function once for each module that stops before its tests, and once for every other test and every other thread's error.** It also calls it once for the tests left after the end of a module's process. Command names no type of an outcome, and the parts diagram draws each call. The function returns `ControlFlow`, and no test runs after a `Break`.
 
   ```mermaid
   sequenceDiagram

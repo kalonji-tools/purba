@@ -166,6 +166,12 @@ pub fn run_with(
                 threads,
                 tests,
             } => report.stopped(&path.display(), &error, &threads, &tests),
+            Handed::Ended {
+                path,
+                error,
+                named,
+                tests,
+            } => report.ended(&path.display(), &error, named, &tests),
             Handed::Thread(Charged::Module(path), error) => report.error(&path.display(), &error),
             Handed::Thread(Charged::Test(test), error) => report.error(&test, &error),
             Handed::Unreached(_) => {

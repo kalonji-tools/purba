@@ -38,8 +38,9 @@ A crash ends one test, and not the run.
 - **After its test returns, the test's process joins each thread that is not a daemon, then runs the test's `atexit` functions.** A daemon thread ends with the process.
 - **Each process runs only the `atexit` functions that it registered.** So the functions that a load registered run once, at the end of the zygote, unless the load leaves a thread alive.
 - **At its first [expectation](../../CONTEXT.md#expectation), the test's process forks once for each later expectation, one fork at a time, before any reading.** Each fork reads its one expectation alone, and ends by `_exit` with what it read as its exit code. No `finally` block, `atexit` function or join of a thread runs in it. The test's process then reads each expectation in order. An expectation whose two readings differ gives a project error. A fork whose reading reaches an assert ends at that assert, and gives a project error. An operating system that refuses the fork gives a project error too.
-- **When a Python thread is alive at the first expectation, the test's process forks none, since a fork keeps only the thread that called it.** Whatever the case then gives, the zygote forks a [replay](../../CONTEXT.md#replay) for each later expectation. It forks them one at a time, after the test's process ends. A replay ends with what it read as its exit code. A replay that reaches an assert ends at it, and gives a project error. It writes nothing to stdout or stderr, since the case already wrote the test's output once.
+- **When a Python thread is alive at the first expectation, the test's process forks none, since a fork keeps only the thread that called it.** Whatever the case then gives, the zygote forks a [replay](../../CONTEXT.md#replay) for each later expectation. It forks them one at a time, after the test's process ends. A replay starts as a test's process does. It sends purba a frame of what it read, and of each error of its own. It also sends a frame of the first interrupt that it kept. It sends no error of a thread, since the case already sent each one. A replay that ends with no reading counts as one that raised. A replay that reaches an assert ends at it, and gives a project error. It writes nothing to stdout or stderr, since the case already wrote the test's output once.
 - **purba decides the outcome of each case, after its last replay.** The test's process sends the facts of its case, and reads no suppression.
+- **A module's process that ends before a replay of a case sends its reading counts for the case as a refused fork.** [The kinds record](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) places it in the order of the case's line. Each line that names the end says how the process ended: `the module's process died by SIGKILL`. No later test of the module runs. Each one prints as blocked by that end. When tests of the module are left, one line of the module names the end, unless the line of the case names it.
 - **purba adds nothing to a test that the test does not name.**
 
 ```mermaid
@@ -67,7 +68,8 @@ sequenceDiagram
       loop each expectation after the first
         purba->>zygote: a replay of the test, for that expectation
         zygote->>replay: fork
-        replay->>zygote: what it read, as its exit code
+        replay->>purba: what it read, as a frame
+        replay->>zygote: ends
         zygote->>purba: how the replay ended
       end
     end
@@ -83,6 +85,7 @@ sequenceDiagram
 - **A module whose load leaves a Python thread alive runs its body, and each `atexit` function that the body registers, once more than its tests.**
 - **A thread that `threading` does not know stays in the zygote when the zygote forks.** A thread that a framework starts below Python is such a thread. A lock that it held stays locked in each test's process.
 - **A thread that `_thread` starts and that outlives the process of its test gives no line.** The run can exit 0.
+- **A module's process that ends after purba got each reading of its last test gives no line.** The run can exit 0.
 
 ## Confirmation
 

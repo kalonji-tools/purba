@@ -31,7 +31,7 @@ use pyo3::types::PyAnyMethods;
 use pyo3::{Bound, Py, PyAny, PyErr, Python};
 use serde::{Deserialize, Serialize};
 use step::{Gives, Met};
-pub use zygote::{Stop, Zygote};
+pub use zygote::{End, Stop, Zygote};
 
 /// A module that dispatch hands a worker.
 pub struct Module {
@@ -225,12 +225,13 @@ pub enum Owner<T> {
 
 /// Runs tests in this process.
 ///
-/// It loads at most one module, the one of its process, and keeps it, or keeps
-/// no module when its load failed. It keeps the owner of each thread that a
-/// load or a test left alive.
+/// It loads at most one module, the one of its process, and keeps it and its
+/// path, or keeps only its path when its load failed. It keeps the owner of
+/// each thread that a load or a test left alive.
 pub struct Worker<'py, T> {
     py: Python<'py>,
     loaded: Option<Loaded<'py>>,
+    path: Option<PathBuf>,
     hook: &'static Py<thread::Hook>,
     owners: Vec<(Py<PyAny>, Owner<T>)>,
     last: Option<Owner<T>>,
@@ -272,6 +273,7 @@ impl<'py, T> Worker<'py, T> {
         Self {
             py,
             loaded: None,
+            path: None,
             hook: thread::hook(py)
                 .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
             owners: Vec::new(),
@@ -281,20 +283,15 @@ impl<'py, T> Worker<'py, T> {
 }
 
 impl<'py, T: Clone> Worker<'py, T> {
-    /// Calls `function` of `module`, which `load` loaded, and gathers the
+    /// Calls `function` of the module that `load` loaded, and gathers the
     /// facts of its case, when the call ran. Also gives what the step gives
     /// besides them: `Interrupted` when the first interrupt landed in the
     /// step, and when it landed before the test's call, the call does not
     /// run. Each thread that the step leaves alive gets `test` as its owner,
     /// unless it has one.
-    fn gather(
-        &mut self,
-        module: &Module,
-        function: &str,
-        test: T,
-    ) -> (Option<Facts>, Result<Gives<()>, Error>) {
+    fn gather(&mut self, function: &str, test: T) -> (Option<Facts>, Result<Gives<()>, Error>) {
         let window = self.open();
-        let (own, interrupted) = self.call(&window, module, function);
+        let (own, interrupted) = self.call(&window, function);
         let met = self.close(&window, Owner::Test(test), interrupted);
         let (facts, own) = match own {
             Ok(facts) => (facts, Ok(())),
@@ -314,6 +311,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// The load raised. An internal error when the module caught a panic and the
     /// panic hook noted it. A later call names the module that did not load.
     pub(crate) fn load(&mut self, module: &Module) -> Result<(), Error> {
+        self.path = Some(module.path.clone());
         let window = self.open();
         let py = self.py;
         let (own, interrupted) = if window.landed() {
@@ -347,10 +345,14 @@ impl<'py, T: Clone> Worker<'py, T> {
     }
 
     /// The module that `load` loaded.
-    fn module(&self, module: &Module) -> Result<&Loaded<'py>, Error> {
-        self.loaded
-            .as_ref()
-            .ok_or_else(|| Error::project(format!("{} did not load", module.path.display())))
+    fn module(&self) -> Result<&Loaded<'py>, Error> {
+        self.loaded.as_ref().ok_or_else(|| {
+            let path = self
+                .path
+                .as_deref()
+                .unwrap_or_else(|| "the module".as_ref());
+            Error::project(format!("{} did not load", path.display()))
+        })
     }
 
     /// Opens the window of a step, before its first line of Python.
@@ -419,20 +421,15 @@ impl<'py, T: Clone> Worker<'py, T> {
         self.last = Some(owner);
     }
 
-    /// Looks `function` up in `module`. Calls it, unless the first interrupt
-    /// landed since `window` opened, and watches the paths of the call. Also
-    /// says whether the first interrupt landed in the step. Gives the facts of
-    /// the case, or `None` when the first interrupt landed before the call.
-    /// When a thread was alive at the first expectation, the facts hold each
-    /// later expectation for a replay.
-    fn call(
-        &self,
-        window: &Window,
-        module: &Module,
-        function: &str,
-    ) -> (Result<Option<Facts>, Error>, bool) {
+    /// Looks `function` up in the module that `load` loaded. Calls it, unless
+    /// the first interrupt landed since `window` opened, and watches the paths
+    /// of the call. Also says whether the first interrupt landed in the step.
+    /// Gives the facts of the case, or `None` when the first interrupt landed
+    /// before the call. When a thread was alive at the first expectation, the
+    /// facts hold each later expectation for a replay.
+    fn call(&self, window: &Window, function: &str) -> (Result<Option<Facts>, Error>, bool) {
         let py = self.py;
-        let loaded = match self.module(module) {
+        let loaded = match self.module() {
             Ok(loaded) => loaded,
             Err(error) => return (Err(error), window.landed()),
         };
@@ -524,20 +521,25 @@ impl<'py, T: Clone> Worker<'py, T> {
         (Ok(Some(facts)), landed)
     }
 
-    /// Runs `function` of `module` again as a replay that reads only the
-    /// expectation at `index`, and ends the process with its verdict. It
-    /// returns only when `module` did not load or has no `function`.
-    pub(crate) fn replay(&self, module: &Module, function: &str, index: usize) {
+    /// Runs `function` of the module that `load` loaded again, as a replay
+    /// that reads only the expectation at `index`. At that expectation,
+    /// `REPLAYS` sends the verdict and ends the process. It returns when the
+    /// call returned before it reached that expectation.
+    ///
+    /// # Errors
+    ///
+    /// The module did not load, or has no `function`.
+    pub(crate) fn replay(&self, function: &str, index: usize) -> Result<(), Error> {
         let py = self.py;
-        let Ok(loaded) = self.module(module) else {
-            return;
-        };
-        let Ok(test) = loaded.module().getattr(function) else {
-            return;
-        };
+        let loaded = self.module()?;
+        let test = loaded
+            .module()
+            .getattr(function)
+            .map_err(|err| error(&err))?;
         let _ = interrupt::calling(py, || {
-            loaded.replay(&zygote::READERS, index, || test.call0())
+            loaded.replay(&zygote::REPLAYS, index, || test.call0())
         });
+        Ok(())
     }
 }
 
