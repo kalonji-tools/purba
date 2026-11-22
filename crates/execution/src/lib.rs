@@ -25,7 +25,7 @@ use order::{Called, Facts};
 pub use purba_assertion::Rewrite;
 /// What an expectation that did not hold shows, which a [`Quote`] holds.
 pub use purba_assertion::Shown;
-use purba_assertion::{Loaded, Readings, Swallowed, Try, Watched};
+use purba_assertion::{Loaded, Readings, Watched};
 use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Bound, Py, PyAny, PyErr, Python};
@@ -469,7 +469,6 @@ impl<'py, T: Clone> Worker<'py, T> {
             swallowed,
             missed,
         } = watched;
-        let (path, in_another_try) = path_faults(path, &swallowed, loaded.tries(function));
         let result = match result {
             Ok(Ok(called)) => called.map(drop),
             Ok(Err(payload)) => {
@@ -507,8 +506,9 @@ impl<'py, T: Clone> Worker<'py, T> {
             called,
             with,
             mark: mark.map(|(assert, held)| (assert.to_owned(), held)),
-            path: owned(path),
-            in_another_try,
+            path,
+            swallowed,
+            tries: loaded.tries(function).to_vec(),
             refused,
             in_order,
             shown,
@@ -602,60 +602,6 @@ pub struct Warning {
 pub struct Suppressed {
     pub warnings: Vec<Warning>,
     pub judged: bool,
-}
-
-/// The faults of the paths of a case, in the order of their lines, beside the
-/// name of each check: each `with` that swallowed a raise and skipped a line,
-/// and each fault of `path` that no such `with` explains. A fault of a line of
-/// the test in the `except` of a `try` of one path of `tries` is no fault. It
-/// also says whether a fault lies on a line of the test in another `try`.
-fn path_faults(
-    path: Vec<paths::Fault>,
-    swallowed: &[Swallowed],
-    tries: &[Try],
-) -> (Vec<(&'static str, String)>, bool) {
-    let mut faults: Vec<(usize, _, String, &'static str)> = path
-        .into_iter()
-        .filter(|(line, reached, _)| {
-            reached.is_some()
-                || !swallowed
-                    .iter()
-                    .any(|swallow| (swallow.skipped..=swallow.last).contains(line))
-                    && !tries.iter().any(|attempt| {
-                        attempt
-                            .except
-                            .as_ref()
-                            .is_some_and(|except| except.contains(line))
-                    })
-        })
-        .map(|(line, reached, fault)| (line, reached, fault, "second-path"))
-        .chain(swallowed.iter().map(|swallow| {
-            (
-                swallow.with,
-                None,
-                format!(
-                    "the with at line {} swallowed a raise, and line {} did not run",
-                    swallow.with, swallow.skipped
-                ),
-                "swallowed-raise",
-            )
-        }))
-        .collect();
-    faults.sort();
-    faults.dedup();
-    let in_another_try = faults.iter().any(|(line, reached, _, _)| {
-        reached.is_none()
-            && tries
-                .iter()
-                .any(|attempt| attempt.except.is_none() && attempt.lines.contains(line))
-    });
-    (
-        faults
-            .into_iter()
-            .map(|(_, _, fault, check)| (check, fault))
-            .collect(),
-        in_another_try,
-    )
 }
 
 /// How many cases of a run passed, failed, raised, are `interrupted`, are

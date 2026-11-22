@@ -17,10 +17,10 @@ use std::sync::{Mutex, PoisonError};
 use pyo3::Python;
 use pyo3::types::PyAnyMethods;
 
-use purba_assertion::{Readers, Replaced, Verdict};
+use purba_assertion::{Readers, Replaced, Swallowed, Try, Verdict};
 
 use crate::fork::{Forked, fork};
-use crate::order::{Called, Facts};
+use crate::order::{Called, Facts, How, PathFault};
 use crate::step::Gives;
 use crate::{
     Error, Kind, Module, Outcome, Owner, Reason, Shown, Suppressed, Worker, frame, interrupt, panic,
@@ -269,8 +269,24 @@ impl Fields<'_> {
             } else {
                 None
             },
-            path: self.list(pair)?,
-            in_another_try: self.flag()?,
+            path: self.list(Self::path_fault)?,
+            swallowed: self.list(|fields| {
+                Some(Swallowed {
+                    with: fields.number()?,
+                    skipped: fields.number()?,
+                    last: fields.number()?,
+                })
+            })?,
+            tries: self.list(|fields| {
+                Some(Try {
+                    lines: fields.number()?..=fields.number()?,
+                    except: if fields.flag()? {
+                        Some(fields.number()?..=fields.number()?)
+                    } else {
+                        None
+                    },
+                })
+            })?,
             refused: self.optional()?.pop(),
             in_order: self.list(|fields| Some((fields.number()?, fields.flag()?)))?,
             shown: self.list(|fields| Some((fields.number()?, fields.shown()?)))?,
@@ -279,6 +295,23 @@ impl Fields<'_> {
             texts: self.list(|fields| Some((fields.number()?, fields.text()?)))?,
             missed: self.list(Self::text)?,
             stated: self.flag()?,
+        })
+    }
+
+    /// Takes a fault of a path, which `put_paths` wrote.
+    fn path_fault(&mut self) -> Option<PathFault> {
+        Some(PathFault {
+            line: self.number()?,
+            reached: if self.flag()? {
+                Some((self.number()?, self.text()?))
+            } else {
+                None
+            },
+            how: match self.text()?.as_str() {
+                "n" => How::DidNotRun,
+                "o" => How::OneWay,
+                _ => return None,
+            },
         })
     }
 
@@ -295,6 +328,47 @@ impl Fields<'_> {
             },
             _ => return None,
         })
+    }
+}
+
+/// Writes three lists of `facts` through `put`: each fault of the paths, each
+/// `with` that swallowed a raise, and each `try` of the test. Each list is its
+/// count, then its items, as in [`put_facts`].
+fn put_paths(put: &mut impl FnMut(&str), facts: &Facts) {
+    put(&facts.path.len().to_string());
+    for fault in &facts.path {
+        put(&fault.line.to_string());
+        match &fault.reached {
+            Some((at, name)) => {
+                put("1");
+                put(&at.to_string());
+                put(name);
+            }
+            None => put("0"),
+        }
+        put(match fault.how {
+            How::DidNotRun => "n",
+            How::OneWay => "o",
+        });
+    }
+    put(&facts.swallowed.len().to_string());
+    for swallow in &facts.swallowed {
+        put(&swallow.with.to_string());
+        put(&swallow.skipped.to_string());
+        put(&swallow.last.to_string());
+    }
+    put(&facts.tries.len().to_string());
+    for attempt in &facts.tries {
+        put(&attempt.lines.start().to_string());
+        put(&attempt.lines.end().to_string());
+        match &attempt.except {
+            Some(except) => {
+                put("1");
+                put(&except.start().to_string());
+                put(&except.end().to_string());
+            }
+            None => put("0"),
+        }
     }
 }
 
@@ -339,8 +413,7 @@ fn put_facts(put: &mut impl FnMut(&str), facts: &Facts) {
         }
         None => put("0"),
     }
-    pairs(put, &facts.path);
-    put(flag(facts.in_another_try));
+    put_paths(put, facts);
     option(put, facts.refused.as_deref());
     put(&facts.in_order.len().to_string());
     for (index, held) in &facts.in_order {
@@ -1369,6 +1442,42 @@ mod tests {
     use std::sync::mpsc;
     use std::time::Duration;
 
+    /// Facts that hold a fault of a path of each shape, a `with` that swallowed
+    /// a raise, and a `try` of each shape, with `text` as the name of the code
+    /// that a fault reached.
+    fn facts_of_the_paths(text: impl Fn(&str) -> String) -> Facts {
+        Facts {
+            path: vec![
+                PathFault {
+                    line: 3,
+                    reached: None,
+                    how: How::DidNotRun,
+                },
+                PathFault {
+                    line: 4,
+                    reached: Some((12, text("key"))),
+                    how: How::OneWay,
+                },
+            ],
+            swallowed: vec![Swallowed {
+                with: 6,
+                skipped: 8,
+                last: 11,
+            }],
+            tries: vec![
+                Try {
+                    lines: 8..=11,
+                    except: None,
+                },
+                Try {
+                    lines: 13..=16,
+                    except: Some(15..=16),
+                },
+            ],
+            ..Facts::default()
+        }
+    }
+
     /// One message of each variant, with a NUL, a line feed and text that is
     /// not ASCII in its fields, an empty field, and each shape of a field that
     /// is optional.
@@ -1398,8 +1507,6 @@ mod tests {
                 },
                 with: Some(text("with raises(ValueError):")),
                 mark: Some((text("assert x == 1"), false)),
-                path: vec![(text("second-path"), text("line 3"))],
-                in_another_try: true,
                 refused: Some(text("purba cannot fork")),
                 in_order: vec![(1, true), (2, false)],
                 shown: vec![
@@ -1428,6 +1535,7 @@ mod tests {
                 texts: vec![(1, text("assert x == 1")), (2, String::new())],
                 missed: vec![text("try: x()")],
                 stated: true,
+                ..facts_of_the_paths(text)
             })),
             Message::Facts(Box::new(Facts {
                 called: Called::Raised {
