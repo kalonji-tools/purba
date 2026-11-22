@@ -3,17 +3,31 @@ mod common;
 use std::path::PathBuf;
 
 use common::module;
-use purba_execution::{Kind, Owner, Worker};
+use purba_execution::{Kind, Purba};
 
-/// The owner of a thread: the test, by the name of its function, or a load.
-type Owned = Owner<&'static str>;
+/// The owner of a thread, as dispatch pairs the step that execution names: the
+/// test, by the name of its function, or a load, by the path of its module.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Owned {
+    Test(&'static str),
+    Load(PathBuf),
+}
 
 const fn test(function: &'static str) -> Owned {
-    Owner::Test(function)
+    Owned::Test(function)
 }
 
 fn load(path: &str) -> Owned {
-    Owner::Load(PathBuf::from(path))
+    Owned::Load(PathBuf::from(path))
+}
+
+/// The owner of a thread that `step` left, when `function` ran in the module
+/// at `path`.
+fn owned(step: purba_execution::Step, function: &'static str, path: &str) -> Owned {
+    match step {
+        purba_execution::Step::Test => test(function),
+        purba_execution::Step::Load => load(path),
+    }
 }
 
 /// The outcome or the error of a load or a test, and the error of each thread
@@ -101,8 +115,8 @@ const TEST_RAW_LOAD: &str = "import _thread\nimport threading\n\n\
 /// then each of `functions`. A load's threads charge the load.
 fn through(path: &str, source: &str, functions: &[&'static str]) -> Vec<Step> {
     let module = module(path, source);
-    purba_execution::attach(|worker: &mut Worker<'_, &'static str>| {
-        let (mut zygote, threads) = match worker.zygote(&module) {
+    purba_execution::attach(|purba: &Purba<'_>| {
+        let (mut zygote, threads) = match purba.zygote(&module) {
             Ok(started) => started,
             Err(stop) => return vec![(Err(stop.error.to_string()), Vec::new())],
         };
@@ -114,14 +128,19 @@ fn through(path: &str, source: &str, functions: &[&'static str]) -> Vec<Step> {
                 .collect(),
         )];
         for function in functions {
-            let (result, _, threads) = zygote.run(function, &[], *function);
+            let (result, _, threads) = zygote.run(function, &[]);
             steps.push((
                 result
                     .map(|outcome| Some(outcome.kind().clone()))
                     .map_err(|error| error.to_string()),
                 threads
                     .into_iter()
-                    .map(|(owner, error)| (owner, without_ident(error.to_string())))
+                    .map(|(step, error)| {
+                        (
+                            owned(step, function, path),
+                            without_ident(error.to_string()),
+                        )
+                    })
                     .collect(),
             ));
         }

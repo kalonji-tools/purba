@@ -6,7 +6,7 @@ use std::io::{self, Write};
 use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
-use purba_dispatch::{Charged, Handed, Module};
+use purba_dispatch::{Handed, Module};
 use purba_selection::TestId;
 
 /// Why a run did not finish.
@@ -172,8 +172,8 @@ pub fn run_with(
                 named,
                 tests,
             } => report.ended(&path.display(), &error, named, &tests),
-            Handed::Thread(Charged::Module(path), error) => report.error(&path.display(), &error),
-            Handed::Thread(Charged::Test(test), error) => report.error(&test, &error),
+            Handed::LoadThread(path, error) => report.error(&path.display(), &error),
+            Handed::TestThread(test, error) => report.error(&test, &error),
             Handed::Unreached(_) => {
                 report.unreached();
                 Ok(())

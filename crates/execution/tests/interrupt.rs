@@ -1,6 +1,6 @@
 mod common;
 
-use purba_execution::{Kind, Worker};
+use purba_execution::{Kind, Purba};
 
 /// The tests of a module whose calls take or raise signals. `test_handler`
 /// marks, as its process ends, the type of the signal handler of SIGINT and
@@ -35,13 +35,13 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
         "test_signals.py",
         &test_signals(marker.to_str().expect("the marker's path is text")),
     );
-    let steps: Vec<Step> = purba_execution::attach(|worker: &mut Worker<'_, &str>| {
+    let steps: Vec<Step> = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
-        let (mut zygote, _) = worker.zygote(&module).expect("the zygote loads the module");
+        let (mut zygote, _) = purba.zygote(&module).expect("the zygote loads the module");
         let steps = ["test_bare", "test_handler", "test_signal"]
             .into_iter()
             .map(|function| {
-                let (result, _, _) = zygote.run(function, &[], function);
+                let (result, _, _) = zygote.run(function, &[]);
                 (
                     result
                         .map(|outcome| outcome.kind().clone())

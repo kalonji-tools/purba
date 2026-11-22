@@ -7,7 +7,7 @@
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{End, Error, Outcome, Owner, Rewrite, Stop, Suppressed, Worker, Zygote};
+use purba_execution::{End, Error, Outcome, Purba, Rewrite, Step, Stop, Suppressed, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -79,17 +79,14 @@ pub enum Handed<T> {
         named: bool,
         tests: Vec<T>,
     },
-    /// The error of a thread's exception, beside the test or the module that
-    /// it charges. It blocks no test.
-    Thread(Charged<T>, Error),
+    /// The error of a thread's exception that charges a test, beside the test.
+    /// It blocks no test.
+    TestThread(T, Error),
+    /// The error of a thread's exception that charges the load of a module,
+    /// beside the module's path. It blocks no test.
+    LoadThread(PathBuf, Error),
     /// A test that the run never reached, because an interrupt stopped the run.
     Unreached(T),
-}
-
-/// What the error of a thread charges: a test, or a module by its path.
-pub enum Charged<T> {
-    Test(T),
-    Module(PathBuf),
 }
 
 /// Asks execution for a loaded zygote for each module of `modules` that has a
@@ -102,7 +99,7 @@ pub enum Charged<T> {
 /// When a module stops before its tests, `each` takes it once, with its error,
 /// the error of each thread that its load took, and its tests, and no test of
 /// it runs. A module stops when execution gives no zygote for it: see
-/// [`Worker::zygote`]. Once `each` breaks, nothing further runs, and `hand`
+/// [`Purba::zygote`]. Once `each` breaks, nothing further runs, and `hand`
 /// returns the break.
 ///
 /// When the module's process ends after a test of it ran, `each` takes the
@@ -124,7 +121,7 @@ pub fn hand<T: Test + Clone, B>(
     modules: Vec<Module<T>>,
     mut each: impl FnMut(Handed<T>) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
-    purba_execution::attach(|worker: &mut Worker<'_, T>| {
+    purba_execution::attach(|purba: &Purba<'_>| {
         for module in modules {
             if module.tests.is_empty() {
                 continue;
@@ -137,7 +134,7 @@ pub fn hand<T: Test + Clone, B>(
             }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.rewrite);
-            let (mut zygote, threads) = match worker.zygote(&executable) {
+            let (mut zygote, threads) = match purba.zygote(&executable) {
                 Ok(started) => started,
                 Err(Stop { error, threads }) => {
                     each(Handed::Stopped {
@@ -150,7 +147,7 @@ pub fn hand<T: Test + Clone, B>(
                 }
             };
             for error in threads {
-                each(Handed::Thread(Charged::Module(path.clone()), error))?;
+                each(Handed::LoadThread(path.clone(), error))?;
             }
             let flow = run(&mut zygote, path, module.tests, &mut each);
             zygote.end();
@@ -175,11 +172,13 @@ fn run<T: Test + Clone, B>(
             each(Handed::Unreached(test))?;
             continue;
         }
-        let (result, suppressed, threads) =
-            zygote.run(test.function(), &test.suppressions(), test.clone());
-        each(Handed::Test(test, result, suppressed))?;
-        for (owner, error) in threads {
-            each(Handed::Thread(charged(owner), error))?;
+        let (result, suppressed, threads) = zygote.run(test.function(), &test.suppressions());
+        each(Handed::Test(test.clone(), result, suppressed))?;
+        for (step, error) in threads {
+            each(match step {
+                Step::Test => Handed::TestThread(test.clone(), error),
+                Step::Load => Handed::LoadThread(path.clone(), error),
+            })?;
         }
         if purba_execution::interrupted() {
             continue;
@@ -198,12 +197,4 @@ fn run<T: Test + Clone, B>(
         }
     }
     ControlFlow::Continue(())
-}
-
-/// The test or the module that `owner` names.
-fn charged<T>(owner: Owner<T>) -> Charged<T> {
-    match owner {
-        Owner::Test(test) => Charged::Test(test),
-        Owner::Load(path) => Charged::Module(path),
-    }
 }

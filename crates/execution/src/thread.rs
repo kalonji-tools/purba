@@ -154,6 +154,12 @@ pub fn hook(py: Python<'_>) -> PyResult<&'static Py<Hook>> {
     })
 }
 
+/// The hook, once `hook` gave it, in this process or in a process that this
+/// process forked from. Gives `None` before that.
+pub fn taken(py: Python<'_>) -> Option<&'static Py<Hook>> {
+    HOOK.get(py)
+}
+
 /// Names what the process replaced since the filters were last held: the first
 /// place of `threading.excepthook` and `sys.unraisablehook` that holds anything
 /// but the hook, which [`hooks_replaced`] puts back, or else the warning

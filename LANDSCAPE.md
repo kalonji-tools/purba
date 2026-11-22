@@ -113,7 +113,7 @@ sequenceDiagram
   assertion -->> execution: the loaded module
   execution -->> dispatch: it loaded
   loop each selected test
-    dispatch ->> execution: a function's name, and the test that it hands back as a thread's owner
+    dispatch ->> execution: a function's name
     Note over execution: the zygote forks the test's process
     execution ->> fixtures: the inputs the test names
     fixtures -->> execution: no inputs

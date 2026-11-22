@@ -1,4 +1,4 @@
-use purba_execution::Worker;
+use purba_execution::Purba;
 use pyo3::Python;
 
 // purba's signal handler keeps the first signal for the life of the process,
@@ -6,7 +6,7 @@ use pyo3::Python;
 // binary.
 #[test]
 fn purbas_signal_handler_keeps_a_signal_outside_a_call_and_raises_nothing() {
-    let (outside, kept) = purba_execution::attach(|_: &mut Worker<'_, ()>| {
+    let (outside, kept) = purba_execution::attach(|_: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         let outside = Python::attach(|py| {
             py.run(

@@ -33,7 +33,7 @@ use serde::{Deserialize, Serialize};
 use step::{Gives, Met};
 pub use zygote::{End, Stop, Zygote};
 
-/// A module that dispatch hands a worker.
+/// A module that dispatch hands [`Purba::zygote`].
 pub struct Module {
     path: PathBuf,
     rewrite: Rewrite,
@@ -214,85 +214,86 @@ pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Resul
         .unwrap_or_else(|payload| Err(Error::caught(payload.as_ref(), catcher)))
 }
 
-/// The load or the test that left a thread alive, which a thread's exception
-/// charges. A load names the path of its module. A test is the one that the
-/// caller handed to [`Zygote::run`].
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Owner<T> {
-    Load(PathBuf),
-    Test(T),
+/// The step that a thread's exception charges: the load of the module, or the
+/// test that a test's process ran. It is the step that left the thread alive,
+/// or else the step that ran last.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Step {
+    Load,
+    Test,
 }
 
-/// Runs tests in this process.
-///
-/// It loads at most one module, the one of its process, and keeps it and its
-/// path, or keeps only its path when its load failed. It keeps the owner of
-/// each thread that a load or a test left alive.
-pub struct Worker<'py, T> {
+/// purba's own process, which forks a zygote for each module.
+pub struct Purba<'py> {
     py: Python<'py>,
-    loaded: Option<Loaded<'py>>,
-    path: Option<PathBuf>,
     hook: &'static Py<thread::Hook>,
-    owners: Vec<(Py<PyAny>, Owner<T>)>,
-    last: Option<Owner<T>>,
 }
 
-/// What a load or a call meets, from before its first line of Python: whether
-/// purba kept an interrupt as it opened, and the threads alive then.
-struct Window {
-    kept: bool,
-    alive: Vec<Py<PyAny>>,
-}
-
-impl Window {
-    /// Whether the first interrupt landed since the window opened.
-    fn landed(&self) -> bool {
-        !self.kept && interrupt::kept_now()
-    }
-}
-
-/// Gives `work` a worker for as long as it runs.
+/// Gives `work` purba's process for as long as it runs.
 ///
-/// Before the first worker, it hooks `threading.excepthook` and
-/// `sys.unraisablehook`, for the life of the process. So each run imports
-/// `threading`.
+/// Before `work`, it keeps the folder that the run started in, and hooks
+/// `threading.excepthook` and `sys.unraisablehook`, for the life of the
+/// process. So each run imports `threading`. Each zygote inherits both.
 ///
 /// # Panics
 ///
 /// The hook could not take the place of `threading.excepthook` or
 /// `sys.unraisablehook`.
-pub fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
+pub fn attach<R>(work: impl for<'py> FnOnce(&Purba<'py>) -> R) -> R {
     Python::initialize();
-    Python::attach(|py| work(&mut Worker::new(py)))
+    Python::attach(|py| {
+        whence::keep_the_folder();
+        let hook = thread::hook(py)
+            .expect("the hook takes the place of threading.excepthook and sys.unraisablehook");
+        work(&Purba { py, hook })
+    })
 }
 
-impl<'py, T> Worker<'py, T> {
-    /// A worker that has loaded nothing.
-    fn new(py: Python<'py>) -> Self {
-        whence::keep_the_folder();
+/// Loads a module in a zygote, and runs a test in each child of the zygote.
+///
+/// It loads at most one module, the one of its process, and keeps it and its
+/// path, or keeps only its path when its load failed. It keeps the step that
+/// left each thread alive.
+pub(crate) struct Worker<'py> {
+    py: Python<'py>,
+    loaded: Option<Loaded<'py>>,
+    path: Option<PathBuf>,
+    hook: &'static Py<thread::Hook>,
+    owners: Vec<(Py<PyAny>, Step)>,
+    last: Option<Step>,
+}
+
+/// What a load or a call meets, from before its first line of Python: the
+/// window of the first interrupt, and the threads alive then.
+struct Window {
+    interrupt: interrupt::Window,
+    alive: Vec<Py<PyAny>>,
+}
+
+impl<'py> Worker<'py> {
+    /// A worker that has loaded nothing, and charges each thread through
+    /// `hook`, which purba took.
+    pub(crate) const fn new(py: Python<'py>, hook: &'static Py<thread::Hook>) -> Self {
         Self {
             py,
             loaded: None,
             path: None,
-            hook: thread::hook(py)
-                .expect("the hook takes the place of threading.excepthook and sys.unraisablehook"),
+            hook,
             owners: Vec::new(),
             last: None,
         }
     }
-}
 
-impl<'py, T: Clone> Worker<'py, T> {
     /// Calls `function` of the module that `load` loaded, and gathers the
     /// facts of its case, when the call ran. Also gives what the step gives
     /// besides them: `Interrupted` when the first interrupt landed in the
     /// step, and when it landed before the test's call, the call does not
-    /// run. Each thread that the step leaves alive gets `test` as its owner,
+    /// run. Each thread that the step leaves alive gets the test as its step,
     /// unless it has one.
-    fn gather(&mut self, function: &str, test: T) -> (Option<Facts>, Result<Gives<()>, Error>) {
+    fn gather(&mut self, function: &str) -> (Option<Facts>, Result<Gives<()>, Error>) {
         let window = self.open();
         let (own, interrupted) = self.call(&window, function);
-        let met = self.close(&window, Owner::Test(test), interrupted);
+        let met = self.close(&window, Step::Test, interrupted);
         let (facts, own) = match own {
             Ok(facts) => (facts, Ok(())),
             Err(error) => (None, Err(error)),
@@ -303,7 +304,7 @@ impl<'py, T: Clone> Worker<'py, T> {
     /// Loads `module`, the one module of its process, and keeps it, or keeps
     /// no module when its load fails. The load takes the note of a panic, so
     /// no later test takes it. Each thread that the load leaves alive gets the
-    /// load as its owner. When the first interrupt landed in the load, it gives
+    /// load as its step. When the first interrupt landed in the load, it gives
     /// no project error, and keeps no module.
     ///
     /// # Errors
@@ -314,7 +315,7 @@ impl<'py, T: Clone> Worker<'py, T> {
         self.path = Some(module.path.clone());
         let window = self.open();
         let py = self.py;
-        let (own, interrupted) = if window.landed() {
+        let (own, interrupted) = if window.interrupt.kept() {
             (Ok(None), true)
         } else {
             thread::hold_filters(py);
@@ -334,7 +335,7 @@ impl<'py, T: Clone> Worker<'py, T> {
             });
             (own.map(Some), landed)
         };
-        let met = self.close(&window, Owner::Load(module.path.clone()), interrupted);
+        let met = self.close(&window, Step::Load, interrupted);
         let (kept, result) = match step::decide(own, met) {
             Ok(Gives::Own(loaded)) => (loaded, Ok(())),
             Ok(Gives::Interrupted) => (None, Ok(())),
@@ -357,17 +358,17 @@ impl<'py, T: Clone> Worker<'py, T> {
 
     /// Opens the window of a step, before its first line of Python.
     fn open(&self) -> Window {
-        let kept = interrupt::kept_now();
+        let interrupt = interrupt::Window::open();
         Window {
-            kept,
+            interrupt,
             alive: self.hook.get().alive(self.py),
         }
     }
 
-    /// Closes the window of a step that `owner` ran. Gives `owner` each thread
-    /// that the step left alive, and takes the note of a panic.
-    fn close(&mut self, window: &Window, owner: Owner<T>, interrupted: bool) -> Met {
-        self.own(&window.alive, owner);
+    /// Closes the window of `step`. Gives `step` each thread that the step left
+    /// alive, and takes the note of a panic.
+    fn close(&mut self, window: &Window, step: Step, interrupted: bool) -> Met {
+        self.own(&window.alive, step);
         Met {
             panic: panic::take(),
             interrupted,
@@ -375,11 +376,11 @@ impl<'py, T: Clone> Worker<'py, T> {
     }
 
     /// Takes each exception that a thread raised since the last take, in the
-    /// order threads raised them, as a project error with its owner. A thread
-    /// with no owner charges the load or the test that ran last. Before any
+    /// order threads raised them, as a project error with its step. A thread
+    /// with no step charges the load or the test that ran last. Before any
     /// load or test, it takes nothing.
-    pub(crate) fn threads(&self) -> Vec<(Owner<T>, Error)> {
-        let Some(last) = &self.last else {
+    pub(crate) fn threads(&self) -> Vec<(Step, Error)> {
+        let Some(last) = self.last else {
             return Vec::new();
         };
         self.hook
@@ -387,23 +388,23 @@ impl<'py, T: Clone> Worker<'py, T> {
             .take()
             .into_iter()
             .map(|raised| {
-                let owner = raised
+                let step = raised
                     .thread
                     .and_then(|thread| {
                         self.owners
                             .iter()
                             .find(|(owned, _)| owned.is(&thread))
-                            .map(|(_, owner)| owner.clone())
+                            .map(|&(_, step)| step)
                     })
-                    .unwrap_or_else(|| last.clone());
-                (owner, Error::project(raised.text))
+                    .unwrap_or(last);
+                (step, Error::project(raised.text))
             })
             .collect()
     }
 
-    /// Gives `owner` each thread that is alive now and was not in `before`, and
-    /// has no owner yet. `owner` then ran last.
-    fn own(&mut self, before: &[Py<PyAny>], owner: Owner<T>) {
+    /// Gives `step` each thread that is alive now and was not in `before`, and
+    /// has no step yet. `step` then ran last.
+    fn own(&mut self, before: &[Py<PyAny>], step: Step) {
         let new: Vec<Py<PyAny>> = self
             .hook
             .get()
@@ -417,8 +418,8 @@ impl<'py, T: Clone> Worker<'py, T> {
             })
             .collect();
         self.owners
-            .extend(new.into_iter().map(|thread| (thread, owner.clone())));
-        self.last = Some(owner);
+            .extend(new.into_iter().map(|thread| (thread, step)));
+        self.last = Some(step);
     }
 
     /// Looks `function` up in the module that `load` loaded. Calls it, unless
@@ -431,21 +432,21 @@ impl<'py, T: Clone> Worker<'py, T> {
         let py = self.py;
         let loaded = match self.module() {
             Ok(loaded) => loaded,
-            Err(error) => return (Err(error), window.landed()),
+            Err(error) => return (Err(error), window.interrupt.kept()),
         };
         let test = match loaded.module().getattr(function) {
             Ok(test) => test,
-            Err(err) => return (Err(error(&err)), window.landed()),
+            Err(err) => return (Err(error(&err)), window.interrupt.kept()),
         };
         // A call of an object that is not callable runs no code, and gives
         // CPython's own `TypeError`.
         if !test.is_callable()
             && let Err(err) = test.call0()
         {
-            return (Err(error(&err)), window.landed());
+            return (Err(error(&err)), window.interrupt.kept());
         }
         let purba_fixtures::Inputs {} = purba_fixtures::inputs(function);
-        if window.landed() {
+        if window.interrupt.kept() {
             return (Ok(None), true);
         }
         let tested = loaded.test(function);

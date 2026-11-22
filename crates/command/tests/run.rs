@@ -358,6 +358,27 @@ fn a_module_that_did_not_load_prints_the_error_of_each_thread_of_its_load() {
 }
 
 #[test]
+fn a_loads_thread_that_raises_in_a_test_prints_its_error_under_the_module() {
+    let text = concat!(
+        "import threading\n\ngo = threading.Event()\n\n",
+        "def late():\n    go.wait()\n    raise ValueError(\"late\")\n\n",
+        "thread = threading.Thread(target=late, name=\"M\", daemon=True)\n",
+        "thread.start()\n\n",
+        "def test_releases():\n    go.set()\n    thread.join()\n    assert 1 == 1\n",
+    );
+    let (path, kinds, code) = run_module("test_command_load_leaves.py", text);
+    assert_eq!(
+        kinds,
+        [
+            (id(&path, "test_releases"), "passed"),
+            (path.display().to_string(), "project error"),
+        ],
+        "the test passes, then the error of the thread that its load left names the module"
+    );
+    assert_eq!(code, 4, "an error exits 4");
+}
+
+#[test]
 fn a_test_whose_own_error_blocks_it_keeps_its_project_error_line() {
     let text = concat!(
         "def test_ok():\n    assert 1 == 1\n\n",

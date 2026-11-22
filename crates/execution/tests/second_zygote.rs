@@ -5,7 +5,7 @@ mod common;
 
 use std::ffi::CString;
 
-use purba_execution::{Error, Worker};
+use purba_execution::{Error, Purba};
 use pyo3::Python;
 
 /// A module whose load leaves a thread alive. A zygote that loads nothing then
@@ -26,7 +26,7 @@ fn a_zygote_that_loads_nothing_and_ends_before_it_is_ready_stops_its_module() {
     let first = std::env::temp_dir().join(format!("purba-second-{}", std::process::id()));
     let _ = std::fs::remove_file(&first);
     let module = common::module("test_threaded_load.py", TEST_THREADED);
-    let stopped = purba_execution::attach(|worker: &mut Worker<'_, &str>| {
+    let stopped = purba_execution::attach(|purba: &Purba<'_>| {
         Python::attach(|py| {
             let code = CString::new(format!(
                 "import atexit\nimport os\n\nclear = atexit._clear\n\n\
@@ -41,7 +41,7 @@ fn a_zygote_that_loads_nothing_and_ends_before_it_is_ready_stops_its_module() {
             py.run(&code, None, None)
                 .expect("the second zygote exits 7 before it is ready");
         });
-        match worker.zygote(&module) {
+        match purba.zygote(&module) {
             Ok((zygote, _)) => {
                 zygote.end();
                 None

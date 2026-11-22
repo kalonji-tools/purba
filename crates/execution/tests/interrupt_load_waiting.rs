@@ -4,7 +4,7 @@ mod common;
 
 use std::ffi::CString;
 
-use purba_execution::Worker;
+use purba_execution::Purba;
 use pyo3::Python;
 
 /// Makes the zygote's last call of Python before its load send SIGINT, by C's
@@ -23,14 +23,14 @@ fn a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module
         "test_waiting.py",
         &format!("open({marker:?}, 'w').close()\n\ndef test_one():\n    assert True\n"),
     );
-    let (loaded, kept) = purba_execution::attach(|worker: &mut Worker<'_, &str>| {
+    let (loaded, kept) = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
         Python::attach(|py| {
             let code = CString::new(SIGINT_BEFORE_LOAD).expect("the code holds no NUL");
             py.run(&code, None, None)
                 .expect("the zygote's last call before its load sends SIGINT");
         });
-        let loaded = worker
+        let loaded = purba
             .zygote(&module)
             .map(|(zygote, _)| zygote.end())
             .map_err(|stop| stop.error.to_string());
