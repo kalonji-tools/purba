@@ -72,6 +72,7 @@ Cargo misses some ruff crates that nothing calls, so the reviewer checks each on
 One module owns parsing and returns an AST, and everything else takes the AST.
 [Parsing matches the shape of each expectation in Rust, on ruff's AST](parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md#decision-outcome) holds how parsing reads an expectation in that AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
+[Each fact about a run is found once, by the part that sees it, and crosses as plain data](each-fact-is-found-once-by-the-part-that-sees-it.md#decision-outcome) holds why parsing finds the facts that selection and assertion read.
 Holding that seam keeps even a late reversal a one-decision change.
 
 Parsing returns a syntax error as an error, not a panic, because a file that fails to parse is a project error, not a crash.
