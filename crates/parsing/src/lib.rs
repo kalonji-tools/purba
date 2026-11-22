@@ -515,7 +515,7 @@ fn trivia(source: &str, tokens: &[Token]) -> Vec<TextRange> {
 /// Whether `expr` is a literal: a string, bytes, a number, `True`, `False`,
 /// `None`, `...`, an f-string with no placeholder, an operator on literals, or
 /// a list, tuple, set or dict of these.
-pub fn is_literal(expr: &Expr) -> bool {
+fn is_literal(expr: &Expr) -> bool {
     // A walk that recurses once for each level of nesting overflows the stack
     // on an expression that nests deeper than the stack.
     let mut pending = vec![expr];
@@ -568,15 +568,25 @@ pub enum Reads {
     End,
 }
 
+/// One side of a comparison.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Side {
+    Left,
+    Right,
+}
+
 /// One check: a comparison of two values by one operator, or one of the four
 /// reads.
 #[derive(Clone, Copy, Debug)]
 pub enum Check<'a> {
-    /// `left <op> right`.
+    /// `left <op> right`, and the side that is its expected value: the side
+    /// that is a literal, the right side when both are, or `None` when neither
+    /// is.
     Compare {
         op: CmpOp,
         left: &'a Expr,
         right: &'a Expr,
+        expected: Option<Side>,
     },
     /// One of the four reads: its reading, and the type or the argument that
     /// it takes. `not x` takes none.
@@ -651,6 +661,13 @@ fn check(test: &Expr) -> Option<Check<'_>> {
                 op: *op,
                 left,
                 right,
+                expected: if is_literal(right) {
+                    Some(Side::Right)
+                } else if is_literal(left) {
+                    Some(Side::Left)
+                } else {
+                    None
+                },
             }),
             _ => None,
         },
@@ -784,30 +801,52 @@ pub fn ending(body: &[Stmt]) -> Vec<&StmtAssert> {
 /// body of a `def` or a `class` is not one of them.
 #[must_use]
 pub fn blocks(statement: &Stmt) -> Vec<&[Stmt]> {
+    holds(statement).map_or_else(Vec::new, |(_, blocks)| blocks)
+}
+
+/// The keyword of `statement` when it holds blocks: `if`, `try`, `with`, `for`,
+/// `while` or `match`. An `async with` and an `async for` give `with` and
+/// `for`.
+#[must_use]
+pub fn keyword(statement: &Stmt) -> Option<&'static str> {
+    holds(statement).map(|(keyword, _)| keyword)
+}
+
+/// The keyword and the blocks of `statement`, when it holds blocks.
+fn holds(statement: &Stmt) -> Option<(&'static str, Vec<&[Stmt]>)> {
     match statement {
-        Stmt::If(branch) => iter::once(branch.body.as_slice())
-            .chain(
-                branch
-                    .elif_else_clauses
-                    .iter()
-                    .map(|clause| clause.body.as_slice()),
-            )
-            .collect(),
-        Stmt::Try(attempt) => iter::once(attempt.body.as_slice())
-            .chain(attempt.handlers.iter().map(|handler| {
-                let ExceptHandler::ExceptHandler(clause) = handler;
-                clause.body.as_slice()
-            }))
-            .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
-            .collect(),
-        Stmt::With(with) => vec![with.body.as_slice()],
-        Stmt::For(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-        Stmt::While(each) => vec![each.body.as_slice(), each.orelse.as_slice()],
-        Stmt::Match(choice) => choice
-            .cases
-            .iter()
-            .map(|case| case.body.as_slice())
-            .collect(),
-        _ => Vec::new(),
+        Stmt::If(branch) => Some((
+            "if",
+            iter::once(branch.body.as_slice())
+                .chain(
+                    branch
+                        .elif_else_clauses
+                        .iter()
+                        .map(|clause| clause.body.as_slice()),
+                )
+                .collect(),
+        )),
+        Stmt::Try(attempt) => Some((
+            "try",
+            iter::once(attempt.body.as_slice())
+                .chain(attempt.handlers.iter().map(|handler| {
+                    let ExceptHandler::ExceptHandler(clause) = handler;
+                    clause.body.as_slice()
+                }))
+                .chain([attempt.orelse.as_slice(), attempt.finalbody.as_slice()])
+                .collect(),
+        )),
+        Stmt::With(with) => Some(("with", vec![with.body.as_slice()])),
+        Stmt::For(each) => Some(("for", vec![each.body.as_slice(), each.orelse.as_slice()])),
+        Stmt::While(each) => Some(("while", vec![each.body.as_slice(), each.orelse.as_slice()])),
+        Stmt::Match(choice) => Some((
+            "match",
+            choice
+                .cases
+                .iter()
+                .map(|case| case.body.as_slice())
+                .collect(),
+        )),
+        _ => None,
     }
 }

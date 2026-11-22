@@ -908,6 +908,62 @@ fn the_blocks_of_a_statement_are_the_bodies_it_holds_in_source_order() {
     );
 }
 
+#[test]
+fn the_keyword_of_a_statement_names_the_statements_that_hold_blocks() {
+    let text = concat!(
+        "if a:\n    x = 1\n",
+        "for i in c:\n    x = 2\n",
+        "while d:\n    x = 3\n",
+        "with e:\n    x = 4\n",
+        "try:\n    x = 5\nexcept E:\n    x = 6\n",
+        "match f:\n    case _:\n        x = 7\n",
+        "def g():\n    x = 8\n",
+        "class H:\n    x = 9\n",
+        "x = 10\n",
+        "async def k():\n",
+        "    async with e:\n        x = 11\n",
+        "    async for i in c:\n        x = 12\n",
+    );
+    let module = purba_parsing::parse(&write("test_keywords.py", text)).expect("the module parses");
+    let body = &module.syntax().body;
+    let Some(Stmt::FunctionDef(last)) = body.last() else {
+        panic!("the last statement of the module is the async def");
+    };
+    let statements: Vec<&Stmt> = body.iter().chain(&last.body).collect();
+
+    let keywords: Vec<Option<&str>> = statements
+        .iter()
+        .map(|statement| purba_parsing::keyword(statement))
+        .collect();
+    assert_eq!(
+        keywords,
+        [
+            Some("if"),
+            Some("for"),
+            Some("while"),
+            Some("with"),
+            Some("try"),
+            Some("match"),
+            None,
+            None,
+            None,
+            None,
+            Some("with"),
+            Some("for"),
+        ],
+        "if, for, while, with, try and match each give their keyword, and an async with and an \
+         async for give with and for; a def, a class, an async def and a simple statement give none"
+    );
+    for statement in statements {
+        assert_eq!(
+            purba_parsing::keyword(statement).is_some(),
+            !purba_parsing::blocks(statement).is_empty(),
+            "a statement has a keyword exactly when it holds blocks: {}",
+            &module.source()[statement.range()]
+        );
+    }
+}
+
 /// What `shape` names in the test of each assert of `text`, as text: the kind
 /// of shape, and the text of each part that it hands back.
 fn shapes_of(name: &str, text: &str) -> Vec<String> {
@@ -915,7 +971,9 @@ fn shapes_of(name: &str, text: &str) -> Vec<String> {
     let module = purba_parsing::parse(&write(name, text)).expect("the module parses");
     let part = |expr: &dyn Ranged| module.source()[expr.range()].to_owned();
     let check = |check: Check<'_>| match check {
-        Check::Compare { op, left, right } => {
+        Check::Compare {
+            op, left, right, ..
+        } => {
             format!("compare {} {} {}", part(left), op.as_str(), part(right))
         }
         Check::Read {
@@ -1002,5 +1060,60 @@ fn the_shape_of_a_test_names_its_check_or_why_it_has_none() {
         "a comparison by one operator and each of the four reads are one check; an all() or an \
          any() of one check hands it back; another all() or any() names its shape; an all() of \
          an async generator, a read with a starred argument and any other test is no check"
+    );
+}
+
+#[test]
+fn the_expected_side_of_a_comparison_is_its_literal_or_its_right_when_both_are() {
+    use purba_parsing::{Check, Shape, Side};
+    let text = concat!(
+        "assert x == 1\n",
+        "assert 1 == x\n",
+        "assert 1 == 2\n",
+        "assert x == y\n",
+        "assert -1 < x\n",
+        "assert x in [1, (2, 'a')]\n",
+        "assert f'{x}' == y\n",
+        "assert all(v > 0 for v in xs)\n",
+        "assert all(0 < v for v in xs)\n",
+    );
+    let module = purba_parsing::parse(&write("test_expected.py", text)).expect("the module parses");
+
+    let sides: Vec<Option<Side>> = module
+        .syntax()
+        .body
+        .iter()
+        .map(|statement| {
+            let Stmt::Assert(assert) = statement else {
+                panic!("each statement is an assert");
+            };
+            match purba_parsing::shape(&assert.test) {
+                Shape::Check(Check::Compare { expected, .. })
+                | Shape::Each {
+                    check: Check::Compare { expected, .. },
+                    ..
+                } => expected,
+                other => panic!("each assert is one comparison, not {other:?}"),
+            }
+        })
+        .collect();
+
+    assert_eq!(
+        sides,
+        [
+            Some(Side::Right),
+            Some(Side::Left),
+            Some(Side::Right),
+            None,
+            Some(Side::Left),
+            Some(Side::Right),
+            None,
+            Some(Side::Right),
+            Some(Side::Left),
+        ],
+        "the side that is a literal is expected, the right when both are, and none when neither \
+         is; a sign on a number and a list of tuples are literals, an f-string with a \
+         placeholder is not, and the check of each item of an all() names its side too, on \
+         either side"
     );
 }
