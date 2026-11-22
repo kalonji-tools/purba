@@ -1,20 +1,14 @@
 //! Selection: names the tests of a parsed module, refuses each one that purba
 //! cannot call or that breaks a rule of its code, and imports nothing.
 
-use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::{Module, Shape, blocks, keyword};
+use purba_parsing::{Arms, Enter, Facts, Module, Node, Scope, Shape, origins, walk};
 use ruff_python_ast::name::UnqualifiedName;
-use ruff_python_ast::visitor::{
-    Visitor, walk_except_handler, walk_expr, walk_interpolated_string_element, walk_pattern,
-    walk_stmt,
-};
 use ruff_python_ast::{
-    Alias, Comprehension, Decorator, ExceptHandler, Expr, ExprContext, Identifier,
-    InterpolatedStringElement, ModModule, Parameters, Pattern, Stmt, StmtFunctionDef,
+    Decorator, ExceptHandler, Expr, ExprContext, Parameters, Stmt, StmtFunctionDef,
 };
 use ruff_text_size::{Ranged, TextSize};
 
@@ -23,6 +17,7 @@ mod lookup;
 mod patch;
 mod suppression;
 
+use lookup::{Lookup, Origin};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};
 
@@ -409,29 +404,48 @@ fn type_alone(
 ///
 /// In a build with the feature `fault`, when `PURBA_FAULT` is `selection`.
 #[must_use]
-pub fn select(path: &Path, module: &Module) -> Selected {
+pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "selection")
     {
         panic!("PURBA_FAULT=selection");
     }
-    let Found { last, places, defs } = found(module);
-    let sites = suppression::sites(module, &test_defs(module, &defs));
-    let bindings = bindings(module.syntax());
-    let imported = imports(module.syntax());
-    let outside = outside_tests(module.syntax(), &imported, &bindings);
+    let module = facts.module();
+    let test_defs: Vec<TextSize> = facts
+        .tests()
+        .iter()
+        .flat_map(|test| test.defs.iter().map(Ranged::start))
+        .collect();
+    let sites = suppression::sites(facts, &test_defs);
+    let bindings = facts.bindings();
+    let imported = facts.imports();
+    let outside = outside_tests(facts);
     let mut tests = Vec::new();
     let mut refused = Vec::new();
-    for (under, function, first) in last {
+    let mut places: HashSet<&str> = HashSet::new();
+    for found in facts.tests().iter().filter(|test| test.classes.is_empty()) {
+        let Some(function) = found.defs.last() else {
+            continue;
+        };
+        places.insert(function.name.as_str());
+        let first = found.first;
         let mut test = TestId::new(path, Vec::new(), function.name.to_string());
-        let at = defs
-            .get(function.name.as_str())
-            .map_or(&[][..], Vec::as_slice);
-        let mut reasons: Vec<Reason> = sites.faults_of(at).into_iter().map(Reason::Fault).collect();
-        reasons.extend(under.map(Reason::Under));
-        reasons.extend(reasons_of(function, module, &bindings));
-        reasons.extend(faults_of(function, module, &imported, &outside));
-        let suppressions = sites.of(at);
+        let at: Vec<TextSize> = found.defs.iter().map(Ranged::start).collect();
+        let mut reasons: Vec<Reason> = sites
+            .faults_of(&at)
+            .into_iter()
+            .map(Reason::Fault)
+            .collect();
+        reasons.extend(found.under.map(Reason::Under));
+        reasons.extend(reasons_of(function, facts, first));
+        let lookup = Lookup::new(
+            &function.body,
+            locals_of(function),
+            imported,
+            &outside.bound,
+        );
+        reasons.extend(faults_of(function, module, &lookup, &outside));
+        let suppressions = sites.of(&at);
         let (reasons, suppressed) = suppress(reasons, &suppressions);
         test.suppressed = suppressed;
         test.reaching.clone_from(&suppressions);
@@ -440,16 +454,16 @@ pub fn select(path: &Path, module: &Module) -> Selected {
             .filter(Suppression::seen_by_execution)
             .collect();
         if reasons.is_empty() {
-            test.notices = notices_of(function, module, &imported, &outside.bound);
+            test.notices = notices_of(function, module, &lookup);
             tests.push(test);
         } else {
             refused.push((first, Refused { test, reasons }));
         }
     }
-    refused.extend(refused_methods(path, module, &imported, &outside, &sites));
-    let never = never_a_function(module.syntax());
-    for (name, found) in &bindings {
-        if !name.starts_with("test") || places.contains_key(name) {
+    refused.extend(refused_methods(path, facts, &outside, &sites));
+    let never = never_a_function(facts.statements());
+    for (name, found) in bindings {
+        if !name.starts_with("test") || places.contains(name) {
             continue;
         }
         let mut offsets: Vec<TextSize> = found
@@ -632,93 +646,14 @@ impl Ledger {
     }
 }
 
-/// The tests of a module at its top or under a statement there.
-struct Found<'a> {
-    /// For each name, the block of the first `def` that `found` keeps, the
-    /// `def` that selection judges, and the offset of the first `def` of the
-    /// name.
-    last: Vec<(Option<&'static str>, &'a StmtFunctionDef, TextSize)>,
-    /// The place of each name in `last`.
-    places: HashMap<&'a str, usize>,
-    /// The offset of each `def` of each name.
-    defs: HashMap<&'a str, Vec<TextSize>>,
-}
-
-/// The tests of `module` at its top or under a statement there. A `def` under a
-/// statement is a test only when no `def` at the top binds its name.
-fn found(module: &Module) -> Found<'_> {
-    let statements = &module.syntax().body;
-    let top: HashSet<&str> = statements
-        .iter()
-        .filter_map(|statement| match statement {
-            Stmt::FunctionDef(function) => Some(function.name.as_str()),
-            _ => None,
-        })
-        .collect();
-    let mut last: Vec<(Option<&'static str>, &StmtFunctionDef, TextSize)> = Vec::new();
-    let mut places: HashMap<&str, usize> = HashMap::new();
-    let mut defs: HashMap<&str, Vec<TextSize>> = HashMap::new();
-    let mut firsts: HashMap<&str, TextSize> = HashMap::new();
-    for statement in statements {
-        let found = match (statement, keyword(statement)) {
-            (Stmt::FunctionDef(function), _) => vec![(None, function)],
-            (_, Some(keyword)) => defs_under(statement)
-                .into_iter()
-                .map(|function| (Some(keyword), function))
-                .collect(),
-            (_, None) => Vec::new(),
-        };
-        for (under, function) in found {
-            let name = function.name.as_str();
-            if !name.starts_with("test") {
-                continue;
-            }
-            let first = *firsts.entry(name).or_insert_with(|| function.range.start());
-            if under.is_some() && top.contains(name) {
-                continue;
-            }
-            defs.entry(name).or_default().push(function.range.start());
-            match places.entry(name) {
-                Entry::Occupied(place) => last[*place.get()].1 = function,
-                Entry::Vacant(place) => {
-                    place.insert(last.len());
-                    last.push((under, function, first));
-                }
-            }
-        }
-    }
-    // A name enters `last` at the first `def` that the loop keeps, which is a
-    // `def` at the top when the name has one. The sort moves each name to its
-    // first `def`, which can sit under a statement before that `def` at the top.
-    last.sort_unstable_by_key(|&(_, _, first)| first);
-    for (place, (_, function, _)) in last.iter().enumerate() {
-        places.insert(function.name.as_str(), place);
-    }
-    Found { last, places, defs }
-}
-
-/// The offset of each `def` of `module` that is a test: each of `defs`, and
-/// each test in a class.
-fn test_defs(module: &Module, defs: &HashMap<&str, Vec<TextSize>>) -> Vec<TextSize> {
-    defs.values()
-        .flatten()
-        .copied()
-        .chain(
-            methods_of(&module.syntax().body)
-                .into_iter()
-                .map(|(_, function)| function.range.start()),
-        )
-        .collect()
-}
-
 /// The offset of each binding at the module's level, or in a block there, that
 /// never holds a function: an assignment to the name alone of a literal, a
 /// comprehension or a generator expression; an `import` with no `from`; a
-/// `class` with no decorator; a `del`.
-fn never_a_function(module: &ModModule) -> HashSet<TextSize> {
+/// `class` with no decorator; a `del`. `statements` holds each statement at the
+/// module's level and in a block there.
+fn never_a_function(statements: &[&Stmt]) -> HashSet<TextSize> {
     let mut found = HashSet::new();
-    let mut pending: Vec<&Stmt> = module.body.iter().rev().collect();
-    while let Some(statement) = pending.pop() {
+    for statement in statements {
         match statement {
             Stmt::Assign(assign) if is_never_a_function(&assign.value) => {
                 for target in &assign.targets {
@@ -754,8 +689,7 @@ fn never_a_function(module: &ModModule) -> HashSet<TextSize> {
                     }
                 }
             }
-            Stmt::FunctionDef(_) => {}
-            other => pending.extend(blocks(other).into_iter().flatten().rev()),
+            _ => {}
         }
     }
     found
@@ -783,53 +717,32 @@ const fn is_never_a_function(value: &Expr) -> bool {
     )
 }
 
-/// Each `def` in the blocks of `statement`, at any depth, in source order. The
-/// body of a `def` or a `class` is not one of its blocks.
-fn defs_under(statement: &Stmt) -> Vec<&StmtFunctionDef> {
-    let mut found = Vec::new();
-    // A walk that recurses once for each level of nesting overflows the stack
-    // on statements that nest deeper than the stack.
-    let mut pending = vec![statement];
-    while let Some(statement) = pending.pop() {
-        if let Stmt::FunctionDef(function) = statement {
-            found.push(function);
-        } else {
-            pending.extend(blocks(statement).into_iter().flatten().rev());
-        }
-    }
-    found
-}
-
-/// Each test in a class of `module`, refused, beside the offset of its first
-/// `def`. A name defined twice in one class is one test, and selection judges
-/// its last `def`.
+/// Each test in a class of the module of `facts`, refused, beside the offset
+/// of its first `def`. A name defined twice in one class is one test, and
+/// selection judges its last `def`.
 fn refused_methods(
     path: &Path,
-    module: &Module,
-    imported: &HashMap<&str, String>,
+    facts: &Facts<'_>,
     outside: &Outside<'_>,
     sites: &suppression::Sites,
 ) -> Vec<(TextSize, Refused)> {
-    let mut methods: Vec<(Vec<&str>, &StmtFunctionDef, TextSize)> = Vec::new();
-    let mut places: HashMap<(Vec<&str>, &str), usize> = HashMap::new();
-    for (classes, function) in methods_of(&module.syntax().body) {
-        match places.entry((classes.clone(), function.name.as_str())) {
-            Entry::Occupied(place) => methods[*place.get()].1 = function,
-            Entry::Vacant(place) => {
-                place.insert(methods.len());
-                methods.push((classes, function, function.range.start()));
-            }
-        }
-    }
-    methods
-        .into_iter()
-        .map(|(classes, function, first)| {
+    let module = facts.module();
+    facts
+        .tests()
+        .iter()
+        .filter(|test| !test.classes.is_empty())
+        .filter_map(|found| {
+            let function = found.defs.last()?;
             let test = TestId::new(
                 path,
-                classes.into_iter().map(str::to_owned).collect(),
+                found
+                    .classes
+                    .iter()
+                    .map(|class| (*class).to_owned())
+                    .collect(),
                 function.name.to_string(),
             );
-            let at = [first, function.range.start()];
+            let at = [found.first, function.start()];
             let mut reasons: Vec<Reason> = sites
                 .faults_of(&at)
                 .into_iter()
@@ -837,63 +750,23 @@ fn refused_methods(
                 .collect();
             reasons.push(Reason::Method);
             reasons.extend(own_reasons(function, module, Some("self")));
-            reasons.extend(faults_of(function, module, imported, outside));
-            (first, Refused { test, reasons })
+            let lookup = Lookup::new(
+                &function.body,
+                locals_of(function),
+                facts.imports(),
+                &outside.bound,
+            );
+            reasons.extend(faults_of(function, module, &lookup, outside));
+            Some((found.first, Refused { test, reasons }))
         })
         .collect()
 }
 
-/// Each `def` with a `test` name in the body of a class, beside the name of
-/// each class on the way, in source order. A class counts at the module's
-/// level, in a block there, or in such a class. A class in a `def` does not
-/// count.
-fn methods_of(statements: &[Stmt]) -> Vec<(Vec<&str>, &StmtFunctionDef)> {
-    let mut found = Vec::new();
-    // A walk that recurses once for each level of nesting overflows the stack
-    // on statements that nest deeper than the stack.
-    let mut pending: Vec<(&Stmt, Vec<&str>)> = statements
-        .iter()
-        .rev()
-        .map(|statement| (statement, Vec::new()))
-        .collect();
-    while let Some((statement, classes)) = pending.pop() {
-        match statement {
-            Stmt::FunctionDef(function) => {
-                if !classes.is_empty() && function.name.starts_with("test") {
-                    found.push((classes, function));
-                }
-            }
-            Stmt::ClassDef(class) => {
-                let mut inner = classes;
-                inner.push(class.name.as_str());
-                pending.extend(
-                    class
-                        .body
-                        .iter()
-                        .rev()
-                        .map(|statement| (statement, inner.clone())),
-                );
-            }
-            _ => pending.extend(
-                blocks(statement)
-                    .into_iter()
-                    .flatten()
-                    .rev()
-                    .map(|statement| (statement, classes.clone())),
-            ),
-        }
-    }
-    found
-}
-
-/// Why purba cannot call `function`, from its `def` and its body.
-fn reasons_of(
-    function: &StmtFunctionDef,
-    module: &Module,
-    bindings: &HashMap<&str, Vec<Binding>>,
-) -> Vec<Reason> {
-    let mut reasons = own_reasons(function, module, None);
-    let lines = rebound(function, module, bindings);
+/// Why purba cannot call `function`, from its `def` and its body. `first` is
+/// where the first `def` of its name starts.
+fn reasons_of(function: &StmtFunctionDef, facts: &Facts<'_>, first: TextSize) -> Vec<Reason> {
+    let mut reasons = own_reasons(function, facts.module(), None);
+    let lines = rebound(function, facts, first);
     if !lines.is_empty() {
         reasons.push(Reason::Rebound(function.name.to_string(), lines));
     }
@@ -949,27 +822,19 @@ fn on_one_line(text: &str) -> String {
 }
 
 /// Each line that binds the name of `function` after the first `def` of that
-/// name, or under `global` in any function, before or after it. A later `def`
-/// is such a binding. In source order.
-fn rebound(
-    function: &StmtFunctionDef,
-    module: &Module,
-    bindings: &HashMap<&str, Vec<Binding>>,
-) -> Vec<usize> {
+/// name, which starts at `first`, or under `global` in any function, before or
+/// after it. A later `def` is such a binding. In source order.
+fn rebound(function: &StmtFunctionDef, facts: &Facts<'_>, first: TextSize) -> Vec<usize> {
     let name = function.name.as_str();
-    let first_end = module
-        .syntax()
-        .body
+    let first_end = facts
+        .defs()
         .iter()
-        .flat_map(|statement| match statement {
-            Stmt::FunctionDef(top) => vec![top],
-            _ => defs_under(statement),
-        })
-        .find(|def| def.name.as_str() == name)
-        .unwrap_or(function)
+        .find(|def| def.start() == first)
+        .map_or(function, |def| def)
         .range
         .end();
-    let mut offsets: Vec<TextSize> = bindings
+    let mut offsets: Vec<TextSize> = facts
+        .bindings()
         .get(name)
         .into_iter()
         .flatten()
@@ -979,43 +844,10 @@ fn rebound(
     offsets.sort_unstable();
     let mut lines: Vec<usize> = offsets
         .into_iter()
-        .map(|offset| module.position(offset).line())
+        .map(|offset| facts.module().position(offset).line())
         .collect();
     lines.dedup();
     lines
-}
-
-/// A place where the module binds a name. A binding in a function binds the
-/// name whenever the function runs.
-struct Binding {
-    offset: TextSize,
-    in_function: bool,
-}
-
-/// Each place where the module binds a name, by name: at the module's level,
-/// and under `global` in the body of a `def` or a `class`.
-fn bindings(module: &ModModule) -> HashMap<&str, Vec<Binding>> {
-    let mut found: HashMap<&str, Vec<Binding>> = HashMap::new();
-    let mut scopes = vec![(module.body.as_slice(), true, false)];
-    while let Some((statements, module_level, in_function)) = scopes.pop() {
-        let scope = Scope::of(statements);
-        for (name, offset) in scope.names {
-            if module_level || scope.globals.contains(name) {
-                found.entry(name).or_default().push(Binding {
-                    offset,
-                    in_function,
-                });
-            }
-        }
-        scopes.extend(scope.functions.into_iter().map(|body| (body, false, true)));
-        scopes.extend(
-            scope
-                .classes
-                .into_iter()
-                .map(|body| (body, false, in_function)),
-        );
-    }
-    found
 }
 
 /// Each parameter with no default. `*args` and `**kwargs` take nothing that
@@ -1032,51 +864,26 @@ fn without_default(parameters: &Parameters) -> Vec<String> {
 }
 
 /// Whether a function's own body yields, and whether it returns a value. The
-/// body of a nested `def`, `lambda` or `class` is not its own.
+/// body of a nested `def`, `lambda` or `class` is not its own, but its head is,
+/// as [`Enter::Head`] gives it.
 #[derive(Default)]
-struct Body<'a> {
+struct Body {
     yields: bool,
     returns_value: bool,
-    pending: Vec<Node<'a>>,
 }
 
-#[derive(Clone, Copy)]
-enum Node<'a> {
-    Stmt(&'a Stmt),
-    Expr(&'a Expr),
-    Pattern(&'a Pattern),
-    Element(&'a InterpolatedStringElement),
-}
-
-impl<'a> Body<'a> {
-    fn of(statements: &'a [Stmt]) -> Self {
+impl Body {
+    fn of(statements: &[Stmt]) -> Self {
         let mut body = Self::default();
-        for statement in statements {
-            body.visit_stmt(statement);
-        }
-        while let Some(node) = body.pending.pop() {
-            walk_node(&mut body, node);
-        }
+        walk(statements.iter().map(Node::Stmt), &mut body);
         body
     }
 }
 
-fn walk_node<'a, V: Visitor<'a>>(visitor: &mut V, node: Node<'a>) {
-    match node {
-        Node::Stmt(statement) => walk_stmt(visitor, statement),
-        Node::Expr(expr) => walk_expr(visitor, expr),
-        Node::Pattern(pattern) => walk_pattern(visitor, pattern),
-        Node::Element(element) => walk_interpolated_string_element(visitor, element),
-    }
-}
-
-// Each visit pushes its node, or skips a nested `def`, `lambda` or `class`, and
-// `Body::of` walks each node it pushed. A walk that recurses once for each level
-// of nesting overflows the stack on a body that nests deeper than the stack.
-impl<'a> Visitor<'a> for Body<'a> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
+impl<'a> Arms<'a> for Body {
+    fn stmt(&mut self, statement: &'a Stmt) -> Enter {
         match statement {
-            Stmt::FunctionDef(_) | Stmt::ClassDef(_) => return,
+            Stmt::FunctionDef(_) | Stmt::ClassDef(_) => return Enter::Head,
             Stmt::Return(ret)
                 if ret
                     .value
@@ -1087,159 +894,16 @@ impl<'a> Visitor<'a> for Body<'a> {
             }
             _ => {}
         }
-        self.pending.push(Node::Stmt(statement));
+        Enter::All
     }
 
-    fn visit_expr(&mut self, expr: &'a Expr) {
+    fn expr(&mut self, expr: &'a Expr) -> Enter {
         match expr {
-            Expr::Lambda(_) => return,
+            Expr::Lambda(_) => return Enter::Head,
             Expr::Yield(_) | Expr::YieldFrom(_) => self.yields = true,
             _ => {}
         }
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
-    }
-}
-
-/// The names that one scope binds, and the names it declares `global`. The body
-/// of a nested `def` or `class` is a scope of its own. A `lambda` and the target
-/// of a comprehension bind nothing in this scope.
-/// <https://docs.python.org/3.12/reference/executionmodel.html#binding-of-names>
-/// <https://docs.python.org/3.12/reference/simple_stmts.html#annotated-assignment-statements>
-#[derive(Default)]
-struct Scope<'a> {
-    names: Vec<(&'a str, TextSize)>,
-    globals: HashSet<&'a str>,
-    functions: Vec<&'a [Stmt]>,
-    classes: Vec<&'a [Stmt]>,
-    pending: Vec<Node<'a>>,
-}
-
-impl<'a> Scope<'a> {
-    fn of(statements: &'a [Stmt]) -> Self {
-        let mut scope = Self::default();
-        for statement in statements {
-            scope.visit_stmt(statement);
-        }
-        while let Some(node) = scope.pending.pop() {
-            walk_node(&mut scope, node);
-        }
-        scope
-    }
-
-    fn bind(&mut self, name: &'a Identifier) {
-        self.names.push((name.as_str(), name.start()));
-    }
-}
-
-// As in `Body`, each visit pushes its node, or skips what binds nothing in this
-// scope, and `Scope::of` walks each node it pushed.
-impl<'a> Visitor<'a> for Scope<'a> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
-        match statement {
-            Stmt::FunctionDef(function) => {
-                self.bind(&function.name);
-                for decorator in &function.decorator_list {
-                    self.visit_expr(&decorator.expression);
-                }
-                self.visit_parameters(&function.parameters);
-                if let Some(returns) = &function.returns {
-                    self.visit_expr(returns);
-                }
-                self.functions.push(&function.body);
-                return;
-            }
-            Stmt::ClassDef(class) => {
-                self.bind(&class.name);
-                for decorator in &class.decorator_list {
-                    self.visit_expr(&decorator.expression);
-                }
-                if let Some(arguments) = &class.arguments {
-                    self.visit_arguments(arguments);
-                }
-                self.classes.push(&class.body);
-                return;
-            }
-            Stmt::Global(global) => {
-                self.globals
-                    .extend(global.names.iter().map(Identifier::as_str));
-            }
-            // `x: T` with no value binds nothing.
-            Stmt::AnnAssign(assign) if assign.value.is_none() => {
-                self.visit_expr(&assign.annotation);
-                return;
-            }
-            _ => {}
-        }
-        self.pending.push(Node::Stmt(statement));
-    }
-
-    fn visit_expr(&mut self, expr: &'a Expr) {
-        match expr {
-            Expr::Name(name) if matches!(name.ctx, ExprContext::Store | ExprContext::Del) => {
-                self.names.push((name.id.as_str(), name.start()));
-            }
-            Expr::Lambda(lambda) => {
-                if let Some(parameters) = &lambda.parameters {
-                    self.visit_parameters(parameters);
-                }
-                return;
-            }
-            _ => {}
-        }
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_comprehension(&mut self, comprehension: &'a Comprehension) {
-        self.visit_expr(&comprehension.iter);
-        for condition in &comprehension.ifs {
-            self.visit_expr(condition);
-        }
-    }
-
-    fn visit_except_handler(&mut self, handler: &'a ExceptHandler) {
-        let ExceptHandler::ExceptHandler(clause) = handler;
-        if let Some(name) = &clause.name {
-            self.bind(name);
-        }
-        walk_except_handler(self, handler);
-    }
-
-    fn visit_alias(&mut self, alias: &'a Alias) {
-        match &alias.asname {
-            Some(asname) => self.bind(asname),
-            // `import a.b` binds `a`.
-            // https://docs.python.org/3.12/reference/simple_stmts.html#the-import-statement
-            None if alias.name.as_str() != "*" => {
-                let first = alias.name.split('.').next().unwrap_or_default();
-                self.names.push((first, alias.name.start()));
-            }
-            None => {}
-        }
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        let captured = match pattern {
-            Pattern::MatchAs(capture) => capture.name.as_ref(),
-            Pattern::MatchStar(star) => star.name.as_ref(),
-            Pattern::MatchMapping(mapping) => mapping.rest.as_ref(),
-            _ => None,
-        };
-        if let Some(name) = captured {
-            self.bind(name);
-        }
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
+        Enter::All
     }
 }
 
@@ -1254,71 +918,6 @@ fn of_a_private_path(path: &str) -> bool {
     path.split('.').any(is_private)
 }
 
-/// Where each name of an `import` comes from, by the name it binds. `import a.b`
-/// binds `a`, which comes from `a`.
-/// <https://docs.python.org/3.12/reference/simple_stmts.html#the-import-statement>
-fn origins(statement: &Stmt) -> Vec<(&Identifier, String)> {
-    match statement {
-        Stmt::Import(import) => import
-            .names
-            .iter()
-            .map(|alias| {
-                alias.asname.as_ref().map_or_else(
-                    || {
-                        (
-                            &alias.name,
-                            alias.name.split('.').next().unwrap_or_default().to_owned(),
-                        )
-                    },
-                    |asname| (asname, alias.name.to_string()),
-                )
-            })
-            .collect(),
-        Stmt::ImportFrom(import) => {
-            let mut from = ".".repeat(import.level as usize);
-            from.push_str(import.module.as_ref().map_or("", Identifier::as_str));
-            import
-                .names
-                .iter()
-                .filter(|alias| alias.name.as_str() != "*")
-                .map(|alias| {
-                    let origin = if from.ends_with('.') || from.is_empty() {
-                        format!("{from}{}", alias.name)
-                    } else {
-                        format!("{from}.{}", alias.name)
-                    };
-                    (alias.asname.as_ref().unwrap_or(&alias.name), origin)
-                })
-                .collect()
-        }
-        _ => Vec::new(),
-    }
-}
-
-/// The name that an `import` of `name` binds: `import a.b` binds `a`.
-fn bound(name: &Identifier) -> &str {
-    name.as_str().split('.').next().unwrap_or_default()
-}
-
-/// Each name that an `import` binds at the module's level or in a block there,
-/// with where it comes from.
-fn imports(module: &ModModule) -> HashMap<&str, String> {
-    let mut found = HashMap::new();
-    let mut pending: Vec<&Stmt> = module.body.iter().rev().collect();
-    while let Some(statement) = pending.pop() {
-        match statement {
-            Stmt::Import(_) | Stmt::ImportFrom(_) => {
-                for (name, origin) in origins(statement) {
-                    found.insert(bound(name), origin);
-                }
-            }
-            Stmt::FunctionDef(_) | Stmt::ClassDef(_) => {}
-            other => pending.extend(blocks(other).into_iter().flatten().rev()),
-        }
-    }
-    found
-}
-
 /// Each fault of the rules that selection reads from the body of `function`,
 /// in source order: an expectation that is not one comparison, an `all()` or an
 /// `any()` of another shape, an expected value that is not a literal, a patch,
@@ -1327,10 +926,10 @@ fn imports(module: &ModModule) -> HashMap<&str, String> {
 /// `all()` or an `any()` keeps the rule of an expected value. Each patch comes
 /// once for each target of a line, each mock with no spec once for each line,
 /// and each import once for each module of a line.
-fn faults_of(
-    function: &StmtFunctionDef,
+fn faults_of<'a>(
+    function: &'a StmtFunctionDef,
     module: &Module,
-    imported: &HashMap<&str, String>,
+    lookup: &Lookup<'a, '_>,
     outside: &Outside<'_>,
 ) -> Vec<Reason> {
     let line = |offset: TextSize| module.position(offset).line();
@@ -1368,15 +967,8 @@ fn faults_of(
         }
     }
     let mut targets = HashSet::new();
-    let locals = locals_of(function);
     let mut mocks = HashSet::new();
-    for (offset, fault) in patch::faults(
-        &function.body,
-        &locals,
-        imported,
-        &outside.bound,
-        module.source(),
-    ) {
+    for (offset, fault) in patch::faults(&function.body, lookup, module.source()) {
         let at = line(offset);
         match fault {
             patch::Fault::Patched(target) if targets.insert((at, target.clone())) => {
@@ -1389,7 +981,7 @@ fn faults_of(
         }
     }
     let mut modules = HashSet::new();
-    for (offset, name) in framework::imports(&function.body, &locals, imported, &outside.bound)
+    for (offset, name) in framework::imports(&function.body, lookup)
         .into_iter()
         .chain(outside.imports.iter().cloned())
     {
@@ -1410,29 +1002,46 @@ fn faults_of(
 /// `except*`. A tuple gains the parentheses that `as` needs after it. Each
 /// block counts, at any depth, but not a nested `def` or `class`.
 fn passing_excepts(body: &[Stmt], source: &str) -> Vec<(TextSize, Option<String>, bool)> {
-    let mut found = Vec::new();
-    let mut pending = vec![body];
-    while let Some(block) = pending.pop() {
-        for statement in block {
-            if let Stmt::Try(attempt) = statement {
-                for handler in &attempt.handlers {
-                    let ExceptHandler::ExceptHandler(clause) = handler;
-                    if only_passes(&clause.body) {
-                        let kind = clause.type_.as_deref().map(|kind| {
-                            let text = on_one_line(&source[kind.range()]);
-                            match kind {
-                                Expr::Tuple(tuple) if !tuple.parenthesized => format!("({text})"),
-                                _ => text,
-                            }
-                        });
-                        found.push((clause.start(), kind, attempt.is_star));
+    struct Excepts<'s> {
+        source: &'s str,
+        found: Vec<(TextSize, Option<String>, bool)>,
+    }
+    impl<'a> Arms<'a> for Excepts<'_> {
+        fn stmt(&mut self, statement: &'a Stmt) -> Enter {
+            match statement {
+                Stmt::FunctionDef(_) | Stmt::ClassDef(_) => return Enter::Nothing,
+                Stmt::Try(attempt) => {
+                    for handler in &attempt.handlers {
+                        let ExceptHandler::ExceptHandler(clause) = handler;
+                        if only_passes(&clause.body) {
+                            let kind = clause.type_.as_deref().map(|kind| {
+                                let text = on_one_line(&self.source[kind.range()]);
+                                match kind {
+                                    Expr::Tuple(tuple) if !tuple.parenthesized => {
+                                        format!("({text})")
+                                    }
+                                    _ => text,
+                                }
+                            });
+                            self.found.push((clause.start(), kind, attempt.is_star));
+                        }
                     }
                 }
+                _ => {}
             }
-            pending.extend(blocks(statement));
+            Enter::All
+        }
+
+        fn expr(&mut self, _expr: &'a Expr) -> Enter {
+            Enter::Nothing
         }
     }
-    found
+    let mut excepts = Excepts {
+        source,
+        found: Vec::new(),
+    };
+    walk(body.iter().map(Node::Stmt), &mut excepts);
+    excepts.found
 }
 
 /// Whether each statement of `body` is `pass`, `...` or a string.
@@ -1455,37 +1064,29 @@ struct Outside<'a> {
     bound: HashSet<&'a str>,
 }
 
-/// Each import of another test framework in `module` outside every test, by
-/// its offset: at the module's level, in a block there, in a helper, in a
-/// class, and in what runs when a `def` at the module's level is made. A test
-/// here is a `def` at the module's level with a `test` name.
-fn outside_tests<'a>(
-    module: &'a ModModule,
-    imported: &HashMap<&'a str, String>,
-    bindings: &HashMap<&'a str, Vec<Binding>>,
-) -> Outside<'a> {
-    let bound: HashSet<&str> = bindings.keys().copied().collect();
-    let none = HashSet::new();
+/// Each import of another test framework in the module of `facts` outside
+/// every test, by its offset: at the module's level, in a block there, in a
+/// helper, in a class, and in what runs when a `def` at the module's level is
+/// made. A test here is a `def` at the module's level with a `test` name.
+fn outside_tests<'a>(facts: &Facts<'a>) -> Outside<'a> {
+    let imported = facts.imports();
+    let bound: HashSet<&str> = facts.bindings().keys().copied().collect();
     let mut found = Vec::new();
-    for statement in &module.body {
+    for statement in &facts.module().syntax().body {
         match statement {
             Stmt::FunctionDef(function) => {
-                found.extend(framework::made(function, imported, &bound));
+                let made = Lookup::new(&[], HashSet::new(), imported, &bound);
+                found.extend(framework::made(statement, &made));
                 if !function.name.starts_with("test") {
-                    found.extend(framework::imports(
-                        &function.body,
-                        &locals_of(function),
-                        imported,
-                        &bound,
-                    ));
+                    let lookup = Lookup::new(&function.body, locals_of(function), imported, &bound);
+                    found.extend(framework::imports(&function.body, &lookup));
                 }
             }
-            other => found.extend(framework::imports(
-                std::slice::from_ref(other),
-                &none,
-                imported,
-                &bound,
-            )),
+            other => {
+                let statements = std::slice::from_ref(other);
+                let lookup = Lookup::new(statements, HashSet::new(), imported, &bound);
+                found.extend(framework::imports(statements, &lookup));
+            }
         }
     }
     Outside {
@@ -1522,15 +1123,13 @@ fn locals_of(function: &StmtFunctionDef) -> HashSet<&str> {
 /// The notice of each line of the body of `function` that reads a private
 /// name, in source order: `line N reads the private name X`, once for each
 /// name of a line.
-fn notices_of(
-    function: &StmtFunctionDef,
+fn notices_of<'a>(
+    function: &'a StmtFunctionDef,
     module: &Module,
-    imported: &HashMap<&str, String>,
-    bound: &HashSet<&str>,
+    lookup: &Lookup<'a, '_>,
 ) -> Vec<String> {
     let line = |offset: TextSize| module.position(offset).line();
-    let locals = locals_of(function);
-    let mut found = Names::of(&function.body, &locals, imported, bound);
+    let mut found = Names::of(&function.body, lookup);
     found.sort_by_key(|(offset, _)| *offset);
     let mut seen = HashSet::new();
     found
@@ -1544,38 +1143,24 @@ fn notices_of(
 /// name that a private import at the module's level binds and the body does
 /// not, and a private origin of an `import` in the body. The body of a nested
 /// `def`, `lambda` or `class` is the test's too.
-struct Names<'a, 'b> {
-    lookup: lookup::Lookup<'a, 'b>,
+struct Names<'a, 'l> {
+    lookup: &'l Lookup<'a, 'l>,
     found: Vec<(TextSize, String)>,
-    pending: Vec<Node<'a>>,
 }
 
-impl<'a, 'b> Names<'a, 'b> {
-    fn of(
-        statements: &'a [Stmt],
-        locals: &'b HashSet<&'a str>,
-        imported: &'b HashMap<&'a str, String>,
-        bound: &'b HashSet<&'a str>,
-    ) -> Vec<(TextSize, String)> {
-        let mut names = Self {
-            lookup: lookup::Lookup::new(statements, locals, imported, bound),
+impl<'a> Names<'a, '_> {
+    fn of(statements: &'a [Stmt], lookup: &Lookup<'a, '_>) -> Vec<(TextSize, String)> {
+        let mut names = Names {
+            lookup,
             found: Vec::new(),
-            pending: Vec::new(),
         };
-        for statement in statements {
-            names.visit_stmt(statement);
-        }
-        while let Some(node) = names.pending.pop() {
-            walk_node(&mut names, node);
-        }
+        walk(statements.iter().map(Node::Stmt), &mut names);
         names.found
     }
 }
 
-// As in `Body`, each visit pushes its node, and `Names::of` walks each node it
-// pushed.
-impl<'a> Visitor<'a> for Names<'a, '_> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
+impl<'a> Arms<'a> for Names<'a, '_> {
+    fn stmt(&mut self, statement: &'a Stmt) -> Enter {
         if let Stmt::Import(import) = statement {
             // In the body, `import a._b` names `a._b`, though it binds `a`.
             for alias in &import.names {
@@ -1590,17 +1175,17 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
                 }
             }
         }
-        self.pending.push(Node::Stmt(statement));
+        Enter::All
     }
 
-    fn visit_expr(&mut self, expr: &'a Expr) {
+    fn expr(&mut self, expr: &'a Expr) -> Enter {
         match expr {
             Expr::Attribute(attribute) if is_private(&attribute.attr) => {
                 self.found
                     .push((attribute.attr.start(), attribute.attr.to_string()));
             }
             Expr::Name(name) if name.ctx == ExprContext::Load => {
-                if let lookup::Origin::Imported(origin) = self.lookup.origin(name.id.as_str())
+                if let Origin::Imported(origin) = self.lookup.origin(name.id.as_str())
                     && of_a_private_path(origin)
                 {
                     self.found.push((name.start(), origin.to_owned()));
@@ -1608,14 +1193,6 @@ impl<'a> Visitor<'a> for Names<'a, '_> {
             }
             _ => {}
         }
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
+        Enter::All
     }
 }

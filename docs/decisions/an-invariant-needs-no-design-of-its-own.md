@@ -14,7 +14,7 @@ The landscape needs a test that keeps out what a concern already states.
 | lazy work has no design of its own, so it is an invariant | [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) |
 | dispatch and reporting pass data, so neither crosses the Rust/Python seam | [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) |
 | the timeout of a test belongs inside dispatch, and selection owns what a selected test is | [purba divides by responsibility and not by language](purba-divides-by-responsibility-and-not-by-language.md#decision-outcome) |
-| one module owns parsing, and everything else takes its AST | [purba parses Python with ruff's parser](purba-parses-python-with-ruff.md#decision-outcome) |
+| one module owns parsing, and everything else takes its AST | [purba parses Python with ruff's parser](https://github.com/kalonji-tools/purba/blob/381217a5/docs/decisions/purba-parses-python-with-ruff.md?plain=1#L72) |
 | oxitest ran two parsers, and its assert rewriter built CPython AST nodes from Rust | [How did oxitest divide into parts, and what did each part cost?](https://github.com/kalonji-tools/purba/issues/464#issuecomment-6100239730) |
 | oxitest's assert rewriter made 56 of oxitest's 202 calls from Rust into Python | [How did oxitest divide into parts, and what did each part cost?](https://github.com/kalonji-tools/purba/issues/464#issuecomment-6100239730) |
 | oxitest's reporter held Python plugin objects, and called them on every test | [How did oxitest divide into parts, and what did each part cost?](https://github.com/kalonji-tools/purba/issues/464#issuecomment-6100239730) |

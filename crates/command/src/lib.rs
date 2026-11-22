@@ -109,11 +109,10 @@ pub fn run_with(
         }
         Err(error) => return stopped(report, &path, &error),
     };
-    let mut selected =
-        match purba_execution::catch("command", || Ok(purba_selection::select(&path, &parsed))) {
-            Ok(selected) => selected,
-            Err(error) => return stopped(report, &path, &error),
-        };
+    let mut selected = match purba_execution::catch("command", || Ok(select(&path, &parsed))) {
+        Ok(selected) => selected,
+        Err(error) => return stopped(report, &path, &error),
+    };
     not_interrupted()?;
     for refused in selected.refused() {
         let test = refused.test();
@@ -246,6 +245,12 @@ enum Found {
     /// The internal error of a panic in the rewrite, and each test that
     /// selection hands on, which the panic blocks.
     NotRewritten(purba_execution::Error, Vec<TestId>),
+}
+
+/// What selection makes of the module at `path`, from its facts. The facts drop
+/// here, before the module drops.
+fn select(path: &Path, module: &purba_parsing::Module) -> purba_selection::Selected {
+    purba_selection::select(path, &purba_parsing::Facts::of(module))
 }
 
 /// What the rewrite leaves of the module at `path`, with the `tests` that

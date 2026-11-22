@@ -16,7 +16,7 @@ oxitest divided by language, into Rust modules and one Python package with a bri
 | pytest, cargo-nextest and unittest share eight parts, and none of them gives parallel execution a part of its own | [Which parts and cross-cutting concerns do comparable test runners have?](https://github.com/kalonji-tools/purba/issues/465#issuecomment-6100161159) |
 | cargo-nextest spreads process-per-test over five places | [Which parts and cross-cutting concerns do comparable test runners have?](https://github.com/kalonji-tools/purba/issues/465#issuecomment-6100161159) |
 | the query language and static prescan are one design | [Decide the distilled feature set](https://github.com/kalonji-tools/purba/issues/10#issuecomment-5593350290) |
-| one module owns parsing, and every other module takes its AST | [purba parses Python with ruff's parser](purba-parses-python-with-ruff.md#decision-outcome) |
+| one module owns parsing, and every other module takes its AST | [purba parses Python with ruff's parser](https://github.com/kalonji-tools/purba/blob/381217a5/docs/decisions/purba-parses-python-with-ruff.md?plain=1#L72) |
 
 ## Considered Options
 
