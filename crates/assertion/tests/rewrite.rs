@@ -396,6 +396,71 @@ fn a_step_follows_each_statement_of_a_test_before_its_first_expectation() {
 }
 
 #[test]
+fn a_class_in_a_test_takes_no_step_after_it_or_in_its_body() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    class Point:\n",
+            "        x = 1\n",
+            "    total = Point.x\n",
+            "    assert total == 1\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    class Point:\n",
+            "        x = 1\n",
+            "    total = Point.x; _purba_step(4)\n",
+            "    _purba_reads(0) and _purba_read(0, (total), (1))\n",
+        ),
+        "a class holds other statements, so no step follows it, and its body takes none"
+    );
+}
+
+#[test]
+fn a_for_a_while_and_a_match_take_a_step_in_their_blocks_and_none_after_them() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_one():\n",
+            "    total = 0\n",
+            "    for i in range(1):\n",
+            "        total += i\n",
+            "    while total < 2:\n",
+            "        total += 1\n",
+            "    match total:\n",
+            "        case 2:\n",
+            "            total = 3\n",
+            "    assert total == 3\n",
+        ),
+        &["test_one"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_one():\n",
+            "    total = 0; _purba_step(2)\n",
+            "    for i in range(1):\n",
+            "        total += i; _purba_step(4)\n",
+            "    while total < 2:\n",
+            "        total += 1; _purba_step(6)\n",
+            "    match total:\n",
+            "        case 2:\n",
+            "            total = 3; _purba_step(9)\n",
+            "    _purba_reads(0) and _purba_read(0, (total), (3))\n",
+        ),
+        "a for, a while and a match hold other statements, so no step follows any of them, \
+         and each simple statement in their blocks takes one"
+    );
+}
+
+#[test]
 fn an_assert_at_the_end_of_the_body_of_a_with_is_an_expectation_and_each_with_is_watched() {
     let rewritten = purba_assertion::Rewrite::of_source(
         concat!(

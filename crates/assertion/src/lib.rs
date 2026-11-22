@@ -7,7 +7,7 @@
 //! and each item of each `with` of a test is wrapped, so that the case sees its
 //! hooks and its `with`s.
 
-use purba_parsing::{Module, Reads, Shape};
+use purba_parsing::{Module, Reads, Shape, Side};
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError};
 use pyo3::types::{
@@ -132,9 +132,9 @@ fn spaced(expr: &Expr, source: &str) -> String {
 /// How `check`, one check that parsing names, checks its reading.
 fn checked(check: purba_parsing::Check<'_>, source: &str) -> Check {
     match check {
-        purba_parsing::Check::Compare { op, left, right } => Check::Compare {
+        purba_parsing::Check::Compare { op, expected, .. } => Check::Compare {
             op,
-            expected_left: purba_parsing::is_literal(left) && !purba_parsing::is_literal(right),
+            expected_left: expected == Some(Side::Left),
         },
         purba_parsing::Check::Read { read, other, .. } => Check::Read {
             read,
@@ -295,19 +295,11 @@ fn statements(body: &[Stmt]) -> Vec<&Stmt> {
     found
 }
 
-/// Whether `statement` is simple: it holds no other statement.
-const fn is_simple(statement: &Stmt) -> bool {
-    !matches!(
-        statement,
-        Stmt::If(_)
-            | Stmt::For(_)
-            | Stmt::While(_)
-            | Stmt::With(_)
-            | Stmt::Try(_)
-            | Stmt::Match(_)
-            | Stmt::FunctionDef(_)
-            | Stmt::ClassDef(_)
-    )
+/// Whether `statement` is simple: it holds no other statement. A `def` and a
+/// `class` hold a body, which is not one of the blocks that parsing names.
+fn is_simple(statement: &Stmt) -> bool {
+    purba_parsing::keyword(statement).is_none()
+        && !matches!(statement, Stmt::FunctionDef(_) | Stmt::ClassDef(_))
 }
 
 /// One change of the rewrite: the text that takes the place of the source

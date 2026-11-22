@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::{Module, Shape, blocks};
+use purba_parsing::{Module, Shape, blocks, keyword};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::visitor::{
     Visitor, walk_except_handler, walk_expr, walk_interpolated_string_element, walk_pattern,
@@ -783,20 +783,6 @@ const fn is_never_a_function(value: &Expr) -> bool {
     )
 }
 
-/// The keyword of a statement at the module's level whose blocks import may
-/// run or skip.
-const fn keyword(statement: &Stmt) -> Option<&'static str> {
-    match statement {
-        Stmt::If(_) => Some("if"),
-        Stmt::Try(_) => Some("try"),
-        Stmt::With(_) => Some("with"),
-        Stmt::For(_) => Some("for"),
-        Stmt::While(_) => Some("while"),
-        Stmt::Match(_) => Some("match"),
-        _ => None,
-    }
-}
-
 /// Each `def` in the blocks of `statement`, at any depth, in source order. The
 /// body of a `def` or a `class` is not one of its blocks.
 fn defs_under(statement: &Stmt) -> Vec<&StmtFunctionDef> {
@@ -1367,9 +1353,12 @@ fn faults_of(
                 continue;
             }
         };
-        if let purba_parsing::Check::Compare { left, right, .. } = check
-            && !purba_parsing::is_literal(left)
-            && !purba_parsing::is_literal(right)
+        if let purba_parsing::Check::Compare {
+            left,
+            right,
+            expected: None,
+            ..
+        } = check
         {
             let reason = input(right).or_else(|| input(left)).map_or_else(
                 || Reason::Computes(line(start), on_one_line(&module.source()[right.range()])),
