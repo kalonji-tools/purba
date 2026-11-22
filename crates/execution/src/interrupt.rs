@@ -335,11 +335,37 @@ pub fn first() -> i32 {
     }
 }
 
-/// Whether the first interrupt arrived after `before`, which `first` gave
-/// earlier. purba asks this while it waits for a child. purba's own signal
-/// handler runs no Python then, so a signal that arrived counts as kept.
-pub fn landed_since(before: i32) -> bool {
-    before == 0 && first() != 0
+/// What the first interrupt was as a window opened: whether the signal handler
+/// kept it, and the signal that `first` gave. A window opens before a load or a
+/// call, and before purba waits for a child.
+pub struct Window {
+    kept: bool,
+    first: i32,
+}
+
+impl Window {
+    /// Opens a window now. It runs no Python, so a signal that waits still
+    /// waits after it.
+    pub fn open() -> Self {
+        Self {
+            kept: kept_now(),
+            first: first(),
+        }
+    }
+
+    /// Whether the signal handler kept the first interrupt since the window
+    /// opened. A load or a call asks this, since the signal handler runs inside
+    /// them.
+    pub fn kept(&self) -> bool {
+        !self.kept && kept_now()
+    }
+
+    /// Whether the first interrupt arrived since the window opened, kept or
+    /// not. purba asks this while it waits for a child. purba's own signal
+    /// handler runs no Python then, so a signal that arrived counts as kept.
+    pub fn arrived(&self) -> bool {
+        self.first == 0 && first() != 0
+    }
 }
 
 /// Takes `signum`, the first interrupt of a zygote or of a test's process, as
@@ -539,9 +565,9 @@ pub fn kept_now() -> bool {
 }
 
 /// Runs `work` as a test's call or a load, in which the signal handler raises
-/// `KeyboardInterrupt`. Also says whether the first signal landed inside it.
-/// Then gives each interrupt signal back what `put_back` names, if the test or
-/// the module changed it.
+/// `KeyboardInterrupt`. Also says whether the signal handler kept the first
+/// signal inside it. Then gives each interrupt signal back what `put_back`
+/// names, if the test or the module changed it.
 pub fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
     struct Close;
     impl Drop for Close {
@@ -549,11 +575,11 @@ pub fn calling<R>(py: Python<'_>, work: impl FnOnce() -> R) -> (R, bool) {
             CALLING.store(false, Ordering::SeqCst);
         }
     }
-    let kept_before = kept_now();
+    let window = Window::open();
     CALLING.store(true, Ordering::SeqCst);
     let close = Close;
     let result = work();
-    let landed = !kept_before && kept_now();
+    let landed = window.kept();
     drop(close);
     put_back(py);
     (result, landed)

@@ -10,7 +10,6 @@ use std::fs::File;
 use std::io::{self, ErrorKind, Read, Write};
 use std::os::fd::{FromRawFd, OwnedFd};
 use std::panic::AssertUnwindSafe;
-use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Mutex, PoisonError};
 
@@ -20,10 +19,12 @@ use pyo3::types::PyAnyMethods;
 use purba_assertion::{Readers, Replaced, Swallowed, Try, Verdict};
 
 use crate::fork::{Forked, fork};
+use crate::interrupt::Window;
 use crate::order::{Called, Facts, How, PathFault};
 use crate::step::Gives;
 use crate::{
-    Error, Kind, Module, Outcome, Owner, Reason, Shown, Suppressed, Worker, frame, interrupt, panic,
+    Error, Kind, Module, Outcome, Purba, Reason, Shown, Step, Suppressed, Worker, frame, interrupt,
+    panic, thread,
 };
 
 /// Each message that crosses a pipe between purba, a zygote and a test's
@@ -481,7 +482,6 @@ fn put(frame: &mut String, field: &str) {
 /// A zygote that purba forked, seen from purba.
 pub struct Zygote {
     pid: libc::pid_t,
-    path: PathBuf,
     tests: Option<File>,
     frames: File,
     /// The wait status of the zygote, once purba reaped it.
@@ -527,10 +527,10 @@ pub struct Stop {
     pub threads: Vec<Error>,
 }
 
-/// The error of each thread that a test's process found, beside its owner.
-type Threads<T> = Vec<(Owner<T>, Error)>;
+/// The error of each thread that a test's process found, beside its step.
+type Threads = Vec<(Step, Error)>;
 
-impl<T> Worker<'_, T> {
+impl Purba<'_> {
     /// Forks the zygote that forks a process for each test of `module`. Gives
     /// the zygote and the error of each thread that the load took, or gives
     /// what stopped the module.
@@ -594,7 +594,7 @@ impl<T> Worker<'_, T> {
                 let spare = frames_out.try_clone().map(File::from);
                 let payload = std::panic::catch_unwind(AssertUnwindSafe(|| {
                     live_as_zygote(
-                        self.py,
+                        Worker::new(self.py, self.hook),
                         module,
                         load,
                         File::from(tests_in),
@@ -612,7 +612,6 @@ impl<T> Worker<'_, T> {
                 interrupt::follow_zygote(pid);
                 Ok(Zygote {
                     pid,
-                    path: module.path.clone(),
                     tests: Some(File::from(tests_out)),
                     frames: File::from(frames_in),
                     reaped: None,
@@ -636,10 +635,10 @@ impl Zygote {
             threads: Vec::new(),
             threaded: false,
         };
-        let before = interrupt::first();
-        let mut threads: Threads<()> = Vec::new();
+        let window = Window::open();
+        let mut threads = Vec::new();
         let end = loop {
-            match self.own(None, &mut threads) {
+            match self.own(Step::Load, &mut threads) {
                 Ok(Message::Ready) => break None,
                 Ok(Message::Threaded) => {
                     load.threaded = true;
@@ -655,7 +654,7 @@ impl Zygote {
         if let Some((unreadable, status)) = end {
             if let Some(error) = unreadable {
                 load.result = Err(error);
-            } else if load.result.is_ok() && !interrupt::landed_since(before) {
+            } else if load.result.is_ok() && !window.arrived() {
                 load.result = Err(Error::project(lost(status, "its load ended")));
             }
         }
@@ -666,30 +665,27 @@ impl Zygote {
     /// each message that every caller takes alike. They are an interrupt that
     /// a child kept, the pid of a test's process that the zygote forked, and
     /// the error of a thread. The error of a thread goes into `threads`, with
-    /// its owner. `owner` owns the error of a test's thread. The module owns
-    /// the error of a load's thread, or of a test's thread with no `owner`.
+    /// its step. A test's thread gets `running`, the step that runs: the load
+    /// as the zygote loads, and the test in a case. A load's thread gets the
+    /// load.
     ///
     /// When no message comes, it calls `abandon`. It then gives the error of
     /// the frame and the wait status. The error is `None` when the pipe ended
     /// or failed.
-    fn own<T: Clone>(
+    fn own(
         &mut self,
-        owner: Option<&T>,
-        threads: &mut Threads<T>,
+        running: Step,
+        threads: &mut Threads,
     ) -> Result<Message, (Option<Error>, libc::c_int)> {
         loop {
             match self.next() {
                 Ok(Message::Kept(signum)) => interrupt::adopt(signum),
                 Ok(Message::Forked(pid)) => interrupt::follow_test(pid),
                 Ok(Message::TestThread(text)) => {
-                    let owner = owner.map_or_else(
-                        || Owner::Load(self.path.clone()),
-                        |owner| Owner::Test(owner.clone()),
-                    );
-                    threads.push((owner, Error::project(text)));
+                    threads.push((running, Error::project(text)));
                 }
                 Ok(Message::LoadThread(text)) => {
-                    threads.push((Owner::Load(self.path.clone()), Error::project(text)));
+                    threads.push((Step::Load, Error::project(text)));
                 }
                 Ok(message) => return Ok(message),
                 Err(unreadable) => {
@@ -722,7 +718,7 @@ impl Zygote {
 
     /// Asks the zygote to fork a process for the test `function`, which
     /// `suppressions` reach. Reads the facts of its case, and the error of each
-    /// thread that it found. `owner` owns each thread that the test left. When
+    /// thread that it found, beside the step that left the thread. When
     /// the facts name later expectations, it asks for a replay of each, and
     /// then decides the outcome and the warnings of the case in one order,
     /// with the readings alone that a test's process that forked its readers
@@ -736,18 +732,17 @@ impl Zygote {
     /// When the module's process ends before each replay sent its reading, the
     /// case gets its end as a refusal, as when the zygote cannot fork a
     /// replay. Once the module's process ended, `ended` gives that end.
-    pub fn run<T: Clone>(
+    pub fn run(
         &mut self,
         function: &str,
         suppressions: &[(&str, &str)],
-        owner: T,
-    ) -> (Result<Outcome, Error>, Suppressed, Threads<T>) {
+    ) -> (Result<Outcome, Error>, Suppressed, Threads) {
         let mut threads = Vec::new();
         let test = Message::Test {
             function: function.to_owned(),
         };
         let (result, suppressed) = match self.ask(&test) {
-            Ok(()) => self.case(function, suppressions, &owner, &mut threads),
+            Ok(()) => self.case(function, suppressions, &mut threads),
             Err(gone) => (Err(Error::project(gone)), Suppressed::default()),
         };
         if let Some(status) = self.reaped {
@@ -769,25 +764,24 @@ impl Zygote {
     /// Reads the case of the test `function`, which the zygote forked, and
     /// asks for its replays. Gives the outcome or what takes its place, and
     /// what the suppressions of the case gave.
-    fn case<T: Clone>(
+    fn case(
         &mut self,
         function: &str,
         suppressions: &[(&str, &str)],
-        owner: &T,
-        threads: &mut Threads<T>,
+        threads: &mut Threads,
     ) -> (Result<Outcome, Error>, Suppressed) {
-        let before = interrupt::first();
+        let window = Window::open();
         let Sent {
             mut facts,
             mut result,
             end,
             ..
-        } = self.sent(owner, threads);
+        } = self.sent(threads);
         if let Some(facts) = facts.as_mut()
             && result.is_none()
         {
             match end {
-                Ok(_) => result = self.replays(function, facts, owner, threads),
+                Ok(_) => result = self.replays(function, facts, threads),
                 Err(status) if !facts.later.is_empty() => {
                     facts.refused.get_or_insert_with(|| gone(status));
                 }
@@ -800,7 +794,7 @@ impl Zygote {
             |(own, suppressed)| (Some(own.map(|kind| Outcome { kind })), suppressed),
         );
         let result = result.or(own).unwrap_or_else(|| match end {
-            Ok(_) if interrupt::landed_since(before) => Ok(Outcome {
+            Ok(_) if window.arrived() => Ok(Outcome {
                 kind: Kind::Interrupted,
             }),
             Ok(status) => Ok(Outcome {
@@ -824,9 +818,9 @@ impl Zygote {
         asked.map_err(|_| gone(self.wait()))
     }
 
-    /// Reads what a child of the zygote sends, until it ends. `owner` owns
+    /// Reads what a child of the zygote sends, until it ends. The test owns
     /// each thread that the child's test left.
-    fn sent<T: Clone>(&mut self, owner: &T, threads: &mut Threads<T>) -> Sent {
+    fn sent(&mut self, threads: &mut Threads) -> Sent {
         let mut sent = Sent {
             facts: None,
             verdict: None,
@@ -835,7 +829,7 @@ impl Zygote {
             end: Ok(0),
         };
         sent.end = loop {
-            match self.own(Some(owner), threads) {
+            match self.own(Step::Test, threads) {
                 Ok(Message::Ended(status)) => {
                     interrupt::follow_test(0);
                     break Ok(status);
@@ -870,21 +864,20 @@ impl Zygote {
     /// the case. It gives a result in place of the outcome only when a replay
     /// sends an error, a frame holds no message, or an interrupt lands during
     /// the replays.
-    fn replays<T: Clone>(
+    fn replays(
         &mut self,
         function: &str,
         facts: &mut Facts,
-        owner: &T,
-        threads: &mut Threads<T>,
+        threads: &mut Threads,
     ) -> Option<Result<Outcome, Error>> {
-        let before = interrupt::first();
+        let window = Window::open();
         let mut alone = Vec::new();
         for &index in &facts.later {
-            let replayed = match self.replay(function, index, owner, threads) {
+            let replayed = match self.replay(function, index, threads) {
                 Ok(replayed) => replayed,
                 Err(error) => return Some(Err(error)),
             };
-            if interrupt::landed_since(before) {
+            if window.arrived() {
                 return Some(Ok(Outcome {
                     kind: Kind::Interrupted,
                 }));
@@ -910,12 +903,11 @@ impl Zygote {
     ///
     /// The error that the replay sent, or the error of a frame that holds no
     /// message.
-    fn replay<T: Clone>(
+    fn replay(
         &mut self,
         function: &str,
         index: usize,
-        owner: &T,
-        threads: &mut Threads<T>,
+        threads: &mut Threads,
     ) -> Result<Result<Verdict, String>, Error> {
         let replay = Message::Replay {
             function: function.to_owned(),
@@ -930,7 +922,7 @@ impl Zygote {
             result,
             end,
             ..
-        } = self.sent(owner, threads);
+        } = self.sent(threads);
         if let Some(Err(error)) = result {
             return Err(error);
         }
@@ -1087,15 +1079,15 @@ fn exit(code: libc::c_int) -> ! {
     unsafe { libc::_exit(code) }
 }
 
-/// The zygote's life, in the child of the fork.
+/// The zygote's life, in the child of the fork, with `worker`.
 fn live_as_zygote(
-    py: Python<'_>,
+    mut worker: Worker<'_>,
     module: &Module,
     load: bool,
     mut tests: File,
     mut frames: File,
 ) -> ! {
-    let mut worker = Worker::<String>::new(py);
+    let py = worker.py;
     call_atexit(py, "_clear");
     if load {
         let result = crate::catch("execution", || worker.load(module));
@@ -1169,7 +1161,8 @@ struct Children<'m> {
     loads: bool,
 }
 
-/// Whether a Python thread other than the main one is alive.
+/// Whether a Python thread other than the main one is alive, as the hook that
+/// purba took sees.
 fn threaded(py: Python<'_>) -> bool {
     let Ok(main) = py
         .import("threading")
@@ -1177,7 +1170,7 @@ fn threaded(py: Python<'_>) -> bool {
     else {
         return false;
     };
-    let Ok(hook) = crate::thread::hook(py) else {
+    let Some(hook) = thread::taken(py) else {
         return false;
     };
     hook.get()
@@ -1200,7 +1193,7 @@ fn threaded(py: Python<'_>) -> bool {
 /// once. It sends no error of a thread, since the case sent them once.
 fn live_as_child(
     py: Python<'_>,
-    worker: &mut Worker<'_, String>,
+    worker: &mut Worker<'_>,
     children: &Children<'_>,
     function: &str,
     way: Way,
@@ -1227,7 +1220,7 @@ fn live_as_child(
         }
         match way {
             Way::Test => {
-                let (gathered, gives) = worker.gather(function, function.to_owned());
+                let (gathered, gives) = worker.gather(function);
                 facts = gathered;
                 gives
             }
@@ -1271,7 +1264,7 @@ fn silence() {
 
 /// Joins each thread that is alive and is not a daemon, until an interrupt
 /// raises in a join.
-fn join(py: Python<'_>, worker: &Worker<'_, String>) {
+fn join(py: Python<'_>, worker: &Worker<'_>) {
     let Ok(main) = py
         .import("threading")
         .and_then(|threading| threading.getattr("main_thread")?.call0())
@@ -1299,11 +1292,11 @@ fn send_kept(frames: &mut File) {
 }
 
 /// Writes the error of each thread that the worker took.
-fn send_threads(worker: &Worker<'_, String>, frames: &mut File) {
-    for (owner, error) in worker.threads() {
-        let message = match owner {
-            Owner::Load(_) => Message::LoadThread(error.to_string()),
-            Owner::Test(_) => Message::TestThread(error.to_string()),
+fn send_threads(worker: &Worker<'_>, frames: &mut File) {
+    for (step, error) in worker.threads() {
+        let message = match step {
+            Step::Load => Message::LoadThread(error.to_string()),
+            Step::Test => Message::TestThread(error.to_string()),
         };
         send(frames, &message);
     }
@@ -1694,7 +1687,7 @@ mod tests {
         let (done, outcome) = mpsc::channel();
         let (release, released) = mpsc::channel::<()>();
         std::thread::spawn(move || {
-            let (result, _, _) = zygote.run("test_one", &[], ());
+            let (result, _, _) = zygote.run("test_one", &[]);
             drop(
                 done.send(
                     result
@@ -1777,7 +1770,6 @@ mod tests {
         let zygote = Zygote {
             // No child has this pid, so a wait for it returns at once.
             pid: libc::pid_t::MAX,
-            path: PathBuf::from("test_one.py"),
             tests: Some(File::from(tests_out)),
             frames: File::from(frames_in),
             reaped: None,
@@ -1788,7 +1780,7 @@ mod tests {
 
     /// Replays the expectation at index 1 of `test_one` on `frames`. It gives
     /// the `Debug` text of the verdict or the error, beside the `Debug` text of
-    /// each thread's owner and error. A replay that waits for a frame that does
+    /// each thread's step and error. A replay that waits for a frame that does
     /// not come fails the case after 10 seconds.
     fn replay_on(frames: Vec<(u8, String)>) -> (Result<String, String>, Vec<String>) {
         let (mut zygote, _sent) = zygote_on(frames, Ends::Never);
@@ -1796,12 +1788,12 @@ mod tests {
         std::thread::spawn(move || {
             let mut threads = Vec::new();
             let verdict = zygote
-                .replay("test_one", 1, &"test_one", &mut threads)
+                .replay("test_one", 1, &mut threads)
                 .map(|verdict| format!("{verdict:?}"))
                 .map_err(|error| format!("{error:?}"));
             let threads = threads
                 .iter()
-                .map(|(owner, error)| format!("{owner:?} {error:?}"))
+                .map(|(step, error)| format!("{step:?} {error:?}"))
                 .collect::<Vec<_>>();
             drop(done.send((verdict, threads)));
         });
@@ -1830,12 +1822,12 @@ mod tests {
             vec![
                 format!(
                     "{:?} {:?}",
-                    Owner::Test("test_one"),
+                    Step::Test,
                     Error::project("of the test".to_owned())
                 ),
                 format!(
                     "{:?} {:?}",
-                    Owner::<&str>::Load(PathBuf::from("test_one.py")),
+                    Step::Load,
                     Error::project("of the load".to_owned())
                 ),
             ],
@@ -2062,7 +2054,7 @@ mod tests {
         let (done, outcomes) = mpsc::channel();
         std::thread::spawn(move || {
             for _ in 0..2 {
-                let (result, _, _) = zygote.run("test_one", &[], ());
+                let (result, _, _) = zygote.run("test_one", &[]);
                 drop(
                     done.send(
                         result
@@ -2236,7 +2228,7 @@ mod tests {
         let (mut zygote, _sent) = zygote_on(frames, Ends::AfterItsFrames);
         let (done, ran) = mpsc::channel();
         std::thread::spawn(move || {
-            let (result, _, _) = zygote.run("test_one", &[], ());
+            let (result, _, _) = zygote.run("test_one", &[]);
             let end = zygote.ended().map(|end| (end.error.line(), end.named));
             drop(
                 done.send((

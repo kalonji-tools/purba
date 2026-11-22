@@ -42,7 +42,7 @@ sequenceDiagram
   Note over dispatch: builds execution's module, and asks execution for a loaded zygote
   Note over execution: the zygote's worker loads the module once
   loop each selected test
-    dispatch->>execution: the name of one function in the module, each suppression that reaches it, and the test that it hands back as a thread's owner
+    dispatch->>execution: the name of one function in the module, and each suppression that reaches it
     Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
     Note over execution: its worker looks the name up in the module it loaded
     execution-->>dispatch: an outcome or error with each warning, and an outcome holds no name of its test

@@ -42,7 +42,10 @@ fn dispatch_hands_on_each_test_after_an_interrupt_as_unreached() {
                     .map_err(|err| err.to_string()),
             ),
             Handed::Unreached(test) => Seen::Unreached(test.0),
-            Handed::Stopped { .. } | Handed::Ended { .. } | Handed::Thread(..) => Seen::Other,
+            Handed::Stopped { .. }
+            | Handed::Ended { .. }
+            | Handed::TestThread(..)
+            | Handed::LoadThread(..) => Seen::Other,
         });
         ControlFlow::Continue(())
     });

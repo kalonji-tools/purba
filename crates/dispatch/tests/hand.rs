@@ -57,7 +57,7 @@ fn seen(module: Module<Named>) -> Vec<Seen> {
                 named,
                 tests.iter().map(|test| test.0).collect(),
             ),
-            Handed::Thread(_, err) => Seen::Thread(err.line()),
+            Handed::TestThread(_, err) | Handed::LoadThread(_, err) => Seen::Thread(err.line()),
             Handed::Unreached(test) => Seen::Unreached(test.0),
         });
         ControlFlow::Continue(())

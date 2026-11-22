@@ -1,7 +1,7 @@
 mod common;
 
 use common::module;
-use purba_execution::{Kind, Worker};
+use purba_execution::{Kind, Purba};
 
 /// A module whose load takes SIGINT, and whose test holds when purba put its
 /// own signal handler back after the load.
@@ -24,13 +24,13 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
     let handler_module = module("test_load_handler.py", TEST_LOAD_HANDLER);
     let signal_module = module("test_load_signal.py", TEST_LOAD_SIGNAL);
     let (steps, handler, after): (Vec<Step>, Result<Kind, String>, Result<Kind, String>) =
-        purba_execution::attach(|worker: &mut Worker<'_, &str>| {
+        purba_execution::attach(|purba: &Purba<'_>| {
             purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
             let mut steps = Vec::new();
-            let mut run = |module, function| match worker.zygote(module) {
+            let mut run = |module, function| match purba.zygote(module) {
                 Ok((mut zygote, _)) => {
                     steps.push((Ok(()), purba_execution::interrupted()));
-                    let (result, _, _) = zygote.run(function, &[], function);
+                    let (result, _, _) = zygote.run(function, &[]);
                     zygote.end();
                     result
                         .map(|outcome| outcome.kind().clone())

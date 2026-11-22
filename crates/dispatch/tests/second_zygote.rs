@@ -61,7 +61,9 @@ fn seen(module: Module<Named>) -> Vec<String> {
                 error.line(),
                 tests.iter().map(|test| test.0).collect::<Vec<_>>(),
             ),
-            Handed::Thread(_, err) => format!("thread {}", err.line()),
+            Handed::TestThread(_, err) | Handed::LoadThread(_, err) => {
+                format!("thread {}", err.line())
+            }
             Handed::Unreached(test) => format!("unreached {}", test.0),
         });
         std::ops::ControlFlow::<()>::Continue(())

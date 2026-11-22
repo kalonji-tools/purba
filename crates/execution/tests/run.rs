@@ -3,15 +3,15 @@ mod common;
 use std::sync::{Mutex, PoisonError};
 
 use common::module;
-use purba_execution::{Error, Kind, Module, Outcome, Quote, Shown, Suppressed, Worker};
+use purba_execution::{Error, Kind, Module, Outcome, Purba, Quote, Shown, Suppressed};
 
 /// The turn of a test to run Python:
 /// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
 static TURN: Mutex<()> = Mutex::new(());
 
-/// Gives `work` a worker while no other test of this file runs Python. Each
-/// test of this file calls it, never `purba_execution::attach`.
-fn attach<T, R>(work: impl for<'py> FnOnce(&mut Worker<'py, T>) -> R) -> R {
+/// Gives `work` purba's process while no other test of this file runs Python.
+/// Each test of this file calls it, never `purba_execution::attach`.
+fn attach<R>(work: impl for<'py> FnOnce(&Purba<'py>) -> R) -> R {
     let _turn = TURN.lock().unwrap_or_else(PoisonError::into_inner);
     purba_execution::attach(work)
 }
@@ -38,16 +38,15 @@ fn through(
     functions: &[&str],
     suppressions: &[(&str, &str)],
 ) -> (Result<(), String>, Vec<Ran>) {
-    attach(|worker: &mut Worker<'_, String>| {
-        let (mut zygote, _) = match worker.zygote(module) {
+    attach(|purba: &Purba<'_>| {
+        let (mut zygote, _) = match purba.zygote(module) {
             Ok(started) => started,
             Err(stop) => return (Err(stop.error.line()), Vec::new()),
         };
         let out = functions
             .iter()
             .map(|function| {
-                let (result, suppressed, _) =
-                    zygote.run(function, suppressions, (*function).to_owned());
+                let (result, suppressed, _) = zygote.run(function, suppressions);
                 (result.map(|outcome| outcome.kind().clone()), suppressed)
             })
             .collect();
