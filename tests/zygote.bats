@@ -72,6 +72,27 @@ LINES
   [[ "${lines}" -eq 3 ]]
 }
 
+# The thread makes the zygote replay the second expectation, and the replay kills
+# the zygote. The case raises, so an end of the zygote that read as a replay it
+# could not fork would print raised.
+@test "a zygote that dies during a replay gives the case a project error, and the run exits 4" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, threading' 'from pathlib import Path' \
+    'def boom():' '    raise ValueError("boom")' \
+    'def test_one():' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path("ran").touch()' \
+    '    if replay:' '        os.kill(os.getppid(), signal.SIGKILL)' \
+    '    assert 1 == 1' '    assert boom() is True' >test_kill.py
+
+  run -4 --separate-stderr purba test_kill.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_kill.py::test_one project error: the module's process died by SIGKILL
+1 case: 1 blocked; 1 project error
+LINES
+}
+
 @test "a module whose body reads the proxies passes a test that reads them again" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'import urllib.request' \
