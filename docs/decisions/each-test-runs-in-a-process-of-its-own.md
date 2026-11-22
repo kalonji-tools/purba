@@ -75,6 +75,8 @@ sequenceDiagram
   end
 ```
 
+[Each fact about a run is found once, by the part that sees it, and crosses as plain data](each-fact-is-found-once-by-the-part-that-sees-it.md#decision-outcome) holds why a child of the zygote sends facts, and purba decides.
+
 **Downside:**
 
 - **A tester pays a fork for each test.**

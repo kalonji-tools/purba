@@ -12,6 +12,7 @@
 - [A gate refuses each invariant a tool can see, from the first code it reads](decisions/a-gate-refuses-each-invariant-a-tool-can-see.md)
 - [A pinned candidate decides when a milestone is done](decisions/a-pinned-candidate-decides-when-a-milestone-is-done.md)
 - [An invariant needs no design of its own](decisions/an-invariant-needs-no-design-of-its-own.md)
+- [Each fact about a run is found once, by the part that sees it, and crosses as plain data](decisions/each-fact-is-found-once-by-the-part-that-sees-it.md)
 - [Each part is a crate](decisions/each-part-is-a-crate.md)
 - [Every crate lives under crates/](decisions/every-crate-lives-under-crates.md)
 - [Every part of the skeleton is Rust, inside the extension module](decisions/every-part-of-the-skeleton-is-rust-inside-the-extension-module.md)

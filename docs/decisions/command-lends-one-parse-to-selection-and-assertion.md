@@ -55,6 +55,7 @@ sequenceDiagram
 ```
 
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds how often a module crosses and loads.
+[Each fact about a run is found once, by the part that sees it, and crosses as plain data](each-fact-is-found-once-by-the-part-that-sees-it.md#decision-outcome) holds why only facts cross a part, as plain data.
 
 **Downside:**
 
