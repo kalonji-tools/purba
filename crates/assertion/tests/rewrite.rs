@@ -596,3 +596,66 @@ fn the_statement_of_a_try_of_one_path_calls_the_hook_of_a_missed_try_after_its_s
          handler binds the raise with as"
     );
 }
+
+#[test]
+fn a_module_that_nests_deeper_than_the_stack_is_rewritten() {
+    const SMALL_STACK: usize = 256 * 1024;
+    const DEPTH: usize = 3_000;
+    let mut nested = String::new();
+    for level in 0..DEPTH {
+        nested.push_str(&" ".repeat(level));
+        nested.push_str("if c:\n");
+    }
+    nested.push_str(&" ".repeat(DEPTH));
+    nested.push_str("assert c\n");
+    for (name, rest) in [
+        ("statements", nested),
+        ("minus", format!("x = {}1\n", "-".repeat(20_000))),
+        (
+            "pattern",
+            format!(
+                "match 1:\n    case {}1{}:\n        pass\n",
+                "[".repeat(20_000),
+                "]".repeat(20_000)
+            ),
+        ),
+        (
+            "format spec",
+            format!("x = f\"{}x{}\"\n", "{x:".repeat(3_000), "}".repeat(3_000)),
+        ),
+    ] {
+        let text = format!("def test_one():\n    assert 1 == 1\n\n{rest}");
+        let (rewritten, asserts) = std::thread::Builder::new()
+            .name(name.to_owned())
+            .stack_size(SMALL_STACK)
+            .spawn(move || {
+                let module = purba_parsing::parse_source(text).expect("the module parses");
+                let rewrite = purba_assertion::rewrite(&module, &["test_one"]);
+                (rewrite.text().to_owned(), rewrite.asserts().to_vec())
+            })
+            .expect("the thread starts")
+            .join()
+            .expect("the rewrite returns on a small stack");
+        assert!(
+            rewritten
+                .starts_with("def test_one():\n    _purba_reads(0) and _purba_read(0, (1), (1))\n"),
+            "{name}: the expectation of the test is rewritten: {}",
+            &rewritten[..rewritten.len().min(120)]
+        );
+        let deep: &[&str] = if name == "statements" {
+            &["assert c"]
+        } else {
+            &[]
+        };
+        assert_eq!(
+            asserts, deep,
+            "{name}: the rewrite marks the assert at the deepest statement"
+        );
+        if name == "statements" {
+            assert!(
+                rewritten.ends_with("assert _purba_ran(0, c)\n"),
+                "{name}: the deepest assert calls the hook"
+            );
+        }
+    }
+}

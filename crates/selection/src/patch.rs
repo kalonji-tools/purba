@@ -1,15 +1,11 @@
 //! The patches and the mocks with no spec in the body of a test.
 
-use std::collections::{HashMap, HashSet};
-
-use ruff_python_ast::visitor::Visitor;
-use ruff_python_ast::{
-    Arguments, Expr, ExprCall, ExprName, InterpolatedStringElement, Pattern, Stmt,
-};
+use purba_parsing::{Arms, Enter, Node, walk};
+use ruff_python_ast::{Arguments, Expr, ExprCall, ExprName, Stmt};
 use ruff_text_size::{Ranged, TextSize};
 
 use super::lookup::{Lookup, Origin};
-use super::{Node, on_one_line, walk_node};
+use super::on_one_line;
 
 /// A fault that a patch or a mock with no spec gives.
 pub enum Fault {
@@ -40,37 +36,27 @@ const OF_MULTIPLE: [&str; 6] = [
     "unsafe",
 ];
 
-/// Each patch and each mock with no spec in `body`, by its offset, in the order
-/// the walk finds them. A name resolves through an import of the body, then
-/// through `imported` unless the body binds it. The body of a nested `def`,
+/// Each patch and each mock with no spec in `body`, by its offset, in source
+/// order. A name resolves through `lookup`. The body of a nested `def`,
 /// `lambda` or `class` is the test's too.
 pub fn faults<'a>(
     body: &'a [Stmt],
-    locals: &HashSet<&'a str>,
-    imported: &HashMap<&'a str, String>,
-    bound: &HashSet<&'a str>,
+    lookup: &Lookup<'a, '_>,
     source: &'a str,
 ) -> Vec<(TextSize, Fault)> {
     let mut stand_ins = StandIns {
-        lookup: Lookup::new(body, locals, imported, bound),
+        lookup,
         source,
         found: Vec::new(),
-        pending: Vec::new(),
     };
-    for statement in body {
-        stand_ins.visit_stmt(statement);
-    }
-    while let Some(node) = stand_ins.pending.pop() {
-        walk_node(&mut stand_ins, node);
-    }
+    walk(body.iter().map(Node::Stmt), &mut stand_ins);
     stand_ins.found
 }
 
-struct StandIns<'a, 'b> {
-    lookup: Lookup<'a, 'b>,
+struct StandIns<'a, 'l> {
+    lookup: &'l Lookup<'a, 'l>,
     source: &'a str,
     found: Vec<(TextSize, Fault)>,
-    pending: Vec<Node<'a>>,
 }
 
 impl StandIns<'_, '_> {
@@ -81,26 +67,6 @@ impl StandIns<'_, '_> {
             Origin::Own(origin) | Origin::Imported(origin) => Some(origin),
             Origin::Local | Origin::Module | Origin::Builtin => None,
         }
-    }
-
-    /// The dotted name of `expr` through the imports, such as
-    /// `unittest.mock.patch` for `mock.patch`.
-    fn qualified(&self, expr: &Expr) -> Option<String> {
-        let mut parts = Vec::new();
-        let mut current = expr;
-        while let Expr::Attribute(attribute) = current {
-            parts.push(attribute.attr.as_str());
-            current = &attribute.value;
-        }
-        let Expr::Name(name) = current else {
-            return None;
-        };
-        let mut qualified = self.origin(&name.id)?.to_owned();
-        for part in parts.iter().rev() {
-            qualified.push('.');
-            qualified.push_str(part);
-        }
-        Some(qualified)
     }
 
     /// `expr` with the name at its root replaced by where its import comes
@@ -134,17 +100,17 @@ impl StandIns<'_, '_> {
     }
 
     fn is_default(&self, expr: &Expr) -> bool {
-        self.qualified(expr).as_deref() == Some("unittest.mock.DEFAULT")
+        self.lookup.qualified(expr).as_deref() == Some("unittest.mock.DEFAULT")
     }
 
     fn call(&mut self, call: &ExprCall) {
         let at = call.start();
         let arguments = &call.arguments;
-        let Some(name) = self.qualified(&call.func) else {
-            self.builtin(call);
+        let Some(name) = self.lookup.qualified(&call.func) else {
             return;
         };
         match name.as_str() {
+            "builtins.setattr" | "builtins.delattr" => self.builtin(call),
             "unittest.mock.patch" => {
                 let target = arguments
                     .find_argument_value("target", 0)
@@ -249,17 +215,13 @@ impl StandIns<'_, '_> {
         }
     }
 
-    /// A call of the builtin `setattr` or `delattr` on an imported name.
+    /// A call of the builtin `setattr` or `delattr`: a patch when its object is
+    /// an imported name.
     fn builtin(&mut self, call: &ExprCall) {
-        let Expr::Name(name) = &*call.func else {
-            return;
-        };
-        let builtin = matches!(name.id.as_str(), "setattr" | "delattr")
-            && self.lookup.origin(name.id.as_str()) == Origin::Builtin;
         let Some(object) = call.arguments.find_positional(0) else {
             return;
         };
-        if builtin && self.through_imports(object).is_some() {
+        if self.through_imports(object).is_some() {
             let target = self.attribute_of(object, call.arguments.find_positional(1));
             self.found.push((call.start(), Fault::Patched(target)));
         }
@@ -310,10 +272,8 @@ fn unseen(arguments: &Arguments) -> bool {
             .any(|keyword| keyword.arg.is_none())
 }
 
-// As in `Body`, each visit pushes its node, and `faults` walks each node it
-// pushed.
-impl<'a> Visitor<'a> for StandIns<'a, '_> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
+impl<'a> Arms<'a> for StandIns<'a, '_> {
+    fn stmt(&mut self, statement: &'a Stmt) -> Enter {
         match statement {
             Stmt::Assign(assign) => assign.targets.iter().for_each(|target| self.store(target)),
             Stmt::AugAssign(assign) => self.store(&assign.target),
@@ -321,21 +281,13 @@ impl<'a> Visitor<'a> for StandIns<'a, '_> {
             Stmt::Delete(delete) => delete.targets.iter().for_each(|target| self.store(target)),
             _ => {}
         }
-        self.pending.push(Node::Stmt(statement));
+        Enter::All
     }
 
-    fn visit_expr(&mut self, expr: &'a Expr) {
+    fn expr(&mut self, expr: &'a Expr) -> Enter {
         if let Expr::Call(call) = expr {
             self.call(call);
         }
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
+        Enter::All
     }
 }

@@ -3,7 +3,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use purba_parsing::Module;
+use purba_parsing::{Facts, Module};
 use ruff_python_ast::{Expr, Stmt, StmtFunctionDef};
 use ruff_text_size::{Ranged, TextSize};
 
@@ -252,15 +252,17 @@ enum Site {
     Module,
 }
 
-/// Reads each `# purba:` comment of `module`. `tests` names each `def` that is
-/// a test, by the offset where it starts.
-pub fn sites(module: &Module, tests: &[TextSize]) -> Sites {
+/// Reads each `# purba:` comment of the module of `facts`. `tests` names each
+/// `def` that is a test, by the offset where it starts.
+pub fn sites(facts: &Facts<'_>, tests: &[TextSize]) -> Sites {
+    let module = facts.module();
     let body = &module.syntax().body;
     let first = body
         .get(usize::from(body.first().is_some_and(is_docstring)))
         .map(|statement| module.position(start(statement)).line());
-    let defs: Vec<Def<'_>> = defs(body)
-        .into_iter()
+    let defs: Vec<Def<'_>> = facts
+        .defs()
+        .iter()
         .map(|function| Def {
             name: function.name.as_str(),
             at: function.range.start(),
@@ -479,25 +481,6 @@ fn start_of_def(function: &StmtFunctionDef) -> TextSize {
         .chain([function.range.start()])
         .min()
         .unwrap_or_default()
-}
-
-/// Each `def` in `body`, at any depth: in a block, a class or a `def`.
-fn defs(body: &[Stmt]) -> Vec<&StmtFunctionDef> {
-    let mut found = Vec::new();
-    // A walk that recurses once for each level of nesting overflows the stack
-    // on statements that nest deeper than the stack.
-    let mut pending: Vec<&Stmt> = body.iter().rev().collect();
-    while let Some(statement) = pending.pop() {
-        match statement {
-            Stmt::FunctionDef(function) => {
-                found.push(function);
-                pending.extend(function.body.iter().rev());
-            }
-            Stmt::ClassDef(class) => pending.extend(class.body.iter().rev()),
-            other => pending.extend(purba_parsing::blocks(other).into_iter().flatten().rev()),
-        }
-    }
-    found
 }
 
 #[cfg(test)]

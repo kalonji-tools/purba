@@ -1,13 +1,10 @@
 //! The imports of another test framework in a test module.
 
-use std::collections::{HashMap, HashSet};
-
-use ruff_python_ast::visitor::Visitor;
-use ruff_python_ast::{Expr, InterpolatedStringElement, Pattern, Stmt, StmtFunctionDef};
+use purba_parsing::{Arms, Enter, Node, walk};
+use ruff_python_ast::{Expr, Stmt};
 use ruff_text_size::{Ranged, TextSize};
 
-use super::lookup::{Lookup, Origin};
-use super::{Node, walk_node};
+use super::lookup::Lookup;
 
 /// The modules of another test framework: pytest, and the package that holds
 /// its code.
@@ -48,94 +45,39 @@ fn names_a_framework(name: &str) -> bool {
 /// Each import of another test framework in `statements`, at any depth, by its
 /// offset, with the module as the code writes it: an `import` or a
 /// `from … import`, and a call of [`CALLS`] whose first argument is a string
-/// that names it. A name resolves through an import of `statements`, then
-/// through `imported` unless `locals` binds it. A name that no import, no local
-/// and no binding of the module in `bound` binds is a builtin.
-pub fn imports<'a>(
-    statements: &'a [Stmt],
-    locals: &HashSet<&'a str>,
-    imported: &HashMap<&'a str, String>,
-    bound: &HashSet<&'a str>,
-) -> Vec<(TextSize, String)> {
+/// that names it. A name resolves through `lookup`.
+pub fn imports<'a>(statements: &'a [Stmt], lookup: &Lookup<'a, '_>) -> Vec<(TextSize, String)> {
     let mut found = Found {
-        lookup: Lookup::new(statements, locals, imported, bound),
+        lookup,
+        head: false,
         imports: Vec::new(),
-        pending: Vec::new(),
     };
-    for statement in statements {
-        found.visit_stmt(statement);
-    }
-    while let Some(node) = found.pending.pop() {
-        walk_node(&mut found, node);
-    }
+    walk(statements.iter().map(Node::Stmt), &mut found);
     found.imports
 }
 
 /// Each import of another test framework that runs when `function` is made:
-/// in a decorator, a default or an annotation. A name resolves as in
-/// [`imports`], with no import and no local of its own.
-pub fn made<'a>(
-    function: &'a StmtFunctionDef,
-    imported: &HashMap<&'a str, String>,
-    bound: &HashSet<&'a str>,
-) -> Vec<(TextSize, String)> {
-    let none = HashSet::new();
+/// in a decorator, a default or an annotation. A name resolves through
+/// `lookup`, which holds no import and no local of its own.
+pub fn made<'a>(function: &'a Stmt, lookup: &Lookup<'a, '_>) -> Vec<(TextSize, String)> {
     let mut found = Found {
-        lookup: Lookup::new(&[], &none, imported, bound),
+        lookup,
+        head: true,
         imports: Vec::new(),
-        pending: Vec::new(),
     };
-    for decorator in &function.decorator_list {
-        found.visit_decorator(decorator);
-    }
-    found.visit_parameters(&function.parameters);
-    if let Some(returns) = &function.returns {
-        found.visit_expr(returns);
-    }
-    while let Some(node) = found.pending.pop() {
-        walk_node(&mut found, node);
-    }
+    walk([Node::Stmt(function)], &mut found);
     found.imports
 }
 
-struct Found<'a, 'b> {
-    lookup: Lookup<'a, 'b>,
+struct Found<'a, 'l> {
+    lookup: &'l Lookup<'a, 'l>,
+    /// Whether the walk enters only what runs where a `def` stands.
+    head: bool,
     imports: Vec<(TextSize, String)>,
-    pending: Vec<Node<'a>>,
 }
 
-impl Found<'_, '_> {
-    /// The dotted name of `expr` through the imports, such as
-    /// `importlib.import_module` for `load` after
-    /// `from importlib import import_module as load`.
-    fn qualified(&self, expr: &Expr) -> Option<String> {
-        let mut parts = Vec::new();
-        let mut current = expr;
-        while let Expr::Attribute(attribute) = current {
-            parts.push(attribute.attr.as_str());
-            current = &attribute.value;
-        }
-        let Expr::Name(name) = current else {
-            return None;
-        };
-        let root = name.id.as_str();
-        let origin = match self.lookup.origin(root) {
-            Origin::Own(origin) | Origin::Imported(origin) => origin.to_owned(),
-            Origin::Local | Origin::Module => return None,
-            Origin::Builtin => format!("builtins.{root}"),
-        };
-        let mut qualified = origin;
-        for part in parts.iter().rev() {
-            qualified.push('.');
-            qualified.push_str(part);
-        }
-        Some(qualified)
-    }
-}
-
-// As in `Bindings`, each visit pushes its node.
-impl<'a> Visitor<'a> for Found<'a, '_> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
+impl<'a> Arms<'a> for Found<'a, '_> {
+    fn stmt(&mut self, statement: &'a Stmt) -> Enter {
         match statement {
             Stmt::Import(import) => {
                 for alias in &import.names {
@@ -152,15 +94,16 @@ impl<'a> Visitor<'a> for Found<'a, '_> {
                     self.imports.push((statement.start(), module.to_string()));
                 }
             }
+            Stmt::FunctionDef(_) if self.head => return Enter::Head,
             _ => {}
         }
-        self.pending.push(Node::Stmt(statement));
+        Enter::All
     }
 
-    fn visit_expr(&mut self, expr: &'a Expr) {
+    fn expr(&mut self, expr: &'a Expr) -> Enter {
         if let Expr::Call(call) = expr
             && let Some(Expr::StringLiteral(first)) = call.arguments.args.first()
-            && let Some(function) = self.qualified(&call.func)
+            && let Some(function) = self.lookup.qualified(&call.func)
             && CALLS.contains(&function.as_str())
         {
             let value = first.value.to_str();
@@ -170,14 +113,6 @@ impl<'a> Visitor<'a> for Found<'a, '_> {
                 self.imports.push((expr.start(), value.to_owned()));
             }
         }
-        self.pending.push(Node::Expr(expr));
-    }
-
-    fn visit_pattern(&mut self, pattern: &'a Pattern) {
-        self.pending.push(Node::Pattern(pattern));
-    }
-
-    fn visit_interpolated_string_element(&mut self, element: &'a InterpolatedStringElement) {
-        self.pending.push(Node::Element(element));
+        Enter::All
     }
 }

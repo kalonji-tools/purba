@@ -2,11 +2,9 @@
 
 use std::collections::{HashMap, HashSet};
 
-use ruff_python_ast::Stmt;
+use ruff_python_ast::{Expr, Stmt};
 
-use purba_parsing::blocks;
-
-use super::{bound, origins};
+use purba_parsing::{Arms, Enter, Node, bound, origins, walk};
 
 /// Where a name that a test reads comes from.
 #[derive(Debug, PartialEq, Eq)]
@@ -29,16 +27,16 @@ pub enum Origin<'l> {
 /// of its names.
 pub struct Lookup<'a, 'b> {
     own: HashMap<&'a str, String>,
-    locals: &'b HashSet<&'a str>,
+    locals: HashSet<&'a str>,
     imported: &'b HashMap<&'a str, String>,
     bound: &'b HashSet<&'a str>,
 }
 
 impl<'a, 'b> Lookup<'a, 'b> {
-    /// The names that the test whose body is `body` can read.
+    /// The names that the code of `body` can read, where it binds `locals`.
     pub fn new(
         body: &'a [Stmt],
-        locals: &'b HashSet<&'a str>,
+        locals: HashSet<&'a str>,
         imported: &'b HashMap<&'a str, String>,
         bound: &'b HashSet<&'a str>,
     ) -> Self {
@@ -73,24 +71,56 @@ impl<'a, 'b> Lookup<'a, 'b> {
             |from| Origin::Own(from),
         )
     }
+
+    /// The dotted name of `expr` through the imports, such as
+    /// `importlib.import_module` for `load` after
+    /// `from importlib import import_module as load`. A name that nothing
+    /// binds is a builtin, so `setattr` gives `builtins.setattr`. A name that
+    /// the test or its module binds, other than by an import, gives `None`.
+    pub fn qualified(&self, expr: &Expr) -> Option<String> {
+        let mut parts = Vec::new();
+        let mut current = expr;
+        while let Expr::Attribute(attribute) = current {
+            parts.push(attribute.attr.as_str());
+            current = &attribute.value;
+        }
+        let Expr::Name(name) = current else {
+            return None;
+        };
+        let root = name.id.as_str();
+        let mut qualified = match self.origin(root) {
+            Origin::Own(origin) | Origin::Imported(origin) => origin.to_owned(),
+            Origin::Local | Origin::Module => return None,
+            Origin::Builtin => format!("builtins.{root}"),
+        };
+        for part in parts.iter().rev() {
+            qualified.push('.');
+            qualified.push_str(part);
+        }
+        Some(qualified)
+    }
 }
 
 /// Where each name that an `import` in `body` binds comes from, at any depth.
+/// The first import of a name wins.
 fn own_imports(body: &[Stmt]) -> HashMap<&str, String> {
-    let mut own = HashMap::new();
-    let mut pending: Vec<&Stmt> = body.iter().collect();
-    while let Some(statement) = pending.pop() {
-        for (name, origin) in origins(statement) {
-            own.insert(bound(name), origin);
+    #[derive(Default)]
+    struct Own<'a>(HashMap<&'a str, String>);
+    impl<'a> Arms<'a> for Own<'a> {
+        fn stmt(&mut self, statement: &'a Stmt) -> Enter {
+            for (name, origin) in origins(statement) {
+                self.0.entry(bound(name)).or_insert(origin);
+            }
+            Enter::All
         }
-        pending.extend(blocks(statement).into_iter().flatten());
-        if let Stmt::FunctionDef(function) = statement {
-            pending.extend(&function.body);
-        } else if let Stmt::ClassDef(class) = statement {
-            pending.extend(&class.body);
+
+        fn expr(&mut self, _expr: &'a Expr) -> Enter {
+            Enter::Nothing
         }
     }
-    own
+    let mut own = Own::default();
+    walk(body.iter().map(Node::Stmt), &mut own);
+    own.0
 }
 
 #[cfg(test)]
@@ -128,7 +158,7 @@ mod tests {
                 .iter()
                 .map(|(name, from)| (name.as_str(), from.clone()))
                 .collect(),
-            locals: &locals,
+            locals,
             imported: &imported,
             bound: &bound,
         };

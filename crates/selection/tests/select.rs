@@ -16,11 +16,12 @@ fn each_test_function_in_source_order() {
     );
     let module = purba_parsing::parse(&file).expect("the module parses");
 
-    let names: Vec<String> = purba_selection::select(Path::new("test_a.py"), &module)
-        .tests()
-        .iter()
-        .map(ToString::to_string)
-        .collect();
+    let names: Vec<String> =
+        purba_selection::select(Path::new("test_a.py"), &purba_parsing::Facts::of(&module))
+            .tests()
+            .iter()
+            .map(ToString::to_string)
+            .collect();
 
     assert_eq!(
         names,
@@ -34,7 +35,10 @@ fn an_identity_gives_its_path_and_function() {
     let file = write("test_parts.py", "def test_one():\n    pass\n");
     let module = purba_parsing::parse(&file).expect("the module parses");
 
-    let selected = purba_selection::select(Path::new("tests/test_a.py"), &module);
+    let selected = purba_selection::select(
+        Path::new("tests/test_a.py"),
+        &purba_parsing::Facts::of(&module),
+    );
     let test = selected.tests().first().expect("the module holds one test");
 
     assert_eq!(
@@ -77,7 +81,8 @@ fn a_name_defined_twice_is_one_refused_test() {
 fn judged(name: &str, text: &str) -> (Vec<String>, Vec<String>) {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected =
+        purba_selection::select(Path::new("test_m.py"), &purba_parsing::Facts::of(&module));
     let (tests, refused) = (selected.tests(), selected.refused());
     (
         tests.iter().map(ToString::to_string).collect(),
@@ -150,6 +155,63 @@ fn a_yield_in_the_tests_own_body_makes_it_a_generator() {
             "test_m.py::test_async_generator purba cannot run an async test yet",
         ],
         "a yield in a branch that never runs counts, and an async generator is async"
+    );
+}
+
+#[test]
+fn a_yield_in_what_runs_where_a_nested_def_lambda_or_class_stands_makes_the_test_a_generator() {
+    let (tests, refused) = judged(
+        "test_yield_head.py",
+        concat!(
+            "def test_default():\n    def inner(a=(yield)):\n        pass\n    assert 1 == 1\n\n",
+            "def test_keyword_default():\n    def inner(*, a=(yield)):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_decorator():\n    @(yield)\n    def inner():\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_lambda_default():\n    f = lambda a=(yield): a\n    assert 1 == 1\n\n",
+            "def test_class_base():\n    class Inner((yield)):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_class_keyword():\n    class Inner(metaclass=(yield)):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_class_decorator():\n    @(yield)\n    class Inner:\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_annotation():\n    def inner(a: (yield)):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_star_annotation():\n    def inner(*a: (yield)):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_return_annotation():\n    def inner() -> (yield):\n        pass\n",
+            "    assert 1 == 1\n\n",
+            "def test_deeper():\n    def inner():\n        def deeper(a=(yield)):\n",
+            "            pass\n    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_deeper"],
+        "a yield in what runs where a def stands, inside the body of a nested def, is not the \
+         test's"
+    );
+    let generator = |name: &str| {
+        format!("test_m.py::{name} the test is a generator, and purba does not iterate it")
+    };
+    assert_eq!(
+        refused,
+        [
+            "test_default",
+            "test_keyword_default",
+            "test_decorator",
+            "test_lambda_default",
+            "test_class_base",
+            "test_class_keyword",
+            "test_class_decorator",
+            "test_annotation",
+            "test_star_annotation",
+            "test_return_annotation",
+        ]
+        .map(generator),
+        "a default, a decorator, a base, a keyword of a class and an annotation run where the \
+         def or the class stands, so a yield there is in the test's own body"
     );
 }
 
@@ -992,7 +1054,7 @@ fn private(line: usize, name: &str) -> String {
 fn noticed(name: &str, text: &str) -> Vec<(String, Vec<String>)> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    purba_selection::select(Path::new("test_m.py"), &module)
+    purba_selection::select(Path::new("test_m.py"), &purba_parsing::Facts::of(&module))
         .tests()
         .iter()
         .map(|test| (test.to_string(), test.notices().to_vec()))
@@ -1323,7 +1385,8 @@ fn an_expectation_that_nests_deeper_than_the_stack_does_not_crash_selection() {
 fn suppressed(name: &str, text: &str) -> Vec<(String, String, String, String)> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected =
+        purba_selection::select(Path::new("test_m.py"), &purba_parsing::Facts::of(&module));
     let (tests, refused) = (selected.tests(), selected.refused());
     tests
         .iter()
@@ -1345,7 +1408,7 @@ fn suppressed(name: &str, text: &str) -> Vec<(String, String, String, String)> {
 fn module_fault(name: &str, text: &str) -> Option<String> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    purba_selection::select(Path::new("test_m.py"), &module)
+    purba_selection::select(Path::new("test_m.py"), &purba_parsing::Facts::of(&module))
         .fault()
         .map(ToOwned::to_owned)
 }
@@ -1570,7 +1633,8 @@ fn a_test_carries_each_suppression_that_reaches_it_for_the_checks_of_the_run() {
     let file = write("test_run_checks.py", text);
     let module = purba_parsing::parse(&file).expect("the module parses");
 
-    let selected = purba_selection::select(Path::new("test_m.py"), &module);
+    let selected =
+        purba_selection::select(Path::new("test_m.py"), &purba_parsing::Facts::of(&module));
     let (tests, refused) = (selected.tests(), selected.refused());
 
     assert!(
@@ -2082,6 +2146,76 @@ fn a_call_of_a_setattr_that_the_module_assigns_is_no_patch() {
 }
 
 #[test]
+fn a_call_of_the_builtin_setattr_or_delattr_patches_however_the_module_spells_it() {
+    let (tests, refused) = judged(
+        "test_spelled_setattr.py",
+        concat!(
+            "import builtins\n",
+            "from builtins import setattr as put, delattr as remove\n",
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_bare():\n",
+            "    setattr(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_dotted():\n",
+            "    builtins.setattr(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_imported():\n",
+            "    put(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_dotted_delattr():\n",
+            "    builtins.delattr(lending, \"Library\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_imported_delattr():\n",
+            "    remove(lending, \"Library\")\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_local():\n",
+            "    box = object()\n",
+            "    builtins.setattr(box, \"item\", 1)\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_local"],
+        "a setattr of a name that no import binds patches nothing"
+    );
+    assert_eq!(
+        refused,
+        [
+            format!("test_m.py::test_bare {}", patched(7, "lending.Library")),
+            format!("test_m.py::test_dotted {}", patched(12, "lending.Library")),
+            format!(
+                "test_m.py::test_imported {}",
+                patched(17, "lending.Library")
+            ),
+            format!(
+                "test_m.py::test_dotted_delattr {}",
+                patched(22, "lending.Library")
+            ),
+            format!(
+                "test_m.py::test_imported_delattr {}",
+                patched(27, "lending.Library")
+            ),
+        ],
+        "the builtin setattr and delattr patch an imported name, bare, through builtins, \
+         or imported from builtins under another name"
+    );
+}
+
+#[test]
 fn a_read_of_a_private_name_that_the_test_imports_gives_one_notice_at_its_import() {
     let text = concat!(
         "def test_inside():\n",
@@ -2342,7 +2476,7 @@ fn unused(
 ) -> Vec<String> {
     let file = write(name, text);
     let module = purba_parsing::parse(&file).expect("the module parses");
-    let mut selected = purba_selection::select(Path::new(name), &module);
+    let mut selected = purba_selection::select(Path::new(name), &purba_parsing::Facts::of(&module));
     for test in selected.tests().to_vec() {
         selected.judge(&test, &warned(test.function()), judged(test.function()));
     }
@@ -2959,5 +3093,322 @@ fn a_tuple_with_no_parentheses_gets_them_in_the_fix_that_its_line_names() {
             alone(4, "(ValueError, KeyError)")
         )],
         "Python 3.14 refuses an as after a tuple with no parentheses, so the fix adds them"
+    );
+}
+
+#[test]
+fn a_setattr_that_the_test_binds_or_a_builtins_that_the_module_binds_patches_nothing() {
+    let (tests, refused) = judged(
+        "test_bound_setattr.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "\n",
+            "class Box:\n",
+            "    def setattr(self, target, name, value):\n",
+            "        return name\n",
+            "\n",
+            "\n",
+            "builtins = Box()\n",
+            "\n",
+            "\n",
+            "def test_local():\n",
+            "    setattr = print\n",
+            "    setattr(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_module_builtins():\n",
+            "    builtins.setattr(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_own_import():\n",
+            "    from builtins import setattr as place\n",
+            "    place(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_local", "test_m.py::test_module_builtins"],
+        "a setattr that the test binds, and a builtins that the module binds, are no builtin"
+    );
+    assert_eq!(
+        refused,
+        [format!(
+            "test_m.py::test_own_import {}",
+            patched(25, "lending.Library")
+        )],
+        "a setattr that the test imports from builtins is the builtin"
+    );
+}
+
+#[test]
+fn an_import_in_a_block_of_the_module_or_in_the_test_resolves_a_patch() {
+    let (tests, refused) = judged(
+        "test_imports_at_depth.py",
+        concat!(
+            "if True:\n",
+            "    from unittest import mock\n",
+            "\n",
+            "\n",
+            "def test_module_block():\n",
+            "    mock.patch(\"lending.Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_own_block():\n",
+            "    if True:\n",
+            "        from unittest import mock as stub\n",
+            "    stub.patch(\"lending.Library\", object)\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_own_def():\n",
+            "    def swap():\n",
+            "        from unittest.mock import patch as swapped\n",
+            "        swapped(\"lending.Library\", object)\n",
+            "\n",
+            "    swap()\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [
+            format!(
+                "test_m.py::test_module_block {}",
+                patched(6, "lending.Library")
+            ),
+            format!(
+                "test_m.py::test_own_block {}",
+                patched(13, "lending.Library")
+            ),
+            format!("test_m.py::test_own_def {}", patched(20, "lending.Library")),
+        ],
+        "an import in a block of the module, and one in a block or a nested def of the test, \
+         name the patch"
+    );
+}
+
+#[test]
+fn a_parameter_that_shares_the_name_of_an_import_is_the_tests_own() {
+    let (tests, refused) = judged(
+        "test_parameter_shadows.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_parameter(lending=None):\n",
+            "    lending.Library = object\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
+    assert_eq!(
+        tests,
+        ["test_m.py::test_parameter"],
+        "a parameter binds the name, so a store to it patches no import"
+    );
+}
+
+#[test]
+fn an_import_of_a_private_path_in_the_tests_body_gives_a_notice() {
+    let text = concat!(
+        "def test_inside():\n",
+        "    import lib._hidden\n",
+        "    assert 1 == 1\n",
+    );
+
+    assert_eq!(
+        noticed("test_private_import.py", text),
+        [(
+            "test_m.py::test_inside".to_owned(),
+            vec![private(2, "lib._hidden")]
+        )],
+        "an import of a private path names the whole path, though it binds lib"
+    );
+}
+
+#[test]
+fn a_suppression_above_a_def_in_a_class_or_in_a_def_sits_above_that_def() {
+    assert_eq!(
+        module_fault(
+            "test_above_method.py",
+            concat!(
+                "class TestBox:\n",
+                "    # purba: suppress[computed-expected] digests match\n",
+                "    def test_digest(self):\n",
+                "        assert got == 1\n",
+            ),
+        ),
+        None,
+        "a suppression above a test in a class sits above a test"
+    );
+    assert_eq!(
+        module_fault(
+            "test_above_inner.py",
+            concat!(
+                "def test_digest():\n",
+                "    # purba: suppress[computed-expected] digests match\n",
+                "    def inner():\n",
+                "        pass\n",
+                "    assert 1 == 1\n",
+            ),
+        )
+        .as_deref(),
+        Some("line 2 suppresses above inner, which is no test"),
+        "a suppression above a def in a test sits above that def"
+    );
+}
+
+#[test]
+fn a_test_name_in_a_block_that_never_holds_a_function_is_not_a_test() {
+    let (tests, refused) = judged("test_never_in_block.py", "if c:\n    test_y = []\n");
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert!(
+        refused.is_empty(),
+        "a list bound in a block of the module never holds a function: {refused:?}"
+    );
+}
+
+#[test]
+fn a_walrus_in_what_runs_where_a_def_stands_binds_in_the_scope_around_it() {
+    let (tests, refused) = judged(
+        "test_walrus_head.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_p():\n",
+            "    def inner(a=(lending := object())):\n",
+            "        pass\n",
+            "    lending.Library = object\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def test_w():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "\n",
+            "def helper(a=(test_w := 1)):\n",
+            "    pass\n",
+        ),
+    );
+
+    assert_eq!(
+        tests,
+        ["test_m.py::test_p"],
+        "a walrus in the default of a nested def binds lending in the test"
+    );
+    assert_eq!(
+        refused,
+        [
+            "test_m.py::test_w [name-bound-again] line 15 binds test_w again, \
+             and purba cannot see what the name then holds"
+        ],
+        "a walrus in the default of a def at the top binds its name in the module"
+    );
+}
+
+#[test]
+fn an_import_in_a_class_in_the_test_resolves_a_patch() {
+    let (tests, refused) = judged(
+        "test_import_in_class.py",
+        concat!(
+            "def test_own_class():\n",
+            "    class Holder:\n",
+            "        from unittest import mock as stub\n",
+            "        stub.patch(\"lending.Library\", object)\n",
+            "\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [format!(
+            "test_m.py::test_own_class {}",
+            patched(4, "lending.Library")
+        )],
+        "an import in a class in the test's body names the patch"
+    );
+}
+
+#[test]
+fn the_first_import_of_a_name_in_a_tests_body_names_its_patch() {
+    let (tests, refused) = judged(
+        "test_first_import.py",
+        concat!(
+            "def test_z():\n",
+            "    from os import path as p\n",
+            "    from sys import path as p\n",
+            "    p.x = 1\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(tests.is_empty(), "no test: {tests:?}");
+    assert_eq!(
+        refused,
+        [format!("test_m.py::test_z {}", patched(4, "os.path.x"))],
+        "selection reads the first import of a name in a test's body, though CPython binds \
+         the last"
+    );
+}
+
+#[test]
+fn a_parameter_of_each_kind_shares_the_name_of_an_import_as_the_tests_own() {
+    let (tests, refused) = judged(
+        "test_parameters_shadow.py",
+        concat!(
+            "import extra\n",
+            "import rest\n",
+            "import shelf\n",
+            "\n",
+            "\n",
+            "def test_parameters(*extra, shelf=None, **rest):\n",
+            "    extra.Library = object\n",
+            "    shelf.Library = object\n",
+            "    rest.Library = object\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
+    assert_eq!(
+        tests,
+        ["test_m.py::test_parameters"],
+        "*args, a keyword-only parameter and **kwargs each bind their name"
+    );
+}
+
+#[test]
+fn a_builtins_that_the_test_binds_is_no_builtin() {
+    let (tests, refused) = judged(
+        "test_local_builtins.py",
+        concat!(
+            "import lending\n",
+            "\n",
+            "\n",
+            "def test_local_builtins():\n",
+            "    builtins = object()\n",
+            "    builtins.setattr(lending, \"Library\", object)\n",
+            "    assert 1 == 1\n",
+        ),
+    );
+
+    assert!(refused.is_empty(), "nothing refused: {refused:?}");
+    assert_eq!(
+        tests,
+        ["test_m.py::test_local_builtins"],
+        "a builtins that the test binds is the test's own, so its setattr patches nothing"
     );
 }

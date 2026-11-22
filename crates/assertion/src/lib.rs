@@ -7,7 +7,7 @@
 //! and each item of each `with` of a test is wrapped, so that the case sees its
 //! hooks and its `with`s.
 
-use purba_parsing::{Module, Reads, Shape, Side};
+use purba_parsing::{Arms, Enter, Module, Node, Reads, Shape, Side, walk};
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError};
 use pyo3::types::{
@@ -15,8 +15,6 @@ use pyo3::types::{
     PyTypeMethods,
 };
 use pyo3::{Bound, IntoPyObject, Py, PyAny, PyErr, PyResult, Python, pyclass, pymethods};
-use ruff_python_ast::statement_visitor::{StatementVisitor, walk_stmt};
-use ruff_python_ast::visitor::{Visitor, walk_expr};
 use ruff_python_ast::{
     CmpOp, ExceptHandler, Expr, ExprContext, Parameters, Stmt, StmtAssert, StmtFunctionDef, StmtTry,
 };
@@ -244,8 +242,8 @@ struct Asserts<'a> {
     found: Vec<&'a StmtAssert>,
 }
 
-impl<'a> StatementVisitor<'a> for Asserts<'a> {
-    fn visit_stmt(&mut self, statement: &'a Stmt) {
+impl<'a> Arms<'a> for Asserts<'a> {
+    fn stmt(&mut self, statement: &'a Stmt) -> Enter {
         if let Stmt::Assert(assert) = statement
             && !of_a_tuple(assert)
             && !self
@@ -255,7 +253,11 @@ impl<'a> StatementVisitor<'a> for Asserts<'a> {
         {
             self.found.push(assert);
         }
-        walk_stmt(self, statement);
+        Enter::All
+    }
+
+    fn expr(&mut self, _expr: &'a Expr) -> Enter {
+        Enter::Nothing
     }
 }
 
@@ -279,20 +281,24 @@ fn tests_of<'a>(module: &'a Module, tests: &[&str]) -> Vec<&'a StmtFunctionDef> 
 /// Each statement of `body`, at any depth, in source order. The body of a
 /// `def` or a `class` is not part of it.
 fn statements(body: &[Stmt]) -> Vec<&Stmt> {
-    let mut found = Vec::new();
-    // A walk that recurses once for each level of nesting overflows the stack
-    // on statements that nest deeper than the stack.
-    let mut pending: Vec<&Stmt> = body.iter().rev().collect();
-    while let Some(statement) = pending.pop() {
-        found.push(statement);
-        pending.extend(
-            purba_parsing::blocks(statement)
-                .into_iter()
-                .rev()
-                .flat_map(|block| block.iter().rev()),
-        );
+    #[derive(Default)]
+    struct Statements<'a>(Vec<&'a Stmt>);
+    impl<'a> Arms<'a> for Statements<'a> {
+        fn stmt(&mut self, statement: &'a Stmt) -> Enter {
+            self.0.push(statement);
+            match statement {
+                Stmt::FunctionDef(_) | Stmt::ClassDef(_) => Enter::Nothing,
+                _ => Enter::All,
+            }
+        }
+
+        fn expr(&mut self, _expr: &'a Expr) -> Enter {
+            Enter::Nothing
+        }
     }
-    found
+    let mut statements = Statements::default();
+    walk(body.iter().map(Node::Stmt), &mut statements);
+    statements.0
 }
 
 /// Whether `statement` is simple: it holds no other statement. A `def` and a
@@ -370,7 +376,7 @@ pub fn rewrite(module: &Module, tests: &[&str]) -> Rewrite {
         expectations: &all,
         found: Vec::new(),
     };
-    visitor.visit_body(&module.syntax().body);
+    walk(module.syntax().body.iter().map(Node::Stmt), &mut visitor);
 
     let mut edits: Vec<Edit> = Vec::new();
     for (index, assert) in visitor.found.iter().enumerate() {
@@ -664,13 +670,8 @@ fn parameters_of(parameters: &Parameters) -> HashSet<&str> {
 /// comprehension or a parameter of a `lambda` in it, in source order, once.
 fn read_names(test: &Expr) -> Vec<String> {
     let mut names = Names::default();
-    names.visit_expr(test);
-    while let Some(expr) = names.pending.pop() {
-        walk_expr(&mut names, expr);
-    }
-    let Names {
-        mut read, bound, ..
-    } = names;
+    walk([Node::Expr(test)], &mut names);
+    let Names { mut read, bound } = names;
     read.sort_by_key(|(offset, _)| *offset);
     let mut seen = HashSet::new();
     read.into_iter()
@@ -680,18 +681,15 @@ fn read_names(test: &Expr) -> Vec<String> {
 }
 
 /// The names of an expression: each name it reads, by its offset, and each
-/// name it binds. Each visit pushes its expression, and [`read_names`] walks
-/// each expression it pushed, so a deep expression does not overflow the
-/// stack.
+/// name it binds.
 #[derive(Default)]
 struct Names<'a> {
     read: Vec<(TextSize, &'a str)>,
     bound: HashSet<&'a str>,
-    pending: Vec<&'a Expr>,
 }
 
-impl<'a> Visitor<'a> for Names<'a> {
-    fn visit_expr(&mut self, expr: &'a Expr) {
+impl<'a> Arms<'a> for Names<'a> {
+    fn expr(&mut self, expr: &'a Expr) -> Enter {
         match expr {
             Expr::Name(name) if name.ctx == ExprContext::Load => {
                 self.read.push((name.start(), name.id.as_str()));
@@ -706,7 +704,7 @@ impl<'a> Visitor<'a> for Names<'a> {
             }
             _ => {}
         }
-        self.pending.push(expr);
+        Enter::All
     }
 }
 

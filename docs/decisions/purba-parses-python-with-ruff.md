@@ -69,7 +69,8 @@ Cargo reports most dependencies that nothing calls.
 Nobody can suppress that report for one dependency alone.
 Cargo misses some ruff crates that nothing calls, so the reviewer checks each one.
 
-One module owns parsing and returns an AST, and everything else takes the AST.
+Parsing gives ruff's AST of a module through a thin seam, with the module's facts beside it.
+Selection judges from the facts, and assertion takes the AST.
 [Parsing matches the shape of each expectation in Rust, on ruff's AST](parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md#decision-outcome) holds how parsing reads an expectation in that AST.
 [Command lends one parse to selection and assertion](command-lends-one-parse-to-selection-and-assertion.md) holds who asks for the AST, and when.
 [Each fact about a run is found once, by the part that sees it, and crosses as plain data](each-fact-is-found-once-by-the-part-that-sees-it.md#decision-outcome) holds why parsing finds the facts that selection and assertion read.

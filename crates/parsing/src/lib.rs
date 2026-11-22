@@ -16,7 +16,6 @@ use ruff_python_ast::token::{Token, TokenKind};
 use ruff_python_ast::visitor::transformer::{
     Transformer, walk_expr, walk_interpolated_string_element, walk_pattern, walk_stmt,
 };
-use ruff_python_ast::visitor::{self, Visitor};
 use ruff_python_ast::{
     AtomicNodeIndex, CmpOp, ExceptHandler, Expr, ExprNoneLiteral, InterpolatedStringElement,
     InterpolatedStringLiteralElement, ModModule, Pattern, PatternMatchAs, PySourceType, Stmt,
@@ -24,6 +23,12 @@ use ruff_python_ast::{
 };
 use ruff_source_file::LineIndex;
 use ruff_text_size::{Ranged, TextLen, TextRange, TextSize};
+
+mod facts;
+mod walk;
+
+pub use facts::{Binding, Facts, Scope, Test, bound, origins};
+pub use walk::{Arms, Enter, Node, walk};
 
 const BYTE_ORDER_MARK: char = '\u{feff}';
 
@@ -707,24 +712,18 @@ fn read(test: &Expr) -> Option<(Reads, &Expr, Option<&Expr>)> {
     }
 }
 
-/// Whether `expr` holds a `:=` at any depth. A walk that recurses once for each
-/// level of nesting overflows the stack on an expression that nests deeper
-/// than the stack, so each visit pushes its expression.
+/// Whether `expr` holds a `:=` at any depth.
 fn holds_a_walrus(expr: &Expr) -> bool {
-    struct Pending<'a>(Vec<&'a Expr>);
-    impl<'a> Visitor<'a> for Pending<'a> {
-        fn visit_expr(&mut self, expr: &'a Expr) {
-            self.0.push(expr);
+    struct Walrus(bool);
+    impl<'a> Arms<'a> for Walrus {
+        fn expr(&mut self, expr: &'a Expr) -> Enter {
+            self.0 |= expr.is_named_expr();
+            if self.0 { Enter::Nothing } else { Enter::All }
         }
     }
-    let mut pending = Pending(vec![expr]);
-    while let Some(expr) = pending.0.pop() {
-        if expr.is_named_expr() {
-            return true;
-        }
-        visitor::walk_expr(&mut pending, expr);
-    }
-    false
+    let mut walrus = Walrus(false);
+    walk([Node::Expr(expr)], &mut walrus);
+    walrus.0
 }
 
 /// The `all()` or the `any()` that `test` is, as `shape` gives it, or `None`.
