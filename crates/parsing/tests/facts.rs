@@ -1,4 +1,4 @@
-use purba_parsing::{Facts, Module, Test};
+use purba_parsing::{Check, Facts, Module, Shape, Test};
 use ruff_python_ast::Stmt;
 use ruff_text_size::{Ranged, TextSize};
 
@@ -317,5 +317,155 @@ fn an_empty_module_has_no_fact() {
             && facts.statements().is_empty()
             && facts.defs().is_empty(),
         "an empty module gives no test, import, binding, statement or def"
+    );
+}
+
+#[test]
+fn the_facts_of_a_test_are_read_when_a_part_first_asks_and_kept() {
+    let module = parsed("def test_one(a):\n    assert a == 1\n\ndef test_two():\n    pass\n");
+    let facts = Facts::of(&module);
+    let [one, two] = facts.tests() else {
+        panic!("the module has two tests");
+    };
+
+    assert!(
+        one.facts_if_read().is_none() && two.facts_if_read().is_none(),
+        "reading the facts of a module reads no fact of a test"
+    );
+    let first = one.facts();
+    assert!(
+        std::ptr::eq(first, one.facts()),
+        "a second ask gives the facts that the first ask read"
+    );
+    assert!(
+        one.facts_if_read().is_some() && two.facts_if_read().is_none(),
+        "asking for the facts of one test reads no fact of another"
+    );
+}
+
+/// A shape as `other`, `each`, or `compare <side>` and `read`.
+fn shape_of(shape: Shape<'_>) -> String {
+    match shape {
+        Shape::Check(Check::Compare { expected, .. }) => format!("compare {expected:?}"),
+        Shape::Check(Check::Read { .. }) => "read".to_owned(),
+        Shape::Each { .. } | Shape::OtherEach { .. } => "each".to_owned(),
+        Shape::Other => "other".to_owned(),
+    }
+}
+
+#[test]
+fn the_facts_of_a_test_are_those_of_the_def_that_binds_its_name() {
+    let module = parsed(concat!(
+        "def test_one(a):\n",
+        "    pass\n",
+        "\n",
+        "def test_one(x, /, y=1, *rest, z, **more):\n",
+        "    import os\n",
+        "    total = x\n",
+        "    def inner(q):\n",
+        "        w = 1\n",
+        "        try:\n",
+        "            pass\n",
+        "        except E:\n",
+        "            pass\n",
+        "    try:\n",
+        "        f(total)\n",
+        "    except ValueError:\n",
+        "        pass\n",
+        "    with ctx:\n",
+        "        for item in rest:\n",
+        "            assert item\n",
+        "    assert (total, 1)\n",
+        "    assert total == 1\n",
+    ));
+    let facts = Facts::of(&module);
+    let [test] = facts.tests() else {
+        panic!("the module has one test");
+    };
+    let own = test.facts();
+
+    let mut parameters: Vec<&str> = own.parameters.iter().copied().collect();
+    parameters.sort_unstable();
+    assert_eq!(
+        parameters,
+        ["more", "rest", "x", "y", "z"],
+        "each parameter of the def that binds the name, of each kind, and none of the first def"
+    );
+    let mut locals: Vec<&str> = own.locals.iter().copied().collect();
+    locals.sort_unstable();
+    assert_eq!(
+        locals,
+        [
+            "inner", "item", "more", "os", "rest", "total", "x", "y", "z"
+        ],
+        "the parameters, and each name that the body binds, but no name of a nested def's body"
+    );
+    let ending: Vec<(usize, String)> = own
+        .ending
+        .iter()
+        .map(|(assert, shape)| (line(&module, assert.start()), shape_of(*shape)))
+        .collect();
+    assert_eq!(
+        ending,
+        [
+            (20, "other".to_owned()),
+            (21, "compare Some(Right)".to_owned()),
+        ],
+        "the asserts at the end, a tuple assert among them, each with its shape and so its \
+         expected side"
+    );
+    let statements: Vec<usize> = own
+        .statements
+        .iter()
+        .map(|statement| line(&module, statement.start()))
+        .collect();
+    assert_eq!(
+        statements,
+        [5, 6, 7, 13, 14, 16, 17, 18, 19, 20, 21],
+        "each statement at any depth in source order, the body of an except among them, and \
+         none of a nested def's body"
+    );
+    let tries: Vec<usize> = own
+        .tries()
+        .map(|attempt| line(&module, attempt.start()))
+        .collect();
+    assert_eq!(
+        tries,
+        [13],
+        "the try of the test, and not the try of its nested def"
+    );
+}
+
+#[test]
+fn a_class_in_a_test_binds_its_name_and_its_body_is_no_part_of_the_test() {
+    let module = parsed(concat!(
+        "def test_one():\n",
+        "    class Inner:\n",
+        "        x = 1\n",
+        "        def grow(self):\n",
+        "            pass\n",
+        "    assert Inner.x == 1\n",
+    ));
+    let facts = Facts::of(&module);
+    let [test] = facts.tests() else {
+        panic!("the module has one test");
+    };
+    let own = test.facts();
+
+    let locals: Vec<&str> = own.locals.iter().copied().collect();
+    assert_eq!(
+        locals,
+        ["Inner"],
+        "the class's name is a local, and no name of its body is"
+    );
+    let statements: Vec<usize> = own
+        .statements
+        .iter()
+        .map(|statement| line(&module, statement.start()))
+        .collect();
+    assert_eq!(
+        statements,
+        [2, 6],
+        "the class is a statement of the test, and no statement of its body is"
     );
 }

@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
-use purba_parsing::{Arms, Enter, Facts, Module, Node, Scope, Shape, origins, walk};
+use purba_parsing::{Arms, Enter, Facts, Module, Node, Shape, TestFacts, origins, walk};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::{
     Decorator, ExceptHandler, Expr, ExprContext, Parameters, Stmt, StmtFunctionDef,
@@ -438,13 +438,9 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
             .collect();
         reasons.extend(found.under.map(Reason::Under));
         reasons.extend(reasons_of(function, facts, first));
-        let lookup = Lookup::new(
-            &function.body,
-            locals_of(function),
-            imported,
-            &outside.bound,
-        );
-        reasons.extend(faults_of(function, module, &lookup, &outside));
+        let own = found.facts();
+        let lookup = Lookup::new(&function.body, &own.locals, imported, &outside.bound);
+        reasons.extend(faults_of(function, own, module, &lookup, &outside));
         let suppressions = sites.of(&at);
         let (reasons, suppressed) = suppress(reasons, &suppressions);
         test.suppressed = suppressed;
@@ -750,13 +746,9 @@ fn refused_methods(
                 .collect();
             reasons.push(Reason::Method);
             reasons.extend(own_reasons(function, module, Some("self")));
-            let lookup = Lookup::new(
-                &function.body,
-                locals_of(function),
-                facts.imports(),
-                &outside.bound,
-            );
-            reasons.extend(faults_of(function, module, &lookup, outside));
+            let own = found.facts();
+            let lookup = Lookup::new(&function.body, &own.locals, facts.imports(), &outside.bound);
+            reasons.extend(faults_of(function, own, module, &lookup, outside));
             Some((found.first, Refused { test, reasons }))
         })
         .collect()
@@ -928,20 +920,20 @@ fn of_a_private_path(path: &str) -> bool {
 /// and each import once for each module of a line.
 fn faults_of<'a>(
     function: &'a StmtFunctionDef,
+    own: &TestFacts<'a>,
     module: &Module,
     lookup: &Lookup<'a, '_>,
     outside: &Outside<'_>,
 ) -> Vec<Reason> {
     let line = |offset: TextSize| module.position(offset).line();
     let mut faults: Vec<(TextSize, Reason)> = Vec::new();
-    let inputs = parameters_of(function);
     let input = |side: &Expr| match side {
-        Expr::Name(name) if inputs.contains(name.id.as_str()) => Some(name.id.to_string()),
+        Expr::Name(name) if own.parameters.contains(name.id.as_str()) => Some(name.id.to_string()),
         _ => None,
     };
-    for assert in purba_parsing::ending(&function.body) {
+    for (assert, shape) in &own.ending {
         let start = assert.start();
-        let check = match purba_parsing::shape(&assert.test) {
+        let check = match *shape {
             Shape::Check(check) | Shape::Each { check, .. } => check,
             Shape::OtherEach { function, shape } => {
                 faults.push((start, Reason::EachShape(line(start), function, shape)));
@@ -990,58 +982,35 @@ fn faults_of<'a>(
             faults.push((offset, Reason::Imported(at, name)));
         }
     }
-    for (offset, kind, star) in passing_excepts(&function.body, module.source()) {
+    for (offset, kind, star) in passing_excepts(own, module.source()) {
         faults.push((offset, Reason::TypeAlone(line(offset), kind, star)));
     }
     faults.sort_by_key(|(offset, _)| *offset);
     faults.into_iter().map(|(_, fault)| fault).collect()
 }
 
-/// Each `except` in `body` whose body only passes, by its offset, with its type
-/// as `source` writes it, or `None` for a bare `except:`, and whether it is an
-/// `except*`. A tuple gains the parentheses that `as` needs after it. Each
-/// block counts, at any depth, but not a nested `def` or `class`.
-fn passing_excepts(body: &[Stmt], source: &str) -> Vec<(TextSize, Option<String>, bool)> {
-    struct Excepts<'s> {
-        source: &'s str,
-        found: Vec<(TextSize, Option<String>, bool)>,
-    }
-    impl<'a> Arms<'a> for Excepts<'_> {
-        fn stmt(&mut self, statement: &'a Stmt) -> Enter {
-            match statement {
-                Stmt::FunctionDef(_) | Stmt::ClassDef(_) => return Enter::Nothing,
-                Stmt::Try(attempt) => {
-                    for handler in &attempt.handlers {
-                        let ExceptHandler::ExceptHandler(clause) = handler;
-                        if only_passes(&clause.body) {
-                            let kind = clause.type_.as_deref().map(|kind| {
-                                let text = on_one_line(&self.source[kind.range()]);
-                                match kind {
-                                    Expr::Tuple(tuple) if !tuple.parenthesized => {
-                                        format!("({text})")
-                                    }
-                                    _ => text,
-                                }
-                            });
-                            self.found.push((clause.start(), kind, attempt.is_star));
-                        }
+/// Each `except` of each `try` of a test, as `own` holds them, whose body only
+/// passes, by its offset, with its type as `source` writes it, or `None` for a
+/// bare `except:`, and whether it is an `except*`. A tuple gains the
+/// parentheses that `as` needs after it.
+fn passing_excepts(own: &TestFacts<'_>, source: &str) -> Vec<(TextSize, Option<String>, bool)> {
+    let mut found = Vec::new();
+    for attempt in own.tries() {
+        for handler in &attempt.handlers {
+            let ExceptHandler::ExceptHandler(clause) = handler;
+            if only_passes(&clause.body) {
+                let kind = clause.type_.as_deref().map(|kind| {
+                    let text = on_one_line(&source[kind.range()]);
+                    match kind {
+                        Expr::Tuple(tuple) if !tuple.parenthesized => format!("({text})"),
+                        _ => text,
                     }
-                }
-                _ => {}
+                });
+                found.push((clause.start(), kind, attempt.is_star));
             }
-            Enter::All
-        }
-
-        fn expr(&mut self, _expr: &'a Expr) -> Enter {
-            Enter::Nothing
         }
     }
-    let mut excepts = Excepts {
-        source,
-        found: Vec::new(),
-    };
-    walk(body.iter().map(Node::Stmt), &mut excepts);
-    excepts.found
+    found
 }
 
 /// Whether each statement of `body` is `pass`, `...` or a string.
@@ -1071,20 +1040,22 @@ struct Outside<'a> {
 fn outside_tests<'a>(facts: &Facts<'a>) -> Outside<'a> {
     let imported = facts.imports();
     let bound: HashSet<&str> = facts.bindings().keys().copied().collect();
+    let none = HashSet::new();
     let mut found = Vec::new();
     for statement in &facts.module().syntax().body {
         match statement {
             Stmt::FunctionDef(function) => {
-                let made = Lookup::new(&[], HashSet::new(), imported, &bound);
+                let made = Lookup::new(&[], &none, imported, &bound);
                 found.extend(framework::made(statement, &made));
                 if !function.name.starts_with("test") {
-                    let lookup = Lookup::new(&function.body, locals_of(function), imported, &bound);
+                    let locals = purba_parsing::locals(function);
+                    let lookup = Lookup::new(&function.body, &locals, imported, &bound);
                     found.extend(framework::imports(&function.body, &lookup));
                 }
             }
             other => {
                 let statements = std::slice::from_ref(other);
-                let lookup = Lookup::new(statements, HashSet::new(), imported, &bound);
+                let lookup = Lookup::new(statements, &none, imported, &bound);
                 found.extend(framework::imports(statements, &lookup));
             }
         }
@@ -1093,31 +1064,6 @@ fn outside_tests<'a>(facts: &Facts<'a>) -> Outside<'a> {
         imports: found,
         bound,
     }
-}
-
-/// The name of each parameter of `function`.
-fn parameters_of(function: &StmtFunctionDef) -> HashSet<&str> {
-    let parameters = &function.parameters;
-    parameters
-        .posonlyargs
-        .iter()
-        .chain(&parameters.args)
-        .chain(&parameters.kwonlyargs)
-        .map(|parameter| parameter.parameter.name.as_str())
-        .chain(parameters.vararg.iter().map(|vararg| vararg.name.as_str()))
-        .chain(parameters.kwarg.iter().map(|kwarg| kwarg.name.as_str()))
-        .collect()
-}
-
-/// Each name that `function` binds: its parameters, and each name its body binds.
-fn locals_of(function: &StmtFunctionDef) -> HashSet<&str> {
-    let mut locals: HashSet<&str> = Scope::of(&function.body)
-        .names
-        .into_iter()
-        .map(|(name, _)| name)
-        .collect();
-    locals.extend(parameters_of(function));
-    locals
 }
 
 /// The notice of each line of the body of `function` that reads a private

@@ -5,7 +5,7 @@ fn rewrite(name: &str, text: &str) -> purba_assertion::Rewrite {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
     fs::write(&path, text).expect("the test writes its module");
     let module = purba_parsing::parse(&path).expect("the module parses");
-    purba_assertion::rewrite(&module, &[])
+    purba_assertion::rewrite(&purba_parsing::Facts::of(&module), &[])
 }
 
 #[test]
@@ -630,8 +630,11 @@ fn a_module_that_nests_deeper_than_the_stack_is_rewritten() {
             .stack_size(SMALL_STACK)
             .spawn(move || {
                 let module = purba_parsing::parse_source(text).expect("the module parses");
-                let rewrite = purba_assertion::rewrite(&module, &["test_one"]);
-                (rewrite.text().to_owned(), rewrite.asserts().to_vec())
+                let facts = purba_parsing::Facts::of(&module);
+                let rewrite = purba_assertion::rewrite(&facts, &["test_one"]);
+                let asserts: Vec<String> =
+                    rewrite.asserts().into_iter().map(str::to_owned).collect();
+                (rewrite.text().to_owned(), asserts)
             })
             .expect("the thread starts")
             .join()
@@ -658,4 +661,110 @@ fn a_module_that_nests_deeper_than_the_stack_is_rewritten() {
             );
         }
     }
+}
+
+#[test]
+fn a_test_in_a_class_is_no_test_of_the_rewrite_when_a_test_at_the_top_shares_its_name() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "class TestGroup:\n",
+            "    def test_m(self):\n",
+            "        assert 2 == 2\n",
+            "\n",
+            "def test_m():\n",
+            "    assert 1 == 1\n",
+        ),
+        &["test_m"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "class TestGroup:\n",
+            "    def test_m(self):\n",
+            "        assert _purba_ran(0, 2 == 2)\n",
+            "\n",
+            "def test_m():\n",
+            "    _purba_reads(0) and _purba_read(0, (1), (1))\n",
+        ),
+        "the assert of the class's test keeps a mark, and the test at the top reads its \
+         expectation"
+    );
+    assert_eq!(
+        rewritten.expectations("test_m"),
+        ["assert 1 == 1"],
+        "the name gives the expectation of the test at the top"
+    );
+}
+
+#[test]
+fn of_a_name_that_two_defs_bind_only_the_last_def_is_a_test_of_the_rewrite() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_a():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "def test_b():\n",
+            "    assert 2 == 2\n",
+            "\n",
+            "def test_a():\n",
+            "    assert 3 == 3\n",
+        ),
+        &["test_a", "test_b"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_a():\n",
+            "    assert _purba_ran(0, 1 == 1)\n",
+            "\n",
+            "def test_b():\n",
+            "    _purba_reads(0) and _purba_read(0, (2), (2))\n",
+            "\n",
+            "def test_a():\n",
+            "    _purba_reads(1) and _purba_read(1, (3), (3))\n",
+        ),
+        "the first def of test_a binds nothing, so its assert keeps a mark, and each \
+         expectation counts in the order of the def that binds its test"
+    );
+    assert_eq!(
+        rewritten.expectations("test_a"),
+        ["assert 3 == 3"],
+        "the name gives the expectation of the def that binds it"
+    );
+}
+
+#[test]
+fn a_name_that_an_async_def_binds_is_no_test_of_the_rewrite() {
+    let rewritten = purba_assertion::Rewrite::of_source(
+        concat!(
+            "def test_x():\n",
+            "    assert 1 == 1\n",
+            "\n",
+            "async def test_x():\n",
+            "    assert 2 == 2\n",
+        ),
+        &["test_x"],
+    )
+    .expect("the text parses");
+
+    assert_eq!(
+        rewritten.text(),
+        concat!(
+            "def test_x():\n",
+            "    assert _purba_ran(0, 1 == 1)\n",
+            "\n",
+            "async def test_x():\n",
+            "    assert _purba_ran(1, 2 == 2)\n",
+        ),
+        "the async def binds the name, and purba calls no async def, so each assert keeps \
+         a mark"
+    );
+    assert!(
+        rewritten.expectations("test_x").is_empty(),
+        "the name gives no expectation"
+    );
 }

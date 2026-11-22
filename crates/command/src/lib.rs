@@ -72,8 +72,8 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
     run_with(arguments, out, purba_assertion::rewrite)
 }
 
-/// [`run`], with `rewrite` in place of assertion's rewrite, so that a test can
-/// put a signal inside the rewrite.
+/// [`run`], with `rewrite` in place of assertion's rewrite of the facts of the
+/// module, so that a test can put a signal inside the rewrite.
 ///
 /// # Errors
 ///
@@ -86,7 +86,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
 pub fn run_with(
     arguments: &[String],
     out: io::Result<impl Write>,
-    rewrite: impl Fn(&purba_parsing::Module, &[&str]) -> purba_assertion::Rewrite,
+    rewrite: impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<u8, Error> {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "command")
@@ -109,10 +109,11 @@ pub fn run_with(
         }
         Err(error) => return stopped(report, &path, &error),
     };
-    let mut selected = match purba_execution::catch("command", || Ok(select(&path, &parsed))) {
-        Ok(selected) => selected,
-        Err(error) => return stopped(report, &path, &error),
-    };
+    let (facts, mut selected) =
+        match purba_execution::catch("command", || Ok(select(&path, &parsed))) {
+            Ok(read) => read,
+            Err(error) => return stopped(report, &path, &error),
+        };
     not_interrupted()?;
     for refused in selected.refused() {
         let test = refused.test();
@@ -133,7 +134,7 @@ pub fn run_with(
         )?;
         return Ok(report.finish()?);
     }
-    let found = rewritten(&path, &parsed, selected.tests().to_vec(), &rewrite);
+    let found = rewritten(&path, facts, selected.tests().to_vec(), &rewrite);
     drop(parsed);
     let modules = match found {
         Found::Modules(modules) => modules,
@@ -247,26 +248,35 @@ enum Found {
     NotRewritten(purba_execution::Error, Vec<TestId>),
 }
 
-/// What selection makes of the module at `path`, from its facts. The facts drop
-/// here, before the module drops.
-fn select(path: &Path, module: &purba_parsing::Module) -> purba_selection::Selected {
-    purba_selection::select(path, &purba_parsing::Facts::of(module))
+/// The facts of `module`, and what selection makes of the module at `path` from
+/// them.
+fn select<'m>(
+    path: &Path,
+    module: &'m purba_parsing::Module,
+) -> (purba_parsing::Facts<'m>, purba_selection::Selected) {
+    let facts = purba_parsing::Facts::of(module);
+    let selected = purba_selection::select(path, &facts);
+    (facts, selected)
 }
 
-/// What the rewrite leaves of the module at `path`, with the `tests` that
-/// selection hands on. A module with no test to hand on is neither rewritten
-/// nor loaded.
+/// What the rewrite leaves of the module at `path`, from its `facts`, with the
+/// `tests` that selection hands on. A module with no test to hand on is neither
+/// rewritten nor loaded. The facts drop here, before the module drops.
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "the facts borrow the module, and must drop before it"
+)]
 fn rewritten(
     path: &Path,
-    module: &purba_parsing::Module,
+    facts: purba_parsing::Facts<'_>,
     tests: Vec<TestId>,
-    rewrite: &impl Fn(&purba_parsing::Module, &[&str]) -> purba_assertion::Rewrite,
+    rewrite: &impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Found {
     if tests.is_empty() {
         return Found::Modules(Vec::new());
     }
     let names: Vec<&str> = tests.iter().map(TestId::function).collect();
-    match purba_execution::catch("command", || Ok(rewrite(module, &names))) {
+    match purba_execution::catch("command", || Ok(rewrite(&facts, &names))) {
         Ok(rewrite) => Found::Modules(vec![Module::new(path.to_owned(), rewrite, tests)]),
         Err(error) => Found::NotRewritten(error, tests),
     }

@@ -1,4 +1,4 @@
-use purba_assertion::{Readers, Readings, Rewrite, Shown, Verdict, Watched};
+use purba_assertion::{Readers, Readings, Rewrite, Shown, Try, Verdict, Watched};
 use pyo3::Python;
 use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};
@@ -13,7 +13,10 @@ fn rewritten(name: &str, text: &str) -> (PathBuf, Rewrite) {
     let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
     fs::write(&path, text).expect("the test writes its module");
     let module = purba_parsing::parse(&path).expect("the module parses");
-    (path, purba_assertion::rewrite(&module, &[]))
+    (
+        path,
+        purba_assertion::rewrite(&purba_parsing::Facts::of(&module), &[]),
+    )
 }
 
 #[test]
@@ -1078,6 +1081,68 @@ fn a_reader_handed_values_that_do_not_match_its_check_ends_with_raises() {
         assert_eq!(
             message, "the reader ends with Raises",
             "a reader ends with Raises, and not with the truth of the value"
+        );
+    });
+}
+
+const HANDLE: &str = "def test_zero():\n    pass\n\n\
+    def test_one():\n    assert 1 == 1\n\n\
+    def test_two():\n    try:\n        int('1')\n    except ValueError:\n        pass\n\
+    \x20   assert 2 == 2\n    assert 3 == 3\n\n\
+    def helper():\n    pass\n";
+
+#[test]
+fn the_handle_of_a_test_gives_its_first_expectation_its_tries_and_the_texts_it_read() {
+    Python::initialize();
+    let rewrite = Rewrite::of_source(HANDLE, &["test_zero", "test_one", "test_two"])
+        .expect("the source parses");
+    Python::attach(|py| {
+        let loaded = purba_assertion::load(py, Path::new("test_handle.py"), &rewrite)
+            .expect("the module loads");
+        let two = loaded.test("test_two");
+        assert_eq!(
+            (two.first_expectation(), two.states_expectation()),
+            (Some(12), true),
+            "the line of its first expectation, and that it states one"
+        );
+        assert_eq!(
+            two.tries(),
+            [Try {
+                lines: 8..=11,
+                except: Some(10..=11),
+            }],
+            "each try of the test, with the lines of the except of a try of one path"
+        );
+        let zero = loaded.test("test_zero");
+        assert_eq!(
+            (
+                zero.first_expectation(),
+                zero.states_expectation(),
+                zero.tries().is_empty()
+            ),
+            (None, false, true),
+            "a test of the rewrite that states no expectation has no first expectation, though \
+             the next test states one"
+        );
+        assert_eq!(
+            two.texts([2, 1, 2, 0, 9]),
+            [
+                (0, "assert 1 == 1".to_owned()),
+                (1, "assert 2 == 2".to_owned()),
+                (2, "assert 3 == 3".to_owned()),
+            ],
+            "the text of each expectation of the module at an index, once each, in the order of \
+             the indexes, as execution reads them today; an index of no expectation gives nothing"
+        );
+        let helper = loaded.test("helper");
+        assert_eq!(
+            (
+                helper.first_expectation(),
+                helper.states_expectation(),
+                helper.tries().is_empty()
+            ),
+            (None, false, true),
+            "a function that is not a test of the rewrite has no expectation and no try"
         );
     });
 }

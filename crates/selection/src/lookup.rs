@@ -27,7 +27,7 @@ pub enum Origin<'l> {
 /// of its names.
 pub struct Lookup<'a, 'b> {
     own: HashMap<&'a str, String>,
-    locals: HashSet<&'a str>,
+    locals: &'b HashSet<&'a str>,
     imported: &'b HashMap<&'a str, String>,
     bound: &'b HashSet<&'a str>,
 }
@@ -36,7 +36,7 @@ impl<'a, 'b> Lookup<'a, 'b> {
     /// The names that the code of `body` can read, where it binds `locals`.
     pub fn new(
         body: &'a [Stmt],
-        locals: HashSet<&'a str>,
+        locals: &'b HashSet<&'a str>,
         imported: &'b HashMap<&'a str, String>,
         bound: &'b HashSet<&'a str>,
     ) -> Self {
@@ -158,7 +158,7 @@ mod tests {
                 .iter()
                 .map(|(name, from)| (name.as_str(), from.clone()))
                 .collect(),
-            locals,
+            locals: &locals,
             imported: &imported,
             bound: &bound,
         };
