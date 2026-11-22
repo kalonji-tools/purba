@@ -293,6 +293,48 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a suppressed fault in another try gives no shape to the line of a with" {
+  cd "${BATS_TEST_DIRNAME}/rules"
+
+  run -4 --separate-stderr purba test_hint_suppressed.py
+
+  local path='the lines before the first expectation take one path'
+  local shape='a try of one path holds one statement and one except SomeError:'
+  shape+=', with no else and no finally'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_hint_suppressed.py::test_suppressed project error: [swallowed-raise] the with at line 12 \
+swallowed a raise, and line 14 did not run
+    ⚠ suppressed [second-path] line 9 did not run, and ${path}
+      reason: the loop once read names
+test_hint_suppressed.py::test_unsuppressed project error: [second-path] line 22 did not run, \
+and ${path}; [swallowed-raise] the with at line 25 swallowed a raise, and line 27 did not run; \
+${shape}
+test_hint_suppressed.py::test_try_ran project error: [swallowed-raise] the with at line 37 \
+swallowed a raise, and line 39 did not run
+3 cases: 3 blocked; 3 project errors; 1 suppressed
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a with that skips the lines of another try names the shape of a try of one path" {
+  cd "${BATS_TEST_DIRNAME}/rules"
+
+  run -4 --separate-stderr purba test_hint_skipped.py
+
+  local shape='a try of one path holds one statement and one except SomeError:'
+  shape+=', with no else and no finally'
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+test_hint_skipped.py::test_try_in_with project error: [swallowed-raise] the with at line 6 \
+swallowed a raise, and line 8 did not run; ${shape}
+test_hint_skipped.py::test_with_in_try project error: [swallowed-raise] the with at line 18 \
+swallowed a raise, and line 20 did not run; ${shape}
+test_hint_skipped.py::test_no_try project error: [swallowed-raise] the with at line 28 \
+swallowed a raise, and line 30 did not run
+3 cases: 3 blocked; 3 project errors
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a function that C code calls back is free, and one that the test calls by name is not" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'def key(x):' '    if x < 0:' '        return -x' '    return x' '' '' \

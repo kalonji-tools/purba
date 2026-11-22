@@ -2,9 +2,31 @@
 //! gathered. It reads no Python, so the process of the test gathers the facts,
 //! and purba decides the outcome once it has read each expectation alone.
 
-use purba_assertion::{Shown, Verdict};
+use std::ops::RangeInclusive;
+
+use purba_assertion::{Shown, Swallowed, Try, Verdict};
 
 use crate::{Error, Kind, Quote, SUPPRESSIBLE, Suppressed, Warning};
+
+/// How a line of a path failed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum How {
+    /// The line did not run.
+    DidNotRun,
+    /// The branch on the line went one way only.
+    OneWay,
+}
+
+/// A fault of a path of a case. `line` is the line of the test. `reached` is
+/// the line and the name of the code that the test reached from it, when that
+/// code is not the test's own. `how` says how the line of the fault failed: the
+/// reached line when there is one, or else the line of the test.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PathFault {
+    pub line: usize,
+    pub reached: Option<(usize, String)>,
+    pub how: How,
+}
 
 /// What the call of a test gave.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -27,10 +49,10 @@ pub enum Called {
 /// It holds the first fault of each check of the form, each beside the name of
 /// its check, and what the call gave. It holds the text of a `with` whose
 /// entry or cleanup raised what the call raised, and the last marked assert
-/// beside whether it held. It holds the faults of the paths, each beside the
-/// name of its check, and whether one lies in a `try` of another shape than
-/// one path. It holds why no reader or replay read an expectation alone, when
-/// a fork failed or the module's process ended.
+/// beside whether it held. It holds each fault of the paths, each `with` that
+/// swallowed a raise, and each `try` of the test. It holds why no reader or
+/// replay read an expectation alone, when a fork failed or the module's process
+/// ended.
 /// It holds the verdict of each expectation read in order and of each read
 /// alone, what each that did not hold shows, and each later expectation that a
 /// replay must read alone. It holds the text of each expectation that it names,
@@ -41,8 +63,9 @@ pub struct Facts {
     pub called: Called,
     pub with: Option<String>,
     pub mark: Option<(String, bool)>,
-    pub path: Vec<(String, String)>,
-    pub in_another_try: bool,
+    pub path: Vec<PathFault>,
+    pub swallowed: Vec<Swallowed>,
+    pub tries: Vec<Try>,
     pub refused: Option<String>,
     pub in_order: Vec<(usize, bool)>,
     pub shown: Vec<(usize, Shown)>,
@@ -104,6 +127,81 @@ impl Suppressing<'_> {
 const ONE_PATH: &str =
     "a try of one path holds one statement and one except SomeError:, with no else and no finally";
 
+/// The rule that a fault of a path breaks.
+const RULE: &str = "the lines before the first expectation take one path";
+
+/// The faults of the paths of a case, each beside the name of its check and
+/// whether it lies in a `try` of another shape than one path. A `with` that
+/// swallowed a raise lies there when a line that it skipped does. A fault that
+/// reached other code lies in no such `try`. The faults
+/// sort by their lines, and a `with` sorts by its own line. A fault of a line
+/// that a `with` skipped, or of a line in the `except` of a `try` of one path,
+/// is no fault, unless the test reached other code from that line.
+fn path_faults(facts: &Facts) -> Vec<(&'static str, String, bool)> {
+    let in_another_try = |lines: RangeInclusive<usize>| {
+        facts.tries.iter().any(|attempt| {
+            attempt.except.is_none()
+                && attempt.lines.start() <= lines.end()
+                && lines.start() <= attempt.lines.end()
+        })
+    };
+    let explained = |line: usize| {
+        facts
+            .swallowed
+            .iter()
+            .any(|swallow| (swallow.skipped..=swallow.last).contains(&line))
+            || facts.tries.iter().any(|attempt| {
+                attempt
+                    .except
+                    .as_ref()
+                    .is_some_and(|except| except.contains(&line))
+            })
+    };
+    let mut faults: Vec<_> = facts
+        .path
+        .iter()
+        .filter(|fault| fault.reached.is_some() || !explained(fault.line))
+        .map(|fault| {
+            let what = match fault.how {
+                How::DidNotRun => "did not run",
+                How::OneWay => "went one way only",
+            };
+            let words = match &fault.reached {
+                Some((at, name)) => format!(
+                    "line {} reaches line {at} of {name}, which {what}, and {RULE}",
+                    fault.line
+                ),
+                None => format!("line {} {what}, and {RULE}", fault.line),
+            };
+            (
+                fault.line,
+                fault.reached.as_ref().map(|(at, _)| *at),
+                words,
+                "second-path",
+                fault.reached.is_none() && in_another_try(fault.line..=fault.line),
+            )
+        })
+        .chain(facts.swallowed.iter().map(|swallow| {
+            (
+                swallow.with,
+                None,
+                format!(
+                    "the with at line {} swallowed a raise, and line {} did not run",
+                    swallow.with, swallow.skipped
+                ),
+                "swallowed-raise",
+                in_another_try(swallow.skipped..=swallow.last),
+            )
+        }))
+        .collect();
+    faults.sort();
+    faults.dedup();
+    faults
+        .into_iter()
+        .map(|(_, _, words, check, hint)| (check, words, hint))
+        .collect()
+}
+
 /// The words of a reading alone that an assert ran inside.
 const REFUSED_ALONE: &str = "reaches an assert when read alone, and only an expectation asserts";
 
@@ -133,14 +231,16 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// 2. `raised` when the call raised, unless a `with`'s entry or cleanup raised
 ///    it, or a marked assert that did not hold raised `AssertionError`, which
 ///    are `failed`;
-/// 3. a project error for the faults of the paths, joined by `; `;
-/// 4. a project error when a fork to read a later expectation alone failed,
-///    when the module's process ended before a replay sent its reading, or when
-///    the two readings of one expectation differ;
-/// 5. `failed` when a `try` of one path missed, or an expectation did not
+/// 3. a project error for the faults of the paths, joined by `; `. The error
+///    ends with the shape of a `try` of one path when a fault that it names
+///    lies in a `try` of another shape;
+/// 4. a project error when the two readings of one expectation differ;
+/// 5. a project error when a fork to read a later expectation alone failed, or
+///    when the module's process ended before a replay sent its reading;
+/// 6. `failed` when a `try` of one path missed, or an expectation did not
 ///    hold;
-/// 6. a project error when no expectation ran;
-/// 7. `passed`.
+/// 7. a project error when no expectation ran;
+/// 8. `passed`.
 ///
 /// A fault of a check that a suppression reaches gives a warning in place of
 /// its project error, and the case goes on to the next of these. Each project
@@ -204,21 +304,22 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
         });
     }
     suppressing.judged = true;
-    let path: Vec<String> = facts
-        .path
-        .iter()
-        .filter_map(|(check, words)| suppressing.clause(check, words))
+    let mut in_another_try = false;
+    let path: Vec<String> = path_faults(facts)
+        .into_iter()
+        .filter_map(|(check, words, hint)| {
+            let clause = suppressing.clause(check, &words)?;
+            in_another_try |= hint;
+            Some(clause)
+        })
         .collect();
     if !path.is_empty() {
         let mut line = path.join("; ");
-        if facts.in_another_try {
+        if in_another_try {
             line.push_str("; ");
             line.push_str(ONE_PATH);
         }
         return Err(Error::project(line));
-    }
-    if let Some(refused) = &facts.refused {
-        return Err(Error::project(refused.clone()));
     }
     for &(index, alone) in &facts.alone {
         let Some(&(_, in_order)) = facts.in_order.iter().find(|(read, _)| *read == index) else {
@@ -228,6 +329,9 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
             let text = facts.text(index).unwrap_or_default();
             return Err(Error::project(format!("[readings-differ] {text} {differ}")));
         }
+    }
+    if let Some(refused) = &facts.refused {
+        return Err(Error::project(refused.clone()));
     }
     of_the_readings(facts)
 }
@@ -275,6 +379,8 @@ fn of_the_readings(facts: &Facts) -> Result<Kind, Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::ops::RangeInclusive;
+
     use super::*;
 
     /// The line that `order` gives for `facts` with no suppression, as text a
@@ -326,6 +432,61 @@ mod tests {
             exception: exception.to_owned(),
             whence: None,
             assertion: false,
+        }
+    }
+
+    /// A fault of the line `line` of the test, which did not run.
+    fn not_run(line: usize) -> PathFault {
+        PathFault {
+            line,
+            reached: None,
+            how: How::DidNotRun,
+        }
+    }
+
+    /// A fault of the branch on the line `line` of the test, which went one
+    /// way only.
+    fn one_way(line: usize) -> PathFault {
+        PathFault {
+            line,
+            reached: None,
+            how: How::OneWay,
+        }
+    }
+
+    /// A fault of the line `at` of `name`, which the line `line` of the test
+    /// reached, and which did not run.
+    fn reached(line: usize, at: usize, name: &str) -> PathFault {
+        PathFault {
+            line,
+            reached: Some((at, name.to_owned())),
+            how: How::DidNotRun,
+        }
+    }
+
+    /// The `with` on the line `with`, which swallowed a raise, and skipped the
+    /// lines from `skipped` to `last`.
+    const fn swallowed(with: usize, skipped: usize, last: usize) -> Swallowed {
+        Swallowed {
+            with,
+            skipped,
+            last,
+        }
+    }
+
+    /// A `try` of another shape than one path, on `lines`.
+    const fn another_shape(lines: RangeInclusive<usize>) -> Try {
+        Try {
+            lines,
+            except: None,
+        }
+    }
+
+    /// A `try` of one path, on `lines`, whose `except` is on `except`.
+    const fn one_path(lines: RangeInclusive<usize>, except: RangeInclusive<usize>) -> Try {
+        Try {
+            lines,
+            except: Some(except),
         }
     }
 
@@ -419,10 +580,7 @@ mod tests {
                 "a raise beats a fault of the paths",
                 Facts {
                     called: raised("ValueError: v"),
-                    path: vec![(
-                        "second-path".to_owned(),
-                        "line 4 ran one way of its branch".to_owned(),
-                    )],
+                    path: vec![one_way(4)],
                     stated: true,
                     ..Facts::default()
                 },
@@ -431,7 +589,8 @@ mod tests {
         ]
     }
 
-    /// The rows of steps 3 to 7, which read the paths and the readings.
+    /// The rows of steps 3, 4 and 6 to 8, which read the paths and the
+    /// readings.
     fn rows_of_the_readings() -> Vec<Line<'static>> {
         vec![
             // fails when: the check of the readings that differ moves above the
@@ -439,26 +598,17 @@ mod tests {
             (
                 "two faults of the paths, joined, beat two readings that differ",
                 Facts {
-                    path: vec![
-                        (
-                            "second-path".to_owned(),
-                            "line 4 ran one way of its branch".to_owned(),
-                        ),
-                        (
-                            "swallowed-raise".to_owned(),
-                            "the with at line 6 swallowed a raise, and line 7 did not run"
-                                .to_owned(),
-                        ),
-                    ],
+                    path: vec![one_way(4)],
+                    swallowed: vec![swallowed(6, 7, 7)],
                     in_order: vec![(1, true)],
                     alone: vec![(1, Verdict::Fails)],
                     texts: texts(),
                     stated: true,
                     ..Facts::default()
                 },
-                "project error: [second-path] line 4 ran one way of its branch; \
-                 [swallowed-raise] the with at line 6 swallowed a raise, and line 7 \
-                 did not run",
+                "project error: [second-path] line 4 went one way only, and the lines \
+                 before the first expectation take one path; [swallowed-raise] the with \
+                 at line 6 swallowed a raise, and line 7 did not run",
             ),
             // fails when: the check of the readings that differ is deleted
             (
@@ -521,8 +671,8 @@ mod tests {
         ]
     }
 
-    /// The rows of a fork that failed, which step 4 reads between the paths and
-    /// the readings.
+    /// The rows of a fork that failed, which step 5 reads after the paths and
+    /// the readings that differ.
     fn rows_of_a_fork() -> Vec<Line<'static>> {
         vec![
             // fails when: the check of `refused` is deleted
@@ -544,10 +694,7 @@ mod tests {
             (
                 "a fault of the paths beats a fork that failed",
                 Facts {
-                    path: vec![(
-                        "second-path".to_owned(),
-                        "line 4 ran one way of its branch".to_owned(),
-                    )],
+                    path: vec![one_way(4)],
                     refused: Some(
                         "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
                     ),
@@ -556,21 +703,193 @@ mod tests {
                     stated: true,
                     ..Facts::default()
                 },
-                "project error: [second-path] line 4 ran one way of its branch",
+                "project error: [second-path] line 4 went one way only, and the lines \
+                 before the first expectation take one path",
+            ),
+            // fails when: the check of `refused` moves above the check of the
+            // readings that differ
+            (
+                "two readings that differ beat a fork that failed",
+                Facts {
+                    refused: Some(
+                        "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
+                    ),
+                    in_order: vec![(1, true)],
+                    alone: vec![(1, Verdict::Fails)],
+                    later: vec![2],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [readings-differ] assert x == 1 holds after the \
+                 expectations before it, and not when read alone",
+            ),
+        ]
+    }
+
+    #[test]
+    fn a_fault_that_another_fact_explains_gives_no_clause() {
+        for (row, facts, gives) in rows_of_the_filter().into_iter().chain(rows_of_the_sort()) {
+            assert_eq!(line(&facts), gives, "{row}");
+        }
+    }
+
+    /// The rows of the faults that another fact explains.
+    fn rows_of_the_filter() -> Vec<Line<'static>> {
+        vec![
+            // fails when: the check of `swallowed` is deleted from the filter
+            (
+                "a line that a swallowing with skipped gives only the clause of the with",
+                Facts {
+                    path: vec![not_run(7), not_run(8)],
+                    swallowed: vec![swallowed(6, 7, 8)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [swallowed-raise] the with at line 6 swallowed a raise, \
+                 and line 7 did not run",
+            ),
+            // fails when: the check of `except` is deleted from the filter
+            (
+                "a line in the except of a try of one path gives no clause",
+                Facts {
+                    path: vec![not_run(6)],
+                    tries: vec![one_path(4..=6, 6..=6)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "passed",
+            ),
+            // fails when: the filter drops a fault that reached other code
+            (
+                "a line that a swallowing with skipped keeps a fault that it reached in a helper",
+                Facts {
+                    path: vec![reached(7, 2, "key")],
+                    swallowed: vec![swallowed(6, 7, 7)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [swallowed-raise] the with at line 6 swallowed a raise, \
+                 and line 7 did not run; [second-path] line 7 reaches line 2 of key, \
+                 which did not run, and the lines before the first expectation take one \
+                 path",
+            ),
+            // fails when: the filter of an `except` drops a fault that reached
+            // other code
+            (
+                "an except of a try of one path keeps a fault that it reached in a helper",
+                Facts {
+                    path: vec![reached(6, 2, "key")],
+                    tries: vec![one_path(4..=6, 6..=6)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [second-path] line 6 reaches line 2 of key, which did not \
+                 run, and the lines before the first expectation take one path",
+            ),
+            // fails when: the filter drops a fault of the line after the last
+            // line that a swallowing with skipped
+            (
+                "a fault of the line after the last line that a with skipped stays",
+                Facts {
+                    path: vec![one_way(9)],
+                    swallowed: vec![swallowed(6, 8, 8)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [swallowed-raise] the with at line 6 swallowed a raise, \
+                 and line 8 did not run; [second-path] line 9 went one way only, and the \
+                 lines before the first expectation take one path",
+            ),
+        ]
+    }
+
+    /// The rows of the order of the faults, and of their repeats.
+    fn rows_of_the_sort() -> Vec<Line<'static>> {
+        vec![
+            // fails when: the faults are not sorted by their lines
+            (
+                "the faults come in the order of their lines",
+                Facts {
+                    path: vec![not_run(9), one_way(3)],
+                    swallowed: vec![swallowed(6, 7, 7)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [second-path] line 3 went one way only, and the lines \
+                 before the first expectation take one path; [swallowed-raise] the with \
+                 at line 6 swallowed a raise, and line 7 did not run; [second-path] line \
+                 9 did not run, and the lines before the first expectation take one path",
+            ),
+            // fails when: the repeats of a fault are not dropped
+            (
+                "a fault that the facts hold twice gives one clause",
+                Facts {
+                    path: vec![not_run(3), not_run(3)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [second-path] line 3 did not run, and the lines before \
+                 the first expectation take one path",
+            ),
+            // fails when: a swallowing with sorts at the first line that it
+            // skipped
+            (
+                "a swallowing with sorts at its own line, before a fault of the line that raised",
+                Facts {
+                    path: vec![one_way(7)],
+                    swallowed: vec![swallowed(6, 8, 8)],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [swallowed-raise] the with at line 6 swallowed a raise, \
+                 and line 8 did not run; [second-path] line 7 went one way only, and the \
+                 lines before the first expectation take one path",
+            ),
+            // fails when: the sort leaves out the line that a fault reached
+            (
+                "two faults of one line sort by the lines that they reached, as numbers",
+                Facts {
+                    path: vec![reached(5, 12, "key"), reached(5, 9, "key")],
+                    in_order: vec![(1, true)],
+                    texts: texts(),
+                    stated: true,
+                    ..Facts::default()
+                },
+                "project error: [second-path] line 5 reaches line 9 of key, which did not \
+                 run, and the lines before the first expectation take one path; \
+                 [second-path] line 5 reaches line 12 of key, which did not run, and the \
+                 lines before the first expectation take one path",
             ),
         ]
     }
 
     #[test]
     fn a_suppressed_fault_gives_a_warning_and_the_case_goes_on() {
-        let swallowed = "the with at line 3 swallowed a raise, and line 4 did not run";
+        let words = "the with at line 3 swallowed a raise, and line 4 did not run";
         let rows: Vec<Row<'_>> = vec![
             // fails when: `clause` gives back the clause of a check that a
             // suppression reaches, in place of the warning
             (
                 "a suppressed fault of the paths gives a warning, and the case passes",
                 Facts {
-                    path: vec![("swallowed-raise".to_owned(), swallowed.to_owned())],
+                    swallowed: vec![swallowed(3, 4, 4)],
                     in_order: vec![(1, true)],
                     texts: texts(),
                     stated: true,
@@ -579,7 +898,7 @@ mod tests {
                 &[("swallowed-raise", "the act once swallowed a raise")],
                 (
                     "passed".to_owned(),
-                    vec![format!("[swallowed-raise] {swallowed}")],
+                    vec![format!("[swallowed-raise] {words}")],
                     true,
                 ),
             ),
@@ -588,7 +907,7 @@ mod tests {
                 "a raise stops the order before it judges a suppression",
                 Facts {
                     called: raised("ValueError: v"),
-                    path: vec![("swallowed-raise".to_owned(), swallowed.to_owned())],
+                    swallowed: vec![swallowed(3, 4, 4)],
                     stated: true,
                     ..Facts::default()
                 },
@@ -599,5 +918,319 @@ mod tests {
         for (row, facts, suppressions, gives) in rows {
             assert_eq!(warned(&facts, suppressions), gives, "{row}");
         }
+    }
+
+    /// The line of a project error of `clause`.
+    fn error(clause: &str) -> String {
+        format!("project error: {clause}")
+    }
+
+    /// The line of a project error of `clause` that ends with the shape of a
+    /// `try` of one path.
+    fn hinted(clause: &str) -> String {
+        format!("project error: {clause}; {ONE_PATH}")
+    }
+
+    #[test]
+    fn the_hint_ends_a_line_only_for_a_fault_it_names_in_a_try_of_another_shape() {
+        for (row, facts, suppressions, gives) in hint_rows_of_a_line()
+            .into_iter()
+            .chain(hint_rows_of_a_branch())
+            .chain(hint_rows_of_a_with())
+            .chain(hint_rows_of_a_with_across_a_try())
+        {
+            assert_eq!(warned(&facts, suppressions), gives, "{row}");
+        }
+    }
+
+    /// The rows of the hint for a branch of the test that went one way only.
+    fn hint_rows_of_a_branch() -> Vec<Row<'static>> {
+        vec![
+            // fails when: the hint reads only a line that did not run
+            (
+                "a branch of a try of another shape that went one way gives the hint",
+                Facts {
+                    path: vec![one_way(5)],
+                    tries: vec![another_shape(4..=7)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    hinted(&format!(
+                        "[second-path] line 5 went one way only, and {RULE}"
+                    )),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: the hint reads only the first try that holds the line
+            (
+                "a line of a try of one path inside a try of another shape gives the hint",
+                Facts {
+                    path: vec![one_way(4)],
+                    tries: vec![one_path(3..=6, 5..=6), another_shape(2..=9)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    hinted(&format!(
+                        "[second-path] line 4 went one way only, and {RULE}"
+                    )),
+                    vec![],
+                    true,
+                ),
+            ),
+        ]
+    }
+
+    /// The rows of the hint for a swallowing `with` whose skipped lines and a
+    /// `try` of another shape only partly overlap.
+    fn hint_rows_of_a_with_across_a_try() -> Vec<Row<'static>> {
+        let with_at = |skipped: usize| {
+            hinted(&format!(
+                "[swallowed-raise] the with at line 6 swallowed a raise, and line {skipped} \
+                 did not run"
+            ))
+        };
+        vec![
+            // fails when: a swallowing with gives the hint only when the try
+            // holds the last line that it skipped
+            (
+                "a with whose skipped lines start inside a try of another shape gives the hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 9, 12)],
+                    tries: vec![another_shape(7..=11)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (with_at(9), vec![], true),
+            ),
+            // fails when: a swallowing with gives the hint only when the try
+            // holds the first line that it skipped
+            (
+                "a with whose skipped lines hold a try of another shape gives the hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 8, 13)],
+                    tries: vec![another_shape(10..=12)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (with_at(8), vec![], true),
+            ),
+            // fails when: the lines that a swallowing with skipped must overlap
+            // a try by more than one line
+            (
+                "a with whose first skipped line is the last line of a try gives the hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 11, 12)],
+                    tries: vec![another_shape(7..=11)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (with_at(11), vec![], true),
+            ),
+            // fails when: a swallowing with gives no hint for a try that starts
+            // on the last line that it skipped
+            (
+                "a with whose last skipped line is the first line of a try gives the hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 8, 10)],
+                    tries: vec![another_shape(10..=12)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (with_at(8), vec![], true),
+            ),
+            // fails when: the hint reads the lines of a swallowing with from the
+            // line of the with, or from the line after it
+            (
+                "a try between a with and the first line that it skipped gives no hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 11, 11)],
+                    tries: vec![another_shape(7..=10)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    error(
+                        "[swallowed-raise] the with at line 6 swallowed a raise, and line 11 \
+                         did not run",
+                    ),
+                    vec![],
+                    true,
+                ),
+            ),
+        ]
+    }
+
+    /// The rows of the hint for a fault of a line of the test.
+    fn hint_rows_of_a_line() -> Vec<Row<'static>> {
+        vec![
+            // fails when: the order never adds the hint
+            (
+                "a line of a try of another shape that did not run gives the hint",
+                Facts {
+                    path: vec![not_run(5)],
+                    tries: vec![another_shape(4..=7)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    hinted(&format!("[second-path] line 5 did not run, and {RULE}")),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: the check of `except.is_none()` is deleted from the hint
+            (
+                "a line of a try of one path that did not run gives no hint",
+                Facts {
+                    path: vec![not_run(5)],
+                    tries: vec![one_path(4..=7, 6..=7)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    error(&format!("[second-path] line 5 did not run, and {RULE}")),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: the check of `reached` is deleted from the hint
+            (
+                "a fault that a line of a try of another shape reached in a helper gives no hint",
+                Facts {
+                    path: vec![reached(5, 2, "key")],
+                    tries: vec![another_shape(4..=6)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    error(&format!(
+                        "[second-path] line 5 reaches line 2 of key, which did not run, and {RULE}"
+                    )),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: the hint reads a fault of the paths that a suppression
+            // took
+            (
+                "a suppressed fault in a try of another shape gives no hint to a swallowing with",
+                Facts {
+                    path: vec![not_run(9), not_run(14)],
+                    swallowed: vec![swallowed(12, 14, 14)],
+                    tries: vec![another_shape(7..=11)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[("second-path", "the loop once read names")],
+                (
+                    error(
+                        "[swallowed-raise] the with at line 12 swallowed a raise, and line 14 \
+                         did not run",
+                    ),
+                    vec![format!("[second-path] line 9 did not run, and {RULE}")],
+                    true,
+                ),
+            ),
+        ]
+    }
+
+    /// The rows of the hint for a `with` that swallowed a raise.
+    fn hint_rows_of_a_with() -> Vec<Row<'static>> {
+        vec![
+            // fails when: the hint reads a swallowing with that a suppression took
+            (
+                "a suppressed with that skipped a try of another shape gives no hint",
+                Facts {
+                    path: vec![not_run(2), not_run(9)],
+                    swallowed: vec![swallowed(6, 8, 11)],
+                    tries: vec![another_shape(8..=11)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[("swallowed-raise", "the act once swallowed a raise")],
+                (
+                    error(&format!("[second-path] line 2 did not run, and {RULE}")),
+                    vec![
+                        "[swallowed-raise] the with at line 6 swallowed a raise, and line 8 \
+                         did not run"
+                            .to_owned(),
+                    ],
+                    true,
+                ),
+            ),
+            // fails when: a swallowing with is read at the line of the with, in
+            // place of the lines that it skipped
+            (
+                "a with that skipped a whole try of another shape gives the hint",
+                Facts {
+                    path: vec![not_run(8), not_run(9), not_run(11)],
+                    swallowed: vec![swallowed(6, 8, 11)],
+                    tries: vec![another_shape(8..=11)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    hinted(
+                        "[swallowed-raise] the with at line 6 swallowed a raise, and line 8 \
+                         did not run",
+                    ),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: a swallowing with gives the hint only when the try lies
+            // inside the lines that it skipped
+            (
+                "a with inside a try of another shape gives the hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 8, 8)],
+                    tries: vec![another_shape(5..=10)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    hinted(
+                        "[swallowed-raise] the with at line 6 swallowed a raise, and line 8 \
+                         did not run",
+                    ),
+                    vec![],
+                    true,
+                ),
+            ),
+            // fails when: a swallowing with gives the hint whatever its lines
+            (
+                "a with that skipped no line of a try of another shape gives no hint",
+                Facts {
+                    swallowed: vec![swallowed(6, 8, 9)],
+                    tries: vec![another_shape(2..=4), another_shape(10..=12)],
+                    stated: true,
+                    ..Facts::default()
+                },
+                &[],
+                (
+                    error(
+                        "[swallowed-raise] the with at line 6 swallowed a raise, and line 8 \
+                         did not run",
+                    ),
+                    vec![],
+                    true,
+                ),
+            ),
+        ]
     }
 }

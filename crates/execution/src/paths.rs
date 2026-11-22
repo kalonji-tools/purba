@@ -28,9 +28,7 @@ use pyo3::types::{PyAnyMethods, PyDict, PyTuple, PyType};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass, pymethods};
 
 use crate::Error;
-
-/// The rule that each fault of a path names.
-const RULE: &str = "the lines before the first expectation take one path";
+use crate::order::{How, PathFault};
 
 /// The tool of `sys.monitoring` that purba took, its `DISABLE`, and the events
 /// that it sets on each code object.
@@ -659,9 +657,8 @@ impl Watch {
         Self(())
     }
 
-    /// Ends the watch, and gives each fault of the paths of the case, in the
-    /// order of the test's lines, then of the lines that each reached.
-    pub fn finish(self, py: Python<'_>) -> Vec<Fault> {
+    /// Ends the watch, and gives each fault of the paths of the case.
+    pub fn finish(self, py: Python<'_>) -> Vec<PathFault> {
         let faults = finish(py);
         drop(self);
         faults
@@ -721,34 +718,33 @@ pub fn stop() {
     }
 }
 
-/// A fault of the paths of a case: the line of the test, the line of the code
-/// that the test reached when it is not the test's own, and the text.
-pub type Fault = (usize, Option<usize>, String);
-
 /// Ends the watch of the case on this thread, and gives each fault of its
-/// paths, in the order of the test's lines, then of the lines that each
-/// reached.
-fn finish(py: Python<'_>) -> Vec<Fault> {
+/// paths.
+fn finish(py: Python<'_>) -> Vec<PathFault> {
     let Some(case) = cases()
         .as_mut()
         .and_then(|cases| cases.remove(&thread::current().id()))
     else {
         return Vec::new();
     };
-    let mut faults: Vec<Fault> = Vec::new();
+    let mut faults = Vec::new();
     for (id, code) in &case.codes {
         let code = code.bind(py);
         let judged = |line: usize| {
             !(*id == case.test && line >= case.before)
                 && case.cleanup.get(id).is_none_or(|waited| line <= *waited)
         };
-        let fault = |line: usize, what: &str| match case.reached.get(id) {
-            Some((test, name)) => (
-                *test,
-                Some(line),
-                format!("line {test} reaches line {line} of {name}, which {what}, and {RULE}"),
-            ),
-            None => (line, None, format!("line {line} {what}, and {RULE}")),
+        let fault = |line: usize, how: How| match case.reached.get(id) {
+            Some((test, name)) => PathFault {
+                line: *test,
+                reached: Some((line, name.clone())),
+                how,
+            },
+            None => PathFault {
+                line,
+                reached: None,
+                how,
+            },
         };
         let Ok(lines) = lines(code) else {
             continue;
@@ -756,7 +752,7 @@ fn finish(py: Python<'_>) -> Vec<Fault> {
         let ran = case.lines.get(id);
         for line in lines {
             if judged(line) && !ran.is_some_and(|ran| ran.contains(&line)) {
-                faults.push(fault(line, "did not run"));
+                faults.push(fault(line, How::DidNotRun));
             }
         }
         let Ok(branches) = branches(code) else {
@@ -769,12 +765,10 @@ fn finish(py: Python<'_>) -> Vec<Fault> {
             if let Some((line, _)) = branches.get(at)
                 && judged(*line)
             {
-                faults.push(fault(*line, "went one way only"));
+                faults.push(fault(*line, How::OneWay));
             }
         }
     }
-    faults.sort();
-    faults.dedup();
     faults
 }
 

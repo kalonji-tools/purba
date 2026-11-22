@@ -58,10 +58,11 @@ A case gets the line of the first of these that it meets. A suppression of a che
 | 2 | an assert before the first expectation or inside a reading, a hook or the filters replaced, an `all()` of no item, or an expectation that read an iterator, whichever came first | a project error |
 | 3 | a raise that ends the call | `raised`, or `failed` when a `with`'s entry or cleanup raised it |
 | 4 | a line that did not run, a branch that went one way, a `with` that swallowed a raise | a project error, each breach joined by `; ` |
-| 5 | a fork refused, a module's process that ended before a replay sent its reading, or two readings that differ | a project error |
-| 6 | a `try` of one path whose statement did not raise, or an expectation that did not hold; no expectation; or each expectation held | `failed`, a project error, or `passed` |
+| 5 | two readings that differ | a project error |
+| 6 | a fork refused, or a module's process that ended before a replay sent its reading | a project error |
+| 7 | a `try` of one path whose statement did not raise, or an expectation that did not hold; no expectation; or each expectation held | `failed`, a project error, or `passed` |
 
-Order 2 and order 5 hold whether a fork or a replay reads an expectation alone.
+Order 2, order 5 and order 6 hold whether a fork or a replay reads an expectation alone.
 
 - **A thread's exception is a project error of the test or the load that left the thread alive.** A thread with no such owner charges the test or the load that runs in its process when the thread raises. After a test returns, its process joins each thread that is not a daemon. Such a thread charges that test. The test keeps its outcome, and a load that succeeds still succeeds. A `threading.Thread` that raises `SystemExit`, and not a subclass of it, gives no error, because CPython prints none. [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) gives the outcome `raised` to a test when a thread's call to `os._exit` ends its process. It fails a load when such a call ends the load's process. It names the exception of a load that the first interrupt lands in. [Of the exceptions CPython ignores, only a thread's is a project error](of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md#decision-outcome) charges the exception of a thread that `_thread` starts to the test or the load that runs.
 - **That no test ran is no kind.** [A run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#decision-outcome) holds its code.
@@ -97,6 +98,7 @@ flowchart LR
 
 `mise run test:rust` checks that a test that selection refuses, and a module that does not parse or load, prints a project error.
 `mise run test:rust` checks that a thread's exception charges the test or the load that left the thread alive.
+`mise run test:rust` checks that each order from 2 to 6 of the table beats the order below it.
 
 `mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error.
 `mise run test:wheel` checks that each breach that execution sees as a case runs prints a project error.
