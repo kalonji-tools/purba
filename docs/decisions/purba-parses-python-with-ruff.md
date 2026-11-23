@@ -22,7 +22,7 @@ This is also the cheapest moment to decide:
 | at `0.17.1`, `ruff_python_parser` names `stacker` as a plain dependency | [`Cargo.toml` L29 at `0.17.1`](https://github.com/astral-sh/ruff/blob/0.17.1/crates/ruff_python_parser/Cargo.toml#L29) |
 | at `0.17.2`, `ruff_python_parser` names `stacker` as an optional dependency, behind a feature `stacker`, and its `[features]` names no `default` | [`Cargo.toml` L29 and L51-L52 at `0.17.2`](https://github.com/astral-sh/ruff/blob/0.17.2/crates/ruff_python_parser/Cargo.toml#L29-L52) |
 | with the feature `stacker`, ruff's parser grows the stack through `stacker::maybe_grow` | [`parser/mod.rs` L950-L961 at `0.17.6`](https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/parser/mod.rs#L950-L961) |
-| at `0.0.23` without `stacker`, the test of `test_deep_broken.py` in `crates/parsing/tests/parse.rs` aborts with a stack overflow, and with `stacker` it passes | [the probe](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7064632646) |
+| at `0.0.23` without `stacker`, the test of `test_deep_broken.py` in `crates/parsing/tests/parse.rs` aborts with a stack overflow, and with `stacker` it passes | [the probe](https://github.com/kalonji-tools/purba/pull/1199#issuecomment-7099433380) |
 | the `.cargo_vcs_info.json` of `0.0.2`, `0.0.12`, `0.0.17` and `0.0.23` names the commit of ruff's tag `0.15.19`, `0.16.6`, `0.17.0` and `0.17.6` | [the probe of the tags](https://github.com/kalonji-tools/purba/issues/1144#issuecomment-7066152058) |
 | ruff counts a tab to the next multiple of 2 columns | [`indentation.rs` L38 and L61-L69 at `0.17.6`](https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/lexer/indentation.rs#L38-L69) |
 | CPython counts a tab to the next multiple of 8 columns | [`state.c` L9](https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/state.c#L9) and [`lexer.c` L526](https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/lexer.c#L526) at `v3.14.4` |
@@ -58,7 +58,7 @@ With the feature, ruff's parser grows the stack while it parses a module that ne
 From `0.0.19` the feature is off by default.
 Without it, purba's test of a module that nests deeper than its stack aborts with a stack overflow.
 
-[Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) holds where the feature does not keep a deep module from an overflow.
+[Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) and [parsing refuses a module whose chain of operators reaches 6,000](parsing-refuses-a-module-whose-chain-of-operators-reaches-6000.md#decision-outcome) hold the refusals of the deep modules that the feature does not keep from an overflow.
 
 | crate | what the seam needs from it |
 |---|---|

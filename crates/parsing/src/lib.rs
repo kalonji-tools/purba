@@ -153,6 +153,19 @@ pub enum Error {
     /// The text opens a bracket inside 200 others, or ruff found a syntax
     /// error in it.
     Syntax(SyntaxError),
+    /// The text chains 6,000 operators.
+    Overflow(OverflowError),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Read(error) => error.fmt(formatter),
+            Self::Decode(error) => error.fmt(formatter),
+            Self::Syntax(error) => error.fmt(formatter),
+            Self::Overflow(error) => error.fmt(formatter),
+        }
+    }
 }
 
 /// Why the bytes of a module give no text, in the words of the interpreter's
@@ -212,6 +225,34 @@ impl fmt::Display for SyntaxError {
     }
 }
 
+/// The operator that makes a chain in a module 6,000 operators long.
+#[derive(Debug)]
+pub struct OverflowError {
+    start: Position,
+    end: Position,
+}
+
+impl OverflowError {
+    /// Where the operator starts.
+    #[must_use]
+    pub const fn start(&self) -> Position {
+        self.start
+    }
+
+    /// Where the operator ends: the first position after it.
+    #[must_use]
+    pub const fn end(&self) -> Position {
+        self.end
+    }
+}
+
+impl fmt::Display for OverflowError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .write_str("MemoryError: Parser stack overflowed - Python source too complex to parse")
+    }
+}
+
 /// A place in the text of a module, after a leading byte order mark.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Position {
@@ -241,7 +282,8 @@ impl Position {
 /// give no text in the encoding it declares, or in UTF-8, the error is
 /// [`Error::Decode`]. When the file opens a bracket inside 200 others, or ruff
 /// finds a syntax error in it, the error is [`Error::Syntax`], and it holds
-/// that bracket, or the first error that ruff lists.
+/// that bracket, or the first error that ruff lists. When the file chains
+/// 6,000 operators, the error is [`Error::Overflow`].
 ///
 /// # Panics
 ///
@@ -458,8 +500,8 @@ fn means_utf_8(name: &str, marked: bool) -> bool {
 ///
 /// # Errors
 ///
-/// When it opens a bracket inside 200 others, or ruff finds a syntax error in
-/// it.
+/// When it opens a bracket inside 200 others, chains 6,000 operators, or ruff
+/// finds a syntax error in it.
 #[expect(
     clippy::disallowed_methods,
     reason = "purba-parsing is the one caller of ruff's parser"
@@ -471,12 +513,21 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
         source.remove(0);
     }
     let lines = LineIndex::from_source_text(&source);
-    if let Some(bracket) = too_deep(&source) {
-        return Err(Error::Syntax(SyntaxError {
-            message: "too many nested parentheses".to_owned(),
-            start: place(&lines, &source, bracket.start()),
-            end: place(&lines, &source, bracket.end()),
-        }));
+    match too_deep(&source) {
+        Some(TooDeep::Bracket(bracket)) => {
+            return Err(Error::Syntax(SyntaxError {
+                message: "too many nested parentheses".to_owned(),
+                start: place(&lines, &source, bracket.start()),
+                end: place(&lines, &source, bracket.end()),
+            }));
+        }
+        Some(TooDeep::Chain(operator)) => {
+            return Err(Error::Overflow(OverflowError {
+                start: place(&lines, &source, operator.start()),
+                end: place(&lines, &source, operator.end()),
+            }));
+        }
+        None => {}
     }
     // `parse_module` drops the tree it recovered inside ruff, and that drop
     // recurses once for each level of nesting. `Module`'s drop does not.
@@ -518,29 +569,62 @@ fn place(lines: &LineIndex, source: &str, offset: TextSize) -> Position {
 // https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/lexer.c#L1305-L1306
 const MAXLEVEL: usize = 200;
 
-/// The range of the first bracket that `source` opens inside `MAXLEVEL`
-/// others, if it opens one.
+// CPython's parser refuses a module whose parse nests 6,000 levels deep, and
+// each unary operator in a row is one level.
+// https://github.com/python/cpython/blob/v3.14.4/Parser/parser.c#L17
+// https://github.com/python/cpython/blob/v3.14.4/Parser/parser.c#L14136
+// https://github.com/python/cpython/blob/v3.14.4/Parser/parser.c#L12269
+const MAXSTACK: usize = 6000;
+
+/// The first token of a module that nests too deep.
+enum TooDeep {
+    /// A bracket opened inside `MAXLEVEL` others.
+    Bracket(TextRange),
+    /// The operator that makes a chain `MAXSTACK` operators long.
+    Chain(TextRange),
+}
+
+/// The first token of `source` that nests too deep, if one does.
+///
+/// A chain is the operators in a row, with the chain before each bracket that
+/// is still open.
 //
-// ruff marks the context of an assignment target, and of a value before a
-// subscript, with `set_expr_ctx`, which calls itself and does not grow the
-// stack, so such a mark that nests deep through brackets overflows it.
-// https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/parser/helpers.rs
-fn too_deep(source: &str) -> Option<TextRange> {
+// `docs/decisions/parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md`
+// and `docs/decisions/parsing-refuses-a-module-whose-chain-of-operators-reaches-6000.md`
+// say why parsing refuses each.
+fn too_deep(source: &str) -> Option<TooDeep> {
     let mut lexer = ruff_python_parser::lexer::lex(source, ruff_python_parser::Mode::Module);
-    let mut level = 0_usize;
+    // The chain before each open bracket, and their sum.
+    let mut kept: Vec<usize> = Vec::new();
+    let mut sum = 0_usize;
+    let mut chain = 0_usize;
     loop {
         match lexer.next_token() {
             TokenKind::Lpar | TokenKind::Lsqb | TokenKind::Lbrace => {
-                if level == MAXLEVEL {
-                    return Some(lexer.current_range());
+                if kept.len() == MAXLEVEL {
+                    return Some(TooDeep::Bracket(lexer.current_range()));
                 }
-                level += 1;
+                kept.push(chain);
+                sum += chain;
+                chain = 0;
             }
             TokenKind::Rpar | TokenKind::Rsqb | TokenKind::Rbrace => {
-                level = level.saturating_sub(1);
+                sum -= kept.pop().unwrap_or(0);
+                chain = 0;
             }
+            TokenKind::Minus
+            | TokenKind::Plus
+            | TokenKind::Tilde
+            | TokenKind::Not
+            | TokenKind::Star => {
+                chain += 1;
+                if sum + chain == MAXSTACK {
+                    return Some(TooDeep::Chain(lexer.current_range()));
+                }
+            }
+            TokenKind::Comment | TokenKind::NonLogicalNewline => {}
             TokenKind::EndOfFile => return None,
-            _ => {}
+            _ => chain = 0,
         }
     }
 }

@@ -527,7 +527,7 @@ fn a_module_that_nests_too_deep_is_cpythons_error_at_the_load() {
     Python::attach(|py| {
         let rewrite = source(&format!(
             "def test_a():\n    x = {}1\n    assert x\n",
-            "-".repeat(200_000)
+            "a ** -".repeat(200_000)
         ));
         let err = purba_assertion::load(py, Path::new("test_deep.py"), &rewrite)
             .err()

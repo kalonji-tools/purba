@@ -610,7 +610,7 @@ fn a_module_that_nests_deeper_than_the_stack_is_rewritten() {
     nested.push_str("assert c\n");
     for (name, rest) in [
         ("statements", nested),
-        ("minus", format!("x = {}1\n", "-".repeat(20_000))),
+        ("power", format!("x = {}1\n", "a ** -".repeat(20_000))),
         ("subscript", format!("x = y{}\n", "[0]".repeat(20_000))),
     ] {
         let text = format!("def test_one():\n    assert 1 == 1\n\n{rest}");

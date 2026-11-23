@@ -700,8 +700,8 @@ fn a_module_that_indents_with_tabs_that_ruff_and_cpython_count_alike_parses() {
 fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
     for (name, text) in [
         (
-            "test_deep_minus.py",
-            format!("x = {}1\n", "-".repeat(20_000)),
+            "test_deep_power.py",
+            format!("x = {}1\n", "a ** -".repeat(20_000)),
         ),
         (
             "test_deep_subscript.py",
@@ -727,7 +727,7 @@ fn a_module_that_nests_deeper_than_its_stack_and_does_not_parse_frees_its_tree()
     let name = "test_deep_broken.py";
     let path = write(
         name,
-        &format!("x = {}1\ndef test_one(:\n", "-".repeat(20_000)),
+        &format!("x = {}1\ndef test_one(:\n", "a ** -".repeat(20_000)),
     );
     let refused = thread::Builder::new()
         .name(name.to_owned())
@@ -760,7 +760,14 @@ fn refused_on_a_small_stack(name: &str, text: &str) -> Option<Refusal> {
                 (error.start().line(), error.start().column()),
                 (error.end().line(), error.end().column()),
             )),
-            Err(error) => panic!("the parse gives a syntax error or a module, not {error:?}"),
+            Err(Error::Overflow(error)) => Some((
+                error.to_string(),
+                (error.start().line(), error.start().column()),
+                (error.end().line(), error.end().column()),
+            )),
+            Err(error) => {
+                panic!("the parse gives a syntax error, an overflow or a module, not {error:?}")
+            }
         })
         .expect("the thread starts")
         .join()
@@ -770,8 +777,7 @@ fn refused_on_a_small_stack(name: &str, text: &str) -> Option<Refusal> {
 /// The error of a bracket at `line` and `column`.
 //
 // Each start in a test below is where CPython 3.12.14, 3.13.13, 3.14.4 and
-// 3.14.7t start the same error, except in the test of a module whose parser
-// stack CPython overflows first. CPython ends the error where it starts.
+// 3.14.7t start the same error. CPython ends the error where it starts.
 fn too_many(line: usize, column: usize) -> Option<Refusal> {
     Some((
         "too many nested parentheses".to_owned(),
@@ -866,22 +872,267 @@ fn an_assignment_target_that_nests_deeper_than_its_stack_is_refused() {
     }
 }
 
-// CPython 3.12.14, 3.13.13, 3.14.4 and 3.14.7t give `MemoryError: Parser
-// stack overflowed - Python source too complex to parse` for this module.
 #[test]
-fn a_module_whose_parser_stack_cpython_overflows_first_is_refused_for_its_brackets() {
-    let name = "test_deep_both.py";
-    let text = format!(
-        "y = {}1\n{}x{} = 1\n",
-        "-".repeat(50_000),
-        "(".repeat(50_000),
-        ",)".repeat(50_000)
-    );
+fn the_first_of_a_chain_and_a_bracket_refuses_the_module() {
+    for (name, text, refused) in [
+        (
+            "test_deep_both.py",
+            format!(
+                "y = {}1\n{}x{} = 1\n",
+                "-".repeat(50_000),
+                "(".repeat(50_000),
+                ",)".repeat(50_000)
+            ),
+            overflowed(1, 6004, 6005),
+        ),
+        (
+            "test_chain_after_brackets.py",
+            format!(
+                "y = {}1{}\nz = {}x\n",
+                "(".repeat(201),
+                ")".repeat(201),
+                "-".repeat(6_000)
+            ),
+            too_many(1, 205),
+        ),
+    ] {
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
+}
+
+/// The error of the operator that makes a chain 6,000 long, from `start` to
+/// `end` on `line`.
+fn overflowed(line: usize, start: usize, end: usize) -> Option<Refusal> {
+    Some((
+        "MemoryError: Parser stack overflowed - Python source too complex to parse".to_owned(),
+        (line, start),
+        (line, end),
+    ))
+}
+
+#[test]
+fn a_chain_of_6000_operators_refuses_the_module() {
+    for (name, chain, refused) in [
+        ("test_chain_minus_5999.py", "-".repeat(5_999), None),
+        (
+            "test_chain_minus_6000.py",
+            "-".repeat(6_000),
+            overflowed(1, 6004, 6005),
+        ),
+        (
+            "test_chain_plus_6000.py",
+            "+".repeat(6_000),
+            overflowed(1, 6004, 6005),
+        ),
+        (
+            "test_chain_tilde_6000.py",
+            "~".repeat(6_000),
+            overflowed(1, 6004, 6005),
+        ),
+        ("test_chain_not_5999.py", "not ".repeat(5_999), None),
+        (
+            "test_chain_not_6000.py",
+            "not ".repeat(6_000),
+            overflowed(1, 24_001, 24_004),
+        ),
+        (
+            "test_chain_not_minus.py",
+            format!("{}{}", "not ".repeat(3_000), "-".repeat(3_000)),
+            overflowed(1, 15_004, 15_005),
+        ),
+        ("test_chain_mixed_5999.py", "+-~".repeat(1_999) + "+-", None),
+        (
+            "test_chain_mixed_6000.py",
+            "+-~".repeat(2_000),
+            overflowed(1, 6004, 6005),
+        ),
+        (
+            "test_chain_star_5999.py",
+            format!("[*{}", "-".repeat(5_998)),
+            None,
+        ),
+        (
+            "test_chain_star_6000.py",
+            format!("[*{}", "-".repeat(5_999)),
+            overflowed(1, 6005, 6006),
+        ),
+        (
+            "test_chain_binary_minus.py",
+            format!("a - {}", "-".repeat(5_999)),
+            overflowed(1, 6007, 6008),
+        ),
+        (
+            "test_chain_binary_star.py",
+            format!("a * {}", "-".repeat(5_999)),
+            overflowed(1, 6007, 6008),
+        ),
+    ] {
+        let close = if chain.starts_with('[') { "]" } else { "" };
+        let text = format!("y = {chain}x{close}\n");
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
+}
+
+#[test]
+fn a_chain_through_brackets_counts_each_part() {
+    let chains = |open: &str, last: usize| {
+        format!(
+            "{}{}",
+            format!("{}{open}", "-".repeat(1_000)).repeat(5),
+            "-".repeat(last)
+        )
+    };
+    for (name, text, refused) in [
+        (
+            "test_chain_paren_5999.py",
+            format!("y = {}x{}\n", chains("(", 999), ")".repeat(5)),
+            None,
+        ),
+        (
+            "test_chain_paren_6000.py",
+            format!("y = {}x{}\n", chains("(", 1_000), ")".repeat(5)),
+            overflowed(1, 6009, 6010),
+        ),
+        (
+            "test_chain_square_6000.py",
+            format!("y = {}x{}\n", chains("[", 1_000), "]".repeat(5)),
+            overflowed(1, 6009, 6010),
+        ),
+        (
+            "test_chain_curly_6000.py",
+            format!("y = {}x{}\n", chains("{", 1_000), "}".repeat(5)),
+            overflowed(1, 6009, 6010),
+        ),
+        (
+            "test_chain_200_brackets.py",
+            format!(
+                "y = {}{}x{}\n",
+                "-(".repeat(200),
+                "-".repeat(5_800),
+                ")".repeat(200)
+            ),
+            overflowed(1, 6204, 6205),
+        ),
+        (
+            "test_chain_kept_past_a_name.py",
+            format!("y = {}(a, {}b)\n", "-".repeat(3_000), "-".repeat(3_000)),
+            overflowed(1, 6008, 6009),
+        ),
+        (
+            "test_chain_ended_by_a_name.py",
+            format!("y = {}a - {}b\n", "-".repeat(3_000), "-".repeat(3_000)),
+            None,
+        ),
+        (
+            "test_chain_ended_by_a_closer.py",
+            format!("y = {}(x){}x\n", "-".repeat(3_000), "-".repeat(3_000)),
+            None,
+        ),
+    ] {
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
+}
+
+#[test]
+fn a_chain_split_by_a_comment_or_a_line_break_counts() {
+    for (name, text) in [
+        (
+            "test_chain_line_breaks.py",
+            format!("y = ({}x)\n", "-\n".repeat(6_000)),
+        ),
+        (
+            "test_chain_comments.py",
+            format!("y = ({}x)\n", "- # c\n".repeat(6_000)),
+        ),
+        (
+            "test_chain_backslashes.py",
+            format!("y = {}x\n", "-\\\n".repeat(6_000)),
+        ),
+    ] {
+        assert_eq!(
+            refused_on_a_small_stack(name, &text),
+            overflowed(6_000, 1, 2),
+            "{name}"
+        );
+    }
+}
+
+#[test]
+fn a_chain_ends_at_the_end_of_a_line_outside_brackets() {
+    let name = "test_chain_two_lines.py";
+    let text = format!("y = {}\n{}x\n", "-".repeat(3_000), "-".repeat(3_000));
     assert_eq!(
         refused_on_a_small_stack(name, &text),
-        too_many(2, 201),
-        "{name}: the brackets refuse the module"
+        Some(("Expected an expression".to_owned(), (1, 3005), (2, 1))),
+        "{name}: ruff's error, and no overflow"
     );
+}
+
+#[test]
+fn a_chain_in_a_field_or_a_lambda_counts_and_one_in_a_string_or_a_comment_does_not() {
+    for (name, text, refused) in [
+        (
+            "test_chain_field.py",
+            format!("y = f\"{{{}x}}\"\n", "-".repeat(6_000)),
+            overflowed(1, 6007, 6008),
+        ),
+        (
+            "test_chain_lambda.py",
+            format!("y = lambda: {}x\n", "-".repeat(6_000)),
+            overflowed(1, 6012, 6013),
+        ),
+        (
+            "test_chain_string.py",
+            format!("s = \"{}\"\n", "-".repeat(6_000)),
+            None,
+        ),
+        (
+            "test_chain_comment.py",
+            format!("x = 1  # {}\n", "-".repeat(6_000)),
+            None,
+        ),
+    ] {
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
+}
+
+#[test]
+fn a_target_or_a_subscripted_value_that_chains_deep_is_refused() {
+    let joined = format!(
+        "{}x{}",
+        format!("{}(", "-".repeat(5_999)).repeat(199),
+        ")".repeat(199)
+    );
+    for (name, line, refused) in [
+        (
+            "test_chain_target_minus.py",
+            format!("{}x = 1", "-".repeat(200_000)),
+            overflowed(2, 6004, 6005),
+        ),
+        (
+            "test_chain_target_not.py",
+            format!("{}x = 1", "not ".repeat(200_000)),
+            overflowed(2, 24_001, 24_004),
+        ),
+        (
+            "test_chain_target_star.py",
+            format!("{}x = 1", "* ".repeat(50_000)),
+            overflowed(2, 12_003, 12_004),
+        ),
+        (
+            "test_chain_subscripted_value.py",
+            format!("y = ({}x)[0]", "-".repeat(200_000)),
+            overflowed(2, 6009, 6010),
+        ),
+        (
+            "test_chain_target_joined.py",
+            format!("{joined} = 1"),
+            overflowed(2, 6005, 6006),
+        ),
+    ] {
+        let text = format!("def test_deep():\n    {line}\n    assert 1 == 1\n");
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
 }
 
 #[test]

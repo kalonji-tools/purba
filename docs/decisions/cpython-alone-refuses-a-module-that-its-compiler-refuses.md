@@ -36,6 +36,7 @@ Parsing runs no `SemanticSyntaxChecker`, and no `compile()`.
 
 - **Such a module fails when CPython loads it.** It is a project error in CPython's words, with its file and line. Each test that selection names is blocked.
 - **Parsing itself refuses a module that opens a bracket inside 200 others.** [Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) holds why.
+- **Parsing itself refuses a module whose chain of operators reaches 6,000.** [Parsing refuses a module whose chain of operators reaches 6,000](parsing-refuses-a-module-whose-chain-of-operators-reaches-6000.md#decision-outcome) holds why.
 
 **Downside:**
 
