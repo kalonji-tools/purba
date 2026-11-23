@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 [A crate joins when its relief exceeds its pain](a-crate-joins-when-its-relief-exceeds-its-pain.md) starts the design of a part from its [shortlist](../../CONTEXT.md#shortlist).
-A shortlist answers one need of a part not designed yet.
+A shortlist answers one need of a part not built yet.
 The records, the landscape, the glossary and the issues state those needs in prose.
 No script reads prose.
 
@@ -33,7 +33,7 @@ No script reads prose.
 
 **Area:** design, tooling
 
-**`.config/needs.toml` holds each stated need of a part not designed yet.**
+**`.config/needs.toml` holds each stated need of a part not built yet.**
 Each line holds fields for a script, and a `need` sentence for a reader.
 
 ```toml
@@ -43,7 +43,7 @@ read-flags = { part = "command", need = "read the command's flags", words = ["ar
 | field | holds | required |
 |---|---|---|
 | the key | a name for the need, unique in the file, and the key of its entries in `.config/shortlists.toml` | yes |
-| `part` | a part or concern of [the order of design](../../LANDSCAPE.md#the-order-of-design), as its line names it | yes |
+| `part` | a part or concern of [the landscape](../../LANDSCAPE.md), as its line names it | yes |
 | `need` | the need, in one sentence | yes |
 | `words` | crates.io keywords, at least one | yes |
 | `have` | what std or a crate that purba holds does, when it meets the need only in part | no |
@@ -108,7 +108,7 @@ No workflow runs it, and nothing runs it on a schedule.
 It asks no server anything.
 It refuses:
 
-- a line whose `part` is not in the order of design,
+- a line whose `part` is not a part or concern of the landscape,
 - a line with no `words`, or an empty list of them,
 - a line with no `stated`, or an empty one,
 - a line with no `issue`, no `declined` and no entry in `.config/shortlists.toml`,
@@ -127,6 +127,7 @@ It refuses:
 - **A day is the unit of `measured`.** `--shortlisted` drops a release made on the `measured` day before the forecast ran.
 - **The forecast subtracts months from a date as text, for the windows of upkeep and API churn.** It takes three months before 2026-05-31 as `2026-02-31`. A release on 2026-03-01 then falls inside the window, though GNU `date` starts the window on 2026-03-03.
 - **No gate checks that a pull request ran the forecast.** The reviewer reads the output of the forecast in the pull request.
+- **No gate sees that a part's build closed.** The pull request that closes the build removes the part's lines, and the reviewer reads for it.
 
 ## Confirmation
 

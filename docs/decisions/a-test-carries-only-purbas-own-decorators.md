@@ -71,7 +71,7 @@ A reader of one test then cannot see what runs in its place.
 It checks there that a suppression of `name-bound-again` lets such a test run.
 
 The milestone that adds purba's first decorator builds the two forms of its name, and the refusal of that name bound again.
-The designs in depth of configuration and selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decide how a run picks its files by platform.
+The design in depth of selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decides how a run picks its files by platform, through a dial that selection declares.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what selection judges in the body.
 [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when the refused line prints.
 [A test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) refuses an import of pytest.

@@ -1,4 +1,4 @@
-# The shortlist of each need of a part not designed yet. Each crate that an issue kept
+# The shortlist of each need of a part not built yet. Each crate that an issue kept
 # is a table, under the key of its need.
 # `measured` is a string, because yq cannot read a TOML date.
 #

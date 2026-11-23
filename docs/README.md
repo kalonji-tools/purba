@@ -110,6 +110,10 @@
 - [A test that expects a raise names more than its type, so selection refuses an except that only passes](decisions/a-test-that-expects-a-raise-names-more-than-its-type.md)
 - [purba is always strict](decisions/purba-is-always-strict.md)
 
+### configuration
+
+- [purba reads configuration from six levels, and the higher level overwrites the lower](decisions/purba-reads-configuration-from-six-levels.md)
+
 ### interrupt handling
 
 - [A KeyboardInterrupt that no signal caused is the test's own raise](decisions/a-keyboardinterrupt-that-no-signal-caused-is-the-tests-own-raise.md)

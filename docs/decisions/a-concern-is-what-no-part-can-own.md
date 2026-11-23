@@ -39,7 +39,7 @@ The definition keeps out what a part owns, and what has no design of its own.
 |---|---|
 | the Rust/Python seam | parsing, execution, fixtures and assertion each hold a live Python object |
 | strictness | each part that makes or shows an outcome must refuse to show as passed what was not checked |
-| configuration | the part that reads a value owns what it means, and every reader follows one rule: a value states a fact about the project or tightens a check, and never turns a check off |
+| configuration | the part that reads a value owns what it means, and every reader follows one rule: a value states a fact about the project, tightens a check, or changes behaviour that no check reads, and never loosens a check |
 | interrupt handling | each part that holds a test while it runs must stop the test, and each part that holds what was built for it must tear that down |
 | errors | every part can fail, and each failure is a test's outcome, an invocation error, a project error or an internal error |
 
@@ -47,6 +47,7 @@ The definition keeps out what a part owns, and what has no design of its own.
 [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds why a value that tightens a check is not a switch.
 [A concern's shared names may live in a part](a-concerns-shared-names-may-live-in-a-part.md#decision-outcome) holds which part keeps the names that a concern's parts share.
 [An outcome and an error live in a crate that links no Python](an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md#decision-outcome) holds the crate of errors, which uses no part.
+[purba reads configuration from six levels, and the higher level overwrites the lower](purba-reads-configuration-from-six-levels.md#decision-outcome) holds where each value of configuration comes from, and which value wins.
 
 **A part crosses the seam when its job needs a live Python object.**
 Command takes the arguments and returns an exit code, both data, so it does not cross the seam.

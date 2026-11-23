@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The crates that could meet each stated need of a part not designed yet, each measured by the
+# The crates that could meet each stated need of a part not built yet, each measured by the
 # levels of the crate record, and the body of one issue for each need, which vets them.
 #
 #   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
@@ -30,7 +30,7 @@ shortlisted=no
 while [[ $# -gt 0 ]]; do
   case $1 in
     --part)
-      [[ $# -ge 2 && -n "$2" ]] || cannot '--part names a part of the order of design.'
+      [[ $# -ge 2 && -n "$2" ]] || cannot '--part names a part or concern of the landscape.'
       part=$2
       shift 2
       ;;
