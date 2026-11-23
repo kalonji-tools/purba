@@ -6,13 +6,22 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-wiring.sh"
   make_repo
-  undrawn="A part may use only a part that the parts diagram draws an arrow to"
-  unused="An arrow between two crates is refused when the manifest does not use it"
-  no_part_crate="A crate named purba-<part> is refused when <part> is no part of the diagram"
-  call="A call in the sequence of one run must go along an arrow of the parts diagram"
-  answer="An answer in the sequence of one run must go back along an arrow of the parts diagram"
-  no_part_end="Each end of a message in the sequence of one run must be a part, an actor or _main"
-  off_seam="Only a part that the line of the Rust/Python seam names may name pyo3"
+  undrawn="A part may use only a part that the parts diagram draws an arrow to, because the \
+diagram is the only wiring. Draw the arrow, or remove the dependency."
+  unused="An arrow between two crates is refused when the manifest does not use it, because the \
+diagram states what purba uses now. Remove the arrow, or add the dependency."
+  no_part_crate="A crate named purba-<part> is refused when <part> is no part of the diagram, \
+because the check reads the arrows of a part only. Name the part in the landscape, or rename the \
+crate."
+  call="A call in the sequence of one run must go along an arrow of the parts diagram, because \
+the diagram is the only wiring. Draw the arrow, or change the message."
+  answer="An answer in the sequence of one run must go back along an arrow of the parts diagram, \
+because the diagram is the only wiring. Draw the arrow, or change the message."
+  no_part_end="Each end of a message in the sequence of one run must be a part, an actor or \
+_main, because the check reads the arrows of a part only. Name the part in the landscape, or \
+correct the name."
+  off_seam="Only a part that the line of the Rust/Python seam names may name pyo3, because the \
+other parts pass data. Name the part in the seam's line, or remove the dependency."
   concern_unnamed="A part may use the crate of a concern only when the concern's line names the \
 part, because no arrow of the parts diagram draws that use. Name the part in the concern's line, \
 or remove the dependency."
@@ -110,7 +119,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${undrawn}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${undrawn}"$'\n'* ]]
   [[ "${output}" != *"each-part-is-a-crate.md"* ]]
   [[ "${output}" == *"  beta uses gamma, in crates/beta/Cargo.toml"* ]]
 }
@@ -131,7 +140,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unused}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${unused}"$'\n'* ]]
   [[ "${output}" == *"  beta --> gamma, and crates/beta/Cargo.toml names no purba-gamma"* ]]
 }
 
@@ -141,7 +150,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${no_part_crate}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_crate}"$'\n'* ]]
   [[ "${output}" == *"  purba-other, in crates/other/Cargo.toml"* ]]
 }
 
@@ -160,7 +169,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${call}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${call}"$'\n'* ]]
   [[ "${output}" == *"  gamma ->> beta: a tree"* ]]
   [[ "${output}" != *"${answer}"* ]]
 }
@@ -171,7 +180,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${answer}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${answer}"$'\n'* ]]
   [[ "${output}" == *"  beta -->> gamma: a path"* ]]
   [[ "${output}" != *"${call}"* ]]
 }
@@ -182,7 +191,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${no_part_end}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_end}"$'\n'* ]]
   [[ "${output}" == *"  beta ->> gama: a path"* ]]
 }
 
@@ -197,13 +206,11 @@ crate() {
 
 @test "a part that the seam's line does not name is refused when it names pyo3" {
   crate beta 'purba-gamma = { path = "../gamma" }' 'pyo3 = "0.29"'
-  local why="because the other parts pass data."
-  local repair="Name the part in the seam's line, or remove the dependency."
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${off_seam}, ${why} ${repair}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${off_seam}"$'\n'* ]]
   [[ "${output}" == *"  purba-beta names pyo3, in crates/beta/Cargo.toml"* ]]
 }
 
@@ -314,7 +321,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
   [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
   [[ "${output}" != *"beta uses purba-errors"* ]]
 }
@@ -326,7 +333,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -337,7 +344,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -348,7 +355,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${off_seam}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${off_seam}"$'\n'* ]]
   [[ "${output}" == *"  purba-errors names pyo3, in crates/errors/Cargo.toml"* ]]
   [[ "${output}" != *"${no_part_crate}"* ]]
 }
@@ -360,7 +367,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${no_part_crate}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_crate}"$'\n'* ]]
   [[ "${output}" == *"  purba-errors, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -383,7 +390,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -395,7 +402,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
   [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
 }
 
@@ -422,6 +429,6 @@ Its crate is \`purba-errors\`./" LANDSCAPE.md
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
   [[ "${output}" == *"  gamma uses purba-config, in crates/gamma/Cargo.toml"* ]]
 }
