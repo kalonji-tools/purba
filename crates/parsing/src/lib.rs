@@ -65,11 +65,7 @@ impl Module {
     /// The place of `offset`, a byte offset into the text.
     #[must_use]
     pub fn position(&self, offset: TextSize) -> Position {
-        let place = self.lines.line_column(offset, &self.source);
-        Position {
-            line: place.line.get(),
-            column: place.column.get(),
-        }
+        place(&self.lines, &self.source, offset)
     }
 }
 
@@ -154,7 +150,8 @@ pub enum Error {
     Read(io::Error),
     /// The bytes of the file give no text in their encoding.
     Decode(DecodeError),
-    /// ruff found a syntax error in the text.
+    /// The text opens a bracket inside 200 others, or ruff found a syntax
+    /// error in it.
     Syntax(SyntaxError),
 }
 
@@ -179,7 +176,8 @@ impl fmt::Display for DecodeError {
     }
 }
 
-/// The first syntax error that ruff lists for a module.
+/// The first bracket that a module opens inside 200 others, or else the first
+/// syntax error that ruff lists for it.
 #[derive(Debug)]
 pub struct SyntaxError {
     message: String,
@@ -188,7 +186,8 @@ pub struct SyntaxError {
 }
 
 impl SyntaxError {
-    /// ruff's words for the error.
+    /// The words for the error: the tokenizer's words of the interpreter for
+    /// the bracket, or ruff's.
     #[must_use]
     pub fn message(&self) -> &str {
         &self.message
@@ -240,8 +239,9 @@ impl Position {
 ///
 /// When the file cannot be read, the error is [`Error::Read`]. When its bytes
 /// give no text in the encoding it declares, or in UTF-8, the error is
-/// [`Error::Decode`]. When ruff finds a syntax error in the file, the error is
-/// [`Error::Syntax`], and it holds the first one that ruff lists.
+/// [`Error::Decode`]. When the file opens a bracket inside 200 others, or ruff
+/// finds a syntax error in it, the error is [`Error::Syntax`], and it holds
+/// that bracket, or the first error that ruff lists.
 ///
 /// # Panics
 ///
@@ -458,7 +458,8 @@ fn means_utf_8(name: &str, marked: bool) -> bool {
 ///
 /// # Errors
 ///
-/// When ruff finds a syntax error in it.
+/// When it opens a bracket inside 200 others, or ruff finds a syntax error in
+/// it.
 #[expect(
     clippy::disallowed_methods,
     reason = "purba-parsing is the one caller of ruff's parser"
@@ -469,6 +470,14 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
     if source.starts_with(BYTE_ORDER_MARK) {
         source.remove(0);
     }
+    let lines = LineIndex::from_source_text(&source);
+    if let Some(bracket) = too_deep(&source) {
+        return Err(Error::Syntax(SyntaxError {
+            message: "too many nested parentheses".to_owned(),
+            start: place(&lines, &source, bracket.start()),
+            end: place(&lines, &source, bracket.end()),
+        }));
+    }
     // `parse_module` drops the tree it recovered inside ruff, and that drop
     // recurses once for each level of nesting. `Module`'s drop does not.
     // https://github.com/astral-sh/ruff/blob/0.17.0/crates/ruff_python_parser/src/lib.rs#L477-L483
@@ -478,7 +487,6 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
         .first()
         .map(|error| (error.error.to_string(), error.location));
     let trivia = trivia(&source, parsed.tokens());
-    let lines = LineIndex::from_source_text(&source);
     let module = Module {
         syntax: parsed.into_syntax(),
         source,
@@ -492,6 +500,48 @@ pub fn parse_source(mut source: String) -> Result<Module, Error> {
             start: module.position(location.start()),
             end: module.position(location.end()),
         })),
+    }
+}
+
+/// The place of `offset` in `source`, whose lines `lines` holds.
+fn place(lines: &LineIndex, source: &str, offset: TextSize) -> Position {
+    let place = lines.line_column(offset, source);
+    Position {
+        line: place.line.get(),
+        column: place.column.get(),
+    }
+}
+
+// CPython's tokenizer refuses a bracket opened inside 200 others: `(`, `[`,
+// `{`, and the `{` of an f-string.
+// https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/state.h#L7
+// https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/lexer.c#L1305-L1306
+const MAXLEVEL: usize = 200;
+
+/// The range of the first bracket that `source` opens inside `MAXLEVEL`
+/// others, if it opens one.
+//
+// ruff marks the context of an assignment target, and of a value before a
+// subscript, with `set_expr_ctx`, which calls itself and does not grow the
+// stack, so such a mark that nests deep through brackets overflows it.
+// https://github.com/astral-sh/ruff/blob/0.17.6/crates/ruff_python_parser/src/parser/helpers.rs
+fn too_deep(source: &str) -> Option<TextRange> {
+    let mut lexer = ruff_python_parser::lexer::lex(source, ruff_python_parser::Mode::Module);
+    let mut level = 0_usize;
+    loop {
+        match lexer.next_token() {
+            TokenKind::Lpar | TokenKind::Lsqb | TokenKind::Lbrace => {
+                if level == MAXLEVEL {
+                    return Some(lexer.current_range());
+                }
+                level += 1;
+            }
+            TokenKind::Rpar | TokenKind::Rsqb | TokenKind::Rbrace => {
+                level = level.saturating_sub(1);
+            }
+            TokenKind::EndOfFile => return None,
+            _ => {}
+        }
     }
 }
 

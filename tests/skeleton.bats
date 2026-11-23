@@ -518,6 +518,22 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a module that nests too deep prints CPython's words once, and no test of it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  local open close
+  open=$(printf '(%.0s' {1..50000})
+  close=$(printf ',)%.0s' {1..50000})
+  printf '%s\n' 'def test_deep():' "    ${open}x${close} = 1" '    assert 1 == 1' >test_deep.py
+
+  run -4 --separate-stderr purba test_deep.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_deep.py project error: SyntaxError: too many nested parentheses
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a module in a newer Python's syntax prints CPython's error once, and its test as blocked" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'lazy import os' 'def test_one():' '    assert 1 == 1' >test_lazy.py

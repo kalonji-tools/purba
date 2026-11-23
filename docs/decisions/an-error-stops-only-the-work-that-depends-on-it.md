@@ -39,7 +39,7 @@ Every test that can still run gives its outcome, and no test runs on a wrong inp
 | [outcome](../../CONTEXT.md#outcome) | nothing | |
 
 - **An error shows in the earliest part that can see it.** No part does work outside the selection only to see an error sooner.
-- **Before a part stops, it names every error that it finds.** Parsing is an exception: it names only ruff's first syntax error in a file, as [parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) says.
+- **Before a part stops, it names every error that it finds.** Parsing is an exception: it names only one syntax error in a file, as [parsing hands on no tree that ruff recovered](parsing-hands-on-no-tree-that-ruff-recovered.md#decision-outcome) and [parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) say.
 - **An async generator names only that it is async.** [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says so.
 - **The error of a file that does not parse shows, though the query selects no test in it.** Selection cannot know whether the file holds a selected test.
 - **An error that no part sees before a write shows at the write that fails.** A full disk is one.

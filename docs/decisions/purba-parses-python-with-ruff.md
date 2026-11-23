@@ -49,16 +49,20 @@ The API of `ruff_python_parser` is not meaningfully unstable for this use.
 Across six published versions over ten weeks the whole surface a prescan touches is byte-identical.
 That surface is the parse entry point, its options and result types, all 25 statement and 33 expression variants, and every visitor trait.
 The churn sits in peripheral helpers.
+
+The lexer that parsing also calls, `lex` and `Lexer::current_range`, is outside that measured surface.
 `[workspace.dependencies]` pins each crate it names exactly at `=0.0.23`.
 
 `[workspace.dependencies]` turns on the feature `stacker` of `ruff_python_parser`.
-With it, ruff's parser grows the stack when a module nests deep.
+With the feature, ruff's parser grows the stack while it parses a module that nests deep.
 From `0.0.19` the feature is off by default.
 Without it, purba's test of a module that nests deeper than its stack aborts with a stack overflow.
 
+[Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) holds where the feature does not keep a deep module from an overflow.
+
 | crate | what the seam needs from it |
 |---|---|
-| `ruff_python_parser` | the parse entry point |
+| `ruff_python_parser` | the parse entry point, and its lexer: `lex` and `Lexer::current_range` |
 | `ruff_python_ast` | the AST the seam returns |
 | `ruff_text_size` | the `Ranged` trait. `Expr::range()` does not resolve without it |
 | `ruff_source_file` | `LineIndex`, so that a byte offset becomes a line and a column |

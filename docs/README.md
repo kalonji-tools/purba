@@ -51,6 +51,7 @@
 - [Parsing hands on no tree that ruff recovered](decisions/parsing-hands-on-no-tree-that-ruff-recovered.md)
 - [Parsing matches the shape of each expectation in Rust, on ruff's AST](decisions/parsing-matches-the-shape-of-each-expectation-in-rust-on-ruffs-ast.md)
 - [Parsing refuses a byte that is not UTF-8 in a comment, as CPython 3.14.1 does](decisions/parsing-refuses-a-byte-that-is-not-utf-8-in-a-comment.md)
+- [Parsing refuses a module that opens a bracket inside 200 others](decisions/parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md)
 - [purba parses Python with ruff's parser](decisions/purba-parses-python-with-ruff.md)
 
 ### dispatch
