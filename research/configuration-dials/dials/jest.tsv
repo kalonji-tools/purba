@@ -1,0 +1,128 @@
+dial	group	levels	class	both	outcome	note	src
+[TestPathPatterns] (positional)	sel	C	B		run		help
+-h, --help	dbg	C	B				help
+--version	dbg	C	B				help
+--all	sel	C	B		run		help
+--automock	fix	C P	B		test	every import becomes a mock	help
+-b, --bail	stp	C P	B		run		help
+--cache	cch	C P	B				help
+--cacheDirectory	cch	C P	B				help
+--changedFilesWithAncestor	sel	C P	B		run		help
+--changedSince	sel	C P	B		run		help
+--ci	ast	C P E	T		test	probes snapshot-ci-*: a new snapshot fails instead of being written	help
+--clearCache	cch	C	B				help
+--clearMocks	fix	C P	B		test		help
+--coverage, --collectCoverage	cov	C P	B				help
+--collectCoverageFrom	cov	C P	B				help
+--collectTests	dbg	C P	B				help
+--color, --colors	out	C	B				help
+-c, --config	cfg	C	B		test	indirect: picks the file that sets every other dial	help
+--coverageDirectory	cov	C P	B				help
+--coveragePathIgnorePatterns	cov	C P	L		run	leaves files out of the threshold	help
+--coverageProvider	cov	C P	B				help
+--coverageReporters	cov	C P	B				help
+--coverageThreshold	cov	C P	T	↕	run	fails the run under the threshold	help
+--debug	dbg	C	B				help
+--detectLeaks	chk	C P	T		test	a leaked global fails the test	help
+--detectOpenHandles	dbg	C P	B			also runs in band	help
+--errorOnDeprecated	chk	C P	T		test	a deprecated API throws	help
+-e, --expand	ast	C P	B				help
+--filter	sel	C P	B		run		help
+--findRelatedTests	sel	C P	B		run		help
+--forceExit	stp	C P	L		run	exits past open handles	help
+--globalSetup	fix	C P	B		test		help
+--globalTeardown	fix	C P	B		test		help
+--globals	fix	C P	B		test		help
+--haste	imp	C P	F		test		help
+--ignoreProjects	sel	C	B		run		help
+--injectGlobals	fix	C P	B		test		help
+--json	out	C P	B				help
+--lastCommit	sel	C P	B		run		help
+--listTests	dbg	C P	B				help
+--logHeapUsage	out	C P	B				help
+--maxConcurrency	par	C P	B				help
+-w, --maxWorkers	par	C P	B				help
+--moduleDirectories	imp	C P	F		test		help
+--moduleFileExtensions	imp	C P	F		test		help
+--moduleNameMapper	imp	C P	F		test		help
+--modulePathIgnorePatterns	imp	C P	F		test		help
+--modulePaths	imp	C P	F		test		help
+--noStackTrace	out	C P	B				help
+--notify	out	C P	B				help
+--notifyMode	out	C P	B				help
+-o, --onlyChanged	sel	C P	B		run		help
+-f, --onlyFailures	sel	C P	B		run		help
+--openHandlesTimeout	dbg	C P	B				help
+--outputFile	out	C P	B				help
+--passWithNoTests	stp	C P	L		run	no tests found is no longer a failure	help
+--preset	cfg	C P	B		test	indirect: a base set of values	help
+--prettierPath	ast	C P	B				help
+--projects	cfg	C P	B		test	indirect: each project holds its own values	help
+--randomize	ord	C P	B		test	judgement: a test that depends on order can change outcome	help
+--reporters	out	C P	B				help
+--resetMocks	fix	C P	B		test		help
+--resetModules	fix	C P	B		test		help
+--resolver	imp	C P	F		test		help
+--restoreMocks	fix	C P	B		test		help
+--rootDir	imp	C P	F		run		help
+--roots	imp	C P	F		run		help
+-i, --runInBand	par	C	B				help
+--runTestsByPath	sel	C P	B		run		help
+--runner	plg	C P	B		test		help
+--seed	ord	C	B				help
+--selectProjects	sel	C	B		run		help
+--setupFiles	fix	C P	B		test		help
+--setupFilesAfterEnv	fix	C P	B		test		help
+--shard	sel	C	B		run		help
+--showConfig	dbg	C	B				help
+--showSeed	out	C P	B				help
+--silent	out	C P	B				help
+--skipFilter	sel	C P	B		run		help
+--snapshotSerializers	ast	C P	B		test	changes the text a snapshot compares	help
+--testEnvironment, --env, @jest-environment	fix	C P K	B		test		help
+--testEnvironmentOptions, @jest-environment-options	fix	C P K	B		test	a docblock's globalsCleanup takes effect only in a worker's first file	help
+--testFailureExitCode	stp	C P	B		run		help
+--testLocationInResults	out	C P	B				help
+--testMatch	imp	C P	F		run		help
+-t, --testNamePattern	sel	C P	B		run		help
+--testPathIgnorePatterns	imp	C P	F		run		help
+--testPathPatterns	sel	C	B		run		help
+--testRegex	imp	C P	F		run		help
+--testResultsProcessor	out	C P	B				help
+--testRunner	plg	C P	B		test		help
+--testSequencer	ord	C P	B		test		help
+--testTimeout, jest.setTimeout, test(name, fn, timeout)	tmo	C P K	T	↕	test	probes timeout-*: the test's own timeout beats the flag	help
+--transform	imp	C P	F		test		help
+--transformIgnorePatterns	imp	C P	F		test		help
+--unmockedModulePathPatterns	fix	C P	B		test		help
+-u, --updateSnapshot	ast	C	L		test	a snapshot that differs is rewritten, and the test passes	help
+--useStderr	out	C P	B				help
+--verbose	out	C P	B				help
+--waitForUnhandledRejections	chk	C P	T		test		help
+--watch	stp	C P	B				help
+--watchAll	stp	C P	B				help
+--watchPathIgnorePatterns	cch	C P	B				help
+--watchman	cch	C P	B				help
+--workerGracefulExitTimeout	par	C P	B				help
+--workerThreads	par	C P	B		test	judgement: threads and processes isolate differently	help
+dependencyExtractor	cch	P	B				config
+displayName	out	P	B				config
+extensionsToTreatAsEsm	imp	P	F		test		config
+fakeTimers	fix	P	B		test		config
+forceCoverageMatch	cov	P	B				config
+id	cch	P	B				config
+replname	dbg	P	B				config
+runtime	plg	P	B		test		config
+sandboxInjectedGlobals	fix	P	B		test		config
+skipNodeResolution	imp	P	F		test		config
+slowTestThreshold	out	P	B				config
+snapshotFormat	ast	P	B		test	changes the text a snapshot compares	config
+snapshotResolver	ast	P	F		test		config
+watchPlugins	plg	P	B				config
+workerIdleMemoryLimit	par	P	B				config
+jest.retryTimes	rep	K	L		test	a test that failed once passes	JestObjectAPI
+test.skip, xit	sel	K	L		test		GlobalAPI
+test.only	sel	K	B		run		GlobalAPI
+test.todo	sel	K	B		run		GlobalAPI
+test.failing	chk	K	L		test	a failure passes; a pass fails	GlobalAPI
+test.concurrent	par	K	B		test		GlobalAPI

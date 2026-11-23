@@ -1,0 +1,209 @@
+dial	group	levels	class	both	outcome	note	src
+[...filters] (positional)	sel	C	B		run		help
+-v, --version	dbg	C	B				help
+-h, --help	dbg	C	B				help
+-r, --root	imp	C P	F		run		help
+-c, --config	cfg	C	B		test	indirect: picks the file that sets every other dial	help
+-u, --update	ast	C P	L		test	a snapshot that differs is rewritten, and the test passes	help
+-w, --watch	stp	C P	B				help
+--run	stp	C	B				help
+-t, --testNamePattern	sel	C P	B		run		help
+--dir	imp	C P	F		run		help
+--ui	dbg	C P	B				help
+--open	dbg	C P E	B			its default is !process.env.CI	help
+--api, --api.port	dbg	C P	B				help
+--api.host	dbg	C P	B				help
+--api.strictPort	dbg	C P	B				help
+--api.allowExec	dbg	C P	B				help
+--api.allowWrite	dbg	C P	B				help
+--silent	out	C P	B				help
+--hideSkippedTests	out	C P	B				help
+--reporter	out	C	B				help
+--outputFile	out	C P	B				help
+--coverage, --coverage.enabled	cov	C P	B				help
+--coverage.provider	cov	C P	B				help
+--coverage.include	cov	C P	B				help
+--coverage.exclude	cov	C P	B				help
+--coverage.clean	cov	C P	B				help
+--coverage.cleanOnRerun	cov	C P	B				help
+--coverage.reportsDirectory	cov	C P	B				help
+--coverage.reporter	cov	C P	B				help
+--coverage.reportOnFailure	cov	C P	B				help
+--coverage.allowExternal	cov	C P	B				help
+--coverage.skipFull	cov	C P	B				help
+--coverage.thresholds.100	cov	C P	T		run	fails the run under the threshold	help
+--coverage.thresholds.perFile	cov	C P	T		run		help
+--coverage.thresholds.autoUpdate	cov	C P	L		run	raises the stored thresholds; the next run checks the new value	help
+--coverage.thresholds.lines	cov	C P	T	↕	run		help
+--coverage.thresholds.functions	cov	C P	T	↕	run		help
+--coverage.thresholds.branches	cov	C P	T	↕	run		help
+--coverage.thresholds.statements	cov	C P	T	↕	run		help
+--coverage.ignoreClassMethods	cov	C P	L		run	leaves methods out of the threshold	help
+--coverage.processingConcurrency	cov	C P	B				help
+--coverage.customProviderModule	cov	C P	B				help
+--coverage.watermarks.statements	cov	C P	B				help
+--coverage.watermarks.lines	cov	C P	B				help
+--coverage.watermarks.branches	cov	C P	B				help
+--coverage.watermarks.functions	cov	C P	B				help
+--coverage.changed	cov	C P	B				help
+--coverage.excludeAfterRemap	cov	C P	B				help
+--coverage.htmlDir	cov	C P	B				help
+--coverage.autoAttachSubprocess	cov	C P	B				help
+--mode	cfg	C P	B		test	the Vite mode picks other env files	help
+--isolate	fix	C P	B		test	judgement: without isolation, files share module state	help
+--globals	fix	C P	B		test	injects the API as globals	help
+--injectCjsGlobals	fix	C P	B		test		help
+--dom	fix	C	B		test		help
+--browser, --browser.enabled	fix	C P	B		test		help
+--browser.name	fix	C P	B		test		help
+--browser.headless	fix	C P E	B			its default is process.env.CI	help
+--browser.ui	dbg	C P E	B			its default is !process.env.CI	help
+--browser.detailsPanelPosition	dbg	C P	B				help
+--browser.connectTimeout	tmo	C P	T	↕	run		help
+--browser.dependencySourcemaps	out	C P	B				help
+--browser.trackUnhandledErrors	chk	C P	L	↕	run	false stops catching uncaught errors	help
+--browser.importMapMocks	fix	C P	B				help
+--browser.trace	dbg	C P	B				help
+--browser.traceView, --browser.traceView.mode, --browser.traceView.enabled	dbg	C P	B				help
+--browser.traceView.recordCanvas	dbg	C P	B				help
+--browser.traceView.inlineImages	dbg	C P	B				help
+--browser.traceView.ariaSnapshot	dbg	C P	B				help
+--browser.locators.exact	fix	C P	B		test	changes which element a locator finds	help
+--pool	par	C P	B		test	judgement: threads and forks isolate differently	help
+--execArgv	fix	C P	B		test		help
+--vmMemoryLimit	par	C P	B				help
+--fileParallelism	par	C P	B				help
+--maxWorkers	par	C P	B				help
+--environment	fix	C P K	B		test	a docblock in the file sets it too	help
+--passWithNoTests	stp	C P	L		run	no tests found is no longer a failure	help
+--logHeapUsage	out	C P	B				help
+--detectAsyncLeaks	chk	C P	T		test		help
+--allowOnly	chk	C P E	L		run	probe only-ci: under CI a .only is an error unless --allowOnly	help
+--dangerouslyIgnoreUnhandledErrors	chk	C P	L		run		help
+--shard	sel	C	B		run		help
+--changed	sel	C P	B		run		help
+--sinceLastRun	sel	C	B		run		help
+--lastFailed	sel	C	B		run		help
+--sequence.shuffle	ord	C P	B		test	judgement: a test that depends on order can change outcome	help
+--sequence.shuffle.files	ord	C P	B		test	as --sequence.shuffle	help
+--sequence.shuffle.tests	ord	C P	B		test	as --sequence.shuffle	help
+--sequence.concurrent	par	C P	B		test	judgement: tests that share state can change outcome	help
+--sequence.seed	ord	C P	B				help
+--sequence.hooks	ord	C P	B		test		help
+--sequence.setupFiles	ord	C P	B		test		help
+--inspect	dbg	C P	B				help
+--inspectBrk	dbg	C P	B				help
+--testTimeout	tmo	C P K	T	↕	test	probes timeout-*: 0 disables it; the test's own timeout beats the flag	help
+--hookTimeout	tmo	C P	T	↕	test	0 disables it	help
+--bail	stp	C P	B		run		help
+--retry, --retry.count	rep	C P K	L		test	probe retry-cli: a test that failed once passes	help
+--retry.delay	rep	C P	B				help
+--retry.condition	rep	C P	L		test	limits which errors a retry covers	help
+--repeats	rep	C P K	B		test	more runs can expose a flaky failure	help
+--diff (a module of options)	ast	C P	B				help
+--diff.aAnnotation	ast	C P	B				help
+--diff.aIndicator	ast	C P	B				help
+--diff.bAnnotation	ast	C P	B				help
+--diff.bIndicator	ast	C P	B				help
+--diff.commonIndicator	ast	C P	B				help
+--diff.contextLines	ast	C P	B				help
+--diff.emptyFirstOrLastLinePlaceholder	ast	C P	B				help
+--diff.expand	ast	C P	B				help
+--diff.includeChangeCounts	ast	C P	B				help
+--diff.omitAnnotationLines	ast	C P	B				help
+--diff.printBasicPrototype	ast	C P	B				help
+--diff.maxDepth	ast	C P	B				help
+--diff.truncateThreshold	ast	C P	B				help
+--diff.truncateAnnotation	ast	C P	B				help
+--exclude	sel	C P	B		run		help
+--expandSnapshotDiff	ast	C P	B				help
+--disableConsoleIntercept	cap	C P	B				help
+--typecheck, --typecheck.enabled	chk	C P	T		test	adds type errors as failures	help
+--typecheck.only	sel	C P	B		run		help
+--typecheck.checker	chk	C P	F		test		help
+--typecheck.allowJs	chk	C P	T		test		help
+--typecheck.ignoreSourceErrors	chk	C P	L		test		help
+--typecheck.build	chk	C P	B				help
+--typecheck.tsconfig	chk	C P	F		test		help
+--typecheck.spawnTimeout	tmo	C P	B				help
+-p, --project	sel	C	B		run		help
+--slowTestThreshold	out	C P	B				help
+--teardownTimeout	tmo	C P	T	↕	run		help
+--cache	cch	C P	B				help
+--maxConcurrency	par	C P	B				help
+--fsModuleCache	cch	C P	B				help
+--fsModuleCachePath	cch	C P	B				help
+--expect.requireAssertions	chk	C P	T		test	a test with no assertion fails	help
+--expect.poll.interval	ast	C P	B				help
+--expect.poll.timeout	tmo	C P	T	↕	test		help
+--printConsoleTrace	out	C P	B				help
+--includeTaskLocation	out	C P	B				help
+--attachmentsDir	out	C P	B				help
+--no-color	out	C	B				help
+--clearScreen	out	C	B				help
+--configLoader	cfg	C	B				help
+--standalone	stp	C	B				help
+--mergeReports	out	C	B				help
+--listTags	dbg	C	B				help
+--clearCache	cch	C	B				help
+--tagsFilter	sel	C	B		run		help
+--strictTags	chk	C P	T		test	an undefined tag is an error	help
+--sharedViteServer	cfg	C P	B				help
+--experimental.importDurations.print	out	C P	B				help
+--experimental.importDurations.limit	out	C P	B				help
+--experimental.importDurations.failOnDanger	chk	C P	T		run		help
+--experimental.importDurations.thresholds.warn	out	C P	B				help
+--experimental.importDurations.thresholds.danger	chk	C P	T	↕	run	with failOnDanger	help
+--experimental.viteModuleRunner	fix	C P	B		test		help
+--experimental.nodeLoader	fix	C P	B		test		help
+--experimental.traceTimeline	out	C P	B				help
+--experimental.vcsProvider	sel	C P	B		run		help
+--experimental.recordDependencies	sel	C P	B		run		help
+--experimental.preParse	sel	C P	B		run		help
+--experimental.diagnostics.isolate	out	C P	B				help
+--experimental.diagnostics.environment	out	C P	B				help
+--experimental.diagnostics.import	out	C P	B				help
+--experimental.diagnostics.transform	out	C P	B				help
+include	imp	P	F		run		cli-null
+setupFiles	fix	P	B		test		cli-null
+globalSetup	fix	P	B		test		cli-null
+snapshotFormat	ast	P	B		test	changes the text a snapshot compares	cli-null
+snapshotSerializers	ast	P	B		test		cli-null
+includeSource	imp	P	F		run		cli-null
+alias	imp	P	F		test		cli-null
+env	fix	P	B		test		cli-null
+environmentOptions	fix	P	B		test		cli-null
+unstubEnvs	fix	P	B		test		cli-null
+restoreMocks	fix	P	B		test		cli-null
+runner	plg	P	B		test		cli-null
+mockReset	fix	P	B		test		cli-null
+forceRerunTriggers	cch	P	B				cli-null
+unstubGlobals	fix	P	B		test		cli-null
+uiBase	dbg	P	B				cli-null
+benchmark	sel	P	B		run		cli-null
+fakeTimers	fix	P	B		test		cli-null
+chaiConfig	ast	P	B				cli-null
+clearMocks	fix	P	B		test		cli-null
+css	fix	P	B		test		cli-null
+deps	imp	P	F		test		cli-null
+name	cfg	P	B				cli-null
+snapshotEnvironment	ast	P	B				cli-null
+provide	fix	P	B		test		cli-null
+projects	cfg	P	B		test	indirect: each project holds its own values	cli-null
+watchTriggerPatterns	cch	P	B				cli-null
+tags	chk	P	F		test	with --strictTags, an undefined tag is an error	cli-null
+taskTitleValueFormatTruncate	out	P	B				cli-null
+server	imp	P	F		test		cli-null
+onConsoleLog	cap	P	B				config
+onStackTrace	out	P	B				config
+onUnhandledError	chk	P	L	↕	run	a callback can drop an unhandled error	config
+resolveSnapshotPath	ast	P	F		test		config
+test options: timeout	tmo	K	T	↕	test	probe timeout-code-vs-cli: it beats --testTimeout	types.ts
+test options: retry	rep	K	L		test		types.ts
+test options: repeats	rep	K	B		test		types.ts
+test options: concurrent	par	K	B		test		types.ts
+test options: skip, test.skip, test.skipIf, test.runIf	sel	K	L		test		types.ts
+test options: only, test.only	sel	K	B		run	under CI a .only is an error	types.ts
+test options: todo	sel	K	B		run		types.ts
+test options: fails, test.fails	chk	K	L		test	a failure passes; a pass fails	types.ts
+test options: tags	sel	K	B		run		types.ts

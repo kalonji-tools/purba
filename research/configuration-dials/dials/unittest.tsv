@@ -1,0 +1,24 @@
+dial	group	levels	class	both	outcome	note	src
+tests (positional), defaultTest=	sel	C K	B		run		help
+-v, -q, verbosity=	out	C K	B				help
+--locals, tb_locals=	out	C K	B				help
+--durations, durations=	out	C K	B				help
+-f, --failfast, failfast=	stp	C K	B		run	probe: the second test gets no outcome	help
+-c, --catch, catchbreak=	stp	C K	B		run	a first Ctrl-C ends the run and prints the results so far	help
+-b, --buffer, buffer=	cap	C K	B				help
+-k, testNamePatterns	sel	C K	B		run	probe: -k warns runs one test	help
+discover -s, --start-directory	imp	C	F		run		help
+discover -p, --pattern	imp	C	F		run		help
+discover -t, --top-level-directory	imp	C	F		test	decides what goes on sys.path	help
+-h, --help	dbg	C	B				help
+warnings=, python -W, PYTHONWARNINGS	chk	C E K	T	↕	test	with no -W, main() sets 'default'; probe: -W error and warnings='error' make the test an ERROR	main.py
+testRunner=, testLoader=, exit=, argv=, module=	plg	K	B		test	code replaces the runner or the loader	main.py
+resultclass=	plg	K	B		test	code replaces the result	runner.py
+TestLoader.testMethodPrefix	imp	K	F		run		loader.py
+TestLoader.sortTestMethodsUsing	ord	K	B		test	judgement: a test that depends on order can change outcome	loader.py
+TestLoader.suiteClass	plg	K	B				loader.py
+TestCase.failureException	ast	K	B		test	the exception that counts as a failure, not an error	case.py
+TestCase.longMessage	ast	K	B				case.py
+TestCase.maxDiff	ast	K	B				case.py
+@skip, @skipIf, @skipUnless, raise SkipTest	sel	K	L		test		case.py
+@expectedFailure	chk	K	L		test	probe: an expected failure that passes is an unexpected success, and the run fails	case.py

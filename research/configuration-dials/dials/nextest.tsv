@@ -1,0 +1,139 @@
+dial	group	levels	class	both	outcome	note	src
+[FILTERS] (positional), --skip, --exact	sel	C	B		run	--skip and --exact emulate libtest after --	help
+--color, CARGO_TERM_COLOR	out	C E	B				help
+--no-pager	out	C	B				help
+-v, --verbose, NEXTEST_VERBOSE	out	C E	B				help
+-h, --help	dbg	C	B				help
+-p, --package	sel	C	B		run		help
+--workspace	sel	C	B		run		help
+--exclude	sel	C	B		run		help
+--all	sel	C	B		run	deprecated	help
+--lib	sel	C	B		run		help
+--bin	sel	C	B		run		help
+--bins	sel	C	B		run		help
+--example	sel	C	B		run		help
+--examples	sel	C	B		run		help
+--test	sel	C	B		run		help
+--tests	sel	C	B		run		help
+--bench	sel	C	B		run		help
+--benches	sel	C	B		run		help
+--all-targets	sel	C	B		run		help
+-F, --features	bld	C	B		test	compiles other code	help
+--all-features	bld	C	B		test	compiles other code	help
+--no-default-features	bld	C	B		test	compiles other code	help
+--build-jobs	bld	C	B				help
+-r, --release	bld	C	B		test	judgement: the release profile drops debug assertions and overflow checks	help
+--cargo-profile	bld	C	B		test	as --release	help
+--target, CARGO_BUILD_TARGET	bld	C E	F		test		help
+--target-dir, CARGO_TARGET_DIR	bld	C E	B				help
+--unit-graph	bld	C	B				help
+--timings	bld	C	B				help
+--manifest-path	imp	C	F		run		help
+--frozen	bld	C	T		run	refuses a stale lock file or cache	help
+--locked	bld	C	T		run	refuses a stale lock file	help
+--offline	bld	C	B		run		help
+--cargo-message-format	out	C	B				help
+--cargo-quiet	out	C	B				help
+--cargo-verbose	out	C	B				help
+--ignore-rust-version	bld	C	L		run	skips the check of rust-version	help
+--future-incompat-report	out	C	B				help
+--config KEY=VALUE	bld	C	B		test	a bridge to cargo's configuration	help
+-Z	bld	C	B		test		help
+-R, --rerun	sel	C	B		run		help
+--run-ignored, --ignored, --include-ignored	sel	C	T		test	probe run-ignored: an ignored test runs and fails	help
+--partition	sel	C	B		run		help
+--platform-filter	sel	C	B		run	deprecated	help
+-E, --filterset	sel	C	B		run		help
+--ignore-default-filter	sel	C	B		run		help
+--no-run	dbg	C	B				help
+-j, --test-threads, NEXTEST_TEST_THREADS, test-threads	par	C E P	B				help
+--retries, NEXTEST_RETRIES, retries	rep	C E P	L		test	probes retries-*: a test that failed once passes as flaky	help
+--flaky-result, NEXTEST_FLAKY_RESULT, flaky-result	rep	C E P	T	↕	test	probe flaky-result-fail: fail tightens, pass is the default	help
+--fail-fast, --no-fail-fast, fail-fast	stp	C P	B		run		help
+--max-fail, fail-fast.max-fail	stp	C P	B		run		help
+--debugger	dbg	C	L		test	disables timeouts and capture	help
+--tracer	dbg	C	L		test	disables timeouts and capture	help
+--no-tests, NEXTEST_NO_TESTS	stp	C E	T	↕	run	fail tightens, pass and warn loosen	help
+--no-capture, --nocapture	cap	C	B		test	also runs the tests serially	help
+--stress-count	rep	C	B		test	more runs can expose a flaky failure	help
+--stress-duration	rep	C	B		test	as --stress-count	help
+--failure-output, NEXTEST_FAILURE_OUTPUT, failure-output	out	C E P	B				help
+--success-output, NEXTEST_SUCCESS_OUTPUT, success-output	out	C E P	B				help
+--status-level, NEXTEST_STATUS_LEVEL, status-level	out	C E P	B				help
+--final-status-level, NEXTEST_FINAL_STATUS_LEVEL, final-status-level	out	C E P	B				help
+--no-output-indent, NEXTEST_NO_OUTPUT_INDENT, ui.output-indent	out	C E U	B				help
+--show-progress, NEXTEST_SHOW_PROGRESS, ui.show-progress	out	C E U	B				help
+--hide-progress-bar, NEXTEST_HIDE_PROGRESS_BAR	out	C E	B			deprecated	help
+--no-input-handler, NEXTEST_NO_INPUT_HANDLER, ui.input-handler	out	C E U	B				help
+--max-progress-running, NEXTEST_MAX_PROGRESS_RUNNING, ui.max-progress-running	out	C E U	B				help
+--message-format, NEXTEST_MESSAGE_FORMAT	out	C E	B				help
+--message-format-version, NEXTEST_MESSAGE_FORMAT_VERSION	out	C E	B				help
+--archive-file	bld	C	B				help
+--archive-format	bld	C	B				help
+--extract-to	bld	C	B				help
+--extract-overwrite	bld	C	B				help
+--persist-extract-tempdir	bld	C	B				help
+--cargo-metadata	imp	C	F				help
+--workspace-remap	imp	C	F		test	moves the paths a test sees	help
+--binaries-metadata	imp	C	F				help
+--target-dir-remap	imp	C	F				help
+--build-dir-remap	imp	C	F				help
+--config-file	cfg	C	B		test	indirect: picks the file that sets every other dial	help
+--user-config-file, NEXTEST_USER_CONFIG_FILE	cfg	C E	B				help
+--tool-config-file	cfg	C	B		test	indirect: inserts a file below the repository's	help
+--override-version-check	cfg	C	L		run	skips the minimum version that the repository states	help
+-P, --profile, NEXTEST_PROFILE	cfg	C E	B		test	indirect: picks a set of values	help
+nextest-version	cfg	P	F		run		repo-config
+experimental	cfg	P	B				repo-config
+store.dir	cch	P	B				repo-config
+profile.inherits	cfg	P	B				repo-config
+default-filter	sel	P	B		run	an override can replace it per platform	repo-config
+global-timeout	tmo	P	T	↕	test		repo-config
+threads-required	par	P	B				repo-config
+run-extra-args	fix	P	B		test	passes arguments to the test binary	repo-config
+slow-timeout (period, terminate-after, grace-period, on-timeout)	tmo	P	T	↕	test	probes timeout-*: terminate-after ends the test; on-timeout = pass loosens	repo-config
+leak-timeout	tmo	P	T	↕	test	result = fail tightens	repo-config
+bench.slow-timeout	tmo	P	T	↕	test		repo-config
+bench.global-timeout	tmo	P	T	↕	test		repo-config
+test-group	par	P	B				repo-config
+junit.path	out	P	B				repo-config
+junit.report-name	out	P	B				repo-config
+junit.store-success-output	out	P	B				repo-config
+junit.store-failure-output	out	P	B				repo-config
+junit.report-skipped	out	P	B				repo-config
+junit.flaky-fail-status	out	P	B				repo-config
+archive.include	bld	P	B				repo-config
+overrides (filter, platform)	cfg	P	B		test	a bridge: gives a test its own value of each setting it may override; probe timeout-override	repo-config
+overrides.priority	ord	P	B				repo-config
+test-groups.<name>.max-threads	par	P	B				repo-config
+scripts.setup.<name>.command	fix	P	B		test		repo-config
+scripts.setup.<name>.slow-timeout	tmo	P	T	↕	test		repo-config
+scripts.setup.<name>.leak-timeout	tmo	P	T	↕	test		repo-config
+scripts.setup.<name>.capture-stdout	cap	P	B				repo-config
+scripts.setup.<name>.capture-stderr	cap	P	B				repo-config
+scripts.setup.<name>.junit.store-success-output	out	P	B				repo-config
+scripts.setup.<name>.junit.store-failure-output	out	P	B				repo-config
+scripts.wrapper.<name>.command	fix	P	B		test		repo-config
+scripts.wrapper.<name>.target-runner	fix	P	B		test		repo-config
+profile scripts: platform	fix	P	B		test		repo-config
+profile scripts: filter	fix	P	B		test		repo-config
+profile scripts: setup	fix	P	B		test		repo-config
+profile scripts: list-wrapper	fix	P	B		test		repo-config
+profile scripts: run-wrapper	fix	P	B		test		repo-config
+experimental.record	cch	U	B				user-config
+record.enabled	cch	U	B				user-config
+record.max-output-size	cch	U	B				user-config
+record.max-records	cch	U	B				user-config
+record.max-total-size	cch	U	B				user-config
+record.max-age	cch	U	B				user-config
+ui.pager	out	U	B				user-config
+ui.paginate	out	U	B				user-config
+ui.streampager.interface	out	U	B				user-config
+ui.streampager.wrapping	out	U	B				user-config
+ui.streampager.show-ruler	out	U	B				user-config
+overrides.platform (user)	cfg	U	B			gives a platform its own ui value	user-config
+CARGO	bld	E	B				env-vars
+CARGO_TARGET_<triple>_RUNNER	fix	E	B		test	runs each test binary under a command	env-vars
+CARGO_TERM_PROGRESS_TERM_INTEGRATION	out	E	B				env-vars
+MIRI_SYSROOT	cfg	E	B		test	activates the profile default-miri	default-config
+#[ignore] (libtest)	sel	K	L		test	the test is skipped unless --run-ignored	help

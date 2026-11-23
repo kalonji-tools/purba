@@ -1,0 +1,142 @@
+dial	group	levels	class	both	outcome	note	src
+file_or_dir (positional)	sel	C	B		run		help
+-k EXPRESSION	sel	C	B		run		help
+-m MARKEXPR	sel	C	B		run		help
+--markers	dbg	C	B				help
+-x, --exitfirst	stp	C	B		run	later tests get no outcome	help
+--maxfail	stp	C	B		run	later tests get no outcome	help
+--strict-config, strict_config	cfg	C P	T		run	probe key-misspelled-strict: exit 4	help
+--strict-markers, strict_markers	chk	C P	T		test	probe marker-strict: collection error	help
+--strict, strict	chk	C P	T		test	turns on strict_config, strict_markers, strict_xfail, strict_parametrization_ids	help
+--fixtures, --funcargs	dbg	C	B				help
+--fixtures-per-test	dbg	C	B				help
+--pdb	dbg	C	B				help
+--pdbcls	dbg	C	B				help
+--trace	dbg	C	B				help
+--capture, -s	cap	C	B		test	judgement: a test that reads sys.stdout or its isatty() sees a different stream	help
+--runxfail	chk	C	T		test	probe xfail-runxfail: an xfail test that fails becomes FAILED	help
+--lf, --last-failed	sel	C	B		run		help
+--ff, --failed-first	ord	C	B		test	judgement: a test that depends on order can change outcome	help
+--nf, --new-first	ord	C	B		test	judgement: as --ff	help
+--cache-show	dbg	C	B				help
+--cache-clear	cch	C	B				help
+--lfnf, --last-failed-no-failures	sel	C	B		run		help
+--sw, --stepwise	stp	C	B		run		help
+--sw-skip, --stepwise-skip	stp	C	B		run		help
+--sw-reset, --stepwise-reset	stp	C	B		run		help
+--durations	out	C	B				help
+--durations-min	out	C	B				help
+-v, -q, --verbosity	out	C	B				help
+--no-header	out	C	B				help
+--no-summary	out	C	B				help
+--no-fold-skipped	out	C	B				help
+--force-short-summary	out	C	B				help
+-r, --report-chars	out	C	B				help
+--disable-warnings	out	C	B			hides the summary of warnings; no outcome changes	help
+-l, --showlocals, --no-showlocals	out	C	B				help
+--tb	out	C	B				help
+--xfail-tb	out	C	B				help
+--show-capture	out	C	B				help
+--full-trace	out	C	B				help
+--color	out	C	B				help
+--code-highlight	out	C	B				help
+--pastebin	out	C	B				help
+--junitxml, --junit-xml	out	C	B				help
+--junitprefix, --junit-prefix	out	C	B				help
+-W, filterwarnings, @pytest.mark.filterwarnings	chk	C P K	T	↕	test	error tightens, ignore loosens; probes warn-*: the marker and -W both beat the file	help
+--max-warnings, max_warnings	chk	C P	T		run	probe warn-max-warnings: test passes, exit 6	help
+--collect-only, --co	dbg	C	B				help
+--pyargs	sel	C	B		run		help
+--ignore	sel	C	B		run		help
+--ignore-glob	sel	C	B		run		help
+--deselect	sel	C	B		run		help
+--confcutdir	imp	C	F		test	decides which conftest.py files load	help
+--noconftest	fix	C	B		test	fixtures and hooks of conftest.py do not load	help
+--keep-duplicates	sel	C	B		run		help
+--collect-in-virtualenv	sel	C	B		run		help
+--continue-on-collection-errors	stp	C	L		run	a collection error no longer stops the run	help
+--import-mode	imp	C	F		test	decides what goes on sys.path	help
+--doctest-modules	sel	C	B		run	adds doctests to the run	help
+--doctest-report	out	C	B				help
+--doctest-glob	imp	C	F		run		help
+--doctest-ignore-import-errors	chk	C	L		run		help
+--doctest-continue-on-failure	out	C	B			reports more failures of one doctest; its outcome stays failed	help
+-c, --config-file	cfg	C	B		test	indirect: picks the file that sets every other dial	help
+--rootdir	imp	C	F		test	moves node ids, conftest lookup and the cache	help
+--basetemp	cch	C	B				help
+-V, --version	dbg	C	B				help
+-h, --help	dbg	C	B				help
+-p name, -p no:name	plg	C	L	↕	test	probes timeout-plugin-off, warn-ini-error-plugin-off: no:name removes a check	help
+--disable-plugin-autoload, PYTEST_DISABLE_PLUGIN_AUTOLOAD	plg	C E	B		test	judgement: a plugin that is not loaded runs none of its checks	help
+--trace-config	dbg	C	B				help
+--debug	dbg	C	B				help
+-o, --override-ini	cfg	C	B			a bridge: sets any key of the file from the command line	help
+--assert	ast	C	B			judgement: plain changes the message, not the raise	help
+--setup-only	dbg	C	B				help
+--setup-show	out	C	B				help
+--setup-plan	dbg	C	B				help
+--log-level, log_level	cap	C P	B		test	judgement: a test that reads caplog sees other records	help
+--log-format, log_format	cap	C P	B				help
+--log-date-format, log_date_format	cap	C P	B				help
+--log-cli-level, log_cli_level	cap	C P	B				help
+--log-cli-format, log_cli_format	cap	C P	B				help
+--log-cli-date-format, log_cli_date_format	cap	C P	B				help
+--log-file, log_file	cap	C P	B				help
+--log-file-mode, log_file_mode	cap	C P	B				help
+--log-file-level, log_file_level	cap	C P	B				help
+--log-file-format, log_file_format	cap	C P	B				help
+--log-file-date-format, log_file_date_format	cap	C P	B				help
+--log-auto-indent, log_auto_indent	cap	C P	B				help
+--log-disable	cap	C	B		test	judgement: a test that reads caplog sees no record of that logger	help
+markers	chk	P	F		test	with strict_markers, an unregistered marker is an error	help
+empty_parameter_set_mark	chk	P	T	↕	test	fail_at_collect tightens; skip and xfail give other outcomes	help
+norecursedirs	imp	P	F		run		help
+testpaths	imp	P	F		run		help
+collect_imported_tests	imp	P	F		run		help
+consider_namespace_packages	imp	P	F		test		help
+usefixtures, @pytest.mark.usefixtures	fix	P K	B		test	runs fixtures that a test does not name	help
+python_files	imp	P	F		run		help
+python_classes	imp	P	F		run		help
+python_functions	imp	P	F		run		help
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support	out	P	B				help
+strict_parametrization_ids	chk	P	T		test	--strict turns it on	help
+parametrize_long_str_id_strategy	out	P	B		test	disallow raises an error	help
+console_output_style	out	P	B				help
+verbosity_test_cases	out	P	B				help
+strict_xfail, @pytest.mark.xfail(strict=)	chk	P K	T		test	probe xfail-strict: XPASS becomes FAILED	help
+tmp_path_retention_count	cch	P	B				help
+tmp_path_retention_policy	cch	P	B				help
+enable_assertion_pass_hook	plg	P	B				help
+truncation_limit_lines	ast	P	B				help
+truncation_limit_chars	ast	P	B				help
+assertion_text_diff_style	ast	P	B				help
+verbosity_assertions	ast	P	B				help
+junit_suite_name	out	P	B				help
+junit_logging	out	P	B				help
+junit_log_passing_tests	out	P	B				help
+junit_duration_report	out	P	B				help
+junit_family	out	P	B				help
+doctest_optionflags	chk	P	L	↕	test	flags such as ELLIPSIS loosen a doctest's comparison	help
+doctest_encoding	imp	P	F		test		help
+cache_dir	cch	P	B				help
+log_cli	cap	P	B				help
+faulthandler_timeout	tmo	P	B			dumps the stacks; the test goes on	help
+faulthandler_exit_on_timeout	tmo	P	T		test	exits the test process	help
+verbosity_subtests	out	P	B				help
+addopts	cfg	P	B			a bridge: sets any flag from the project file	help
+minversion	cfg	P	F		run		help
+pythonpath	imp	P	F		test	decides what goes on sys.path	help
+required_plugins	plg	P	F		run		help
+CI, BUILD_NUMBER	out	E	B			the summary is not truncated	help
+PYTEST_ADDOPTS	cfg	E	B			a bridge: sets any flag from the environment; probe warn-env-addopts	help
+PYTEST_PLUGINS	plg	E	B		test	loads plugins, which can add checks	help
+PYTEST_DEBUG	dbg	E	B				help
+PYTEST_DEBUG_TEMPROOT	cch	E	B				help
+PYTEST_THEME	out	E	B				help
+PYTEST_THEME_MODE	out	E	B				help
+@pytest.mark.skip	sel	K	L		test	purba's record calls a skip with a reason an outcome	markers
+@pytest.mark.skipif	sel	K	L		test	as skip, on a condition	markers
+@pytest.mark.xfail	chk	K	L	↕	test	a failure becomes XFAIL; strict=True tightens	markers
+@pytest.mark.parametrize	sel	K	B		run	makes one case per value	markers
+@pytest.mark.tryfirst	plg	K	B			deprecated	markers
+@pytest.mark.trylast	plg	K	B			deprecated	markers

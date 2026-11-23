@@ -1,0 +1,79 @@
+dial	group	levels	class	both	outcome	note	src
+[packages] (positional)	sel	C	B		run		test
+-artifacts	out	C	B				testflag
+-bench	sel	C	B		run	runs benchmarks	testflag
+-benchtime	rep	C	B				testflag
+-count	rep	C	B		test	more runs can expose a flaky failure; -count=1 also skips the cache	testflag
+-cover	cov	C	B				testflag
+-covermode	cov	C	B				testflag
+-coverpkg	cov	C	B				testflag
+-cpu	par	C	B		test	runs each test under each GOMAXPROCS	testflag
+-failfast	stp	C	B		run		testflag
+-fullpath	out	C	B				testflag
+-fuzz	rep	C	B		test	fuzzing can find a failing input	testflag
+-fuzztime	rep	C	B		test		testflag
+-fuzzminimizetime	rep	C	B				testflag
+-json	out	C	B				testflag
+-list	dbg	C	B				testflag
+-outputdir	out	C	B				testflag
+-parallel	par	C	B				testflag
+-run	sel	C	B		run		testflag
+-short, testing.Short()	fix	C K	B		test	probe short-on: the test reads it and skips	testflag
+-shuffle	ord	C	B		test	judgement: a test that depends on order can change outcome	testflag
+-skip	sel	C	B		run		testflag
+-timeout	tmo	C	T	↕	test	probes timeout-*: 0 disables it; a cached pass ignores it	testflag
+-v	out	C	B				testflag
+-vet	chk	C	L	↕	test	probes vet-*: off turns the check off; all tightens	testflag
+-benchmem	cov	C	B				testflag
+-blockprofile	cov	C	B				testflag
+-blockprofilerate	cov	C	B				testflag
+-coverprofile	cov	C	B				testflag
+-cpuprofile	cov	C	B				testflag
+-memprofile	cov	C	B				testflag
+-memprofilerate	cov	C	B				testflag
+-mutexprofile	cov	C	B				testflag
+-mutexprofilefraction	cov	C	B				testflag
+-trace	cov	C	B				testflag
+-args	cfg	C	B		test	a bridge: passes the rest to the test binary	test
+-c	dbg	C	B				test
+-exec	fix	C	B		test	runs the test binary under a command	test
+-o	bld	C	B				test
+-a	bld	C	B				build
+-n	dbg	C	B				build
+-p	par	C	B				build
+-race	chk	C	T		test	a data race fails the test	build
+-msan	chk	C	T		test		build
+-asan	chk	C	T		test		build
+-work	dbg	C	B				build
+-x	out	C	B				build
+-asmflags	bld	C	B				build
+-buildmode	bld	C	B				build
+-buildvcs	bld	C	B				build
+-compiler	bld	C	B				build
+-gccgoflags	bld	C	B				build
+-gcflags	bld	C	B				build
+-installsuffix	bld	C	B				build
+-ldflags	bld	C	B		test	-X sets a variable that a test can read	build
+-linkshared	bld	C	B				build
+-mod	bld	C	F		run		build
+-modcacherw	bld	C	B				build
+-modfile	bld	C	F		run		build
+-overlay	bld	C	B		test	replaces source files	build
+-pgo	bld	C	B				build
+-pkgdir	bld	C	B				build
+-tags, //go:build	imp	C K	F		test	decides which files compile	build
+-trimpath	bld	C	B				build
+-toolexec	bld	C	B				build
+GOFLAGS	cfg	E U	B			a bridge: sets any flag; probes timeout-goflags, goenv-file	env
+GOMAXPROCS	par	E	B		test	as -cpu	env
+GODEBUG, go.mod godebug, //go:debug	fix	E P K	B		test	changes the runtime's behaviour	env
+GOENV	cfg	E	B			names the user's file; off disables it	env
+GOCACHE	cch	E U	B				env
+GOOS, GOARCH	bld	E U	F		test		env
+CGO_ENABLED	bld	E U	F		test		env
+GOEXPERIMENT	bld	E U	B		test		env
+GOTOOLCHAIN	bld	E U	F		test		env
+t.Parallel()	par	K	B		test	judgement: a test that shares state can change outcome	testing
+t.Skip, t.SkipNow, t.Skipf	sel	K	L		test		testing
+t.Setenv	fix	K	B		test		testing
+TestMain	fix	K	B		test	code wraps the whole run	testing
