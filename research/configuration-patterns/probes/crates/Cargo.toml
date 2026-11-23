@@ -1,0 +1,15 @@
+[package]
+name = "probe-crates"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+config = { version = "=0.15.27", default-features = false, features = ["toml"] }
+figment = { version = "=0.10.19", features = ["toml", "env"] }
+confique = { version = "=0.5.0", default-features = false, features = ["toml"] }
+schematic = { version = "=0.21.2", default-features = false, features = ["config", "env", "validate", "toml"] }
+serde = { version = "1", features = ["derive"] }
+
+# Keeps the probe out of purba's workspace.
+[workspace]

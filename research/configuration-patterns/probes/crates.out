@@ -1,0 +1,34 @@
+$ env -i PURBA_TIMEOUT=2 target/debug/config_rs
+A config: timeout = 1 , origin = None
+A config: cap = 50 , origin = None
+A config: workers = 8 , origin = Some("levels/user.toml")
+B config: typed = Dials { timeout: Some(1), cap: Some(50), workers: Some(8) }
+C config: get by key on typo = Err(missing configuration field "timeout")
+C config: typed on typo = Err(unknown field `tmeout`, expected one of `timeout`, `cap`, `workers`)
+$ env -i PURBA_TIMEOUT=2 target/debug/figment_rs
+A figment: timeout = Some(3) , from "i32" Some("src/bin/figment_rs.rs:34:16")
+A figment: cap = Some(50) , from "i32" Some("src/bin/figment_rs.rs:32:16")
+A figment: workers = Some(8) , from "TOML file" Some("levels/user.toml")
+B figment: typed = Dials { timeout: Some(3), cap: Some(50), workers: Some(8) }
+B figment: Tagged timeout = 3 , from Some("i32")
+B figment: by key = Ok(3)
+D figment: join cap = Ok(50)
+C figment: typo refused: unknown field: found `tmeout`, expected `one of `timeout`, `cap`, `workers`` for key "default.tmeout" in levels/typo.toml TOML file
+$ env -i PURBA_TIMEOUT=2 target/debug/confique_rs
+A confique: typed = Dials { timeout: Some(3), cap: Some(50), workers: Some(8) } (no level is kept)
+C confique: typo accepted, typed = Dials { timeout: None, cap: None, workers: None }
+C confique strict: typo refused: failed to deserialize configuration from file 'levels/typo.toml': TOML parse error at line 1, column 1
+  |
+1 | tmeout = 4
+  | ^^^^^^
+unknown field `tmeout`, expected one of `timeout`, `cap`, `workers`
+
+$ env -i PURBA_TIMEOUT=2 target/debug/schematic_rs
+A schematic: typed = Dials { timeout: Some(2), cap: Some(0), workers: Some(8) }
+A schematic: source File { path: "levels/system.toml", required: true } sets PartialDials { timeout: Some(6), cap: None, workers: None }
+A schematic: source File { path: "levels/user.toml", required: true } sets PartialDials { timeout: Some(5), cap: None, workers: Some(8) }
+A schematic: source File { path: "levels/project.toml", required: true } sets PartialDials { timeout: Some(4), cap: Some(0), workers: None }
+A schematic: source Memory { name: "the command line" } sets PartialDials { timeout: Some(1), cap: Some(50), workers: None }
+A schematic: source Memory { name: "code" } sets PartialDials { timeout: Some(3), cap: None, workers: None }
+A schematic: source EnvVars sets PartialDials { timeout: Some(2), cap: None, workers: None }
+C schematic: typo refused: Failed to parse levels/typo.toml. / tmeout: unknown field `tmeout`, expected one of `timeout`, `cap`, `workers`

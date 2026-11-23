@@ -1,0 +1,22 @@
+== G0 main, unchanged
+   exit=0
+== G1 crate purba-configuration, line names no crate
+   A crate named purba-<part> is refused when <part> is no part of the diagram, because the check reads the arrows of a part only. Name the part in the landscape, or rename the crate.
+     purba-configuration, in crates/configuration/Cargo.toml
+   exit=1
+== G2 crate named by the line, uses nothing
+   exit=0
+== G3 crate uses purba-errors
+   The crate of a concern uses no part, because each part may use it. Remove the dependency.
+     purba-configuration uses errors, in crates/configuration/Cargo.toml
+   exit=1
+== G4 crate uses purba-selection
+   The crate of a concern uses no part, because each part may use it. Remove the dependency.
+     purba-configuration uses selection, in crates/configuration/Cargo.toml
+   exit=1
+== G5 dispatch uses the crate
+   exit=0
+== G6 execution uses the crate
+   A part may use the crate of a concern only when the concern's line names the part, because no arrow of the parts diagram draws that use. Name the part in the concern's line, or remove the dependency.
+     execution uses purba-configuration, in crates/execution/Cargo.toml
+   exit=1

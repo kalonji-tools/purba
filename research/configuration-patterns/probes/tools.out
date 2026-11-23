@@ -1,0 +1,52 @@
+== ruff: a key no option owns, in [tool.ruff]
+$ env HOME=<work>/ruff XDG_CONFIG_HOME=<work>/ruff/xdg uvx -q ruff@0.17.6 check a.py
+ruff failed
+  Cause: Failed to parse <work>/ruff/pyproject.toml
+  Cause: TOML parse error at line 1, column 1
+  |
+1 | [tool.ruff]
+  | ^^^^^^^^^^^
+unknown field `line-lnegth`
+exit=2
+== uv: the same in uv.toml, then in [tool.uv], then a project-only field in the user file
+$ env -i PATH=<PATH> HOME=<work>/uv XDG_CONFIG_HOME=<work>/uv/xdg XDG_CONFIG_DIRS=<work>/uv/none UV_CACHE_DIR=<work>/uv-cache uv --offline cache dir
+error: Failed to parse: uv.toml
+  cause: TOML parse error at line 1, column 1
+           |
+         1 | index-urll = "https://x"
+           | ^^^^^^^^^^
+         unknown field `index-urll`, expected one of `required-version`, … (each field of the schema)
+exit=2
+$ env -i PATH=<PATH> HOME=<work>/uv XDG_CONFIG_HOME=<work>/uv/xdg XDG_CONFIG_DIRS=<work>/uv/none UV_CACHE_DIR=<work>/uv-cache uv --offline cache dir
+warning: Failed to parse `pyproject.toml` during settings discovery:
+  TOML parse error at line 5, column 1
+    |
+  5 | index-urll = "https://x"
+    | ^^^^^^^^^^
+  unknown field `index-urll`, expected one of `required-version`, … (each field of the schema)
+<work>/uv-cache
+exit=0
+$ env -i PATH=<PATH> HOME=<work>/uv XDG_CONFIG_HOME=<work>/uv/xdg XDG_CONFIG_DIRS=<work>/uv/none UV_CACHE_DIR=<work>/uv-cache uv --offline cache dir
+error: Failed to parse `<work>/uv/xdg/uv/uv.toml`. The `sources` field is not allowed in a `uv.toml` file. `sources` is only applicable in the context of a project, and should be placed in a `pyproject.toml` file instead.
+exit=2
+== cargo: a misspelled key in a known table and an unknown table; a token on the command line
+$ env CARGO_HOME=<work>/cargo/home cargo check --offline
+warning: unused config key `build.jbos` in `<work>/cargo/p/.cargo/config.toml`
+    Checking p v0.0.0 (<work>/cargo/p)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+exit=0
+$ env CARGO_HOME=<work>/cargo/home cargo check --offline --config registry.token="x"
+error: registry.token cannot be set through --config for security reasons
+exit=101
+== cargo-nextest: a misspelled key in the project file; retries in the user file
+$ env RUSTUP_HOME=~/.rustup CARGO_HOME=<work>/cargo/home XDG_CONFIG_HOME=<work>/cargo/xdg HOME=<work>/cargo cargo nextest run --offline
+warning: in config file .config/nextest.toml, ignoring unknown configuration key: profile.default.retires
+warning: in user config file <work>/cargo/xdg/nextest/config.toml, ignoring unknown configuration key: profile
+   Compiling p v0.0.0 (<work>/cargo/p)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+────────────
+    Starting 1 test across 2 binaries
+        PASS [   0.004s] (1/1) p::t t
+────────────
+     Summary [   0.005s] 1 test run: 1 passed, 0 skipped
+exit=0
