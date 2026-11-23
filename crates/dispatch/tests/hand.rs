@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use common::{Named, module};
 use purba_dispatch::{Handed, Module, Test};
-use purba_execution::{Error, Kind, Quote, Shown};
+use purba_errors::{Error, Kind, Quote, Shown};
 
 /// What dispatch hands on, as data a test can compare.
 #[derive(Debug, PartialEq)]

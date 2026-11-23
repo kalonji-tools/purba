@@ -1,6 +1,7 @@
 mod common;
 
-use purba_execution::{Kind, Purba};
+use purba_errors::Kind;
+use purba_execution::Purba;
 
 /// The tests of a module whose calls take or raise signals. `test_handler`
 /// marks, as its process ends, the type of the signal handler of SIGINT and

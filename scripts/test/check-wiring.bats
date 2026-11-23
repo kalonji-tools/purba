@@ -13,6 +13,11 @@ setup() {
   answer="An answer in the sequence of one run must go back along an arrow of the parts diagram"
   no_part_end="Each end of a message in the sequence of one run must be a part, an actor or _main"
   off_seam="Only a part that the line of the Rust/Python seam names may name pyo3"
+  concern_unnamed="A part may use the crate of a concern only when the concern's line names the \
+part, because no arrow of the parts diagram draws that use. Name the part in the concern's line, \
+or remove the dependency."
+  concern_uses_part="The crate of a concern uses no part, because each part may use it. Remove \
+the dependency."
 
   # Alpha has no crate, so its arrows are not read against a manifest.
   landscape '  beta ->> gamma: a path' '  gamma -->> beta: a tree'
@@ -69,6 +74,12 @@ LANDSCAPE
 - **errors.** Keeps each kind of failure apart, in every part.
 LANDSCAPE
   } >LANDSCAPE.md
+}
+
+# The line of errors, in the parts that $1 names, with the crate purba-errors.
+errors_line() {
+  sed -i "s/^- \*\*errors\.\*\* .*/- **errors.** Keeps each kind of failure apart, in $1. \
+Its crate is \`purba-errors\`./" LANDSCAPE.md
 }
 
 # A crate under crates/<directory>, its package named purba-<directory>, or purba
@@ -268,4 +279,149 @@ crate() {
 
   [[ "${status}" -eq 0 ]]
   [[ -z "${output}" ]]
+}
+
+@test "a part that a concern's line names may use the concern's crate" {
+  errors_line 'beta and gamma'
+  crate errors
+  crate beta 'purba-gamma = { path = "../gamma" }' 'purba-errors = { path = "../errors" }'
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "each part may use the crate of a concern in every part" {
+  errors_line 'every part'
+  crate errors
+  crate beta 'purba-gamma = { path = "../gamma" }' 'purba-errors = { path = "../errors" }'
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a part that a concern's line does not name may not use the concern's crate" {
+  errors_line 'beta'
+  crate errors
+  crate beta 'purba-gamma = { path = "../gamma" }' 'purba-errors = { path = "../errors" }'
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
+  [[ "${output}" != *"beta uses purba-errors"* ]]
+}
+
+@test "a concern's crate that uses a part is refused" {
+  errors_line 'every part'
+  crate errors 'purba-gamma = { path = "../gamma" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
+}
+
+@test "a concern's crate that uses a part in its dev-dependencies is refused" {
+  errors_line 'every part'
+  crate errors '' '[dev-dependencies]' 'purba-gamma = { path = "../gamma" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
+}
+
+@test "a concern's crate that names pyo3 is refused" {
+  errors_line 'every part'
+  crate errors 'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${off_seam}"* ]]
+  [[ "${output}" == *"  purba-errors names pyo3, in crates/errors/Cargo.toml"* ]]
+  [[ "${output}" != *"${no_part_crate}"* ]]
+}
+
+@test "a concern's line that names no crate leaves a crate of the concern's name refused" {
+  crate errors
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${no_part_crate}"* ]]
+  [[ "${output}" == *"  purba-errors, in crates/errors/Cargo.toml"* ]]
+}
+
+@test "a concern's line that lists three parts with commas names each one" {
+  errors_line 'alpha, beta and gamma'
+  crate errors
+  crate beta 'purba-gamma = { path = "../gamma" }' 'purba-errors = { path = "../errors" }'
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a concern's crate that uses a part in its build-dependencies is refused" {
+  errors_line 'every part'
+  crate errors '' '[build-dependencies]' 'purba-gamma = { path = "../gamma" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_uses_part}"* ]]
+  [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
+}
+
+@test "a dev-dependency on a concern's crate is a use of it" {
+  errors_line 'beta'
+  crate errors
+  crate gamma '' '[dev-dependencies]' 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
+}
+
+@test "the crate sentence may follow a sentence with a link" {
+  sed -i "s/^- \*\*errors\.\*\* .*/- **errors.** Keeps each kind of failure apart, in every part. \
+[A failure's kind](docs\/decisions\/a.md#decision-outcome) holds its design in depth. \
+Its crate is \`purba-errors\`./" LANDSCAPE.md
+  crate errors
+  crate gamma 'purba-errors = { path = "../errors" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "the crate of a second concern is read too" {
+  errors_line 'every part'
+  printf '%s\n' "- **configuration.** States facts, in beta. Its crate is \`purba-config\`." \
+    >>LANDSCAPE.md
+  crate config
+  crate gamma 'purba-config = { path = "../config" }'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${concern_unnamed}"* ]]
+  [[ "${output}" == *"  gamma uses purba-config, in crates/gamma/Cargo.toml"* ]]
 }

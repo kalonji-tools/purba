@@ -20,7 +20,7 @@ purba reads each one, so more than one can fail in one case.
 
 ## Decision Outcome
 
-**Reach:** `crates/assertion/src/rewrite.rs` `crates/assertion/src/load.rs` `crates/parsing/src/lib.rs` `crates/execution/src/lib.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/rewrite.rs` `crates/execution/tests/run.rs` `tests/kinds.bats` `tests/rules.bats`
+**Reach:** `crates/assertion/src/rewrite.rs` `crates/assertion/src/load.rs` `crates/parsing/src/lib.rs` `crates/execution/src/lib.rs` `crates/errors/src/lib.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/rewrite.rs` `crates/execution/tests/run.rs` `tests/kinds.bats` `tests/rules.bats`
 
 **Area:** assertion, execution, parsing, reporting
 

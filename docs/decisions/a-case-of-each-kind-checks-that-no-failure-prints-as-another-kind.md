@@ -51,19 +51,19 @@ It can also change into another kind in the line that reporting writes, or in th
 
 `mise run test:wheel` and the `wheel` job of `ci.yml` run `tests/kinds.bats` on Linux and macOS.
 A mutant files purba's own `PanicException` as `raised`.
-`tests/kinds.bats` runs red under it.
+On `bb9b0428`, `tests/kinds.bats` runs red under it.
 
 ```
-sed -i 's/return (Err(Error::caught(payload.as_ref(), "execution")), landed);/return (Ok(Kind::Raised { exception: Error::caught(payload.as_ref(), "execution").to_string(), whence: None }), landed);/' crates/execution/src/lib.rs
+sed -i 's/return (Err(caught(payload.as_ref())), landed);/Err(pyo3::exceptions::PyBaseException::new_err(caught(payload.as_ref()).to_string()))/' crates/execution/src/lib.rs
 mise run test:wheel
 ```
 
 ```
-not ok 70 a panic stops only its test, each other test keeps its line, and the run exits 125
+not ok 87 a panic stops only its test, each other test keeps its line, and the run exits 125
 # (in test file tests/kinds.bats, line 283)
 #   `run -125 --separate-stderr env -u PURBA_FAULT "${fault_purba}" test_panic.py' failed, expected exit code 125, got 1
 # test_panic.py::test_passes passed
-# test_panic.py::test_panics raised: PURBA_FAULT=assert
+# test_panic.py::test_panics raised: BaseException: PURBA_FAULT=assert
 #     ⚠ suppressed [patched-name] line 10 patches os.environ["PURBA_FAULT"], and a stand-in enters a test as an argument; line 14 patches os.environ["PURBA_FAULT"], and a stand-in enters a test as an argument
 #       reason: the test sets the switch that makes purba panic
 # test_panic.py::test_fails failed

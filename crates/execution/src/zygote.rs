@@ -17,14 +17,15 @@ use pyo3::Python;
 use pyo3::types::PyAnyMethods;
 
 use purba_assertion::{Readers, Replaced, Swallowed, Try, Verdict};
+use purba_errors::{Shown, catch};
 
 use crate::fork::{Forked, fork};
 use crate::interrupt::Window;
 use crate::order::{Called, Facts, How, PathFault};
 use crate::step::Gives;
 use crate::{
-    Error, Kind, Module, Outcome, Purba, Reason, Shown, Step, Suppressed, Worker, frame, interrupt,
-    panic, thread,
+    Error, Kind, Module, Outcome, Purba, Step, Suppressed, Worker, frame, internal, interrupt,
+    outcome, panic, thread,
 };
 
 /// Each message that crosses a pipe between purba, a zygote and a test's
@@ -113,15 +114,19 @@ impl Message {
                 tag::FACTS
             }
             Self::Interrupted => tag::INTERRUPTED,
-            Self::Error(Error(Reason::Project(project))) => {
-                put(project);
-                tag::PROJECT
-            }
-            Self::Error(Error(Reason::Internal(caught))) => {
-                put(&caught.part);
-                put(&caught.message);
-                tag::INTERNAL
-            }
+            // An error's `Display` is the text of a project error, and the
+            // message of an internal error.
+            Self::Error(error) => match error.kind() {
+                purba_errors::ErrorKind::Project => {
+                    put(&error.to_string());
+                    tag::PROJECT
+                }
+                purba_errors::ErrorKind::Internal { part } => {
+                    put(part);
+                    put(&error.to_string());
+                    tag::INTERNAL
+                }
+            },
             Self::TestThread(error) => {
                 put(error);
                 tag::TEST_THREAD
@@ -156,10 +161,10 @@ impl Message {
     fn read(from: &mut impl Read) -> io::Result<Option<Result<Self, Error>>> {
         Ok(frame::read(from)?.map(|(tag, text)| {
             Self::of(tag, &text).ok_or_else(|| {
-                Error(Reason::Internal(panic::Caught {
+                internal(panic::Caught {
                     part: "execution".to_owned(),
                     message: format!("the frame {:?} holds no message", char::from(tag)),
-                }))
+                })
             })
         }))
     }
@@ -183,10 +188,10 @@ impl Message {
             tag::FACTS => Self::Facts(Box::new(fields.facts()?)),
             tag::INTERRUPTED => Self::Interrupted,
             tag::PROJECT => Self::Error(Error::project(fields.text()?)),
-            tag::INTERNAL => Self::Error(Error(Reason::Internal(panic::Caught {
+            tag::INTERNAL => Self::Error(internal(panic::Caught {
                 part: fields.text()?,
                 message: fields.text()?,
-            }))),
+            })),
             tag::TEST_THREAD => Self::TestThread(fields.text()?),
             tag::LOAD_THREAD => Self::LoadThread(fields.text()?),
             tag::KEPT => Self::Kept(fields.number()?),
@@ -603,7 +608,7 @@ impl Purba<'_> {
                 }))
                 .err();
                 if let (Ok(mut spare), Some(payload)) = (spare, payload) {
-                    let error = Error::caught(payload.as_ref(), "execution");
+                    let error = crate::caught(payload.as_ref());
                     drop(Message::Error(error).write(&mut spare));
                 }
                 exit(125)
@@ -747,7 +752,8 @@ impl Zygote {
         };
         if let Some(status) = self.reaped {
             let words = gone(status);
-            let named = matches!(&result, Err(Error(Reason::Project(line))) if *line == words);
+            let named = matches!(&result, Err(error)
+                if error.kind() == purba_errors::ErrorKind::Project && error.to_string() == words);
             self.end = Some(End {
                 error: Error::project(words),
                 named,
@@ -791,18 +797,14 @@ impl Zygote {
         let decided = facts.map(|facts| crate::order::order(&facts, suppressions));
         let (own, suppressed) = decided.map_or_else(
             || (None, Suppressed::default()),
-            |(own, suppressed)| (Some(own.map(|kind| Outcome { kind })), suppressed),
+            |(own, suppressed)| (Some(own.map(outcome)), suppressed),
         );
         let result = result.or(own).unwrap_or_else(|| match end {
-            Ok(_) if window.arrived() => Ok(Outcome {
-                kind: Kind::Interrupted,
-            }),
-            Ok(status) => Ok(Outcome {
-                kind: Kind::Raised {
-                    exception: lost(status, "its outcome"),
-                    whence: None,
-                },
-            }),
+            Ok(_) if window.arrived() => Ok(outcome(Kind::Interrupted)),
+            Ok(status) => Ok(outcome(Kind::Raised {
+                exception: lost(status, "its outcome"),
+                whence: None,
+            })),
             Err(status) => Err(Error::project(gone(status))),
         });
         (result, suppressed)
@@ -838,9 +840,7 @@ impl Zygote {
                 Ok(Message::Verdict(verdict)) => sent.verdict = Some(verdict),
                 Ok(Message::Refused(words)) => sent.refused = Some(words),
                 Ok(Message::Interrupted) => {
-                    sent.result = Some(Ok(Outcome {
-                        kind: Kind::Interrupted,
-                    }));
+                    sent.result = Some(Ok(outcome(Kind::Interrupted)));
                 }
                 Ok(Message::Error(error)) => sent.result = Some(Err(error)),
                 Ok(_) => {}
@@ -878,9 +878,7 @@ impl Zygote {
                 Err(error) => return Some(Err(error)),
             };
             if window.arrived() {
-                return Some(Ok(Outcome {
-                    kind: Kind::Interrupted,
-                }));
+                return Some(Ok(outcome(Kind::Interrupted)));
             }
             match replayed {
                 Ok(verdict) => alone.push((index, verdict)),
@@ -1090,7 +1088,7 @@ fn live_as_zygote(
     let py = worker.py;
     call_atexit(py, "_clear");
     if load {
-        let result = crate::catch("execution", || worker.load(module));
+        let result = catch("execution", || worker.load(module));
         let failed = result.is_err();
         send(
             &mut frames,
@@ -1208,7 +1206,7 @@ fn live_as_child(
     }
     call_atexit(py, "_clear");
     let mut facts = None;
-    let result = crate::catch("execution", || {
+    let result = catch("execution", || {
         if children.loads {
             worker.load(children.module)?;
             // The load in the first zygote already handed on the errors of these
@@ -1541,10 +1539,10 @@ mod tests {
             Message::Facts(Box::default()),
             Message::Interrupted,
             Message::Error(Error::project(text("[no-expectation] no expectation ran"))),
-            Message::Error(Error(Reason::Internal(panic::Caught {
+            Message::Error(internal(panic::Caught {
                 part: text("assertion"),
                 message: text("a panic"),
-            }))),
+            })),
             Message::TestThread(text("thread A raised ValueError")),
             Message::LoadThread(text("thread L raised ValueError")),
             Message::Kept(libc::SIGTERM),
@@ -1617,10 +1615,10 @@ mod tests {
     fn no_message(tag: char) -> String {
         format!(
             "{:?}",
-            Error(Reason::Internal(panic::Caught {
+            internal(panic::Caught {
                 part: "execution".to_owned(),
                 message: format!("the frame {tag:?} holds no message"),
-            }))
+            })
         )
     }
 
@@ -2308,7 +2306,7 @@ mod tests {
     #[test]
     fn a_replay_that_sends_an_internal_error_gives_the_case_that_error() {
         let payload: Box<dyn std::any::Any + Send> = Box::new("a panic in the replay");
-        let internal = Error::caught(payload.as_ref(), "execution");
+        let internal = crate::caught(payload.as_ref());
         let expected = format!("{internal:?}");
         let sent = Facts {
             later: vec![1],

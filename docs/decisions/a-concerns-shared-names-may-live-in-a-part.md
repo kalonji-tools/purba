@@ -36,8 +36,9 @@ The concern's duty stays with each part that follows it.
 
 | concern | the names | the part that holds them | a copy, and the test that ties it |
 |---|---|---|---|
-| errors | `Error`, `ErrorKind` | execution | none |
 | strictness | each strict check: its name, its tier, and where its breach shows | selection | execution's `SUPPRESSIBLE`, tied by `crates/dispatch/tests/checks.rs` |
+
+The names of errors live in the concern's own crate, as [an outcome and an error live in a crate that links no Python](an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md#decision-outcome) decides.
 
 **Downside:**
 

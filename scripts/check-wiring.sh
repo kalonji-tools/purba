@@ -2,6 +2,8 @@
 # Each use between two parts, in the manifests of the crates and in the
 # sequence of one run, that the parts diagram of LANDSCAPE.md does not draw.
 # Each part that names pyo3 when the line of the Rust/Python seam does not name it.
+# Each use of the crate of a concern by a part that the concern's line does not name.
+# Each part that the crate of a concern uses.
 #
 #   the decision:  docs/decisions/each-part-is-a-crate.md
 #   the task:      mise run lint:wiring
@@ -49,6 +51,25 @@ seam=$(awk -v section="## ${concerns}" -v start='- **the Rust/Python seam.** ' '
   END { exit !found }
 ' "${landscape}") ||
   cannot "${landscape} has no line for the Rust/Python seam."
+
+# Each concern that names its crate with "Its crate is `purba-<x>`.": the crate,
+# then the parts after the last ", in " of the line's first sentence. The awk
+# splits them as it splits the seam's parts. "every part" stands for each part.
+concern_crates=$(awk -v section="## ${concerns}" '
+  /^## / { inside = ($0 == section); next }
+  !inside || !match($0, /^- \*\*[^*]+\.\*\* /) { next }
+  {
+    rest = substr($0, RLENGTH + 1)
+    if (!match(rest, /Its crate is `purba-[a-z-]+`/)) next
+    crate = substr(rest, RSTART + 14, RLENGTH - 15)
+    sub(/\. .*/, "", rest)
+    sub(/\.$/, "", rest)
+    if (!sub(/.*, in /, "", rest)) rest = ""
+    gsub(/ and /, ", ", rest)
+    print crate "\t" rest
+  }
+' "${landscape}") ||
+  cannot "${landscape} cannot be read."
 crates=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml) ||
   cannot 'Cargo.toml cannot be read.'
 
@@ -85,8 +106,10 @@ drawn=$(awk -v section="## ${section}" '
 
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
 findings=$(jq -nr --arg top "${top}/" --arg drawn "${drawn}" --arg seam "${seam}" \
-  --argjson crates "${crates}" '
+  --arg concern_crates "${concern_crates}" --argjson crates "${crates}" '
   ($drawn | split("\n") | map(select(. != "") | split("\t"))) as $lines
+  | ($concern_crates | split("\n") | map(select(. != "") | split("\t")
+      | {key: .[0], value: (.[1] // "" | split(", "))}) | from_entries) as $concern
   | ($seam | split("\n") | map(select(. != ""))) as $seam
   | [$lines[] | select(.[0] == "part") | .[1]] as $parts
   | [$lines[] | select(.[0] == "arrow") | "\(.[1]) \(.[2])"] as $arrows
@@ -99,11 +122,18 @@ findings=$(jq -nr --arg top "${top}/" --arg drawn "${drawn}" --arg seam "${seam}
     ] as $members
   | ($members | map({key: .part, value: .}) | from_entries) as $crate
   | [
-      ($members[] | select(.part | IN($parts[]) | not)
+      ($members[] | select((.part | IN($parts[]) | not) and $concern[.name] == null)
         | "no-part-crate\t\(.name), in \(.manifest)"),
       ($members[] | select(.part | IN($parts[])) | . as $member | .uses[]
+        | select($concern["purba-\(.)"] == null)
         | select("\($member.part) \(.)" | IN($arrows[]) | not)
         | "undrawn\t\($member.part) uses \(.), in \($member.manifest)"),
+      ($members[] | select(.part | IN($parts[])) | . as $member | .uses[]
+        | . as $used | $concern["purba-\(.)"] | select(. != null)
+        | select(IN(.[]; "every part", $member.part) | not)
+        | "concern-unnamed\t\($member.part) uses purba-\($used), in \($member.manifest)"),
+      ($members[] | select($concern[.name] != null and .uses != [])
+        | "concern-uses-part\t\(.name) uses \(.uses | join(", ")), in \(.manifest)"),
       ($arrows[] | split(" ") as [$from, $to]
         | select($crate[$from] != null and $crate[$to] != null)
         | select($to | IN($crate[$from].uses[]) | not)
@@ -137,6 +167,18 @@ found=$(refusals undrawn)
 [[ -z "${found}" ]] || refuse \
   "A part may use only a part that the parts diagram draws an arrow to, because the \
 diagram is the only wiring. Draw the arrow, or remove the dependency." \
+  "${found}"
+
+found=$(refusals concern-unnamed)
+[[ -z "${found}" ]] || refuse \
+  "A part may use the crate of a concern only when the concern's line names the part, because \
+no arrow of the parts diagram draws that use. Name the part in the concern's line, or remove the \
+dependency." \
+  "${found}"
+
+found=$(refusals concern-uses-part)
+[[ -z "${found}" ]] || refuse \
+  "The crate of a concern uses no part, because each part may use it. Remove the dependency." \
   "${found}"
 
 found=$(refusals unused)

@@ -5,7 +5,8 @@ mod common;
 
 use std::ffi::CString;
 
-use purba_execution::{Error, Purba};
+use purba_errors::Error;
+use purba_execution::Purba;
 use pyo3::Python;
 
 /// A module whose load leaves a thread alive. A zygote that loads nothing then

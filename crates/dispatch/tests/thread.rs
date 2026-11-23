@@ -4,7 +4,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_dispatch::Handed;
-use purba_execution::Kind;
+use purba_errors::Kind;
 
 /// What dispatch hands on, as data a test can compare. A thread's error names
 /// its test, or the path of its module.

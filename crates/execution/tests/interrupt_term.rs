@@ -4,7 +4,8 @@
 
 mod common;
 
-use purba_execution::{Kind, Purba};
+use purba_errors::Kind;
+use purba_execution::Purba;
 
 /// A module whose test takes a SIGTERM, then gives SIGTERM its own signal
 /// handler. As its process ends, the test marks one of three answers for each

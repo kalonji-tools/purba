@@ -3,7 +3,8 @@ mod common;
 use std::sync::{Mutex, PoisonError};
 
 use common::module;
-use purba_execution::{Error, Kind, Module, Outcome, Purba, Quote, Shown, Suppressed};
+use purba_errors::{Error, Kind, Quote, Shown, Suppressed};
+use purba_execution::{Module, Purba};
 
 /// The turn of a test to run Python:
 /// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
@@ -362,12 +363,6 @@ fn a_name_that_is_not_callable_is_an_error() {
         ],
         "CPython's own text, which names a type by its full name, and no test's call ran"
     );
-}
-
-#[test]
-fn an_outcome_is_data() {
-    fn data<T: serde::Serialize + serde::de::DeserializeOwned>() {}
-    data::<Outcome>();
 }
 
 #[test]

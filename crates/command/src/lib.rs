@@ -96,39 +96,39 @@ pub fn run_with(
     let path = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let parsed = match purba_execution::catch("command", || Ok(purba_parsing::parse(&path))) {
+    let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
         Ok(Ok(module)) => module,
         Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
         Ok(Err(purba_parsing::Error::Decode(error))) => {
-            let error = purba_execution::Error::project(error.to_string());
+            let error = purba_errors::Error::project(error.to_string());
             return stopped(report, &path, &error);
         }
         Ok(Err(purba_parsing::Error::Syntax(error))) => {
-            let error = purba_execution::Error::project(error.to_string());
+            let error = purba_errors::Error::project(error.to_string());
             return stopped(report, &path, &error);
         }
         Err(error) => return stopped(report, &path, &error),
     };
-    let (facts, mut selected) =
-        match purba_execution::catch("command", || Ok(select(&path, &parsed))) {
-            Ok(read) => read,
-            Err(error) => return stopped(report, &path, &error),
-        };
+    let (facts, mut selected) = match purba_errors::catch("command", || Ok(select(&path, &parsed)))
+    {
+        Ok(read) => read,
+        Err(error) => return stopped(report, &path, &error),
+    };
     not_interrupted()?;
     for refused in selected.refused() {
         let test = refused.test();
         report.case(
             test,
-            &Err(purba_execution::Error::project(refused.to_string())),
+            &Err(purba_errors::Error::project(refused.to_string())),
             test.notices(),
-            &judged(test),
+            test.suppressed(),
             &[],
         )?;
     }
     if let Some(fault) = selected.fault() {
         report.stopped(
             &path.display(),
-            &purba_execution::Error::project(fault.to_owned()),
+            &purba_errors::Error::project(fault.to_owned()),
             &[],
             selected.tests(),
         )?;
@@ -156,7 +156,7 @@ pub fn run_with(
                     &test,
                     &result,
                     test.notices(),
-                    &judged(&test),
+                    test.suppressed(),
                     &suppressed.warnings,
                 )
             }
@@ -185,22 +185,9 @@ pub fn run_with(
         return Err(refused.into());
     }
     for words in selected.unused() {
-        report.error(&path.display(), &purba_execution::Error::project(words))?;
+        report.error(&path.display(), &purba_errors::Error::project(words))?;
     }
     Ok(report.finish()?)
-}
-
-/// Each verdict of `test` that selection judged and a suppression turned into a
-/// warning, in the shape that reporting takes.
-fn judged(test: &TestId) -> Vec<purba_execution::Warning> {
-    test.suppressed()
-        .iter()
-        .map(|verdict| purba_execution::Warning {
-            check: verdict.check.to_owned(),
-            words: verdict.words.clone(),
-            reason: verdict.reason.clone(),
-        })
-        .collect()
 }
 
 /// Prints the line of a module whose error stops the run before any test, then
@@ -208,7 +195,7 @@ fn judged(test: &TestId) -> Vec<purba_execution::Warning> {
 fn stopped(
     mut report: purba_reporting::Report<impl Write>,
     path: &Path,
-    error: &purba_execution::Error,
+    error: &purba_errors::Error,
 ) -> Result<u8, Error> {
     not_interrupted()?;
     report.error(&path.display(), error)?;
@@ -245,7 +232,7 @@ enum Found {
     Modules(Vec<Module<TestId>>),
     /// The internal error of a panic in the rewrite, and each test that
     /// selection hands on, which the panic blocks.
-    NotRewritten(purba_execution::Error, Vec<TestId>),
+    NotRewritten(purba_errors::Error, Vec<TestId>),
 }
 
 /// The facts of `module`, and what selection makes of the module at `path` from
@@ -276,7 +263,7 @@ fn rewritten(
         return Found::Modules(Vec::new());
     }
     let names: Vec<&str> = tests.iter().map(TestId::function).collect();
-    match purba_execution::catch("command", || Ok(rewrite(&facts, &names))) {
+    match purba_errors::catch("command", || Ok(rewrite(&facts, &names))) {
         Ok(rewrite) => Found::Modules(vec![Module::new(path.to_owned(), rewrite, tests)]),
         Err(error) => Found::NotRewritten(error, tests),
     }

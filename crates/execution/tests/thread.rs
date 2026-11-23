@@ -3,7 +3,8 @@ mod common;
 use std::path::PathBuf;
 
 use common::module;
-use purba_execution::{Kind, Purba};
+use purba_errors::Kind;
+use purba_execution::Purba;
 
 /// The owner of a thread, as dispatch pairs the step that execution names: the
 /// test, by the name of its function, or a load, by the path of its module.

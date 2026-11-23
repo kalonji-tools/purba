@@ -20,7 +20,7 @@ No flag sets how much of a value shows.
 
 ## Decision Outcome
 
-**Reach:** `/CONTEXT.md` `crates/parsing/src/lib.rs` `crates/selection/src/lib.rs` `crates/assertion/src/rewrite.rs` `crates/assertion/src/load.rs` `crates/execution/src/lib.rs` `crates/execution/src/zygote.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/load.rs` `crates/assertion/tests/rewrite.rs` `crates/assertion/tests/rewrite_property.rs` `crates/execution/tests/run.rs` `crates/execution/tests/tally.rs` `crates/dispatch/tests/hand.rs` `tests/kinds.bats` `tests/skeleton.bats` `tests/iterable.bats`
+**Reach:** `/CONTEXT.md` `crates/parsing/src/lib.rs` `crates/selection/src/lib.rs` `crates/assertion/src/rewrite.rs` `crates/assertion/src/load.rs` `crates/execution/src/lib.rs` `crates/errors/src/lib.rs` `crates/execution/src/zygote.rs` `crates/reporting/src/lib.rs` `crates/assertion/tests/load.rs` `crates/assertion/tests/rewrite.rs` `crates/assertion/tests/rewrite_property.rs` `crates/execution/tests/run.rs` `crates/errors/tests/tally.rs` `crates/dispatch/tests/hand.rs` `tests/kinds.bats` `tests/skeleton.bats` `tests/iterable.bats`
 
 **Area:** assertion, execution, parsing, reporting
 

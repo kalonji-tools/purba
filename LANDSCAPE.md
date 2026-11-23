@@ -72,14 +72,13 @@ flowchart TD
   command -- "the outcomes" --> reporting
   command -- "a module" --> parsing
   command -- "a rewrite" --> assertion
-  command -- "a call to catch, a project error, and whether an interrupt was kept" --> execution
+  command -- "whether an interrupt was kept" --> execution
   selection -- "an AST" --> parsing
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
   dispatch -- "a module to load, then each test, its outcome, and whether an interrupt was kept" --> execution
   execution -- "the inputs a test names" --> fixtures
   execution -- "a rewritten module" --> assertion
-  reporting -- "an outcome" --> execution
 ```
 
 ```mermaid
@@ -140,7 +139,7 @@ sequenceDiagram
 ## The invariants
 
 - **lazy work.** No part imports, rewrites, builds or runs anything outside the selection, in command, dispatch, execution, fixtures and assertion.
-- **an outcome is data.** An outcome carries no live Python object, in execution, dispatch and reporting.
+- **an outcome is data.** An outcome, an error, a warning and a tally carry no live Python object, in execution, dispatch and reporting.
 - **an outcome is final.** No part changes an outcome once it is made, in dispatch and reporting.
 - **one identity.** No part names a test except by the identity that selection gives it, in dispatch, execution and reporting.
 - **one parser.** No part but parsing turns Python source into an AST, in selection and assertion.
@@ -156,7 +155,7 @@ sequenceDiagram
 - **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in command, selection, dispatch, execution, fixtures, assertion and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
 - **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
 - **interrupt handling.** Stops the run on an interrupt and tears down what was built, in command, dispatch, execution, fixtures and reporting. [An interrupt stops the run, and a second one exits at once](docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds its design in depth.
-- **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.
+- **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. Its crate is `purba-errors`. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.
 
 [A concern is what no part can own](docs/decisions/a-concern-is-what-no-part-can-own.md) holds why.
 

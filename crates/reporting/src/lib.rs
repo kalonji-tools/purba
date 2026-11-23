@@ -8,7 +8,7 @@ use std::fmt::{self, Display, Write as _};
 use std::io::{self, Write};
 use std::iter;
 
-use purba_execution::{Error, Kind, Outcome, Shown, Tally, Warning};
+use purba_errors::{Error, Kind, Outcome, Shown, Tally, Warning};
 
 /// A write that the writer refused, and the exit code of what the run met by
 /// then: 125 after an internal error, and 3 otherwise.
@@ -363,7 +363,7 @@ mod tests {
     use std::rc::Rc;
 
     use super::*;
-    use purba_execution::{Quote, Shown};
+    use purba_errors::{Quote, Shown};
 
     /// The quote of `assert`, with the expected value and the reading that
     /// `shown` names.
@@ -384,7 +384,7 @@ mod tests {
     /// The internal error that `catch` gives for a panic of `message`, which
     /// names `part`.
     fn internal(part: &str, message: &str) -> Error {
-        purba_execution::catch(part, || -> Result<(), Error> { panic!("{message}") })
+        purba_errors::catch(part, || -> Result<(), Error> { panic!("{message}") })
             .expect_err("a panic gives an error")
     }
 

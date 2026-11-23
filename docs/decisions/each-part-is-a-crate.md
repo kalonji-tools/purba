@@ -42,7 +42,8 @@ The compiler refuses an arrow that a part's manifest does not name.
 | its interface | the `pub` items of the crate's `src/lib.rs` |
 | the parts it uses | the `purba-*` entries of each table of dependencies in its `Cargo.toml`, dev and build included |
 | PyO3 | a dependency only of a part that [crosses the seam](the-skeleton-crosses-the-seam-in-execution-and-assertion.md#decision-outcome), as the seam's line in [the landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names it. A part that the line names may go without PyO3. Any part may name PyO3 among its dev-dependencies |
-| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`, and uses `purba-command` and `purba-execution`, the second for the wrap of Rust's panic hook and for purba's signal handler |
+| the crate of a concern | the crate `purba-<x>` that the concern's line in [the landscape](../../LANDSCAPE.md#the-cross-cutting-concerns) names. It uses no part, and each part that the line names may use it |
+| the crate that builds the extension module | `purba`, which holds `#[pymodule]` and `_main`. It uses `purba-command`, `purba-execution` for the wrap of Rust's panic hook and for purba's signal handler, and `purba-errors` for the part of a panic |
 
 ```mermaid
 flowchart TD
@@ -60,19 +61,20 @@ flowchart TD
   purba-dispatch --> purba-execution
   purba-execution --> purba-fixtures
   purba-execution --> purba-assertion
-  purba-reporting --> purba-execution
 ```
+
+The diagram leaves out `purba-errors`, the crate of the errors concern.
 
 [Every crate lives under crates/](every-crate-lives-under-crates.md#decision-outcome) holds where each crate lives.
 [Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds how a test crosses a part that does not use selection.
 
-- **A check compares the arrows of the manifests with the diagram.** It reads the `purba-*` edges from `cargo metadata`, and the arrows of the parts diagram in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies). It also refuses a call in the sequence of one run that goes along no drawn arrow, and an answer that goes back along none. It refuses a drawn arrow between two crates that the manifest does not use. It refuses a message whose end is not a part, an actor or `_main`. It refuses a part that names PyO3 outside its dev-dependencies, when the seam's line does not name the part. It skips the crate `purba`, which is not a part.
+- **A check compares the arrows of the manifests with the diagram.** It reads the `purba-*` edges from `cargo metadata`, and the arrows of the parts diagram in [the landscape](../../LANDSCAPE.md#the-parts-and-their-dependencies). It also refuses a call in the sequence of one run that goes along no drawn arrow, and an answer that goes back along none. It refuses a drawn arrow between two crates that the manifest does not use. It refuses a message whose end is not a part, an actor or `_main`. It refuses a part that names PyO3 outside its dev-dependencies, when the seam's line does not name the part. It refuses a part that uses a concern's crate when the concern's line does not name the part. It refuses a part that a concern's crate uses. It skips the crate `purba`, which is not a part.
 - **The pull request that adds the second part builds the check.** It runs the check green and red, as [a gate refuses each invariant a tool can see, from the first code it reads](a-gate-refuses-each-invariant-a-tool-can-see.md#decision-outcome) requires.
 - **This record binds no Python file.** The design in depth that first moves a part to Python decides how the boundary of that part shows.
 
 **Downside:**
 
-- **A part that re-exports another part's crate, or a type of it, with `pub use` carries an arrow that no check sees.** The reviewer looks for it. Execution re-exports assertion's `Rewrite`, as [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) decides. It also re-exports assertion's `Shown`, so that what a failed expectation shows crosses execution whole. Reporting names `Shown` through execution.
+- **A part that re-exports another part's crate, or a type of it, with `pub use` carries an arrow that no check sees.** The reviewer looks for it. Execution re-exports assertion's `Rewrite`, as [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) decides.
 - **A type that moves from one part to another edits two manifests.**
 - **No check reads the words of a message in the sequence.** A slice that changes what crosses an arrow edits the message by hand.
 - **The check reads only the dependencies of a part's own manifest.** The check passes a part that links PyO3 through a part it uses along a drawn arrow.
@@ -84,5 +86,7 @@ flowchart TD
 
 `mise run lint:wiring` refuses a use between two parts that the parts diagram does not draw, in a manifest and in the sequence of one run.
 It refuses a part that names PyO3 outside its dev-dependencies, when the seam's line does not name the part.
+It refuses a part that uses a concern's crate when the concern's line does not name the part.
+It refuses a part that a concern's crate uses.
 `mise run test:shell` runs the check on a fixture for each shape it refuses.
 No command checks which parts `purba` uses, because the check skips the crate `purba`.

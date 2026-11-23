@@ -444,6 +444,7 @@ name = "purba"
 version = "0.0.0"
 dependencies = [
  "purba-command",
+ "purba-errors",
  "purba-execution",
  "pyo3",
 ]
@@ -453,11 +454,11 @@ name = "purba-assertion"
 version = "0.0.0"
 dependencies = [
  "proptest",
+ "purba-errors",
  "purba-parsing",
  "pyo3",
  "ruff_python_ast",
  "ruff_text_size",
- "serde",
 ]
 
 [[package]]
@@ -466,6 +467,7 @@ version = "0.0.0"
 dependencies = [
  "purba-assertion",
  "purba-dispatch",
+ "purba-errors",
  "purba-execution",
  "purba-parsing",
  "purba-reporting",
@@ -477,8 +479,16 @@ dependencies = [
 name = "purba-dispatch"
 version = "0.0.0"
 dependencies = [
+ "purba-errors",
  "purba-execution",
  "purba-selection",
+]
+
+[[package]]
+name = "purba-errors"
+version = "0.0.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -487,9 +497,9 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "purba-assertion",
+ "purba-errors",
  "purba-fixtures",
  "pyo3",
- "serde",
 ]
 
 [[package]]
@@ -511,13 +521,14 @@ dependencies = [
 name = "purba-reporting"
 version = "0.0.0"
 dependencies = [
- "purba-execution",
+ "purba-errors",
 ]
 
 [[package]]
 name = "purba-selection"
 version = "0.0.0"
 dependencies = [
+ "purba-errors",
  "purba-parsing",
  "ruff_python_ast",
  "ruff_text_size",

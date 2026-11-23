@@ -1,6 +1,6 @@
 use std::panic;
 
-use purba_execution::panic::{Panic, take};
+use purba_errors::panic::{Panic, take};
 
 // A panic hook belongs to the process, and cargo runs the tests of one binary
 // on several threads. A panic in another test could take the place of the

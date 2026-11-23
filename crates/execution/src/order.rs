@@ -4,7 +4,8 @@
 
 use std::ops::RangeInclusive;
 
-use purba_assertion::{Shown, Swallowed, Try, Verdict};
+use purba_assertion::{Swallowed, Try, Verdict};
+use purba_errors::Shown;
 
 use crate::{Error, Kind, Quote, SUPPRESSIBLE, Suppressed, Warning};
 
