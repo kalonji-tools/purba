@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Each use between two parts, in the manifests of the crates and in the
 # sequence of one run, that the parts diagram of LANDSCAPE.md does not draw.
+# Each part that names pyo3 when the line of the Rust/Python seam does not name it.
 #
 #   the decision:  docs/decisions/each-part-is-a-crate.md
 #   the task:      mise run lint:wiring
@@ -27,6 +28,27 @@ section='The parts and their dependencies'
   cannot "${landscape} cannot be read."
 grep -qx "## ${section}" "${landscape}" ||
   cannot "${landscape} has no section named \"${section}\"."
+concerns='The cross-cutting concerns'
+grep -qx "## ${concerns}" "${landscape}" ||
+  cannot "${landscape} has no section named \"${concerns}\"."
+
+# The parts after the last ", in " of the first sentence of the seam's line, one
+# to a line.
+seam=$(awk -v section="## ${concerns}" -v start='- **the Rust/Python seam.** ' '
+  /^## / { inside = ($0 == section); next }
+  inside && index($0, start) == 1 {
+    found = 1
+    line = substr($0, length(start) + 1)
+    sub(/\. .*/, "", line)
+    sub(/\.$/, "", line)
+    if (!sub(/.*, in /, "", line)) next
+    gsub(/ and /, ", ", line)
+    count = split(line, parts, ", ")
+    for (i = 1; i <= count; i++) print parts[i]
+  }
+  END { exit !found }
+' "${landscape}") ||
+  cannot "${landscape} has no line for the Rust/Python seam."
 crates=$(cargo metadata --no-deps --format-version 1 --manifest-path Cargo.toml) ||
   cannot 'Cargo.toml cannot be read.'
 
@@ -62,14 +84,17 @@ drawn=$(awk -v section="## ${section}" '
   cannot "${landscape} cannot be read."
 
 # shellcheck disable=SC2016 # jq's own variables, not the shell's
-findings=$(jq -nr --arg top "${top}/" --arg drawn "${drawn}" --argjson crates "${crates}" '
+findings=$(jq -nr --arg top "${top}/" --arg drawn "${drawn}" --arg seam "${seam}" \
+  --argjson crates "${crates}" '
   ($drawn | split("\n") | map(select(. != "") | split("\t"))) as $lines
+  | ($seam | split("\n") | map(select(. != ""))) as $seam
   | [$lines[] | select(.[0] == "part") | .[1]] as $parts
   | [$lines[] | select(.[0] == "arrow") | "\(.[1]) \(.[2])"] as $arrows
   | [$lines[] | select(.[0] == "outside") | .[1]] as $outside
   | [$crates.packages[] | select(.name | startswith("purba-"))
       | {part: (.name | ltrimstr("purba-")), name,
         manifest: (.manifest_path | ltrimstr($top)),
+        pyo3: any(.dependencies[]; .name == "pyo3" and .kind != "dev"),
         uses: [.dependencies[].name | select(startswith("purba-")) | ltrimstr("purba-")]}
     ] as $members
   | ($members | map({key: .part, value: .}) | from_entries) as $crate
@@ -83,6 +108,8 @@ findings=$(jq -nr --arg top "${top}/" --arg drawn "${drawn}" --argjson crates "$
         | select($crate[$from] != null and $crate[$to] != null)
         | select($to | IN($crate[$from].uses[]) | not)
         | "unused\t\($from) --> \($to), and \($crate[$from].manifest) names no purba-\($to)"),
+      ($members[] | select(.pyo3) | select(.part | IN($seam[]) | not)
+        | "off-seam\t\(.name) names pyo3, in \(.manifest)"),
       ($lines[] | select(.[0] == "call" or .[0] == "answer") | . as $message
         | if any(.[1], .[2]; IN($parts[], $outside[]) | not) then
             "no-part-end\t\(.[3])"
@@ -135,6 +162,12 @@ found=$(refusals no-part-end)
   "Each end of a message in the sequence of one run must be a part, an actor or _main, \
 because the check reads the arrows of a part only. Name the part in the landscape, or correct \
 the name." \
+  "${found}"
+
+found=$(refusals off-seam)
+[[ -z "${found}" ]] || refuse \
+  "Only a part that the line of the Rust/Python seam names may name pyo3, because the other \
+parts pass data. Name the part in the seam's line, or remove the dependency." \
   "${found}"
 
 finish
