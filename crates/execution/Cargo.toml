@@ -14,5 +14,8 @@ purba-errors = { path = "../errors" }
 purba-fixtures = { path = "../fixtures" }
 pyo3.workspace = true
 
+[features]
+fault = []
+
 [lints]
 workspace = true

@@ -30,7 +30,22 @@ pub fn fork(_py: Python<'_>) -> io::Result<Forked> {
     unsafe { pyo3::ffi::PyOS_BeforeFork() };
     // SAFETY: the child runs only Python and purba's own code, which Python's
     // hooks after the fork made safe to run.
-    let pid = unsafe { libc::fork() };
+    let pid = if refused() {
+        // PROTO 1154: errno as a refused fork leaves it.
+        // SAFETY: the location of errno belongs to this thread.
+        #[cfg(target_os = "linux")]
+        unsafe {
+            *libc::__errno_location() = libc::EAGAIN;
+        }
+        // SAFETY: the location of errno belongs to this thread.
+        #[cfg(target_os = "macos")]
+        unsafe {
+            *libc::__error() = libc::EAGAIN;
+        }
+        -1
+    } else {
+        unsafe { libc::fork() }
+    };
     if pid == 0 {
         // SAFETY: this is the child of the fork that `PyOS_BeforeFork` opened.
         unsafe { pyo3::ffi::PyOS_AfterFork_Child() };
@@ -46,6 +61,15 @@ pub fn fork(_py: Python<'_>) -> io::Result<Forked> {
     } else {
         Ok(Forked::Parent(pid))
     }
+}
+
+/// PROTO 1154: in a build with the feature `fault`, when `PURBA_FAULT` is
+/// `fork` and the file that `PURBA_FAULT_FILE` names exists.
+fn refused() -> bool {
+    cfg!(feature = "fault")
+        && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "fork")
+        && std::env::var_os("PURBA_FAULT_FILE")
+            .is_some_and(|file| std::path::Path::new(&file).exists())
 }
 
 /// Whether purba's own fork runs now.
