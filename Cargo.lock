@@ -479,6 +479,7 @@ dependencies = [
 name = "purba-dispatch"
 version = "0.0.0"
 dependencies = [
+ "libc",
  "purba-errors",
  "purba-execution",
  "purba-selection",

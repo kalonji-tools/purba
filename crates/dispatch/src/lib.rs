@@ -147,10 +147,7 @@ pub fn hand<T: Test + Clone, B>(
                     continue;
                 }
             };
-            for error in threads {
-                each(Handed::LoadThread(path.clone(), error))?;
-            }
-            let flow = run(&mut zygote, path, module.tests, &mut each);
+            let flow = run(&mut zygote, path, threads, module.tests, &mut each);
             zygote.end();
             flow?;
         }
@@ -158,15 +155,20 @@ pub fn hand<T: Test + Clone, B>(
     })
 }
 
-/// Runs each of `tests` of the module at `path` in a process that `zygote`
-/// forks, and hands `each` what it gives. Once the module's process ended, it
-/// hands each test left as blocked by that end, and runs none of them.
+/// Hands `each` the error of each thread that the load of the module at `path`
+/// took. Then runs each of `tests` in a process that `zygote` forks, and hands
+/// `each` what it gives. Once the module's process ended, it hands each test
+/// left as blocked by that end, and runs none of them.
 fn run<T: Test + Clone, B>(
     zygote: &mut Zygote,
     path: PathBuf,
+    threads: Vec<Error>,
     tests: Vec<T>,
     each: &mut impl FnMut(Handed<T>) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
+    for error in threads {
+        each(Handed::LoadThread(path.clone(), error))?;
+    }
     let mut tests = tests.into_iter();
     while let Some(test) = tests.next() {
         if purba_execution::interrupted() {
