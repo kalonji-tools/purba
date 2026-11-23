@@ -43,3 +43,5 @@ The switch causes the internal error through the console script that the wheel i
 `tests/fault.bats` checks that the `fault` wheel panics under `PURBA_FAULT=assert`, `PURBA_FAULT=command`, `PURBA_FAULT=parse`, `PURBA_FAULT=rewrite` and `PURBA_FAULT=selection`.
 It checks that a test passes on the `fault` wheel without the variable.
 It checks that the wheel without `fault` panics under none of them.
+
+[A test of the wheel makes each fork fail through a library it preloads](a-test-of-the-wheel-makes-each-fork-fail-through-a-library-it-preloads.md#decision-outcome) causes an error that purba expects, a refused fork.
