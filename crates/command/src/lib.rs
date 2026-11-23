@@ -99,11 +99,7 @@ pub fn run_with(
     let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
         Ok(Ok(module)) => module,
         Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
-        Ok(Err(purba_parsing::Error::Decode(error))) => {
-            let error = purba_errors::Error::project(error.to_string());
-            return stopped(report, &path, &error);
-        }
-        Ok(Err(purba_parsing::Error::Syntax(error))) => {
+        Ok(Err(error)) => {
             let error = purba_errors::Error::project(error.to_string());
             return stopped(report, &path, &error);
         }

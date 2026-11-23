@@ -292,9 +292,9 @@ fn a_walk_over_nodes_that_nest_deeper_than_the_stack_returns() {
     for (name, text, expected) in [
         ("statements", statements_text, [DEPTH + 1, DEPTH, 0]),
         (
-            "minus",
-            format!("x = {}1\n", "-".repeat(20_000)),
-            [1, 20_002, 0],
+            "power",
+            format!("x = {}1\n", "a ** -".repeat(20_000)),
+            [1, 60_002, 0],
         ),
         (
             "subscript",

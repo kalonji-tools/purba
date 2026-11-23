@@ -301,9 +301,11 @@ fn a_module_whose_every_test_is_refused_does_not_load() {
 
 #[test]
 fn a_module_that_does_not_parse_prints_its_line_and_no_test() {
+    let chain = format!("y = {}x\n", "-".repeat(6_000));
     for (name, text) in [
         ("test_command_bare.py", "def test_a():\n    assert\n"),
         ("test_command_eof.py", "x = (\n"),
+        ("test_command_chain.py", chain.as_str()),
     ] {
         let (path, kinds, code) = run_module(name, text);
         assert_eq!(

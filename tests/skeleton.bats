@@ -534,6 +534,36 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
+@test "a target that chains too deep prints CPython's words once, and no test of it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  local chain
+  chain=$(printf -- '-%.0s' {1..200000})
+  printf '%s\n' 'def test_deep():' "    ${chain}x = 1" '    assert 1 == 1' >test_neg.py
+
+  run -4 --separate-stderr purba test_neg.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_neg.py project error: MemoryError: Parser stack overflowed - Python source too complex to parse
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a target one operator short of the limit prints ruff's error, and no test of it" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  local chain
+  chain=$(printf -- '-%.0s' {1..5999})
+  printf '%s\n' 'def test_deep():' "    ${chain}x = 1" '    assert 1 == 1' >test_neg.py
+
+  run -4 --separate-stderr purba test_neg.py
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_neg.py project error: SyntaxError: Invalid assignment target
+0 cases; 1 project error
+LINES
+  [[ -z "${stderr}" ]]
+}
+
 @test "a module in a newer Python's syntax prints CPython's error once, and its test as blocked" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'lazy import os' 'def test_one():' '    assert 1 == 1' >test_lazy.py

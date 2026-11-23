@@ -659,7 +659,10 @@ fn selection_judges_the_last_def_of_a_name_at_the_place_of_the_first() {
 fn a_body_that_nests_deeper_than_the_stack_does_not_crash_selection() {
     const SMALL_STACK: usize = 256 * 1024;
     for (name, statement) in [
-        ("test_deep_minus.py", format!("x = {}1", "-".repeat(20_000))),
+        (
+            "test_deep_power.py",
+            format!("x = {}1", "a ** -".repeat(20_000)),
+        ),
         (
             "test_deep_subscript.py",
             format!("x = y{}", "[0]".repeat(20_000)),
@@ -1353,7 +1356,7 @@ fn a_refused_line_names_the_reasons_of_the_def_then_each_fault_of_the_body_in_so
 #[test]
 fn an_expectation_that_nests_deeper_than_the_stack_does_not_crash_selection() {
     const SMALL_STACK: usize = 256 * 1024;
-    let deep = "-".repeat(20_000);
+    let deep = "1 ** -".repeat(20_000);
     let chain = "[0]".repeat(20_000);
     let text = format!(
         "def test_deep():\n    assert x == {deep}1\n    assert {deep}x == 1\n    \
