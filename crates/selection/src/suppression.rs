@@ -214,6 +214,10 @@ fn read(text: &str) -> Option<Read<'_>> {
         .trim_start()
         .strip_prefix("purba:")?;
     let rest = rest.trim_start();
+    // Prototype: `# purba: set[...]` belongs to the command's configuration.
+    if rest.starts_with("set[") {
+        return None;
+    }
     let (module, rest) = if let Some(rest) = rest.strip_prefix("suppress-module[") {
         (true, rest)
     } else if let Some(rest) = rest.strip_prefix("suppress[") {
@@ -373,6 +377,69 @@ impl Sites {
             }
         }
     }
+}
+
+/// Prototype: a `# purba: set[<key>] <value>` comment above a `def`.
+#[derive(Clone, Debug)]
+pub struct Setting {
+    pub function: String,
+    pub key: String,
+    pub value: String,
+    pub line: usize,
+}
+
+/// Prototype: each `# purba: set[...]` comment that sits above a `def`, and
+/// the line of each that sits above none. A comment attaches to a `def` as a
+/// suppression does: on lines of their own, with only comments between.
+#[must_use]
+pub fn settings(facts: &Facts<'_>) -> (Vec<Setting>, Vec<usize>) {
+    let module = facts.module();
+    let defs: Vec<(&str, usize)> = facts
+        .defs()
+        .iter()
+        .map(|function| {
+            (
+                function.name.as_str(),
+                module.position(start_of_def(function)).line(),
+            )
+        })
+        .collect();
+    let comments = comments(module);
+    let own_lines: HashSet<usize> = comments
+        .iter()
+        .filter(|(_, own_line, _)| *own_line)
+        .map(|(line, _, _)| *line)
+        .collect();
+    let mut found = Vec::new();
+    let mut stray = Vec::new();
+    for (line, own_line, text) in comments {
+        let Some((key, value)) = set(text) else {
+            continue;
+        };
+        let def = defs.iter().find(|(_, top)| {
+            own_line && *top > line && (line + 1..*top).all(|between| own_lines.contains(&between))
+        });
+        match def {
+            Some((name, _)) => found.push(Setting {
+                function: (*name).to_owned(),
+                key: key.to_owned(),
+                value: value.trim().to_owned(),
+                line,
+            }),
+            None => stray.push(line),
+        }
+    }
+    (found, stray)
+}
+
+/// The key and the value of a `# purba: set[<key>] <value>` comment.
+fn set(text: &str) -> Option<(&str, &str)> {
+    text.strip_prefix('#')?
+        .trim_start()
+        .strip_prefix("purba:")?
+        .trim_start()
+        .strip_prefix("set[")?
+        .split_once(']')
 }
 
 /// Each comment of `module`: its line, whether it sits on a line of its own,

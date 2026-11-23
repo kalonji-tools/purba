@@ -1120,6 +1120,10 @@ fn live_as_zygote(
         match fork(py) {
             Ok(Forked::Child) => {
                 drop(tests);
+                if let Some(seconds) = crate::timeout_of(&function).filter(|&seconds| seconds > 0) {
+                    // SAFETY: `alarm` only arms a timer of this process.
+                    unsafe { libc::alarm(seconds) };
+                }
                 live_as_child(py, &mut worker, &children, &function, way, frames)
             }
             Ok(Forked::Parent(pid)) => {

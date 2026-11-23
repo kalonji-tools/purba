@@ -20,7 +20,7 @@ mod suppression;
 
 use lookup::{Lookup, Origin};
 use suppression::Check;
-pub use suppression::{Suppression, seen_by_the_run};
+pub use suppression::{Setting, Suppression, seen_by_the_run, settings};
 
 /// A test's identity. Only selection constructs one. It displays its path,
 /// then each class on the way to the test, then its function, joined by `::`.
@@ -535,6 +535,13 @@ impl Selected {
     #[must_use]
     pub fn unused(&self) -> Vec<String> {
         self.ledger.unused()
+    }
+
+    /// Prototype: how many suppressions the module holds, above a test or of
+    /// the module, not counting one with a fault.
+    #[must_use]
+    pub fn suppressions(&self) -> usize {
+        self.ledger.entries.len()
     }
 }
 

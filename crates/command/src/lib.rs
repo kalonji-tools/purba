@@ -9,6 +9,8 @@ use std::path::{Path, PathBuf};
 use purba_dispatch::{Handed, Module};
 use purba_selection::TestId;
 
+mod config;
+
 /// Why a run did not finish.
 #[derive(Debug)]
 pub enum Error {
@@ -23,6 +25,8 @@ pub enum Error {
     Refused { error: io::Error, code: u8 },
     /// An interrupt came before selection ended, so no count exists.
     Interrupted,
+    /// Prototype: a level of configuration holds what the prototype refuses.
+    Config(String),
 }
 
 impl From<purba_reporting::Refused> for Error {
@@ -43,6 +47,7 @@ impl fmt::Display for Error {
                 formatter,
                 "an interrupt stopped the run before selection ended"
             ),
+            Self::Config(words) => write!(formatter, "configuration: {words}"),
         }
     }
 }
@@ -93,7 +98,7 @@ pub fn run_with(
     {
         panic!("PURBA_FAULT=command");
     }
-    let path = path(arguments)?;
+    let (path, config) = config::read(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
     let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
@@ -110,6 +115,9 @@ pub fn run_with(
         Ok(read) => read,
         Err(error) => return stopped(report, &path, &error),
     };
+    let codes = config::code(&path, &facts)?;
+    config.print(&codes);
+    purba_execution::set_timeouts(config.value("timeout"), config.timeouts(&codes));
     not_interrupted()?;
     for refused in selected.refused() {
         let test = refused.test();
@@ -125,6 +133,20 @@ pub fn run_with(
         report.stopped(
             &path.display(),
             &purba_errors::Error::project(fault.to_owned()),
+            &[],
+            selected.tests(),
+        )?;
+        return Ok(report.finish()?);
+    }
+    if let Some(cap) = config.value("suppression-cap")
+        && selected.suppressions() > cap as usize
+    {
+        report.stopped(
+            &path.display(),
+            &purba_errors::Error::project(format!(
+                "{} suppressions, and the cap is {cap}",
+                selected.suppressions()
+            )),
             &[],
             selected.tests(),
         )?;

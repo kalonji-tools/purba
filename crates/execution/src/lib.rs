@@ -461,3 +461,21 @@ pub fn set_hooks() -> pyo3::PyResult<()> {
 pub fn interrupted() -> bool {
     Python::try_attach(interrupt::kept).unwrap_or(false)
 }
+
+/// Prototype: the timeout in seconds of each test, by the name of its function,
+/// and of every other test.
+static TIMEOUTS: std::sync::OnceLock<(Option<u32>, std::collections::HashMap<String, u32>)> =
+    std::sync::OnceLock::new();
+
+/// Prototype: sets the timeout of each test before the run. A test's process
+/// arms an alarm for its timeout, so SIGALRM ends a test that runs too long.
+/// A timeout of 0 arms nothing.
+pub fn set_timeouts(every: Option<u32>, each: std::collections::HashMap<String, u32>) {
+    drop(TIMEOUTS.set((every, each)));
+}
+
+/// Prototype: the timeout of the test `function`, or `None`.
+pub(crate) fn timeout_of(function: &str) -> Option<u32> {
+    let (every, each) = TIMEOUTS.get()?;
+    each.get(function).copied().or(*every)
+}
