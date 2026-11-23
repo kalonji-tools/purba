@@ -1,0 +1,28 @@
+scenario: S6
+variant: stricter-wins
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=stricter-wins PURBA_TIMEOUT=1
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+timeout = 10
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow raised: its process died by SIGALRM
+test_mod.py::test_quick passed
+2 cases: 1 passed, 1 raised
+--- stderr
+purba: configuration, rule stricter-wins, fence open, user file merge
+purba: timeout = 1, from the environment (PURBA_TIMEOUT)
+--- exit 4
+--- seconds 1.0

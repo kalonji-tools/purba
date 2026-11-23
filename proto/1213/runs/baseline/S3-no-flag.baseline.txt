@@ -1,0 +1,27 @@
+scenario: S3-no-flag
+variant: baseline
+purba: wheel from 27e8f559 (main)
+env: (none)
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+timeout = 4
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+# purba: set[timeout] 6
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow project error: line 4 is a purba comment that reads as no suppression, and a suppression reads # purba: suppress[<check>] <reason>
+test_mod.py::test_quick passed
+2 cases: 1 passed, 1 blocked; 1 project error
+--- stderr
+--- exit 4
+--- seconds 0.0

@@ -1,0 +1,26 @@
+scenario: S5
+variant: baseline
+purba: wheel from 27e8f559 (main)
+env: (none)
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+tmeout = 5
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow passed
+test_mod.py::test_quick passed
+2 cases: 2 passed
+--- stderr
+--- exit 0
+--- seconds 2.0

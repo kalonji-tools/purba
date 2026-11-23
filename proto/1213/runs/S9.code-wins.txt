@@ -1,0 +1,30 @@
+scenario: S9
+variant: code-wins
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=code-wins
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+timeout = 1
+--- file <tmp>/xdg/purba/purba.toml
+timeout = 0
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow raised: its process died by SIGALRM
+test_mod.py::test_quick passed
+2 cases: 1 passed, 1 raised
+--- stderr
+purba: configuration, rule code-wins, fence open, user file merge
+purba: timeout = 1, from the project file <tmp>/proj/pyproject.toml
+--- exit 4
+--- seconds 1.0

@@ -1,0 +1,22 @@
+scenario: S10
+variant: baseline
+purba: wheel from 27e8f559 (main)
+env: (none)
+command: cd <tmp>/proj && purba test_mod.py
+--- module <tmp>/proj/test_mod.py
+import json
+
+
+# purba: set[suppression-cap] 5
+# purba: suppress[computed-expected] the payload is its own expected value
+def test_round_trip():
+    obj = {"a": 1}
+    assert json.loads(json.dumps(obj)) == obj
+--- stdout
+test_mod.py::test_round_trip project error: line 4 is a purba comment that reads as no suppression, and a suppression reads # purba: suppress[<check>] <reason>
+    ⚠ suppressed [computed-expected] line 8 computes obj, and an expected value is a literal
+      reason: the payload is its own expected value
+1 case: 1 blocked; 1 project error; 1 suppressed
+--- stderr
+--- exit 4
+--- seconds 0.0

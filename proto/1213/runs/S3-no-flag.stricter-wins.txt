@@ -1,0 +1,30 @@
+scenario: S3-no-flag
+variant: stricter-wins
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=stricter-wins
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+timeout = 4
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+# purba: set[timeout] 6
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow passed
+test_mod.py::test_quick passed
+2 cases: 2 passed
+--- stderr
+purba: configuration, rule stricter-wins, fence open, user file merge
+purba: timeout = 4, from the project file <tmp>/proj/pyproject.toml, for every other test
+purba: timeout = 4, from the project file <tmp>/proj/pyproject.toml, for test_slow
+--- exit 0
+--- seconds 2.0

@@ -1,0 +1,26 @@
+scenario: S1
+variant: higher-overwrites
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=higher-overwrites
+command: cd <tmp>/proj && purba --suppression-cap 50 test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+suppression-cap = 0
+--- module <tmp>/proj/test_mod.py
+import json
+
+
+# purba: suppress[computed-expected] the payload is its own expected value
+def test_round_trip():
+    obj = {"a": 1}
+    assert json.loads(json.dumps(obj)) == obj
+--- stdout
+test_mod.py::test_round_trip passed
+    ⚠ suppressed [computed-expected] line 7 computes obj, and an expected value is a literal
+      reason: the payload is its own expected value
+1 case: 1 passed; 1 suppressed
+--- stderr
+purba: configuration, rule higher-overwrites, fence open, user file merge
+purba: suppression-cap = 50, from the command line
+--- exit 0
+--- seconds 0.0

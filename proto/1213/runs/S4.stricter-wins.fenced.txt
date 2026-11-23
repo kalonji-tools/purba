@@ -1,0 +1,25 @@
+scenario: S4
+variant: stricter-wins.fenced
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=stricter-wins PURBA_PROTO_FENCE=fenced
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/xdg/purba/purba.toml
+timeout = 5
+--- file <tmp>/system/purba.toml
+timeout = 1
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+--- stderr
+purba: invocation error: configuration: the user file <tmp>/xdg/purba/purba.toml sets timeout, and the fence closes this level to a dial that can change an outcome
+--- exit 3
+--- seconds 0.0

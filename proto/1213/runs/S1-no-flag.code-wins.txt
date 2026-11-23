@@ -1,0 +1,25 @@
+scenario: S1-no-flag
+variant: code-wins
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=code-wins
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+suppression-cap = 0
+--- module <tmp>/proj/test_mod.py
+import json
+
+
+# purba: suppress[computed-expected] the payload is its own expected value
+def test_round_trip():
+    obj = {"a": 1}
+    assert json.loads(json.dumps(obj)) == obj
+--- stdout
+test_mod.py project error: 1 suppressions, and the cap is 0
+test_mod.py::test_round_trip blocked: test_mod.py did not load
+1 case: 1 blocked; 1 project error
+--- stderr
+purba: configuration, rule code-wins, fence open, user file merge
+purba: suppression-cap = 0, from the project file <tmp>/proj/pyproject.toml
+--- exit 4
+--- seconds 0.0

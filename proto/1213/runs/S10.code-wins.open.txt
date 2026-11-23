@@ -1,0 +1,19 @@
+scenario: S10
+variant: code-wins.open
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=code-wins PURBA_PROTO_FENCE=open
+command: cd <tmp>/proj && purba test_mod.py
+--- module <tmp>/proj/test_mod.py
+import json
+
+
+# purba: set[suppression-cap] 5
+# purba: suppress[computed-expected] the payload is its own expected value
+def test_round_trip():
+    obj = {"a": 1}
+    assert json.loads(json.dumps(obj)) == obj
+--- stdout
+--- stderr
+purba: invocation error: configuration: test_mod.py line 4: code sets suppression-cap, and code may set only timeout
+--- exit 3
+--- seconds 0.0

@@ -1,0 +1,21 @@
+scenario: S1
+variant: baseline
+purba: wheel from 27e8f559 (main)
+env: (none)
+command: cd <tmp>/proj && purba --suppression-cap 50 test_mod.py
+--- file <tmp>/proj/pyproject.toml
+[tool.purba]
+suppression-cap = 0
+--- module <tmp>/proj/test_mod.py
+import json
+
+
+# purba: suppress[computed-expected] the payload is its own expected value
+def test_round_trip():
+    obj = {"a": 1}
+    assert json.loads(json.dumps(obj)) == obj
+--- stdout
+--- stderr
+purba: invocation error: usage: purba <path to one .py file>
+--- exit 3
+--- seconds 0.0

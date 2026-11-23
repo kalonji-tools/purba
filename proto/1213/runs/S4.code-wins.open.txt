@@ -1,0 +1,29 @@
+scenario: S4
+variant: code-wins.open
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=code-wins PURBA_PROTO_FENCE=open
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/xdg/purba/purba.toml
+timeout = 5
+--- file <tmp>/system/purba.toml
+timeout = 1
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow passed
+test_mod.py::test_quick passed
+2 cases: 2 passed
+--- stderr
+purba: configuration, rule code-wins, fence open, user file merge
+purba: timeout = 5, from the user file <tmp>/xdg/purba/purba.toml
+--- exit 0
+--- seconds 2.0

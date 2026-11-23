@@ -1,0 +1,27 @@
+scenario: S8
+variant: higher-overwrites.fenced
+purba: wheel from fedc6c12
+env: PURBA_PROTO_RULE=higher-overwrites PURBA_PROTO_FENCE=fenced
+command: cd <tmp>/proj && purba test_mod.py
+--- file <tmp>/xdg/purba/purba.toml
+workers = 4
+--- module <tmp>/proj/test_mod.py
+import time
+
+
+def test_slow():
+    time.sleep(2)
+    assert 1 + 1 == 2
+
+
+def test_quick():
+    assert 1 + 1 == 2
+--- stdout
+test_mod.py::test_slow passed
+test_mod.py::test_quick passed
+2 cases: 2 passed
+--- stderr
+purba: configuration, rule higher-overwrites, fence fenced, user file merge
+purba: workers = 4, from the user file <tmp>/xdg/purba/purba.toml
+--- exit 0
+--- seconds 2.0
