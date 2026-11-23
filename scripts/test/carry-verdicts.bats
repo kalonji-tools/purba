@@ -1,6 +1,12 @@
 # .github/scripts/carry-verdicts.sh against the verdicts it will not carry.
 : "${BATS_TEST_DIRNAME:?set by bats}"
 
+setup_file() {
+  # shellcheck source=scripts/test/gate-keys.sh
+  . "${BATS_TEST_DIRNAME}/gate-keys.sh"
+  make_gate_keys
+}
+
 setup() {
   # shellcheck source=scripts/test/fixture.sh
   . "${BATS_TEST_DIRNAME}/fixture.sh"

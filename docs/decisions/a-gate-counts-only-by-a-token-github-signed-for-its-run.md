@@ -25,7 +25,7 @@ A probe in a sandbox measured the verdict that `check-run.sh` read before this r
 
 ## Decision Outcome
 
-**Reach:** `.github/workflows/ci.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `scripts/test/check-run.bats` `scripts/test/fixture.sh` `/.config/mise.toml` `/.config/mise.lock` `/pyproject.toml`
+**Reach:** `.github/workflows/ci.yml` `.github/scripts/check-run.sh` `.github/scripts/write-acceptance-trailer.sh` `scripts/test/check-run.bats` `scripts/test/fixture.sh` `scripts/test/gate-keys.sh` `/.config/mise.toml` `/.config/mise.lock` `/pyproject.toml`
 
 **Area:** workflow
 
