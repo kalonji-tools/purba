@@ -7,17 +7,33 @@ setup() {
   script="${BATS_TEST_DIRNAME}/../crate-verdict.sh"
   make_repo
   comment="https://github.com/kalonji-tools/purba/issues/960#issuecomment-6874866548"
-  missing_refused="A crate that a manifest names is refused when .config/crates.toml holds no entry"
-  version_refused="An entry is refused when its version differs from the version the lock holds"
-  levels_refused="An entry is refused when a factor has no level from 1 to 3"
-  scored_refused="An entry is refused when scored names neither a record under docs/decisions/"
-  malformed_refused="A waiver is refused when it names anything except an advisory id"
-  excess_refused="A waiver is refused when it names a failure its crate does not have"
-  unwaived_refused="A crate is refused when it fails something its waiver does not name"
-  out_refused="A crate is refused when a check fails or its relief does not exceed its pain"
-  gate_refused="A finding of the advisory or the source check is refused when it names no crate"
-  shortlisted_levels_refused="An entry of .config/shortlists.toml is refused when a level is not"
-  shortlisted_needs_refused="An entry of .config/shortlists.toml is refused when its needs value"
+  missing_refused="A crate that a manifest names is refused when .config/crates.toml holds no \
+entry for it, because its verdict is calculated from that entry. Add an entry with a level for \
+each factor."
+  version_refused="An entry is refused when its version differs from the version the lock holds, \
+because its levels judge one version. Judge the whole entry again for the locked version."
+  levels_refused="An entry is refused when a factor has no level from 1 to 3, because its pain \
+and its verdict are calculated from each level."
+  scored_refused="An entry is refused when scored names neither a record under docs/decisions/ \
+nor an issue comment, because scored links where a person scored the relief and the trust."
+  malformed_refused="A waiver is refused when it names anything except an advisory id, source or \
+score, or has no why or no issue, because a person decides each failure it lets through, and \
+says why and where."
+  excess_refused="A waiver is refused when it names a failure its crate does not have, because a \
+waiver that lets nothing through outlives its reason. Remove that failure from the waiver."
+  unwaived_refused="A crate is refused when it fails something its waiver does not name, because \
+a waiver lets through only the failures a person decided."
+  out_refused="A crate is refused when a check fails or its relief does not exceed its pain, and \
+no waiver lets it in, because a crate joins only when each check passes and its relief exceeds \
+its pain."
+  gate_refused="A finding of the advisory or the source check is refused when it names no crate \
+that a manifest names, because no waiver can let it through. Fix the crate, or ignore the \
+advisory in the deny.toml of its graph with a reason."
+  shortlisted_levels_refused="An entry of .config/shortlists.toml is refused when a level is not \
+1, 2 or 3, because lint:crates calculates its pain and its needs from each level."
+  shortlisted_needs_refused="An entry of .config/shortlists.toml is refused when its needs value \
+differs from the lowest relief that lets its crate join at the pain its levels give, because a \
+change to a level or a weight must not move that relief unseen."
 
   # Each graph answers by its key: `workspace` for the root, and the directory
   # of a cargo script for that script, whose .cargo/<directory>.deny.toml names it.
@@ -176,7 +192,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${missing_refused}"* ]]
+  output_has_line "${missing_refused}"
   [[ "${output}" == *"  libc 0.2.0, in the workspace"* ]]
   [[ "${output}" != *"serde 1.0.0, in"* ]]
 }
@@ -198,7 +214,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${out_refused}"* ]]
+  output_has_line "${out_refused}"
   [[ "${output}" == *"  serde: pain 2.00, relief 2, fails score"* ]]
 }
 
@@ -217,7 +233,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${out_refused}"* ]]
+  output_has_line "${out_refused}"
   [[ "${output}" == *"  serde: pain 1.00, relief 2, fails RUSTSEC-2026-0001"* ]]
 }
 
@@ -228,7 +244,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${out_refused}"* ]]
+  output_has_line "${out_refused}"
   [[ "${output}" == *"  serde: pain 1.00, relief 2, fails source"* ]]
 }
 
@@ -238,7 +254,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${gate_refused}"* ]]
+  output_has_line "${gate_refused}"
   [[ "${output}" == *"  serde 0.9.0, in the workspace: RUSTSEC-2026-0001"* ]]
   [[ "${output}" != *"${out_refused}"* ]]
 }
@@ -264,7 +280,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${excess_refused}"* ]]
+  output_has_line "${excess_refused}"
   [[ "${output}" == *"  serde: score"* ]]
 }
 
@@ -277,7 +293,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unwaived_refused}"* ]]
+  output_has_line "${unwaived_refused}"
   [[ "${output}" == *"  serde: RUSTSEC-2026-0001"* ]]
   [[ "${output}" != *"${out_refused}"* ]]
 }
@@ -290,7 +306,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${malformed_refused}"* ]]
+  output_has_line "${malformed_refused}"
   [[ "${output}" == *"  serde: licence"* ]]
 }
 
@@ -301,7 +317,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${malformed_refused}"* ]]
+  output_has_line "${malformed_refused}"
   [[ "${output}" == *"  serde: no why"* ]]
   [[ "${output}" == *"  serde: no issue"* ]]
 }
@@ -313,7 +329,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${scored_refused}"* ]]
+  output_has_line "${scored_refused}"
   [[ "${output}" == *"  serde: no scored"* ]]
 }
 
@@ -327,7 +343,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${scored_refused}"* ]]
+  output_has_line "${scored_refused}"
   [[ "${output}" == *"  serde: docs/serde.md"* ]]
 }
 
@@ -359,7 +375,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${version_refused}"* ]]
+  output_has_line "${version_refused}"
   [[ "${output}" == *"  serde: the entry judges 1.0.0, and the workspace locks 1.1.0"* ]]
 }
 
@@ -370,7 +386,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${levels_refused}"* ]]
+  output_has_line "${levels_refused}"
   [[ "${output}" == *"  serde: unsafe is 4"* ]]
   [[ "${output}" == *"  serde: upkeep has no level"* ]]
   [[ "${output}" != *"${out_refused}"* ]]
@@ -382,7 +398,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${gate_refused}"* ]]
+  output_has_line "${gate_refused}"
   [[ "${output}" == *"  zip 8.6.0, in the workspace: RUSTSEC-2026-0367"* ]]
 }
 
@@ -392,7 +408,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${gate_refused}"* ]]
+  output_has_line "${gate_refused}"
   [[ "${output}" == *"  the workspace: advisory-not-detected"* ]]
 }
 
@@ -404,7 +420,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${missing_refused}"* ]]
+  output_has_line "${missing_refused}"
   [[ "${output}" == *"  pulldown-cmark 0.13.6, in scripts/tool/tool.rs"* ]]
   asked=$(calls cargo)
   [[ "${asked}" == *"-Zscript"*"--manifest-path scripts/tool/tool.rs"* ]]
@@ -444,7 +460,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${shortlisted_levels_refused}"* ]]
+  output_has_line "${shortlisted_levels_refused}"
   [[ "${output}" == *"  read-flags.clap: unsafe is 4"* ]]
   [[ "${output}" == *"  read-flags.clap: upkeep has no level"* ]]
   [[ "${output}" != *"${shortlisted_needs_refused}"* ]]
@@ -457,7 +473,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${shortlisted_needs_refused}"* ]]
+  output_has_line "${shortlisted_needs_refused}"
   [[ "${output}" == *"  read-flags.clap: needs 2, and its levels need 3 (pain 2.00)"* ]]
 }
 
@@ -479,7 +495,7 @@ cargo_script() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${shortlisted_needs_refused}"* ]]
+  output_has_line "${shortlisted_needs_refused}"
   [[ "${output}" == *"  read-flags.clap: needs 3, and its levels need 2 (pain 1.00)"* ]]
 }
 

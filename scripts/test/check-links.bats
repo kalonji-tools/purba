@@ -19,10 +19,16 @@ setup() {
   write README.md '# purba'
   settle
   export PURBA_BASE=HEAD
-  offline="A link to a file or a heading in this tree is refused"
-  online="A link in a file this branch changes is refused"
-  cited="A path that a comment cites is refused"
-  pypi="A link in the README is refused unless it names a full address or a heading of the README"
+  offline="A link to a file or a heading in this tree is refused when its target does not exist. \
+A renamed file leaves every link to it dead."
+  online="A link in a file this branch changes is refused unless it reaches its target as \
+written, or its server does not answer in time or answers 503, because its reader must reach the \
+address it names. A link in any other file is read only for a target in this tree."
+  cited="A path that a comment cites is refused when git does not track it. A renamed file \
+leaves every comment that cites it pointing nowhere."
+  pypi="A link in the README is refused unless it names a full address or a heading of the \
+README, because PyPI shows the README as purba's page, and any other link resolves to nothing \
+there."
   slow="A link whose server does not answer in time, or answers 503, passes unchecked"
 }
 
@@ -70,7 +76,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == "${offline}"* ]]
+  output_has_line "${offline}"
+  [[ "${output}" == "${offline}"$'\n'* ]]
   [[ "${output}" == *$'\n  [a.md]'* ]]
   [[ "${output}" == *"b.md#title"* ]]
 }
@@ -82,7 +89,7 @@ FAKE
   run env FORCE_COLOR=3 "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
+  output_has_line "${offline}"
   [[ "${output}" == *"b.md#title"* ]]
 }
 
@@ -93,7 +100,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
+  output_has_line "${offline}"
   [[ "${output}" == *"b.md#nope"* ]]
 }
 
@@ -120,7 +127,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
+  output_has_line "${offline}"
   [[ "${output}" == *"${dead}"* ]]
 }
 
@@ -222,8 +229,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${online} unless it reaches its target as written"* ]]
-  [[ "${output}" == *"because its reader must reach the address it names"* ]]
+  output_has_line "${online}"
   [[ "${output}" == *"[404] https://example.invalid/gone"* ]]
   [[ "${output}" != *"${offline}"* ]]
 }
@@ -270,8 +276,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
+  output_has_line "${online}"
   refusal=$(block "${online}")
-  [[ "${refusal}" == *"or its server does not answer in time or answers 503"* ]]
   [[ "${refusal}" == *$'\n  [c.md]:'* && "${refusal}" == *$'\n  [d.md]:'* ]]
   [[ "${refusal}" == *"[404] https://example.invalid/gone"* ]]
   [[ "${refusal}" == *"[404] https://example.invalid/lost"* ]]
@@ -307,7 +313,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
+  output_has_line "${offline}"
   [[ "${output}" != *"${online}"* ]]
 }
 
@@ -332,7 +338,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${cited}"* ]]
+  output_has_line "${cited}"
   [[ "${output}" == *"tasks.toml:2: docs/decisions/gone.md"* ]]
 }
 
@@ -377,7 +383,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${cited}"* ]]
+  output_has_line "${cited}"
   [[ "${output}" == *"crates/purba/src/lib.rs:1: crates/purba/gone.rs"* ]]
   [[ "${output}" != *"crates/purba/src/lib.rs:2:"* ]]
 }
@@ -402,7 +408,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${pypi}"* ]]
+  output_has_line "${pypi}"
   [[ "${output}" == *"README.md: LICENSE"* ]]
   [[ "${output}" != *"${offline}"* ]]
 }
@@ -484,8 +490,8 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${offline}"* ]]
-  [[ "${output}" == *"${cited}"* ]]
+  output_has_line "${offline}"
+  output_has_line "${cited}"
 }
 
 @test "a run from a subdirectory reads the whole tree" {

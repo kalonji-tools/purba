@@ -8,6 +8,8 @@ setup() {
   script="${BATS_TEST_DIRNAME}/../check-macos-jobs.sh"
   isolate
   file="${BATS_TEST_TMPDIR}/ci.yml"
+  too_many="A pull request is refused when its workflow asks for more than 5 macOS jobs on one \
+push, because the Free plan runs 5 at once, and a sixth waits for a runner to come free."
 }
 
 # Writes a workflow of <n> jobs that each name macOS, then the jobs on stdin.
@@ -57,10 +59,7 @@ JOBS
   [[ "${output}" == *"6 macOS jobs"* ]]
   [[ "${output}" == *$'\n  sixth: 1'* ]]
   [[ "${output}" == *$'\n  plain-1: 1'* ]]
-  summary="A pull request is refused when its workflow asks for more than 5 macOS jobs on"
-  summary+=" one push, because the Free plan runs 5 at once, and a sixth waits for a runner"
-  summary+=" to come free."
-  [[ "${output}" == *"${summary}"* ]]
+  output_has_line "${too_many}"
 }
 
 @test "a matrix that crosses macOS with three Pythons counts three" {

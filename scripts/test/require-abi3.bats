@@ -6,6 +6,9 @@ setup() {
   # shellcheck source=scripts/test/fixture.sh
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../../.github/scripts/require-abi3.sh"
+  off_floor="A wheel is uploaded only as cp312-abi3, because one abi3 wheel loads on every \
+CPython from the floor up that is not free-threaded, and requires-python names that floor to a \
+resolver. These are not:"
   isolate
   cd "${BATS_TEST_TMPDIR}" || return 1
   printf '[project]\nname = "purba"\nrequires-python = ">=3.12"\n' >pyproject.toml
@@ -37,7 +40,7 @@ wheels() {
   run "${script}" dist
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"cp312-abi3"* ]]
+  output_has_line "${off_floor}"
   [[ "${output}" == *"purba-0.1.0-cp314-cp314t-manylinux_2_34_x86_64.whl"* ]]
   [[ "${output}" != *"win_amd64"* ]]
 }
@@ -62,6 +65,7 @@ wheels() {
   run "${script}" dist
 
   [[ "${status}" -eq 1 ]]
+  output_has_line "${off_floor}"
   [[ "${output}" == *"purba-0.1.0-cp313-abi3-win_amd64.whl"* ]]
 }
 

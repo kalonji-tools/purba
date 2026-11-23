@@ -6,11 +6,19 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../order-of-design.sh"
   make_repo
-  order_refused="The order of design is refused when it differs from the order the rule calculates"
-  row_refused="A risk is refused when its score or the item it lands on differs from its row"
-  no_row_refused="A risk is refused when the record holds no row for it"
-  unknown_refused="A name is refused when it is no part or concern of the landscape"
-  circle_refused="The order of design is refused when items wait on each other in a circle"
+  order_refused="The order of design is refused when it differs from the order the rule \
+calculates, because two people must get one order from the same landscape. Run mise run \
+fmt:order."
+  row_refused="A risk is refused when its score or the item it lands on differs from its row in \
+the record, because the row holds the evidence for that score. Rewrite whichever of the two is \
+wrong."
+  no_row_refused="A risk is refused when the record holds no row for it, because its row holds \
+the evidence for its score. Add the row to the risk table of the record that the order section \
+links."
+  unknown_refused="A name is refused when it is no part or concern of the landscape, because the \
+rule cannot place it. Name an item that a line of its section states."
+  circle_refused="The order of design is refused when items wait on each other in a circle, \
+because none of them can come first. Remove the arrow or the crossing that closes the circle."
 
   # Scores: beta 9, gamma 6, delta 4, the epsilon seam 2, alpha 0. Beta uses
   # gamma, and the epsilon seam crosses gamma, so neither part comes first.
@@ -131,7 +139,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${order_refused}"* ]]
+  output_has_line "${order_refused}"
   [[ "${output}" == *"calculated: the epsilon seam, gamma, delta, beta, alpha"* ]]
   [[ "${output}" != *"${row_refused}"* ]]
 }
@@ -142,7 +150,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${order_refused}"* ]]
+  output_has_line "${order_refused}"
   [[ "${output}" == *"calculated: delta, the epsilon seam, beta, gamma, alpha"* ]]
 }
 
@@ -152,7 +160,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${order_refused}"* ]]
+  output_has_line "${order_refused}"
   [[ "${output}" == *"calculated: gamma, delta, beta, the epsilon seam, alpha"* ]]
 }
 
@@ -170,7 +178,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${row_refused}"* ]]
+  output_has_line "${row_refused}"
   [[ "${output}" == *"  delta hides"* ]]
   [[ "${output}" != *"  beta misses"* ]]
 }
@@ -182,7 +190,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${row_refused}"* ]]
+  output_has_line "${row_refused}"
   [[ "${output}" == *"  beta misses"* ]]
 }
 
@@ -193,7 +201,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${no_row_refused}"* ]]
+  output_has_line "${no_row_refused}"
   [[ "${output}" == *"  alpha churns"* ]]
 }
 
@@ -211,7 +219,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unknown_refused}"* ]]
+  output_has_line "${unknown_refused}"
   [[ "${output}" == *"  omega"* ]]
 }
 
@@ -222,7 +230,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${circle_refused}"* ]]
+  output_has_line "${circle_refused}"
   [[ "${output}" == *"  beta"* ]]
   [[ "${output}" == *"  gamma"* ]]
 }
@@ -267,7 +275,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${order_refused}"* ]]
+  output_has_line "${order_refused}"
   [[ "${output}" == *"calculated: the epsilon seam, gamma, beta, alpha"* ]]
 }
 
@@ -293,7 +301,7 @@ drop() {
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${order_refused}"* ]]
+  output_has_line "${order_refused}"
 
   run "${script}"
 

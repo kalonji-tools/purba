@@ -8,12 +8,78 @@ setup() {
   make_repo
   mkdir -p docs/decisions
   record=docs/decisions/a-record-holds.md
-  borrowed="borrowed from Simplified Technical English"
   unwired="a Confirmation that admits an unwired gate and names no issue"
   unmatched="a pattern in a reach that matches no tracked file"
   reach="**Reach:** \`docs/decisions/*.md\`"
   area="**Area:** tooling"
-  refused_area="A record names each area it decides something in, in an \`**Area:**\` paragraph"
+  template_refused="A record that the template's comment names is a file beside the records, \
+because a writer who follows the comment opens it. A record keeps the file name it was born \
+with, so only a deleted record leaves its name dead."
+  sections_refused="A record carries four sections, in order: Context and Problem Statement, \
+Considered Options, Decision Outcome, Confirmation. They are a public Markdown convention cut to \
+its minimum, and Confirmation keeps a record from going stale. Consequences is optional and sits \
+between the outcome and the confirmation."
+  comment_refused="A record reads as current state, so it carries no comment addressed to a \
+reviewer. The template carries the drafting instructions, and a leading dot keeps it out of this \
+glob."
+  issue_refused="A record states what is true and an issue states what happened, so record prose \
+carries no issue number. Title the link with the question its issue asks."
+  emdash_refused="A record carries no em-dash, because an em-dash joins two ideas in one \
+sentence. Use a full stop, a colon, a comma or a list. A code span and a fenced block are \
+exempt, because quoting one is quoting an artifact."
+  bold_refused="Bold opens a sentence and never sits inside one. A lead-in is what bold is for, \
+and whether a bolded phrase is one is read by a reviewer rather than decided here."
+  wrap_refused="A sentence stays on one line. A record is rewritten in place, and a wrapped \
+paragraph reflows on a one word edit and buries the change in the diff. The line named is where \
+the sentence breaks."
+  long_refused="A sentence in descriptive text runs to 25 words, a limit borrowed from \
+Simplified Technical English. A link counts as one word and so does a code span, because a \
+reader reads each as one thing."
+  step_refused="A sentence in a numbered list runs to 20 words, a limit borrowed from Simplified \
+Technical English for a procedure. A record writes a procedure as a numbered list, so the limit \
+reaches each of its items."
+  para_refused="A paragraph runs to six sentences, a limit borrowed from Simplified Technical \
+English. The line named is where the seventh lands, and a blank line splits the paragraph."
+  ing_refused="An -ing form is a technical noun here and never a verb, a rule borrowed from \
+Simplified Technical English. A gerund after a form of be, a preposition or a conjunction \
+becomes a finite clause."
+  tense_refused="A record uses the simple tenses, a rule borrowed from Simplified Technical \
+English. A modal with the bare verb is one of them, so must be run stands and has run does not."
+  math_refused="A formula in a record is a math fence, so \$ math is refused outside one. A \
+record writes each kind of figure in one form."
+  icon_refused="A mermaid fence in a record draws no icon. GitHub registers no icon pack and \
+loads no FontAwesome, so an icon draws nothing and raises no error. The built-in icons of an \
+architecture diagram are the exception: cloud, database, disk, internet and server."
+  preamble_refused="A Downside label stands on its own line. Its costs are the list beneath it, \
+so a preamble is a sentence the reader carries while reading them."
+  counted_refused="A Downside label never counts its costs. A count is one more thing to keep \
+true, and one record counted four costs where three rendered."
+  listless_refused="A record states its costs as a list under a Downside label, because a \
+decision without its cost is advocacy, not a record. A record with no label has no list either, \
+so a missing Downside is refused here."
+  leadins_refused="Bold marks every Downside lead-in, one for each cost. Fewer lead-ins than \
+costs leaves a cost unmarked, and more means a cost opens mid-line and does not render."
+  adr_refused="A number cannot be checked against the record it names, so a record cites another \
+by its proposition."
+  reach_refused="A Decision Outcome opens with a reach: a **Reach:** paragraph that names every \
+location where a change makes the record apply, and holds nothing else. A record with no reach \
+names no location, so no change can be matched to it, and the prose rules do not read a reach. \
+Write a path as a gitattributes pattern in a code span, and a location with no path as its \
+glossary word, linked to its CONTEXT.md entry."
+  area_refused="A record names each area it decides something in, in an \`**Area:**\` paragraph \
+after its reach. docs/README.md is written from these lines, so a record with no line is missing \
+from it. An area is design, workflow, writing, tooling, or the name of a part or a concern in \
+LANDSCAPE.md."
+  chosen_refused="Considered Options holds only what lost, so no option there is marked Chosen. \
+The bold decision sentence after the area is the winner, and its reason follows it. Each other \
+winner that Decision Outcome does not already state is a list line under that sentence."
+  decision_refused="A Decision Outcome opens, after its area, with the decision in one line that \
+\`**\` wraps and whose words end with \`.\`, \`?\` or \`!\`. The decision sentence is the \
+record's winner, so a reader finds the decision in one place. The line named is where the \
+decision sentence stands."
+  rejected_refused="A lost option states why it lost, with no mark, because Rejected marks \
+nothing in a list of losers. \`mise run fmt:records\` strips Rejected., and the author rewrites \
+any other form by hand."
   landscape >LANDSCAPE.md
   template=docs/decisions/.template.md
   register >"${template}"
@@ -128,6 +194,7 @@ words() {
   run "${script}" elsewhere/decisions
 
   [[ "${status}" -eq 1 ]]
+  output_has_line "${sections_refused}"
   [[ "${output}" == *$'the confirmation.\n  elsewhere/decisions/a-record-holds.md'* ]]
 }
 
@@ -137,8 +204,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries four sections, in order"* ]]
-  [[ "${output}" == *"a public Markdown convention cut to its minimum"* ]]
+  output_has_line "${sections_refused}"
   [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
 }
 
@@ -149,7 +215,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries four sections, in order"* ]]
+  output_has_line "${sections_refused}"
 }
 
 @test "Consequences between the outcome and the confirmation passes" {
@@ -166,7 +232,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries four sections, in order"* ]]
+  output_has_line "${sections_refused}"
 }
 
 @test "a comment addressed to a reviewer is refused" {
@@ -175,7 +241,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"it carries no comment addressed to a reviewer"* ]]
+  output_has_line "${comment_refused}"
   [[ "${output}" == *"${record}:5:"* ]]
 }
 
@@ -185,7 +251,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"record prose carries no issue number"* ]]
+  output_has_line "${issue_refused}"
   [[ "${output}" == *"${template}:3:"* ]]
 }
 
@@ -204,7 +270,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record that the template's comment names"* ]]
+  output_has_line "${template_refused}"
   [[ "${output}" == *"${template}:3: a-gone-record.md"* ]]
 }
 
@@ -323,7 +389,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"record prose carries no issue number"* ]]
+  output_has_line "${issue_refused}"
   [[ "${output}" == *"${record}:5:"* ]]
 }
 
@@ -333,8 +399,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record carries no em-dash"* ]]
-  [[ "${output}" == *"because an em-dash joins two ideas in one sentence"* ]]
+  output_has_line "${emdash_refused}"
   [[ "${output}" == *"${record}:5"* ]]
 }
 
@@ -344,7 +409,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"Bold opens a sentence and never sits inside one"* ]]
+  output_has_line "${bold_refused}"
   [[ "${output}" == *"${record}:5"* ]]
 }
 
@@ -354,7 +419,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A sentence stays on one line."* ]]
+  output_has_line "${wrap_refused}"
   [[ "${output}" == *"${record}:5"* ]]
 }
 
@@ -365,7 +430,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A sentence in descriptive text runs to 25 words, a limit ${borrowed}"* ]]
+  output_has_line "${long_refused}"
   [[ "${output}" == *"${record}:5: 26 words"* ]]
 }
 
@@ -376,7 +441,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A sentence in a numbered list runs to 20 words, a limit ${borrowed}"* ]]
+  output_has_line "${step_refused}"
   [[ "${output}" == *"${record}:5: 21 words"* ]]
 }
 
@@ -395,7 +460,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A paragraph runs to six sentences, a limit ${borrowed}"* ]]
+  output_has_line "${para_refused}"
   [[ "${output}" == *"${record}:11: 7 sentences"* ]]
   [[ "${output}" != *"${record}:12: 8 sentences"* ]]
 }
@@ -406,7 +471,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"is a technical noun here and never a verb, a rule ${borrowed}"* ]]
+  output_has_line "${ing_refused}"
   [[ "${output}" == *"${record}:5: running"* ]]
 }
 
@@ -416,7 +481,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record uses the simple tenses, a rule ${borrowed}"* ]]
+  output_has_line "${tense_refused}"
   [[ "${output}" == *"${record}:5: has refused"* ]]
 }
 
@@ -435,7 +500,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside label stands on its own line"* ]]
+  output_has_line "${preamble_refused}"
   [[ "${output}" != *"A Downside label never counts its costs"* ]]
   [[ "${output}" == *"${record}:19"* ]]
 }
@@ -446,8 +511,8 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Downside label stands on its own line"* ]]
-  [[ "${output}" == *"A Downside label never counts its costs"* ]]
+  output_has_line "${preamble_refused}"
+  output_has_line "${counted_refused}"
 }
 
 @test "a record with no Downside label is refused" {
@@ -456,8 +521,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A record states its costs as a list under a Downside label"* ]]
-  [[ "${output}" == *"label, because a decision without its cost is advocacy, not a record"* ]]
+  output_has_line "${listless_refused}"
   [[ "${output}" == *"${record}: no Downside label"* ]]
 }
 
@@ -467,7 +531,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"Bold marks every Downside lead-in"* ]]
+  output_has_line "${leadins_refused}"
   [[ "${output}" == *"${record}:19: 0 lead-ins over 1 costs"* ]]
 }
 
@@ -481,7 +545,7 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"so a record cites another by its proposition"* ]]
+  output_has_line "${adr_refused}"
   [[ "${output}" == *"${citing}:5:"* ]]
   [[ "${output}" != *"NOTES.md"* ]]
 }
@@ -511,9 +575,9 @@ words() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"record prose carries no issue number"* ]]
-  [[ "${output}" == *"A record carries no em-dash"* ]]
-  [[ "${output}" == *"Bold opens a sentence and never sits inside one"* ]]
+  output_has_line "${issue_refused}"
+  output_has_line "${emdash_refused}"
+  output_has_line "${bold_refused}"
 }
 
 @test "on a runner each rule a record breaks is one annotation" {
@@ -607,6 +671,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
+  output_has_line "${sections_refused}"
   [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
 }
 
@@ -616,7 +681,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"record prose carries no issue number"* ]]
+  output_has_line "${issue_refused}"
 }
 
 @test "the report counts the articles and the words it read" {
@@ -633,7 +698,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  output_has_line "${reach_refused}"
   [[ "${output}" == *"${record}:13"* ]]
 }
 
@@ -644,7 +709,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  output_has_line "${reach_refused}"
   [[ "${output}" == *"${record}:13"* ]]
 }
 
@@ -676,8 +741,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"its glossary word, linked to its CONTEXT.md entry"* ]]
-  [[ "${output}" == *"A Decision Outcome opens with a reach"* ]]
+  output_has_line "${reach_refused}"
   [[ "${output}" == *"${record}:13"* ]]
 }
 
@@ -699,7 +763,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"runs to 25 words"* ]]
+  output_has_line "${long_refused}"
 }
 
 @test "a reach that holds prose beside its locations is refused" {
@@ -708,7 +772,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A Decision Outcome opens with a reach"*"and holds nothing else"* ]]
+  output_has_line "${reach_refused}"
   [[ "${output}" == *"${record}:13"* ]]
 }
 
@@ -742,8 +806,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${refused_area} after its reach."* ]]
-  [[ "${output}" == *"An area is design, workflow, writing, tooling, or the name of a part"* ]]
+  output_has_line "${area_refused}"
   [[ "${output}" == *"${record}:15"* ]]
 }
 
@@ -753,7 +816,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${refused_area}"* ]]
+  output_has_line "${area_refused}"
   [[ "${output}" == *"${record}:15"* ]]
 }
 
@@ -763,7 +826,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${refused_area}"* ]]
+  output_has_line "${area_refused}"
   [[ "${output}" == *"${record}:15"* ]]
 }
 
@@ -773,7 +836,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${refused_area}"* ]]
+  output_has_line "${area_refused}"
   [[ "${output}" == *"${record}:15: bugs"* ]]
   [[ "${output}" != *": tooling"* ]]
 }
@@ -802,8 +865,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A formula in a record is a"* ]]
-  [[ "${output}" == *"A record writes each kind of figure in one form"* ]]
+  output_has_line "${math_refused}"
   [[ "${output}" == *"${record}:5"* ]]
 }
 
@@ -813,7 +875,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"draws no icon"* ]]
+  output_has_line "${icon_refused}"
   [[ "${output}" == *"${record}:9"* ]]
 }
 
@@ -855,7 +917,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"record prose carries no issue number"* ]]
+  output_has_line "${issue_refused}"
   [[ "${output}" == *"${record}:10:"* ]]
 }
 
@@ -865,6 +927,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
+  output_has_line "${sections_refused}"
   [[ "${output}" == *$'the confirmation.\n  '"${record}"* ]]
 }
 
@@ -874,7 +937,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"Considered Options holds only what lost"* ]]
+  output_has_line "${chosen_refused}"
   [[ "${output}" == *"${record}:9"* ]]
 }
 
@@ -884,8 +947,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A lost option states why it lost, with no mark"* ]]
-  [[ "${output}" == *"mise run fmt:records"* ]]
+  output_has_line "${rejected_refused}"
   [[ "${output}" == *"${record}:9"* ]]
 }
 
@@ -895,7 +957,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A lost option states why it lost, with no mark"* ]]
+  output_has_line "${rejected_refused}"
   [[ "${output}" == *"${record}:9"* ]]
 }
 
@@ -937,7 +999,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 
@@ -947,7 +1009,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 
@@ -957,7 +1019,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 
@@ -967,7 +1029,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 
@@ -986,7 +1048,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 
@@ -996,7 +1058,7 @@ FAKE
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"after its area, with the decision in one"* ]]
+  output_has_line "${decision_refused}"
   [[ "${output}" == *"${record}:17"* ]]
 }
 

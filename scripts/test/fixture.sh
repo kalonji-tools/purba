@@ -12,6 +12,9 @@
 #   fake <command>                 a fake first on PATH, its body on standard input
 #   calls <command>                each call that fake received, its arguments
 #                                  joined by spaces, and nothing if it received none
+#   output_has_line <line>         succeeds when one line of the output of `run`
+#                                  is the whole of <line>, and <line> is not
+#                                  empty
 #   git_fails_on <word>            a fake git that exits 128 on a call with the
 #                                  argument <word>, and runs every other
 #   fake_gh                        a fake `gh` that answers each read <call> with
@@ -125,6 +128,11 @@ fake() {
 
 calls() {
   [[ ! -e "${BATS_TEST_TMPDIR}/calls.$1" ]] || cat "${BATS_TEST_TMPDIR}/calls.$1"
+}
+
+output_has_line() {
+  # shellcheck disable=SC2154 # bats sets output in run
+  [[ -n "$1" && $'\n'"${output}"$'\n' == *$'\n'"$1"$'\n'* ]]
 }
 
 git_fails_on() {

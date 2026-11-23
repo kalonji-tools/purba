@@ -9,6 +9,12 @@ setup() {
   # shellcheck source=.github/scripts/standing-approver.sh
   . "${BATS_TEST_DIRNAME}/../../.github/scripts/standing-approver.sh"
   export GH_REPO=owner/name
+  bad_login="A login is written into an Accepted-by trailer only when it holds letters, digits \
+and hyphens, because the trailer names the person who accepts the commit, and GitHub allows no \
+other character in a person's login. Ask a person to approve the pull request."
+  bad_id="An id is written into an Accepted-by trailer only when it is a number, because the \
+trailer reaches main, where no commit message is edited, and GitHub gives each account a numeric \
+id. Ask a person to approve the pull request."
   # The permission of each login, as GitHub reports it, read from its prefix.
   fake gh <<'FAKE'
 case "$*" in
@@ -103,11 +109,7 @@ reviews() {
   run standing_approver <<<"${given}"
 
   [[ "${status}" -eq 1 ]]
-  summary="A login is written into an Accepted-by trailer only when it holds letters, digits"
-  summary+=" and hyphens, because the trailer names the person who accepts the commit, and GitHub"
-  summary+=" allows no other character in a person's login. Ask a person to approve the pull"
-  summary+=" request."
-  [[ "${output}" == *"${summary}"* ]]
+  output_has_line "${bad_login}"
   [[ "${output}" == *"  login: ${login}"* ]]
   asked=$(calls gh)
   [[ -z "${asked}" ]]
@@ -150,16 +152,13 @@ reviews() {
 }
 
 @test "an approver id that is not a number, or is absent, is refused" {
-  summary="An id is written into an Accepted-by trailer only when it is a number, because the"
-  summary+=" trailer reaches main, where no commit message is edited, and GitHub gives each"
-  summary+=" account a numeric id. Ask a person to approve the pull request."
   for case in '"4x":4x' null:none; do
     given=$(reviews "APPROVED:owner-1:${case%%:*}")
 
     run standing_approver <<<"${given}"
 
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"${summary}"* ]]
+    output_has_line "${bad_id}"
     [[ "${output}" == *"  id: ${case#*:}"* ]]
   done
 }

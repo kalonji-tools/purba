@@ -6,8 +6,12 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-placement.sh"
   make_repo
-  stranded="A script is refused when every caller of it lives in the other half"
-  unreachable="A script under .github that nothing under .github names is reached by nothing"
+  stranded="A script is refused when every caller of it lives in the other half. Only GitHub \
+runs what lives under .github, and a script that a caller runs by hand, or that this project's \
+own tooling runs, lives in scripts/."
+  unreachable="A script under .github that nothing under .github names is reached by nothing, \
+because the runners there are enumerable. A script a caller runs by hand lives in scripts/, \
+where that caller is one this command cannot see."
 }
 
 # A tracked file holding one line.
@@ -42,7 +46,7 @@ placed() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stranded}"* ]]
+  output_has_line "${stranded}"
   [[ "${output}" == *".github/scripts/job.sh is named only by .config/tasks.toml"* ]]
   [[ "${output}" != *"${unreachable}"* ]]
 }
@@ -55,7 +59,7 @@ placed() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stranded}"* ]]
+  output_has_line "${stranded}"
   [[ "${output}" == *"scripts/tool.sh is named only by .github/workflows/w.yml"* ]]
   [[ "${output}" != *"${unreachable}"* ]]
 }
@@ -76,7 +80,7 @@ placed() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unreachable}"* ]]
+  output_has_line "${unreachable}"
   [[ "${output}" == *".github/scripts/orphan.sh"* ]]
   [[ "${output}" != *"${stranded}"* ]]
 }
@@ -98,7 +102,7 @@ placed() {
     run "${script}"
 
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"${unreachable}"* ]]
+    output_has_line "${unreachable}"
   done
 }
 
@@ -122,7 +126,7 @@ placed() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unreachable}"* ]]
+  output_has_line "${unreachable}"
 }
 
 @test "a script that names itself is not its own caller" {
@@ -133,7 +137,7 @@ placed() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unreachable}"* ]]
+  output_has_line "${unreachable}"
 }
 
 @test "a sibling that sources a script is its caller" {
@@ -168,7 +172,7 @@ placed() {
 
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"scripts/tool.sh is named only by .github/workflows/w.yml"* ]]
-  [[ "${output}" == *"${unreachable}"* ]]
+  output_has_line "${unreachable}"
   [[ "${output}" == *".github/scripts/job.sh"* ]]
 }
 
