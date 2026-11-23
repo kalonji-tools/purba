@@ -29,6 +29,7 @@ Parsing kept only whether ruff found an error, and handed the recovered tree to 
 - **A module with a syntax error gives a [project error](../../CONTEXT.md#project-error) in place of a module.** Command prints the module's line, and hands nothing to selection, assertion or dispatch.
 - **The error holds ruff's first syntax error: its message, and the line and column where it starts and ends.** A column counts Unicode scalars, in the text after a byte order mark.
 - **Its text is `SyntaxError: ` and ruff's message, and holds no location.** The line reads `<path> project error: SyntaxError: <message>`.
+- **A module that opens a bracket inside 200 others gets the error of that bracket in place of ruff's.** [Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) holds it.
 
 ```
 test_paren.py project error: SyntaxError: Expected a parameter or the end of the parameter list

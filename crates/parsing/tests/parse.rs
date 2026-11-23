@@ -704,16 +704,8 @@ fn a_module_that_nests_deeper_than_its_stack_frees_its_tree() {
             format!("x = {}1\n", "-".repeat(20_000)),
         ),
         (
-            "test_deep_pattern.py",
-            format!(
-                "match 1:\n    case {}1{}:\n        pass\n",
-                "[".repeat(20_000),
-                "]".repeat(20_000)
-            ),
-        ),
-        (
-            "test_deep_format_spec.py",
-            format!("x = f\"{}x{}\"\n", "{x:".repeat(3_000), "}".repeat(3_000)),
+            "test_deep_subscript.py",
+            format!("x = y{}\n", "[0]".repeat(20_000)),
         ),
     ] {
         let path = write(name, &text);
@@ -747,6 +739,169 @@ fn a_module_that_nests_deeper_than_its_stack_and_does_not_parse_frees_its_tree()
         refused.ok(),
         Some(true),
         "{name}: the parse gives the syntax error, and frees the tree"
+    );
+}
+
+/// The words, the start and the end of a syntax error, each place as a line
+/// and a column.
+type Refusal = (String, (usize, usize), (usize, usize));
+
+/// The error that parsing gives for the module that `text` holds, on a thread
+/// with a small stack. `None` when the module parses.
+fn refused_on_a_small_stack(name: &str, text: &str) -> Option<Refusal> {
+    let path = write(name, text);
+    thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(SMALL_STACK)
+        .spawn(move || match purba_parsing::parse(&path) {
+            Ok(_) => None,
+            Err(Error::Syntax(error)) => Some((
+                error.message().to_owned(),
+                (error.start().line(), error.start().column()),
+                (error.end().line(), error.end().column()),
+            )),
+            Err(error) => panic!("the parse gives a syntax error or a module, not {error:?}"),
+        })
+        .expect("the thread starts")
+        .join()
+        .expect("the parse returns on a small stack")
+}
+
+/// The error of a bracket at `line` and `column`.
+//
+// Each start in a test below is where CPython 3.12.14, 3.13.13, 3.14.4 and
+// 3.14.7t start the same error, except in the test of a module whose parser
+// stack CPython overflows first. CPython ends the error where it starts.
+fn too_many(line: usize, column: usize) -> Option<Refusal> {
+    Some((
+        "too many nested parentheses".to_owned(),
+        (line, column),
+        (line, column + 1),
+    ))
+}
+
+// CPython's tokenizer refuses a bracket opened inside 200 others.
+// https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/state.h#L7
+// https://github.com/python/cpython/blob/v3.14.4/Parser/lexer/lexer.c#L1305-L1306
+#[test]
+fn a_bracket_opened_inside_200_others_refuses_the_module_with_cpythons_words_and_place() {
+    for (open, close) in [("(", ")"), ("[", "]"), ("{", "}")] {
+        for (depth, refused) in [(200, None), (201, too_many(1, 205))] {
+            let text = format!("y = {}1{}\n", open.repeat(depth), close.repeat(depth));
+            assert_eq!(
+                refused_on_a_small_stack("test_nested.py", &text),
+                refused,
+                "{depth} of {open}"
+            );
+        }
+    }
+    for (name, text, refused) in [
+        (
+            "the brace of an f-string counts, 200",
+            format!("x = f\"{{{}1{}}}\"\n", "(".repeat(199), ")".repeat(199)),
+            None,
+        ),
+        (
+            "the brace of an f-string counts, 201",
+            format!("x = f\"{{{}1{}}}\"\n", "(".repeat(200), ")".repeat(200)),
+            too_many(1, 207),
+        ),
+        (
+            "a later line",
+            format!("x = 1\ny = {}1{}\n", "(".repeat(201), ")".repeat(201)),
+            too_many(2, 205),
+        ),
+        (
+            "after a line that quotes brackets",
+            format!(
+                "s = \"{}\"\ny = {}1{}\n",
+                "(".repeat(300),
+                "(".repeat(201),
+                ")".repeat(201)
+            ),
+            too_many(2, 205),
+        ),
+        (
+            "a column after a character of two bytes",
+            format!("s = 'é'; y = {}1{}\n", "[".repeat(201), "]".repeat(201)),
+            too_many(1, 214),
+        ),
+        (
+            "after an earlier syntax error",
+            format!(
+                "def f(:\n    pass\ny = {}1{}\n",
+                "(".repeat(201),
+                ")".repeat(201)
+            ),
+            too_many(3, 204),
+        ),
+    ] {
+        assert_eq!(
+            refused_on_a_small_stack("test_nested.py", &text),
+            refused,
+            "{name}"
+        );
+    }
+}
+
+#[test]
+fn an_assignment_target_that_nests_deeper_than_its_stack_is_refused() {
+    let tuple = format!("{}x{}", "(".repeat(50_000), ",)".repeat(50_000));
+    let list = format!("{}x{}", "[".repeat(50_000), "]".repeat(50_000));
+    for (name, line, refused) in [
+        (
+            "test_deep_tuple.py",
+            format!("{tuple} = 1"),
+            too_many(2, 205),
+        ),
+        ("test_deep_list.py", format!("{list} = 1"), too_many(2, 205)),
+        (
+            "test_deep_for.py",
+            format!("for {tuple} in []: pass"),
+            too_many(2, 209),
+        ),
+    ] {
+        let text = format!("def test_deep():\n    {line}\n    assert 1 == 1\n");
+        assert_eq!(refused_on_a_small_stack(name, &text), refused, "{name}");
+    }
+}
+
+// CPython 3.12.14, 3.13.13, 3.14.4 and 3.14.7t give `MemoryError: Parser
+// stack overflowed - Python source too complex to parse` for this module.
+#[test]
+fn a_module_whose_parser_stack_cpython_overflows_first_is_refused_for_its_brackets() {
+    let name = "test_deep_both.py";
+    let text = format!(
+        "y = {}1\n{}x{} = 1\n",
+        "-".repeat(50_000),
+        "(".repeat(50_000),
+        ",)".repeat(50_000)
+    );
+    assert_eq!(
+        refused_on_a_small_stack(name, &text),
+        too_many(2, 201),
+        "{name}: the brackets refuse the module"
+    );
+}
+
+#[test]
+fn a_bracket_in_a_string_or_a_comment_is_not_counted() {
+    let name = "test_quoted.py";
+    let text = format!("s = \"{}\"  # {}\n", "(".repeat(300), "[".repeat(300));
+    assert_eq!(
+        refused_on_a_small_stack(name, &text),
+        None,
+        "{name}: the module parses"
+    );
+}
+
+#[test]
+fn a_closer_with_no_opener_gives_ruffs_error() {
+    let name = "test_stray.py";
+    assert_eq!(
+        refused_on_a_small_stack(name, "x = 1)\n"),
+        Some(("Expected a statement".to_owned(), (1, 6), (1, 7))),
+        "{name}: ruff's error, and no count below 0"
     );
 }
 

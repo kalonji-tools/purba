@@ -611,18 +611,7 @@ fn a_module_that_nests_deeper_than_the_stack_is_rewritten() {
     for (name, rest) in [
         ("statements", nested),
         ("minus", format!("x = {}1\n", "-".repeat(20_000))),
-        (
-            "pattern",
-            format!(
-                "match 1:\n    case {}1{}:\n        pass\n",
-                "[".repeat(20_000),
-                "]".repeat(20_000)
-            ),
-        ),
-        (
-            "format spec",
-            format!("x = f\"{}x{}\"\n", "{x:".repeat(3_000), "}".repeat(3_000)),
-        ),
+        ("subscript", format!("x = y{}\n", "[0]".repeat(20_000))),
     ] {
         let text = format!("def test_one():\n    assert 1 == 1\n\n{rest}");
         let (rewritten, asserts) = std::thread::Builder::new()

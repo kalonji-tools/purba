@@ -36,6 +36,7 @@ Parsing gives ruff no target version.
 Parsing reads only `errors()`.
 
 - **A module in the syntax of a newer Python fails when CPython loads it.** It is a project error in CPython's words. Each test that selection names is blocked.
+- **A t-string that nests 200 brackets is refused before the load, on CPython 3.12 and 3.13.** [Parsing refuses a module that opens a bracket inside 200 others](parsing-refuses-a-module-that-opens-a-bracket-inside-200-others.md#decision-outcome) holds why.
 
 **Downside:**
 

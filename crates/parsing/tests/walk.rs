@@ -297,18 +297,9 @@ fn a_walk_over_nodes_that_nest_deeper_than_the_stack_returns() {
             [1, 20_002, 0],
         ),
         (
-            "pattern",
-            format!(
-                "match 1:\n    case {}1{}:\n        pass\n",
-                "[".repeat(20_000),
-                "]".repeat(20_000)
-            ),
-            [2, 2, 20_001],
-        ),
-        (
-            "format spec",
-            format!("x = f\"{}x{}\"\n", "{x:".repeat(3_000), "}".repeat(3_000)),
-            [1, 3_002, 0],
+            "subscript",
+            format!("x = y{}\n", "[0]".repeat(20_000)),
+            [1, 40_002, 0],
         ),
     ] {
         let counted = thread::Builder::new()

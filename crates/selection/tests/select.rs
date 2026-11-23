@@ -661,16 +661,8 @@ fn a_body_that_nests_deeper_than_the_stack_does_not_crash_selection() {
     for (name, statement) in [
         ("test_deep_minus.py", format!("x = {}1", "-".repeat(20_000))),
         (
-            "test_deep_pattern.py",
-            format!(
-                "match 1:\n        case {}1{}:\n            pass",
-                "[".repeat(20_000),
-                "]".repeat(20_000)
-            ),
-        ),
-        (
-            "test_deep_format_spec.py",
-            format!("x = f\"{}x{}\"", "{x:".repeat(3_000), "}".repeat(3_000)),
+            "test_deep_subscript.py",
+            format!("x = y{}", "[0]".repeat(20_000)),
         ),
     ] {
         let text = format!("def test_deep():\n    {statement}\n    assert 1 == 1\n\n{statement}\n");
@@ -1362,10 +1354,10 @@ fn a_refused_line_names_the_reasons_of_the_def_then_each_fault_of_the_body_in_so
 fn an_expectation_that_nests_deeper_than_the_stack_does_not_crash_selection() {
     const SMALL_STACK: usize = 256 * 1024;
     let deep = "-".repeat(20_000);
-    let nested = format!("{}1{}", "[".repeat(3_000), "]".repeat(3_000));
+    let chain = "[0]".repeat(20_000);
     let text = format!(
         "def test_deep():\n    assert x == {deep}1\n    assert {deep}x == 1\n    \
-         assert x == {nested}\n"
+         assert y{chain} == 1\n"
     );
     let name = "test_deep_expectation.py";
     let judged = thread::Builder::new()
