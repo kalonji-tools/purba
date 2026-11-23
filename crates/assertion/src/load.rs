@@ -1090,8 +1090,8 @@ fn bind(
 ///    `path`;
 /// 2. gives it `_purba_ran`, which holds the text and the line of each assert
 ///    of `rewrite` at the index that its mark records, and `_purba_read`,
-///    `_purba_reads`, `_purba_step` and `_purba_with`, the hooks of its
-///    expectations and of its tests;
+///    `_purba_reads`, `_purba_step`, `_purba_with` and `_purba_missed`, the
+///    hooks of its expectations and of its tests;
 /// 3. puts it in `sys.modules` under that name;
 /// 4. compiles the text, checks that no function holds a name of a hook as a
 ///    local name, and runs it in the module's namespace;
