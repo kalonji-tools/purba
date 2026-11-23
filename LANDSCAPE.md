@@ -153,7 +153,7 @@ sequenceDiagram
 
 - **the Rust/Python seam.** Carries a live Python object between Rust and Python, in parsing, execution, fixtures and assertion.
 - **strictness.** Refuses a test that breaks a practice of testing, and shows each departure as a suppression with its reason, in command, selection, dispatch, execution, fixtures, assertion and reporting. No switch turns it off. [purba is always strict](docs/decisions/purba-is-always-strict.md#decision-outcome) holds its design in depth.
-- **configuration.** States facts about the project, or tightens a check, in command, selection, dispatch and reporting.
+- **configuration.** States facts about the project, tightens a check, or changes behaviour that no check reads, in command, selection, dispatch, execution and reporting. No value loosens a check. [purba reads configuration from six levels, and the higher level overwrites the lower](docs/decisions/purba-reads-configuration-from-six-levels.md#decision-outcome) holds its design in depth.
 - **interrupt handling.** Stops the run on an interrupt and tears down what was built, in command, dispatch, execution, fixtures and reporting. [An interrupt stops the run, and a second one exits at once](docs/decisions/an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) holds its design in depth.
 - **errors.** Keeps a test's outcome, an invocation error, a project error and an internal error apart, in every part. Its crate is `purba-errors`. [A failure's kind is what the part that first sees it observes](docs/decisions/a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds its design in depth.
 
@@ -174,15 +174,14 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 
 Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
 
-1. **configuration.**
-2. **selection.**
-3. **the Rust/Python seam.**
-4. **fixtures.**
-5. **assertion.**
-6. **execution.**
-7. **dispatch.**
-8. **reporting.**
-9. **command.**
+1. **selection.**
+2. **the Rust/Python seam.**
+3. **fixtures.**
+4. **assertion.**
+5. **execution.**
+6. **dispatch.**
+7. **reporting.**
+8. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 

@@ -70,6 +70,10 @@ The [location](#location) that carries what must outlive the review that produce
 
 A rule or mechanism that two or more [parts](#part) follow, and that no part owns. Like a part, each concern is designed in depth on its own.
 
+### Configuration level
+
+A place that sets a [dial](#dial): code, the command line, the environment, the project's file, the user's file or the system's file.
+
 ### Count
 
 What a [run](#run) met, in numbers: each [case](#case) once, by its [outcome](#outcome) or as a [blocked](#blocked-test) or [unreached test](#unreached-test), and each error once, by its [kind](#kind). Reporting prints it as the last line on stdout, and renders the exit code from it.
@@ -85,6 +89,10 @@ A comment on an [issue](#issue) that states what a change must do and what was r
 ### Desired-state suite
 
 A [candidate's](#candidate) tests, restated for purba before purba can run them. The person approves it before the build starts.
+
+### Dial
+
+A value of configuration that changes how purba behaves. The [part](#part) that reads it declares it, and a [configuration level](#configuration-level) sets it.
 
 ### Entity
 
@@ -298,7 +306,7 @@ One start of purba, from the command it reads to the exit code it sets.
 
 ### Shortlist
 
-The crates that pass the checks for one need of a [part](#part) not designed yet, each with the [relief](#relief) it needs to join. The design in depth of the part starts from it.
+The crates that pass the checks for one need of a [part](#part) not built yet, each with the [relief](#relief) it needs to join. The design in depth of the part starts from it.
 
 ### Significance
 

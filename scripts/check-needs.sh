@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Whether each line of .config/needs.toml states a need of a part not designed
-# yet, and whether each entry of .config/shortlists.toml has its need's line.
+# Whether each line of .config/needs.toml states a need of a part or concern of
+# the landscape, and whether each entry of .config/shortlists.toml has its need's line.
 #
 #   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
 #   the task:      mise run lint:needs
@@ -10,7 +10,7 @@
 # It asks no server anything: it fetches no link, and no keyword from crates.io.
 #
 # Exits 1 when it refuses, and 2 when .config/needs.toml, .config/shortlists.toml or the
-# order of design cannot be read.
+# parts and concerns of the landscape cannot be read.
 set -euo pipefail
 
 # shellcheck source=scripts/report.sh
@@ -28,15 +28,18 @@ shortlists=$(yq -p toml -o json -I0 . .config/shortlists.toml) ||
 landscape=LANDSCAPE.md
 [[ -r "${landscape}" ]] ||
   cannot "${landscape} cannot be read."
-grep -qx '## The order of design' "${landscape}" ||
-  cannot "${landscape} has no section named \"The order of design\"."
+parts_section='## The parts and their dependencies'
+concerns_section='## The cross-cutting concerns'
+grep -qxF "${parts_section}" "${landscape}" || grep -qxF "${concerns_section}" "${landscape}" ||
+  cannot "${landscape} has neither a section named \"${parts_section#'## '}\" nor one named \
+\"${concerns_section#'## '}\"."
 
-# The name in each numbered line "1. **name.**" of the order of design.
-parts=$(awk '
-  /^## / { section = ($0 == "## The order of design"); next }
-  section && match($0, /^[0-9]+\. \*\*[^*]+\.\*\*/) {
+# The name in each line "- **name.**" of the parts and of the concerns.
+parts=$(awk -v parts="${parts_section}" -v concerns="${concerns_section}" '
+  /^## / { section = ($0 == parts || $0 == concerns); next }
+  section && match($0, /^- \*\*[^*]+\.\*\*/) {
     line = substr($0, 1, RLENGTH)
-    sub(/^[0-9]+\. \*\*/, "", line)
+    sub(/^- \*\*/, "", line)
     print substr(line, 1, length(line) - 3)
   }
 ' "${landscape}" | jq -Rsc 'split("\n") | map(select(. != ""))')
@@ -67,9 +70,9 @@ refuse_tagged() {
 }
 
 refuse_tagged part \
-  "A line of .config/needs.toml is refused when its part is not in the order of design, because \
-a line states a need of a part not designed yet. Name the part as the order of design names \
-it, or remove the line."
+  "A line of .config/needs.toml is refused when its part is not a part or concern of the \
+landscape, because a line states a need of a part of purba. Name the part as the landscape \
+names it, or remove the line."
 
 refuse_tagged words \
   "A line of .config/needs.toml is refused when it has no words, because the forecast finds its \

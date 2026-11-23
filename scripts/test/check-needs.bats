@@ -6,9 +6,9 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-needs.sh"
   make_repo
-  part_refused="A line of .config/needs.toml is refused when its part is not in the order of \
-design, because a line states a need of a part not designed yet. Name the part as the order of \
-design names it, or remove the line."
+  part_refused="A line of .config/needs.toml is refused when its part is not a part or concern \
+of the landscape, because a line states a need of a part of purba. Name the part as the \
+landscape names it, or remove the line."
   words_refused="A line of .config/needs.toml is refused when it has no words, because the \
 forecast finds its crates on crates.io by each of them. Add a keyword that crates.io holds."
   stated_refused="A line of .config/needs.toml is refused when it has no stated link, because \
@@ -20,7 +20,8 @@ them, and write its link in the issue field."
 .config/needs.toml names its need, because an entry answers its need, and an entry with no need \
 answers nothing. Remove the entry, or restore the line."
 
-  # gamma is a part of the landscape, and it is not in the order of design.
+  # gamma is a part of the landscape, and epsilon a concern, and neither is in the
+  # order of design. zeta is in the order and in the invariants, and is neither.
   cat >LANDSCAPE.md <<'LANDSCAPE'
 # purba's landscape
 
@@ -29,10 +30,20 @@ answers nothing. Remove the entry, or restore the line."
 - **alpha.** Starts the run.
 - **gamma.** Parses the source.
 
+## The cross-cutting concerns
+
+- **the beta/delta seam.** Carries a value across.
+- **epsilon.** States facts about the project.
+
 ## The order of design
 
 1. **alpha.**
 2. **the beta/delta seam.**
+3. **zeta.**
+
+## The invariants
+
+- **zeta.** Holds in every part.
 
 ## What belongs in this file
 LANDSCAPE
@@ -101,16 +112,32 @@ shortlisted() {
   [[ "${status}" -eq 0 ]]
 }
 
-@test "a need whose part is not in the order of design is refused" {
+@test "a need whose part the landscape names, outside the order of design, passes" {
   need find-files part='"gamma"' declined='[]'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a need whose concern the landscape names, outside the order of design, passes" {
+  need find-files part='"epsilon"' declined='[]'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a need whose part the landscape does not name is refused" {
   need parse-query part='"omega"' declined='[]'
+  need sort-items part='"zeta"' declined='[]'
 
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
   output_has_line "${part_refused}"
-  [[ "${output}" == *"  find-files: part gamma"* ]]
   [[ "${output}" == *"  parse-query: part omega"* ]]
+  [[ "${output}" == *"  sort-items: part zeta"* ]]
   [[ "${output}" != *"  read-flags:"* ]]
 }
 
@@ -178,11 +205,41 @@ shortlisted() {
   [[ "${output}" == *".config/shortlists.toml cannot be read."* ]]
 }
 
-@test "a landscape with no order of design stops the check" {
+@test "a landscape with no parts and no concerns stops the check" {
   printf '# purba'"'"'s landscape\n' >LANDSCAPE.md
 
   run "${script}"
 
   [[ "${status}" -eq 2 ]]
-  [[ "${output}" == *'LANDSCAPE.md has no section named "The order of design".'* ]]
+  local stopped='LANDSCAPE.md has neither a section named "The parts and their dependencies"'
+  stopped+=' nor one named "The cross-cutting concerns".'
+  [[ "${output}" == *"${stopped}"* ]]
+}
+
+@test "a landscape with parts, and no concerns and no order of design, passes" {
+  cat >LANDSCAPE.md <<'LANDSCAPE'
+# purba's landscape
+
+## The parts and their dependencies
+
+- **alpha.** Starts the run.
+LANDSCAPE
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+}
+
+@test "a landscape with concerns, and no parts and no order of design, passes" {
+  cat >LANDSCAPE.md <<'LANDSCAPE'
+# purba's landscape
+
+## The cross-cutting concerns
+
+- **alpha.** Carries a value across.
+LANDSCAPE
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
 }
