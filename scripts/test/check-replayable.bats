@@ -7,8 +7,21 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-replayable.sh"
   make_repo
-  trailer="because purba writes its Accepted-by trailer into each commit it replays"
-  untouched="because the rewrite that signs it must leave your content untouched"
+  flattened="A branch is refused when its replay changes its content, because the rewrite that \
+signs it must leave your content untouched. The replay flattens a merge commit, and the changes \
+made in that merge are lost. Rebase your branch onto its base instead."
+  changed="A branch is refused when its replay changes its content, because the rewrite that \
+signs it must leave your content untouched. This check cannot say why the content changed, \
+because the branch carries no merge commit."
+  unapplied="A commit is refused when it does not apply where purba replays your branch, because \
+purba writes its Accepted-by trailer into each commit it replays. A merge commit whose conflict \
+you resolved by hand is the usual cause. Rebase your branch onto its base instead."
+  empty="A commit is refused when it replays empty, because purba writes its Accepted-by trailer \
+into each commit it replays and an empty commit cannot hold one. Remove the commit. The replay \
+empties a commit whose change is already on the base as well."
+  stopped="A branch is refused when its replay stops, because purba writes its Accepted-by \
+trailer into each commit it replays. This check cannot say why it stopped here. git wrote what \
+follows."
   git switch --quiet --create work
 }
 
@@ -70,8 +83,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A branch is refused when its replay changes its content, ${untouched}"* ]]
-  [[ "${output}" == *"The replay flattens a merge commit"* ]]
+  output_has_line "${flattened}"
   [[ "${output}" == *"only-in-the-merge"* ]]
   [[ "${output}" == *"chore: merge and change"* ]]
 }
@@ -85,8 +97,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A branch is refused when its replay changes its content, ${untouched}"* ]]
-  [[ "${output}" == *"This check cannot say why the content changed"* ]]
+  output_has_line "${changed}"
   [[ "${output}" == *"made-by-the-hook"* ]]
 }
 
@@ -97,7 +108,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A commit is refused when it replays empty, ${trailer}"* ]]
+  output_has_line "${empty}"
   [[ "${output}" == *$'\n  '[0-9a-f]*" feat: nothing"* ]]
 }
 
@@ -117,7 +128,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A commit is refused when it replays empty, ${trailer}"* ]]
+  output_has_line "${empty}"
   [[ "${output}" == *"feat: theirs"* ]]
 }
 
@@ -140,8 +151,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A commit is refused when it does not apply where purba replays"* ]]
-  [[ "${output}" == *"replays your branch, ${trailer}"* ]]
+  output_has_line "${unapplied}"
   [[ "${output}" == *"feat: theirs"* ]]
 }
 
@@ -161,8 +171,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A commit is refused when it does not apply where purba replays"* ]]
-  [[ "${output}" == *"replays your branch, ${trailer}"* ]]
+  output_has_line "${unapplied}"
   [[ "${output}" == *"feat: another root"* ]]
 }
 
@@ -173,7 +182,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"refused when its replay stops, ${trailer}. This check cannot say why"* ]]
+  output_has_line "${stopped}"
   [[ "${output}" == *"feat: one"* ]]
   [[ "${output}" == *"the hook refuses"* ]]
 }
@@ -276,7 +285,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"This check cannot say why"* ]]
+  output_has_line "${stopped}"
   [[ "${output}" == *"the replay left no record of the commit it stopped on."* ]]
   [[ "${output}" == *"the hook refuses the rebase"* ]]
 }
@@ -303,7 +312,7 @@ refusing_hook() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"This check cannot say why"* ]]
+  output_has_line "${stopped}"
   [[ "${output}" != *"when it replays empty"* ]]
 }
 

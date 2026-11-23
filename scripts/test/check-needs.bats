@@ -6,11 +6,19 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-needs.sh"
   make_repo
-  part_refused="A line of .config/needs.toml is refused when its part is not in the order of design"
-  words_refused="A line of .config/needs.toml is refused when it has no words"
-  stated_refused="A line of .config/needs.toml is refused when it has no stated link"
-  open_refused="A line of .config/needs.toml is refused when it has no issue, no declined list"
-  orphan_refused="An entry of .config/shortlists.toml is refused when no line of .config/needs.toml"
+  part_refused="A line of .config/needs.toml is refused when its part is not in the order of \
+design, because a line states a need of a part not designed yet. Name the part as the order of \
+design names it, or remove the line."
+  words_refused="A line of .config/needs.toml is refused when it has no words, because the \
+forecast finds its crates on crates.io by each of them. Add a keyword that crates.io holds."
+  stated_refused="A line of .config/needs.toml is refused when it has no stated link, because \
+the line that states the need holds why purba has it. Link that line."
+  open_refused="A line of .config/needs.toml is refused when it has no issue, no declined list \
+and no shortlisted crate, because nothing would then vet its crates. Open the issue that vets \
+them, and write its link in the issue field."
+  orphan_refused="An entry of .config/shortlists.toml is refused when no line of \
+.config/needs.toml names its need, because an entry answers its need, and an entry with no need \
+answers nothing. Remove the entry, or restore the line."
 
   # gamma is a part of the landscape, and it is not in the order of design.
   cat >LANDSCAPE.md <<'LANDSCAPE'
@@ -100,7 +108,7 @@ shortlisted() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${part_refused}"* ]]
+  output_has_line "${part_refused}"
   [[ "${output}" == *"  find-files: part gamma"* ]]
   [[ "${output}" == *"  parse-query: part omega"* ]]
   [[ "${output}" != *"  read-flags:"* ]]
@@ -113,7 +121,7 @@ shortlisted() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${words_refused}"* ]]
+  output_has_line "${words_refused}"
   [[ "${output}" == *"  find-files"* ]]
   [[ "${output}" == *"  parse-query"* ]]
 }
@@ -125,7 +133,7 @@ shortlisted() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stated_refused}"* ]]
+  output_has_line "${stated_refused}"
   [[ "${output}" == *"  find-files"* ]]
   [[ "${output}" == *"  parse-query"* ]]
 }
@@ -136,7 +144,7 @@ shortlisted() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${open_refused}"* ]]
+  output_has_line "${open_refused}"
   [[ "${output}" == *"  find-files"* ]]
   [[ "${output}" != *"  read-flags"* ]]
 }
@@ -147,7 +155,7 @@ shortlisted() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${orphan_refused}"* ]]
+  output_has_line "${orphan_refused}"
   [[ "${output}" == *"  find-files.walkdir"* ]]
   [[ "${output}" != *"read-flags.clap"* ]]
 }

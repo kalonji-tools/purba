@@ -7,6 +7,9 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-origin.sh"
   signed="Signed-off-by: A Person <person@example.invalid>"
+  unsigned="A commit is refused when it carries no Signed-off-by trailer, because that trailer \
+records who may submit it. CONTRIBUTING.md has the command that adds it."
+  unsigned_merge="${unsigned} A merge commit below is not one you can sign."
   make_repo
   git switch --quiet --create work
 }
@@ -28,8 +31,8 @@ setup() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == "A commit is refused when it carries no Signed-off-by trailer"* ]]
-  [[ "${output}" == *"because that trailer records who may submit it"* ]]
+  output_has_line "${unsigned}"
+  [[ "${output}" == "${unsigned}"$'\n'* ]]
   [[ "${output}" == *$'\n  '[0-9a-f]*" feat: unsigned"* ]]
   [[ "${output}" != *"feat: signed"* ]]
 }
@@ -99,7 +102,7 @@ setup() {
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"A merge commit below is not one you can sign"* ]]
+  output_has_line "${unsigned_merge}"
   [[ "${output}" == *"chore: merge"* ]]
 }
 

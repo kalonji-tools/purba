@@ -28,6 +28,7 @@ esac
 FAKE
 
   change='echo two >wanted'
+  unproposed="the run changed files beyond wanted, so it is not proposed"
 
   # shellcheck source=.github/scripts/ask-for-sign-off.sh
   . "${BATS_TEST_DIRNAME}/../../.github/scripts/ask-for-sign-off.sh"
@@ -102,7 +103,7 @@ pushed() {
   run propose propose/next 7
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"the run changed files beyond wanted, so it is not proposed"* ]]
+  output_has_line "${unproposed}"
   remote=$(git ls-remote origin)
   [[ -z "${remote}" ]]
   asked=$(calls gh)

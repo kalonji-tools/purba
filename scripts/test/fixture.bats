@@ -51,3 +51,30 @@ setup() {
   [[ -z "${PURBA_REPORT:-}" ]]
   [[ -z "${FORCE_COLOR:-}" ]]
 }
+
+# A refusal is pinned as a whole line, so a word added before it or after it
+# fails the match. A refusal holds `**` and `?`, so neither is a pattern. An
+# unset variable is empty, so an empty line never matches.
+@test "a line of the output matches only when the whole line is given" {
+  output=$'the first line\nthe middle line\n\nthe last line'
+
+  output_has_line "the first line"
+  output_has_line "the middle line"
+  output_has_line "the last line"
+  matched=()
+  for part in "middle line" "the middle" "the middle line, or not" "and the middle line" "" \
+    "the * line" "the?middle line" "the[ ]middle line"; do
+    if output_has_line "${part}"; then matched+=("${part}"); fi
+  done
+  [[ ${#matched[@]} -eq 0 ]]
+}
+
+@test "the only line of an output matches, and an empty output matches nothing" {
+  output="the only line"
+
+  output_has_line "the only line"
+  output=""
+  matched=()
+  if output_has_line ""; then matched+=(""); fi
+  [[ ${#matched[@]} -eq 0 ]]
+}

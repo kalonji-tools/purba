@@ -6,9 +6,13 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-readers.sh"
   make_repo
-  unbound="A tracked file is refused when it reaches no actor"
-  off_roster="A name in .config/readers is refused when it is neither an actor nor a macro"
-  shadow="A macro is refused when its name is an actor's"
+  unbound="A tracked file is refused when it reaches no actor, because every artifact has a \
+named reader. Decide whether it should exist, what it serves and for whom, and bind that actor \
+in .config/readers."
+  off_roster="A name in .config/readers is refused when it is neither an actor nor a macro, \
+because a reader is an actor and the roster names every actor."
+  shadow="A macro is refused when its name is an actor's, because .config/readers could not then \
+tell the two apart."
   roster architect coder toolsmith technical-writer
   readers '.config/readers  architect' 'docs/**  architect' 'chorestart  toolsmith'
 }
@@ -55,7 +59,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unbound}, because every artifact has a named reader"* ]]
+  output_has_line "${unbound}"
   [[ "${output}" != *"a-location-inherits-its-readers.md"* ]]
   [[ "${output}" == *"  src/lib.rs"* ]]
   [[ "${output}" != *"  chorestart"* ]]
@@ -99,8 +103,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${off_roster}"* ]]
-  [[ "${output}" == *"because a reader is an actor and the roster names every actor"* ]]
+  output_has_line "${off_roster}"
   [[ "${output}" != *"an-actor-is-what-it-does-not-what-it-is.md"* ]]
   [[ "${output}" == *"  architekt"* ]]
 }
@@ -112,7 +115,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${off_roster}"* ]]
+  output_has_line "${off_roster}"
   [[ "${output}" == *"  toolsmyth"* ]]
 }
 
@@ -133,7 +136,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${shadow}"* ]]
+  output_has_line "${shadow}"
   [[ "${output}" == *"  coder"* ]]
 }
 
@@ -155,7 +158,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${off_roster}"* ]]
+  output_has_line "${off_roster}"
   [[ "${output}" == *"  intruder"* ]]
 }
 

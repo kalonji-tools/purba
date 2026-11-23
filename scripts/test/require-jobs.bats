@@ -7,6 +7,11 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../../.github/scripts/require-jobs.sh"
   isolate
+  undone="A branch is refused unless the job \`changed\` succeeded and every other job did what \
+\`changed\` asked. The gate stands for each of those jobs whenever a path that starts the gate \
+changes. \`changed\` sets build=true to ask for a success, and sets no build to ask for a skip."
+  not_succeeded="A branch is refused unless each job that runs on every push succeeded. A skip or \
+a cancel of one is no success, because the job checked nothing."
 }
 
 # Sets NEEDS in the shape `toJSON(needs)` writes, with one job for each
@@ -36,11 +41,7 @@ needs() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *$'\n  rust: failure'* ]]
   [[ "${output}" == *$'\n  wheel: success'* ]]
-  summary="A branch is refused unless the job \`changed\` succeeded and every other job"
-  summary+=" did what \`changed\` asked. The gate stands for each of those jobs whenever a"
-  summary+=" path that starts the gate changes. \`changed\` sets build=true to ask for a"
-  summary+=" success, and sets no build to ask for a skip."
-  [[ "${output}" == *"${summary}"* ]]
+  output_has_line "${undone}"
 }
 
 @test "every job that succeeded after changed asked for the build passes" {
@@ -228,9 +229,7 @@ needs() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *$'\n  quality: failure'* ]]
   [[ "${output}" == *$'\n  scripts: success'* ]]
-  summary="A branch is refused unless each job that runs on every push succeeded. A skip or"
-  summary+=" a cancel of one is no success, because the job checked nothing."
-  [[ "${output}" == *"${summary}"* ]]
+  output_has_line "${not_succeeded}"
 }
 
 @test "--success refuses a job it names that skipped" {

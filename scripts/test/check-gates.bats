@@ -7,10 +7,9 @@ setup() {
   script="${BATS_TEST_DIRNAME}/../check-gates.sh"
   make_repo
   unmarked="A tracked path is refused when .config/gates does not mark it set or unset for \
-each gate the file names"
-  why="because a gate that skips must know whether the path starts it"
-  repair="Mark the path with the name of the gate when a change to it must start the gate, and \
-with \`-\` before the name when it need not."
+each gate the file names, because a gate that skips must know whether the path starts it. Mark \
+the path with the name of the gate when a change to it must start the gate, and with \`-\` before \
+the name when it need not."
   gates '.config/gates  -build' 'chorestart  build'
 }
 
@@ -43,8 +42,7 @@ track() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${unmarked}, ${why}"* ]]
-  [[ "${output}" == *"${why}. ${repair}"* ]]
+  output_has_line "${unmarked}"
   [[ "${output}" == *"  build: build.rs"* ]]
   [[ "${output}" != *"chorestart"* ]]
 }

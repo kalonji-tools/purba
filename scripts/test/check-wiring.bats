@@ -119,7 +119,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${undrawn}"$'\n'* ]]
+  output_has_line "${undrawn}"
   [[ "${output}" != *"each-part-is-a-crate.md"* ]]
   [[ "${output}" == *"  beta uses gamma, in crates/beta/Cargo.toml"* ]]
 }
@@ -140,7 +140,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${unused}"$'\n'* ]]
+  output_has_line "${unused}"
   [[ "${output}" == *"  beta --> gamma, and crates/beta/Cargo.toml names no purba-gamma"* ]]
 }
 
@@ -150,7 +150,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_crate}"$'\n'* ]]
+  output_has_line "${no_part_crate}"
   [[ "${output}" == *"  purba-other, in crates/other/Cargo.toml"* ]]
 }
 
@@ -169,7 +169,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${call}"$'\n'* ]]
+  output_has_line "${call}"
   [[ "${output}" == *"  gamma ->> beta: a tree"* ]]
   [[ "${output}" != *"${answer}"* ]]
 }
@@ -180,7 +180,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${answer}"$'\n'* ]]
+  output_has_line "${answer}"
   [[ "${output}" == *"  beta -->> gamma: a path"* ]]
   [[ "${output}" != *"${call}"* ]]
 }
@@ -191,7 +191,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_end}"$'\n'* ]]
+  output_has_line "${no_part_end}"
   [[ "${output}" == *"  beta ->> gama: a path"* ]]
 }
 
@@ -210,7 +210,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${off_seam}"$'\n'* ]]
+  output_has_line "${off_seam}"
   [[ "${output}" == *"  purba-beta names pyo3, in crates/beta/Cargo.toml"* ]]
 }
 
@@ -321,7 +321,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
+  output_has_line "${concern_unnamed}"
   [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
   [[ "${output}" != *"beta uses purba-errors"* ]]
 }
@@ -333,7 +333,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
+  output_has_line "${concern_uses_part}"
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -344,7 +344,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
+  output_has_line "${concern_uses_part}"
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -355,7 +355,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${off_seam}"$'\n'* ]]
+  output_has_line "${off_seam}"
   [[ "${output}" == *"  purba-errors names pyo3, in crates/errors/Cargo.toml"* ]]
   [[ "${output}" != *"${no_part_crate}"* ]]
 }
@@ -367,7 +367,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${no_part_crate}"$'\n'* ]]
+  output_has_line "${no_part_crate}"
   [[ "${output}" == *"  purba-errors, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -390,7 +390,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_uses_part}"$'\n'* ]]
+  output_has_line "${concern_uses_part}"
   [[ "${output}" == *"  purba-errors uses gamma, in crates/errors/Cargo.toml"* ]]
 }
 
@@ -402,7 +402,7 @@ crate() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
+  output_has_line "${concern_unnamed}"
   [[ "${output}" == *"  gamma uses purba-errors, in crates/gamma/Cargo.toml"* ]]
 }
 
@@ -429,6 +429,6 @@ Its crate is \`purba-errors\`./" LANDSCAPE.md
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ $'\n'"${output}"$'\n' == *$'\n'"${concern_unnamed}"$'\n'* ]]
+  output_has_line "${concern_unnamed}"
   [[ "${output}" == *"  gamma uses purba-config, in crates/gamma/Cargo.toml"* ]]
 }

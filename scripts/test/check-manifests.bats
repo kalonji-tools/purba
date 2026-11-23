@@ -6,8 +6,10 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../check-manifests.sh"
   make_repo
-  conflict="A package is refused when two manifests declare it"
-  python="A package in pyproject.toml is refused until purba chooses its Python manager"
+  conflict="A package is refused when two manifests declare it, because the two declarations \
+can drift apart."
+  python="A package in pyproject.toml is refused until purba chooses its Python manager. The \
+change that declares the first one gives this check a reader for it."
   mise_toml 'jq = "1"'
   cargo_toml 'serde = "1"'
   pyproject_toml '[build-system]' 'requires = []' '[project]' 'name = "fixture"'
@@ -49,7 +51,7 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${conflict}"* ]]
+  output_has_line "${conflict}"
   [[ "${output}" != *"one-manifest-declares-each-package.md"* ]]
   [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
   [[ "${output}" != *"${python}"* ]]
@@ -140,7 +142,7 @@ pyproject_toml() {
     run "${script}"
 
     [[ "${status}" -eq 1 ]]
-    [[ "${output}" == *"${python}"* ]]
+    output_has_line "${python}"
     [[ "${output}" == *"  ${key}"* ]]
     [[ "${output}" != *"${conflict}"* ]]
   done
@@ -186,7 +188,7 @@ pyproject_toml() {
   [[ "${status}" -eq 1 ]]
   [[ "${output}" == *"  jq: .config/mise.toml as jq, Cargo.toml as jq"* ]]
   [[ "${output}" == *"  shfmt: .config/mise.toml as shfmt, Cargo.toml as shfmt"* ]]
-  [[ "${output}" == *"${python}"* ]]
+  output_has_line "${python}"
   [[ "${output}" == *"  project.dependencies"* ]]
 }
 
@@ -199,7 +201,7 @@ pyproject_toml() {
   run "${script}"
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${conflict}"* ]]
+  output_has_line "${conflict}"
   [[ "${output}" == *"  serde: Cargo.toml as serde, scripts/check/check.rs as serde"* ]]
 }
 

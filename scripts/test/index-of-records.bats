@@ -6,7 +6,8 @@ setup() {
   . "${BATS_TEST_DIRNAME}/fixture.sh"
   script="${BATS_TEST_DIRNAME}/../index-of-records.sh"
   make_repo
-  stale="docs/README.md is refused when it differs from the page that the area lines give"
+  stale="docs/README.md is refused when it differs from the page that the area lines give, \
+because a person finds a record there. Run mise run fmt:index."
   mkdir -p docs/decisions
   cat >LANDSCAPE.md <<'LANDSCAPE'
 # purba's landscape
@@ -107,8 +108,7 @@ PAGE
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stale}"* ]]
-  [[ "${output}" == *"Run mise run fmt:index."* ]]
+  output_has_line "${stale}"
   [[ "${output}" == *"+- [Delta holds](decisions/d-delta.md)"* ]]
   cmp docs/README.md written
 }
@@ -120,7 +120,7 @@ PAGE
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stale}"* ]]
+  output_has_line "${stale}"
 
   "${script}"
   record b-beta "Beta holds, renamed" writing
@@ -135,7 +135,7 @@ PAGE
   run "${script}" --check
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" == *"${stale}"* ]]
+  output_has_line "${stale}"
 }
 
 @test "a record with no area line cannot be listed" {
