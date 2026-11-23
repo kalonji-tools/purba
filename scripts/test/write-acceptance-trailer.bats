@@ -2,6 +2,12 @@
 : "${BATS_TEST_DIRNAME:?set by bats}"
 bats_require_minimum_version 1.5.0
 
+setup_file() {
+  # shellcheck source=scripts/test/gate-keys.sh
+  . "${BATS_TEST_DIRNAME}/gate-keys.sh"
+  make_gate_keys
+}
+
 setup() {
   # shellcheck source=scripts/test/fixture.sh
   . "${BATS_TEST_DIRNAME}/fixture.sh"

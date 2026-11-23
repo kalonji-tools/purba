@@ -45,7 +45,9 @@
 #                                  `gate-token-1`, a token that `gate` signed. Its
 #                                  claims name that run, its job, `PR` and
 #                                  `BASE_REF` (7 and `main` when unset). A fake
-#                                  `curl` answers with the key set
+#                                  `curl` answers with the key set. A file that
+#                                  calls it makes the keys in `setup_file`, with
+#                                  `make_gate_keys` of `gate-keys.sh`
 #   gate_token <run> <filter> [<key> [<alg> [<kid>]]]
 #                                  signs that token of <run> again, with its claims
 #                                  passed through the jq <filter>. <key> is `gate`,
@@ -58,6 +60,9 @@
 # number <id>. The answer of `gh_answers <call>` goes to every other call.
 : "${BATS_TEST_TMPDIR:?set by bats}"
 : "${BATS_FILE_TMPDIR:?set by bats}"
+: "${BATS_TEST_DIRNAME:?set by bats}"
+# shellcheck source=scripts/test/gate-keys.sh
+. "${BATS_TEST_DIRNAME}/gate-keys.sh"
 
 # ⚠️ git hands a hook, and a command under `rebase --exec`, the repository it
 # runs in. A test that keeps those variables commits into that repository.
@@ -247,34 +252,12 @@ check_runs() {
   gh_answers jobs "{\"jobs\":[${jobs}]}"
 }
 
-# This function makes a key set like GitHub's. A fake `curl` answers with it.
-# The set holds `gate`, and `short`, a key of 1024 bits. The key `other` is
-# in no set. This function makes the keys once for each file of tests, because
-# a key of 2048 bits is slow to make.
 gate_keys() {
-  local dir="${BATS_FILE_TMPDIR}/gate-keys" name bits gate short
-  # `bats --jobs` runs the tests of one file at once, and each may come here
-  # first. `mkdir` is atomic, so one test makes the keys while the rest wait. That
-  # test writes the key set last.
+  local dir="${BATS_FILE_TMPDIR}/gate-keys"
   if [[ ! -e "${dir}/jwks.json" ]]; then
-    until mkdir "${dir}.lock" 2>/dev/null; do sleep 0.1; done
-    if [[ ! -e "${dir}/jwks.json" ]]; then
-      mkdir -p "${dir}"
-      for name in gate:2048 other:2048 short:1024; do
-        bits=${name#*:}
-        name=${name%:*}
-        openssl genpkey -algorithm RSA -pkeyopt "rsa_keygen_bits:${bits}" \
-          -out "${dir}/${name}.pem" 2>/dev/null
-      done
-      gate=$(gate_modulus "${dir}/gate.pem")
-      short=$(gate_modulus "${dir}/short.pem")
-      jq -n --arg gate "${gate}" --arg short "${short}" '{keys: [
-          {kid: "gate", kty: "RSA", alg: "RS256", use: "sig", e: "AQAB", n: $gate},
-          {kid: "short", kty: "RSA", alg: "RS256", use: "sig", e: "AQAB", n: $short}]}' \
-        >"${dir}/jwks.partial"
-      mv "${dir}/jwks.partial" "${dir}/jwks.json"
-    fi
-    rmdir "${dir}.lock"
+    echo "The key set is made once for each file, because the tests of one file run at once." \
+      "Call \`make_gate_keys\` in \`setup_file\`." >&2
+    return 1
   fi
   fake curl <<FAKE
 cat "${dir}/jwks.json"
@@ -283,26 +266,6 @@ FAKE
   fake unzip <<'FAKE'
 cat "$2"
 FAKE
-}
-
-# The modulus of a key, in base64url.
-gate_modulus() {
-  local hex escaped="" i
-  hex=$(openssl rsa -in "$1" -noout -modulus)
-  hex=${hex#Modulus=}
-  for ((i = 0; i < ${#hex}; i += 2)); do escaped+="\\x${hex:i:2}"; done
-  printf '%b' "${escaped}" >"$1.modulus"
-  gate_b64url "$1.modulus"
-}
-
-# The base64url of the bytes in a file, with no padding.
-gate_b64url() {
-  local encoded
-  encoded=$(base64 <"$1")
-  encoded=${encoded//$'\n'/}
-  encoded=${encoded//=/}
-  encoded=${encoded//+/-}
-  printf '%s' "${encoded//\//_}"
 }
 
 # gate_token_for <run> <job>
