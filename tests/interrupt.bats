@@ -394,6 +394,41 @@ LINES
   [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]]
 }
 
+# The replay alone writes the marker, kills its zygote and then itself, and so
+# sends no verdict. The mask keeps the SIGINT from the replay, which must end
+# by its own SIGKILL. A replay that ends alone gives a verdict, so the second
+# run, with no interrupt, shows that the replay ends its zygote.
+@test "an interrupt during a replay whose module's process ends makes the test interrupted" {
+  cd "${BATS_TEST_TMPDIR:?set by bats}"
+  printf '%s\n' 'import os, signal, threading, time' 'from pathlib import Path' \
+    'def test_one():' '    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT})' \
+    '    threading.Thread(target=threading.Event().wait, daemon=True).start()' \
+    '    replay = Path("ran").exists()' '    Path(["ran", "marker"][replay]).touch()' \
+    '    time.sleep(3 * replay)' '    os.kill(os.getppid(), [0, signal.SIGKILL][replay])' \
+    '    os.kill(os.getpid(), [0, signal.SIGKILL][replay])' \
+    '    assert 1 == 1' '    assert 2 == 2' \
+    'def test_two():' '    Path("two").touch()' '    assert 2 == 2' >test_ends.py
+
+  run -0 --separate-stderr interrupt test_ends.py 0 alone
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ends.py::test_one interrupted
+2 cases: 1 interrupted, 1 unreached
+LINES
+  [[ "${stderr}" == "${SIGINT_LINE}"$'\npurba ended by SIGINT' ]] || false
+  [[ ! -e two ]] || false
+
+  rm ran marker
+  run -0 --separate-stderr interrupt test_ends.py 0 none
+
+  diff -u - <(printf '%s\n' "${output}") <<'LINES'
+test_ends.py::test_one project error: the module's process died by SIGKILL
+test_ends.py::test_two blocked: the module's process died by SIGKILL
+2 cases: 2 blocked; 1 project error
+LINES
+  [[ "${stderr}" == 'purba exited 4' ]]
+}
+
 @test "a zygote that a signal ends after its tests ends the run as the zygote's own exit does" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   for end in 'os.kill(os.getpid(), signal.SIGTERM)' 'os._exit(3)'; do
