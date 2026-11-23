@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 An error that execution hands to reporting is a project error or an internal error.
-[Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) puts the rule that counts in execution.
+[Reporting renders the exit code, and command returns it](reporting-renders-the-exit-code-and-command-returns-it.md#decision-outcome) puts the rule that counts in one crate.
 On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error itself.
 
 | fact | source |
@@ -26,12 +26,12 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 **Area:** errors
 
 **An error says its kind, and reporting takes five ways in.**
-A new kind and the rule that counts it change in execution alone.
+A new kind and the rule that counts it change in `purba-errors` alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
 - **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression. It also builds one for each unused suppression.
-- **Only execution builds an internal error.**
-- **Execution's `Tally` counts each error by its kind.** Reporting picks no counter.
+- **Only execution and `catch` build an internal error.** Clippy refuses a call of `Error::internal` outside execution, as [an outcome and an error live in a crate that links no Python](an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md#decision-outcome) decides. `catch` builds one for a panic that crosses it.
+- **The `Tally` of `purba-errors` counts each error by its kind.** Reporting picks no counter.
 - **Reporting takes five ways in.** `finish` ends the report. The five ways in are these:
   - `case` takes a test with its outcome or its error, each [notice](../../CONTEXT.md#notice) of the test, and each verdict that a suppression turned into a warning. It writes the line, then each notice, then each warning that selection judged, then each warning that execution judged. A notice and a warning count no test.
   - `error` takes a module or a test, with its error. It counts no blocked test.
@@ -42,9 +42,7 @@ A new kind and the rule that counts it change in execution alone.
 
 **Downside:**
 
-- **Command names a type of execution to build a project error.** The arrow from command to execution carries it.
 - **Reporting keeps private ways in for its own tests.** `line`, which `case` calls, maps an outcome to its kind. Only command's tests run that map.
-- **Command copies each warning that selection judged into execution's shape.** Reporting names no type of selection, so command builds an execution `Warning` from each.
 
 ## Confirmation
 
@@ -57,4 +55,5 @@ It checks that `stopped` writes the module's error, then each thread's error, th
 It checks that `unreached` writes no line, and that the count names `unreached`.
 It checks that `case` writes the line, then each notice, then each warning that selection judged, then each warning that execution judged.
 
-`mise run lint:wiring` checks that the manifest of command names execution along an arrow of the parts diagram.
+`mise run lint:wiring` checks that each part that uses `purba-errors` is a part that the line of errors names.
+`mise run lint:rust` refuses a call of `Error::internal` outside execution.

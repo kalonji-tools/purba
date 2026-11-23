@@ -22,7 +22,7 @@ pub enum Gives<T> {
 /// them. An internal error that the step gives itself ranks as a panic.
 pub fn decide<T>(own: Result<T, Error>, met: Met) -> Result<Gives<T>, Error> {
     if let Some(noted) = met.panic {
-        Err(Error(crate::Reason::Internal(noted.caught_by("execution"))))
+        Err(crate::internal(noted.caught_by("execution")))
     } else if let Err(error) = own.as_ref()
         && error.kind() != ErrorKind::Project
     {
@@ -104,10 +104,10 @@ mod tests {
             // error
             (
                 "a step that met an interrupt and gave an internal error results in that error",
-                Err(Error(crate::Reason::Internal(panic::Caught {
+                Err(crate::internal(panic::Caught {
                     part: "execution".to_owned(),
                     message: "crossed".to_owned(),
-                }))),
+                })),
                 Met {
                     panic: None,
                     interrupted: true,

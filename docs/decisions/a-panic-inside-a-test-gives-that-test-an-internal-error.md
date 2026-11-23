@@ -51,9 +51,9 @@ flowchart LR
 
 - **A wrap of Rust's panic hook records each panic.** Execution catches each panic in the [zygote](../../CONTEXT.md#zygote), the test's process or a [replay](../../CONTEXT.md#replay). The next test keeps its line. A test that catches the panic cannot hide it.
 - **The error that execution hands is a project error or an internal error.** What dispatch hands keeps its shape. An internal error carries the part that found it, and its message. Both are data.
-- **Execution holds the wrap of Rust's panic hook and the note that the wrap keeps.** The zygote, each test's process and each replay read the note of their own panics. `_main` installs the wrap.
+- **`purba-errors`, the crate of the errors concern, holds the wrap of Rust's panic hook and the note that the wrap keeps.** The zygote, each test's process and each replay read the note of their own panics. `_main` installs the wrap through execution.
 - **A panic in the source of a part names that part.** Any other panic names the part that catches it.
-- **Execution's module `panic` names the part of a panic.** Command reaches it through `catch`. `_main` calls `panic::caught` directly. The rule lives in one place. Only execution builds the internal error.
+- **The module `panic` of `purba-errors` names the part of a panic.** Command reaches it through `catch`. `_main` calls `panic::caught` directly. The rule lives in one place. Only `catch` and execution build an internal error.
 - **Command catches a panic in the parse, in selection and in the rewrite, and gives the module an internal error.** After a panic in the rewrite, the line of each test that selection refuses prints first. Then the module's internal error blocks each test that selection hands on.
 
 **Downside:**

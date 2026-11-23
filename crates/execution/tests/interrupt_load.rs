@@ -1,7 +1,8 @@
 mod common;
 
 use common::module;
-use purba_execution::{Kind, Purba};
+use purba_errors::Kind;
+use purba_execution::Purba;
 
 /// A module whose load takes SIGINT, and whose test holds when purba put its
 /// own signal handler back after the load.

@@ -46,6 +46,7 @@ The definition keeps out what a part owns, and what has no design of its own.
 [purba is always strict](purba-is-always-strict.md#decision-outcome) holds why no switch turns strictness off.
 [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) holds why a value that tightens a check is not a switch.
 [A concern's shared names may live in a part](a-concerns-shared-names-may-live-in-a-part.md#decision-outcome) holds which part keeps the names that a concern's parts share.
+[An outcome and an error live in a crate that links no Python](an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md#decision-outcome) holds the crate of errors, which uses no part.
 
 **A part crosses the seam when its job needs a live Python object.**
 Command takes the arguments and returns an exit code, both data, so it does not cross the seam.
@@ -71,7 +72,10 @@ Dispatch and reporting pass data, so neither crosses it.
 ## Confirmation
 
 `mise run lint:wiring` reads the seam's line, and refuses a part that names PyO3 when the line does not name the part, as [each part is a crate](each-part-is-a-crate.md#decision-outcome) decides.
-No check reads the other concerns, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
+It also reads the crate that a concern's line names.
+It refuses a part that uses that crate when the line does not name the part.
+It refuses a part that the crate uses.
+No check reads the rest of a concern's line, because [a standard a gate cannot decide does not become a gate](a-standard-a-gate-cannot-decide-does-not-become-a-gate.md).
 
 [The landscape](../../LANDSCAPE.md#the-order-of-design) ranks each of these concerns whose line does not link its design.
 [A design in depth waits for what it assumes](a-design-in-depth-waits-for-what-it-assumes.md#decision-outcome) holds why.

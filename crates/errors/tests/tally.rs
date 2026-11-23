@@ -1,8 +1,8 @@
-use purba_execution::{Error, ErrorKind, Kind, Quote, Tally};
+use purba_errors::{Error, ErrorKind, Kind, Quote, Tally};
 
 /// The internal error that `catch` gives for a panic, which names `part`.
 fn internal(part: &str) -> Error {
-    purba_execution::catch(part, || -> Result<(), Error> { panic!("boom") })
+    purba_errors::catch(part, || -> Result<(), Error> { panic!("boom") })
         .expect_err("a panic gives an error")
 }
 

@@ -4,7 +4,7 @@ use std::ops::ControlFlow;
 
 use common::module;
 use purba_dispatch::Handed;
-use purba_execution::Kind;
+use purba_errors::Kind;
 
 /// What dispatch hands on, as data a test can compare.
 #[derive(Debug, PartialEq)]

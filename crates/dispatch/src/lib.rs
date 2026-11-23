@@ -7,7 +7,8 @@
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 
-use purba_execution::{End, Error, Outcome, Purba, Rewrite, Step, Stop, Suppressed, Zygote};
+use purba_errors::{Error, Outcome, Suppressed};
+use purba_execution::{End, Purba, Rewrite, Step, Stop, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.

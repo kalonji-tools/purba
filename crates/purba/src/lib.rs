@@ -104,7 +104,7 @@ fn stop(error: &impl Display) -> u8 {
 /// Writes the line of the panic that stopped the run, and returns 125. A
 /// panic outside the source of a part names `command`, the part `_main` runs.
 fn internal(payload: &(dyn Any + Send)) -> u8 {
-    let caught = purba_execution::panic::caught(payload, "command");
+    let caught = purba_errors::panic::caught(payload, "command");
     // stderr may refuse the write. The run exits 125 either way.
     let _ = writeln!(
         io::stderr(),

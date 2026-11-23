@@ -10,9 +10,9 @@ publish.workspace = true
 [dependencies]
 libc = "0.2.189"
 purba-assertion = { path = "../assertion" }
+purba-errors = { path = "../errors" }
 purba-fixtures = { path = "../fixtures" }
 pyo3.workspace = true
-serde.workspace = true
 
 [lints]
 workspace = true

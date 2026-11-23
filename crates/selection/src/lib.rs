@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
+use purba_errors::Warning;
 use purba_parsing::{Arms, Enter, Facts, Module, Node, Shape, TestFacts, origins, walk};
 use ruff_python_ast::name::UnqualifiedName;
 use ruff_python_ast::{
@@ -52,19 +53,10 @@ pub struct TestId {
     path: PathBuf,
     classes: Vec<String>,
     function: String,
-    suppressed: Vec<Suppressed>,
+    suppressed: Vec<Warning>,
     suppressions: Vec<Suppression>,
     reaching: Vec<Suppression>,
     notices: Vec<String>,
-}
-
-/// A violation of a strict check that a suppression turned into a warning: the
-/// name of the check, its words, and the reason of the suppression.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Suppressed {
-    pub check: &'static str,
-    pub words: String,
-    pub reason: String,
 }
 
 impl TestId {
@@ -85,7 +77,7 @@ impl TestId {
     /// Each verdict of selection that a suppression turned into a warning, one
     /// for each check, in the order of its first reason.
     #[must_use]
-    pub fn suppressed(&self) -> &[Suppressed] {
+    pub fn suppressed(&self) -> &[Warning] {
         &self.suppressed
     }
 
@@ -222,12 +214,12 @@ impl Reason {
 /// `reasons` without each reason that a suppression of `suppressions` turns
 /// into a warning, and the warnings that it gives. A test that purba cannot call
 /// keeps every reason, since no suppression reaches it.
-fn suppress(reasons: Vec<Reason>, suppressions: &[Suppression]) -> (Vec<Reason>, Vec<Suppressed>) {
+fn suppress(reasons: Vec<Reason>, suppressions: &[Suppression]) -> (Vec<Reason>, Vec<Warning>) {
     if reasons.iter().any(Reason::cannot_call) {
         return (reasons, Vec::new());
     }
     let mut kept = Vec::new();
-    let mut suppressed: Vec<Suppressed> = Vec::new();
+    let mut suppressed: Vec<Warning> = Vec::new();
     for reason in reasons {
         let found = reason
             .check()
@@ -245,8 +237,8 @@ fn suppress(reasons: Vec<Reason>, suppressions: &[Suppression]) -> (Vec<Reason>,
                 verdict.words.push_str("; ");
                 verdict.words.push_str(&words);
             }
-            None => suppressed.push(Suppressed {
-                check: suppression.check,
+            None => suppressed.push(Warning {
+                check: suppression.check.to_owned(),
                 words,
                 reason: suppression.reason.clone(),
             }),

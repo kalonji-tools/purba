@@ -2,8 +2,8 @@ use std::hint::black_box;
 use std::panic;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use purba_execution::panic::{Panic, take, wrap_hook};
-use purba_execution::{Error, ErrorKind};
+use purba_errors::panic::{Panic, take, wrap_hook};
+use purba_errors::{Error, ErrorKind};
 
 // A panic hook belongs to the process, and cargo runs the tests of one binary
 // on several threads. A panic in another test could take the place of a panic
@@ -45,7 +45,7 @@ fn the_wrap_records_each_panic_and_calls_the_hook_it_replaced() {
         "a payload that is not text gives what Rust's hook writes"
     );
 
-    let error = purba_execution::catch("dispatch", || -> Result<(), Error> {
+    let error = purba_errors::catch("dispatch", || -> Result<(), Error> {
         panic!("a panic that the note holds")
     })
     .expect_err("a panic gives an error");
@@ -59,7 +59,7 @@ fn the_wrap_records_each_panic_and_calls_the_hook_it_replaced() {
     );
 
     let _ = panic::catch_unwind(|| panic!("a panic that a test caught"));
-    let error = purba_execution::catch("dispatch", || -> Result<(), Error> {
+    let error = purba_errors::catch("dispatch", || -> Result<(), Error> {
         panic::resume_unwind(Box::new("resumed"))
     })
     .expect_err("a panic gives an error");

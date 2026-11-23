@@ -5,7 +5,8 @@ mod common;
 
 use std::path::Path;
 
-use purba_execution::{Kind, Purba};
+use purba_errors::Kind;
+use purba_execution::Purba;
 
 /// A test whose thread makes the zygote replay its second expectation. The
 /// case's process marks `ran`, so only the replay finds it. The replay marks

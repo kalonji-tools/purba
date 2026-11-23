@@ -1,4 +1,5 @@
-use purba_assertion::{Readers, Readings, Rewrite, Shown, Try, Verdict, Watched};
+use purba_assertion::{Readers, Readings, Rewrite, Try, Verdict, Watched};
+use purba_errors::Shown;
 use pyo3::Python;
 use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError, PySystemExit};
 use pyo3::types::{PyAnyMethods, PyModule, PyModuleMethods};

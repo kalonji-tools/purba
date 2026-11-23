@@ -102,8 +102,9 @@ fn record(info: &PanicHookInfo<'_>) {
 /// <https://github.com/rust-lang/cargo/blob/5f94df4/src/util/workspace.rs#L128-L146>
 fn part(file: &str) -> Option<String> {
     let (part, _) = file.strip_prefix("crates/")?.split_once('/')?;
-    // The crate `purba` builds the extension module, and is not a part.
-    (part != "purba").then(|| part.to_owned())
+    // The crate `purba` builds the extension module. The crate `errors` holds
+    // the names of a concern. Neither is a part.
+    (part != "purba" && part != "errors").then(|| part.to_owned())
 }
 
 #[cfg(test)]
@@ -141,6 +142,15 @@ mod tests {
             ),
             None,
             "the standard library"
+        );
+    }
+
+    #[test]
+    fn a_location_in_the_crate_of_a_concern_names_no_part() {
+        assert_eq!(
+            part("crates/errors/src/lib.rs"),
+            None,
+            "the crate purba-errors holds no part"
         );
     }
 }

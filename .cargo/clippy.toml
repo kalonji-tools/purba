@@ -47,3 +47,15 @@ reason = "only purba-parsing parses"
 [[disallowed-methods]]
 path = "ruff_python_parser::typing::parse_type_annotation"
 reason = "only purba-parsing parses"
+
+# Each constructor of `purba-errors` that only execution calls.
+#
+#   the decision:  docs/decisions/an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md
+
+[[disallowed-methods]]
+path = "purba_errors::Error::internal"
+reason = "only execution builds an internal error"
+
+[[disallowed-methods]]
+path = "purba_errors::Outcome::new"
+reason = "only execution makes an outcome"

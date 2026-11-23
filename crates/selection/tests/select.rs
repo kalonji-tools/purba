@@ -1387,7 +1387,7 @@ fn suppressed(name: &str, text: &str) -> Vec<(String, String, String, String)> {
             test.suppressed().iter().map(move |verdict| {
                 (
                     test.to_string(),
-                    verdict.check.to_owned(),
+                    verdict.check.clone(),
                     verdict.words.clone(),
                     verdict.reason.clone(),
                 )

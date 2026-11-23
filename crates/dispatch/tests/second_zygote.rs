@@ -8,7 +8,7 @@ use std::process::Command;
 
 use common::{Named, module};
 use purba_dispatch::{Handed, Module};
-use purba_execution::Error;
+use purba_errors::Error;
 
 /// A module whose load leaves a thread alive. A zygote that loads nothing then
 /// forks its tests. A thread that the load joins raises first, so only a stop

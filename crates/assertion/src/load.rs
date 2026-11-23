@@ -1,6 +1,7 @@
 //! The load: the rewritten module runs in Python, and its hooks record what
 //! each case did.
 
+use purba_errors::Shown;
 use purba_parsing::Reads;
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::{PyImportError, PyIndexError, PyNameError};
@@ -492,18 +493,6 @@ pub struct Readings {
     pub alone: Vec<(usize, Verdict)>,
     pub refused: Option<String>,
     pub replay: Vec<usize>,
-}
-
-/// What an expectation that did not hold shows.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub enum Shown {
-    /// A check of one value: its expected value and its reading. Each is the
-    /// `repr` of its value, beside the name of its class when the two `repr`s
-    /// are the same. The expected value reads by the rule of its operator.
-    Values { expected: String, reading: String },
-    /// An `all()` or an `any()`: a heading, and a line for each item that a
-    /// failure names.
-    Items { heading: String, items: Vec<String> },
 }
 
 #[derive(Default)]

@@ -28,12 +28,12 @@ Some part counts each outcome and each error, and some part turns that count int
 **Area:** reporting
 
 **Reporting renders the exit code, and command returns it.**
-Execution defines each kind, so a new kind and the rule that counts it change in one crate.
+`purba-errors` defines each kind, so a new kind and the rule that counts it change in one crate.
 Command names no type of an outcome.
 
 | question | answer |
 |---|---|
-| which part holds the rule that counts | execution: `Tally`. It counts each test once, by its outcome, as blocked or as unreached, and each error once, by its kind |
+| which part holds the rule that counts | no part: `Tally`, in `purba-errors`, the crate of the errors concern. It counts each test once, by its outcome, as blocked or as unreached, and each error once, by its kind |
 | which part renders the count line and the exit code | reporting, from the tally that it adds while it prints each line |
 | what `Report::line` and `Report::finish` return | `finish` returns the exit code: 0, 1, 2, 4 or 125. When the writer refuses a write, each way in that writes a line, and `finish`, return the error with the code of the run so far: 125 after an internal error, and 3 otherwise |
 | what command does with the code | it returns the code to `_main`. For a refused write, it returns the error with that code, and `_main` returns the code |
