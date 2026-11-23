@@ -339,8 +339,11 @@ impl Edit {
 ///
 /// In a test, each simple statement that is no expectation gains
 /// `; _purba_step(n)`, and each item `m` of a `with` becomes
-/// `_purba_with(n, m)`, where `n` is the line of the statement. The body of a
-/// `def` or a `class` in a test gains neither. Each line keeps its number.
+/// `_purba_with(n, m)`, where `n` is the line of the statement. The one
+/// statement of each `try` of one path then gains `; _purba_missed(i)`, where
+/// `i` counts the tries of one path of the module in source order, from 0. The
+/// body of a `def` or a `class` in a test gains none of these. Each line keeps
+/// its number.
 ///
 /// # Panics
 ///
