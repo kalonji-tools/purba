@@ -12,6 +12,7 @@ setup() {
   call="A call in the sequence of one run must go along an arrow of the parts diagram"
   answer="An answer in the sequence of one run must go back along an arrow of the parts diagram"
   no_part_end="Each end of a message in the sequence of one run must be a part, an actor or _main"
+  off_seam="Only a part that the line of the Rust/Python seam names may name pyo3"
 
   # Alpha has no crate, so its arrows are not read against a manifest.
   landscape '  beta ->> gamma: a path' '  gamma -->> beta: a tree'
@@ -61,6 +62,11 @@ LANDSCAPE
 ## The invariants
 
 - **the diagram is the only wiring.** No part uses an interface the diagram does not draw.
+
+## The cross-cutting concerns
+
+- **the Rust/Python seam.** Carries Python, in alpha, gamma and delta. Beta reads it, in beta.
+- **errors.** Keeps each kind of failure apart, in every part.
 LANDSCAPE
   } >LANDSCAPE.md
 }
@@ -176,4 +182,90 @@ crate() {
 
   [[ "${status}" -eq 2 ]]
   [[ "${output}" == *'LANDSCAPE.md has no section named "The parts and their dependencies".'* ]]
+}
+
+@test "a part that the seam's line does not name is refused when it names pyo3" {
+  crate beta 'purba-gamma = { path = "../gamma" }' 'pyo3 = "0.29"'
+  local why="because the other parts pass data."
+  local repair="Name the part in the seam's line, or remove the dependency."
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"${off_seam}, ${why} ${repair}"* ]]
+  [[ "${output}" == *"  purba-beta names pyo3, in crates/beta/Cargo.toml"* ]]
+}
+
+@test "pyo3 in the dependencies and the dev-dependencies is refused off the seam" {
+  crate beta 'purba-gamma = { path = "../gamma" }' 'pyo3 = "0.29"' '' '[dev-dependencies]' \
+    'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"  purba-beta names pyo3, in crates/beta/Cargo.toml"* ]]
+}
+
+@test "a build dependency on pyo3 is refused off the seam" {
+  crate beta 'purba-gamma = { path = "../gamma" }' '' '[build-dependencies]' 'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == *"  purba-beta names pyo3, in crates/beta/Cargo.toml"* ]]
+}
+
+@test "a dev-dependency on pyo3 passes off the seam" {
+  crate beta 'purba-gamma = { path = "../gamma" }' '' '[dev-dependencies]' 'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a part that the seam's line names may name pyo3" {
+  crate gamma 'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "the crate purba may name pyo3" {
+  crate purba 'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a landscape with no line for the seam cannot be read" {
+  sed -i '/^- \*\*the Rust\/Python seam\.\*\*/d' LANDSCAPE.md
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *'LANDSCAPE.md has no line for the Rust/Python seam.'* ]]
+}
+
+@test "a landscape with no section of concerns cannot be read" {
+  sed -i 's/^## The cross-cutting concerns$/## The concerns/' LANDSCAPE.md
+
+  run "${script}"
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *'LANDSCAPE.md has no section named "The cross-cutting concerns".'* ]]
+}
+
+@test "the first part after the seam's in may name pyo3" {
+  crate alpha 'purba-beta = { path = "../beta" }' 'purba-gamma = { path = "../gamma" }' \
+    'pyo3 = "0.29"'
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
 }

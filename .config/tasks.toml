@@ -151,7 +151,9 @@ description = "Refuse a line that breaks the style every editor reads"
 run = "ec"
 
 ["lint:wiring"]
-description = "Refuse a use between two parts that the parts diagram does not draw"
+description = """\
+Refuse a use between two parts that the parts diagram does not draw, and a part off the \
+Rust/Python seam that names pyo3"""
 run = "scripts/check-wiring.sh"
 
 #   the decision:  docs/decisions/a-forecast-finds-the-crates-for-each-stated-need.md
