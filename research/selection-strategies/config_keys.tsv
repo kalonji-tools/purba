@@ -1,0 +1,30 @@
+suite	file	section	key	value
+loguru	pyproject.toml	tool.pytest.ini_options	addopts	-l
+loguru	pyproject.toml	tool.pytest.ini_options	testpaths	['tests']
+loguru	pyproject.toml	tool.ruff	exclude	['tests/exceptions/source/*']
+loguru	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	loguru/__init__.pyi
+loguru	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	tests/**
+attrs	pyproject.toml	tool.pytest	addopts	['-ra', '--import-mode=importlib']
+attrs	pyproject.toml	tool.pytest	testpaths	['tests']
+attrs	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	**/test_*
+attrs	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	bench/**
+attrs	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	src/*/*.pyi
+attrs	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	tests/test_annotations.py
+attrs	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	typing_tests/*
+click	pyproject.toml	tool.pytest.ini_options	addopts	-m 'not stress'
+click	pyproject.toml	tool.pytest.ini_options	testpaths	['tests']
+click	pyproject.toml	tool.coverage.run	source	['click', 'tests']
+click	pyproject.toml	tool.ruff	extend-exclude	['examples/']
+requests	pyproject.toml	tool.pytest.ini_options	addopts	--doctest-modules
+requests	pyproject.toml	tool.pytest.ini_options	testpaths	['tests']
+requests	pyproject.toml	tool.ruff	exclude	['docs/', 'ext/']
+requests	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	src/requests/__init__.py
+requests	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	src/requests/compat.py
+requests	pyproject.toml	tool.ruff.lint.per-file-ignores	glob	tests/compat.py
+requests	.coveragerc	run	omit	requests/packages/*
+dateutil	pyproject.toml	tool.pytest.ini_options	python_files	['test_*.py', '*_test.py', '*_solution.py']
+dateutil	tox.ini	coverage:run	source	dateutil
+toolz	pyproject.toml	tool.pytest.ini_options	addopts	['--strict-config', '--strict-markers', '-ra']
+toolz	pyproject.toml	tool.pytest.ini_options	testpaths	['toolz']
+toolz	pyproject.toml	tool.coverage.run	omit	['toolz/tests/test*', 'toolz/*/tests/test*', 'toolz/compatibility.py']
+toolz	pyproject.toml	tool.coverage.run	source	['toolz']

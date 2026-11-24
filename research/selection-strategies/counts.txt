@@ -1,0 +1,42 @@
+== 1. configuration keys that name test files or tests (config_keys.tsv)
+pytest: suites that set a key = 6: {'loguru': [('addopts', 1), ('testpaths', 1)], 'attrs': [('addopts', 1), ('testpaths', 1)], 'click': [('addopts', 1), ('testpaths', 1)], 'requests': [('addopts', 1), ('testpaths', 1)], 'dateutil': [('python_files', 1)], 'toolz': [('addopts', 1), ('testpaths', 1)]}
+coverage: suites that set a key = 4: {'click': [('source', 1)], 'requests': [('omit', 1)], 'dateutil': [('source', 1)], 'toolz': [('omit', 1), ('source', 1)]}
+ruff: suites that set a key = 4: {'loguru': [('exclude', 1), ('glob', 2)], 'attrs': [('glob', 5)], 'click': [('extend-exclude', 1)], 'requests': [('exclude', 1), ('glob', 3)]}
+addopts loguru: collection flags = []
+addopts attrs: collection flags = []
+addopts click: collection flags = ['-m']
+addopts requests: collection flags = ['--doctest-modules']
+addopts toolz: collection flags = []
+python_files set by: [('dateutil', ['test_*.py', '*_test.py', '*_solution.py'])]
+python_functions or python_classes set by: []
+== 2. names that change collection, in conftest.py and test files (hooks.tsv)
+rows: 6 by name: [('X.__test__', 1), ('collect_ignore', 1), ('pytest_collection_modifyitems', 1), ('pytestmark', 3)]
+suites with a row: [('attrs', 3), ('dateutil', 2), ('toolz', 1)]
+== 3. module-level shapes in the test files (matcher: test_*.py or *_test.py, anywhere)
+loguru {'files': 50, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+attrs {'files': 26, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+click {'files': 43, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+requests {'files': 9, 'def test* under a module-level statement': 0, 'module-level for or while': 1, 'module-level call to globals, locals, vars, setattr or exec': 0}
+  dynamic: dateutil/tests/test_import_star.py:7 locals()
+  dynamic: dateutil/tests/test_import_star.py:9 locals()
+dateutil {'files': 17, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 2}
+pyflakes {'files': 13, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+toolz {'files': 29, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+  nested: six/test_six.py:489 test_b
+  nested: six/test_six.py:496 test_u
+  nested: six/test_six.py:503 test_b
+  nested: six/test_six.py:510 test_u
+six {'files': 1, 'def test* under a module-level statement': 4, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+schedule {'files': 1, 'def test* under a module-level statement': 0, 'module-level for or while': 0, 'module-level call to globals, locals, vars, setattr or exec': 0}
+total {'files': 189, 'def test* under a module-level statement': 4, 'module-level for or while': 1, 'module-level call to globals, locals, vars, setattr or exec': 2}
+== 4. manifest entries (matcher: own_collects = 1 in #1225's files.tsv)
+loguru files 50 folders 1 ['tests']
+attrs files 25 folders 1 ['tests']
+click files 43 folders 4 ['tests', 'tests/test_exceptions', 'tests/test_types', 'tests/test_utils']
+requests files 9 folders 1 ['tests']
+dateutil files 18 folders 3 ['docs/exercises/solutions', 'tests', 'tests/property']
+pyflakes files 13 folders 1 ['pyflakes/test']
+toolz files 15 folders 2 ['toolz/sandbox/tests', 'toolz/tests']
+six files 1 folders 1 ['.']
+schedule files 1 folders 1 ['.']
+total files 175 folders 15

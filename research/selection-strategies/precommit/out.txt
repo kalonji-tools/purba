@@ -1,0 +1,14 @@
+== pre-commit --version
+pre-commit 4.7.0
+== identify's tags for scripts/run
+["executable", "file", "python", "python3", "text"]
+== pre-commit run --all-files: the files each hook receives
+by-type Passed
+src/a.py scripts/run tests/helper.py tests/test_a.py
+by-folder Passed
+tests/helper.py tests/test_a.py
+by-name Passed
+tests/test_a.py
+type-minus-folder Passed
+scripts/run src/a.py
+matches-none (no files to check)Skipped

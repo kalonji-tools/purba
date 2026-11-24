@@ -1,0 +1,14 @@
+== go version
+go version go1.26.10 linux/amd64
+== 1. another package calls an unexported name
+app/main.go:5:41: name helper not exported by package lend
+== 2. a Test function with the wrong signature, and one with a lower-case suffix
+<dir>/shop/lend/lend_test.go:6:1: wrong signature for TestWrong, must be: func TestWrong(t *testing.T)
+FAIL	example.com/m/shop/lend [setup failed]
+FAIL
+== 3. go vet on the same file
+<dir>/shop/lend/lend_test.go:6:1: wrong signature for TestWrong, must be: func TestWrong(t *testing.T)
+== 4. without TestWrong: which tests run
+shop/lend/lend_test.go:6:6: Testlower has malformed name: first letter after 'Test' must not be lowercase
+FAIL	example.com/m/shop/lend [build failed]
+FAIL

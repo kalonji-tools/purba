@@ -1,0 +1,25 @@
+== python and pytest
+3.13.13
+pytest 9.2.0
+== 1. from m import *: with no __all__, each public name; a _name stays out
+['lend', 'os']
+== 2. with __all__, only the listed names; a public helper stays out
+['lend']
+== 3. __all__ that lists a name the module does not bind
+AttributeError: module 'badall' has no attribute 'gone'
+== 4. entry points: a group lists each unit; the loader finds only what is listed
+listed: ['gone', 'lend']
+gone -> load fails: AttributeError module 'shop.plugins' has no attribute 'gone'
+lend -> lend
+== 5. unittest: load_tests replaces discovery's own choice for its module
+test_lend (test_shop.Lend.test_lend) ... ok
+Ran 1 test in 0.000s
+== 6. pytest: __test__ = False hides a test; __test__ = True makes any function one
+test_shop.py::lend_works
+test_shop.py::test_plain
+2 tests collected in 0.00s
+== 7. pytest: python_functions = check_* replaces the default test prefix
+test_alt.py::check_lend
+1 test collected in 0.00s
+== 8. doctest: a module's __test__ dict adds units that discovery would not find
+['shop.__test__.extra', 'shop.lend']

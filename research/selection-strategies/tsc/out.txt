@@ -1,0 +1,18 @@
+== tsc --version
+Version 5.9.3
+== 1. no include: the default is every file under the folder
+other/o.ts
+src/skip/b.ts
+src/a.ts
+src/skip/c.ts
+== 2. include src, exclude src/skip: b.ts stays, since a.ts imports it
+src/skip/b.ts
+src/a.ts
+== 3. files lists one file that does not exist
+error TS6053: File 'src/gone.ts' not found.
+  The file is in the program because:
+    Part of 'files' list in tsconfig.json
+src/skip/b.ts
+src/a.ts
+== 4. include matches no file
+error TS18003: No inputs were found in config file 'tsconfig.json'. Specified 'include' paths were '["nothing"]' and 'exclude' paths were '[]'.

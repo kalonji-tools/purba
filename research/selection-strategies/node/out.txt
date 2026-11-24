@@ -1,0 +1,16 @@
+== node --version
+v24.22.1
+== node --test, with the default globs
+✔ src/fixtures.test.js
+✔ lends one
+✔ lends 1
+✔ lends 2
+✔ lends one
+✔ test/helper.js
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0

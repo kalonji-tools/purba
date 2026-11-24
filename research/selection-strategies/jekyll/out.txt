@@ -1,0 +1,9 @@
+== jekyll --version
+jekyll 4.4.1
+== jekyll build --verbose: the lines that warn, skip or call a file invalid
+(end of those lines)
+== each file it writes
+_site/2026/01/02/dated.html
+_site/notes/n.html
+_site/page.html
+_site/plain.md

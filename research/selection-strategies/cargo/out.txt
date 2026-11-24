@@ -1,0 +1,32 @@
+== cargo --version
+cargo 1.99.0 (5f94df478 2026-08-27)
+== 1. autotests = false, and one [[test]]: which test targets run
+     Running unittests src/lib.rs (target/debug/deps/off-323fbdea23058123)
+test tests::it_works ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/listed.rs (target/debug/deps/listed-a0bedcf4432122c3)
+test listed ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== 2. autotests left at its default, and one [[test]]: which test targets run
+     Running unittests src/lib.rs (target/debug/deps/on-205ad8e08d32b4b9)
+test tests::it_works ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/listed.rs (target/debug/deps/listed-70af481712c2aad5)
+test listed ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/unlisted.rs (target/debug/deps/unlisted-9e69ce6c56431edb)
+test unlisted ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== 3. a [[test]] whose file does not exist
+error: can't find integration-test `gone` at path `<dir>/missing/tests/gone.rs`
+error: could not compile due to 1 previous target resolution error
+== 4. #[test] on a function that takes an argument
+error: functions used as tests can not have any arguments
+error: could not compile `args` (test "listed") due to 1 previous error
+== 5. a function with no #[test] in tests/: never a test, and a dead-code warning
+warning: function `forgot` is never used
+test tests::it_works ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test marked ... ok

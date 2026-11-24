@@ -1,0 +1,9 @@
+== sass --version
+1.100.0
+== 1. compile the folder: which CSS files it writes
+out/site.css
+out/sizes.css
+== 2. a partial and a plain file of the same name
+Error: It's not clear which file to import. Found:
+  in/_colors.scss
+  in/colors.scss

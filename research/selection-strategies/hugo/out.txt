@@ -1,0 +1,12 @@
+== hugo version
+hugo v0.168.0+extended+withdeploy
+== hugo build: each page it writes
+public/blog/bundle/index.html
+public/blog/index.html
+public/blog/loose/one/index.html
+public/blog/plain/index.html
+public/blog/post/index.html
+public/blog/_private/index.html
+public/index.html
+== the list page of the section blog
+ bundle loose post underscore

@@ -1,0 +1,23 @@
+== ruff --version
+ruff 0.17.6
+== 1. the default file set
+pyproject.toml
+src/a.py
+src/a.pyi
+tests/helper.py
+tests/test_a.py
+== 2. include = ["tests/test_*.py"] replaces the default
+tests/test_a.py
+== 3. extend-exclude = ["tests"] narrows the default
+pyproject.toml
+src/a.py
+src/a.pyi
+== 4. the same setting, with tests/helper.py and scripts/run named on the command line
+scripts/run
+tests/helper.py
+== 5. the same, with force-exclude = true
+scripts/run
+== 6. D103 (a public function with no docstring) on a test named test_… and on one named lend
+test_shop.py:4:5: D103 Missing docstring in public function
+test_shop.py:8:5: D103 Missing docstring in public function
+Found 2 errors.

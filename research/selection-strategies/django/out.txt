@@ -1,0 +1,15 @@
+== versions
+django 6.1.3 flask 3.1.3
+== 1. the commands of the app shop: each module of management/commands/ but _util
+['helper', 'lend']
+== 2. run the helper module as a command
+AttributeError: module 'shop.management.commands.helper' has no attribute 'Command'
+== 3. a command of the app lost, which INSTALLED_APPS does not list
+django.core.management.base.CommandError: Unknown command: 'find'
+== 4. the admin's registry after autodiscover: Book is in, Shelf is not
+['Book']
+== 5. a second admin.site.register(Book)
+django.contrib.admin.exceptions.AlreadyRegistered: The model Book is already registered in app 'shop'.
+== 6. Flask: two routes registered under one endpoint name
+AssertionError: View function mapping is overwriting an existing endpoint function: page
+['/a', '/b', '/static/<path:filename>']
