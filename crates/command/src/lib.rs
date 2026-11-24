@@ -9,6 +9,8 @@ use std::path::{Path, PathBuf};
 use purba_dispatch::{Handed, Module};
 use purba_selection::TestId;
 
+pub mod proto;
+
 /// Why a run did not finish.
 #[derive(Debug)]
 pub enum Error {
@@ -93,52 +95,81 @@ pub fn run_with(
     {
         panic!("PURBA_FAULT=command");
     }
-    let path = path(arguments)?;
+    let (paths, checks) = paths(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
-        Ok(Ok(module)) => module,
-        Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
-        Ok(Err(error)) => {
-            let error = purba_errors::Error::project(error.to_string());
-            return stopped(report, &path, &error);
-        }
-        Err(error) => return stopped(report, &path, &error),
-    };
-    let (facts, mut selected) = match purba_errors::catch("command", || Ok(select(&path, &parsed)))
-    {
-        Ok(read) => read,
-        Err(error) => return stopped(report, &path, &error),
-    };
-    not_interrupted()?;
-    for refused in selected.refused() {
-        let test = refused.test();
-        report.case(
-            test,
-            &Err(purba_errors::Error::project(refused.to_string())),
-            test.notices(),
-            test.suppressed(),
-            &[],
-        )?;
+    // PROTOTYPE for #1229: each line of a check goes to stderr, before any test.
+    for (path, kind, words) in &checks {
+        let _ = writeln!(io::stderr(), "purba: {kind}: {}: {words}", path.display());
     }
-    if let Some(fault) = selected.fault() {
-        report.stopped(
-            &path.display(),
-            &purba_errors::Error::project(fault.to_owned()),
-            &[],
-            selected.tests(),
-        )?;
-        return Ok(report.finish()?);
-    }
-    let found = rewritten(&path, facts, selected.tests().to_vec(), &rewrite);
-    drop(parsed);
-    let modules = match found {
-        Found::Modules(modules) => modules,
-        Found::NotRewritten(error, tests) => {
-            report.stopped(&path.display(), &error, &[], &tests)?;
-            return Ok(report.finish()?);
+    let near = purba_parsing::proto_strategy() == "name-and-check";
+    let mut modules = Vec::new();
+    let mut selections: Vec<(PathBuf, purba_selection::Selected)> = Vec::new();
+    for path in paths {
+        let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
+            Ok(Ok(module)) => module,
+            Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
+            Ok(Err(error)) => {
+                let error = purba_errors::Error::project(error.to_string());
+                not_interrupted()?;
+                report.error(&path.display(), &error)?;
+                continue;
+            }
+            Err(error) => {
+                not_interrupted()?;
+                report.error(&path.display(), &error)?;
+                continue;
+            }
+        };
+        let (facts, selected) = match purba_errors::catch("command", || Ok(select(&path, &parsed)))
+        {
+            Ok(read) => read,
+            Err(error) => {
+                not_interrupted()?;
+                report.error(&path.display(), &error)?;
+                continue;
+            }
+        };
+        not_interrupted()?;
+        if near {
+            for (line, kind, words) in purba_selection::proto::near_misses(&facts) {
+                let _ = writeln!(
+                    io::stderr(),
+                    "purba: {kind}: {}:{line}: {words}",
+                    path.display()
+                );
+            }
         }
-    };
+        for refused in selected.refused() {
+            let test = refused.test();
+            report.case(
+                test,
+                &Err(purba_errors::Error::project(refused.to_string())),
+                test.notices(),
+                test.suppressed(),
+                &[],
+            )?;
+        }
+        if let Some(fault) = selected.fault() {
+            report.stopped(
+                &path.display(),
+                &purba_errors::Error::project(fault.to_owned()),
+                &[],
+                selected.tests(),
+            )?;
+            continue;
+        }
+        let found = rewritten(&path, facts, selected.tests().to_vec(), &rewrite);
+        drop(parsed);
+        match found {
+            Found::Modules(found) => modules.extend(found),
+            Found::NotRewritten(error, tests) => {
+                report.stopped(&path.display(), &error, &[], &tests)?;
+                continue;
+            }
+        }
+        selections.push((path, selected));
+    }
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result, suppressed) => {
@@ -147,7 +178,12 @@ pub fn run_with(
                     .iter()
                     .map(|warning| warning.check.as_str())
                     .collect();
-                selected.judge(&test, &checks, suppressed.judged);
+                if let Some((_, selected)) = selections
+                    .iter_mut()
+                    .find(|(path, _)| path.as_path() == test.path())
+                {
+                    selected.judge(&test, &checks, suppressed.judged);
+                }
                 report.case(
                     &test,
                     &result,
@@ -180,21 +216,11 @@ pub fn run_with(
     if let ControlFlow::Break(refused) = flow {
         return Err(refused.into());
     }
-    for words in selected.unused() {
-        report.error(&path.display(), &purba_errors::Error::project(words))?;
+    for (path, selected) in &selections {
+        for words in selected.unused() {
+            report.error(&path.display(), &purba_errors::Error::project(words))?;
+        }
     }
-    Ok(report.finish()?)
-}
-
-/// Prints the line of a module whose error stops the run before any test, then
-/// the count. After an interrupt, it prints neither.
-fn stopped(
-    mut report: purba_reporting::Report<impl Write>,
-    path: &Path,
-    error: &purba_errors::Error,
-) -> Result<u8, Error> {
-    not_interrupted()?;
-    report.error(&path.display(), error)?;
     Ok(report.finish()?)
 }
 
@@ -219,6 +245,21 @@ fn path(arguments: &[String]) -> Result<PathBuf, Error> {
         }
         _ => Err(Error::Usage),
     }
+}
+
+/// PROTOTYPE for #1229: the paths that `arguments` names, and each line of
+/// stage one's check. A folder is walked by the strategy, except under
+/// `baseline`, which takes one `.py` file as main does. A file named alone is
+/// taken as given under every strategy.
+fn paths(arguments: &[String]) -> Result<(Vec<PathBuf>, Vec<proto::Line>), Error> {
+    if let [_, argument] = arguments {
+        let root = Path::new(argument);
+        if root.is_dir() && purba_parsing::proto_strategy() != "baseline" {
+            let picked = proto::pick(root);
+            return Ok((picked.files, picked.lines));
+        }
+    }
+    Ok((vec![path(arguments)?], Vec::new()))
 }
 
 /// What selection and the rewrite leave of one module.

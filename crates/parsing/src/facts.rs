@@ -291,7 +291,7 @@ fn tests<'m>(candidates: Vec<(Place<'m>, &'m StmtFunctionDef)>) -> Vec<Test<'m>>
     let mut firsts: HashMap<&str, TextSize> = HashMap::new();
     for (place, function) in candidates {
         let name = function.name.as_str();
-        if !name.starts_with("test") {
+        if !crate::is_test_name(name) {
             continue;
         }
         let (classes, under) = match place {

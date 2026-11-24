@@ -16,6 +16,7 @@ use ruff_text_size::{Ranged, TextSize};
 mod framework;
 mod lookup;
 mod patch;
+pub mod proto;
 mod suppression;
 
 use lookup::{Lookup, Origin};
@@ -451,7 +452,7 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
     refused.extend(refused_methods(path, facts, &outside, &sites));
     let never = never_a_function(facts.statements());
     for (name, found) in bindings {
-        if !name.starts_with("test") || places.contains(name) {
+        if !purba_parsing::is_test_name(name) || places.contains(name) {
             continue;
         }
         let mut offsets: Vec<TextSize> = found
@@ -1039,7 +1040,7 @@ fn outside_tests<'a>(facts: &Facts<'a>) -> Outside<'a> {
             Stmt::FunctionDef(function) => {
                 let made = Lookup::new(&[], &none, imported, &bound);
                 found.extend(framework::made(statement, &made));
-                if !function.name.starts_with("test") {
+                if !purba_parsing::is_test_name(&function.name) {
                     let locals = purba_parsing::locals(function);
                     let lookup = Lookup::new(&function.body, &locals, imported, &bound);
                     found.extend(framework::imports(&function.body, &lookup));

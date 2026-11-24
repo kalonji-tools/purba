@@ -30,6 +30,28 @@ mod walk;
 pub use facts::{Binding, Facts, Scope, Test, TestFacts, bound, locals, origins, parameters};
 pub use walk::{Arms, Enter, Node, walk};
 
+/// PROTOTYPE for #1229, never merge: the strategy that `PURBA_PROTO_MARKERS`
+/// names, or `baseline` when it is unset.
+#[must_use]
+pub fn proto_strategy() -> &'static str {
+    static STRATEGY: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    STRATEGY.get_or_init(|| {
+        std::env::var("PURBA_PROTO_MARKERS").unwrap_or_else(|_| "baseline".to_owned())
+    })
+}
+
+/// PROTOTYPE for #1229: whether stage two takes a `def` named `name` as a
+/// test. Under `visibility`, each name that does not start with `_`; else each
+/// name that starts with `test`, as on main.
+#[must_use]
+pub fn is_test_name(name: &str) -> bool {
+    if proto_strategy() == "visibility" {
+        !name.starts_with('_')
+    } else {
+        name.starts_with("test")
+    }
+}
+
 const BYTE_ORDER_MARK: char = '\u{feff}';
 
 /// One module: its text, ruff's tree of that text, where its trivia is, and
