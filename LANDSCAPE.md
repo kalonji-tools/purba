@@ -194,7 +194,7 @@ The file holds nine sections, in this order: the problem, the quality priorities
 A line belongs here when all three are true.
 
 1. It is one line or one diagram under one of the nine sections.
-2. It states purba's shape now, and links the record or issue that holds why.
+2. It states purba's shape now, or it links the record or issue that holds why for the lines above it. A line of a part or a concern links only its design in depth, because the order of design reads any link there as that design.
 3. It defines no word. A word specific to purba goes in `CONTEXT.md`.
 
 A diagram is a `mermaid` fence, as [a figure in a record is a fence GitHub renders](docs/decisions/a-figure-in-a-record-is-a-fence-github-renders.md) requires of a record.
