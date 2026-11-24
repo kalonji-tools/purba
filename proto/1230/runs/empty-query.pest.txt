@@ -1,0 +1,13 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=pest
+command: cd <tmp>/suite && purba ''
+--- stdout
+--- stderr
+purba: invocation error: the query does not parse (pest):
+ --> 1:1
+  |
+1 | 
+  | ^---
+  |
+  = expected and
+--- exit 3

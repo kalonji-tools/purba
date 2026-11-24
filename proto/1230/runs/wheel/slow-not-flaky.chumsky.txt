@@ -1,0 +1,16 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'tag(slow) & !tag(flaky)'
+--- stdout
+tests/api/test_user.py::test_remove failed
+    assert 2 - 2 == 1
+      expected  1
+      reading   0
+tests/math/test_math.py::test_add_slow passed
+tests/store/test_store.py::test_migrate passed
+tests/store/test_store.py::test_save passed
+4 cases: 3 passed, 1 failed
+--- stderr
+purba: proto 1230: parser chumsky, depth limit 255; stage one: 4 files found, 4 parsed
+purba: proto 1230: the failures as one query: tests/api/test_user.py::test_remove
+--- exit 1

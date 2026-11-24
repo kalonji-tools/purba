@@ -1,0 +1,7 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=pest
+command: cd <tmp>/suite && purba '(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((( … )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) (20009 characters)'
+--- stdout
+--- stderr
+purba: invocation error: the query nests deeper than 255 levels at column 256; each `(` of a group, each `!` and each alias call opens a level
+--- exit 3

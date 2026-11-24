@@ -1,0 +1,10 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'tests/api/test_user.py'
+--- stdout
+tests/api/test_user.py::test_add
+tests/api/test_user.py::test_remove
+--- stderr
+purba: proto 1230: parser chumsky, depth limit 255; stage one: 4 files found, 1 parsed
+purba: proto 1230: 2 tests picked
+--- exit 0

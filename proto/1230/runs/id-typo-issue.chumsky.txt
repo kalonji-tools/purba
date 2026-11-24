@@ -1,0 +1,9 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'store::migrat'
+--- stdout
+--- stderr
+purba: proto 1230: parser chumsky, depth limit 255; stage one: 4 files found, 0 parsed
+purba: invocation error: the query selects no test of the 0 tests in the 0 files that purba parsed
+  `store::migrat` picks no test; the nearest id is `tests/math`
+--- exit 3

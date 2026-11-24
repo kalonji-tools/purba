@@ -1,0 +1,25 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_PARSER=pest
+command: cd <tmp>/suite && purba 'tests'
+--- stdout
+tests/api/test_admin.py::test_grant passed
+tests/api/test_user.py::test_add passed
+tests/api/test_user.py::test_remove failed
+    assert 2 - 2 == 1
+      expected  1
+      reading   0
+tests/math/test_math.py::test_add passed
+tests/math/test_math.py::test_add_slow passed
+tests/math/test_math.py::test_parse passed
+tests/store/test_store.py::test_query passed
+tests/store/test_store.py::test_migrate passed
+tests/store/test_store.py::test_load failed
+    assert 1 + 1 == 3
+      expected  3
+      reading   2
+tests/store/test_store.py::test_save passed
+10 cases: 8 passed, 2 failed
+--- stderr
+purba: proto 1230: parser pest, depth limit 255; stage one: 4 files found, 4 parsed
+purba: proto 1230: the failures as one query: tests/api/test_user.py::test_remove | tests/store/test_store.py::test_load
+--- exit 1

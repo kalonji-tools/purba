@@ -1,0 +1,17 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_PARSER=pest
+command: cd <tmp>/suite && purba 'tests/api/test_user.py::test_remove | tests/store/test_store.py::test_load'
+--- stdout
+tests/api/test_user.py::test_remove failed
+    assert 2 - 2 == 1
+      expected  1
+      reading   0
+tests/store/test_store.py::test_load failed
+    assert 1 + 1 == 3
+      expected  3
+      reading   2
+2 cases: 2 failed
+--- stderr
+purba: proto 1230: parser pest, depth limit 255; stage one: 4 files found, 2 parsed
+purba: proto 1230: the failures as one query: tests/api/test_user.py::test_remove | tests/store/test_store.py::test_load
+--- exit 1

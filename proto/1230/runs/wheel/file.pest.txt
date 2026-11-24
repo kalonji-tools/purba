@@ -1,0 +1,11 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_PARSER=pest
+command: cd <tmp>/suite && purba 'tests/math/test_math.py'
+--- stdout
+tests/math/test_math.py::test_add passed
+tests/math/test_math.py::test_add_slow passed
+tests/math/test_math.py::test_parse passed
+3 cases: 3 passed
+--- stderr
+purba: proto 1230: parser pest, depth limit 255; stage one: 4 files found, 1 parsed
+--- exit 0

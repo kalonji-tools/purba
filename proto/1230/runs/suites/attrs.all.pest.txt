@@ -1,0 +1,9 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=pest
+command: cd <suites>/attrs/ && purba 'name(test)'
+--- stdout
+683 lines, 682 of them refused
+--- stderr
+purba: proto 1230: parser pest, depth limit 255; stage one: 26 files found, 26 parsed
+purba: proto 1230: 683 tests picked
+--- exit 0

@@ -1,0 +1,7 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'tests/api/test_user.py::test_remove | tests/api/test_user.py::test_remove | test … _user.py::test_remove | tests/store/test_store.py::test_load (379998 characters)'
+--- stdout
+--- stderr
+proto/1230/run.sh: line 38: /run/current-system/sw/bin/env: Argument list too long
+--- exit 126

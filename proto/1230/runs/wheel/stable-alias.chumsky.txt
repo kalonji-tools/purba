@@ -1,0 +1,10 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'stable(slow_store)'
+--- stdout
+tests/store/test_store.py::test_migrate passed
+tests/store/test_store.py::test_save passed
+2 cases: 2 passed
+--- stderr
+purba: proto 1230: parser chumsky, depth limit 255; stage one: 4 files found, 1 parsed
+--- exit 0

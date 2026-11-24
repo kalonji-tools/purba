@@ -1,0 +1,7 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=chumsky PURBA_PROTO_DEPTH=off
+command: cd <tmp>/suite && purba '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! … !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!tag(slow) (10009 characters)'
+--- stdout
+--- stderr
+timeout: the monitored command dumped core
+--- exit 139

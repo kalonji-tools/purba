@@ -1,0 +1,7 @@
+purba: wheel of 979ecff8, debug profile, in a venv of CPython 3.12.14
+env: PURBA_PROTO_LIST=1 PURBA_PROTO_PARSER=chumsky
+command: cd <tmp>/suite && purba 'ping'
+--- stdout
+--- stderr
+purba: invocation error: the alias `ping` names itself through `pong`
+--- exit 3
