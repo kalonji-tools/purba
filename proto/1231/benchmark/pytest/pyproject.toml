@@ -1,0 +1,7 @@
+[project]
+name = "suite"
+version = "0"
+
+# dateutil registers the mark smoke (pyproject.toml at a78cbd81).
+[tool.pytest.ini_options]
+markers = ["smoke"]

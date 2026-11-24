@@ -1,0 +1,7 @@
+Which letter was which, per rater:
+
+rater1: PORT_R = oxitest, PORT_T = purba
+rater2: PORT_R = purba, PORT_T = oxitest
+rater3: PORT_R = oxitest, PORT_T = purba
+
+`shuf` drew oxitest first for each of the three raters; rater 2 was flipped by hand, so that the new form does not sit under the same letter for every rater, as the key of the 1015 rating alternated.
