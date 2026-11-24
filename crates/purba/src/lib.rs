@@ -153,5 +153,11 @@ fn free_threaded_flag() -> &'static str {
 /// The extension module Python imports as `purba`.
 #[pymodule]
 fn purba(module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add_function(wrap_pyfunction!(main, module)?)
+    module.add_function(wrap_pyfunction!(main, module)?)?;
+    // Prototype of #1230: `@purba.tag("literal")` returns the test unchanged.
+    // Selection reads the tag from the AST, never from this object.
+    let tag = module
+        .py()
+        .eval(c"lambda name: (lambda test: test)", None, None)?;
+    module.add("tag", tag)
 }

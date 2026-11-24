@@ -23,6 +23,9 @@ pub enum Error {
     Refused { error: io::Error, code: u8 },
     /// An interrupt came before selection ended, so no count exists.
     Interrupted,
+    /// The query does not parse, names no alias, or selects no test.
+    /// Prototype of #1230.
+    Query(String),
 }
 
 impl From<purba_reporting::Refused> for Error {
@@ -34,7 +37,8 @@ impl From<purba_reporting::Refused> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Usage => write!(formatter, "usage: purba <path to one .py file>"),
+            Self::Usage => write!(formatter, "usage: purba <query>"),
+            Self::Query(words) => formatter.write_str(words),
             Self::Read(path, error) => write!(formatter, "cannot read {}: {error}", path.display()),
             Self::Write(error) | Self::Refused { error, .. } => {
                 write!(formatter, "cannot write to stdout: {error}")
@@ -93,52 +97,163 @@ pub fn run_with(
     {
         panic!("PURBA_FAULT=command");
     }
-    let path = path(arguments)?;
+    let text = query_text(arguments)?;
     let out = out.map_err(Error::Write)?;
-    let mut report = purba_reporting::Report::new(out);
-    let parsed = match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
-        Ok(Ok(module)) => module,
-        Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
-        Ok(Err(error)) => {
-            let error = purba_errors::Error::project(error.to_string());
-            return stopped(report, &path, &error);
+    let options = proto_options()?;
+    let aliases = aliases(Path::new("pyproject.toml"))?;
+    let query = purba_selection::query::parse(&text, &aliases, options).map_err(Error::Query)?;
+
+    // Stage one: every test file under the root, and the query's verdict on its
+    // path alone. A file is parsed unless the verdict is no.
+    let files = discover(Path::new("."));
+    let to_parse: Vec<&PathBuf> = files
+        .iter()
+        .filter(|file| query.file(&slashed(file)) != Some(false))
+        .collect();
+    // PROTOTYPE: this line only under PURBA_PROTO_LIST, so a rater's run
+    // shows only the forms.
+    if std::env::var_os("PURBA_PROTO_LIST").is_some() {
+        eprintln!(
+            "purba: proto 1230: parser {}, depth limit {}; stage one: {} files found, {} parsed",
+            options.parser.name(),
+            if options.limit {
+                purba_selection::query::LIMIT.to_string()
+            } else {
+                "off".to_owned()
+            },
+            files.len(),
+            to_parse.len()
+        );
+    }
+
+    // Stage two: parse and select each file that stage one kept.
+    let mut read: Vec<Read> = Vec::new();
+    for path in to_parse {
+        let path = path.clone();
+        match purba_errors::catch("command", || Ok(purba_parsing::parse(&path))) {
+            Ok(Ok(module)) => {
+                // PROTOTYPE: the name-near notice of a5a7b530, on stderr, for
+                // each file that stage one kept.
+                let facts = purba_parsing::Facts::of(&module);
+                for (line, words) in purba_selection::proto::near_misses(&facts) {
+                    eprintln!("purba: name-near: {}:{line}: {words}", path.display());
+                }
+                match purba_errors::catch("command", || Ok(select(&path, &module))) {
+                    Ok(selected) => read.push(Read {
+                        path,
+                        module: Some(module),
+                        selected: Ok(selected),
+                    }),
+                    Err(error) => read.push(Read {
+                        path,
+                        module: None,
+                        selected: Err(error),
+                    }),
+                }
+            }
+            Ok(Err(purba_parsing::Error::Read(error))) => return Err(Error::Read(path, error)),
+            Ok(Err(error)) => read.push(Read {
+                path,
+                module: None,
+                selected: Err(purba_errors::Error::project(error.to_string())),
+            }),
+            Err(error) => read.push(Read {
+                path,
+                module: None,
+                selected: Err(error),
+            }),
         }
-        Err(error) => return stopped(report, &path, &error),
-    };
-    let (facts, mut selected) = match purba_errors::catch("command", || Ok(select(&path, &parsed)))
-    {
-        Ok(read) => read,
-        Err(error) => return stopped(report, &path, &error),
-    };
+    }
     not_interrupted()?;
-    for refused in selected.refused() {
-        let test = refused.test();
-        report.case(
-            test,
-            &Err(purba_errors::Error::project(refused.to_string())),
-            test.notices(),
-            test.suppressed(),
-            &[],
-        )?;
-    }
-    if let Some(fault) = selected.fault() {
-        report.stopped(
-            &path.display(),
-            &purba_errors::Error::project(fault.to_owned()),
-            &[],
-            selected.tests(),
-        )?;
-        return Ok(report.finish()?);
-    }
-    let found = rewritten(&path, facts, selected.tests().to_vec(), &rewrite);
-    drop(parsed);
-    let modules = match found {
-        Found::Modules(modules) => modules,
-        Found::NotRewritten(error, tests) => {
-            report.stopped(&path.display(), &error, &[], &tests)?;
-            return Ok(report.finish()?);
+    let parsed = read.len();
+    let mut picked = 0;
+    for one in &read {
+        match &one.selected {
+            Ok(selected) => {
+                picked += selected.tests().iter().filter(|t| picks(&query, t)).count();
+                picked += selected
+                    .refused()
+                    .iter()
+                    .filter(|refused| picks(&query, refused.test()))
+                    .count();
+            }
+            Err(_) => picked += 1,
         }
-    };
+    }
+    if picked == 0 {
+        return Err(Error::Query(empty(&query, &read, &files, parsed)));
+    }
+    if std::env::var_os("PURBA_PROTO_LIST").is_some() {
+        for one in &read {
+            match &one.selected {
+                Ok(selected) => {
+                    for test in selected.tests().iter().filter(|t| picks(&query, t)) {
+                        println!("{test}");
+                    }
+                    for refused in selected.refused() {
+                        if picks(&query, refused.test()) {
+                            println!("{} (refused)", refused.test());
+                        }
+                    }
+                }
+                Err(error) => println!("{} (error: {error})", one.path.display()),
+            }
+        }
+        eprintln!("purba: proto 1230: {picked} tests picked");
+        return Ok(0);
+    }
+
+    let mut report = purba_reporting::Report::new(out);
+    let mut modules = Vec::new();
+    let mut ledgers: Vec<(PathBuf, purba_selection::Selected)> = Vec::new();
+    for one in read {
+        let path = one.path;
+        let selected = match one.selected {
+            Ok(selected) => selected,
+            Err(error) => {
+                report.error(&path.display(), &error)?;
+                continue;
+            }
+        };
+        for refused in selected.refused() {
+            let test = refused.test();
+            if !picks(&query, test) {
+                continue;
+            }
+            report.case(
+                test,
+                &Err(purba_errors::Error::project(refused.to_string())),
+                test.notices(),
+                test.suppressed(),
+                &[],
+            )?;
+        }
+        let tests: Vec<TestId> = selected
+            .tests()
+            .iter()
+            .filter(|t| picks(&query, t))
+            .cloned()
+            .collect();
+        if let Some(fault) = selected.fault() {
+            report.stopped(
+                &path.display(),
+                &purba_errors::Error::project(fault.to_owned()),
+                &[],
+                &tests,
+            )?;
+            continue;
+        }
+        let module = one.module.expect("a module that selection read");
+        let facts = purba_parsing::Facts::of(&module);
+        match rewritten(&path, facts, tests, &rewrite) {
+            Found::Modules(found) => modules.extend(found),
+            Found::NotRewritten(error, tests) => {
+                report.stopped(&path.display(), &error, &[], &tests)?;
+            }
+        }
+        ledgers.push((path, selected));
+    }
+    let mut failures: Vec<String> = Vec::new();
     let flow = purba_dispatch::hand(modules, |handed| {
         match handed {
             Handed::Test(test, result, suppressed) => {
@@ -147,7 +262,16 @@ pub fn run_with(
                     .iter()
                     .map(|warning| warning.check.as_str())
                     .collect();
-                selected.judge(&test, &checks, suppressed.judged);
+                if let Some((_, selected)) =
+                    ledgers.iter_mut().find(|(path, _)| path == test.path())
+                {
+                    selected.judge(&test, &checks, suppressed.judged);
+                }
+                if !matches!(&result, Ok(outcome)
+                    if *outcome.kind() == purba_errors::Kind::Passed)
+                {
+                    failures.push(test.to_string());
+                }
                 report.case(
                     &test,
                     &result,
@@ -161,13 +285,19 @@ pub fn run_with(
                 error,
                 threads,
                 tests,
-            } => report.stopped(&path.display(), &error, &threads, &tests),
+            } => {
+                failures.extend(tests.iter().map(ToString::to_string));
+                report.stopped(&path.display(), &error, &threads, &tests)
+            }
             Handed::Ended {
                 path,
                 error,
                 named,
                 tests,
-            } => report.ended(&path.display(), &error, named, &tests),
+            } => {
+                failures.extend(tests.iter().map(ToString::to_string));
+                report.ended(&path.display(), &error, named, &tests)
+            }
             Handed::LoadThread(path, error) => report.error(&path.display(), &error),
             Handed::TestThread(test, error) => report.error(&test, &error),
             Handed::Unreached(_) => {
@@ -180,22 +310,170 @@ pub fn run_with(
     if let ControlFlow::Break(refused) = flow {
         return Err(refused.into());
     }
-    for words in selected.unused() {
-        report.error(&path.display(), &purba_errors::Error::project(words))?;
+    for (path, selected) in &ledgers {
+        for words in selected.unused() {
+            report.error(&path.display(), &purba_errors::Error::project(words))?;
+        }
     }
-    Ok(report.finish()?)
+    let code = report.finish()?;
+    if !failures.is_empty() {
+        eprintln!("purba: the failures as one query: {}", failures.join(" | "));
+    }
+    Ok(code)
 }
 
-/// Prints the line of a module whose error stops the run before any test, then
-/// the count. After an interrupt, it prints neither.
-fn stopped(
-    mut report: purba_reporting::Report<impl Write>,
-    path: &Path,
-    error: &purba_errors::Error,
-) -> Result<u8, Error> {
-    not_interrupted()?;
-    report.error(&path.display(), error)?;
-    Ok(report.finish()?)
+/// One file that stage one kept: its module and what selection made of it, or
+/// the error that stopped its read.
+struct Read {
+    path: PathBuf,
+    module: Option<purba_parsing::Module>,
+    selected: Result<purba_selection::Selected, purba_errors::Error>,
+}
+
+/// `path` with `/` between its parts, and no leading `./`.
+fn slashed(path: &Path) -> String {
+    path.components()
+        .filter_map(|part| match part {
+            std::path::Component::Normal(name) => Some(name.to_string_lossy().into_owned()),
+            _ => None,
+        })
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// Whether `query` picks `test`.
+fn picks(query: &purba_selection::query::Query, test: &TestId) -> bool {
+    let path = slashed(test.path());
+    let id = test.to_string();
+    query.picks(&purba_selection::query::Test {
+        path: &path,
+        id: &id,
+        function: test.function(),
+        tags: test.tags(),
+    })
+}
+
+/// The words of a query that picks no test of `read`.
+fn empty(
+    query: &purba_selection::query::Query,
+    read: &[Read],
+    files: &[PathBuf],
+    parsed: usize,
+) -> String {
+    let owned: Vec<(String, String, &TestId)> = read
+        .iter()
+        .filter_map(|one| one.selected.as_ref().ok())
+        .flat_map(|selected| {
+            selected.tests().iter().chain(
+                selected
+                    .refused()
+                    .iter()
+                    .map(purba_selection::Refused::test),
+            )
+        })
+        .map(|test| (slashed(test.path()), test.to_string(), test))
+        .collect();
+    let tests: Vec<purba_selection::query::Test<'_>> = owned
+        .iter()
+        .map(|(path, id, test)| purba_selection::query::Test {
+            path,
+            id,
+            function: test.function(),
+            tags: test.tags(),
+        })
+        .collect();
+    let files: Vec<String> = files.iter().map(|file| slashed(file)).collect();
+    query.empty(&tests, &files, parsed)
+}
+
+/// The one argument after the script's name: the query.
+fn query_text(arguments: &[String]) -> Result<String, Error> {
+    match arguments {
+        [_, query] => Ok(query.clone()),
+        _ => Err(Error::Usage),
+    }
+}
+
+/// The prototype's switches: `PURBA_PROTO_PARSER` and `PURBA_PROTO_DEPTH`.
+fn proto_options() -> Result<purba_selection::query::Options, Error> {
+    use purba_selection::query::{Crate, Options};
+    let parser = match std::env::var("PURBA_PROTO_PARSER").as_deref() {
+        Err(_) | Ok("pest") => Crate::Pest,
+        Ok("chumsky") => Crate::Chumsky,
+        Ok(other) => {
+            return Err(Error::Query(format!(
+                "PURBA_PROTO_PARSER is pest or chumsky, not {other}"
+            )));
+        }
+    };
+    let limit = std::env::var("PURBA_PROTO_DEPTH").as_deref() != Ok("off");
+    Ok(Options { parser, limit })
+}
+
+/// The aliases of `[tool.purba.queries]` in the file at `path`, if it exists.
+fn aliases(path: &Path) -> Result<Vec<purba_selection::query::Alias>, Error> {
+    let Ok(text) = std::fs::read_to_string(path) else {
+        return Ok(Vec::new());
+    };
+    let table: toml::Table = text
+        .parse()
+        .map_err(|error| Error::Query(format!("{}: {error}", path.display())))?;
+    let Some(queries) = table
+        .get("tool")
+        .and_then(|tool| tool.get("purba"))
+        .and_then(|purba| purba.get("queries"))
+        .and_then(toml::Value::as_table)
+    else {
+        return Ok(Vec::new());
+    };
+    queries
+        .iter()
+        .map(|(key, value)| {
+            value
+                .as_str()
+                .map(|body| purba_selection::query::Alias::new(key, body))
+                .ok_or_else(|| {
+                    Error::Query(format!(
+                        "the alias `{key}` in {} is not a string",
+                        path.display()
+                    ))
+                })
+        })
+        .collect()
+}
+
+/// Each `test_*.py` and `*_test.py` under `root`, sorted by its path. It skips
+/// a directory whose name starts with `.`, and `__pycache__`.
+fn discover(root: &Path) -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    let mut stack = vec![root.to_path_buf()];
+    while let Some(directory) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&directory) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            let Ok(kind) = entry.file_type() else {
+                continue;
+            };
+            let path = entry.path();
+            let path = path
+                .strip_prefix(".")
+                .map_or(path.clone(), Path::to_path_buf);
+            if kind.is_dir() {
+                if !name.starts_with('.') && name != "__pycache__" {
+                    stack.push(path);
+                }
+            } else if kind.is_file()
+                && Path::new(&name).extension().is_some_and(|e| e == "py")
+                && (name.starts_with("test_") || name.ends_with("_test.py"))
+            {
+                found.push(path);
+            }
+        }
+    }
+    found.sort_by_key(|path| slashed(path));
+    found
 }
 
 /// Gives `Error::Interrupted` when purba's signal handler kept an interrupt.
@@ -204,20 +482,6 @@ fn not_interrupted() -> Result<(), Error> {
         Err(Error::Interrupted)
     } else {
         Ok(())
-    }
-}
-
-/// The one path that `arguments` names after the script's name.
-fn path(arguments: &[String]) -> Result<PathBuf, Error> {
-    match arguments {
-        [_, argument]
-            if Path::new(argument)
-                .extension()
-                .is_some_and(|extension| extension == "py") =>
-        {
-            Ok(PathBuf::from(argument))
-        }
-        _ => Err(Error::Usage),
     }
 }
 
@@ -231,15 +495,9 @@ enum Found {
     NotRewritten(purba_errors::Error, Vec<TestId>),
 }
 
-/// The facts of `module`, and what selection makes of the module at `path` from
-/// them.
-fn select<'m>(
-    path: &Path,
-    module: &'m purba_parsing::Module,
-) -> (purba_parsing::Facts<'m>, purba_selection::Selected) {
-    let facts = purba_parsing::Facts::of(module);
-    let selected = purba_selection::select(path, &facts);
-    (facts, selected)
+/// What selection makes of `module` at `path`.
+fn select(path: &Path, module: &purba_parsing::Module) -> purba_selection::Selected {
+    purba_selection::select(path, &purba_parsing::Facts::of(module))
 }
 
 /// What the rewrite leaves of the module at `path`, from its `facts`, with the
@@ -268,36 +526,6 @@ fn rewritten(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn path_of(arguments: &[&str]) -> Result<PathBuf, String> {
-        let mut argv = vec!["purba".to_owned()];
-        argv.extend(arguments.iter().map(|&argument| argument.to_owned()));
-        path(&argv).map_err(|error| error.to_string())
-    }
-
-    #[test]
-    fn one_py_file_after_the_scripts_name_is_the_path() {
-        assert_eq!(
-            path_of(&["test_a.py"]),
-            Ok(PathBuf::from("test_a.py")),
-            "a file name"
-        );
-        assert_eq!(
-            path_of(&["tests/test_a.py"]),
-            Ok(PathBuf::from("tests/test_a.py")),
-            "a path as the tester typed it"
-        );
-    }
-
-    #[test]
-    fn any_other_arguments_are_the_usage_error() {
-        let usage = Err("usage: purba <path to one .py file>".to_owned());
-        assert_eq!(path_of(&[]), usage, "no argument");
-        assert_eq!(path_of(&["a.py", "b.py"]), usage, "two arguments");
-        assert_eq!(path_of(&["test_a.txt"]), usage, "not a .py file");
-        assert_eq!(path_of(&["--help"]), usage, "a flag");
-        assert_eq!(path_of(&[".py"]), usage, "a name with no stem");
-    }
 
     #[test]
     fn each_error_says_why() {

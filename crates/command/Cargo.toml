@@ -15,6 +15,8 @@ purba-execution = { path = "../execution" }
 purba-parsing = { path = "../parsing" }
 purba-reporting = { path = "../reporting" }
 purba-selection = { path = "../selection" }
+# Prototype of #1230; this branch is never merged.
+toml = "0.9"
 
 [dev-dependencies]
 pyo3.workspace = true

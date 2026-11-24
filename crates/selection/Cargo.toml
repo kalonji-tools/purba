@@ -8,6 +8,10 @@ repository.workspace = true
 publish.workspace = true
 
 [dependencies]
+# Prototype of #1230; this branch is never merged.
+chumsky = "=0.14.2"
+pest = "=2.9.7"
+pest_derive = "=2.9.7"
 purba-errors = { path = "../errors" }
 purba-parsing = { path = "../parsing" }
 ruff_python_ast.workspace = true

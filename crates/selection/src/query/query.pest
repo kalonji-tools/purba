@@ -1,0 +1,17 @@
+// The grammar of #1230's prototype. "|" is the lowest rank, "&" binds tighter, "!" tighter still.
+WHITESPACE = _{ " " | "\t" | "\n" }
+query   = { SOI ~ or ~ EOI }
+or      = { and ~ ("|" ~ and)* }
+and     = { unary ~ ("&" ~ unary)* }
+unary   = _{ not | atom }
+not     = { "!" ~ unary }
+atom    = _{ tag | name | path | call | id | "(" ~ or ~ ")" }
+tag     = ${ "tag(" ~ literal ~ ")" }
+name    = ${ "name(" ~ literal ~ ")" }
+path    = ${ "path(" ~ glob ~ ")" }
+call    = ${ word ~ "(" ~ inner }
+inner   = !{ or ~ ")" }
+word    = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+literal = @{ (ASCII_ALPHANUMERIC | "_" | "-" | "." | ":" | "/" | "[" | "]")+ }
+glob    = @{ (ASCII_ALPHANUMERIC | "_" | "-" | "." | "/" | "*" | "?" | "[" | "]")+ }
+id      = @{ (ASCII_ALPHANUMERIC | "_" | "-" | "." | ":" | "/" | "[" | "]")+ }
