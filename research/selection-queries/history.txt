@@ -1,0 +1,51 @@
+## pytest 9.2.0: commits on src/_pytest/mark/expression.py
+36
+## pytest 9.2.0: changelog lines in a "Bug Fixes" section that name -k, -m or an expression
+9.2.0:   built-in options such as :option:`-k`.
+9.2.0: - `#4569 <https://github.com/pytest-dev/pytest/issues/4569>`_: :option:`-k` no longer matches attributes that end up in a test function's ``__dict__`` without being meant as keywords, such as pytest's
+9.1.0: - `#14474 <https://github.com/pytest-dev/pytest/issues/14474>`_: Fixed a regression where ``-k`` and ``-m`` expressions containing both backslash characters in identifiers and string literal arguments
+6.0.0rc1: - :issue:`4583`: Prevent crashing and provide a user-friendly error when a marker expression (`-m`) invoking of :func:`eval` raises any exception.
+4.2.0: - :issue:`4649`: Restore marks being considered keywords for keyword expressions.
+3.8.2: - :issue:`4051`: Improve error message when an invalid Python expression is passed to the ``-m`` option.
+## cargo-nextest 0.9.149: commits on nextest-filtering/
+349
+## cargo-nextest 0.9.149: entries under "### Fixed" in site/src/changelog.md that name a filter or an expression
+95: [0.9.145] - Per-test overrides and setup and wrapper scripts defined in a profile's [inheritance chain](https://nexte.st/docs/configuration/#profile-inheritance) are now applied. Previously, only the selected p
+97: [0.9.145] - A `default-filter` set by a tool config file is now respected when the repository config does not set one. Previously, the tool's filter was ignored and `all()` was used. ([#3592])
+162: [0.9.143] - While [creating an archive with a filterset](https://nexte.st/docs/ci-features/archiving#filtering-test-binaries-from-an-archive), nextest now always includes dynamic libraries in the archive, even
+236: [0.9.137] - Filterset expressions like `not(test(foo))`, `all()and(test(foo))`, and `all()or(test(foo))`, where `not`, `and`, or `or` is immediately followed by an opening parenthesis, now parse correctly. Prev
+1020: [0.9.92] - In filtersets, `binary_id` patterns that don't match any binary IDs in the workspace are now rejected. This is a small behavior change that is being treated as a bugfix to align with `package`, `dep
+1287: [0.9.81] Fixed semantics of `--exact` to match Rust's libtest: `--exact` now makes it so that all filters passed in after `--` (including `--skip` filters) are matched exactly.
+2225: [0.9.15] Fix for experimental feature [filter expressions](https://nexte.st/book/filter-expressions.html):
+2227: [0.9.15] - Fix test filtering when expression filters are set but name-based filters aren't.
+## cargo-nextest 0.9.149: entries under "### Fixed" in nextest-filtering/CHANGELOG.md
+[0.21.1] - Filterset expressions like `not(test(foo))`, `all()and(test(foo))`, and `all()or(test(foo))`, where `not`, `and`, or `or` is immediately followed by an opening parenthesis, now parse correctly. Prev
+[0.7.1] Internal cleanups: remove reliance on Incomplete. Thanks [@epage](https://github.com/epage) for the
+[0.7.1] contribution!
+## Vitest v5.1.1: commits on the tags files, before and after the move of @vitest/runner
+a029e76a9 2026-09-28 chore: migrate to oxc (#11367)
+115c3f6d2 2026-09-09 fix: correct typos in error message and comments (#11187)
+6d6e46b1e 2026-06-03 feat!: inline `@vitest/runner` package, do not publish it anymore (#10511)
+ebfde798f 2026-03-23 refactor: rename `matchesTagsFilter` to `matchesTags` (#9956)
+eec53d9f5 2026-03-23 feat(experimental): expose `matchesTagsFilter` to test if the current filter matches tags (#9913)
+de7c8a521 2026-01-22 feat: support tags (#9478)
+## go1.26.10: commits on src/testing/match.go (GitHub commit list)
+3bc28402fa 2023-07-25 all: use built-in clear to clear maps
+e4a2c38af5 2022-08-05 cmd/go, testing: add go test -skip flag
+fde4cc2a31 2021-10-05 testing: reduce memory used by subtest names
+d032b2b2c8 2021-10-06 testing: don't create unique subtest names while fuzzing
+025308fe08 2021-08-20 testing: increase alternation precedence
+1f56499d4d 2018-04-27 testing: fix typo mistake
+a2a3ace51a 2017-06-16 testing: harmonize handling of prefix-matched benchmarks
+a683c385ad 2016-01-29 testing: add matching of subtest
+00a2a94c1e 2016-01-29 testing: added name matcher and sanitizer
+## go1.26.10: commits on src/go/build/constraint/expr.go (GitHub commit list)
+0c747b7aa7 2025-11-26 go/build/constraint: use strings.Builder instead of for { str+=str }
+e3ed0fbe6a 2025-09-15 all: replace strings.Split with strings.SplitSeq
+f22d731976 2024-06-20 go/build/constraint: add parsing limits
+28f1bf61b7 2023-10-13 go: add available godoc link
+ceda93ed67 2022-07-03 build/constraint: update doc to mention a feature added in Go 1.17
+dd8d425fed 2021-11-23 all: fix some lint issues
+eeadce2d87 2021-05-18 go/build/constraint: fix parsing of "// +build" (with no args)
+5e94fe9316 2021-02-23 go/build/constraint: fix splitPlusBuild func doc comment
+e65c543f3c 2020-06-22 go/build/constraint: add parser for build tag constraint expressions

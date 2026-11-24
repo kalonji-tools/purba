@@ -1,0 +1,136 @@
+cargo 1.99.0 (5f94df478 2026-08-27)
+cargo-nextest 0.9.149
+### all: cargo nextest list ''
+exit 0
+sel math::add
+sel math::add_slow
+sel store::migrate_db_slow
+sel store::query_db
+
+### substring: cargo nextest list add
+exit 0
+sel math::add
+sel math::add_slow
+
+### substring-union: cargo nextest list slow db
+exit 0
+sel math::add_slow
+sel store::migrate_db_slow
+sel store::query_db
+
+### skip: cargo nextest list -- --skip db
+exit 0
+sel math::add
+sel math::add_slow
+
+### exact: cargo nextest list -- --exact math::add
+exit 0
+sel math::add
+
+### e-union: cargo nextest list -E test\(slow\)\ \|\ test\(db\)
+exit 0
+sel math::add_slow
+sel store::migrate_db_slow
+sel store::query_db
+
+### e-intersection: cargo nextest list -E test\(slow\)\ \&\ test\(db\)
+exit 0
+sel store::migrate_db_slow
+
+### e-exclusion: cargo nextest list -E test\(slow\)\ -\ test\(db\)
+exit 0
+sel math::add_slow
+
+### e-nesting: cargo nextest list -E \(test\(slow\)\ \|\ test\(db\)\)\ -\ \(test\(slow\)\ \&\ test\(db\)\)
+exit 0
+sel math::add_slow
+sel store::query_db
+
+### e-precedence: cargo nextest list -E test\(db\)\ \|\ test\(slow\)\ \&\ not\ test\(db\)
+exit 0
+sel math::add_slow
+sel store::migrate_db_slow
+sel store::query_db
+
+### e-repeated: cargo nextest list -E test\(slow\) -E test\(db\)
+exit 0
+sel math::add_slow
+sel store::migrate_db_slow
+sel store::query_db
+
+### e-and-substring: cargo nextest list -E test\(slow\) db
+exit 0
+sel store::migrate_db_slow
+
+### e-module-prefix: cargo nextest list -E test\(/\^store::/\)
+exit 0
+sel store::migrate_db_slow
+sel store::query_db
+
+### e-empty: cargo nextest list -E test\(nosuchname\)
+exit 0
+
+### e-syntax-error: cargo nextest list -E test\(slow\)\ \&
+exit 94
+  error: expected expression
+error: failed to parse filterset
+
+### e-not-paren: cargo nextest list -E not\(test\(db\)\)
+exit 0
+sel math::add
+sel math::add_slow
+
+### e-empty-run: cargo nextest run -E test\(nosuchname\)
+exit 4
+error: no tests to run
+
+### all: cargo test --lib -- --list ''
+exit 0
+math::add: test
+math::add_slow: test
+store::migrate_db_slow: test
+store::query_db: test
+
+### substring: cargo test --lib -- --list add
+exit 0
+math::add: test
+math::add_slow: test
+
+### substring-union: cargo test --lib -- --list slow db
+exit 0
+math::add_slow: test
+store::migrate_db_slow: test
+store::query_db: test
+
+### skip: cargo test --lib -- --list --skip db
+exit 0
+math::add: test
+math::add_slow: test
+
+### skip-repeated: cargo test --lib -- --list slow --skip db --skip add
+exit 0
+
+### exact: cargo test --lib -- --list --exact math::add
+exit 0
+math::add: test
+
+### empty: cargo test --lib -- --list nosuchname
+exit 0
+
+### slow-not-db: cargo test --lib -- --list slow --skip db
+exit 0
+math::add_slow: test
+
+### empty-run: cargo test --lib nosuchname
+exit 0
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+### e-parens-1000: cargo nextest list -E <1000 parens around test(slow)>
+exit 0
+sel math::add_slow
+sel store::migrate_db_slow
+
+### e-parens-10000: cargo nextest list -E <10000 parens around test(slow)>
+exit 134
+thread 'main' (2812797) has overflowed its stack
+fatal runtime error: stack overflow, aborting

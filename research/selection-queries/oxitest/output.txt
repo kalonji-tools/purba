@@ -1,0 +1,107 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+### union: -E mark\(slow\)\ \|\ mark\(db\)
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+3 selected
+
+### intersection: -E mark\(slow\)\ \&\ mark\(db\)
+exit 0
+test_store.py::test_migrate_db
+1 selected
+
+### exclusion: -E mark\(slow\)\ \&\ \!mark\(db\)
+exit 0
+test_math.py::test_add_slow
+1 selected
+
+### nesting: -E \(mark\(slow\)\ \|\ mark\(db\)\)\ \&\ \!\(mark\(slow\)\ \&\ mark\(db\)\)
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+2 selected
+
+### precedence: -E mark\(db\)\ \|\ mark\(slow\)\ \&\ \!mark\(db\)
+exit 0
+test_math.py::test_add_slow
+1 selected
+
+### precedence-grouped: -E mark\(db\)\ \|\ \(mark\(slow\)\ \&\ \!mark\(db\)\)
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+3 selected
+
+### name-add: -E name\(add\)
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+2 selected
+
+### name-file: -E name\(math\)
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+4 selected
+
+### mark-substring: -E mark\(slo\)
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2 selected
+
+### mark-exact: -E mark\(=slo\)
+exit 0
+0 selected
+
+### mark-unknown: -E mark\(nosuchmark\)
+exit 0
+0 selected
+
+### predicate-unknown: -E tag\(slow\)
+exit 2
+error: predicate 'tag' is not valid for resource 'tests'
+
+### syntax-error: -E mark\(slow\)\ \&
+exit 2
+error: empty expression
+
+### parens-1000: -E \(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2 selected
+
+### parens-10000: -E \(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2 selected
+
+### parens-50000: -E \(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(
+exit 134
+
+thread 'main' (2811034) has overflowed its stack
+fatal runtime error: stack overflow, aborting
+
+### bangs-1000: -E \!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2 selected
+
+### bangs-10000: -E \!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2 selected
+
+### bangs-50000: -E \!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+exit 134
+
+thread 'main' (2811067) has overflowed its stack
+fatal runtime error: stack overflow, aborting

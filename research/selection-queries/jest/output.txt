@@ -1,0 +1,57 @@
+30.5.2
+### all: jest ''
+exit 0
+ran: math add
+ran: math add slow
+ran: store query db
+ran: store migrate db slow
+
+### path-pattern: jest math
+exit 0
+ran: math add
+ran: math add slow
+
+### path-ignore: jest --testPathIgnorePatterns store
+exit 0
+ran: math add
+ran: math add slow
+
+### t-substring: jest -t add
+exit 0
+ran: math add
+ran: math add slow
+
+### t-regex-union: jest -t slow\|db
+exit 0
+ran: math add slow
+ran: store query db
+ran: store migrate db slow
+
+### t-regex-intersection: jest -t \(\?=.\*slow\)\(\?=.\*db\)
+exit 0
+ran: store migrate db slow
+
+### t-regex-exclusion: jest -t \^\(\?\!.\*db\).\*slow
+exit 0
+ran: math add slow
+
+### t-repeated: jest -t slow -t db
+exit 0
+
+### t-full-name: jest -t \^store\ migrate\ db\ slow\$
+exit 0
+ran: store migrate db slow
+
+### t-empty: jest -t nosuchname
+exit 0
+
+### path-empty: jest nosuchfile
+exit 1
+No tests found, exiting with code 1
+  testPathIgnorePatterns: /node_modules/ - 3 matches
+Pattern: nosuchfile - 0 matches
+
+### t-bad-regex: jest -t \(
+exit 1
+    SyntaxError: Invalid regular expression: /(/i: Unterminated group
+    SyntaxError: Invalid regular expression: /(/i: Unterminated group

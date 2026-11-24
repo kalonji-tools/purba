@@ -1,0 +1,112 @@
+commits on the core (src/query/dsl.rs src/query/ast.rs src/query/compile.rs src/query/eval.rs src/query/resource.rs): 16
+commits on all query files (src/query src/config/cli/query.rs python/oxitest/_bridge/query_bridge.py src/marker.rs): 78
+commits on all query files whose subject starts with "fix":
+52f9d706 2026-08-11 fix: retire the shared query predicate that no fixture emits (#1722)
+4371f70b 2026-08-11 fix: stop claiming the session loads conftest fixtures (#1722)
+70e6eb3a 2026-08-02 fix: lint test targets in both clippy gates (#1815)
+08e2725a 2026-07-10 fix: drop signature from query helpers default columns (#1130)
+cc65033f 2026-06-30 fix: release GIL before inspect TUI and handle None fixture_type (#1167)
+f58305e9 2026-06-20 fix: apply edition 2024 migration fixes
+c2808ab8 2026-06-15 fix: needs_python returns true on parse failure instead of false
+f943c256 2026-06-06 fix(extract): include class name in node IDs for class-based tests (#737, #720)
+commits on the core:
+52f9d706 2026-08-11 fix: retire the shared query predicate that no fixture emits (#1722)
+a1051f67 2026-08-05 refactor: widen redundant crate-visibility qualifiers to pub (#1838)
+3264dd84 2026-08-05 refactor: make 92 eligible functions const (#1837)
+236f889e 2026-08-02 refactor: use Self inside impl blocks (#1835)
+37460871 2026-08-01 feat!: remove the query helpers resource (#1788)
+4b151c83 2026-07-02 feat: update Rust inspect and query for helper registrar (#1224)
+27c358cf 2026-07-02 feat: register uses() as valid predicate for tests and fixtures (#1107)
+ca7a134a 2026-06-29 feat: add docstring and signature extraction to helpers (#1112)
+ff3230a6 2026-06-28 perf: pre-compile regex in DSL evaluator (#1094)
+f58305e9 2026-06-20 fix: apply edition 2024 migration fixes
+46fbda89 2026-06-15 refactor: predicate audit wave 1 — quick wins
+2d3d7898 2026-06-11 feat: rich query DSL error diagnostics with miette (#899)
+0d35bf0d 2026-06-10 docs: add rustdoc comments to undocumented structs and constants
+0d72ffa9 2026-06-09 refactor: readability improvements — comments, helper extraction, named booleans (#783)
+814eaf4a 2026-06-06 refactor(query): split dsl.rs into ast/compile/eval modules (#757)
+c8093717 2026-06-02 feat(query): DSL engine — lexer, parser, evaluator, resource types
+issues: 1317; title matcher '\\bdsl\\b|\\bquery\\b|-E\\b|\\bfilter|node.?id|\\bfzf\\b|\\bpredicate|\\bselect': 60; body matcher 'query DSL|\\bDSL\\b|-E [\\\'"]|\\bname\\(|\\bmark\\(|src/query/(ast|compile|eval)': 43; either: 83
+#50	CLOSED	priority: low,size: S,area: rust-core,refactor	rustic: use Iterator::partition() instead of manual two-vec loop in filter.rs
+#94	CLOSED	enhancement,priority: low,size: S,area: rust-core	ux: show banner when --failed=only filters test count
+#167	CLOSED	priority: low,size: M,area: rust-core,refactor	Combine multiple filter passes into single pass in lib.rs
+#371	CLOSED	size: M,area: rust-core,refactor	R1: NodeId inner type from String to Arc<str>
+#375	CLOSED	size: S,area: rust-core,refactor	R5: Single-pass finalize — eliminate unzip and NodeId clone
+#410	CLOSED	enhancement,size: L,area: rust-core	B3: Git-aware test selection (--affected)
+#450	CLOSED	enhancement,size: L,area: rust-core	Refactor pipeline run() into PipelinePhase trait
+#493	CLOSED	priority: medium,size: M,area: docs	docs: document --affected flag (git-aware test selection)
+#549	CLOSED	enhancement	F8: @mark.filterwarnings
+#683	CLOSED		feat: unified query system (oxitest query)
+#687	CLOSED		feat: syntax highlighting and color support for query inspect/preview
+#689	CLOSED		feat: DSL engine for query expressions
+#690	CLOSED		feat: instant-tier AST extraction for query resources
+#691	CLOSED		feat: query output formatters (columnar, tab, jsonl, inspect)
+#692	CLOSED		feat: Query CLI command replacing list/fixtures/plugins
+#694	CLOSED		feat: fzf interactive fuzzy finder for queries
+#695	CLOSED		test: integration tests and migration for unified query system
+#719	CLOSED	priority: high,size: S,area: cli,area: rust-core,area: python-bridge,tech-debt	chore: purge dead code — marker.rs, -m/-k flags, begin_module no-op, filter_items
+#720	CLOSED	enhancement,priority: medium,size: S,area: cli	feat: support multi-select in --fzf to run multiple tests at once
+#736	CLOSED		Support wildcard expansion in positional node IDs
+#737	CLOSED		extract_test_entries omits class name from node IDs for class-based tests
+#738	CLOSED		StrictPhase false positives when targeting tests via node IDs
+#751	CLOSED		Split bridge::FixtureSession — separate query, stats, and setup concerns
+#757	CLOSED		Deepen Query DSL: separate syntax from semantics
+#783	CLOSED	enhancement,priority: low	Readability improvements: comments, helper extraction, and conditional clarity
+#787	CLOSED	documentation	Document API stability guarantees for 1.0.0
+#793	CLOSED	documentation,priority: high	Remove ghost -k and -m/--marker flags from documentation
+#795	CLOSED	documentation	Complete query DSL predicate table in CLI reference
+#804	CLOSED	enhancement,priority: high	Doctest collection and execution support
+#806	CLOSED	enhancement,priority: high,area: rust-core	Introduce lazy collection pipeline: prescan → filter → import on demand
+#809	CLOSED	documentation,enhancement	Benchmark lazy collection and document the lazy protocol
+#825	CLOSED	documentation,enhancement	Benchmark lazy collection performance (v0.14.0)
+#854	CLOSED	priority: high,size: M,area: rust-core,refactor	Refactor: extract prescan filter predicates from filter_metadata()
+#887	CLOSED		docs: README shows nonexistent -m flag for marker filtering
+#893	CLOSED	priority: medium,size: S,area: rust-core,refactor	Extract FilterPredicates struct for file_passes_all_filters()
+#898	CLOSED	enhancement,priority: low,size: S,area: rust-core	Parallelize metadata filtering with rayon
+#899	CLOSED	enhancement,priority: low,size: M,area: rust-core	Rich query DSL error diagnostics with miette
+#940	CLOSED	size: M,area: rust-core,refactor	refactor: introduce MarkerSet newtype replacing Vec<String>
+#942	CLOSED	size: S,area: rust-core,refactor	refactor: replace FilterConfig.node_id_source_files with computed method
+#968	CLOSED	priority: high,size: M,refactor	FnDef adapter and walk_test_defs() visitor — eliminate FunctionDef/AsyncFunctionDef duplication
+#972	CLOSED	priority: high,size: M,area: rust-core,refactor	Extract shared glob-matcher builder and named filter predicates in filter.rs
+#974	CLOSED	priority: high,size: S,area: rust-core,refactor	Extract any_field_part() helper to deduplicate split+trim in query/eval.rs
+#977	CLOSED	priority: medium,size: S,area: python-bridge,refactor	Decompose _can_plugin_resolve() god predicate in fixture validator
+#978	CLOSED	priority: medium,size: S,area: rust-core,refactor	Flip negated predicates to positive names in prescan.rs
+#993	CLOSED	priority: medium,area: rust-core,tech-debt	prescan_with_ast: adopt walk_test_defs — structural duplication
+#1000	CLOSED	refactor	TestItem.module_path is redundant — derivable from NodeId
+#1026	CLOSED	enhancement,size: M,area: docs,ready-for-agent	Add interactive architecture diagram to internals docs
+#1069	CLOSED	enhancement,size: S,area: rust-core,ready-for-agent	Eliminate redundant allocations in node ID filtering and remove dead prescan functions
+#1094	CLOSED	enhancement,size: S,area: rust-core,ready-for-agent	perf: pre-compile regex patterns in DSL evaluator
+#1096	CLOSED	enhancement,size: M,area: rust-core,tech-debt,ready-for-agent	refactor: extract shared node ID prefix matching helper
+#1099	CLOSED	enhancement,size: M,area: cli,ready-for-agent	feat: add reverse fixture dependency lookup to query CLI
+#1107	CLOSED	enhancement,size: M,area: cli,area: rust-core,ready-for-agent	feat: add uses() DSL predicate for reverse fixture dependency lookup
+#1108	CLOSED	enhancement,size: M,area: cli,area: rust-core,ready-for-agent	feat: add verbose diagnostics for --affected test selection
+#1109	CLOSED	enhancement,size: XL,area: cli,area: rust-core	feat: oxitest inspect — interactive TUI for test suite introspection
+#1112	CLOSED	enhancement,size: M,area: rust-core,area: python-bridge,ready-for-agent	feat: add docstring extraction to helpers and query fixtures
+#1113	CLOSED	enhancement,size: S,area: cli,ready-for-agent	feat: deprecate fixtures subcommand in favor of query fixtures
+#1118	CLOSED	enhancement,size: M,area: rust-core,ready-for-agent	feat: inspect search with fuzzy matching and DSL auto-detection
+#1120	CLOSED	enhancement,size: M,area: cli,area: rust-core,ready-for-agent	feat: inspect CLI startup filters (--affected, -E, --lf)
+#1124	CLOSED	enhancement,size: M,area: rust-core,needs-triage	feat: inspect multi-select and node comparison
+#1130	CLOSED	bug,size: S,area: cli,ready-for-agent	fix: query helpers table output unreadable with long signatures
+#1131	CLOSED	enhancement,size: S,area: cli,ready-for-agent	refactor: rename query --inspect flag to --detail to avoid collision with inspect subcommand
+#1150	CLOSED	enhancement,area: cli	spike: uses() DSL predicate for reverse fixture lookup
+#1152	CLOSED	enhancement,area: cli	spike: search scope filter UI for inspect TUI
+#1155	CLOSED	enhancement,area: testing,ready-for-agent	test: add inspect integration tests and graph builder validation
+#1175	CLOSED	enhancement,size: M,area: cli,area: rust-core,ready-for-agent	feat: context-scoped search with global toggle
+#1224	CLOSED	enhancement,size: XL,area: rust-core,area: python-bridge,ready-for-human	Explicit helper registrar aligned with fixture model
+#1316	CLOSED	enhancement,size: L,area: testing,ready-for-agent	chore: split test_fixtures.py into focused test modules
+#1395	CLOSED	enhancement,size: S,area: rust-core,ready-for-agent,improve	chore: research rustpython-parser 0.4 maintenance status and migration options
+#1538	CLOSED	enhancement,area: python-bridge,ready-for-human,wayfinder:prototype	Prototype: async autouse semantics — silent test-kind filter vs registration rejection
+#1645	CLOSED	enhancement,size: S,area: rust-core,ready-for-human	Refactor: unify node-ID parsing across the crate
+#1665	CLOSED	enhancement,area: docs,ready-for-agent,wayfinder:research	Pick source project — inspect/query/UX showcase
+#1671	OPEN	enhancement,area: docs,ready-for-human,wayfinder:task	Migrate inspect/query/UX showcase
+#1676	CLOSED	enhancement,area: testing,ready-for-agent,wayfinder:task	T8d: Port a hello-world loguru test to oxitest fixture syntax
+#1681	CLOSED	enhancement,area: docs,area: cli,showcase-eval	showcase-eval: 'oxitest run' reports 0 collected while 'oxitest query tests' returns 700 (same suite, same config)
+#1697	CLOSED	enhancement,area: docs,ready-for-human,wayfinder:map	Wayfinder: built-in shape audit — fixture vs block-scoped context manager
+#1774	CLOSED	bug,area: python-bridge,ready-for-agent	Autouse candidate enumeration is not B1-filtered — will raise FixtureNotFoundError once autouse is anchored
+#1797	CLOSED	bug,priority: high,size: M,area: rust-core,ready-for-agent	A nonexistent path or node ID argument exits 0 instead of UsageError, so a typo passes CI green
+#1858	CLOSED	bug,priority: medium,size: M,area: cli,area: rust-core,ready-for-agent	--junit-xml writes no file when the run aborts before execution
+#1864	CLOSED	bug,priority: low,size: S,area: docs,area: rust-core,ready-for-agent	Two comments disagree about whether a CTRF tests[].name can be a node ID
+#1973	CLOSED	enhancement,priority: medium,size: S,area: docs,ready-for-agent	Two stage preconditions are unchecked at their own boundary: the duplicate-issue query and the pre-change baseline
+#2003	CLOSED	bug,priority: high,size: M,area: ci,area: tooling,ready-for-human	The documented command blocks are wrong about the shell they run in (WF-092, WF-120)
+#2175	CLOSED	priority: medium,size: L,area: tooling,area: testing,ready-for-agent	Derive band membership into a committed record, and refuse a disagreement
+#2194	OPEN	enhancement,priority: medium,size: M,area: tooling,area: rust-core,area: python-bridge,ready-for-human	Gate cognitive complexity in Python and Rust — neither realm measures it

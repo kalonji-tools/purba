@@ -1,0 +1,81 @@
+go version go1.26.10 linux/amd64
+### all: go test -v ''
+exit 0
+=== RUN   TestAdd
+=== RUN   TestAddSlow
+=== RUN   TestQueryDB
+=== RUN   TestMigrateDBSlow
+=== RUN   TestParse
+=== RUN   TestParse/a
+=== RUN   TestParse/b
+
+### run-substring: go test -v -run Add
+exit 0
+=== RUN   TestAdd
+=== RUN   TestAddSlow
+
+### run-anchored: go test -v -run \^TestAdd\$
+exit 0
+=== RUN   TestAdd
+
+### run-union: go test -v -run Slow\|DB
+exit 0
+=== RUN   TestAddSlow
+=== RUN   TestQueryDB
+=== RUN   TestMigrateDBSlow
+
+### run-intersection: go test -v -run DB.\*Slow\|Slow.\*DB
+exit 0
+=== RUN   TestMigrateDBSlow
+
+### run-exclusion: go test -v -run Slow -skip DB
+exit 0
+=== RUN   TestAddSlow
+
+### run-repeated: go test -v -run Slow -run DB
+exit 0
+=== RUN   TestQueryDB
+=== RUN   TestMigrateDBSlow
+
+### skip-repeated: go test -v -skip DB -skip Slow
+exit 0
+=== RUN   TestAdd
+=== RUN   TestQueryDB
+=== RUN   TestParse
+=== RUN   TestParse/a
+=== RUN   TestParse/b
+
+### run-subtest: go test -v -run TestParse/\^a\$
+exit 0
+=== RUN   TestParse
+=== RUN   TestParse/a
+
+### run-empty: go test -v -run Nope
+exit 0
+testing: warning: no tests to run
+
+### run-bad-regex: go test -v -run \(
+exit 1
+testing: invalid regexp for element 0 of -test.run ("("): error parsing regexp: missing closing ): `(`
+FAIL	sel	0.002s
+
+### tags-slow: go test -v -tags slow
+exit 0
+=== RUN   TestAdd
+=== RUN   TestAddSlow
+=== RUN   TestQueryDB
+=== RUN   TestMigrateDBSlow
+=== RUN   TestParse
+=== RUN   TestParse/a
+=== RUN   TestParse/b
+=== RUN   TestTaggedSlow
+
+### tags-slow-nodb: go test -v -tags slow\,nodb
+exit 0
+=== RUN   TestAdd
+=== RUN   TestAddSlow
+=== RUN   TestQueryDB
+=== RUN   TestMigrateDBSlow
+=== RUN   TestParse
+=== RUN   TestParse/a
+=== RUN   TestParse/b

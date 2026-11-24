@@ -1,0 +1,97 @@
+vitest/5.1.1 linux-x64 node-v24.22.1
+### all: vitest list ''
+exit 0
+math.test.mjs > math > add
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+store.test.mjs > store > migrate
+
+### file-filter: vitest list math
+exit 0
+math.test.mjs > math > add
+math.test.mjs > math > add slow
+
+### file-line: vitest list math.test.mjs:7
+exit 0
+math.test.mjs > math > add slow
+
+### t-substring: vitest list -t add
+exit 0
+math.test.mjs > math > add
+math.test.mjs > math > add slow
+
+### t-regex-union: vitest list -t add\|query
+exit 0
+math.test.mjs > math > add
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+
+### t-regex-exclusion: vitest list -t \^\(\?\!.\*migrate\).\*
+exit 0
+math.test.mjs > math > add
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+
+### t-full-name: vitest list -t \^store\ \>\ migrate\$
+exit 0
+store.test.mjs > store > migrate
+
+### tags-union: vitest list --tagsFilter slow\ \|\|\ db
+exit 0
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+store.test.mjs > store > migrate
+
+### tags-intersection: vitest list --tagsFilter slow\ \&\&\ db
+exit 0
+store.test.mjs > store > migrate
+
+### tags-exclusion: vitest list --tagsFilter slow\ \&\&\ \!db
+exit 0
+math.test.mjs > math > add slow
+
+### tags-nesting: vitest list --tagsFilter \(slow\ \|\|\ db\)\ \&\&\ \!\(slow\ \&\&\ db\)
+exit 0
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+
+### tags-precedence: vitest list --tagsFilter db\ \|\|\ slow\ \&\&\ \!db
+exit 0
+math.test.mjs > math > add slow
+store.test.mjs > store > query
+store.test.mjs > store > migrate
+
+### tags-repeated: vitest list --tagsFilter slow --tagsFilter db
+exit 0
+store.test.mjs > store > migrate
+
+### tags-and-t: vitest list --tagsFilter slow -t add
+exit 0
+math.test.mjs > math > add slow
+
+### tags-unknown: vitest list --tagsFilter nosuchtag
+exit 1
+⎯⎯⎯⎯⎯⎯⎯ Collect Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: The tag pattern "nosuchtag" is not defined in the configuration. Available tags are:
+    at createNoTagsError (file:///tmp/claude-1000/-home-snregales-Projects-kalonji-tools/728737c6-af29-4a5c-97c4-2d19b70eab77/scratchpad/r1226/node-vitest/node_modules/vitest/dist/chunks/run.zBhXlcZQ.js:2284:8)
+
+### tags-syntax-error: vitest list --tagsFilter slow\ \&\&
+exit 1
+⎯⎯⎯⎯⎯⎯⎯ Collect Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: Invalid tags expression: unexpected end of expression in "slow &&"
+
+### t-empty: vitest list -t nosuchname
+exit 0
+
+### t-empty-run: vitest run -t nosuchname
+exit 0
+      Tests  4 skipped (4)
+### tags-parens-1000: vitest list --tagsFilter <1000 parens around slow>
+exit 0
+math.test.mjs > math > add slow
+store.test.mjs > store > migrate
+
+### tags-parens-10000: vitest list --tagsFilter <10000 parens around slow>
+exit 1
+⎯⎯⎯⎯⎯⎯⎯ Collect Error ⎯⎯⎯⎯⎯⎯⎯⎯
+RangeError: Maximum call stack size exceeded

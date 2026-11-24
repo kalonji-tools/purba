@@ -1,0 +1,189 @@
+pytest 9.2.0
+### all: pytest ''
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+
+### id-file: pytest test_math.py
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+
+### id-test: pytest test_math.py::test_parse
+exit 0
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+
+### id-case: pytest test_math.py::test_parse\[a\]
+exit 0
+test_math.py::test_parse[a]
+
+### id-union: pytest test_math.py::test_add test_store.py::test_query_db
+exit 0
+test_math.py::test_add
+test_store.py::test_query_db
+
+### id-missing: pytest test_math.py::test_nope
+exit 4
+ERROR: not found: /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/728737c6-af29-4a5c-97c4-2d19b70eab77/scratchpad/r1226/work-pytest4/test_math.py::test_nope
+no tests collected in 0.00s
+
+### id-prefix: pytest test_math.py::test_ad
+exit 4
+ERROR: not found: /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/728737c6-af29-4a5c-97c4-2d19b70eab77/scratchpad/r1226/work-pytest4/test_math.py::test_ad
+no tests collected in 0.00s
+
+### k-substring: pytest -k add
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+2/6 tests collected (4 deselected) in 0.00s
+
+### k-file-name: pytest -k math
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+4/6 tests collected (2 deselected) in 0.00s
+
+### k-mark-name: pytest -k slow
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_migrate_db
+2/6 tests collected (4 deselected) in 0.00s
+
+### k-case-id: pytest -k parse\ and\ a
+exit 0
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+2/6 tests collected (4 deselected) in 0.00s
+
+### k-repeated: pytest -k add -k db
+exit 0
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+2/6 tests collected (4 deselected) in 0.00s
+
+### m-union: pytest -m slow\ or\ db
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+3/6 tests collected (3 deselected) in 0.00s
+
+### m-intersection: pytest -m slow\ and\ db
+exit 0
+test_store.py::test_migrate_db
+1/6 tests collected (5 deselected) in 0.00s
+
+### m-exclusion: pytest -m slow\ and\ not\ db
+exit 0
+test_math.py::test_add_slow
+1/6 tests collected (5 deselected) in 0.00s
+
+### m-nesting: pytest -m \(slow\ or\ db\)\ and\ not\ \(slow\ and\ db\)
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+2/6 tests collected (4 deselected) in 0.00s
+
+### m-precedence: pytest -m db\ or\ slow\ and\ not\ db
+exit 0
+test_math.py::test_add_slow
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+3/6 tests collected (3 deselected) in 0.00s
+
+### m-repeated: pytest -m slow -m db
+exit 0
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+2/6 tests collected (4 deselected) in 0.00s
+
+### m-and-k: pytest -m slow -k not\ migrate
+exit 0
+test_math.py::test_add_slow
+1/6 tests collected (5 deselected) in 0.00s
+
+### deselect: pytest --deselect test_store.py::test_migrate_db
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+test_store.py::test_query_db
+5/6 tests collected (1 deselected) in 0.00s
+
+### ignore: pytest --ignore test_store.py
+exit 0
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+
+### m-unknown-mark: pytest -m nosuchmark
+exit 5
+no tests collected (6 deselected) in 0.00s
+
+### m-syntax-error: pytest -m slow\ and
+exit 4
+ERROR: Wrong expression passed to '-m': slow and: at column 9: expected not OR left parenthesis OR identifier; got end of input
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+
+### m-parens-200: pytest -m <200 parens around slow>
+exit 0
+2/6 tests collected (4 deselected) in 0.00s
+
+### m-parens-500: pytest -m <500 parens around slow>
+exit 3
+INTERNALERROR> RecursionError: maximum recursion depth exceeded
+6 tests collected in 0.03s
+
+### m-parens-1000: pytest -m <1000 parens around slow>
+exit 3
+INTERNALERROR> RecursionError: maximum recursion depth exceeded
+6 tests collected in 0.03s
+
+### m-unknown-mark-strict: pytest --strict-markers -m nosuchmark
+exit 4
+ERROR: Unknown marker(s) in '-m' expression: nosuchmark. Use 'pytest --markers' to see available markers.
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+
+### m-unknown-mark-strict-typo: pytest --strict-markers -m slwo
+exit 4
+ERROR: Unknown marker(s) in '-m' expression: slwo. Use 'pytest --markers' to see available markers.
+test_math.py::test_add
+test_math.py::test_add_slow
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+test_store.py::test_query_db
+test_store.py::test_migrate_db
+
+### path-and-m: pytest test_store.py -m slow
+exit 0
+test_store.py::test_migrate_db
+1/2 tests collected (1 deselected) in 0.00s
+
+### id-and-deselect: pytest test_math.py --deselect test_math.py::test_add_slow
+exit 0
+test_math.py::test_add
+test_math.py::test_parse[a]
+test_math.py::test_parse[b]
+3/4 tests collected (1 deselected) in 0.00s
