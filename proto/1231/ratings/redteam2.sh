@@ -38,6 +38,11 @@ t "$V/pytest" -q --lf
 sed -i 's/("b", "Nope", "Nope?\\n")/("b", "Nope", "Nope\\n")/' "$P"
 t "$V/pytest" -q --lf
 
+echo "##### C8 oxitest: a misspelled mark in the query"
+cp -r "$E/blind/rater1/PORT_R" "$S/ox"
+cd "$S/ox" && t "$V/oxitest" --color=never -E 'mark(smok)'
+t "$V/oxitest" --color=never -E 'mark(xyz)'
+
 echo "##### C10 purba: logger.add stops raising in test_invalid_format_builtin"
 cp -r "$E/blind/rater1/PORT_T" "$S/pb3"
 G="$S/pb3/tests/test_add_option_format.py"

@@ -41,6 +41,14 @@ FAILED tests/test_add_option_format.py::test_format[a-Message: {message}-Message
 1 failed in 0.02s
 exit=1
 
+##### C8 oxitest: a misspelled mark in the query
+$ <eval>/.venv/bin/oxitest --color=never -E mark(smok)
+  1 passed
+exit=0
+
+$ <eval>/.venv/bin/oxitest --color=never -E mark(xyz)
+exit=0
+
 ##### C10 purba: logger.add stops raising in test_invalid_format_builtin
 $ <eval>/.venv/bin/purba tests/test_add_option_format.py::test_invalid_format_builtin
 tests/test_add_option_format.py::test_invalid_format_builtin project error: [second-path] line 206 reaches line 53 of add_error, which did not run, and the lines before the first expectation take one path; [second-path] line 206 reaches line 54 of add_error, which did not run, and the lines before the first expectation take one path
