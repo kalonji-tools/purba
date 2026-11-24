@@ -1,7 +1,7 @@
 //! Selection: names the tests of a parsed module, refuses each one that purba
 //! cannot call or that breaks a rule of its code, and imports nothing.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -17,6 +17,7 @@ mod framework;
 mod lookup;
 mod patch;
 mod suppression;
+pub mod query;
 
 use lookup::{Lookup, Origin};
 use suppression::Check;
@@ -57,6 +58,7 @@ pub struct TestId {
     suppressions: Vec<Suppression>,
     reaching: Vec<Suppression>,
     notices: Vec<String>,
+    tags: Vec<String>,
 }
 
 impl TestId {
@@ -71,6 +73,7 @@ impl TestId {
             suppressions: Vec::new(),
             reaching: Vec::new(),
             notices: Vec::new(),
+            tags: Vec::new(),
         }
     }
 
@@ -99,6 +102,12 @@ impl TestId {
     #[must_use]
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// Each tag that `@purba.tag("literal")` gives the test. Prototype of #1230.
+    #[must_use]
+    pub fn tags(&self) -> &[String] {
+        &self.tags
     }
 
     /// The name of the test's function.
@@ -422,6 +431,7 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
         places.insert(function.name.as_str());
         let first = found.first;
         let mut test = TestId::new(path, Vec::new(), function.name.to_string());
+        test.tags = tags_of(function, imported);
         let at: Vec<TextSize> = found.defs.iter().map(Ranged::start).collect();
         let mut reasons: Vec<Reason> = sites
             .faults_of(&at)
@@ -737,7 +747,7 @@ fn refused_methods(
                 .map(Reason::Fault)
                 .collect();
             reasons.push(Reason::Method);
-            reasons.extend(own_reasons(function, module, Some("self")));
+            reasons.extend(own_reasons(function, module, facts.imports(), Some("self")));
             let own = found.facts();
             let lookup = Lookup::new(&function.body, &own.locals, facts.imports(), &outside.bound);
             reasons.extend(faults_of(function, own, module, &lookup, outside));
@@ -749,7 +759,7 @@ fn refused_methods(
 /// Why purba cannot call `function`, from its `def` and its body. `first` is
 /// where the first `def` of its name starts.
 fn reasons_of(function: &StmtFunctionDef, facts: &Facts<'_>, first: TextSize) -> Vec<Reason> {
-    let mut reasons = own_reasons(function, facts.module(), None);
+    let mut reasons = own_reasons(function, facts.module(), facts.imports(), None);
     let lines = rebound(function, facts, first);
     if !lines.is_empty() {
         reasons.push(Reason::Rebound(function.name.to_string(), lines));
@@ -759,17 +769,22 @@ fn reasons_of(function: &StmtFunctionDef, facts: &Facts<'_>, first: TextSize) ->
 
 /// Why purba cannot call `function`, from its `def` and its body alone, with
 /// no reason for the parameter `aside`.
-fn own_reasons(function: &StmtFunctionDef, module: &Module, aside: Option<&str>) -> Vec<Reason> {
+fn own_reasons(
+    function: &StmtFunctionDef,
+    module: &Module,
+    imports: &HashMap<&str, String>,
+    aside: Option<&str>,
+) -> Vec<Reason> {
     let body = Body::of(&function.body);
     let mut reasons = Vec::new();
-    if !function.decorator_list.is_empty() {
-        reasons.push(Reason::Decorated(
-            function
-                .decorator_list
-                .iter()
-                .map(|decorator| decorator_name(decorator, module.source()))
-                .collect(),
-        ));
+    let foreign: Vec<String> = function
+        .decorator_list
+        .iter()
+        .filter(|decorator| purba_tag(decorator, imports).is_none())
+        .map(|decorator| decorator_name(decorator, module.source()))
+        .collect();
+    if !foreign.is_empty() {
+        reasons.push(Reason::Decorated(foreign));
     }
     if function.is_async {
         reasons.push(Reason::Async);
@@ -785,6 +800,44 @@ fn own_reasons(function: &StmtFunctionDef, module: &Module, aside: Option<&str>)
         reasons.push(Reason::NoDefault(without_default));
     }
     reasons
+}
+
+/// The tag of `@purba.tag("literal")`: a call of the name that the module's
+/// imports resolve to `purba.tag`, with one string literal. Prototype of #1230.
+fn purba_tag(decorator: &Decorator, imports: &HashMap<&str, String>) -> Option<String> {
+    let Expr::Call(call) = &decorator.expression else {
+        return None;
+    };
+    let mut parts = Vec::new();
+    let mut current = &*call.func;
+    while let Expr::Attribute(attribute) = current {
+        parts.push(attribute.attr.as_str());
+        current = &attribute.value;
+    }
+    let Expr::Name(root) = current else {
+        return None;
+    };
+    let mut qualified = imports.get(root.id.as_str())?.clone();
+    for part in parts.iter().rev() {
+        qualified.push('.');
+        qualified.push_str(part);
+    }
+    if qualified != "purba.tag" || !call.arguments.keywords.is_empty() {
+        return None;
+    }
+    match &*call.arguments.args {
+        [Expr::StringLiteral(literal)] => Some(literal.value.to_str().to_owned()),
+        _ => None,
+    }
+}
+
+/// Each tag of `function`, in the order of its decorators.
+fn tags_of(function: &StmtFunctionDef, imports: &HashMap<&str, String>) -> Vec<String> {
+    function
+        .decorator_list
+        .iter()
+        .filter_map(|decorator| purba_tag(decorator, imports))
+        .collect()
 }
 
 /// A decorator's dotted name, without a call's arguments. Any other form is
