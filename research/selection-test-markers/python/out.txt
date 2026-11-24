@@ -1,0 +1,43 @@
+== pytest --version
+pytest 9.2.0
+== pytest --collect-only -q tests (pytest's defaults)
+tests/a/test_who_a.py::test_helper_is_a
+tests/b/test_who_b.py::test_helper_is_b
+tests/stock_test.py::test_suffix
+tests/test_shop.py::test_shared
+tests/test_shop.py::test_lend
+tests/test_shop.py::testable
+tests/test_shop.py::test_async
+tests/test_shop.py::TestShop::test_method
+tests/test_shop.py::ShopCase::test_case
+tests/test_stock.py::test_shared
+
+10 tests collected in 0.01s
+== pytest -q tests/a tests/b (a helper.py in each folder)
+E
+E         - b
+E         + a
+
+tests/b/test_who_b.py:5: AssertionError
+=========================== short test summary info ============================
+FAILED tests/b/test_who_b.py::test_helper_is_b - AssertionError: assert 'a' =...
+1 failed, 1 passed in 0.01s
+== pytest -q same (two test files of one name)
+import file mismatch:
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.04s
+== python -m unittest discover -v (start at ., default pattern test*.py)
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.000s
+
+NO TESTS RAN
+== python -m unittest discover -v -s tests -t tests
+test_case (test_shop.ShopCase.test_case) ... ok
+test_util (testing_utils.UtilCase.test_util) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+testing_utils.py was imported

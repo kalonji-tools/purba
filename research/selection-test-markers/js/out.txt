@@ -1,0 +1,24 @@
+== jest --version
+30.5.2
+== jest --listTests (default testMatch)
+src/fixtures.test.js
+src/shop.test.js
+src/__tests__/helpers.js
+src/__tests__/lend.js
+== jest (run)
+FAIL src/__tests__/helpers.js
+    Your test suite must contain at least one test.
+FAIL src/fixtures.test.js
+    Your test suite must contain at least one test.
+Test Suites: 2 failed, 2 passed, 4 total
+Tests:       2 passed, 2 total
+== vitest --version
+vitest/5.1.1 linux-x64 node-v24.22.1
+== vitest list --filesOnly (default include)
+src/fixtures.test.js
+src/shop.test.js
+== vitest run --globals (the test files call test() with no import)
+ FAIL  src/fixtures.test.js [ src/fixtures.test.js ]
+Error: No test suite found in file src/fixtures.test.js
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 passed (1)

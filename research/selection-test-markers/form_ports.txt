@@ -1,0 +1,4 @@
+flaskr-blog/form-2/flaskr_fixtures.py	test=0	public=2	private=0	public_names=client,auth
+flaskr-blog/form-2/test_blog.py	test=8	public=0	private=0	public_names=
+flaskr-blog/form/test_blog.py	test=8	public=3	private=0	public_names=app,client,auth
+loguru-format/form/test_add_option_format.py	test=8	public=1	private=0	public_names=reset_logger

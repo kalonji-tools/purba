@@ -1,0 +1,13 @@
+these 2 paths will be fetched (414.8 MiB download, 568.5 MiB unpacked):
+  /nix/store/g6dh2a4nr1yj342pnmw5qq6pwi61d8nq-openjdk-21.0.12.1+1
+  /nix/store/qqpi1p80vgd61hvbiazizm25yfp0k6vz-set-java-classpath-hook
+copying path '/nix/store/qqpi1p80vgd61hvbiazizm25yfp0k6vz-set-java-classpath-hook' from 'https://cache.nixos.org'...
+copying path '/nix/store/g6dh2a4nr1yj342pnmw5qq6pwi61d8nq-openjdk-21.0.12.1+1' from 'https://cache.nixos.org'...
+== java -version
+openjdk version "21.0.12.1" 2026-08-18
+== JUnitCore ShopCase (JUnit 3 style)
+1) warning(junit.framework.TestSuite$1)
+junit.framework.AssertionFailedError: Test method isn't public: testNotPublic(ShopCase)
+Tests run: 2,  Failures: 1
+== JUnitCore Lending (JUnit 4 style)
+OK (1 test)

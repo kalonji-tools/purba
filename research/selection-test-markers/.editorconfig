@@ -1,0 +1,11 @@
+# The probes and rows of a research branch, which is never merged.
+# A TSV row is one line, and gofmt indents Go with tabs.
+[*]
+max_line_length = off
+
+[*.go]
+indent_style = tab
+
+# go/run.sh writes Go source in a heredoc, and gofmt indents it with tabs.
+[go/run.sh]
+indent_style = unset

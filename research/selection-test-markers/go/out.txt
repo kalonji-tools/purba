@@ -1,0 +1,14 @@
+== go version
+go version go1.26.10 linux/amd64
+== go list: GoFiles and TestGoFiles
+GoFiles=[shop.go] TestGoFiles=[helpers_test.go shop_test.go]
+== go test -v ./...
+=== RUN   TestLend
+--- PASS: TestLend (0.00s)
+PASS
+ok  	example.com/shop	0.002s
+== go vet ./...
+shop_test.go:7:6: Testlower has malformed name: first letter after 'Test' must not be lowercase
+== a non-test file that calls a helper of a _test.go file
+# example.com/shop
+./use.go:1:42: undefined: Two

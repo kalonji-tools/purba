@@ -1,0 +1,6 @@
+== ruff --version
+ruff 0.17.6
+== ruff check --select PT028,D401 --no-cache --isolated test_lend.py
+test_lend.py:9:24: PT028 Test function parameter `s` has default argument
+test_lend.py:15:5: D401 First line of docstring should be in imperative mood: "Returns the book."
+Found 2 errors.

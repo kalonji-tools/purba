@@ -1,0 +1,25 @@
+== cargo --version
+cargo 1.99.0 (5f94df478 2026-08-27)
+== cargo test (each target it runs)
+     Running unittests src/lib.rs (target/debug/deps/shop-26943e5f62902c8d)
+running 1 test
+test tests::lends ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/common.rs (target/debug/deps/common-7249aa2c921ed14a)
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/lend.rs (target/debug/deps/lend-b1eda0a083858229)
+running 1 test
+test lends_from_outside ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 0 tests
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+== cargo nextest list
+cargo-nextest 0.9.149
+shop tests::lends
+shop::lend lends_from_outside
+== a helper beside a binary in src/bin
+error[E0601]: `main` function not found in crate `helper`
+ --> src/bin/helper.rs:1:27
+  |                           ^ consider adding a `main` function to `src/bin/helper.rs`
+For more information about this error, try `rustc --explain E0601`.

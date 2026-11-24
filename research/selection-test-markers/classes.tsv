@@ -1,0 +1,280 @@
+suite	path	line	name	bases	testcase_base	test_methods	other_methods
+loguru	tests/test_add_option_enqueue.py	13	NotPicklable		0	0	2
+loguru	tests/test_add_option_enqueue.py	21	NotPicklableTypeError		0	0	2
+loguru	tests/test_add_option_enqueue.py	29	NotUnpicklable		0	0	2
+loguru	tests/test_add_option_enqueue.py	37	NotUnpicklableTypeError		0	0	2
+loguru	tests/test_add_option_enqueue.py	45	NotWritable		0	0	1
+loguru	tests/test_add_option_serialize.py	8	JsonSink		0	0	2
+loguru	tests/test_coroutine_sink.py	20	AsyncWriter		0	0	1
+loguru	tests/test_coroutine_sink.py	639	Writer		0	0	2
+loguru	tests/test_interception.py	9	InterceptHandler	logging.Handler	0	0	1
+loguru	tests/test_locks.py	12	CyclicReference		0	0	2
+loguru	tests/test_multiprocessing.py	87	Writer		0	0	3
+loguru	tests/test_pickling.py	32	StreamHandler		0	0	4
+loguru	tests/test_pickling.py	53	MockLock		0	0	2
+loguru	tests/test_pickling.py	61	StandardHandler	logging.Handler	0	0	5
+loguru	tests/test_propagation.py	12	PropagateHandler	logging.Handler	0	0	1
+loguru	tests/test_reinstall.py	19	Writer		0	0	3
+loguru	tests/test_remove.py	9	HandlerIdSubclass	int	0	0	0
+loguru	tests/test_remove.py	13	StopSinkError		0	0	2
+loguru	tests/test_standard_handler.py	12	RejectAllFilter	Filter	0	0	1
+loguru	tests/test_threading.py	8	NonSafeSink		0	0	3
+attrs	bench/test_benchmarks.py	66	C		0	0	0
+attrs	bench/test_benchmarks.py	111	HashableC		0	0	0
+attrs	bench/test_benchmarks.py	150	AtomicFields		0	0	0
+attrs	bench/test_benchmarks.py	181	NestedAtomicFields		0	0	0
+attrs	bench/test_benchmarks.py	196	TestCachedProperties		0	3	0
+attrs	tests/test_3rd_party.py	17	TestCloudpickleCompat		0	1	0
+attrs	tests/test_abc.py	13	TestUpdateAbstractMethods		0	2	0
+attrs	tests/test_annotations.py	31	TestAnnotations		0	35	0
+attrs	tests/test_cmp.py	61	TestEqOrder		0	19	0
+attrs	tests/test_cmp.py	302	TestDundersUnnamedClass		0	3	0
+attrs	tests/test_cmp.py	336	TestTotalOrderingException		0	1	0
+attrs	tests/test_cmp.py	354	TestNotImplementedIsPropagated		0	1	0
+attrs	tests/test_cmp.py	370	TestDundersPartialOrdering		0	7	0
+attrs	tests/test_cmp.py	442	TestDundersFullOrdering		0	7	0
+attrs	tests/test_compat.py	19	TestMetadataProxy		0	2	0
+attrs	tests/test_compat.py	70	TestLazyIsGenerator		0	3	0
+attrs	tests/test_config.py	12	TestConfig		0	4	0
+attrs	tests/test_converters.py	18	TestConverter		0	5	0
+attrs	tests/test_converters.py	135	TestOptional		0	4	0
+attrs	tests/test_converters.py	174	TestDefaultIfNone		0	6	0
+attrs	tests/test_converters.py	230	TestPipe		0	5	0
+attrs	tests/test_converters.py	302	TestOptionalPipe		0	3	0
+attrs	tests/test_converters.py	344	TestToBool		0	3	0
+attrs	tests/test_dunders.py	41	EqCallableC		0	0	0
+attrs	tests/test_dunders.py	47	EqCallableCSlots		0	0	0
+attrs	tests/test_dunders.py	53	OrderCallableC		0	0	0
+attrs	tests/test_dunders.py	59	OrderCallableCSlots		0	0	0
+attrs	tests/test_dunders.py	126	InitC		0	0	0
+attrs	tests/test_dunders.py	133	TestEqOrder		0	18	0
+attrs	tests/test_dunders.py	340	TestAddRepr		0	9	0
+attrs	tests/test_dunders.py	465	HashCacheSerializationTestUncached		0	0	0
+attrs	tests/test_dunders.py	470	HashCacheSerializationTestCached		0	0	0
+attrs	tests/test_dunders.py	475	HashCacheSerializationTestCachedSlots		0	0	0
+attrs	tests/test_dunders.py	479	IncrementingHasher		0	0	2
+attrs	tests/test_dunders.py	489	TestAddHash		0	12	1
+attrs	tests/test_dunders.py	760	TestAddInit		0	12	0
+attrs	tests/test_dunders.py	960	TestNothing		0	4	0
+attrs	tests/test_dunders.py	996	C		0	0	0
+attrs	tests/test_dunders.py	1005	C		0	0	0
+attrs	tests/test_dunders.py	1013	C		0	0	0
+attrs	tests/test_dunders.py	1021	TestFilenames		0	1	0
+attrs	tests/test_filters.py	16	C		0	0	0
+attrs	tests/test_filters.py	21	TestSplitWhat		0	1	0
+attrs	tests/test_filters.py	37	TestInclude		0	2	0
+attrs	tests/test_filters.py	83	TestExclude		0	2	0
+attrs	tests/test_funcs.py	46	TestAsDict		0	17	0
+attrs	tests/test_funcs.py	301	TestAsTuple		0	14	0
+attrs	tests/test_funcs.py	524	TestHas		0	5	0
+attrs	tests/test_funcs.py	584	TestAssoc		0	5	0
+attrs	tests/test_funcs.py	658	TestEvolve		0	12	0
+attrs	tests/test_functional.py	26	C1		0	0	0
+attrs	tests/test_functional.py	32	C1Slots		0	0	0
+attrs	tests/test_functional.py	41	C2		0	0	0
+attrs	tests/test_functional.py	47	C2Slots		0	0	0
+attrs	tests/test_functional.py	53	Base		0	0	1
+attrs	tests/test_functional.py	61	BaseSlots		0	0	1
+attrs	tests/test_functional.py	69	Sub	Base	0	0	0
+attrs	tests/test_functional.py	74	SubSlots	BaseSlots	0	0	0
+attrs	tests/test_functional.py	79	Frozen		0	0	0
+attrs	tests/test_functional.py	84	SubFrozen	Frozen	0	0	0
+attrs	tests/test_functional.py	89	FrozenNoSlots		0	0	0
+attrs	tests/test_functional.py	93	Meta	type	0	0	0
+attrs	tests/test_functional.py	98	WithMeta		0	0	0
+attrs	tests/test_functional.py	103	WithMetaSlots		0	0	0
+attrs	tests/test_functional.py	110	TestFunctional		0	33	0
+attrs	tests/test_functional.py	785	TestReplace		0	4	0
+attrs	tests/test_hooks.py	12	TestTransformHook		0	18	0
+attrs	tests/test_hooks.py	383	TestAsDictHook		0	2	0
+attrs	tests/test_import.py	7	TestImportStar		0	1	0
+attrs	tests/test_import.py	17	TestDir		0	2	0
+attrs	tests/test_make.py	79	TestCountingAttr		0	8	0
+attrs	tests/test_make.py	218	TestTransformAttrs		0	14	0
+attrs	tests/test_make.py	539	TestAttributes		0	25	0
+attrs	tests/test_make.py	1018	TestKeywordOnlyAttributes		0	13	0
+attrs	tests/test_make.py	1386	GC		0	0	0
+attrs	tests/test_make.py	1392	TestMakeClass		0	14	0
+attrs	tests/test_make.py	1589	TestFields		0	7	0
+attrs	tests/test_make.py	1672	TestFieldsDict		0	3	0
+attrs	tests/test_make.py	1710	TestConverter		0	8	0
+attrs	tests/test_make.py	1850	TestValidate		0	5	0
+attrs	tests/test_make.py	1948	TestMetadata		0	6	0
+attrs	tests/test_make.py	2049	TestClassBuilder		0	10	1
+attrs	tests/test_make.py	2364	TestInitAlias		0	5	0
+attrs	tests/test_make.py	2560	TestMakeOrder		0	1	0
+attrs	tests/test_make.py	2609	TestDetermineAttrsEqOrder		0	4	0
+attrs	tests/test_make.py	2645	TestDetermineAttribEqOrder		0	7	0
+attrs	tests/test_make.py	2712	TestDocs		0	1	0
+attrs	tests/test_make.py	2741	BareC		0	0	0
+attrs	tests/test_make.py	2745	BareSlottedC		0	0	0
+attrs	tests/test_make.py	2749	TestAutoDetect		0	15	0
+attrs	tests/test_make.py	3097	TestMatchArgs		0	6	0
+attrs	tests/test_next_gen.py	22	C		0	0	0
+attrs	tests/test_next_gen.py	27	TestNextGen		0	20	0
+attrs	tests/test_next_gen.py	432	TestAsTuple		0	1	0
+attrs	tests/test_next_gen.py	442	TestAsDict		0	1	0
+attrs	tests/test_next_gen.py	454	TestProps		0	2	0
+attrs	tests/test_next_gen.py	534	TestImports		0	5	0
+attrs	tests/test_packaging.py	17	TestLegacyMetadataHack		0	3	0
+attrs	tests/test_pattern_matching.py	8	TestPatternMatching		0	3	0
+attrs	tests/test_setattr.py	16	Frozen		0	0	0
+attrs	tests/test_setattr.py	21	WithOnSetAttrHook		0	0	0
+attrs	tests/test_setattr.py	25	TestSetAttr		0	30	0
+attrs	tests/test_slots.py	31	C1		0	0	5
+attrs	tests/test_slots.py	55	C1Slots		0	0	5
+attrs	tests/test_slots.py	429	TestClosureCellRewriting		0	3	0
+attrs	tests/test_slots.py	626	C2		0	0	0
+attrs	tests/test_slots.py	631	C2Slots		0	0	0
+attrs	tests/test_slots.py	635	TestPickle		0	4	0
+attrs	tests/test_slots.py	1147	A		0	0	0
+attrs	tests/test_utils.py	4	TestSimpleClass		0	2	0
+attrs	tests/test_validators.py	40	TestDisableValidators		0	6	1
+attrs	tests/test_validators.py	119	TestInstanceOf		0	5	0
+attrs	tests/test_validators.py	168	TestMatchesRe		0	9	0
+attrs	tests/test_validators.py	287	TestAnd		0	4	0
+attrs	tests/test_validators.py	332	TestOptional		0	5	0
+attrs	tests/test_validators.py	397	TestIn_		0	6	0
+attrs	tests/test_validators.py	489	TestDeepIterable		0	12	0
+attrs	tests/test_validators.py	659	TestDeepMapping		0	11	0
+attrs	tests/test_validators.py	812	TestIsCallable		0	5	0
+attrs	tests/test_validators.py	879	TestLtLeGeGtNe		0	5	0
+attrs	tests/test_validators.py	959	TestMaxLen		0	5	0
+attrs	tests/test_validators.py	1032	TestMinLen		0	5	0
+attrs	tests/test_validators.py	1103	TestSubclassOf		0	4	0
+attrs	tests/test_validators.py	1146	TestNot_		0	14	0
+attrs	tests/test_validators.py	1372	TestOr		0	4	0
+attrs	tests/test_version_info.py	14	TestVersionInfo		0	6	0
+click	tests/test_abort_interrupt.py	21	RecordingStderr		0	0	4
+click	tests/test_defaults.py	458	_Marker		0	0	0
+click	tests/test_options.py	1686	_StrictEq		0	0	2
+click	tests/test_options.py	2177	HashType	enum.Enum	0	0	0
+click	tests/test_options.py	2183	Number	enum.IntEnum	0	0	0
+click	tests/test_options.py	2188	Letter	enum.StrEnum	0	0	0
+click	tests/test_options.py	2194	Color	enum.Flag	0	0	0
+click	tests/test_options.py	2200	ColorInt	enum.IntFlag	0	0	0
+click	tests/test_options.py	2353	EnumSentinel	enum.Enum	0	0	1
+click	tests/test_options.py	2467	EngineType	enum.Enum	0	0	0
+click	tests/test_options.py	2473	Class1		0	0	0
+click	tests/test_options.py	2477	Class2		0	0	0
+click	tests/test_termui.py	26	FakeClock		0	0	3
+click	tests/test_termui.py	824	_FakePagerProcess		0	0	3
+click	tests/test_termui.py	1726	_CustomTypeNoValue	click.ParamType	0	0	1
+click	tests/test_termui.py	1735	_CustomTypeWithRawValue	click.ParamType	0	0	1
+click	tests/test_termui.py	1744	_PasswordLengthType	click.ParamType	0	0	1
+click	tests/test_termui.py	1757	_MixedQuotedAndRawType	click.ParamType	0	0	1
+click	tests/test_termui.py	1768	_StaticMessageType	click.ParamType	0	0	1
+click	tests/test_termui.py	1777	_RejectAllRawType	click.ParamType	0	0	1
+click	tests/test_termui.py	1786	_MultiRawType	click.ParamType	0	0	1
+click	tests/test_termui.py	1795	_MultiReprType	click.ParamType	0	0	1
+click	tests/test_termui.py	1804	_ApostropheReprType	click.ParamType	0	0	1
+click	tests/test_utils/test__detect_program_name.py	8	MockMain		0	0	1
+requests	tests/test_help.py	11	VersionedPackage		0	0	1
+requests	tests/test_requests.py	84	TestRequests		0	185	1
+requests	tests/test_requests.py	2331	TestCaseInsensitiveDict		0	17	0
+requests	tests/test_requests.py	2482	TestMorselToCookieExpires		0	3	0
+requests	tests/test_requests.py	2516	TestMorselToCookieMaxAge		0	2	0
+requests	tests/test_requests.py	2536	TestTimeout		0	7	0
+requests	tests/test_requests.py	2608	RedirectSession	SessionRedirectMixin	0	0	4
+requests	tests/test_requests.py	2760	TestPreparingURLs		0	13	0
+requests	tests/test_structures.py	6	TestCaseInsensitiveDict		0	7	1
+requests	tests/test_structures.py	54	TestLookupDict		0	6	1
+requests	tests/test_testserver.py	11	TestTestServer		0	11	0
+requests	tests/test_utils.py	50	TestSuperLen		0	12	0
+requests	tests/test_utils.py	156	TestGetNetrcAuth		0	3	0
+requests	tests/test_utils.py	184	TestToKeyValList		0	2	0
+requests	tests/test_utils.py	202	TestUnquoteHeaderValue		0	2	0
+requests	tests/test_utils.py	220	TestGetEnvironProxies		0	4	1
+requests	tests/test_utils.py	285	TestIsIPv4Address		0	2	0
+requests	tests/test_utils.py	294	TestIsValidCIDR		0	2	0
+requests	tests/test_utils.py	312	TestAddressInNetwork		0	2	0
+requests	tests/test_utils.py	320	TestGuessFilename		0	2	0
+requests	tests/test_utils.py	342	TestExtractZippedPaths		0	3	0
+requests	tests/test_utils.py	376	TestContentEncodingDetection		0	3	0
+requests	tests/test_utils.py	408	TestGuessJSONUTF		0	3	0
+dateutil	tests/test_parser.py	224	TestFormat		0	2	0
+dateutil	tests/test_parser.py	292	TestInputTypes		0	8	0
+dateutil	tests/test_parser.py	350	TestTzinfoInputTypes		0	7	1
+dateutil	tests/test_parser.py	406	ParserTest	unittest.TestCase	1	40	1
+dateutil	tests/test_parser.py	740	TestOutOfBounds		0	7	0
+dateutil	tests/test_parser.py	775	TestParseUnimplementedCases		0	14	0
+dateutil	tests/test_parser.py	893	TestTZVar		0	3	0
+dateutil	tests/test_relativedelta.py	12	RelativeDeltaTest	unittest.TestCase	1	80	0
+dateutil	tests/test_relativedelta.py	734	RelativeDeltaWeeksPropertyGetterTest	unittest.TestCase	1	4	0
+dateutil	tests/test_relativedelta.py	758	RelativeDeltaWeeksPropertySetterTest	unittest.TestCase	1	4	0
+dateutil	tests/test_rrule.py	35	RRuleTest	unittest.TestCase	1	538	1
+dateutil	tests/test_rrule.py	4635	RRuleSetTest	unittest.TestCase	1	15	0
+dateutil	tests/test_rrule.py	4847	WeekdayTest	unittest.TestCase	1	6	0
+dateutil	tests/test_rrule.py	4909	TaggedRule	rrule	0	0	0
+dateutil	tests/test_tz.py	187	context_passthrough		0	0	3
+dateutil	tests/test_tz.py	198	TzFoldMixin		0	20	5
+dateutil	tests/test_tz.py	455	TzWinFoldMixin		0	6	2
+dateutil	tests/test_tz.py	631	TzUTCTest	unittest.TestCase	1	11	0
+dateutil	tests/test_tz.py	690	TzOffsetTest	unittest.TestCase	1	11	0
+dateutil	tests/test_tz.py	800	TzLocalTest	unittest.TestCase	1	5	0
+dateutil	tests/test_tz.py	861	TzLocalNixTest	unittest.TestCase,TzFoldMixin	1	11	6
+dateutil	tests/test_tz.py	1030	GettzTest	TzSourceMixin,unittest.TestCase,TzFoldMixin	1	10	0
+dateutil	tests/test_tz.py	1099	GettzTzdataTest	GettzTest	0	0	0
+dateutil	tests/test_tz.py	1242	ZoneInfoGettzTest	GettzTest	0	10	1
+dateutil	tests/test_tz.py	1340	TZRangeTest	unittest.TestCase,TzFoldMixin	1	9	1
+dateutil	tests/test_tz.py	1483	TZStrTest	unittest.TestCase,TzFoldMixin	1	10	1
+dateutil	tests/test_tz.py	1780	TZICalTest	unittest.TestCase,TzFoldMixin	1	21	9
+dateutil	tests/test_tz.py	2086	TZTest	unittest.TestCase	1	9	0
+dateutil	tests/test_tz.py	2197	TzWinTest	unittest.TestCase,TzWinFoldMixin	1	13	1
+dateutil	tests/test_tz.py	2335	TzWinLocalTest	unittest.TestCase,TzWinFoldMixin	1	9	2
+dateutil	tests/test_tz.py	2452	TzPickleTest	PicklableMixin,unittest.TestCase	1	10	1
+dateutil	tests/test_tz.py	2500	TzPickleFileTest	TzPickleTest	0	0	0
+dateutil	tests/test_tz.py	2522	DatetimeAmbiguousTest	TzSourceMixin,unittest.TestCase	1	18	3
+dateutil	tests/test_tz.py	2714	DatetimeAmbiguousTzdataTest	DatetimeAmbiguousTest	0	0	0
+dateutil	tests/test_tz.py	2718	DatetimeExistsTest	TzSourceMixin,unittest.TestCase	1	6	0
+dateutil	tests/test_tz.py	2760	DatetimeExistsTzdataTest	DatetimeExistsTest	0	0	0
+dateutil	tests/test_tz.py	2764	TestEnfold		0	4	0
+dateutil	tests/test_tz.py	2788	ImaginaryDateTest	TzSourceMixin,unittest.TestCase	1	3	0
+dateutil	tests/test_tz.py	2811	ImaginaryDateTzdataTest	ImaginaryDateTest	0	0	0
+dateutil	tests/test_tzfile.py	326	ZoneOffset		0	0	0
+dateutil	tests/test_tzfile.py	333	ZoneTransition		0	0	7
+dateutil	tests/test_tzfile.py	386	ExpectedTransition		0	0	0
+dateutil	tests/test_tzfile.py	2593	_DescribedTzfile	tz.tzfile	0	0	1
+pyflakes	pyflakes/test/test_api.py	37	Node		0	0	1
+pyflakes	pyflakes/test/test_api.py	46	SysStreamCapturing		0	0	3
+pyflakes	pyflakes/test/test_api.py	75	LoggingReporter		0	0	4
+pyflakes	pyflakes/test/test_api.py	98	TestIterSourceCode	TestCase	1	8	3
+pyflakes	pyflakes/test/test_api.py	227	TestReporter	TestCase	1	6	0
+pyflakes	pyflakes/test/test_api.py	314	CheckTests	TestCase	1	18	3
+pyflakes	pyflakes/test/test_api.py	636	IntegrationTests	TestCase	1	5	3
+pyflakes	pyflakes/test/test_api.py	717	TestMain	IntegrationTests	0	0	1
+pyflakes	pyflakes/test/test_builtin.py	8	TestBuiltins	TestCase	1	2	0
+pyflakes	pyflakes/test/test_code_segment.py	7	TestCodeSegments	TestCase	1	5	0
+pyflakes	pyflakes/test/test_custom_builtins.py	18	TestCustomBuiltins	TestCase	1	2	0
+pyflakes	pyflakes/test/test_dict.py	9	Test	TestCase	1	25	0
+pyflakes	pyflakes/test/test_doctests.py	16	_DoctestMixin		0	0	2
+pyflakes	pyflakes/test/test_doctests.py	48	Test	TestCase	1	22	0
+pyflakes	pyflakes/test/test_doctests.py	447	TestOther	_DoctestMixin,TestOther	0	0	0
+pyflakes	pyflakes/test/test_doctests.py	451	TestImports	_DoctestMixin,TestImports	0	0	0
+pyflakes	pyflakes/test/test_doctests.py	455	TestUndefinedNames	_DoctestMixin,TestUndefinedNames	0	0	0
+pyflakes	pyflakes/test/test_imports.py	14	TestImportationObject	TestCase	1	20	0
+pyflakes	pyflakes/test/test_imports.py	117	Test	TestCase	1	99	0
+pyflakes	pyflakes/test/test_imports.py	1029	TestSpecialAll	TestCase	1	21	0
+pyflakes	pyflakes/test/test_is_literal.py	5	Test	TestCase	1	31	0
+pyflakes	pyflakes/test/test_lazy_imports.py	8	Test	TestCase	1	10	0
+pyflakes	pyflakes/test/test_match.py	4	TestMatch	TestCase	1	8	0
+pyflakes	pyflakes/test/test_other.py	11	Test	TestCase	1	59	0
+pyflakes	pyflakes/test/test_other.py	1189	TestUnusedAssignment	TestCase	1	60	0
+pyflakes	pyflakes/test/test_other.py	1834	TestStringFormatting	TestCase	1	6	0
+pyflakes	pyflakes/test/test_other.py	2012	TestAsyncStatements	TestCase	1	12	0
+pyflakes	pyflakes/test/test_other.py	2137	TestIncompatiblePrintOperator	TestCase	1	7	0
+pyflakes	pyflakes/test/test_type_annotations.py	11	TestTypeAnnotations	TestCase	1	68	0
+pyflakes	pyflakes/test/test_undefined_names.py	7	Test	TestCase	1	69	0
+pyflakes	pyflakes/test/test_undefined_names.py	820	NameTests	TestCase	1	1	0
+toolz	toolz/tests/test_dicttoolz.py	19	TestDict		0	15	0
+toolz	toolz/tests/test_dicttoolz.py	156	defaultdict	_defaultdict	0	0	1
+toolz	toolz/tests/test_dicttoolz.py	163	TestDefaultDict	TestDict	0	0	1
+toolz	toolz/tests/test_dicttoolz.py	177	CustomMapping		0	0	13
+toolz	toolz/tests/test_dicttoolz.py	235	TestCustomMapping	TestDict	0	0	0
+toolz	toolz/tests/test_functoolz.py	31	AlwaysEquals		0	0	2
+toolz	toolz/tests/test_functoolz.py	41	NeverEquals		0	0	2
+toolz	toolz/tests/test_serialization.py	69	GlobalCurried		0	0	4
+six	test_six.py	253	TestCustomizedMoves		0	5	1
+six	test_six.py	999	EnsureTests		0	5	0
+schedule	test_schedule.py	39	mock_datetime		0	0	3
+schedule	test_schedule.py	96	SchedulerTests	TestCase	1	81	5
