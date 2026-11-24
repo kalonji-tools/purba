@@ -1,0 +1,10 @@
+tests/api/test_admin.py::test_grant	tests/api/test_admin.py	db
+tests/api/test_user.py::test_add	tests/api/test_user.py	
+tests/api/test_user.py::test_remove	tests/api/test_user.py	slow
+tests/math/test_math.py::test_add	tests/math/test_math.py	
+tests/math/test_math.py::test_add_slow	tests/math/test_math.py	slow
+tests/math/test_math.py::test_parse	tests/math/test_math.py	
+tests/store/test_store.py::test_query	tests/store/test_store.py	db
+tests/store/test_store.py::test_migrate	tests/store/test_store.py	slow,db
+tests/store/test_store.py::test_load	tests/store/test_store.py	slow,flaky
+tests/store/test_store.py::test_save	tests/store/test_store.py	slow

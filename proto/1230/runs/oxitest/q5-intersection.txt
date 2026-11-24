@@ -1,0 +1,7 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: q5-intersection
+-E: mark(slow) & mark(db)
+--- output
+tests/store/test_store.py::test_migrate
+1 selected
+--- exit 0

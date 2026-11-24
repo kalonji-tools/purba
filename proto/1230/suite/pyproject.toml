@@ -1,0 +1,11 @@
+[project]
+name = "suite"
+version = "0"
+
+# The aliases of #1230's grammar. A key with an argument is quoted, as TOML asks.
+[tool.purba.queries]
+slow_store = "tag(slow) & tests/store"
+"stable(x)" = "x & !tag(flaky)"
+loop = "loop | tag(slow)"
+ping = "pong"
+pong = "ping"

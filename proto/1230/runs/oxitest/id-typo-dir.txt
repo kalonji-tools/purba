@@ -1,0 +1,10 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: id-typo-dir
+-E: source("tests/stor")
+--- output
+tests/store/test_store.py::test_query
+tests/store/test_store.py::test_migrate
+tests/store/test_store.py::test_load
+tests/store/test_store.py::test_save
+4 selected
+--- exit 0

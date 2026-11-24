@@ -1,0 +1,3 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: alias-with-argument
+-E: none; oxitest has no form for this row

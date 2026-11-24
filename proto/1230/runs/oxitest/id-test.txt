@@ -1,0 +1,7 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: id-test
+-E: name(="tests/api/test_user.py::test_add")
+--- output
+tests/api/test_user.py::test_add
+1 selected
+--- exit 0

@@ -1,0 +1,8 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: rerun-failures
+-E: name(="tests/api/test_user.py::test_remove") | name(="tests/store/test_store.py::test_load")
+--- output
+tests/api/test_user.py::test_remove
+tests/store/test_store.py::test_load
+2 selected
+--- exit 0

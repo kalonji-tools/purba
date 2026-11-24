@@ -1,0 +1,6 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: tag-typo
+-E: mark(slwo)
+--- output
+0 selected
+--- exit 0

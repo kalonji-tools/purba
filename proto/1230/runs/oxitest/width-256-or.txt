@@ -1,0 +1,16 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: width-256-or
+-E: !mark(flaky) | !mark(flaky) | !mark(flaky) | !mark(flaky) | !mark(flaky) | !mark … y) | !mark(flaky) | !mark(flaky) | !mark(flaky) | mark(slow) (3835 characters)
+--- output
+tests/api/test_admin.py::test_grant
+tests/api/test_user.py::test_add
+tests/api/test_user.py::test_remove
+tests/math/test_math.py::test_add
+tests/math/test_math.py::test_add_slow
+tests/math/test_math.py::test_parse
+tests/store/test_store.py::test_query
+tests/store/test_store.py::test_migrate
+tests/store/test_store.py::test_load
+tests/store/test_store.py::test_save
+10 selected
+--- exit 0

@@ -1,0 +1,9 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: name-add
+-E: name(add)
+--- output
+tests/api/test_user.py::test_add
+tests/math/test_math.py::test_add
+tests/math/test_math.py::test_add_slow
+3 selected
+--- exit 0

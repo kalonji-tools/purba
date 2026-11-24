@@ -1,0 +1,15 @@
+oxitest at 731c2b3f76c708125eb4984d9725652208f5ae81
+scenario: q7-not-both
+-E: !(mark(slow) & mark(db))
+--- output
+tests/api/test_admin.py::test_grant
+tests/api/test_user.py::test_add
+tests/api/test_user.py::test_remove
+tests/math/test_math.py::test_add
+tests/math/test_math.py::test_add_slow
+tests/math/test_math.py::test_parse
+tests/store/test_store.py::test_query
+tests/store/test_store.py::test_load
+tests/store/test_store.py::test_save
+9 selected
+--- exit 0
