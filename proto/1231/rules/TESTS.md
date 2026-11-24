@@ -22,10 +22,11 @@ purba gives a case its outcome from the asserts at the end of the test's body. T
 
 - The expectations come last. Only other expectations may follow one. An assert followed by more code, also one inside a loop, blocks the case as it runs: "[assert-before-expectation] … an assert ran in the act; one test checks one state; check this state in a test of its own".
 - An expectation may also close the body of a `with` that comes just before the last asserts.
-- An expectation compares two values by one operator, with a literal on one side: `assert writer.read() == "a\n"`, `assert len(lines) > 1`.
+- An expectation compares two values by one operator, with a literal on one side: `assert writer.read() == "a\n"`, `assert len(lines) > 1`. A name bound to a literal also works. An expected value that the test computes, such as a loop's variable, blocks the case: "[computed-expected] … an expected value is a literal".
 - Or it takes one of four forms: `assert not x`, `assert isinstance(x, T)`, `assert x.startswith(y)`, `assert x.endswith(y)`.
 - Or it checks each item of an `all()` or an `any()` by one of these.
-- Anything else, such as `assert ymd.has_month`, is refused: "[not-one-comparison]". Write `assert ymd.has_month is True`.
+- Anything else as an expectation, such as a last `assert ymd.has_month`, is refused: "[not-one-comparison]". Write `assert ymd.has_month is True`.
+- The lines before the first expectation take one path. A helper that they call, and that has a line which did not run, such as a second `return`, blocks the case: "[second-path] … the lines before the first expectation take one path".
 - A test in which no expectation runs is blocked, not passed: "[no-expectation]".
 
 ## A run
@@ -34,9 +35,11 @@ purba gives a case its outcome from the asserts at the end of the test's body. T
 purba <query>
 ```
 
-The query names the tests to run; `QUERY.md` holds its rules. `purba tests` runs every test under `tests/`.
+The query names the tests to run; `QUERY.md` holds its rules. `purba tests` runs every test under `tests/`. purba takes no option: `purba --help` is read as a query, which picks no test.
 
-Each case prints one line: `passed`, `failed`, `raised: <exception>`, or `project error: <why>`. A failed case prints the assert, the expected value and the reading. The last line counts the cases.
+Each case prints one line: `passed`, `failed`, `raised: <exception>`, `project error: <why>`, or `blocked: <why>`. A failed case prints the assert, the expected value and the reading. The count on the last line calls a case with a project error "blocked", since it has no outcome.
+
+A test that reads a private name, such as `_ymd` from `dateutil.parser._parser`, gets a line under its outcome: `⚠ line 12 reads the private name dateutil.parser._parser._ymd`. It changes no count and no exit code.
 
 | exit code | meaning |
 |---|---|
