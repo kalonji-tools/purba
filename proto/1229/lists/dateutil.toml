@@ -1,0 +1,2 @@
+[tool.purba]
+tests = ["docs/exercises/solutions", "tests", "tests/property"]

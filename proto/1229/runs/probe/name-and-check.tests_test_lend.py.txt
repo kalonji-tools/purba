@@ -1,0 +1,14 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=name-and-check
+command: cd <tmp>/shop && purba tests/test_lend.py
+--- stdout
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+3 cases: 3 passed
+--- stderr
+purba: name-near: tests/test_lend.py:13: tset_checkout is not a test, and its name is near the prefix test
+purba: name-prefix: tests/test_lend.py:17: tests_return is a test, but its name does not start with test_
+purba: asserts: tests/test_lend.py:21: assert_titled is not a test, and it asserts
+--- exit 0
+--- seconds 0.0

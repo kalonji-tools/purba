@@ -1,0 +1,8 @@
+purba: wheel from 3093871b (main)
+env: 
+command: cd <tmp>/shop && purba .
+--- stdout
+--- stderr
+purba: invocation error: usage: purba <path to one .py file>
+--- exit 3
+--- seconds 0.0

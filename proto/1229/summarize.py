@@ -21,6 +21,7 @@ Matchers:
 
 import csv
 import gzip
+import os
 import sys
 from collections import Counter, defaultdict
 
@@ -37,7 +38,7 @@ def rows(path):
 def main():
     tally, files_tsv, functions_tsv = sys.argv[1], sys.argv[2], sys.argv[3]
     judged = {}
-    if len(sys.argv) > 4:
+    if len(sys.argv) > 4 and os.path.exists(sys.argv[4]):
         for row in rows(sys.argv[4]):
             if row and row[0] in ("true", "false"):
                 judged[tuple(row[1:5])] = row[0]
@@ -92,7 +93,7 @@ def main():
             path, check, words = row[2], row[3], row[4]
             c["check lines"] += 1
             c[f"… {check}"] += 1
-            if check in ("name-near", "name-prefix", "asserts", "file-near"):
+            if check in ("name-near", "name-prefix", "asserts", "file-near", "list-outside"):
                 verdict = judged.get((suite, path, check, words), "unjudged")
                 c[f"… … {check} {verdict}"] += 1
     with open(functions_tsv, encoding="utf-8") as handle:

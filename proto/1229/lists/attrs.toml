@@ -1,0 +1,2 @@
+[tool.purba]
+tests = ["tests"]

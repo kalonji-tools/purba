@@ -1,0 +1,27 @@
+count	loguru	attrs	click	requests	dateutil	pyflakes	toolz	six	schedule	total
+files picked	52	31	47	13	21	15	17	3	2	201
+… test files	50	25	43	9	17	13	15	1	1	174
+… other files	2	6	4	4	4	2	2	2	1	27
+… … __init__.py	1	1	3	1	1	1	2	0	0	10
+… … conftest.py	1	1	1	1	1	0	0	0	0	5
+… … other modules	0	4	0	2	2	1	0	2	1	12
+… files that do not parse	0	0	0	0	0	0	0	0	0	0
+test files missed	0	1	0	0	0	0	14	0	0	15
+… collected by the suite's own command	0	0	0	0	0	0	0	0	0	0
+other collected files missed	0	0	0	0	0	0	0	0	0	0
+collected module-level tests missed	0	0	0	0	0	0	0	0	0	0
+module-level tests found	720	50	619	56	210	0	148	67	0	1870
+… selected	24	1	7	5	1	0	53	0	0	91
+… refused (one line each)	696	49	612	51	209	0	95	67	0	1779
+… … of them a name bound with no def	0	0	0	0	0	0	0	0	0	0
+… in a collected file, named test	720	50	619	56	210	0	148	67	0	1870
+… in a test file no command collects (benchmarks)	0	0	0	0	0	0	0	0	0	0
+helpers caught as tests	0	0	0	0	0	0	0	0	0	0
+… a def	0	0	0	0	0	0	0	0	0	0
+… a name bound with no def	0	0	0	0	0	0	0	0	0	0
+… named test, in a file no command collects, not a test file	0	0	0	0	0	0	0	0	0	0
+methods refused (one line each)	0	617	0	291	924	564	15	10	81	2502
+module faults (one line each)	0	0	0	0	0	0	0	0	0	0
+check lines	0	1	0	0	0	0	14	0	0	15
+… list-outside	0	1	0	0	0	0	14	0	0	15
+… … list-outside false	0	1	0	0	0	0	14	0	0	15

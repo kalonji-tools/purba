@@ -1,0 +1,24 @@
+# verdict	suite	path	check	words
+# true: the hit is a test whose marker is off; nothing in the suite calls it, and its suite runs it or means it as a test.
+# false: the hit is a helper, a fixture or a file that the suite keeps apart on purpose; the name is read elsewhere, or no command of the suite collects it.
+false	loguru	tests/test_exceptions_formatting.py	asserts	line 97: compare_exception is not a test, and it asserts
+false	attrs	tests/test_annotations.py	asserts	line 20: assert_init_annotations is not a test, and it asserts
+true	attrs	tests/test_slots.py	name-prefix	line 562: tests_weakref_does_not_add_when_inheriting_with_weakref is a test, but its name does not start with test_
+true	attrs	tests/test_slots.py	name-prefix	line 582: tests_weakref_does_not_add_with_weakref_attribute is a test, but its name does not start with test_
+false	dateutil	tests/test_imports.py	asserts	line 58: assert_warned_from_this_file is not a test, and it asserts
+false	dateutil	tests/test_utils.py	asserts	line 11: NYC is not a test, and it asserts
+false	attrs	bench/test_benchmarks.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_curry.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_curry_baseline.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_first.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_first_iter.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_frequencies.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_get.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_get_list.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_groupby.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_join.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_memoize.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_memoize_kwargs.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_pluck.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_sliding_window.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+false	toolz	bench/test_wordcount.py	list-outside	the file name matches test_*.py, and no folder of [tool.purba] tests holds it

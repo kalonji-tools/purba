@@ -1,0 +1,14 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=list-and-check
+command: cd <tmp>/shop && purba .
+--- stdout
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+tests/tset_typo.py::test_typo passed
+4 cases: 4 passed
+--- stderr
+purba: list-outside: extra/test_extra.py: the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+purba: list-outside: test_root.py: the file name matches test_*.py, and no folder of [tool.purba] tests holds it
+--- exit 0
+--- seconds 0.1

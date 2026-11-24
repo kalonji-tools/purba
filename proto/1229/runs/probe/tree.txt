@@ -1,0 +1,56 @@
+probe project <tmp>/shop, written by proto/1229/run.sh
+--- ./extra/test_extra.py
+def test_extra():
+    assert 2 * 3 == 6
+--- ./pyproject.toml
+[project]
+name = "shop"
+
+[tool.purba]
+tests = ["tests"]
+--- ./test_root.py
+def test_root_sum():
+    assert 1 + 1 == 2
+--- ./tests/conftest.py
+import pytest
+
+
+@pytest.fixture
+def book():
+    return {"title": "Dune"}
+--- ./tests/helpers.py
+def shelf():
+    return ["Dune"]
+--- ./tests/samples/script.py
+def test_sample():
+    print("a sample script, run by hand")
+--- ./tests/test_lend.py
+from json import dumps
+
+
+def make_book():
+    return {"title": "Dune", "lent": False}
+
+
+def test_lend():
+    book = make_book()
+    assert book["title"] == "Dune"
+
+
+def tset_checkout():
+    assert 2 + 2 == 4
+
+
+def tests_return():
+    assert 3 * 1 == 3
+
+
+def assert_titled(book):
+    assert book["title"] == "Dune"
+
+
+def test_dumps():
+    assert dumps(1) == "1"
+--- ./tests/tset_typo.py
+def test_typo():
+    assert 1 == 1

@@ -1,0 +1,8 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=baseline
+command: cd <tmp>/shop && purba .
+--- stdout
+--- stderr
+purba: invocation error: usage: purba <path to one .py file>
+--- exit 3
+--- seconds 0.0

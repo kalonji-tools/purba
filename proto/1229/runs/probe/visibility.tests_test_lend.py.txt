@@ -1,0 +1,15 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=visibility
+command: cd <tmp>/shop && purba tests/test_lend.py
+--- stdout
+tests/test_lend.py::dumps project error: [name-without-def] line 1 binds dumps with no def, and purba cannot see what the name holds
+tests/test_lend.py::make_book project error: [returned-value] the test returns a value, and purba does not read it
+tests/test_lend.py::assert_titled project error: the parameter book has no default, and purba cannot see which fixture builds it
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tset_checkout passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+7 cases: 4 passed, 3 blocked; 3 project errors
+--- stderr
+--- exit 4
+--- seconds 0.0

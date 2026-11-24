@@ -1,0 +1,17 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=name-and-check
+command: cd <tmp>/shop && purba .
+--- stdout
+extra/test_extra.py::test_extra passed
+test_root.py::test_root_sum passed
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+5 cases: 5 passed
+--- stderr
+purba: file-near: tests/tset_typo.py: the file name is near test_*.py, and it is not a test file
+purba: name-near: tests/test_lend.py:13: tset_checkout is not a test, and its name is near the prefix test
+purba: name-prefix: tests/test_lend.py:17: tests_return is a test, but its name does not start with test_
+purba: asserts: tests/test_lend.py:21: assert_titled is not a test, and it asserts
+--- exit 0
+--- seconds 0.1

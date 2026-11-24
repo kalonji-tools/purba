@@ -1,0 +1,13 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=name
+command: cd <tmp>/shop && purba .
+--- stdout
+extra/test_extra.py::test_extra passed
+test_root.py::test_root_sum passed
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+5 cases: 5 passed
+--- stderr
+--- exit 0
+--- seconds 0.1

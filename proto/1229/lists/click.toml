@@ -1,0 +1,2 @@
+[tool.purba]
+tests = ["tests", "tests/test_exceptions", "tests/test_types", "tests/test_utils"]

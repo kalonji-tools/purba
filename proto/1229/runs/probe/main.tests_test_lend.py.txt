@@ -1,0 +1,11 @@
+purba: wheel from 3093871b (main)
+env: 
+command: cd <tmp>/shop && purba tests/test_lend.py
+--- stdout
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+3 cases: 3 passed
+--- stderr
+--- exit 0
+--- seconds 0.0

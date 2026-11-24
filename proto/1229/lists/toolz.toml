@@ -1,0 +1,2 @@
+[tool.purba]
+tests = ["toolz/sandbox/tests", "toolz/tests"]

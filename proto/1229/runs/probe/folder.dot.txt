@@ -1,0 +1,14 @@
+purba: wheel from a5a7b530
+env: PURBA_PROTO_MARKERS=folder
+command: cd <tmp>/shop && purba .
+--- stdout
+a sample script, run by hand
+tests/samples/script.py::test_sample project error: [no-expectation] no expectation stated
+tests/test_lend.py::test_lend passed
+tests/test_lend.py::tests_return passed
+tests/test_lend.py::test_dumps passed
+tests/tset_typo.py::test_typo passed
+5 cases: 4 passed, 1 blocked; 1 project error
+--- stderr
+--- exit 4
+--- seconds 0.1
