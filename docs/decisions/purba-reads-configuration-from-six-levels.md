@@ -23,6 +23,8 @@ The errors concern has a crate of its own, which uses no part, as [an outcome an
 | ruff and uv resolve their configuration in a crate beside their binary, and that crate depends on the crates of its types | [How do Rust tools shape the code that reads and resolves configuration from several levels, and which shape fits purba?](https://github.com/kalonji-tools/purba/issues/1217#issuecomment-7114096339) |
 | no tool or crate of the eight names the nearest option of an unknown key, and no crate closes a level to a value | [How do Rust tools shape the code that reads and resolves configuration from several levels, and which shape fits purba?](https://github.com/kalonji-tools/purba/issues/1217#issuecomment-7114096339) |
 | `lint:wiring` lets the crate of a concern use no `purba-*` crate | [How do Rust tools shape the code that reads and resolves configuration from several levels, and which shape fits purba?](https://github.com/kalonji-tools/purba/issues/1217#issuecomment-7114096339) |
+| each of `config`, `figment`, `figment2` and `tier` replaces the order and the level of each value; `tier` also names the nearest dial, unless one struct flattens the structs of two parts | [`research/configuration-crates.md` L13-L15](https://github.com/kalonji-tools/purba/blob/fd93d16b93db22bd4a5e3799483377c51d2cceca/research/configuration-crates.md?plain=1#L13-L15) |
+| no crate of those four closes a level, applies the cap's lower value, or names every error | [`research/configuration-crates.md` L13](https://github.com/kalonji-tools/purba/blob/fd93d16b93db22bd4a5e3799483377c51d2cceca/research/configuration-crates.md?plain=1#L13) |
 
 ## Considered Options
 
@@ -84,7 +86,7 @@ Each dial waits for the design of its part.
 - **A variable of the environment can drift like the user's file.** A variable in the start-up file of a shell changes a run on one machine. The level of each value shows where it came from.
 - **The cap breaks the one order.** A part that reads a value must know whether its dial is the cap.
 - **A pull request that adds a dial edits its part and command.** Command gathers the declarations of each part.
-- **purba writes the order, the closed levels and the search for the nearest dial itself.** A crate that passes its vet can replace that code.
+- **purba writes the order, the closed levels and the search for the nearest dial itself.** A crate on the shortlist of `resolve-levels` can replace the order and the level of each value. `tier` can also replace the search for the nearest dial, unless one struct flattens the structs of two parts. No crate on the shortlist closes a level, applies the cap, or names every error.
 - **purba ignores a `PURBA_*` variable whose name is far from each dial's variable.** A variable that is misspelled far from its dial goes unseen.
 - **Outside git, purba walks up to the root of the file system.** A file above the project then reaches the run.
 - **The paths on macOS are unmeasured.** pip, uv, mypy and git name other paths there.
@@ -96,4 +98,4 @@ The pull request that builds `purba-config` with the first dial adds its tests.
 It also names the crate in the line of configuration, so that `mise run lint:wiring` reads it.
 
 [How does purba read and resolve its configuration?](https://github.com/kalonji-tools/purba/issues/1219) asks the question.
-[Which crate resolves each value across the levels of configuration, and keeps the level it came from?](https://github.com/kalonji-tools/purba/issues/1218) vets the crates for the mechanism.
+[`.config/shortlists.toml`](../../.config/shortlists.toml) holds the shortlist of `resolve-levels`: the crates that can replace part of the mechanism.

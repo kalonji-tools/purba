@@ -89,6 +89,62 @@ owner-in-purba = 3
 unmeasured = []
 needs = 3
 
+[resolve-levels.config]
+version = "0.15.27"
+measured = "2026-11-23"
+blast-area = 3
+upkeep = 1
+maintainers = 1
+upstream-review = 3
+tests = 1
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+unmeasured = []
+needs = 3
+
+[resolve-levels.figment]
+version = "0.10.19"
+measured = "2026-11-23"
+blast-area = 1
+upkeep = 3
+maintainers = 3
+upstream-review = 3
+tests = 2
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+unmeasured = []
+needs = 2
+
+[resolve-levels.figment2]
+version = "0.11.5"
+measured = "2026-11-23"
+blast-area = 1
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 2
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+unmeasured = []
+needs = 2
+
+[resolve-levels.tier]
+version = "0.1.21"
+measured = "2026-11-23"
+blast-area = 2
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 2
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+unmeasured = ["upstream-review"]
+needs = 3
+
 [find-test-files.walkdir]
 version = "2.5.0"
 measured = "2026-11-14"
