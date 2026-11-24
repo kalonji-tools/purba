@@ -1,0 +1,6 @@
+crate	module lines	grammar file	grammar lines	total
+chumsky	24	none	0	24
+winnow	40	none	0	40
+nom	43	none	0	43
+pest	35	parsers/src/grammar/query.pest	11	46
+lalrpop	8	parsers/src/grammar/query.lalrpop	29	37

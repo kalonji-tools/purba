@@ -1,0 +1,29 @@
+// The probe grammar in lalrpop. "|" is the lowest rank; "&" binds tighter; "!" tighter still.
+use crate::Expr;
+
+grammar;
+
+pub Query: Expr = Or;
+
+Or: Expr = {
+    <a:Or> "|" <b:And> => Expr::Or(Box::new(a), Box::new(b)),
+    And,
+};
+
+And: Expr = {
+    <a:And> "&" <b:Unary> => Expr::And(Box::new(a), Box::new(b)),
+    Unary,
+};
+
+Unary: Expr = {
+    "!" <e:Unary> => Expr::Not(Box::new(e)),
+    Atom,
+};
+
+Atom: Expr = {
+    "tag" "(" <n:Id> ")" => Expr::Tag(n.to_string()),
+    <i:Id> => Expr::Id(i.to_string()),
+    "(" <Or> ")",
+};
+
+Id: &'input str = r"[A-Za-z0-9_:/.\[\]-]+";

@@ -1,0 +1,18 @@
+[package]
+name = "p-parsers"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chumsky = "=0.14.2"
+lalrpop-util = "0.23.2"
+nom = "8.0.0"
+pest = "=2.9.7"
+pest_derive = "=2.9.7"
+winnow = "1.0.5"
+
+[build-dependencies]
+lalrpop = "0.23.2"
+
+# A probe of its own, never a member of an enclosing workspace.
+[workspace]

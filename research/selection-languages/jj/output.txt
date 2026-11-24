@@ -1,0 +1,78 @@
+cargo 1.99.0 (5f94df478 2026-08-27)
+== the example, and the same query through the aliases slow_store and stable(x)
+--- module(store) & tag(slow) ~ tag(flaky)
+tree: minus[and[module(store), tag(slow)], tag(flaky)]
+selected 2: store::migrate, store::save
+exit 0
+--- stable(slow_store)
+tree: minus[and[module(store), tag(slow)], tag(flaky)]
+selected 2: store::migrate, store::save
+exit 0
+== precedence: AND before OR selects 5; left to right selects 3
+--- tag(db) | tag(slow) & ~tag(db)
+tree: or[tag(db), and[tag(slow), not[tag(db)]]]
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+--- tag(db) | tag(slow) ~ tag(db)
+tree: or[tag(db), minus[tag(slow), tag(db)]]
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+== an id of purba, and a path. The probe cannot select by a bare name, and exits 101.
+--- store::migrate
+tree: DagRange[id store, id migrate]
+exit 101
+--- store::migrate::case
+parse error:
+ --> 1:16
+  |
+1 | store::migrate::case
+  |                ^---
+  |
+  = expected <primary>
+exit 2
+--- tests/api
+tree: id tests/api
+exit 101
+== an error at a position
+--- tag(slow) &
+parse error:
+ --> 1:12
+  |
+1 | tag(slow) &
+  |            ^---
+  |
+  = expected `::`, `..`, `~`, or <primary>
+exit 2
+--- tag(slow) & (tag(db)
+parse error:
+ --> 1:21
+  |
+1 | tag(slow) & (tag(db)
+  |                     ^---
+  |
+  = expected `-`, `+`, `::`, `..`, `|`, `&`, or `~`
+exit 2
+--- tag(slow) && tag(db)
+parse error:
+ --> 1:12
+  |
+1 | tag(slow) && tag(db)
+  |            ^---
+  |
+  = expected `::`, `..`, `~`, or <primary>
+exit 2
+== nesting
+[(]: the largest n that parses is 254
+[~]: the largest n that parses is 254
+[(tag(slow) & ]: the largest n that parses is 127
+--- ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((tag(slow)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+parse error:
+ --> 1:256
+  |
+1 | ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((tag(slow)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  |                                                                                                                                                                                                                                                                ^-------------------------------------------------------------------------------------------------^
+  |
+  = Expression nesting limit exceeded
+exit 2
+= Expression nesting limit exceeded
+= stack limit reached

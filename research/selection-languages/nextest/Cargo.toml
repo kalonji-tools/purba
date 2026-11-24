@@ -1,0 +1,12 @@
+[package]
+name = "p-nextest"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+guppy = "0.19"
+miette = { version = "7.6.0", features = ["fancy-no-backtrace"] }
+nextest-filtering = "0.23.0"
+
+# A probe of its own, never a member of an enclosing workspace.
+[workspace]

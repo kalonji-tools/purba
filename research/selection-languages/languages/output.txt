@@ -1,0 +1,197 @@
+cargo 1.99.0 (5f94df478 2026-08-27)
+== the example: the slow tests of store, but not the flaky ones
+--- cfg-expr: all(module = "store", slow, not(flaky))
+selected 2: store::migrate, store::save
+exit 0
+--- cel: module == "store" && "slow" in tags && !("flaky" in tags)
+selected 2: store::migrate, store::save
+exit 0
+--- gherkin: @store and @slow and not @flaky
+tree: And(And(Tag("store"), Tag("slow")), Not(Tag("flaky")))
+selected 2: store::migrate, store::save
+exit 0
+--- k8s: module=store,slow,!flaky
+parsed: Expressions([Expression(Equal("module", "store")), Expression(Exists("slow")), Expression(DoesNotExist("flaky"))])
+selected 2: store::migrate, store::save
+exit 0
+--- evalexpr: module == "store" && slow && !flaky
+selected 2: store::migrate, store::save
+exit 0
+== precedence: db, or slow and not db. AND before OR selects 5; left to right selects 3
+--- cfg-expr: any(db, all(slow, not(db)))
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+--- cel: "db" in tags || "slow" in tags && !("db" in tags)
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+--- gherkin: @db or @slow and not @db
+tree: Or(Tag("db"), And(Tag("slow"), Not(Tag("db"))))
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+--- evalexpr: db || slow && !db
+selected 5: math::add_slow, store::query, store::migrate, store::load, store::save
+exit 0
+-- a label selector has no OR: the comma is AND, and a set is one key
+--- k8s: module in (store,math),slow
+parsed: Expressions([Expression(In("module", {"math", "store"})), Expression(Exists("slow"))])
+selected 4: math::add_slow, store::migrate, store::load, store::save
+exit 0
+--- k8s: db|slow
+parse error:
+failed to parse value as expression: '|' at 2..3
+exit 2
+== an id of purba, and a path, as the whole query
+--- cfg-expr: store::migrate
+parse error:
+store::migrate
+     ^ expected one of `<key>`, `all`, `any`, `not` here
+exit 2
+--- cfg-expr: tests/api
+parse error:
+tests/api
+     ^ expected one of `<key>`, `all`, `any`, `not` here
+exit 2
+--- cel: store::migrate
+parse error:
+ERROR: <input>:1:6: Syntax error: mismatched input ':' expecting {<EOF>, '==', '!=', 'in', '<', '<=', '>=', '>', '&&', '||', '[', '.', '-', '?', '+', '*', '/', '%'}
+| store::migrate
+| .....^
+exit 2
+--- cel: tests/api
+execute error: Err(UndeclaredReference("tests"))
+exit 3
+--- gherkin: store::migrate
+parse error:
+error at 1:1: expected one of "(", "@", "not"
+exit 2
+--- gherkin: tests/api
+parse error:
+error at 1:1: expected one of "(", "@", "not"
+exit 2
+--- k8s: store::migrate
+parse error:
+failed to parse value as expression: ':' at 5..6
+exit 2
+--- k8s: tests/api
+parse error:
+failed to parse value as expression: 'tests/api' at 0..9
+exit 2
+--- evalexpr: store::migrate
+execute error: Variable identifier is not bound to anything by context: "store::migrate".
+exit 3
+--- evalexpr: tests/api
+execute error: Variable identifier is not bound to anything by context: "tests".
+exit 3
+== an error at a position: a missing operand, and an unclosed parenthesis
+--- cfg-expr: all(slow,
+parse error:
+all(slow,
+   - unclosed parens
+exit 2
+--- cfg-expr: all(slow, not(db)
+parse error:
+all(slow, not(db)
+   - unclosed parens
+exit 2
+--- cel: "slow" in tags &&
+parse error:
+ERROR: <input>:1:18: Syntax error: mismatched input '<EOF>' expecting {'[', '{', '(', '.', '-', '!', 'true', 'false', 'null', NUM_FLOAT, NUM_INT, NUM_UINT, STRING, BYTES, IDENTIFIER}
+| "slow" in tags &&
+| .................^
+exit 2
+--- cel: "slow" in tags && ("db" in tags
+parse error:
+ERROR: <input>:1:32: Syntax error: missing ')' at '<EOF>'
+| "slow" in tags && ("db" in tags
+| ...............................^
+exit 2
+--- gherkin: @slow and
+parse error:
+error at 1:10: expected one of "(", "@", "not"
+exit 2
+--- gherkin: @slow and (@db
+parse error:
+error at 1:15: expected one of ")", "and", "or", _
+exit 2
+--- k8s: slow,!
+parse error:
+failed to parse value as expression: '!' at 5..6
+exit 2
+--- k8s: module in (store
+parse error:
+failed to parse value as expression: 'in' at 7..9
+exit 2
+--- evalexpr: slow &&
+execute error: An operator expected 2 arguments, but got 1.
+exit 3
+--- evalexpr: slow && (db
+parse error:
+Found an unmatched opening parenthesis '('.
+exit 2
+== nesting
+cfg-expr, [all(] x 100: exit 0; stage: evaluated stage: parsed
+cfg-expr, [all(] x 1000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [all(] x 10000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [all(] x 30000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [all(] x 100000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [not(] x 100: exit 0; stage: evaluated stage: parsed
+cfg-expr, [not(] x 1000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [not(] x 10000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [not(] x 30000: exit 0; stage: evaluated stage: parsed
+cfg-expr, [not(] x 100000: exit 0; stage: evaluated stage: parsed
+cel, [(] x 100: exit 2; Recursion limit of 96 exceeded
+cel, [(] x 1000: exit 2; Recursion limit of 96 exceeded
+cel, [(] x 10000: exit 2; Recursion limit of 96 exceeded
+cel, [(] x 30000: exit 2; Recursion limit of 96 exceeded
+cel, [(] x 100000: exit 101;
+cel, [("slow" in tags && ] x 100: exit 2; Recursion limit of 96 exceeded
+cel, [("slow" in tags && ] x 1000: exit 2; Recursion limit of 96 exceeded
+cel, [("slow" in tags && ] x 10000: exit 2; Recursion limit of 96 exceeded
+cel, [("slow" in tags && ] x 30000: exit 2; Recursion limit of 96 exceeded
+cel, [("slow" in tags && ] x 100000: exit 2; Recursion limit of 96 exceeded
+cel, [!] x 100: exit 0; stage: evaluated stage: parsed
+cel, [!] x 1000: exit 0; stage: evaluated stage: parsed
+cel, [!] x 10000: exit 0; stage: evaluated stage: parsed
+cel, [!] x 30000: exit 0; stage: evaluated stage: parsed
+cel, [!] x 100000: exit 0; stage: evaluated stage: parsed
+gherkin, [(] x 100: exit 0; stage: evaluated stage: parsed
+gherkin, [(] x 1000: exit 0; stage: evaluated stage: parsed
+gherkin, [(] x 10000: exit 0; stage: evaluated stage: parsed
+gherkin, [(] x 30000: exit 134; overflowed its stack
+gherkin, [(] x 100000: exit 134; overflowed its stack
+gherkin, [(@slow and ] x 100: exit 0; stage: evaluated stage: parsed
+gherkin, [(@slow and ] x 1000: exit 0; stage: evaluated stage: parsed
+gherkin, [(@slow and ] x 10000: exit 134; overflowed its stack
+gherkin, [(@slow and ] x 30000: exit 134; overflowed its stack
+gherkin, [(@slow and ] x 100000: exit 134; overflowed its stack
+gherkin, [not ] x 100: exit 0; stage: evaluated stage: parsed
+gherkin, [not ] x 1000: exit 0; stage: evaluated stage: parsed
+gherkin, [not ] x 10000: exit 0; stage: evaluated stage: parsed
+gherkin, [not ] x 30000: exit 134; overflowed its stack
+gherkin, [not ] x 100000: exit 134; overflowed its stack
+evalexpr, [(] x 100: exit 0; stage: evaluated stage: parsed
+evalexpr, [(] x 1000: exit 0; stage: evaluated stage: parsed
+evalexpr, [(] x 10000: exit 0; stage: evaluated stage: parsed
+evalexpr, [(] x 30000: exit 0; stage: evaluated stage: parsed
+evalexpr, [(] x 100000: exit 134; overflowed its stack stage: parsed
+evalexpr, [(slow && ] x 100: exit 0; stage: evaluated stage: parsed
+evalexpr, [(slow && ] x 1000: exit 0; stage: evaluated stage: parsed
+evalexpr, [(slow && ] x 10000: exit 0; stage: evaluated stage: parsed
+evalexpr, [(slow && ] x 30000: exit 134; overflowed its stack stage: parsed
+evalexpr, [(slow && ] x 100000: exit 134; overflowed its stack stage: parsed
+evalexpr, [!] x 100: exit 0; stage: evaluated stage: parsed
+evalexpr, [!] x 1000: exit 0; stage: evaluated stage: parsed
+evalexpr, [!] x 10000: exit 0; stage: evaluated stage: parsed
+evalexpr, [!] x 30000: exit 0; stage: evaluated stage: parsed
+evalexpr, [!] x 100000: exit 134; overflowed its stack stage: parsed
+== width: n function predicates side by side in one all() or any(). cfg-expr counts them in a u8.
+-- right answers: any(...) selects 6; all(...) selects 3
+any, 255 x not(flaky), slow: selected 6: math::add, math::add_slow, store::query, store::migrate, store::load, store::save
+all, 255 x not(flaky), slow: selected 3: math::add_slow, store::migrate, store::save
+any, 256 x not(flaky), slow: selected 4: math::add_slow, store::migrate, store::load, store::save
+all, 256 x not(flaky), slow: selected 4: math::add_slow, store::migrate, store::load, store::save
+any, 257 x not(flaky), slow: selected 6: math::add, math::add_slow, store::query, store::migrate, store::load, store::save
+all, 257 x not(flaky), slow: selected 3: math::add_slow, store::migrate, store::save
+== cel: the error of a deep query, printed. Its caret is padded to the error column.
+cel, [(] x 60000: exit 2; Recursion limit of 96 exceeded
+cel, [(] x 70000: exit 101; cel-0.16.0/src/parser/parser.rs:124:17: Formatting argument out of range

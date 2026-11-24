@@ -1,0 +1,10 @@
+[package]
+name = "p-jj"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+jj-dsl = "0.47.1"
+
+# A probe of its own, never a member of an enclosing workspace.
+[workspace]

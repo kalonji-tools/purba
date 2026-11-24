@@ -1,0 +1,11 @@
+[package]
+name = "p-tantivy"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tantivy = "0.27.0"
+tantivy-query-grammar = "0.27.0"
+
+# A probe of its own, never a member of an enclosing workspace.
+[workspace]

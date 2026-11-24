@@ -1,0 +1,23 @@
+word	parser-combinators	winnow nom pom bitvec-nom2 nom8 nom-regex chomp1 rest_parser oak-core chomp bitvec-nom nom-bufreader parsit nom-trace pex adamthedash_winnow glue nom-methods nom-bitvec bparse
+word	grammar	pest pest_derive lalrpop-util lalrpop icu_plurals peg static-regular-grammar cfgrammar lrpar tree-sitter-astro-next pest_consume pest_consume_macros tree-sitter-svelte-next gazelle-parser gazelle-macros str-newtype-derive str-newtype static-automata-macros static-automata nom-rule
+word	combinator	chumsky boolinator tokora bool_ext oni-comb-parser-rs logosky nom_permutation smart-format gobble abortable_parser mpl binator_core marser_macros oak_runtime lip marser binator mpl-macro transliterate combi
+crate	version	found by the words	its keywords
+nextest-filtering	0.23.0	no	nextest,test-runner
+jj-dsl	0.47.1	no	dvcs,git,mercurial,scm,vcs
+jj-lib	0.47.1	no	dvcs,git,mercurial,scm,vcs
+cfg-expr	0.20.11	no	cargo,cfg,rustc
+cel	0.16.0	no	none
+gherkin	0.16.0	no	bdd,cucumber,cucumber-gherkin,gherkin,testing
+unselector	0.3.0	no	k8s,kubernetes,parser,selector
+kube-core	5.1.0	no	apimachinery,kubernetes
+tantivy	0.27.0	no	information,retrieval,search
+tantivy-query-grammar	0.27.0	no	information,retrieval,search
+chumsky	0.14.2	yes	combinator,language,parser,syntax,token
+winnow	1.0.5	yes	bit,parser,parser-combinators,parsing,streaming
+nom	8.0.0	yes	bit,parser,parser-combinators,parsing,streaming
+pest	2.9.7	yes	grammar,parser,peg,pest
+lalrpop	0.23.2	yes	generator,grammar,lr,parser,yacc
+peg	0.8.6	yes	grammar,parser,parsing,peg
+evalexpr	14.0.0	no	arithmetic,boolean,evaluate,evaluator,expression
+boolean_expression	0.4.4	no	none
+whereexpr	0.3.1	no	expression,filtering,predicate,query,rules

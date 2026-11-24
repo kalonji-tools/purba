@@ -1,0 +1,92 @@
+== Mercurial Distributed SCM (version 7.1.2)
+== the example: the slow tests of store, but not the flaky ones
+--- hg log -r file("glob:store/*") and desc(slow) and not desc(flaky)
+store::migrate slow db
+store::save slow
+exit 0
+--- hg log -r file("glob:store/*") & desc(slow) - desc(flaky)
+store::migrate slow db
+store::save slow
+exit 0
+== precedence
+--- hg debugrevspec -p parsed desc(db) or desc(slow) and not desc(db)
+* parsed:
+(or
+  (list
+    (func
+      (symbol 'desc')
+      (symbol 'db'))
+    (and
+      (func
+        (symbol 'desc')
+        (symbol 'slow'))
+      (not
+        (func
+          (symbol 'desc')
+          (symbol 'db'))))))
+--- hg log -r desc(db) or desc(slow) and not desc(db)
+store::query db
+store::migrate slow db
+math::add_slow slow
+store::load slow flaky
+store::save slow
+exit 0
+--- hg debugrevspec -p parsed desc(db) | desc(slow) - desc(db)
+* parsed:
+(or
+  (list
+    (func
+      (symbol 'desc')
+      (symbol 'db'))
+    (minus
+      (func
+        (symbol 'desc')
+        (symbol 'slow'))
+      (func
+        (symbol 'desc')
+        (symbol 'db')))))
+== aliases, given as config
+--- hg log --config revsetalias.slow_store=file("glob:store/*") and desc(slow) --config revsetalias.stable($1)=$1 and not desc(flaky) -r stable(slow_store)
+store::migrate slow db
+store::save slow
+exit 0
+== an id of purba as a query
+--- hg debugrevspec -p parsed store::migrate
+* parsed:
+(dagrange
+  (symbol 'store')
+  (symbol 'migrate'))
+abort: unknown revision 'store'
+--- hg log -r store::migrate
+abort: unknown revision 'store'
+exit 255
+--- hg debugrevspec -p parsed tests/api
+* parsed:
+(symbol 'tests/api')
+abort: unknown revision 'tests/api'
+== errors at a position
+--- hg log -r desc(slow) and
+hg: parse error at 14: not a prefix: end
+(desc(slow) and
+               ^ here)
+exit 255
+--- hg log -r desc(slow) and (desc(db)
+hg: parse error at 24: unexpected token: end
+(desc(slow) and (desc(db)
+                         ^ here)
+exit 255
+--- hg log -r tag(slow)
+abort: tag 'slow' does not exist
+exit 255
+--- hg log -r desk(slow)
+hg: parse error: unknown identifier: desk
+(did you mean desc?)
+exit 255
+== nesting: N pairs of parentheses around desc(slow)
+N=10 exit=0
+N=100 exit=0
+N=200 exit=0
+N=300 exit=0
+N=500 exit=1 RecursionError: maximum recursion depth exceeded
+N=1000 exit=1 RecursionError: maximum recursion depth exceeded
+N=10000 exit=1 RecursionError: maximum recursion depth exceeded

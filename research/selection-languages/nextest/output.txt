@@ -1,0 +1,127 @@
+cargo 1.99.0 (5f94df478 2026-08-27)
+== the example. nextest has no tag, so each name carries its tags.
+--- test(store::) & test(slow) - test(flaky)
+tree: minus[and[test(store::), test(slow)], test(flaky)]
+selected 2: store::migrate_slow_db, store::save_slow
+exit 0
+strict: parsed; tree: minus[and[test(store::), test(slow)], test(flaky)]
+exit 0
+== precedence: AND before OR selects 5; left to right selects 3
+--- test(db) | test(slow) & not test(db)
+tree: or[test(db), and[test(slow), not[test(db)]]]
+selected 5: math::add_slow, store::query_db, store::migrate_slow_db, store::load_slow_flaky, store::save_slow
+exit 0
+strict: parsed; tree: or[test(db), and[test(slow), not[test(db)]]]
+exit 0
+== an id of purba, a path, and a predicate nextest does not have
+--- store::migrate
+parse error:
+  × expected expression
+   ╭────
+ 1 │ store::migrate
+   · ───────┬──────
+   ·        ╰── missing expression
+   ╰────
+  × expected end of expression
+   ╭────
+ 1 │ store::migrate
+   · ───────┬──────
+   ·        ╰── unparsed input
+   ╰────
+exit 2
+strict: parse error:
+  × expected expression
+   ╭────
+ 1 │ store::migrate
+   · ───────┬──────
+   ·        ╰── missing expression
+   ╰────
+  × expected end of expression
+   ╭────
+ 1 │ store::migrate
+   · ───────┬──────
+   ·        ╰── unparsed input
+   ╰────
+exit 2
+--- tests/api
+tree: test(s\/api)
+selected 0:
+exit 0
+strict: parse error:
+  × expected open parenthesis
+   ╭────
+ 1 │ tests/api
+   ·     ▲
+   ·     ╰── missing `(`
+   ╰────
+  × expected close parenthesis
+   ╭────
+ 1 │ tests/api
+   ╰────
+exit 2
+--- tag(slow)
+parse error:
+  × expected expression
+   ╭────
+ 1 │ tag(slow)
+   · ────┬────
+   ·     ╰── missing expression
+   ╰────
+  × expected end of expression
+   ╭────
+ 1 │ tag(slow)
+   · ────┬────
+   ·     ╰── unparsed input
+   ╰────
+exit 2
+strict: parse error:
+  × expected expression
+   ╭────
+ 1 │ tag(slow)
+   · ────┬────
+   ·     ╰── missing expression
+   ╰────
+  × expected end of expression
+   ╭────
+ 1 │ tag(slow)
+   · ────┬────
+   ·     ╰── unparsed input
+   ╰────
+exit 2
+== an error at a position
+--- test(slow) &
+parse error:
+  × expected expression
+   ╭────
+ 1 │ test(slow) &
+   ╰────
+exit 2
+strict: parse error:
+  × expected expression
+   ╭────
+ 1 │ test(slow) &
+   ╰────
+exit 2
+--- test(slow) & (test(db)
+tree: and[test(slow), test(db)]
+selected 1: store::migrate_slow_db
+exit 0
+strict: parse error:
+  × expected close parenthesis
+   ╭────
+ 1 │ test(slow) & (test(db)
+   ╰────
+exit 2
+== nesting
+[(] x 100: exit 0; stage: evaluated stage: parsed
+[(] x 1000: exit 0; stage: evaluated stage: parsed
+[(] x 3000: exit 0; stage: evaluated stage: parsed
+[(] x 10000: exit 134; overflowed its stack
+[not ] x 100: exit 0; stage: evaluated stage: parsed
+[not ] x 1000: exit 0; stage: evaluated stage: parsed
+[not ] x 3000: exit 0; stage: evaluated stage: parsed
+[not ] x 10000: exit 134; overflowed its stack
+[(test(slow) & ] x 100: exit 0; stage: evaluated stage: parsed
+[(test(slow) & ] x 1000: exit 0; stage: evaluated stage: parsed
+[(test(slow) & ] x 3000: exit 0; stage: evaluated stage: parsed
+[(test(slow) & ] x 10000: exit 134; overflowed its stack

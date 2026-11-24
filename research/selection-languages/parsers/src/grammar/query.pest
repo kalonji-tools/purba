@@ -1,0 +1,11 @@
+// The probe grammar in pest. "|" is the lowest rank; "&" binds tighter; "!" tighter still.
+WHITESPACE = _{ " " | "\t" }
+query = { SOI ~ or ~ EOI }
+or    = { and ~ ("|" ~ and)* }
+and   = { unary ~ ("&" ~ unary)* }
+unary = _{ not | atom }
+not   = { "!" ~ unary }
+atom  = _{ tag | id | "(" ~ or ~ ")" }
+tag   = ${ "tag(" ~ name ~ ")" }
+name  = @{ (ASCII_ALPHANUMERIC | "_" | ":" | "/" | "." | "[" | "]" | "-")+ }
+id    = @{ (ASCII_ALPHANUMERIC | "_" | ":" | "/" | "." | "[" | "]" | "-")+ }

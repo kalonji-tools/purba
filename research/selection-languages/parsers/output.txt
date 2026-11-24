@@ -1,0 +1,214 @@
+cargo 1.99.0 (5f94df478 2026-08-27)
+== chumsky
+--- chumsky: store:: & tag(slow) & !tag(flaky)
+tree: and[and[id store::, tag slow], not[tag flaky]]
+exit 0
+--- chumsky: tag(db) | tag(slow) & !tag(db)
+tree: or[tag db, and[tag slow, not[tag db]]]
+exit 0
+--- chumsky: store::migrate
+tree: id store::migrate
+exit 0
+--- chumsky: tests/api
+tree: id tests/api
+exit 0
+--- chumsky: tag(slow) &
+parse error:
+at 11..11: found end of input expected '!', 't', any, or '('
+exit 2
+--- chumsky: tag(slow) & (tag(db)
+parse error:
+at 20..20: found end of input expected '&', '|', or ')'
+exit 2
+--- chumsky: tag(slow) && tag(db)
+parse error:
+at 11..12: found '&' expected '!', 't', something else, or '('
+exit 2
+== winnow
+--- winnow: store:: & tag(slow) & !tag(flaky)
+tree: and[and[id store::, tag slow], not[tag flaky]]
+exit 0
+--- winnow: tag(db) | tag(slow) & !tag(db)
+tree: or[tag db, and[tag slow, not[tag db]]]
+exit 0
+--- winnow: store::migrate
+tree: id store::migrate
+exit 0
+--- winnow: tests/api
+tree: id tests/api
+exit 0
+--- winnow: tag(slow) &
+parse error:
+tag(slow) &
+          ^
+
+exit 2
+--- winnow: tag(slow) & (tag(db)
+parse error:
+tag(slow) & (tag(db)
+          ^
+
+exit 2
+--- winnow: tag(slow) && tag(db)
+parse error:
+tag(slow) && tag(db)
+          ^
+
+exit 2
+== nom
+--- nom: store:: & tag(slow) & !tag(flaky)
+tree: and[and[id store::, tag slow], not[tag flaky]]
+exit 0
+--- nom: tag(db) | tag(slow) & !tag(db)
+tree: or[tag db, and[tag slow, not[tag db]]]
+exit 0
+--- nom: store::migrate
+tree: id store::migrate
+exit 0
+--- nom: tests/api
+tree: id tests/api
+exit 0
+--- nom: tag(slow) &
+parse error:
+Error(Error { input: "&", code: Eof })
+exit 2
+--- nom: tag(slow) & (tag(db)
+parse error:
+Error(Error { input: "& (tag(db)", code: Eof })
+exit 2
+--- nom: tag(slow) && tag(db)
+parse error:
+Error(Error { input: "&& tag(db)", code: Eof })
+exit 2
+== pest
+--- pest: store:: & tag(slow) & !tag(flaky)
+tree: and[and[id store::, tag slow], not[tag flaky]]
+exit 0
+--- pest: tag(db) | tag(slow) & !tag(db)
+tree: or[tag db, and[tag slow, not[tag db]]]
+exit 0
+--- pest: store::migrate
+tree: id store::migrate
+exit 0
+--- pest: tests/api
+tree: id tests/api
+exit 0
+--- pest: tag(slow) &
+parse error:
+ --> 1:12
+  |
+1 | tag(slow) &
+  |            ^---
+  |
+  = expected not, tag, or id
+exit 2
+--- pest: tag(slow) & (tag(db)
+parse error:
+ --> 1:14
+  |
+1 | tag(slow) & (tag(db)
+  |              ^---
+  |
+  = expected not
+exit 2
+--- pest: tag(slow) && tag(db)
+parse error:
+ --> 1:12
+  |
+1 | tag(slow) && tag(db)
+  |            ^---
+  |
+  = expected not, tag, or id
+exit 2
+== lalrpop
+--- lalrpop: store:: & tag(slow) & !tag(flaky)
+tree: and[and[id store::, tag slow], not[tag flaky]]
+exit 0
+--- lalrpop: tag(db) | tag(slow) & !tag(db)
+tree: or[tag db, and[tag slow, not[tag db]]]
+exit 0
+--- lalrpop: store::migrate
+tree: id store::migrate
+exit 0
+--- lalrpop: tests/api
+tree: id tests/api
+exit 0
+--- lalrpop: tag(slow) &
+parse error:
+Unrecognized EOF found at 11
+Expected one of r#"[A-Za-z0-9_:/.\\[\\]-]+"#, "!", "(" or "tag"
+  debug: UnrecognizedEof { location: 11, expected: ["r#\"[A-Za-z0-9_:/.\\\\[\\\\]-]+\"#", "\"!\"", "\"(\"", "\"tag\""] }
+exit 2
+--- lalrpop: tag(slow) & (tag(db)
+parse error:
+Unrecognized EOF found at 20
+Expected one of ")" or "|"
+  debug: UnrecognizedEof { location: 20, expected: ["\")\"", "\"|\""] }
+exit 2
+--- lalrpop: tag(slow) && tag(db)
+parse error:
+Unrecognized token `&` found at 11:12
+Expected one of r#"[A-Za-z0-9_:/.\\[\\]-]+"#, "!", "(" or "tag"
+  debug: UnrecognizedToken { token: (11, Token(2, "&"), 12), expected: ["r#\"[A-Za-z0-9_:/.\\\\[\\\\]-]+\"#", "\"!\"", "\"(\"", "\"tag\""] }
+exit 2
+== nesting
+chumsky, [(] x 100: exit 0; stage: parsed
+chumsky, [(] x 1000: exit 0; stage: parsed
+chumsky, [(] x 3000: exit 0; stage: parsed
+chumsky, [(] x 10000: exit 0; stage: parsed
+chumsky, [(] x 30000: exit 0; stage: parsed
+chumsky, [(] x 100000: exit 0; stage: parsed
+chumsky, [!] x 100: exit 0; stage: parsed
+chumsky, [!] x 1000: exit 0; stage: parsed
+chumsky, [!] x 3000: exit 0; stage: parsed
+chumsky, [!] x 10000: exit 0; stage: parsed
+chumsky, [!] x 30000: exit 0; stage: parsed
+chumsky, [!] x 100000: exit 0; stage: parsed
+winnow, [(] x 100: exit 0; stage: parsed
+winnow, [(] x 1000: exit 0; stage: parsed
+winnow, [(] x 3000: exit 0; stage: parsed
+winnow, [(] x 10000: exit 134; overflowed its stack
+winnow, [(] x 30000: exit 134; overflowed its stack
+winnow, [(] x 100000: exit 134; overflowed its stack
+winnow, [!] x 100: exit 0; stage: parsed
+winnow, [!] x 1000: exit 0; stage: parsed
+winnow, [!] x 3000: exit 0; stage: parsed
+winnow, [!] x 10000: exit 0; stage: parsed
+winnow, [!] x 30000: exit 134; overflowed its stack
+winnow, [!] x 100000: exit 134; overflowed its stack
+nom, [(] x 100: exit 0; stage: parsed
+nom, [(] x 1000: exit 0; stage: parsed
+nom, [(] x 3000: exit 0; stage: parsed
+nom, [(] x 10000: exit 0; stage: parsed
+nom, [(] x 30000: exit 134; overflowed its stack
+nom, [(] x 100000: exit 134; overflowed its stack
+nom, [!] x 100: exit 0; stage: parsed
+nom, [!] x 1000: exit 0; stage: parsed
+nom, [!] x 3000: exit 0; stage: parsed
+nom, [!] x 10000: exit 0; stage: parsed
+nom, [!] x 30000: exit 0; stage: parsed
+nom, [!] x 100000: exit 134; overflowed its stack
+pest, [(] x 100: exit 0; stage: parsed stage: pest parsed
+pest, [(] x 1000: exit 0; stage: parsed stage: pest parsed
+pest, [(] x 3000: exit 0; stage: parsed stage: pest parsed
+pest, [(] x 10000: exit 134; overflowed its stack stage: pest parsed
+pest, [(] x 30000: exit 2; stack limit reached
+pest, [(] x 100000: exit 2; stack limit reached
+pest, [!] x 100: exit 0; stage: parsed stage: pest parsed
+pest, [!] x 1000: exit 0; stage: parsed stage: pest parsed
+pest, [!] x 3000: exit 0; stage: parsed stage: pest parsed
+pest, [!] x 10000: exit 0; stage: parsed stage: pest parsed
+pest, [!] x 30000: exit 134; overflowed its stack stage: pest parsed
+pest, [!] x 100000: exit 2; stack limit reached
+lalrpop, [(] x 100: exit 0; stage: parsed
+lalrpop, [(] x 1000: exit 0; stage: parsed
+lalrpop, [(] x 3000: exit 0; stage: parsed
+lalrpop, [(] x 10000: exit 0; stage: parsed
+lalrpop, [(] x 30000: exit 0; stage: parsed
+lalrpop, [(] x 100000: exit 0; stage: parsed
+lalrpop, [!] x 100: exit 0; stage: parsed
+lalrpop, [!] x 1000: exit 0; stage: parsed
+lalrpop, [!] x 3000: exit 0; stage: parsed
+lalrpop, [!] x 10000: exit 0; stage: parsed
+lalrpop, [!] x 30000: exit 0; stage: parsed
+lalrpop, [!] x 100000: exit 0; stage: parsed
