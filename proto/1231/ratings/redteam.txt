@@ -1,0 +1,74 @@
+##### C9 oxitest: tset_ name under strict
+$ <eval>/.venv/bin/oxitest --color=never
+STRICT VIOLATIONS
+  <scratch>/rt/ox/tests/test_add_option_format.py::tset_progressive_format  module-level-def   tset_progressive_format line 76
+strict violations found — aborting (exit 3)
+exit=3
+
+##### C9 purba: tset_ name
+$ <eval>/.venv/bin/purba tests
+    ⚠ line 12 reads the private name dateutil.parser._parser._ymd
+tests/test_internals.py::test_YMD_could_be_day_month_year passed
+    ⚠ line 27 reads the private name dateutil.parser._parser._ymd
+tests/test_internals.py::test_YMD_could_be_day_month_year_day passed
+    ⚠ line 37 reads the private name dateutil.parser._parser._ymd
+tests/test_internals.py::test_YMD_could_be_day_year passed
+    ⚠ line 48 reads the private name dateutil.parser._parser._ymd
+23 cases: 23 passed
+exit=0
+
+##### C8 purba: tag with no import purba
+$ <eval>/.venv/bin/purba tag(smoke)
+purba: invocation error: the query selects no test of the 24 tests in the 2 files that purba parsed
+  `tag(smoke)` picks no test; purba read no tag
+exit=3
+
+$ <eval>/.venv/bin/purba tests
+tests/test_add_option_format.py::test_invalid_markups_red_close passed
+tests/test_add_option_format.py::test_invalid_markups_level_close_open passed
+tests/test_add_option_format.py::test_invalid_markups_close passed
+tests/test_add_option_format.py::test_invalid_markups_foobar passed
+tests/test_add_option_format.py::test_markup_in_field_colorize passed
+tests/test_add_option_format.py::test_markup_in_field_no_colorize passed
+tests/test_add_option_format.py::test_invalid_format_builtin passed
+24 cases: 20 passed, 4 blocked; 4 project errors
+exit=4
+
+##### C10 pytest: --lf drops a fixed parametrized case
+$ <eval>/.venv/bin/pytest -q
+E
+E         - Nope?
+E         ?     -
+E         + Nope
+tests/test_add_option_format.py:20: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_add_option_format.py::test_format[b-Nope-Nope?\n] - Asserti...
+1 failed, 20 passed in 0.06s
+exit=1
+
+$ <eval>/.venv/bin/pytest -q --lf
+E
+E         - Nope?
+E         ?     -
+E         + Nope
+tests/test_add_option_format.py:20: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_add_option_format.py::test_format[b-Nope-Nope?\n] - Asserti...
+1 failed in 0.02s
+exit=1
+
+$ <eval>/.venv/bin/pytest -q --lf
+.....................                                                    [100%]
+21 passed in 0.05s
+exit=0
+
+$ <eval>/.venv/bin/pytest -q --lf
+.....................                                                    [100%]
+21 passed in 0.05s
+exit=0
+
+##### C10 purba: second-path when logger.add stops raising
+205:def test_invalid_format_builtin():
+206-    error = add_error(format, ValueError)
+207-    assert isinstance(error, ValueError)
+208-    assert re.search(r".* most likely a mistake", str(error)) is not None

@@ -1,0 +1,49 @@
+##### C9 purba: the name-near line
+$ <eval>/.venv/bin/purba tests
+tests/test_add_option_format.py::test_markup_in_field_colorize passed
+tests/test_add_option_format.py::test_markup_in_field_no_colorize passed
+tests/test_add_option_format.py::test_invalid_format_builtin passed
+tests/test_internals.py::test_YMD_could_be_day_month passed
+tests/test_internals.py::test_YMD_could_be_day_month_year passed
+tests/test_internals.py::test_YMD_could_be_day_month_year_day passed
+tests/test_internals.py::test_YMD_could_be_day_year passed
+23 cases: 23 passed
+exit=0
+
+purba: name-near: tests/test_add_option_format.py:88: tset_progressive_format is not a test, and its name is near the prefix test
+23 cases: 23 passed
+
+##### C8 purba: a tag on test_progressive_format, in a file with no import purba
+0
+$ <eval>/.venv/bin/purba tag(smoke)
+tests/test_internals.py::test_YMD_could_be_day_month passed
+tests/test_internals.py::test_YMD_could_be_day_month_year passed
+tests/test_internals.py::test_YMD_could_be_day_month_year_day passed
+tests/test_internals.py::test_YMD_could_be_day_year passed
+4 cases: 4 passed
+exit=0
+
+##### C10 pytest: two failures, fix one, --lf
+$ <eval>/.venv/bin/pytest -q
+FAILED tests/test_add_option_format.py::test_format[a-Message: {message}-Message: A\n]
+FAILED tests/test_add_option_format.py::test_format[b-Nope-Nope?\n] - Asserti...
+2 failed, 19 passed in 0.06s
+exit=1
+
+$ <eval>/.venv/bin/pytest -q --lf
+FAILED tests/test_add_option_format.py::test_format[a-Message: {message}-Message: A\n]
+FAILED tests/test_add_option_format.py::test_format[b-Nope-Nope?\n] - Asserti...
+2 failed in 0.02s
+exit=1
+
+$ <eval>/.venv/bin/pytest -q --lf
+FAILED tests/test_add_option_format.py::test_format[a-Message: {message}-Message: A\n]
+1 failed in 0.02s
+exit=1
+
+##### C10 purba: logger.add stops raising in test_invalid_format_builtin
+$ <eval>/.venv/bin/purba tests/test_add_option_format.py::test_invalid_format_builtin
+tests/test_add_option_format.py::test_invalid_format_builtin project error: [second-path] line 206 reaches line 53 of add_error, which did not run, and the lines before the first expectation take one path; [second-path] line 206 reaches line 54 of add_error, which did not run, and the lines before the first expectation take one path
+1 case: 1 blocked; 1 project error
+purba: the failures as one query: tests/test_add_option_format.py::test_invalid_format_builtin
+exit=4
