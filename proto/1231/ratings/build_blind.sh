@@ -13,7 +13,10 @@ K="$H/benchmark"
   exit 1
 }
 clean() { find "$1" \( -name __pycache__ -o -name .pytest_cache -o -name .oxitest_cache \) -prune -exec rm -rf {} +; }
-copy() { (cd "$1" && tar --exclude=__pycache__ --exclude=.pytest_cache --exclude=.oxitest_cache -cf - .) | (cd "$2" && tar -xf -); }
+copy() {
+  (cd "$1" && tar --exclude=__pycache__ --exclude=.pytest_cache --exclude=.oxitest_cache --exclude=CHECKERS.txt.gz -cf - .) | (cd "$2" && tar -xf -)
+  gzip -dc "$1/CHECKERS.txt.gz" >"$2/CHECKERS.txt"
+}
 pyright_config() { printf '{\n  "venvPath": "%s",\n  "venv": ".venv",\n  "include": ["tests"]\n}\n' "$E" >"$1/pyrightconfig.json"; }
 
 original() { # $1 = the folder
@@ -34,7 +37,7 @@ Only the tests that failed in the last run:
     $E/.venv/bin/pytest -v --lf
 EOF
   (cd "$O" && "$E/.venv/bin/pytest" -v -p no:cacheprovider >OUTPUT.txt 2>&1 || true)
-  cp "$K/pytest/CHECKERS.txt" "$O/"
+  clean "$O"
 }
 
 oxitest_port() { # $1 = the folder
