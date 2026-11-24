@@ -8,9 +8,17 @@ The sequence was decided on an issue that closed with no pull request, so its an
 The answer itself drifted.
 Later decisions removed some of its gates and changed another, and the comment still reads as current.
 
+| fact | source |
+|---|---|
+| GitHub opens no pull request on a branch with no commit beyond its base | [a probe on a throwaway repository](https://github.com/kalonji-tools/purba/pull/1224#issuecomment-7126279475) |
+| Replay refuses a commit that replays empty | [`check-replayable.sh` L112-L115](https://github.com/kalonji-tools/purba/blob/f35bd5eb/scripts/check-replayable.sh#L112-L115) |
+| a change with no new behaviour names the test that covers its code, and pushes no test first | [an implementation follows test-driven development, L54-L55](https://github.com/kalonji-tools/purba/blob/f35bd5eb/docs/decisions/an-implementation-follows-test-driven-development.md?plain=1#L54-L55) |
+
 ## Considered Options
 
-No option was put forward against the one that won.
+- **The plan before every change that a runner executes.** A change with no new behaviour whose code a test covers cannot write its plan first.
+  GitHub opens no pull request without a commit, and Replay refuses an empty commit.
+  Such a change has no test to push first, so its first commit is the implementation.
 
 ## Decision Outcome
 
@@ -71,8 +79,10 @@ The spec is read against the tree when the issue is taken up, and narrowed where
 **An [implementation plan](../../CONTEXT.md#implementation-plan) is owed before the implementation.**
 It shows the reviewer how the author meant to build the change.
 Where no runner executes the change, the author writes the plan when the pull request opens as a draft.
+The same holds for a change with no new behaviour whose code a test already covers.
 The plan says that it follows the implementation.
 It need not name the commits.
+
 [A register belongs to one location](a-register-belongs-to-one-location.md) names the register that says where the plan is written.
 
 **The [post pass](../../CONTEXT.md#post-pass) is owed on work an agent wrote.**
@@ -108,7 +118,7 @@ No sign-off is owed before that.
 - **`Origin` reads red through the whole review.** The branch stays unsigned until the reviewer is satisfied, so that check says nothing before then.
 - **Each new pass costs about 140k tokens.** [Does a sweep of each prose rule find the prose breaches the agent missed?](https://github.com/kalonji-tools/purba/issues/391#issuecomment-6078214981) measured it. The reviewer also reads one more comment on the pull request for each pass.
 - **The record is rewritten when a step changes.** [A location inherits its readers](a-location-inherits-its-readers.md) refused to key itself to stages for that reason.
-- **The plan of a change no runner executes follows its implementation.** The reviewer cannot tell whether the author fitted the plan to the diff.
+- **The plan of a change no runner executes, or of a change with no new behaviour whose code a test covers, follows its implementation.** The reviewer cannot tell whether the author fitted the plan to the diff.
 
 ## Confirmation
 
