@@ -1,0 +1,15 @@
+[package]
+name = "probe-tier"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[dependencies]
+tier = { version = "=0.1.21" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "1"
+
+# Keeps the probe out of purba's workspace.
+[workspace]

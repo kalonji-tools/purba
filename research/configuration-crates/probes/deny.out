@@ -1,0 +1,99 @@
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/config/Cargo.toml check advisories
+advisories ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/config/Cargo.toml check licenses
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+licenses FAILED
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/config/Cargo.toml check sources
+sources ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/figment/Cargo.toml check advisories
+advisories ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/figment/Cargo.toml check licenses
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+licenses FAILED
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/figment/Cargo.toml check sources
+sources ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/tier/Cargo.toml check advisories
+advisories ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/tier/Cargo.toml check licenses
+error[rejected]: failed to satisfy license requirements
+   ├ Apache-2.0 - Apache License 2.0:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ tier v0.1.21
+     └── probe-tier v0.0.0
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+licenses FAILED
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/tier/Cargo.toml check sources
+sources ok
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/star-toml/Cargo.toml check advisories
+error[unmaintained]: chrono is unmaintained
+  ├ ID: RUSTSEC-2026-0543
+  ├ Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0543
+  ├ The chrono crate is unmaintained; all versions are affected.
+  ├ Announcement: https://github.com/chronotope/chrono/issues/1768
+  ├ Solution: No safe upgrade is available!
+  ├ chrono v0.4.45
+    └── wasm4pm-compat v26.8.7
+        └── star-toml v26.7.3
+            └── probe-star-toml v0.0.0
+advisories FAILED
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/star-toml/Cargo.toml check licenses
+error[rejected]: failed to satisfy license requirements
+   ├ CC0-1.0 - Creative Commons Zero v1.0 Universal:
+   ├   - FSF Free/Libre
+   ├ Apache-2.0 - Apache License 2.0:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ Apache-2.0 - Apache License 2.0:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ blake3 v1.8.7
+     ├── star-toml v26.7.3
+     └── wasm4pm-compat v26.8.7
+         └── star-toml v26.7.3 (*)
+error[rejected]: failed to satisfy license requirements
+   ├ CC0-1.0 - Creative Commons Zero v1.0 Universal:
+   ├   - FSF Free/Libre
+   ├ MIT-0 - MIT No Attribution:
+   ├   - OSI approved
+   ├ Apache-2.0 - Apache License 2.0:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ constant_time_eq v0.4.2
+     └── blake3 v1.8.7
+         ├── star-toml v26.7.3
+         └── wasm4pm-compat v26.8.7
+             └── star-toml v26.7.3 (*)
+error[rejected]: failed to satisfy license requirements
+   ├ Zlib - zlib License:
+   ├   - OSI approved
+   ├   - FSF Free/Libre
+   ├ foldhash v0.2.0
+     └── hashbrown v0.17.2
+         ├── indexmap v2.14.2
+         └── wasm4pm-compat v26.8.7
+             └── star-toml v26.7.3 (*)
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+error[license-exception-not-encountered]: license exception was not encountered
+licenses FAILED
+$ cargo-deny --config .cargo/deny.toml --manifest-path probes/star-toml/Cargo.toml check sources
+sources ok

@@ -1,0 +1,85 @@
+# head 33e89251f08c2d4170252ccefe21821a418cd309; cargo 1.99.0 (5f94df478 2026-08-27)
+$ env -i PATH="$PATH" PURBA_TIMEOUT=2 PURBA_WORKERS=2 probe-config
+(a) config: up to code: workers = 3 from Some("code")
+(a) config: up to the command line: workers = 1 from Some("the command line")
+(a) config: up to the environment: workers = 2 from Some("the environment")
+(a) config: up to the project: workers = 4 from Some("levels/project.toml")
+(a) config: up to the user: workers = 5 from Some("levels/user.toml")
+(a) config: up to the system: workers = 6 from Some("levels/system.toml")
+(d) config: timeout = 3 from Some("code")
+(d) config: cap = 50 from Some("the command line")
+(d) config: workers = 3 from Some("code")
+(c) config: out of the box, cap = 50 from Some("the command line")
+(c) config: purba's min over the levels = Some((0, "the project"))
+(b) config: user sets timeout = 5; the crate accepts it: timeout = 3 from Some("code")
+(b) config: purba's check = ["the user: `timeout` changes an outcome, and this level may not set it"]
+(e) config: typed, deny_unknown_fields: Err("unknown field `tmeout`, expected one of `timeout`, `cap`, `workers`")
+(e) config: purba's check = ["the project: unknown key `tmeout`; the nearest dial is `timeout`"]
+(f) config: three faults in two files gave: Err("unknown field `workrs`, expected one of `timeout`, `cap`, `workers`")
+(g) config: dispatch's strict struct on the shared tree: Err("unknown field `cap`, expected `timeout` or `workers`")
+(g) config: dispatch's loose struct on the shared tree: Ok(DispatchLoose { timeout: Some(3), workers: Some(3) })
+$ env -i PATH="$PATH" PURBA_TIMEOUT=2 PURBA_WORKERS=2 figment_rs
+(a) figment: up to code: workers = "3" from "code"
+(a) figment: up to the command line: workers = "1" from "the command line"
+(a) figment: up to the environment: workers = "2" from "the environment"
+(a) figment: up to the project: workers = "4" from "the project"
+(a) figment: up to the user: workers = "5" from "the user"
+(a) figment: up to the system: workers = "6" from "the system"
+(d) figment: timeout = "3" from "code"
+(d) figment: cap = "50" from "the command line"
+(d) figment: workers = "3" from "code"
+(c) figment: out of the box, cap = "50" from "the command line"
+(c) figment: purba's min over the levels = Some((0, "the project"))
+(b) figment: user sets timeout = 5; the crate accepts it: Every { timeout: Some(3), cap: Some(50), workers: Some(3) }
+(b) figment: purba's check = ["the user: `timeout` changes an outcome, and this level may not set it"]
+(e) figment: typed, deny_unknown_fields: Err("unknown field: found `tmeout`, expected `one of `timeout`, `cap`, `workers`` for key \"default.tmeout\" in the project")
+(e) figment: purba's check = ["the project: unknown key `tmeout`; the nearest dial is `timeout`"]
+(f) figment: three faults in two files gave 1 error(s):
+(f) figment:   unknown field: found `tmeout`, expected `one of `timeout`, `cap`, `workers`` for key "default.tmeout" in the project
+(g) figment: dispatch's strict struct on the shared tree: Err("unknown field: found `cap`, expected ``timeout` or `workers`` for key \"default.cap\" in the command line")
+(g) figment: dispatch's loose struct on the shared tree: Ok(DispatchLoose { timeout: Some(3), workers: Some(3) })
+$ env -i PATH="$PATH" PURBA_TIMEOUT=2 PURBA_WORKERS=2 figment2_rs
+(a) figment2: up to code: workers = "3" from "code"
+(a) figment2: up to the command line: workers = "1" from "the command line"
+(a) figment2: up to the environment: workers = "2" from "the environment"
+(a) figment2: up to the project: workers = "4" from "the project"
+(a) figment2: up to the user: workers = "5" from "the user"
+(a) figment2: up to the system: workers = "6" from "the system"
+(d) figment2: timeout = "3" from "code"
+(d) figment2: cap = "50" from "the command line"
+(d) figment2: workers = "3" from "code"
+(c) figment2: out of the box, cap = "50" from "the command line"
+(c) figment2: purba's min over the levels = Some((0, "the project"))
+(b) figment2: user sets timeout = 5; the crate accepts it: Every { timeout: Some(3), cap: Some(50), workers: Some(3) }
+(b) figment2: purba's check = ["the user: `timeout` changes an outcome, and this level may not set it"]
+(e) figment2: typed, deny_unknown_fields: Err("unknown field: found `tmeout`, expected `one of `timeout`, `cap`, `workers`` for key \"default.tmeout\" in the project")
+(e) figment2: purba's check = ["the project: unknown key `tmeout`; the nearest dial is `timeout`"]
+(f) figment2: three faults in two files gave 1 error(s):
+(f) figment2:   unknown field: found `tmeout`, expected `one of `timeout`, `cap`, `workers`` for key "default.tmeout" in the project
+(g) figment2: dispatch's strict struct on the shared tree: Err("unknown field: found `cap`, expected ``timeout` or `workers`` for key \"default.cap\" in the command line")
+(g) figment2: dispatch's loose struct on the shared tree: Ok(DispatchLoose { timeout: Some(3), workers: Some(3) })
+$ env -i PATH="$PATH" PURBA_TIMEOUT=2 PURBA_WORKERS=2 probe-tier
+(a) tier: up to code: workers = Some(Number(3)) from Some("code"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5"), ("levels/project.toml", "4"), ("the environment", "2"), ("the command line", "1"), ("code", "3")]
+(a) tier: up to the command line: workers = Some(Number(1)) from Some("the command line"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5"), ("levels/project.toml", "4"), ("the environment", "2"), ("the command line", "1")]
+(a) tier: up to the environment: workers = Some(Number(2)) from Some("the environment"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5"), ("levels/project.toml", "4"), ("the environment", "2")]
+(a) tier: up to the project: workers = Some(Number(4)) from Some("levels/project.toml"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5"), ("levels/project.toml", "4")]
+(a) tier: up to the user: workers = Some(Number(5)) from Some("levels/user.toml"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5")]
+(a) tier: up to the system: workers = Some(Number(6)) from Some("levels/system.toml"); every step: [("defaults", "null"), ("levels/system.toml", "6")]
+(d) tier: timeout = Some(Number(3)) from Some("code"); every step: [("defaults", "null"), ("levels/project.toml", "4"), ("the environment", "2"), ("the command line", "1"), ("code", "3")]
+(d) tier: cap = Some(Number(50)) from Some("the command line"); every step: [("defaults", "null"), ("levels/project.toml", "0"), ("the command line", "50")]
+(d) tier: workers = Some(Number(3)) from Some("code"); every step: [("defaults", "null"), ("levels/system.toml", "6"), ("levels/user.toml", "5"), ("levels/project.toml", "4"), ("the environment", "2"), ("the command line", "1"), ("code", "3")]
+(c) tier: out of the box, cap = Some(50)
+(c) tier: purba's min over the traced steps = Some((0, "the project"))
+(b) tier: user sets timeout = 5; accepted: timeout = Some(3); purba's check = ["the user: `timeout` changes an outcome, and this level may not set it"]
+(b) tier: deny File on outcome dials, project as a layer: refused: source file(levels/user-closed.toml) is not allowed to set `timeout`; denied sources: file
+(b) tier: the same policy, user sets no outcome dial: accepted, timeout = Some(3), cap = Some(50)
+(e) tier: typo refused: unknown configuration fields:
+- unknown field `tmeout` from file(levels/typo.toml); did you mean `timeout`?
+(f) tier: three faults in two files gave: unknown configuration fields:
+- unknown field `tmeout` from file(levels/bad-project.toml); did you mean `timeout`?
+- unknown field `workrs` from file(levels/bad-user.toml); did you mean `workers`?
+(f) tier: a closed-level fault and an unknown key gave: source file(levels/user-closed.toml) is not allowed to set `timeout`; denied sources: file
+(g) tier: JSON tree, typo: accepted: {"cap":50,"timeout":3,"tmeout":4,"workers":3}
+(g) tier: JSON tree, dispatch takes its own struct: Ok(DispatchDials { timeout: Some(3), workers: Some(3) })
+(g) tier: composed struct with flatten, typo: accepted: Composed { dispatch: DispatchDials { timeout: Some(3), workers: Some(3) }, reporting: ReportingDials { cap: Some(50) } }
+(g) tier: composed struct with flatten: Composed { dispatch: DispatchDials { timeout: Some(3), workers: Some(3) }, reporting: ReportingDials { cap: Some(50) } }; cap = Some(Number(50)) from Some("the command line"); every step: [("defaults", "null"), ("levels/project.toml", "0"), ("the command line", "50")]

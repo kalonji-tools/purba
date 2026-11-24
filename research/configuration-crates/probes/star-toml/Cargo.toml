@@ -1,0 +1,13 @@
+[package]
+name = "probe-star-toml"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+# Only for `cargo deny`: the advisory check puts the crate out before a probe could run.
+[dependencies]
+star-toml = { version = "=26.7.3" }
+
+# Keeps the probe out of purba's workspace.
+[workspace]
