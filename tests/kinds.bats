@@ -12,6 +12,11 @@
 bats_require_minimum_version 1.5.0
 load internal_error.sh
 
+# A test that builds its module in its own folder runs it from that folder, the root.
+setup() {
+  printf '[tool.purba]\n' >"${BATS_TEST_TMPDIR:?set by bats}/pyproject.toml"
+}
+
 @test "a test whose assert fails prints failed, and the run exits 1" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' 'def test_one():' '    assert 1 == 2' >test_fail.py
@@ -115,7 +120,7 @@ LINES
 
 @test "a failed expectation shows its expected value and its reading, and the run exits 1" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  cat >reading.py <<'PY'
+  cat >test_reading.py <<'PY'
 class One:
     def __repr__(self):
         return "1"
@@ -167,43 +172,43 @@ def test_long():
     assert got == []
 PY
 
-  run -1 --separate-stderr purba reading.py
+  run -1 --separate-stderr purba test_reading.py
 
   local long=-30 n
   for ((n = -29; n <= -1; n++)); do long+=", ${n}"; done
   diff -u - <(printf '%s\n' "${output}") <<LINES
-reading.py::test_eq failed
+test_reading.py::test_eq failed
     assert got == []
       expected  []
       reading   [-3]
-reading.py::test_lt failed
+test_reading.py::test_lt failed
     assert got < 2
       expected  < 2
       reading   3
-reading.py::test_contains failed
+test_reading.py::test_contains failed
     assert "z" in got
       expected  to contain 'z'
       reading   'ab'
-reading.py::test_none failed
+test_reading.py::test_none failed
     assert got is None
       expected  is None
       reading   [-1]
-reading.py::test_same_text failed
+test_reading.py::test_same_text failed
     assert got == 1
       expected  1 (int)
       reading   1 (One)
-reading.py::test_no_repr failed
+test_reading.py::test_no_repr failed
     assert got == 1
       expected  1
       reading   (repr raised ValueError: no repr)
-reading.py::test_two failed
+test_reading.py::test_two failed
     assert got == []
       expected  []
       reading   [-1]
     assert len(got) == 0
       expected  0
       reading   1
-reading.py::test_long failed
+test_reading.py::test_long failed
     assert got == []
       expected  []
       reading   [${long}]
@@ -260,10 +265,14 @@ LINES
 @test "an argument that purba cannot take prints an invocation error, and the run exits 3" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
 
+  : >test_a.txt
+
   run -3 --separate-stderr purba test_a.txt
 
   [[ -z "${output}" ]] || false
-  [[ "${stderr}" == "purba: invocation error: usage: purba <path to one .py file>" ]]
+  local refused='purba: invocation error: test_a.txt names no test file: '
+  refused+='its name does not match test_*.py'
+  [[ "${stderr}" == "${refused}" ]]
 }
 
 @test "a panic stops only its test, each other test keeps its line, and the run exits 125" {

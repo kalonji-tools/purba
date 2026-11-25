@@ -41,13 +41,13 @@ LINES
   [[ "${stderr}" == "${warning}" ]]
 }
 
-@test "under -O, the warning comes before the error of a module that purba cannot read" {
+@test "under -O, the warning comes before the error of a path that names nothing" {
   cd "${BATS_TEST_DIRNAME}/optimize"
 
-  run -3 --separate-stderr env PYTHONOPTIMIZE=1 purba missing.py
+  run -3 --separate-stderr env PYTHONOPTIMIZE=1 purba test_missing.py
 
-  local refused='purba: invocation error: cannot read missing.py: '
-  refused+='No such file or directory (os error 2)'
+  local refused='purba: invocation error: test_missing.py names no test file: '
+  refused+='no file or folder has that path'
   [[ "${stderr}" == "${warning}"$'\n'"${refused}" ]] || false
   [[ -z "${output}" ]]
 }

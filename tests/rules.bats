@@ -11,6 +11,11 @@
 : "${BATS_TEST_DIRNAME:?set by bats}"
 bats_require_minimum_version 1.5.0
 
+# A test that builds its module in its own folder runs it from that folder, the root.
+setup() {
+  printf '[tool.purba]\n' >"${BATS_TEST_TMPDIR:?set by bats}/pyproject.toml"
+}
+
 @test "a case that breaks a rule prints the line and the rule, and a cleanup that raises fails" {
   cd "${BATS_TEST_DIRNAME}/rules"
 
@@ -250,6 +255,7 @@ LINES
   mkdir thread none
   cp "${BATS_TEST_DIRNAME}/rules/test_alone.py" thread/
   grep -v 'threading.Thread(' "${BATS_TEST_DIRNAME}/rules/test_alone.py" >none/test_alone.py
+  printf '[tool.purba]\n' | tee thread/pyproject.toml >none/pyproject.toml
 
   local refused='project error: [assert-in-reading]'
   local alone='reaches an assert when read alone, and only an expectation asserts'

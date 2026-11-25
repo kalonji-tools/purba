@@ -7,6 +7,11 @@
 : "${BATS_TEST_DIRNAME:?set by bats}"
 bats_require_minimum_version 1.5.0
 
+# A test that builds its module in its own folder runs it from that folder, the root.
+setup() {
+  printf '[tool.purba]\n' >"${BATS_TEST_TMPDIR:?set by bats}/pyproject.toml"
+}
+
 @test "purba runs test_a.py through every part, and never imports test_b.py" {
   export PURBA_SENTINEL="${BATS_TEST_TMPDIR:?set by bats}/test_b.imported"
   cd "${BATS_TEST_DIRNAME}/skeleton"
@@ -23,13 +28,6 @@ test_a.py::test_three project error: [no-expectation] no expectation stated
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 LINES
   [[ ! -e "${PURBA_SENTINEL}" ]]
-}
-
-@test "purba with no path exits 3, and says why on stderr" {
-  run -3 --separate-stderr purba
-
-  [[ "${stderr}" == "purba: invocation error: usage: purba <path to one .py file>" ]] || false
-  [[ -z "${output}" ]]
 }
 
 @test "purba with stdout closed exits 3, and says why on stderr" {
@@ -276,18 +274,18 @@ LINES
     '    def test_in_class(self):' '        assert 1 == 2' \
     '    def test_fixture(self, tmp_path):' '        assert tmp_path.name == "x"' \
     'class FakeClient:' \
-    '    def test_connection(self):' '        self.ok = True' >mixed.py
+    '    def test_connection(self):' '        self.ok = True' >test_mixed.py
 
-  run -4 --separate-stderr purba mixed.py
+  run -4 --separate-stderr purba test_mixed.py
 
   local method='project error: purba cannot call a method of a class'
   local fixture='the parameter tmp_path has no default'
   local unseen='and purba cannot see which fixture builds it'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-mixed.py::TestGroup::test_in_class ${method}
-mixed.py::TestGroup::test_fixture ${method}; ${fixture}, ${unseen}
-mixed.py::FakeClient::test_connection ${method}
-mixed.py::test_plain passed
+test_mixed.py::TestGroup::test_in_class ${method}
+test_mixed.py::TestGroup::test_fixture ${method}; ${fixture}, ${unseen}
+test_mixed.py::FakeClient::test_connection ${method}
+test_mixed.py::test_plain passed
 4 cases: 1 passed, 3 blocked; 3 project errors
 LINES
   [[ -z "${stderr}" ]]
@@ -354,13 +352,16 @@ LINES
 
 @test "a module named after a loaded module does not load, and names the module" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'def test_x():' '    assert 1 == 1' >builtins.py
+  mkdir site
+  printf '%s\n' 'import sys, types' \
+    'sys.modules["test_loaded"] = types.ModuleType("test_loaded")' >site/sitecustomize.py
+  printf '%s\n' 'def test_x():' '    assert 1 == 1' >test_loaded.py
 
-  run -4 --separate-stderr purba builtins.py
+  run -4 --separate-stderr env PYTHONPATH="${PWD}/site" purba test_loaded.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-builtins.py project error: ImportError: sys.modules already holds the name builtins
-builtins.py::test_x blocked: builtins.py did not load
+test_loaded.py project error: ImportError: sys.modules already holds the name test_loaded
+test_loaded.py::test_x blocked: test_loaded.py did not load
 1 case: 1 blocked; 1 project error
 LINES
   [[ -z "${stderr}" ]]
@@ -368,12 +369,14 @@ LINES
 
 @test "a module named after a module that is not loaded yet loads" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
-  printf '%s\n' 'def test_x():' '    assert 1 == 1' >json.py
+  mkdir site
+  printf '%s\n' 'x = 1' >site/test_lib.py
+  printf '%s\n' 'def test_x():' '    assert 1 == 1' >test_lib.py
 
-  run -0 --separate-stderr purba json.py
+  run -0 --separate-stderr env PYTHONPATH="${PWD}/site" purba test_lib.py
 
   diff -u - <(printf '%s\n' "${output}") <<'LINES'
-json.py::test_x passed
+test_lib.py::test_x passed
 1 case: 1 passed
 LINES
   [[ -z "${stderr}" ]]

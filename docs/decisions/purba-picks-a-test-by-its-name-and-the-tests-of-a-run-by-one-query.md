@@ -12,6 +12,7 @@ The choice of a query waited for this design.
 | a run takes exactly one path to one `.py` file, and no flag; a directory and a query lost to the design of selection | [the record of a tester's run, L23 and L41](https://github.com/kalonji-tools/purba/blob/3093871b/docs/decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md?plain=1#L23-L41) |
 | parsing keeps each function of the file whose name starts with `test` | [`crates/parsing/src/facts.rs` L294](https://github.com/kalonji-tools/purba/blob/3093871b/crates/parsing/src/facts.rs#L294) |
 | in 9 pinned suites, a folder marker alone misses 17 of 189 test files, and catches 141 other files | [`research/selection-test-markers.md` L14](https://github.com/kalonji-tools/purba/blob/93af24df/research/selection-test-markers.md?plain=1#L14) |
+| over 18 repositories, `*_test.py` names 2 files, and neither holds a test that purba can run; `tests.py` names 225, and 223 hold only methods of a class | [Which layouts of test files do Python projects use?](https://github.com/kalonji-tools/purba/issues/1239#issuecomment-7160743608), counted from [`files.tsv.gz`](https://github.com/kalonji-tools/purba/blob/e94f4626878baf96cee3482cf4bfc2684b80d213/research/test-layouts/files.tsv.gz) |
 | when every public function of a test file is a test, the misspelled `tset_checkout` runs and passes, and purba refuses 956 helpers that it cannot call | [`proto/1229/RESULTS.md` L63 and L103](https://github.com/kalonji-tools/purba/blob/41daeb4e/proto/1229/RESULTS.md?plain=1#L63-L103) |
 | a check for a name one edit from `test` finds no function in the 189 test files | [`proto/1229/RESULTS.md` L97](https://github.com/kalonji-tools/purba/blob/41daeb4e/proto/1229/RESULTS.md?plain=1#L97) |
 | nextest 0.9.25 deprecated `--platform-filter` for `-E 'platform(...)'`; its reference says that "developers can learn the query language once and use it everywhere" | [nextest's changelog L2067-L2068](https://github.com/nextest-rs/nextest/blob/cargo-nextest-0.9.149/site/src/changelog.md#L2067-L2068), [filtersets L19-L23](https://github.com/nextest-rs/nextest/blob/cargo-nextest-0.9.149/site/src/docs/filtersets/reference.md#L19-L23) |
@@ -50,9 +51,9 @@ A tester can save one query and run it again.
 
 ```mermaid
 flowchart TD
-  query["the query: typed, an alias, read from .purba/failed.q, or none"] --> folder{"stage one: does git ignore the folder, or is it hidden?"}
+  query["the query: typed, an alias, read from .purba/failed.q, or none"] --> folder{"stage one: does a .gitignore of the project ignore the file or its folder, or is the folder hidden?"}
   folder -- yes --> skipped["skipped"]
-  folder -- no --> named{"does the name match test_*.py or *_test.py?"}
+  folder -- no --> named{"does the name match test_*.py, or a pattern that the project's file sets?"}
   named -- no --> plain["not a test file"]
   named -- yes --> reach{"can the query pick a test of the file?"}
   reach -- no --> unread["not read"]
@@ -74,14 +75,15 @@ flowchart TD
 ```
 
 - **A run picks in two stages.** Stage one reads the paths of the files, and no file's text. Stage two parses only the files that stage one kept. So a run whose query names one file parses one file.
-- **A [test file](../../CONTEXT.md#test-file) is a `.py` file whose name matches `test_*.py` or `*_test.py`.** No folder marks a test file.
+- **A [test file](../../CONTEXT.md#test-file) is a `.py` file whose name matches `test_*.py`.** Another pattern, such as `*_test.py`, `tests.py` or `test.py`, applies only when the [project's file](../../CONTEXT.md#projects-file) sets it. No folder marks a test file.
 - **A [test](../../CONTEXT.md#test) is a function at the top level of a test file, and its name starts with `test`.**
 - **A function whose name is near `test` is a [project error](../../CONTEXT.md#project-error).** The function sits at the top level of a test file, and its name does not start with `test`. The first word of its name ends at its first `_`. That word is at most one edit from `test`.
 - **An edit changes, adds or drops one letter, or swaps two neighbours.** The check ignores case.
 - **No suppression reaches the error of a name near `test`.** The function is no test, so its suppression sits above no test. [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) makes such a suppression a fault. A helper that the check names takes another name.
 - **The line of the error names its kind:** `<file>::<name> project error: [name-near] <name> is not a test, and its name is near the prefix test`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) requires the kind. The words after the kind are the words that the raters scored.
-- **Stage one skips each folder that git ignores, and each hidden folder.**
-- **`purba` with no query runs each test file under the folder of the project's file.** The project's file is the `pyproject.toml` that holds `[tool.purba]`.
+- **Stage one skips each file or folder that a `.gitignore` file of the project ignores, and each hidden folder.** It reads no global file of git, and no `.git/info/exclude`, so a file that only one machine holds changes no outcome. Outside git, it reads no `.gitignore` file.
+- **A folder that stage one cannot read is a [project error](../../CONTEXT.md#project-error) of that folder.** The other files run.
+- **`purba` with no query runs each test file under the [root](../../CONTEXT.md#root).**
 
 A query is the one way to name the tests of a run: `purba <query>`. No flag selects a test.
 
@@ -96,9 +98,9 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
 | `path(tests/**/db_*.py)` | each test of a file that the glob matches |
 | `@.purba/failed.q` | the query that the file holds |
 
-- **An id matches only whole parts.** `tests/test_a` names no file. The path of an id starts at the folder of the project's file.
+- **An id matches only whole parts.** `tests/test_a` names no file. The path of an id starts at the root.
 - **`!` binds tightest, then `&`, then `|`.** Parentheses group terms.
-- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind, and the files that stage one left out.
+- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind, and the files that stage one left out. The pull request that builds the grammar adds the nearest id to the error of a path.
 - **purba finds the nearest id part by part.** It measures the edit distance of the first part that differs.
 - **A query that selects no test, while each term names something, prints only the count.** [CPython alone refuses a module that its compiler refuses](cpython-alone-refuses-a-module-that-its-compiler-refuses.md#decision-outcome) already prints a module with no test in this way.
 
@@ -126,11 +128,13 @@ Each of these waits for another design.
 | how an id spells a case | fixtures |
 | the form of the line that counts the files left out, and of the line `purba @.purba/failed.q` | reporting, through a blind rating |
 | a picker of tests in the terminal | none yet |
+| which patterns of a test file the project's file may set, in which form, and whether a pattern adds to `test_*.py` | a grilling of its own |
 
 **Downside:**
 
 - **A helper whose first word is one edit from `test` takes another name.** The tester renames `text_format` to `format_text`, for example.
 - **A misspelled test file runs no test, and purba says nothing.** `tset_lend.py` matches no pattern of a test file.
+- **A test file in another convention runs no test, and purba says nothing.** `lend_test.py` matches no pattern of a test file, unless the project's file sets `*_test.py`.
 - **purba says nothing about a misspelled tag.** purba keeps no list of tags, so a query for the right word misses the test.
 - **A run of one test that passes removes the failures of an earlier run.** The tester reruns those failures by their ids.
 - **A run with failures exits 3, not 1, where purba cannot write `.purba/`.** An integrator then reads an invocation error in place of a failed case.
@@ -139,10 +143,11 @@ Each of these waits for another design.
 
 ## Confirmation
 
-No test checks this record yet.
+`mise run test:rust` checks stage one in `crates/selection/tests/stage_one.rs`, and `mise run test:wheel` checks it in `tests/stage_one.bats`.
 `mise run lint:order` refuses an order of design that still ranks selection.
-The pull request that builds each rule adds its tests.
+The pull request that builds each rule other than stage one adds its tests.
 
 [How does purba select the tests of a run?](https://github.com/kalonji-tools/purba/issues/1232) asks the question.
+[Which patterns of a test file may the project's file set, in which form?](https://github.com/kalonji-tools/purba/issues/1240) decides which other patterns of a test file the project's file may set.
 [A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) holds how a run starts and what it prints.
 [`.config/shortlists.toml`](../../.config/shortlists.toml) holds the shortlists of `find-test-files` and `parse-test-query`.

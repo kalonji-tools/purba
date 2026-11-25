@@ -1,6 +1,6 @@
 # purba
 
-purba is a test framework for Python, written in Rust. purba runs the tests of one module, through its [walking skeleton](#walking-skeleton).
+purba is a test framework for Python, written in Rust. purba runs the tests of each [test file](#test-file) under a path, through its [walking skeleton](#walking-skeleton).
 
 This file is the source of truth for what a word means here. A decision record states what purba decided and links to this file for the words it uses.
 
@@ -76,7 +76,7 @@ A rule or mechanism that two or more [parts](#part) follow, and that no part own
 
 ### Configuration level
 
-A place that sets a [dial](#dial): code, the command line, the environment, the project's file, the user's file or the system's file.
+A place that sets a [dial](#dial): code, the command line, the environment, the [project's file](#projects-file), the user's file or the system's file.
 
 ### Count
 
@@ -240,6 +240,10 @@ A comment that holds a command, the head it ran on, and its output, so that it d
 
 An error that a [part](#part) sees in the [tester's](#tester) code, other than a test's [outcome](#outcome). A module that does not parse or load, a test purba refuses to call, and an exception that no test's call raised are each one.
 
+### Project's file
+
+The `pyproject.toml` that holds `[tool.purba]`.
+
 ### Prose
 
 The sentences of a [record](#record) outside its headings, its [reach](#reach), tables, fenced blocks and quotations.
@@ -308,6 +312,10 @@ The [actor](#actor) that reads and approves work it did not write.
 
 A failure scenario a test can check. It lands on one [part](#part) or [concern](#concern), and is weighed by how likely it is and by the quality it breaks.
 
+### Root
+
+The folder where the path of each id starts.
+
 ### Run
 
 One start of purba, from the command it reads to the exit code it sets.
@@ -358,7 +366,7 @@ A read of a change's tests, by a context that did not write them, before the cod
 
 ### Test file
 
-A `.py` file whose name matches `test_*.py` or `*_test.py`.
+A `.py` file whose name matches `test_*.py`.
 
 ### Tester
 

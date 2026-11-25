@@ -15,6 +15,7 @@ purba-execution = { path = "../execution" }
 purba-parsing = { path = "../parsing" }
 purba-reporting = { path = "../reporting" }
 purba-selection = { path = "../selection" }
+toml.workspace = true
 
 [dev-dependencies]
 pyo3.workspace = true

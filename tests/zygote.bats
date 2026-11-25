@@ -9,6 +9,11 @@
 : "${BATS_TEST_DIRNAME:?set by bats}"
 bats_require_minimum_version 1.5.0
 
+# A test that builds its module in its own folder runs it from that folder, the root.
+setup() {
+  printf '[tool.purba]\n' >"${BATS_TEST_TMPDIR:?set by bats}/pyproject.toml"
+}
+
 @test "a global that a test changes keeps the value of the import in the next test" {
   cd "${BATS_TEST_TMPDIR:?set by bats}"
   printf '%s\n' \

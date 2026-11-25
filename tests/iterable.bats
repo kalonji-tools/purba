@@ -15,7 +15,7 @@ bats_require_minimum_version 1.5.0
 @test "all() names its first broken item, any() each item, and a raise names its frame" {
   cd "${BATS_TEST_DIRNAME}/iterable"
 
-  run -1 --separate-stderr purba iterable.py
+  run -1 --separate-stderr purba test_iterable.py
 
   local filtered='[not-one-comparison] line 22 is an all() with an if,'
   filtered+=' and an all() takes one for, no if'
@@ -23,23 +23,23 @@ bats_require_minimum_version 1.5.0
   local iterator='[iterator-read] line 32 reads it, an iterator that one reading empties;'
   iterator+=' make it a list in the act'
   diff -u - <(printf '%s\n' "${output}") <<LINES
-iterable.py::test_filtered project error: ${filtered}
-iterable.py::test_each failed
+test_iterable.py::test_filtered project error: ${filtered}
+test_iterable.py::test_each failed
     assert all(len(c) == 2 for c in parts)
       the first item that breaks  len(c) == 2
       [2]  len(c)  1     c  'e'
-iterable.py::test_some failed
+test_iterable.py::test_some failed
     assert any(p == "/opt" for p in paths)
       none of 2 items holds  p == "/opt"
       [0]  '/usr/share'
       [1]  '/etc'
-iterable.py::test_empty project error: ${empty}
-iterable.py::test_iterator project error: ${iterator}
-iterable.py::test_made_by_the_check passed
-iterable.py::test_generator_raises raised: ValueError: boom
-    raised inside the generator gen() at iterable.py:3
-iterable.py::test_parse_raises raised: ValueError: invalid literal for int() with base 10: 'x'
-    raised in parse() at iterable.py:7
+test_iterable.py::test_empty project error: ${empty}
+test_iterable.py::test_iterator project error: ${iterator}
+test_iterable.py::test_made_by_the_check passed
+test_iterable.py::test_generator_raises raised: ValueError: boom
+    raised inside the generator gen() at test_iterable.py:3
+test_iterable.py::test_parse_raises raised: ValueError: invalid literal for int() with base 10: 'x'
+    raised in parse() at test_iterable.py:7
 8 cases: 1 passed, 2 failed, 2 raised, 3 blocked; 3 project errors
 LINES
   [[ -z "${stderr}" ]]
@@ -48,13 +48,13 @@ LINES
 @test "a case that changes its folder names the frame of its raise from the folder of the run" {
   cd "${BATS_TEST_DIRNAME}/iterable"
 
-  run -4 --separate-stderr purba chdir.py
+  run -4 --separate-stderr purba test_chdir.py
 
-  local raised="chdir.py::test_chdir raised: ValueError:"
+  local raised="test_chdir.py::test_chdir raised: ValueError:"
   raised+=" invalid literal for int() with base 10: 'x'"
   diff -u - <(printf '%s\n' "${output}") <<LINES
 ${raised}
-    raised in parse() at chdir.py:5
+    raised in parse() at test_chdir.py:5
 1 case: 1 raised
 LINES
   [[ -z "${stderr}" ]]

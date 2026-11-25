@@ -38,25 +38,26 @@ A console script adds one command and one private name, and the wheel keeps its 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes one [query](../../CONTEXT.md#query), and no flag.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds the query.
-- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`. The usage line holds until selection builds the query. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
-- **A run prints to stdout the line of each test that selection refuses, then each other test's line, then each unused suppression's, and the count.**
+- **For an [invocation error](../../CONTEXT.md#invocation-error), purba writes one line to stderr.** The line says why. It is `purba: invocation error: `, then one of `usage: purba [<path>]`, `cannot read the working folder: <error>`, `no pyproject.toml holds [tool.purba]; add it to <file>`, `no pyproject.toml holds [tool.purba]; add one with it to <folder>`, `<path> names no test file: <why>` and `cannot write to stdout: <error>`. The usage line holds until selection builds the query. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
+- **A run prints to stdout the lines it finds before the run, then each other test's line, each unused suppression's, and the count.**
 
   ```mermaid
   flowchart TD
-    parse{"does the module parse, and does selection meet no internal error?"}
-    parse -- no --> stopped{"an interrupt before selection ends?"}
-    parse -- yes --> selected{"an interrupt before selection ends?"}
-    stopped -- yes --> silent["no line and no count"]
-    selected -- yes --> silent
-    stopped -- no --> module["the module's line, and no line for a test"]
-    selected -- no --> refused["the line of each test that selection refuses, in source order"]
-    refused -- "a suppression of the module has a fault" --> blocked
-    refused -- "the rewrite met an internal error" --> blocked["the module's line, then each other test's line as blocked"]
-    refused -- "the rewrite met none" --> others["each other test's line, in source order, as dispatch hands the test on"]
-    module --> count["the count"]
-    blocked --> count
-    others --> unused["the line of each unused suppression, in source order"]
-    unused --> count
+    interrupt{"an interrupt before selection ends?"}
+    interrupt -- yes --> silent["no line and no count"]
+    interrupt -- no --> paths
+    subgraph paths["each folder that stage one cannot read, and each test file, in the order of the paths"]
+      kind{"a folder, or a test file?"}
+      kind -- "a folder" --> folder["the folder's line"]
+      kind -- "a test file" --> parse{"does purba read and parse the module, and does selection meet no internal error?"}
+      parse -- no --> module["the module's line, and no line for a test"]
+      parse -- yes --> refused["the line of each test that selection refuses, in source order"]
+      refused -- "a suppression of the module has a fault" --> blocked
+      refused -- "the rewrite met an internal error" --> blocked["the module's line, then each other test's line as blocked"]
+    end
+    paths --> others["each other test's line, as dispatch hands the test on"]
+    others --> unused["the line of each unused suppression, in the order of the paths, and in source order"]
+    unused --> count["the count"]
   ```
 
   A module that does not load prints its line, then the line of each of its tests. When a module's process ends after a test of it ran, the line of that end follows the test's line. The line of each test left comes next. purba prints no line of the end when the test's line names it, or when no test is left. A load that the first interrupt lands in prints no line, unless it meets an internal error. [The interrupt record's Downside](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names exceptions, as when the parent's ignore or mask holds an interrupt signal. The line of a thread's exception prints when purba takes the exception. It follows the line of the test that ran then, and the error of a load prints before the first test of its module. An [unreached test](../../CONTEXT.md#unreached-test) prints no line, as [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) says. [An interrupted run prints its count, and dies by the signal](an-interrupted-run-prints-its-count-and-dies-by-the-signal.md#decision-outcome) holds why a run that an interrupt stops before selection ends prints no count.
@@ -71,10 +72,10 @@ tests/test_a.py::test_three project error: [no-expectation] no expectation state
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 ```
 
-- **Each line holds the path from the folder of the project's file, then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. A test in a class names each class on the way before its function, and a `::` comes before each class. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
+- **Each line holds the path from the [root](../../CONTEXT.md#root), then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. A test in a class names each class on the way before its function, and a `::` comes before each class. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
 - **A line that is not `passed` or `interrupted` gives a reason.** Under a failed line, each assert it quotes prints on a line of its own, indented by four spaces. [A failed expectation shows its expected value and its reading](a-failed-expectation-shows-its-expected-value-and-its-reading.md#decision-outcome) says what prints under each quote of an expectation. [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes, and which part of their text. A case in which no expectation ran gives the project error `no expectation stated`, or `no expectation ran` when its test states one.
   [A tuple assert keeps CPython's warning, and selection refuses a test that ends with one](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names what blocked it: the module that did not load, or the end of the module's process.
-- **Under a `raised` line, a line names the frame that the exception came from, when it is not the test's own.** Reporting indents it by four spaces. The frame is the innermost one outside Python's standard library: `raised inside the generator gen() at iterable.py:3`, or `raised in parse() at iterable.py:7`. A raise in the test's own code, or in a comprehension or a `lambda` inside it, adds no line. A raise whose every frame lies in the standard library adds none either. The path is relative to the folder that the run started in, or absolute for a frame outside it.
+- **Under a `raised` line, a line names the frame that the exception came from, when it is not the test's own.** Reporting indents it by four spaces. The frame is the innermost one outside Python's standard library: `raised inside the generator gen() at test_iterable.py:3`, or `raised in parse() at test_iterable.py:7`. A raise in the test's own code, or in a comprehension or a `lambda` inside it, adds no line. A raise whose every frame lies in the standard library adds none either. The path is relative to the root, or absolute for a frame outside it.
 - **Under the line of a case, each verdict that a suppression turned into a warning prints with its reason.** [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) says how.
 - **A reason prints on one line.** It breaks at each character that Python's `str.splitlines` reads as a line break. Its lines join with one space, each without the whitespace at its ends. An empty line drops out. Each other control character prints as Python's `repr` writes it, such as `\t` or `\x1b`.
 - **The count names the cases, then each outcome, `blocked`, `unreached` and each kind of error above 0, then the suppressed verdicts.** `case` and each kind of error take an `s`, except at 1. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.

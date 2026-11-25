@@ -4,16 +4,19 @@ use std::path::PathBuf;
 use purba_command::Error;
 use pyo3::Python;
 
-/// Runs purba on the module `source`, and gives what `run` returned and stdout.
+/// Runs purba on the module `source`, in a project of its own, and gives what
+/// `run_with` returned and stdout.
 fn run_module(name: &str, source: &str) -> (Result<u8, Error>, String) {
-    let path = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name);
-    fs::write(&path, source).expect("the test writes its module");
-    let argv = [
-        "purba".to_owned(),
-        path.to_str().expect("the path is UTF-8").to_owned(),
-    ];
+    let root = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
+        .join("interrupt")
+        .join(name);
+    fs::create_dir_all(&root).expect("the test makes its project");
+    fs::write(root.join("pyproject.toml"), "[tool.purba]\n")
+        .expect("the test writes the project's file");
+    fs::write(root.join(name), source).expect("the test writes its module");
+    let argv = ["purba".to_owned(), name.to_owned()];
     let mut out = Vec::new();
-    let result = purba_command::run(&argv, Ok(&mut out));
+    let result = purba_command::run_with(&argv, &root, Ok(&mut out), purba_assertion::rewrite);
     (
         result,
         String::from_utf8(out).expect("reporting writes UTF-8"),

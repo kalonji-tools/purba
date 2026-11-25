@@ -1109,6 +1109,24 @@ fn bind(
 ///
 /// A panic of step 4 or 5 goes on after step 6.
 pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Loaded<'py>> {
+    load_shown(py, path, path, rewrite)
+}
+
+/// [`load`], where each error names the module by `shown` in place of `path`.
+///
+/// # Errors
+///
+/// Those of [`load`].
+///
+/// # Panics
+///
+/// Where [`load`] panics.
+pub fn load_shown<'py>(
+    py: Python<'py>,
+    path: &Path,
+    shown: &Path,
+    rewrite: &Rewrite,
+) -> PyResult<Loaded<'py>> {
     let text = rewrite.text.as_str();
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
     let modules = py.import("sys")?.getattr("modules")?;
@@ -1141,8 +1159,8 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
     let before = modules.get_item(&*name).ok();
     modules.set_item(&*name, &module)?;
     let ran_body = panic::catch_unwind(AssertUnwindSafe(|| {
-        let code = run(py, path, text, &module)?;
-        check(&module, &ran, &read, path).map(|()| code)
+        let code = run(py, (path, shown), text, &module)?;
+        check(&module, &ran, &read, shown).map(|()| code)
     }));
     if !matches!(ran_body, Ok(Ok(_))) {
         let _ = before.map_or_else(
@@ -1165,10 +1183,11 @@ pub fn load<'py>(py: Python<'py>, path: &Path, rewrite: &Rewrite) -> PyResult<Lo
     })
 }
 
-/// Compiles `text`, runs it in the namespace of `module`, and gives its code.
+/// Compiles `text` as the file at `path`, runs it in the namespace of
+/// `module`, and gives its code. An error names the module by `shown`.
 fn run<'py>(
     py: Python<'py>,
-    path: &Path,
+    (path, shown): (&Path, &Path),
     text: &str,
     module: &Bound<'py, PyModule>,
 ) -> PyResult<Bound<'py, PyAny>> {
@@ -1178,7 +1197,7 @@ fn run<'py>(
     let code = builtins
         .getattr("compile")?
         .call((text, path.as_os_str(), "exec"), Some(&keywords))?;
-    check_locals(&code, path)?;
+    check_locals(&code, shown)?;
     builtins.getattr("exec")?.call1((&code, module.dict()))?;
     Ok(code)
 }

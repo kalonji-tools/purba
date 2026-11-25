@@ -4,8 +4,17 @@ use std::path::{Path, PathBuf};
 
 use purba_command::Error;
 
+/// The path of the file `name` in its own project, whose `pyproject.toml` holds
+/// `[tool.purba]`. Each name up to its first `.` names one project.
 fn module_at(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(name)
+    let stem = name.split('.').next().unwrap_or(name);
+    let root = PathBuf::from(env!("CARGO_TARGET_TMPDIR"))
+        .join("command")
+        .join(stem);
+    fs::create_dir_all(&root).expect("the test makes its project");
+    fs::write(root.join("pyproject.toml"), "[tool.purba]\n")
+        .expect("the test writes the project's file");
+    root.join(name)
 }
 
 fn argv(path: &Path) -> [String; 2] {
@@ -13,6 +22,12 @@ fn argv(path: &Path) -> [String; 2] {
         "purba".to_owned(),
         path.to_str().expect("the path is UTF-8").to_owned(),
     ]
+}
+
+/// Runs purba on the module at `path`, from the folder of its project.
+fn run(path: &Path, out: io::Result<impl Write>) -> Result<u8, Error> {
+    let folder = path.parent().expect("a module has a folder");
+    purba_command::run_with(&argv(path), folder, out, purba_assertion::rewrite)
 }
 
 /// Each kind that a line names after its test, in reporting's words.
@@ -25,17 +40,19 @@ const KINDS: [&str; 6] = [
     "internal error",
 ];
 
-/// Runs purba on the module `source` at `name`. Gives its path, each line of a
-/// case or a module as its subject and its kind, and the exit code. An indented
-/// line under a failed case, and the count, are not such lines.
+/// Runs purba on the module `source` at `name`. Gives its path from the root,
+/// each line of a case or a module as its subject and its kind, and the exit
+/// code. An indented line under a failed case, and the count, are not such
+/// lines.
 fn run_module(name: &str, source: &str) -> (PathBuf, Vec<(String, &'static str)>, u8) {
     let path = module_at(name);
     fs::write(&path, source).expect("the test writes its module");
     let mut out = Vec::new();
-    let code = purba_command::run(&argv(&path), Ok(&mut out)).expect("the run finishes");
+    let code = run(&path, Ok(&mut out)).expect("the run finishes");
     let stdout = String::from_utf8(out).expect("reporting writes UTF-8");
     let mut lines: Vec<&str> = stdout.lines().collect();
     lines.pop();
+    let path = PathBuf::from(name);
     let shown = path.display().to_string();
     let kinds = lines
         .into_iter()
@@ -78,15 +95,13 @@ impl Write for Refuses {
 }
 
 #[test]
-fn a_module_that_cannot_be_read_is_the_read_error() {
+fn a_path_that_names_nothing_is_an_invocation_error() {
     let path = module_at("test_command_missing.py");
-    let error =
-        purba_command::run(&argv(&path), Ok(Vec::new())).expect_err("a missing module is an error");
+    let error = run(&path, Ok(Vec::new())).expect_err("a missing module is an error");
+    let typed = path.display().to_string();
     assert!(
-        error
-            .to_string()
-            .starts_with(&format!("cannot read {}: ", path.display())),
-        "the error names the path: {error}"
+        matches!(&error, Error::NoTestFile(named, _) if *named == typed),
+        "the error names the path as the tester typed it: {error:?}"
     );
 }
 
@@ -126,8 +141,7 @@ fn a_run_writes_its_lines_and_returns_the_exit_code() {
 fn a_writer_that_refuses_is_the_write_error() {
     let path = module_at("test_command_refused.py");
     fs::write(&path, "x = 1\n").expect("the test writes its module");
-    let error =
-        purba_command::run(&argv(&path), Ok(Refuses)).expect_err("a refused write is an error");
+    let error = run(&path, Ok(Refuses)).expect_err("a refused write is an error");
     assert!(
         matches!(error, Error::Refused { code: 3, .. }),
         "a module that can be read gives the refused write, with the code 3: {error}"
@@ -164,8 +178,8 @@ fn a_write_refused_during_the_run_stops_the_tests_after_it() {
         ran.to_str().expect("the path is UTF-8")
     );
     fs::write(&path, text).expect("the test writes its module");
-    let error = purba_command::run(&argv(&path), Ok(RefusesSecondLine::default()))
-        .expect_err("a refused write is an error");
+    let error =
+        run(&path, Ok(RefusesSecondLine::default())).expect_err("a refused write is an error");
     assert_eq!(
         error.to_string(),
         "cannot write to stdout: refused",
@@ -193,8 +207,8 @@ fn a_write_refused_after_an_internal_error_returns_125() {
          def test_two():\n    assert 1 == 1\n"
     );
     fs::write(&path, text).expect("the test writes its module");
-    let error = purba_command::run(&argv(&path), Ok(RefusesSecondLine::default()))
-        .expect_err("a refused write is an error");
+    let error =
+        run(&path, Ok(RefusesSecondLine::default())).expect_err("a refused write is an error");
     assert!(
         matches!(error, Error::Refused { code: 125, .. }),
         "the internal error of the first line comes before the refused write: {error}"
@@ -211,7 +225,7 @@ fn a_stdout_that_takes_no_write_stops_the_run_before_any_test() {
         ran.to_str().expect("the path is UTF-8")
     );
     fs::write(&path, text).expect("the test writes its module");
-    let error = purba_command::run(&argv(&path), Err::<Vec<u8>, _>(io::Error::other("closed")))
+    let error = run(&path, Err::<Vec<u8>, _>(io::Error::other("closed")))
         .expect_err("a stdout that takes no write is an error");
     assert_eq!(
         error.to_string(),
@@ -223,11 +237,14 @@ fn a_stdout_that_takes_no_write_stops_the_run_before_any_test() {
 
 #[test]
 fn a_usage_error_comes_before_a_stdout_that_takes_no_write() {
-    let error = purba_command::run(
-        &["purba".to_owned()],
+    let folder = module_at("test_command_usage.py");
+    let error = purba_command::run_with(
+        &["purba".to_owned(), "a".to_owned(), "b".to_owned()],
+        folder.parent().expect("a module has a folder"),
         Err::<Vec<u8>, _>(io::Error::other("closed")),
+        purba_assertion::rewrite,
     )
-    .expect_err("no path is an error");
+    .expect_err("two paths are an error");
     assert!(
         matches!(error, Error::Usage),
         "the usage error comes first: {error}"
@@ -239,7 +256,7 @@ fn a_module_with_no_test_exits_2() {
     let path = module_at("test_command_none.py");
     fs::write(&path, "x = 1\n").expect("the test writes its module");
     assert_eq!(
-        purba_command::run(&argv(&path), Ok(Vec::new())).expect("the run finishes"),
+        run(&path, Ok(Vec::new())).expect("the run finishes"),
         2,
         "a run with no test exits 2"
     );
@@ -274,8 +291,7 @@ fn a_refused_line_is_written_before_any_test_runs() {
         ran.to_str().expect("the path is UTF-8")
     );
     fs::write(&path, text).expect("the test writes its module");
-    let error =
-        purba_command::run(&argv(&path), Ok(Refuses)).expect_err("a refused write is an error");
+    let error = run(&path, Ok(Refuses)).expect_err("a refused write is an error");
     assert_eq!(
         error.to_string(),
         "cannot write to stdout: refused",
@@ -294,7 +310,7 @@ fn a_module_whose_every_test_is_refused_does_not_load() {
         sentinel.to_str().expect("the path is UTF-8")
     );
     fs::write(&path, text).expect("the test writes its module");
-    let code = purba_command::run(&argv(&path), Ok(Vec::new())).expect("the run finishes");
+    let code = run(&path, Ok(Vec::new())).expect("the run finishes");
     assert!(!sentinel.exists(), "the module's body never ran");
     assert_eq!(code, 4, "a test with an error exits 4");
 }
