@@ -100,7 +100,7 @@ A being that can take the role of an [actor](#actor). A person and an agent are 
 
 ### Expectation
 
-An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations, or tuple asserts, after it. It compares two values by one operator, with a literal on one side. Or it takes one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`. Or it checks each item of an `all()` or an `any()` by one of these. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
+An assert at the end of a [test's](#test) body, or at the end of the body of a `with` that comes just before such asserts, with only other expectations, or tuple asserts, after it, and that is no tuple assert itself. Selection asks that it compare two values by one operator, with a literal on one side, or take one of four forms: `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`, or check each item of an `all()` or an `any()` by one of these. Selection refuses one in none of these. purba reads each one in each [case](#case), and gives the case its [outcome](#outcome) from those readings.
 
 ### Form
 
@@ -262,7 +262,7 @@ An [actor](#actor) that a [location](#location) serves. A location inherits its 
 
 ### Reading
 
-One read of an [expectation](#expectation) in a [case](#case), and the value that it reads. That value is the side of the comparison that is not the expected value, or the `x` of one of the four forms of an expectation. The expected value is the side that is a literal, or the right side when both are. For an `all()` or an `any()`, it is the value that its `for` loops over.
+One read of an [expectation](#expectation) in a [case](#case), and the value that it reads: the side of a comparison that is not the expected value, the `x` of one of the four forms, what the `for` of an `all()` or an `any()` in one of these forms loops over, or else its whole condition. The expected value is the side that is a literal, or the right side when both are.
 
 ### Reagent
 

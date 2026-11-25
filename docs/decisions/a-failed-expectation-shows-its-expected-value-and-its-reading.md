@@ -5,7 +5,7 @@
 [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) has a failed line quote the text of each expectation that did not hold.
 The text holds the code and not the values.
 A failed line loses the value that broke a check.
-One side of each [expectation](../../CONTEXT.md#expectation) is a literal, or selection refuses its test.
+A comparison has a literal on one side, or selection refuses its test.
 
 [How does a test check a rule that has no literal value, such as a round trip or a property of every item?](https://github.com/kalonji-tools/purba/issues/1016#issuecomment-6913962314) decides that a failed expectation shows its [reading](../../CONTEXT.md#reading).
 A flag joins the public surface only with a change that purba needs to work as a command, as [purba's public surface starts empty and has no plugin API](purbas-public-surface-starts-empty-and-has-no-plugin-api.md#decision-outcome) says.
@@ -24,7 +24,8 @@ No flag sets how much of a value shows.
 
 **Area:** assertion, execution, parsing, reporting
 
-**Under each expectation that did not hold, a failed line shows its expected value and its reading.**
+**Under each expectation in one of the forms that did not hold, a failed line shows its expected value and its reading.**
+A failed expectation in no form shows only its quote.
 A failed `all()` or a failed `any()` shows a heading and item lines in place of the expected value and the reading.
 Each takes a line of its own, two spaces in from the quote of its expectation.
 
