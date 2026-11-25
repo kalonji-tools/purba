@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# The origin rule.
+# The origin rule, and the rule that a branch adds no merge commit.
 #
 #   the decision:  docs/decisions/liability-is-recorded-from-the-act-that-makes-it-true.md
 #   what you owe:  CONTRIBUTING.md
 #
 #   check-origin.sh <base> <head>
 #
-# Exits 1 when a commit breaks the rule, and 2 when this script cannot run.
+# Exits 1 when a commit breaks a rule, and 2 when this script cannot run.
 #
 # It also writes the failure, so a change to the wording reaches one place.
 set -euo pipefail
@@ -19,7 +19,9 @@ set -euo pipefail
 stderr=$(mktemp)
 trap 'rm -f "${stderr}"' EXIT
 
-commits=$(git rev-list "$1".."$2" 2>"${stderr}") ||
+# `--parents` prints each parent after the commit, so a second parent marks a
+# merge commit. `git rev-list --help`, the flag `--parents`.
+commits=$(git rev-list --parents "$1".."$2" 2>"${stderr}") ||
   cannot "the origin check could not read the range $1..$2." "$(<"${stderr}")"
 cat "${stderr}" >&2
 
@@ -28,29 +30,35 @@ cat "${stderr}" >&2
 # The address must sit inside angle brackets, because CONTRIBUTING.md asks a
 # sign-off to reach someone.
 missing=""
-while read -r sha; do
+merges=""
+while read -r sha _ second; do
   [[ -n "${sha}" ]] || continue
-  if ! trailers=$(git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "${sha}"); then
-    cannot "the origin check could not read the trailers of ${sha}."
+  if [[ -z "${second}" ]]; then
+    if ! trailers=$(git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "${sha}"); then
+      cannot "the origin check could not read the trailers of ${sha}."
+    fi
+    ! grep -q '<.*@.*>' <<<"${trailers}" || continue
   fi
-  ! grep -q '<.*@.*>' <<<"${trailers}" || continue
   if ! named=$(git log -1 --format='%h %s' "${sha}"); then
     cannot "the origin check could not read the subject of ${sha}."
   fi
-  missing+="${named}"$'\n'
+  if [[ -n "${second}" ]]; then
+    merges+="${named}"$'\n'
+  else
+    missing+="${named}"$'\n'
+  fi
 done <<<"${commits}"
 missing=${missing%$'\n'}
+merges=${merges%$'\n'}
 
 if [[ -n "${missing}" ]]; then
-  summary="A commit is refused when it carries no Signed-off-by trailer, because that trailer \
-records who may submit it. CONTRIBUTING.md has the command that adds it."
+  refuse "A commit is refused when it carries no Signed-off-by trailer, because that trailer \
+records who may submit it. CONTRIBUTING.md has the command that adds it." "${missing}"
+fi
 
-  if printf '%s\n' "${missing}" | cut -d' ' -f1 |
-    git rev-list --no-walk --merges --stdin | grep -q .; then
-    summary="${summary} A merge commit below is not one you can sign."
-  fi
-
-  refuse "${summary}" "${missing}"
+if [[ -n "${merges}" ]]; then
+  refuse "A commit is refused when it is a merge commit, because every branch in this \
+repository refuses one. Rebase your branch onto its base instead." "${merges}"
 fi
 
 finish

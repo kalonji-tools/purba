@@ -47,6 +47,7 @@ This path needs no new mechanism, because the branch is an ordinary branch here 
 
 It refuses a code owner, because GitHub refuses a self-approval and a code owner who opens the branch leaves a pull request nobody can approve.
 It refuses a branch whose commits carry no origin trailer.
+It refuses a branch that adds a merge commit, because every branch in this repository refuses one.
 
 That second refusal is the only certain reading of the origin rule on this path.
 A first-time contributor's workflow run waits for approval and writes no check at all.

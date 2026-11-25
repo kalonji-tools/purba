@@ -341,7 +341,7 @@ origin_holds() {
   [[ "${refusals}" -eq 1 ]]
 }
 
-@test "a branch whose replay changes its content is refused, and nothing is pushed" {
+@test "a branch that adds a merge commit is refused, and nothing is pushed" {
   git switch --quiet --create side main
   commit "feat: side" "Signed-off-by: A Person <person@example.invalid>"
   git switch --quiet work
@@ -360,7 +360,8 @@ origin_holds() {
   asked=$(calls gh)
   [[ "${asked}" != *"-f name=Quality"* ]]
   [[ "${asked}" == *"-f head_sha=${refused} -f status=completed -f conclusion=failure"* ]]
-  [[ "${asked}" == *"A branch is refused when its replay changes its content"* ]]
+  [[ "${asked}" == *"A commit is refused when it is a merge commit"* ]]
+  [[ "${asked}" != *"replay changes its content"* ]]
 }
 
 @test "a rule that cannot run is reported as a check that could not run" {

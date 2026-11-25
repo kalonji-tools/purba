@@ -40,7 +40,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Name the commits that carry no origin trailer
+      - name: Name the commits that carry no origin trailer, and each merge commit
         run: |
           set -euo pipefail
 
@@ -51,7 +51,7 @@ jobs:
           # It needs no token. That is what makes it work on a fork too.
           scripts/check-origin.sh HEAD^1 HEAD^2
 
-          echo "every commit this pull request adds carries the trailer"
+          echo "every commit this pull request adds carries the trailer, and none is a merge commit"
   replay:
     name: Replay
     runs-on: ubuntu-latest
