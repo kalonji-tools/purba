@@ -6,28 +6,39 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 /// The folder that the path of each raise starts from.
-static FOLDER: OnceLock<PathBuf> = OnceLock::new();
+static ROOT: OnceLock<PathBuf> = OnceLock::new();
 
-/// Keeps `folder` as the folder that the path of each raise starts from. Only
-/// the first call of the process keeps one.
-pub fn keep(folder: PathBuf) {
-    let _ = FOLDER.set(folder);
+/// The folder that the run started in, which a relative file name resolves
+/// against.
+static RUN: OnceLock<PathBuf> = OnceLock::new();
+
+/// Keeps `root` as the folder that the path of each raise starts from, and
+/// `run` as the folder that the run started in. Only the first call of the
+/// process keeps each.
+pub fn keep(root: PathBuf, run: PathBuf) {
+    let _ = ROOT.set(root);
+    let _ = RUN.set(run);
 }
 
-/// Keeps the folder that the run started in, before any case can change it,
-/// unless a folder is already kept. A folder that cannot be read leaves the
-/// folder of each raise in its place.
+/// Keeps the working folder as the folder that the run started in, before any
+/// case can change it, unless a folder is already kept. A folder that cannot be
+/// read leaves the folder of each raise in its place.
 pub fn keep_the_folder() {
     if let Ok(folder) = std::env::current_dir() {
-        keep(folder);
+        let _ = RUN.set(folder);
     }
 }
 
-/// `path` from the kept folder when it lies under that folder, and `path`
-/// itself otherwise.
+/// The folder that the path of each raise starts from: the kept root, or else
+/// the folder that the run started in.
+fn start() -> Option<&'static PathBuf> {
+    ROOT.get().or_else(|| RUN.get())
+}
+
+/// `path` from the folder that the path of each raise starts from when it lies
+/// under that folder, and `path` itself otherwise.
 pub fn shown(path: &Path) -> &Path {
-    FOLDER
-        .get()
+    start()
         .and_then(|folder| path.strip_prefix(folder).ok())
         .unwrap_or(path)
 }
@@ -46,22 +57,27 @@ const GENERATOR: u32 = 0x20;
 /// frame runs the code of `test`, or of a comprehension or a `lambda` inside
 /// it, since a raise in the test's own code needs no line of its own.
 ///
-/// The path is relative to the kept folder, after each symbolic link resolves,
-/// and absolute outside it.
+/// The path is relative to the kept root, or else to the folder that the run
+/// started in, after each symbolic link resolves, and absolute outside it.
 pub fn of(py: Python<'_>, err: &PyErr, test: &Bound<'_, PyAny>) -> Option<String> {
     line(py, err, test).ok().flatten()
 }
 
 fn line(py: Python<'_>, err: &PyErr, test: &Bound<'_, PyAny>) -> PyResult<Option<String>> {
     let path = py.import("os.path")?;
-    let start = match FOLDER.get() {
-        Some(folder) => folder.clone().into_pyobject(py)?.into_any(),
-        None => py.import("os")?.getattr("getcwd")?.call0()?,
+    let folder_of = |kept: Option<&PathBuf>| -> PyResult<Bound<'_, PyAny>> {
+        match kept {
+            Some(folder) => Ok(folder.clone().into_pyobject(py)?.into_any()),
+            None => py.import("os")?.getattr("getcwd")?.call0(),
+        }
     };
+    let run = folder_of(RUN.get())?;
+    let start = folder_of(start())?;
     // A relative file name resolves against the folder of the run, and not
-    // against the folder that the case may have changed to.
+    // against the root, nor against the folder that the case may have changed
+    // to.
     let real = |name: &Bound<'_, PyAny>| -> PyResult<String> {
-        let joined = path.getattr("join")?.call1((&start, name))?;
+        let joined = path.getattr("join")?.call1((&run, name))?;
         path.getattr("realpath")?.call1((joined,))?.extract()
     };
     let paths = py.import("sysconfig")?.getattr("get_paths")?.call0()?;

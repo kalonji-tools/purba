@@ -103,7 +103,7 @@ It checks that `_main` writes the line of a usage error to stderr.
 It checks that a test that aborts purba leaves the line of each test before it.
 It checks the lines of a module that does not parse, and of one that does not load.
 
-`mise run test:wheel` checks in `tests/iterable.bats` the line that names the frame of a raise in a generator and in a function. It checks there a case that changes its folder before it raises. `mise run test:rust` checks in `crates/execution/tests/run.rs` which frame a raise names. It checks in `crates/dispatch/tests/hand.rs` that the frame crosses the fork.
+`mise run test:wheel` checks in `tests/iterable.bats` the line that names the frame of a raise in a generator and in a function. It checks there a case that changes its folder before it raises. It checks there a run from a subfolder of the root, and a frame outside the root, which the line names by its absolute path. `mise run test:rust` checks in `crates/execution/tests/run.rs` which frame a raise names. It checks in `crates/dispatch/tests/hand.rs` that the frame crosses the fork.
 
 [bats tests the installed wheel from outside purba](bats-tests-the-installed-wheel-from-outside-purba.md#decision-outcome) decides what `mise run test:wheel` runs.
 [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when a refused test's line prints.

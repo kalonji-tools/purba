@@ -181,7 +181,7 @@ pub fn run_with(
     };
     let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new), &patterns)
         .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
-    purba_execution::start_paths_at(root.clone());
+    purba_execution::start_paths_at(root.clone(), folder.to_path_buf());
     let (modules, mut kept) =
         before_the_run(&root, found, notice.as_deref(), &mut report, &rewrite)?;
     hand(&root, modules, &mut kept, &mut report)?;
