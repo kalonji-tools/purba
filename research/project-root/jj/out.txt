@@ -1,0 +1,30 @@
+== jj --version
+jj 0.41.0
+== 1. no repository
+-- cwd p/a: jj root
+Error: There is no jj repo in "."
+exit=1
+== 2. p is a git repository: the hint appears from p, not from p/a
+-- cwd p: jj root
+Error: There is no jj repo in "."
+Hint: It looks like this is a git repo. You can create a jj repo backed by it by running this:
+jj git init
+exit=1
+-- cwd p/a: jj root
+Error: There is no jj repo in "."
+exit=1
+== 3. p holds .jj, colocated with .git
+-- cwd p/a: jj root
+<dir>/p
+exit=0
+== 4. -R p from the folder above p
+-- cwd <dir>: jj -R p root
+<dir>/p
+exit=0
+== 5. the path that file list prints, from p and from p/a
+-- cwd p: jj file list
+a/m.txt
+exit=0
+-- cwd p/a: jj file list
+m.txt
+exit=0

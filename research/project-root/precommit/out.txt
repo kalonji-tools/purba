@@ -1,0 +1,8 @@
+== pre-commit --version
+pre-commit 4.7.0
+== 1. outside git, from p/a
+exit=1
+An error has occurred: FatalError: git failed. Is it installed, and are you in a Git repository directory?
+== 2. inside git: the hook runs from p, with a path from p
+pwd=<dir>/p
+args=a/m.py

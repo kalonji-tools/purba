@@ -1,0 +1,28 @@
+== ruff --version
+ruff 0.17.6
+== 1. no settings file anywhere
+-- cwd p: ruff check
+file_resolver.project_root = "<dir>/p"
+a/m.py:1:8: F401 [*] `os` imported but unused
+-- cwd p/a: ruff check
+file_resolver.project_root = "<dir>/p/a"
+m.py:1:8: F401 [*] `os` imported but unused
+== 2. p/.git and p/pyproject.toml with no [tool.ruff]: neither marks the root
+-- cwd p/a: ruff check
+file_resolver.project_root = "<dir>/p/a"
+m.py:1:8: F401 [*] `os` imported but unused
+== 3. p/pyproject.toml with [tool.ruff]
+-- cwd p: ruff check
+file_resolver.project_root = "<dir>/p"
+a/m.py:1:8: F401 [*] `os` imported but unused
+-- cwd p/a: ruff check
+file_resolver.project_root = "<dir>/p"
+m.py:1:8: F401 [*] `os` imported but unused
+== 4. --config p/pyproject.toml, run from p/a: the root is the working folder
+-- cwd p/a: ruff check --config <dir>/p/pyproject.toml
+file_resolver.project_root = "<dir>/p/a"
+m.py:1:8: F401 [*] `os` imported but unused
+== 5. no project file, a user file in $XDG_CONFIG_HOME/ruff/ruff.toml
+-- cwd p/a: ruff check
+file_resolver.project_root = "<dir>/p/a"
+m.py:1:8: F401 [*] `os` imported but unused

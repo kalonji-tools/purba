@@ -1,0 +1,20 @@
+== npm --version
+11.19.1
+== 1. no marker anywhere: the working folder
+-- cwd p/a/b: npm prefix
+exit=0
+<dir>/p/a/b
+== 2. p/a/node_modules
+-- cwd p/a/b: npm prefix
+exit=0
+<dir>/p/a
+== 3. p/package.json is farther than p/a/node_modules
+-- cwd p/a/b: npm prefix
+exit=0
+<dir>/p/a
+== 4. p/package.json lists p/a as a workspace, and p/a/package.json exists
+-- cwd p/a/b: npm prefix
+exit=0
+<dir>/p
+== 5. --prefix sets it
+<dir>/p/a/b

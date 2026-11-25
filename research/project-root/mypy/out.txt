@@ -1,0 +1,31 @@
+== mypy --version
+mypy 2.4.1 (compiled: yes)
+== 1. the walk to outer/mypy.ini, with no .git
+-- cwd outer/p/pkg: mypy mod.py
+Config File:            <dir>/outer/mypy.ini
+Parsing mod.py (mod)
+== 2. outer/p/.git stops the walk
+-- cwd outer/p/pkg: mypy mod.py
+Config File:            Default
+Parsing mod.py (mod)
+== 3. the module name with no __init__.py
+-- cwd outer/p: mypy pkg/mod.py
+Config File:            Default
+Parsing pkg/mod.py (mod)
+-- cwd outer/p/pkg: mypy mod.py
+Config File:            Default
+Parsing mod.py (mod)
+== 4. the same, with --explicit-package-bases: the working folder is a base
+-- cwd outer/p: mypy --explicit-package-bases pkg/mod.py
+Config File:            Default
+Parsing pkg/mod.py (pkg.mod)
+-- cwd outer/p/pkg: mypy --explicit-package-bases mod.py
+Config File:            Default
+Parsing mod.py (mod)
+== 5. pkg/__init__.py: the name no longer depends on the working folder
+-- cwd outer/p: mypy pkg/mod.py
+Config File:            Default
+Parsing pkg/mod.py (pkg.mod)
+-- cwd outer/p/pkg: mypy mod.py
+Config File:            Default
+Parsing mod.py (pkg.mod)

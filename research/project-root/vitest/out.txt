@@ -1,0 +1,17 @@
+== vitest --version
+vitest/5.1.1 linux-x64 node-v24.22.1
+== 1. no package.json and no settings file
+-- cwd p: vitest list --globals
+a/x.test.js > lends
+exit=0
+-- cwd p/a: vitest list --globals
+x.test.js > lends
+exit=0
+== 2. p/package.json and p/vitest.config.mjs, run from p/a: not read
+-- cwd p/a: vitest list --globals
+x.test.js > lends
+exit=0
+== 3. --root .. from p/a: the settings file now applies, and names the project
+-- cwd p/a: vitest list --globals --root ..
+[fromconfig] a/x.test.js > lends
+exit=0

@@ -1,0 +1,18 @@
+== editorconfig --version
+EditorConfig Python Core Version 0.17.1
+== 1. no .editorconfig anywhere: no property, no error
+-- editorconfig <dir>/p/a/m.py
+exit=0
+== 2. <dir>/.editorconfig (root = true) and p/.editorconfig (no root): both apply
+-- editorconfig <dir>/p/a/m.py
+indent_size=8
+indent_style=tab
+tab_width=8
+exit=0
+== 3. p/.editorconfig says root = true: the walk stops there
+-- editorconfig <dir>/p/a/m.py
+indent_style=tab
+indent_size=tab
+exit=0
+== 4. the flags of the CLI
+-f                 Specify conf filename other than ".editorconfig".

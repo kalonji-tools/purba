@@ -1,0 +1,29 @@
+== jest --version
+30.5.2
+== 1. no package.json and no settings file
+-- cwd p/a: jest
+Error: Could not find a config file based on provided values:
+exit=1
+== 1b. the same, with --rootDir: the walk still refuses
+-- cwd p/a: jest --rootDir .
+Error: Could not find a config file based on provided values:
+exit=1
+== 1c. the same, with the settings as a JSON string: rootDir is the working folder
+-- cwd p/a: jest --config {}
+"rootDir": "<dir>/p/a",
+exit=1
+FAIL ./x.test.js
+== 2. p/package.json with no "jest" key
+-- cwd p: jest
+"rootDir": "<dir>/p",
+exit=1
+FAIL a/x.test.js
+-- cwd p/a: jest
+"rootDir": "<dir>/p",
+exit=1
+FAIL ./x.test.js
+== 3. --rootDir names p/a, run from p
+-- cwd p: jest --rootDir a
+"rootDir": "<dir>/p/a",
+exit=1
+FAIL a/x.test.js

@@ -1,0 +1,23 @@
+== tox --version
+4.67.16
+== 1. no file anywhere
+-- cwd p/a: tox config --core -k tox_root
+ROOT: No loadable tox.ini or setup.cfg or pyproject.toml or tox.toml found, assuming empty tox.ini at <dir>/p/a
+tox_root = <dir>/p/a
+== 2. p/.git: git does not mark tox_root
+-- cwd p/a: tox config --core -k tox_root
+ROOT: No loadable tox.ini or setup.cfg or pyproject.toml or tox.toml found, assuming empty tox.ini at <dir>/p/a
+tox_root = <dir>/p/a
+== 3. p/pyproject.toml with no tox table: the fallback takes its folder
+-- cwd p/a: tox config --core -k tox_root
+ROOT: No loadable tox.ini or setup.cfg or pyproject.toml or tox.toml found, assuming empty tox.ini at <dir>/p
+tox_root = <dir>/p
+== 4. p/tox.ini
+-- cwd p/a: tox config --core -k tox_root
+tox_root = <dir>/p
+== 5. --root p/a overrides it
+-- cwd p/a: tox config --core -k tox_root --root .
+tox_root = <dir>/p/a
+== 6. -c p/tox.ini from the folder above p
+-- cwd <dir>: tox config --core -k tox_root -c p/tox.ini
+tox_root = <dir>/p

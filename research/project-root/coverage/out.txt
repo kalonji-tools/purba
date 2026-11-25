@@ -1,0 +1,18 @@
+== coverage --version
+Coverage.py, version 7.17.5 with C extension
+== 1. p/.coveragerc, read from p and from p/a
+-- cwd p:  coverage debug config
+branch: True
+config_files_read: <dir>/p/.coveragerc
+-- cwd p/a:  coverage debug config
+branch: False
+config_files_read: -none-
+== 2. COVERAGE_RCFILE names it from p/a
+-- cwd p/a: COVERAGE_RCFILE=<dir>/p/.coveragerc coverage debug config
+branch: True
+config_files_read: <dir>/p/.coveragerc
+== 3. the name of the file in a report, from p and from p/a
+cwd p: a/m.py       1      0      0      0   100%
+cwd p/a: m.py        1      0   100%
+== 4. the flag that names the file
+  --rcfile=RCFILE       Specify configuration file. By default '.coveragerc',

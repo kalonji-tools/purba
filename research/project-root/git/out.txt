@@ -1,0 +1,40 @@
+== git --version
+git version 2.54.0
+== 1. outside git
+-- cwd p/a:  git rev-parse --show-toplevel --show-prefix
+fatal: not a git repository (or any of the parent directories): .git
+exit=128
+== 2. p is a repository
+-- cwd p:  git rev-parse --show-toplevel --show-prefix
+<dir>/p
+
+exit=0
+-- cwd p/a:  git rev-parse --show-toplevel --show-prefix
+<dir>/p
+a/
+exit=0
+== 3. the path that ls-files prints, from p and from p/a
+a/m.txt
+m.txt
+a/m.txt
+== 4. GIT_CEILING_DIRECTORIES=p: git does not go up into p
+-- cwd p/a:  git rev-parse --show-toplevel --show-prefix
+fatal: not a git repository (or any of the parent directories): .git
+exit=128
+== 5. GIT_DIR=p/.git with no work tree: the working folder is the top level
+-- cwd p/a: GIT_DIR=<dir>/p/.git git rev-parse --show-toplevel --show-prefix
+<dir>/p/a
+
+exit=0
+== 6. GIT_DIR and GIT_WORK_TREE=p
+-- cwd p/a: GIT_DIR=<dir>/p/.git GIT_WORK_TREE=<dir>/p git rev-parse --show-toplevel --show-prefix
+<dir>/p
+a/
+exit=0
+== 7. -C p/a from the folder above p
+<dir>/p
+== 8. a nested repository p/a/inner: the nearest wins
+-- cwd p/a/inner:  git rev-parse --show-toplevel --show-prefix
+<dir>/p/a/inner
+
+exit=0

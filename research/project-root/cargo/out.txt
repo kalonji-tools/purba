@@ -1,0 +1,23 @@
+== cargo --version; cargo nextest --version
+cargo 1.99.0 (5f94df478 2026-08-27)
+cargo-nextest 0.9.149
+== 1. outside a package
+-- cwd none: cargo locate-project --message-format plain
+error: could not find `Cargo.toml` in `<dir>/none` or any parent directory
+exit=101
+== 2. from w/crates/c/src: the package, then the workspace
+-- cwd w/crates/c/src: cargo locate-project --message-format plain
+<dir>/w/crates/c/Cargo.toml
+exit=0
+-- cwd w/crates/c/src: cargo locate-project --workspace --message-format plain
+<dir>/w/Cargo.toml
+exit=0
+== 3. --manifest-path from outside
+-- cwd none: cargo locate-project --workspace --message-format plain --manifest-path ../w/crates/c/Cargo.toml
+<dir>/w/Cargo.toml
+exit=0
+== 4. the ids of the tests, from w and from w/crates/c/src
+c tests::adds
+c::it lends
+c tests::adds
+c::it lends

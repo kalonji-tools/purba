@@ -1,0 +1,52 @@
+== pytest --version
+pytest 9.2.0
+== 1. no marker anywhere
+-- cwd p: pytest
+rootdir: <dir>/p
+a/test_a.py::test_a
+b/test_b.py::test_b
+-- cwd p/a: pytest
+rootdir: <dir>/p/a
+test_a.py::test_a
+-- cwd p/a: pytest . ../b
+rootdir: <dir>/p
+a/test_a.py::test_a
+b/test_b.py::test_b
+-- cwd elsewhere: pytest ../p/a ../p/b
+rootdir: <dir>
+p/a/test_a.py::test_a
+p/b/test_b.py::test_b
+== 2. p/.git only: git does not mark the rootdir
+-- cwd p/a: pytest
+rootdir: <dir>/p/a
+test_a.py::test_a
+== 3. p/setup.py
+-- cwd p/a: pytest
+rootdir: <dir>/p
+a/test_a.py::test_a
+== 4. p/pyproject.toml with no [tool.pytest] table
+-- cwd p/a: pytest
+rootdir: <dir>/p
+configfile: pyproject.toml
+a/test_a.py::test_a
+== 5. p/pyproject.toml with [tool.pytest]
+-- cwd p: pytest
+rootdir: <dir>/p
+configfile: pyproject.toml
+a/test_a.py::test_a
+b/test_b.py::test_b
+-- cwd p/a: pytest
+rootdir: <dir>/p
+configfile: pyproject.toml
+a/test_a.py::test_a
+== 6. --rootdir=b, run from p
+-- cwd p: pytest --rootdir=b
+rootdir: <dir>/p/b
+configfile: ../pyproject.toml
+a/test_a.py::test_a
+test_b.py::test_b
+== 7. -c /dev/null, run from p/a: no configuration, and no rootdir from the file
+-- cwd p/a: pytest -c /dev/null
+rootdir: <dir>/p/a
+configfile: ../../../../../../../../../../dev/null
+test_a.py::test_a

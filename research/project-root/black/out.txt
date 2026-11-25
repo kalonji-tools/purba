@@ -1,0 +1,17 @@
+== black --version
+black, 26.10.1 (compiled: yes)
+== 1. no marker anywhere
+-- cwd p/a: black m.py
+Identified `/` as project root containing a file system root.
+== 2. p/.git
+-- cwd p/a: black m.py
+Identified `<dir>/p` as project root containing a .git directory.
+== 3. p/a/pyproject.toml with no [tool.black] is skipped
+-- cwd p/a: black m.py
+Identified `<dir>/p` as project root containing a .git directory.
+== 4. p/a/pyproject.toml with [tool.black] is nearer than p/.git
+-- cwd p/a: black m.py
+Identified `<dir>/p/a` as project root containing a pyproject.toml.
+== 5. arguments in p/a and q: their common base is above p/.git
+-- cwd <dir>: black p/a/m.py q/n.py
+Identified `/` as project root containing a file system root.

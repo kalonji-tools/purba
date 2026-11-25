@@ -1,0 +1,35 @@
+== uv --version
+uv 0.13.7 (x86_64-unknown-linux-gnu)
+== 1. no pyproject.toml anywhere
+-- cwd p/a: uv workspace dir
+error: No `pyproject.toml` found in current directory or any parent directory
+exit=2
+-- cwd p/a: uv run --no-project python -I -c print("ran")
+ran
+exit=0
+-- cwd p/a: uv run python -I -c print("ran")
+ran
+exit=0
+== 2. p/.git only
+-- cwd p/a: uv workspace dir
+error: No `pyproject.toml` found in current directory or any parent directory
+exit=2
+== 3. p/pyproject.toml with no [project] table
+-- cwd p/a: uv workspace dir
+error: No `project` table found in: <dir>/p/pyproject.toml
+exit=2
+== 4. p/pyproject.toml with [project]
+-- cwd p/a: uv workspace dir
+<dir>/p
+exit=0
+== 5. a workspace: w lists pkgs/m
+-- cwd w/pkgs/m/src: uv workspace dir
+<dir>/w
+exit=0
+== 6. --project and --directory, from p/a
+-- cwd p/a: uv --project <dir>/w/pkgs/m workspace dir
+<dir>/w
+exit=0
+-- cwd p/a: uv --directory <dir>/w workspace dir
+<dir>/w
+exit=0

@@ -1,0 +1,44 @@
+== go version
+go version go1.26.10 linux/amd64
+== 1. no go.mod anywhere
+-- cwd p/a:  go env GOMOD
+/dev/null
+exit=0
+-- cwd p/a:  go test .
+go: go.mod file not found in current directory or any parent directory; see 'go help modules'
+exit=1
+== 2. p/.git/config, and no go.mod: go names the folder that holds .git
+-- cwd p/a:  go test .
+go: cannot find main module, but found .git/config in <dir>/p
+	to create a module there, run:
+	cd .. && go mod init
+exit=1
+== 3. p/go.mod: the import path, from p and from p/a
+-- cwd p:  go env GOMOD
+<dir>/p/go.mod
+exit=0
+-- cwd p/a:  go env GOMOD
+<dir>/p/go.mod
+exit=0
+-- cwd p:  go list ./...
+example.com/m/a
+exit=0
+-- cwd p/a:  go list ./...
+example.com/m/a
+exit=0
+== 4. the name of a test, from p and from p/a
+=== RUN   TestLend
+ok  	example.com/m/a
+=== RUN   TestLend
+ok  	example.com/m/a
+== 5. a go.work above p
+-- cwd p/a:  go env GOWORK
+<dir>/go.work
+exit=0
+-- cwd p/a: GOWORK=off go env GOWORK
+off
+exit=0
+== 6. -C p from the folder above p
+-- cwd none:  go -C ../p env GOMOD
+<dir>/p/go.mod
+exit=0
