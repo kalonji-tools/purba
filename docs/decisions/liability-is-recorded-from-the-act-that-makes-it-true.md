@@ -130,6 +130,7 @@ That is the failure this decision exists to stop, and it is why the fourth era i
 | an approval from a bot never stands as the acceptance | strong, `.github/scripts/standing-approver.sh` drops each review from a bot before it reads the approvals. `scripts/test/standing-approver.bats` checks that a newer approval from a bot does not stand over an older one from a person |
 | the approval survives the push that records it | strong, and measured: a push that leaves the tree unchanged does not dismiss a review |
 | the rewrite leaves the content of the branch untouched | strong, `scripts/check-replayable.sh` refuses a branch whose replay changes the tree, and the `sign` job runs it before it rewrites |
+| the commits a pull request adds hold no merge commit | strong, `scripts/check-origin.sh` refuses each one, and the `sign` job runs it before it rewrites |
 | the acceptance trailer reaches `main` | strong, and measured: three commits of three reached `main` carrying it, from one approval |
 | a person is distinguishable from their agent | **none, and no mechanism reachable here can make it**, because the agent runs where the credentials live |
 | a change under `/.github/`, `/scripts/`, `/.config/` or `/.cargo/` reaches the code owner | strong, `.github/CODEOWNERS` names each of them, and the ruleset requires the code owner's review |

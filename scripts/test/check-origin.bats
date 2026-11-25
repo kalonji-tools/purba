@@ -9,7 +9,8 @@ setup() {
   signed="Signed-off-by: A Person <person@example.invalid>"
   unsigned="A commit is refused when it carries no Signed-off-by trailer, because that trailer \
 records who may submit it. CONTRIBUTING.md has the command that adds it."
-  unsigned_merge="${unsigned} A merge commit below is not one you can sign."
+  merged="A commit is refused when it is a merge commit, because every branch in this repository \
+refuses one. Rebase your branch onto its base instead."
   make_repo
   git switch --quiet --create work
 }
@@ -78,21 +79,23 @@ records who may submit it. CONTRIBUTING.md has the command that adds it."
   [[ "${status}" -eq 0 ]]
 }
 
-@test "a signed merge below an unsigned commit draws no merge sentence" {
+@test "a signed merge commit is refused, and only that commit is named" {
   git switch --quiet --create side main
   commit "feat: side" "${signed}"
   git switch --quiet work
   commit "feat: mine" "${signed}"
   git merge --quiet --no-ff side --message "chore: merge" --message "${signed}"
-  commit "feat: unsigned"
 
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  [[ "${output}" != *"A merge commit below is not one you can sign"* ]]
+  [[ "${output}" == "${merged}"$'\n'* ]]
+  [[ "${output}" == *$'\n  '[0-9a-f]*" chore: merge"* ]]
+  [[ "${output}" != *"feat: side"* ]]
+  [[ "${output}" != *"feat: mine"* ]]
 }
 
-@test "an unsigned merge commit draws the merge sentence" {
+@test "an unsigned merge commit is named once, under the merge commit" {
   git switch --quiet --create side main
   commit "feat: side" "${signed}"
   git switch --quiet work
@@ -102,8 +105,52 @@ records who may submit it. CONTRIBUTING.md has the command that adds it."
   run "${script}" main work
 
   [[ "${status}" -eq 1 ]]
-  output_has_line "${unsigned_merge}"
-  [[ "${output}" == *"chore: merge"* ]]
+  named=$(git log -1 --format='%h %s' work)
+  [[ "${output}" == "${merged}"$'\n  '"${named}" ]]
+}
+
+@test "two merge commits are each named" {
+  git switch --quiet --create side main
+  commit "feat: side" "${signed}"
+  git switch --quiet --create other main
+  commit "feat: other" "${signed}"
+  git switch --quiet work
+  git merge --quiet --no-ff side --message "chore: merge side" --message "${signed}"
+  git merge --quiet --no-ff other --message "chore: merge other" --message "${signed}"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 1 ]]
+  [[ "${output}" == "${merged}"$'\n  '*" chore: merge other"$'\n  '*" chore: merge side" ]]
+}
+
+@test "a merge commit on the base, below where the branch leaves it, is not read" {
+  git switch --quiet --create side main
+  commit "feat: side" "${signed}"
+  git switch --quiet main
+  git merge --quiet --no-ff side --message "chore: merge on the base" --message "${signed}"
+  git switch --quiet --force-create work main
+  commit "feat: mine" "${signed}"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 0 ]]
+  [[ -z "${output}" ]]
+}
+
+@test "a merge commit and an unsigned commit are each named under their own refusal" {
+  git switch --quiet --create side main
+  commit "feat: side" "${signed}"
+  git switch --quiet work
+  git merge --quiet --no-ff side --message "chore: merge" --message "${signed}"
+  commit "feat: unsigned"
+
+  run "${script}" main work
+
+  [[ "${status}" -eq 1 ]]
+  first="${unsigned}"$'\n  '$(git log -1 --format='%h %s' work)
+  second="${merged}"$'\n  '$(git log -1 --format='%h %s' work^)
+  [[ "${output}" == "${first}"$'\n\n'"${second}" ]]
 }
 
 @test "on a runner the refusal is one annotation, and each commit keeps its line" {

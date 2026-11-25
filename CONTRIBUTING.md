@@ -191,9 +191,9 @@ scripts on macOS, on the same paths as `Scripts`. `CI` is red while either is
 red.
 
 Bring it current by replaying your commits onto the base, not by merging the
-base into them. A merge commit carries no sign-off, and no trailer can be
-added to one, so purba refuses it. On a branch in this repository, GitHub
-refuses an update by merge commit. Update with a rebase.
+base into them. Every branch in this repository refuses a merge commit. purba
+refuses one on a fork too, and the `Origin` check names it. Update with a
+rebase.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs a
 pull request into `main` when `CI` turns green, if an approval from a person

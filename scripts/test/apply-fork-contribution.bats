@@ -333,6 +333,25 @@ FAKE
   [[ -z "${accepted}" ]]
 }
 
+@test "a contribution that holds a signed merge commit is refused, names it, and pushes nothing" {
+  git switch --quiet --create side main
+  commit "feat: side" "Signed-off-by: A Person <person@example.invalid>"
+  git switch --quiet work
+  git merge --quiet --no-ff side --message "chore: merge" \
+    --message "Signed-off-by: A Person <person@example.invalid>"
+  git push --quiet --force origin work:refs/pull/7/head
+  git switch --quiet main
+  echo "* @someone" >.github/CODEOWNERS
+
+  run "${script}" 7
+
+  [[ "${status}" -eq 1 ]]
+  named=$(git log -1 --format='%h %s' work)
+  [[ "${output}" == "A commit is refused when it is a merge commit"*$'\n  '"${named}"* ]]
+  accepted=$(git ls-remote origin refs/heads/accepted/pr-7)
+  [[ -z "${accepted}" ]]
+}
+
 @test "a contribution whose pull request is open already opens none, and posts no comment" {
   echo "* @someone" >.github/CODEOWNERS
   fake gh <<'FAKE'
