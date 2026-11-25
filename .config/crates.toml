@@ -167,3 +167,33 @@ unsafe = 1
 api-churn = 2
 owner-in-purba = 3
 relief = 3
+
+[ignore]
+version = "0.4.35"
+owners = ["BurntSushi (user)"]
+judged = "2026-11-25"
+scored = "https://github.com/kalonji-tools/purba/issues/1236#issuecomment-7159572461"
+blast-area = 2
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 1
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+relief = 3
+
+[toml]
+version = "1.2.3+spec-1.1.0"
+owners = ["epage (user)", "github:toml-rs:maintainers (team)"]
+judged = "2026-11-25"
+scored = "https://github.com/kalonji-tools/purba/issues/1236#issuecomment-7159572461"
+blast-area = 1
+upkeep = 1
+maintainers = 1
+upstream-review = 3
+tests = 1
+unsafe = 1
+api-churn = 2
+owner-in-purba = 3
+relief = 3

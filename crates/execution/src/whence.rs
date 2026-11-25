@@ -2,19 +2,34 @@
 
 use pyo3::types::{PyAnyMethods, PyStringMethods};
 use pyo3::{Bound, IntoPyObject, PyAny, PyErr, PyResult, Python};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-/// The folder that the run started in.
+/// The folder that the path of each raise starts from.
 static FOLDER: OnceLock<PathBuf> = OnceLock::new();
 
-/// Keeps the folder that the run started in, once, before any case can change
-/// it. A folder that cannot be read leaves the folder of each raise in its
-/// place.
+/// Keeps `folder` as the folder that the path of each raise starts from. Only
+/// the first call of the process keeps one.
+pub fn keep(folder: PathBuf) {
+    let _ = FOLDER.set(folder);
+}
+
+/// Keeps the folder that the run started in, before any case can change it,
+/// unless a folder is already kept. A folder that cannot be read leaves the
+/// folder of each raise in its place.
 pub fn keep_the_folder() {
     if let Ok(folder) = std::env::current_dir() {
-        let _ = FOLDER.set(folder);
+        keep(folder);
     }
+}
+
+/// `path` from the kept folder when it lies under that folder, and `path`
+/// itself otherwise.
+pub fn shown(path: &Path) -> &Path {
+    FOLDER
+        .get()
+        .and_then(|folder| path.strip_prefix(folder).ok())
+        .unwrap_or(path)
 }
 
 /// The flag of the code of a generator function.
@@ -31,8 +46,8 @@ const GENERATOR: u32 = 0x20;
 /// frame runs the code of `test`, or of a comprehension or a `lambda` inside
 /// it, since a raise in the test's own code needs no line of its own.
 ///
-/// The path is relative to the folder that the run started in, after each
-/// symbolic link resolves, and absolute outside it.
+/// The path is relative to the kept folder, after each symbolic link resolves,
+/// and absolute outside it.
 pub fn of(py: Python<'_>, err: &PyErr, test: &Bound<'_, PyAny>) -> Option<String> {
     line(py, err, test).ok().flatten()
 }

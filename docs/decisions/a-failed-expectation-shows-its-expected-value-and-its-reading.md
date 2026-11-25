@@ -52,19 +52,19 @@ Each takes a line of its own, two spaces in from the quote of its expectation.
 - **A failed marked assert, and a `with` whose entry or cleanup raised, show no reading.**
 
 ```
-reading.py::test_contains failed
+test_reading.py::test_contains failed
     assert "z" in got
       expected  to contain 'z'
       reading   'ab'
-reading.py::test_same_text failed
+test_reading.py::test_same_text failed
     assert got == 1
       expected  1 (int)
       reading   1 (One)
-reading.py::test_no_repr failed
+test_reading.py::test_no_repr failed
     assert got == 1
       expected  1
       reading   (repr raised ValueError: no repr)
-iterable.py::test_each failed
+test_iterable.py::test_each failed
     assert all(len(c) == 2 for c in parts)
       the first item that breaks  len(c) == 2
       [2]  len(c)  1     c  'e'

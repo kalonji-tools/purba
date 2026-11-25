@@ -11,7 +11,7 @@ mod load;
 mod rewrite;
 
 pub use load::{
-    Loaded, LoadedTest, Readers, Readings, Replaced, Swallowed, Verdict, Watched, load,
+    Loaded, LoadedTest, Readers, Readings, Replaced, Swallowed, Verdict, Watched, load, load_shown,
 };
 pub use rewrite::{Rewrite, Try, rewrite};
 

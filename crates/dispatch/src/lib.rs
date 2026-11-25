@@ -44,8 +44,8 @@ pub struct Module<T> {
 }
 
 impl<T> Module<T> {
-    /// Makes a module from `path` as the tester typed it, its rewrite, and its
-    /// selected tests.
+    /// Makes a module from the `path` that its file is read from, its rewrite,
+    /// and its selected tests.
     #[must_use]
     pub const fn new(path: PathBuf, rewrite: Rewrite, tests: Vec<T>) -> Self {
         Self {

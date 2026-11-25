@@ -95,8 +95,10 @@ PY
 }
 
 # The text of an exception of 300 KB, which a pipe cannot hold, and the line
-# on stderr as a signal arrives.
+# on stderr as a signal arrives. A test that builds its module in its own folder
+# runs it from that folder, the root.
 setup() {
+  printf '[tool.purba]\n' >"${BATS_TEST_TMPDIR:?set by bats}/pyproject.toml"
   SECOND='; a second interrupt exits at once'
   SIGINT_LINE="purba: interrupt: SIGINT${SECOND}"
   local zeros="${BATS_TEST_TMPDIR:?set by bats}/zeros"

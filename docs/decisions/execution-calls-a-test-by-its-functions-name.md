@@ -43,7 +43,7 @@ sequenceDiagram
   Note over execution: the zygote's worker loads the module once
   loop each selected test
     dispatch->>execution: the name of one function in the module, and each suppression that reaches it
-    Note over execution: a module holds its path as the tester typed it, and assertion's rewrite of it
+    Note over execution: a module holds the path that its file is read from, and assertion's rewrite of it
     Note over execution: its worker looks the name up in the module it loaded
     execution-->>dispatch: an outcome or error with each warning, and an outcome holds no name of its test
     Note over dispatch: puts each outcome beside its test, and uses selection and execution
@@ -63,7 +63,6 @@ The part that uses another part builds that part's input.
 - **Reporting prints any value that prints itself.** Command can hand it a name that command formatted. The gate for one identity misses it. The reviewer looks for it.
 - **Dispatch takes any value that implements its `Test`.** Command can hand dispatch a value of a type that command defines, in place of an identity. The gate for one identity misses it. The reviewer looks for it.
 - **Execution takes the name of one function.** A test method of a class needs more than one name, so selection refuses it, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
-- **A module under two spellings of its path loads twice, once in each zygote, until selection builds its ids.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) starts each path at the folder of the project's file.
 - **Dispatch names assertion's `Rewrite` through execution's interface.** [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds the cost.
 
 ## Confirmation

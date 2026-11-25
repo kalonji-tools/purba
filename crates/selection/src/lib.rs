@@ -1,5 +1,6 @@
-//! Selection: names the tests of a parsed module, refuses each one that purba
-//! cannot call or that breaks a rule of its code, and imports nothing.
+//! Selection: finds the test files under the root, names the tests of a parsed
+//! module, refuses each one that purba cannot call or that breaks a rule of its
+//! code, and imports nothing.
 
 use std::collections::HashSet;
 use std::fmt;
@@ -16,9 +17,11 @@ use ruff_text_size::{Ranged, TextSize};
 mod framework;
 mod lookup;
 mod patch;
+mod stage_one;
 mod suppression;
 
 use lookup::{Lookup, Origin};
+pub use stage_one::{NoTestFile, TestFiles, test_files};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};
 
@@ -95,7 +98,7 @@ impl TestId {
         &self.suppressions
     }
 
-    /// The path of the test's module, as the tester typed it.
+    /// The path of the test's module, from the root.
     #[must_use]
     pub fn path(&self) -> &Path {
         &self.path
@@ -375,7 +378,7 @@ fn type_alone(
 ///
 /// Selection reads the module's suppressions once. It judges them at each test
 /// that it refuses and that purba can call. Each list keeps source order.
-/// `path` is the module's path as the tester typed it. A name defined twice is
+/// `path` is the module's path from the root. A name defined twice is
 /// one test at its first `def`. Selection judges the last `def` of the name at
 /// the top, or the last `def` of the name under a statement when no `def` at
 /// the top binds the name. A `def` under a

@@ -36,7 +36,7 @@ Each part can check an exception class or a branch that it holds.
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that does not parse, decode or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression, a function whose name is near `test` | the tester's code |
+| [project error](../../CONTEXT.md#project-error) | a module that purba cannot read, or that does not parse, decode or load, a folder that stage one cannot read, a `pyproject.toml` on the walk to the root that is not TOML, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression, a function whose name is near `test` | the tester's code |
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised, or a `with` of the test raised as it entered or cleaned up | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
@@ -45,7 +45,7 @@ The name of each error kind says where the tester fixes the error.
 - **A fault of purba that a part sees as another kind keeps the kind that the part sees.** The defect is filed on its own.
 - **A test whose call raised has the outcome `raised`.** The test's body ran, so the run can say something about the test. An `AssertionError` when an assert that ran did not hold gives `failed`. A raise from the entry or the cleanup of a `with` of the test gives `failed` when it ends the call. The failed line then names the `with`. purba's own `PanicException` is an internal error. Another extension's `PanicException` gives `raised`.
 - **An error from a call that purba makes on its own objects is an internal error.** An error while the tester's text compiles or runs belongs to the tester.
-- **What the tester typed is the invocation, and what the run finds is the project.** A module that the tester names and purba cannot read is an invocation error. A module that purba finds by itself and cannot read is a project error.
+- **What the tester typed is the invocation, and what the run finds is the project.** A path that names no test file is an invocation error. A module or a folder that purba cannot read is a project error of that module or folder, and the other files run.
 - **A test that purba refuses to call is a project error for that test alone.** Selection sees an `async def`, a `yield`, a parameter with no default, and a `return` of a value. It also sees a decorator that is not purba's or not under purba's own name, and a name bound again. It sees a test name with no `def`, a `def` under a statement, and a test in a class. It sees an [expectation](../../CONTEXT.md#expectation) that is neither one comparison nor `not x`, `isinstance(x, T)`, `x.startswith(y)` or `x.endswith(y)`, nor an `all()` or an `any()` of one of these. It sees a comparison with no literal on either side too. It also sees a [patch](../../CONTEXT.md#patch) and a mock with no spec in a test's body. It sees an import of pytest in a test module, and an `except` in a test's body that only passes. A [private name](../../CONTEXT.md#private-name) gives a [notice](../../CONTEXT.md#notice) under the case, and no error. Execution sees a name that is not callable, an input that fixtures cannot build, and two inputs that name one fixture. It also sees an input whose fixture builds a stock. In a fixture, it sees one reagent twice.
 - **A breach that execution sees as a case runs is a project error for that test alone.** Execution sees most such breaches in the lines before the first expectation, and others at a reading. It sees a line that did not run, and a branch that went one way only. It sees a marked assert outside the cleanup of a `with` or inside a reading. It also sees a hook or the warning filters that a statement replaced. It sees a `with` that swallowed a raise and skipped a line. At the reading of an expectation, it sees an `all()` whose reading holds no item, and a name that holds an iterator.
 - **A module that replaced a hook or the warning filters as it loaded is a project error of the module.** Execution sees it at the end of the load, and the error blocks each test of the module.
@@ -76,9 +76,10 @@ The figure shows each part and the kinds that it first sees.
 flowchart LR
   command["command"] -- "an argument it cannot take" --> invocation["<b>invocation error</b>"]
   selection["selection"] -- "a term that names nothing, a query nested too deep" --> invocation
-  parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
-  parsing -- "a syntax error, a module that it cannot decode" --> project["<b>project error</b>"]
+  command -- "a pyproject.toml that is not TOML" --> project["<b>project error</b>"]
+  parsing["parsing"] -- "a module that it cannot read, a syntax error, a module that it cannot decode" --> project
+  selection -- "a folder that stage one cannot read" --> project
   selection -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison, one of four forms, or an all() or any() of one of these, or that has no literal, a patch, a mock with no spec, an import of pytest, an except that only passes, a fault of a suppression, an unused suppression, a function whose name is near test, an alias that names itself, a tag() or name() in the query of a platform" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, a fork refused, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation or inside a reading, a hook or the filters replaced, a with that swallowed a raise, an all() of no item, an iterator that an expectation reads" --> project
@@ -98,10 +99,12 @@ flowchart LR
 ## Confirmation
 
 `mise run test:rust` checks that a test that selection refuses, and a module that does not parse or load, prints a project error.
+It checks that a module that purba cannot read, and a `pyproject.toml` on the walk that is not TOML, print a project error.
 `mise run test:rust` checks that a thread's exception charges the test or the load that left the thread alive.
 `mise run test:rust` checks that each order from 2 to 6 of the table beats the order below it.
 
-`mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error. The check of no path holds until selection builds the query.
+`mise run test:wheel` checks that a path that names no test file, and a stdout that takes no write, print an invocation error.
+It checks that a folder that stage one cannot read prints a project error, and the other files run.
 
 `mise run test:wheel` checks that each breach that execution sees as a case runs prints a project error.
 It checks that a `with` whose entry or cleanup raised prints `failed`.

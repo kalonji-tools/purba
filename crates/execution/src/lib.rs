@@ -36,7 +36,8 @@ pub struct Module {
 }
 
 impl Module {
-    /// Makes a module from `path` as the tester typed it, and its rewrite.
+    /// Makes a module from the `path` that its file is read from, and its
+    /// rewrite.
     #[must_use]
     pub const fn new(path: PathBuf, rewrite: Rewrite) -> Self {
         Self { path, rewrite }
@@ -92,9 +93,19 @@ pub struct Purba<'py> {
     hook: &'static Py<thread::Hook>,
 }
 
+/// Keeps `root` as the folder that the path in the line of each raise starts
+/// from.
+///
+/// It takes the place of the folder that the run started in. Only the first
+/// call of the process counts, and only before the first [`attach`].
+pub fn start_paths_at(root: PathBuf) {
+    whence::keep(root);
+}
+
 /// Gives `work` purba's process for as long as it runs.
 ///
-/// Before `work`, it keeps the folder that the run started in, and hooks
+/// Before `work`, it keeps the folder that the run started in, unless
+/// [`start_paths_at`] kept a root, and hooks
 /// `threading.excepthook` and `sys.unraisablehook`, for the life of the
 /// process. So each run imports `threading`. Each zygote inherits both.
 ///
@@ -184,8 +195,10 @@ impl<'py> Worker<'py> {
             thread::hold_filters(py);
             let (own, landed) = interrupt::calling(py, || {
                 paths::load(py, || {
-                    let loaded = purba_assertion::load(py, &module.path, &module.rewrite)
-                        .map_err(|err| error(&err))?;
+                    let shown = whence::shown(&module.path);
+                    let loaded =
+                        purba_assertion::load_shown(py, &module.path, shown, &module.rewrite)
+                            .map_err(|err| error(&err))?;
                     if let Some(replaced) = thread::replaced(py) {
                         return Err(Error::project(format!(
                             "[hook-replaced] the module replaced {} as it loaded, and {}",

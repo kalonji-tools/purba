@@ -51,6 +51,6 @@ It checks that under `PYTHONOPTIMIZE=2` the test module keeps its docstrings.
 It checks that under `PYTHONOPTIMIZE=1` a helper of another module loses its asserts.
 
 It checks that stderr holds the warning alone in each of these runs.
-It checks that under `PYTHONOPTIMIZE=1` the warning comes before the line of a module that purba cannot read.
+It checks that under `PYTHONOPTIMIZE=1` the warning comes before the line of a path that names no test file.
 It checks that the warning comes before the line of an argument that is not UTF-8.
 It checks that a plain run leaves stderr empty.
