@@ -241,15 +241,25 @@ fn before_the_run(
             }
             Before::Selected(selected, rewritten) => (selected, rewritten),
         };
-        for refused in selected.refused() {
-            let test = refused.test();
-            report.case(
-                test,
-                &Err(purba_errors::Error::project(refused.to_string())),
-                test.notices(),
-                test.suppressed(),
-                &[],
-            )?;
+        for line in selected.before_the_run() {
+            match line {
+                purba_selection::Before::Refused(refused) => {
+                    let test = refused.test();
+                    report.case(
+                        test,
+                        &Err(purba_errors::Error::project(refused.to_string())),
+                        test.notices(),
+                        test.suppressed(),
+                        &[],
+                    )?;
+                }
+                purba_selection::Before::NameNear(near) => {
+                    report.error(
+                        &format_args!("{}::{}", near.path().display(), near.name()),
+                        &purba_errors::Error::project(near.to_string()),
+                    )?;
+                }
+            }
         }
         match rewritten {
             Found::Modules(found) => modules.extend(found),

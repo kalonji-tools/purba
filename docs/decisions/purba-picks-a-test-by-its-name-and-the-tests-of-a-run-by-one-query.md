@@ -81,6 +81,7 @@ flowchart TD
 - **An edit changes, adds or drops one letter, or swaps two neighbours.** The check ignores case.
 - **No suppression reaches the error of a name near `test`.** The function is no test, so its suppression sits above no test. [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) makes such a suppression a fault. A helper that the check names takes another name.
 - **The line of the error names its kind:** `<file>::<name> project error: [name-near] <name> is not a test, and its name is near the prefix test`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) requires the kind. The words after the kind are the words that the raters scored.
+- **The line prints before any test runs.** It keeps source order among the lines of the tests that selection refuses.
 - **Stage one skips each file or folder that a `.gitignore` file of the project ignores, and each hidden folder.** It reads no global file of git, and no `.git/info/exclude`, so a file that only one machine holds changes no outcome. Outside git, it reads no `.gitignore` file.
 - **A folder that stage one cannot read is a [project error](../../CONTEXT.md#project-error) of that folder.** The other files run.
 - **`purba` with no query runs each test file under the [root](../../CONTEXT.md#root).**
@@ -146,6 +147,7 @@ Each of these waits for another design.
 
 `mise run test:rust` checks stage one in `crates/selection/tests/stage_one.rs`, and `mise run test:wheel` checks it in `tests/stage_one.bats`.
 `mise run test:rust` checks `test-files` in `crates/selection/tests/test_files_dial.rs`, and `mise run test:wheel` checks it in `tests/test_files.bats`.
+`mise run test:rust` checks a name near `test` in `crates/selection/tests/name_near.rs`, and `mise run test:wheel` checks it in `tests/name_near.bats`.
 `mise run lint:order` refuses an order of design that still ranks selection.
 The pull request that builds each rule other than stage one adds its tests.
 
