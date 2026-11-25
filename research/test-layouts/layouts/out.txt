@@ -1,0 +1,39 @@
+== versions
+python 3.13.13 pytest 9.2.0
+./docs/usage.txt
+./pkg/calc.py
+./pkg/__init__.py
+./test.py
+./tests/lend_test.py
+./tests.py
+./tests/testing_helpers.py
+./tests/test_lend.py
+== 1. pytest --collect-only, with no option
+tests/lend_test.py::test_suffix
+tests/test_lend.py::test_lend
+2 tests collected in 0.00s
+== 2. pytest --collect-only --doctest-modules
+pkg/calc.py::pkg.calc.add
+tests/lend_test.py::test_suffix
+tests/test_lend.py::test_lend
+3 tests collected in 0.01s
+== 3. pytest --collect-only --doctest-glob='*.txt'
+docs/usage.txt::usage.txt
+tests/lend_test.py::test_suffix
+tests/test_lend.py::test_lend
+3 tests collected in 0.00s
+== 4. unittest discover, from the root: tests/ has no __init__.py
+test_method (tests.InTestsPy.test_method) ... ok
+Ran 1 test in 0.000s
+== 5. unittest discover, from the root, after touch tests/__init__.py: tests.py and tests/ share a name
+ImportError: 'tests' module incorrectly imported from '<dir>/tests'. Expected '<dir>'. Is this module globally installed?
+== 6. python -m doctest -v pkg/calc.py docs/usage.txt
+1 item passed all tests:
+1 passed.
+Test passed.
+1 item passed all tests:
+1 passed.
+Test passed.
+== 7. the names that test_*.py or *_test.py match, by fnmatch: a matcher, not purba
+./tests/lend_test.py
+./tests/test_lend.py

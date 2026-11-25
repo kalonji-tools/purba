@@ -1,0 +1,544 @@
+== loguru (suite)
+P	50
+P or U: Test-class methods	0
+P or U: TestCase methods	0
+P or U: imports pytest	39
+P or U: other-class methods	0
+P or U: test functions	720
+P: functions only	50
+U	50
+U and a package path	50
+U: functions only	50
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	15
+py files	173
+py files with a >>> line	1
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+  outside P and U: tests/exceptions/source/modern/decorate_async_generator.py
+  outside P and U: tests/exceptions/source/others/assertionerror_without_traceback.py
+  outside P and U: tests/exceptions/source/others/syntaxerror_without_traceback.py
+  outside P and U: tests/exceptions/source/others/zerodivisionerror_without_traceback.py
+  outside P and U: tests/exceptions/source/ownership/assertion_from_lib.py
+== attrs (suite)
+P	26
+P or U: Test-class methods	620
+P or U: TestCase methods	0
+P or U: imports pytest	22
+P or U: other-class methods	0
+P or U: test functions	63
+P: both	6
+P: functions only	3
+P: methods only	17
+U	26
+U and a package path	25
+U: both	6
+U: functions only	3
+U: methods only	17
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	3
+py files	56
+py files with a >>> line	1
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	11
+  outside P and U: typing_tests/baseline.py
+  outside P and U: typing_tests/mypy.py
+  outside P and U: typing_tests/pyrefly.py
+== click (suite)
+P	43
+P or U, no test	1
+P or U: Test-class methods	0
+P or U: TestCase methods	0
+P or U: imports pytest	32
+P or U: other-class methods	0
+P or U: test functions	619
+P: functions only	43
+U	44
+U not P	1
+U not P: no test	1
+U not P: test<other>*.py	1
+U not P: test<other>*.py: no test	1
+U: functions only	43
+U: no test	1
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	1
+py files	91
+pyproject.toml files	11
+pyproject.toml with [project]	11
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	1
+  outside P and U: tests/typing/typing_progressbar.py
+== requests (suite)
+P	9
+P or U: Test-class methods	291
+P or U: TestCase methods	0
+P or U: imports pytest	6
+P or U: other-class methods	0
+P or U: test functions	56
+P: both	2
+P: functions only	5
+P: methods only	2
+U	9
+U and a package path	9
+U: both	2
+U: functions only	5
+U: methods only	2
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	37
+py files with a >>> line	7
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root config names a doctest option	1
+root step from the repository's root: 2	1
+text files with a >>> line	5
+== dateutil (suite)
+P	17
+P or U: Test-class methods	45
+P or U: TestCase methods	843
+P or U: imports pytest	17
+P or U: other-class methods	36
+P or U: test functions	209
+P: both	4
+P: functions only	13
+U	17
+U and a package path	13
+U: both	4
+U: functions only	13
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	1
+py files	45
+py files with a >>> line	7
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	4
+  outside P and U: docs/exercises/solutions/mlk_day_rrule_solution.py
+== pyflakes (suite)
+P	13
+P or U: Test-class methods	0
+P or U: TestCase methods	564
+P or U: other-class methods	0
+P or U: test functions	0
+P: methods only	13
+U	13
+U and a package path	13
+U: methods only	13
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	24
+py files with a >>> line	1
+pyproject.toml files	0
+pyproject.toml with [project]	0
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 3	1
+== toolz (suite)
+P	29
+P or U: Test-class methods	15
+P or U: TestCase methods	0
+P or U: imports pytest	2
+P or U: other-class methods	0
+P or U: test functions	167
+P: both	1
+P: functions only	28
+U	29
+U and a package path	15
+U: both	1
+U: functions only	28
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	51
+py files with a >>> line	7
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	8
+== six (suite)
+P	1
+P or U: Test-class methods	5
+P or U: TestCase methods	0
+P or U: imports pytest	1
+P or U: other-class methods	5
+P or U: test functions	65
+P: both	1
+U	1
+U and a package path	1
+U: both	1
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	4
+pyproject.toml files	0
+pyproject.toml with [project]	0
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 3	1
+== schedule (suite)
+P	1
+P or U: Test-class methods	0
+P or U: TestCase methods	81
+P or U: other-class methods	0
+P or U: test functions	0
+P: methods only	1
+U	1
+U and a package path	1
+U: methods only	1
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	4
+py files with a >>> line	1
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+== django (django)
+P	628
+P or U, no test	14
+P or U: Test-class methods	31
+P or U: TestCase methods	16584
+P or U: imports django	841
+P or U: other-class methods	1477
+P or U: test functions	2
+P: both	2
+P: methods only	619
+P: no test	7
+U	852
+U and a package path	6
+U not P	224
+U not P: methods only	216
+U not P: no test	7
+U not P: parse error	1
+U not P: test.py	2
+U not P: test.py: no test	2
+U not P: test<other>*.py	4
+U not P: test<other>*.py: methods only	1
+U not P: test<other>*.py: no test	3
+U not P: tests.py	211
+U not P: tests.py: methods only	209
+U not P: tests.py: no test	2
+U not P: tests_*.py	7
+U not P: tests_*.py: methods only	6
+U not P: tests_*.py: parse error	1
+U: both	2
+U: methods only	835
+U: no test	14
+U: parse error	1
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	4
+near	227
+near, with a test	217
+py files	2922
+py files with a >>> line	23
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	89
+  near, no test: django/contrib/admin/tests.py
+  near, no test: django/contrib/messages/test.py
+  near, no test: django/contrib/redirects/migrations/0002_alter_redirect_new_path_help_text.py
+  near, no test: django/core/management/commands/test.py
+  near, no test: django/db/models/functions/text.py
+  near, no test: django/utils/text.py
+  near, no test: tests/admin_docs/tests.py
+  near, no test: tests/test_runner_apps/tagged/tests_syntax_error.py
+  near, no test: tests/user_commands/management/commands/mutually_exclusive_required_with_same_dest.py
+  near, no test: tests/user_commands/management/commands/subparser_dest.py
+  outside P and U: django/test/runner.py
+  outside P and U: tests/sitemaps_tests/urls/http.py
+  outside P and U: tests/tasks/tasks.py
+  outside P and U: tests/test_runner_apps/sample/pattern_tests.py
+== drf (django-app)
+P	60
+P or U, no test	1
+P or U: Test-class methods	284
+P or U: TestCase methods	1062
+P or U: imports django	61
+P or U: imports pytest	32
+P or U: other-class methods	38
+P or U: test functions	9
+P: both	3
+P: functions only	2
+P: methods only	55
+U	61
+U and a package path	61
+U not P	1
+U not P: no test	1
+U not P: test.py	1
+U not P: test.py: no test	1
+U: both	3
+U: functions only	2
+U: methods only	55
+U: no test	1
+conftest.py files	1
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+near	2
+py files	155
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	8
+  near, no test: rest_framework/templatetags/rest_framework.py
+  near, no test: rest_framework/test.py
+== wagtail (django-app)
+P	276
+P or U, no test	1
+P or U: Test-class methods	840
+P or U: TestCase methods	6552
+P or U: imports django	288
+P or U: other-class methods	5
+P or U: test functions	3
+P: both	3
+P: methods only	273
+U	291
+U and a package path	288
+U not P	15
+U not P: methods only	14
+U not P: no test	1
+U not P: test<other>*.py	1
+U not P: test<other>*.py: no test	1
+U not P: tests.py	14
+U not P: tests.py: methods only	14
+U: both	3
+U: methods only	287
+U: no test	1
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	1
+near	23
+near, with a test	14
+py files	1339
+py files with a >>> line	2
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	10
+  near, no test: wagtail/admin/widgets/auto_height_text.py
+  near, no test: wagtail/api/rich_text.py
+  near, no test: wagtail/migrations/0013_update_golive_expire_help_text.py
+  near, no test: wagtail/migrations/0033_remove_golive_expiry_help_text.py
+  near, no test: wagtail/test/testapp/rich_text.py
+  near, no test: wagtail/test/utils/page_tests.py
+  near, no test: wagtail/test/utils/template_tests.py
+  near, no test: wagtail/test/utils/wagtail_tests.py
+  near, no test: wagtail/utils/text.py
+  outside P and U: wagtail/admin/templatetags/wagtailadmin_tags.py
+== debug-toolbar (django-app)
+P	31
+P or U: Test-class methods	0
+P or U: TestCase methods	321
+P or U: imports django	28
+P or U: other-class methods	10
+P or U: test functions	0
+P: methods only	31
+U	31
+U and a package path	31
+U: methods only	31
+conftest.py files	0
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	0
+py files	110
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	1
+== flask (other)
+P	27
+P or U, no test	1
+P or U: Test-class methods	28
+P or U: TestCase methods	0
+P or U: imports pytest	20
+P or U: other-class methods	0
+P or U: test functions	361
+P: both	4
+P: functions only	23
+U	28
+U not P	1
+U not P: no test	1
+U not P: test<other>*.py	1
+U not P: test<other>*.py: no test	1
+U: both	4
+U: functions only	23
+U: no test	1
+conftest.py files	3
+distinct roots from the folders of P or U files	3
+files outside P and U that hold a test function or a TestCase method	0
+py files	83
+pyproject.toml files	4
+pyproject.toml with [project]	4
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+text files with a >>> line	6
+== fastapi (other)
+P	567
+P or U, no test	6
+P or U: Test-class methods	0
+P or U: TestCase methods	0
+P or U: imports pytest	336
+P or U: other-class methods	0
+P or U: test functions	2875
+P: functions only	562
+P: no test	5
+U	568
+U and a package path	551
+U not P	1
+U not P: no test	1
+U not P: test<other>*.py	1
+U not P: test<other>*.py: no test	1
+U: functions only	562
+U: no test	6
+conftest.py files	3
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	6
+py files	1233
+py files with a >>> line	1
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 2	1
+  outside P and U: docs_src/app_testing/tutorial001.py
+  outside P and U: docs_src/app_testing/tutorial002.py
+  outside P and U: docs_src/app_testing/tutorial003.py
+  outside P and U: docs_src/app_testing/tutorial004.py
+  outside P and U: docs_src/dependency_testing/tutorial001.py
+== cpython (other)
+P	774
+P not U	2
+P not U: methods only	1
+P not U: no test	1
+P or U, no test	47
+P or U: Test-class methods	2105
+P or U: TestCase methods	20898
+P or U: other-class methods	4036
+P or U: test functions	99
+P: both	12
+P: functions only	1
+P: methods only	721
+P: no test	40
+U	789
+U not P	17
+U not P: methods only	10
+U not P: no test	7
+U not P: test.py	1
+U not P: test.py: no test	1
+U not P: test<other>*.py	16
+U not P: test<other>*.py: methods only	10
+U not P: test<other>*.py: no test	6
+U: both	12
+U: functions only	1
+U: methods only	730
+U: no test	46
+__init__.py with a test	9
+conftest.py files	0
+distinct roots from the folders of P or U files	2
+files outside P and U that hold a test function or a TestCase method	41
+near	13
+near, with a test	8
+py files	2037
+py files with a >>> line	82
+pyproject.toml files	3
+pyproject.toml with [project]	2
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 3	1
+text files with a >>> line	200
+  near, no test: Doc/includes/newtypes/test.py
+  near, no test: Lib/email/mime/text.py
+  near, no test: Lib/idlelib/idle_test/htest.py
+  near, no test: Lib/importlib/metadata/_text.py
+  near, no test: Lib/test/re_tests.py
+  outside P and U: Doc/includes/mp_newtype.py
+  outside P and U: Doc/includes/mp_pool.py
+  outside P and U: Doc/includes/mp_workers.py
+  outside P and U: Lib/bdb.py
+  outside P and U: Lib/ctypes/util.py
+== numpy (other)
+P	181
+P or U, no test	3
+P or U: Test-class methods	5914
+P or U: TestCase methods	250
+P or U: imports pytest	148
+P or U: other-class methods	208
+P or U: test functions	1048
+P: both	59
+P: functions only	37
+P: methods only	83
+P: no test	2
+U	190
+U and a package path	115
+U not P	9
+U not P: methods only	8
+U not P: no test	1
+U not P: test<other>*.py	9
+U not P: test<other>*.py: methods only	8
+U not P: test<other>*.py: no test	1
+U: both	59
+U: functions only	37
+U: methods only	91
+U: no test	3
+conftest.py files	3
+distinct roots from the folders of P or U files	1
+files outside P and U that hold a test function or a TestCase method	1
+py files	493
+py files with a >>> line	76
+pyproject.toml files	1
+pyproject.toml with [project]	1
+pyproject.toml with [tool.purba]	0
+root config names a doctest option	1
+root step from the repository's root: 2	1
+text files with a >>> line	92
+  outside P and U: numpy/typing/tests/data/pass/recfunctions.py
+== langchain (other)
+P	624
+P or U, no test	26
+P or U: Test-class methods	1259
+P or U: TestCase methods	0
+P or U: imports pytest	374
+P or U: other-class methods	0
+P or U: test functions	5272
+P: both	22
+P: functions only	536
+P: methods only	40
+P: no test	26
+U	624
+U: both	22
+U: functions only	536
+U: methods only	40
+U: no test	26
+conftest.py files	19
+distinct roots from the folders of P or U files	22
+files outside P and U that hold a test function or a TestCase method	0
+near	7
+py files	2665
+py files with a >>> line	20
+pyproject.toml files	22
+pyproject.toml with [project]	22
+pyproject.toml with [tool.purba]	0
+root step from the repository's root: 3	1
+  near, no test: libs/langchain/langchain_classic/document_loaders/google_speech_to_text.py
+  near, no test: libs/langchain/langchain_classic/document_loaders/text.py
+  near, no test: libs/langchain/langchain_classic/text_splitter.py
+  near, no test: libs/langchain/langchain_classic/tools/azure_cognitive_services/text_analytics_health.py
+  near, no test: libs/langchain/langchain_classic/tools/edenai/audio_speech_to_text.py
+  near, no test: libs/langchain/langchain_classic/tools/edenai/text_moderation.py
+  near, no test: libs/langchain/langchain_classic/tools/playwright/extract_text.py
