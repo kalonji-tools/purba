@@ -26,7 +26,7 @@ A change to another part then edits the tests of command.
 Each rule fails the tests of the part that owns it.
 
 - **A test of command checks a rule that command owns.** Command owns these rules:
-  - It reads the arguments.
+  - It reads the arguments and the `PURBA_*` variables.
   - It sets the order of the lines, and reporting writes them.
   - It stops the run at an invocation error.
   - It runs no test after a stop.

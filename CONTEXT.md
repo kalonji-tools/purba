@@ -190,7 +190,7 @@ A set of [issues](#issue) that a pinned [candidate](#candidate) decides is done.
 
 ### Notice
 
-A line that purba prints under the line of a [case](#case), after the lines of its [outcome](#outcome), that starts with `⚠`, names no [strict check](#strict-check), and refuses nothing. It changes no count and no exit code. A [private name](#private-name) that a [test's](#test) body reads gives one.
+A line that starts with `⚠`, names no [strict check](#strict-check), and refuses nothing. purba prints it under the line of a [case](#case), after the lines of its [outcome](#outcome), or above the first line of the [run](#run). It changes no count and no exit code. A [private name](#private-name) that a [test's](#test) body reads gives one under its case. A [root](#root) that purba found by a step of `PURBA_IMPLICIT_ROOT` gives one above the run.
 
 ### Origin
 

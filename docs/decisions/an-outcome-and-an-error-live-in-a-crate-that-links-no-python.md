@@ -62,4 +62,4 @@ No test holds that refusal, so [the probe](https://github.com/kalonji-tools/purb
 - `cargo tree -p purba-reporting -e normal` lists no `pyo3` and no `libc`.
 
 [Should the names of an outcome and an error live in a crate that links no Python?](https://github.com/kalonji-tools/purba/issues/1191) asks the question.
-[An error says its kind, and reporting takes five ways in](an-error-says-its-kind-and-reporting-takes-four-ways-in.md#decision-outcome) holds what an error says.
+[An error says its kind, and reporting takes six ways in](an-error-says-its-kind-and-reporting-takes-four-ways-in.md#decision-outcome) holds what an error says.

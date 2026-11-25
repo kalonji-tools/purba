@@ -19,7 +19,7 @@ fn an_interrupt_in_the_rewrite_leaves_each_test_unreached() {
     .expect("the test writes its module");
     let argv = ["purba".to_owned()];
     let mut out = Vec::new();
-    let result = purba_command::run_with(&argv, &root, Ok(&mut out), |facts, tests| {
+    let result = purba_command::run_with(&argv, &root, &[], Ok(&mut out), |facts, tests| {
         Python::attach(|py| {
             py.run(
                 c"import signal\nsignal.raise_signal(signal.SIGINT)",

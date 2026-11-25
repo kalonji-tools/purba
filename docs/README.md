@@ -132,7 +132,7 @@
 - [A panic inside a test gives that test an internal error](decisions/a-panic-inside-a-test-gives-that-test-an-internal-error.md)
 - [A test causes an internal error through a switch that only a test build carries](decisions/a-test-causes-an-internal-error-through-a-switch-that-only-a-test-build-carries.md)
 - [A test of the wheel makes each fork fail through a library it preloads](decisions/a-test-of-the-wheel-makes-each-fork-fail-through-a-library-it-preloads.md)
-- [An error says its kind, and reporting takes five ways in](decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md)
+- [An error says its kind, and reporting takes six ways in](decisions/an-error-says-its-kind-and-reporting-takes-four-ways-in.md)
 - [An error stops only the work that depends on it](decisions/an-error-stops-only-the-work-that-depends-on-it.md)
 - [An outcome and an error live in a crate that links no Python](decisions/an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md)
 - [Of the exceptions CPython ignores, only a thread's is a project error](decisions/of-the-exceptions-cpython-ignores-only-a-threads-is-a-project-error.md)

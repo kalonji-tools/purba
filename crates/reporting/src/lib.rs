@@ -96,6 +96,17 @@ impl<W: Write> Report<W> {
         self.flushed(written)
     }
 
+    /// Writes `words`, a notice of the run, as `⚠ <words>`, and flushes it. It
+    /// changes no count and no exit code.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn notice(&mut self, words: &str) -> Result<(), Refused> {
+        let written = writeln!(self.out, "\u{26a0} {}", one_line(words));
+        self.flushed(written)
+    }
+
     /// Takes `module`, which `error` stopped before any test of it ran. Writes
     /// the error once, then the error of each thread that its load took, then
     /// each of `tests` as blocked, each on its own line, and adds each to the
@@ -1352,6 +1363,25 @@ mod tests {
              1 case: 1 blocked; 1 project error; 4 suppressed\n",
             "the line, then each notice, then selection's warnings, then execution's, each in \
              the order given"
+        );
+    }
+
+    #[test]
+    fn a_notice_of_the_run_is_its_own_line_and_counts_nothing() {
+        let mut out = Vec::new();
+        let mut report = Report::new(&mut out);
+        report
+            .notice("root ~/p\nis the working folder")
+            .expect("a Vec takes every write");
+        let code = report.finish().expect("a Vec takes every write");
+        assert_eq!(
+            String::from_utf8(out).expect("reporting writes UTF-8"),
+            "\u{26a0} root ~/p is the working folder\n0 cases\n",
+            "the notice on one line, unindented, then the count of nothing"
+        );
+        assert_eq!(
+            code, 2,
+            "a notice changes no exit code: a run of no test exits 2"
         );
     }
 }

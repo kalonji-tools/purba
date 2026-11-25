@@ -27,7 +27,7 @@ fn argv(path: &Path) -> [String; 2] {
 /// Runs purba on the module at `path`, from the folder of its project.
 fn run(path: &Path, out: io::Result<impl Write>) -> Result<u8, Error> {
     let folder = path.parent().expect("a module has a folder");
-    purba_command::run_with(&argv(path), folder, out, purba_assertion::rewrite)
+    purba_command::run_with(&argv(path), folder, &[], out, purba_assertion::rewrite)
 }
 
 /// Each kind that a line names after its test, in reporting's words.
@@ -241,6 +241,7 @@ fn a_usage_error_comes_before_a_stdout_that_takes_no_write() {
     let error = purba_command::run_with(
         &["purba".to_owned(), "a".to_owned(), "b".to_owned()],
         folder.parent().expect("a module has a folder"),
+        &[],
         Err::<Vec<u8>, _>(io::Error::other("closed")),
         purba_assertion::rewrite,
     )

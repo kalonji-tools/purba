@@ -24,7 +24,8 @@ use pyo3::{Bound, PyResult, Python, pyfunction, pymodule, wrap_pyfunction};
 /// It copies `sys.argv` into a list of strings,
 /// runs command on the list, and returns the exit code. For the error that
 /// stops the run, it writes one line to stderr, and returns 3, or 125 for a
-/// panic. A write that stdout refused once the report exists returns the code
+/// panic. For the errors of the `PURBA_*` variables, it writes one line for
+/// each error, and returns 3. A write that stdout refused once the report exists returns the code
 /// that reporting gives with it: 125 after an internal error, and 3 otherwise.
 /// A run that exits 125 then asks for a report, in two lines on stderr.
 ///
@@ -72,6 +73,12 @@ fn main(py: Python<'_>) -> u8 {
         Ok(Err(error @ purba_command::Error::Refused { code, .. })) => {
             stop(&error);
             code
+        }
+        Ok(Err(purba_command::Error::Environment(lines))) => {
+            for line in &lines {
+                stop(line);
+            }
+            3
         }
         Ok(Err(error)) => stop(&error),
         // Rust's panic hook already wrote the panic's text to stderr, unless

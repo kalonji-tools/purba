@@ -3,6 +3,7 @@
 //! returns reporting's exit code.
 
 use std::collections::HashMap;
+use std::ffi::{OsStr, OsString};
 use std::fmt;
 use std::fs;
 use std::io::{self, Write};
@@ -17,6 +18,9 @@ use purba_selection::{NoTestFile, Selected, TestId};
 pub enum Error {
     /// The arguments are more than one path.
     Usage,
+    /// The words of each error of the `PURBA_*` variables, sorted by the name
+    /// of the variable.
+    Environment(Vec<String>),
     /// The working folder cannot be read.
     Folder(io::Error),
     /// No `pyproject.toml` on the walk up from the working folder holds
@@ -54,6 +58,7 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Usage => write!(formatter, "usage: purba [<path>]"),
+            Self::Environment(lines) => write!(formatter, "{}", lines.join("; ")),
             Self::Folder(error) => write!(formatter, "cannot read the working folder: {error}"),
             Self::NoRoot(place) => {
                 write!(formatter, "no pyproject.toml holds [tool.purba]; ")?;
@@ -93,9 +98,11 @@ impl fmt::Display for Error {
 ///
 /// - The working folder cannot be read.
 /// - The arguments are more than one path.
+/// - A `PURBA_*` variable is near `PURBA_IMPLICIT_ROOT`, or
+///   `PURBA_IMPLICIT_ROOT` holds a value other than `1`, `0` or nothing.
 /// - `out` is an error.
 /// - No `pyproject.toml` on the walk up from the working folder holds
-///   `[tool.purba]`.
+///   `[tool.purba]`, and `PURBA_IMPLICIT_ROOT` is not `1`.
 /// - The path names no test file.
 /// - An interrupt comes before selection ends.
 /// - `out` refuses a write.
@@ -107,12 +114,20 @@ impl fmt::Display for Error {
 /// In a build with the feature `fault`, when `PURBA_FAULT` is `command`.
 pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Error> {
     let folder = std::env::current_dir().map_err(Error::Folder)?;
-    run_with(arguments, &folder, out, purba_assertion::rewrite)
+    let variables: Vec<(OsString, OsString)> = std::env::vars_os().collect();
+    run_with(
+        arguments,
+        &folder,
+        &variables,
+        out,
+        purba_assertion::rewrite,
+    )
 }
 
-/// [`run`] from the working folder `folder`, with `rewrite` in place of
-/// assertion's rewrite of the facts of each module, so that a test can run in
-/// its own folder, and put a signal inside the rewrite.
+/// [`run`] from the working folder `folder`, with `variables` in place of the
+/// variables of the process, and `rewrite` in place of assertion's rewrite of
+/// the facts of each module, so that a test can run in its own folder, set its
+/// own variables, and put a signal inside the rewrite.
 ///
 /// # Errors
 ///
@@ -125,6 +140,7 @@ pub fn run(arguments: &[String], out: io::Result<impl Write>) -> Result<u8, Erro
 pub fn run_with(
     arguments: &[String],
     folder: &Path,
+    variables: &[(OsString, OsString)],
     out: io::Result<impl Write>,
     rewrite: impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<u8, Error> {
@@ -134,11 +150,19 @@ pub fn run_with(
         panic!("PURBA_FAULT=command");
     }
     let typed = path(arguments)?;
+    let implicit = implicit_root(variables)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let (root, file, settings) = match find_root(folder) {
-        Rooted::Root(root, file, settings) => (root, file, settings),
-        Rooted::None(place) => return Err(Error::NoRoot(place)),
+    // An implicit root has no project's file, so its table of dials is empty
+    // and no dial refuses it. Its notice prints once selection ends.
+    let mut notice = None;
+    let (root, (file, settings)) = match find_root(folder) {
+        Rooted::Root(root, file, settings) => (root, (file, settings)),
+        Rooted::None(_, step) if implicit => {
+            notice = Some(step.line(home(variables).as_deref()));
+            (step.into_folder(), Default::default())
+        }
+        Rooted::None(place, _) => return Err(Error::NoRoot(place)),
         Rooted::Unread(file, error) => {
             not_interrupted()?;
             report.error(&file.display(), &error)?;
@@ -158,7 +182,8 @@ pub fn run_with(
     let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new), &patterns)
         .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
     purba_execution::start_paths_at(root.clone());
-    let (modules, mut kept) = before_the_run(&root, found, &mut report, &rewrite)?;
+    let (modules, mut kept) =
+        before_the_run(&root, found, notice.as_deref(), &mut report, &rewrite)?;
     hand(&root, modules, &mut kept, &mut report)?;
     for (path, selected) in &kept {
         for words in selected.unused() {
@@ -174,8 +199,9 @@ type Prepared = (Vec<Module<TestId>>, Vec<(PathBuf, Selected)>);
 
 /// Takes each test file of `found` in turn, by its path from `root`: parses
 /// it, selects its tests and rewrites it, and drops its tree before it reads
-/// the next. Once selection ends for every file, it prints, in the order of
-/// the paths, the line of each folder that stage one cannot read and of each
+/// the next. Once selection ends for every file, it prints `notice`, the
+/// notice of an implicit root, if any. Then it prints, in the order of the
+/// paths, the line of each folder that stage one cannot read and of each
 /// error that a file met before the run. The error of one file or folder
 /// stops only that one.
 ///
@@ -185,6 +211,7 @@ type Prepared = (Vec<Module<TestId>>, Vec<(PathBuf, Selected)>);
 fn before_the_run(
     root: &Path,
     found: purba_selection::TestFiles,
+    notice: Option<&str>,
     report: &mut purba_reporting::Report<impl Write>,
     rewrite: &impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<Prepared, Error> {
@@ -195,6 +222,9 @@ fn before_the_run(
     for path in found.files {
         let stage = prepare(root, &path, rewrite)?;
         before.push((path, stage));
+    }
+    if let Some(words) = notice {
+        report.notice(words)?;
     }
     let mut unread = found.unread.into_iter().peekable();
     let mut modules = Vec::new();
@@ -345,8 +375,9 @@ enum Rooted {
     /// the path of that file from the working folder, and the table under
     /// `[tool.purba]`.
     Root(PathBuf, PathBuf, toml::Table),
-    /// No such file, and where to add `[tool.purba]`.
-    None(Place),
+    /// No such file: where to add `[tool.purba]`, and the step that
+    /// `PURBA_IMPLICIT_ROOT` takes.
+    None(Place, Step),
     /// A `pyproject.toml` on the walk that is not TOML, by its path from the
     /// working folder, with its project error.
     Unread(PathBuf, purba_errors::Error),
@@ -358,7 +389,9 @@ enum Rooted {
 fn find_root(folder: &Path) -> Rooted {
     let start = folder.canonicalize().unwrap_or_else(|_| folder.to_owned());
     let mut up = PathBuf::new();
-    let mut project = None;
+    // The nearest `pyproject.toml` with `[project]`: its path from the working
+    // folder, and its folder.
+    let mut project: Option<(PathBuf, PathBuf)> = None;
     for current in start.ancestors() {
         let file = current.join("pyproject.toml");
         if file.is_file() {
@@ -374,15 +407,124 @@ fn find_root(folder: &Path) -> Rooted {
                 );
             }
             if project.is_none() && inner(&table, &["project"]).is_some() {
-                project = Some(up.join("pyproject.toml"));
+                project = Some((up.join("pyproject.toml"), current.to_owned()));
             }
         }
         if current.join(".git").symlink_metadata().is_ok() {
-            return Rooted::None(project.map_or_else(|| Place::Folder(shown(&up)), Place::Project));
+            return match project {
+                Some((file, folder)) => Rooted::None(Place::Project(file), Step::Project(folder)),
+                None => Rooted::None(Place::Folder(shown(&up)), Step::Git(current.to_owned())),
+            };
         }
         up.push("..");
     }
-    Rooted::None(project.map_or_else(|| Place::Folder(PathBuf::from(".")), Place::Project))
+    match project {
+        Some((file, folder)) => Rooted::None(Place::Project(file), Step::Project(folder)),
+        None => Rooted::None(Place::Folder(PathBuf::from(".")), Step::Working(start)),
+    }
+}
+
+/// The step to a root that `PURBA_IMPLICIT_ROOT` takes when no
+/// `pyproject.toml` holds `[tool.purba]`, with the folder it gives.
+enum Step {
+    /// The folder of the nearest `pyproject.toml` with `[project]`.
+    Project(PathBuf),
+    /// The folder that holds `.git`.
+    Git(PathBuf),
+    /// The working folder.
+    Working(PathBuf),
+}
+
+impl Step {
+    /// The folder that the step gives.
+    fn into_folder(self) -> PathBuf {
+        match self {
+            Self::Project(folder) | Self::Git(folder) | Self::Working(folder) => folder,
+        }
+    }
+
+    /// The words of the notice that names the root and the step, with `~` for
+    /// the start of a root under `home`.
+    fn line(&self, home: Option<&Path>) -> String {
+        let (folder, what) = match self {
+            Self::Project(folder) => (
+                folder,
+                "the folder of the pyproject.toml that holds [project]",
+            ),
+            Self::Git(folder) => (folder, "the folder that holds .git"),
+            Self::Working(folder) => (folder, "the working folder"),
+        };
+        let mut line = format!(
+            "root {} is {what}, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml \
+             holds [tool.purba]",
+            tilde(folder, home)
+        );
+        if matches!(self, Self::Working(_)) {
+            line.push_str("; the id of each test starts here, and moves with the working folder");
+        }
+        line
+    }
+}
+
+/// `folder`, with `~` in place of `home` where `folder` starts there.
+fn tilde(folder: &Path, home: Option<&Path>) -> String {
+    match home.and_then(|home| folder.strip_prefix(home).ok()) {
+        Some(rest) if rest.as_os_str().is_empty() => "~".to_owned(),
+        Some(rest) => format!("~/{}", rest.display()),
+        None => folder.display().to_string(),
+    }
+}
+
+/// The home folder that `HOME` in `variables` names, as the walk names a
+/// folder, or `None` when `HOME` is unset or empty.
+fn home(variables: &[(OsString, OsString)]) -> Option<PathBuf> {
+    let (_, home) = variables
+        .iter()
+        .find(|(name, value)| name == "HOME" && !value.is_empty())?;
+    let home = PathBuf::from(home);
+    Some(home.canonicalize().unwrap_or(home))
+}
+
+/// `PURBA_IMPLICIT_ROOT`: whether the walk takes a step to a root when no
+/// `pyproject.toml` holds `[tool.purba]`.
+static IMPLICIT_ROOT: purba_config::Variable<bool> =
+    purba_config::Variable::new("PURBA_IMPLICIT_ROOT", read_implicit_root, || false);
+
+/// `1` takes the steps; `0` and an empty value do not.
+fn read_implicit_root(value: &OsStr) -> Result<bool, Vec<String>> {
+    match value.to_str() {
+        Some("1") => Ok(true),
+        Some("0" | "") => Ok(false),
+        _ => Err(vec![format!(
+            "PURBA_IMPLICIT_ROOT is {}; set 1 or 0",
+            value.display()
+        )]),
+    }
+}
+
+/// Whether `variables` turn the steps of `PURBA_IMPLICIT_ROOT` on.
+///
+/// # Errors
+///
+/// [`Error::Environment`], with the words of each `PURBA_*` variable near
+/// `PURBA_IMPLICIT_ROOT` and of a value that it refuses.
+fn implicit_root(variables: &[(OsString, OsString)]) -> Result<bool, Error> {
+    let environment = purba_config::Environment::new(variables.iter().cloned());
+    let mut errors = environment.near(&[IMPLICIT_ROOT.name()]);
+    let implicit = match environment.resolve(&IMPLICIT_ROOT) {
+        Ok(resolved) => resolved.value,
+        Err(words) => {
+            errors.extend(words);
+            false
+        }
+    };
+    if errors.is_empty() {
+        Ok(implicit)
+    } else {
+        // Each line starts with the name of its variable.
+        errors.sort();
+        Err(Error::Environment(errors))
+    }
 }
 
 /// `up` as a folder: `.` for the working folder.

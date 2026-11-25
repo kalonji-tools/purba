@@ -67,16 +67,17 @@ For one plain value, each surveyed tool overwrites in the same way.
 - **purba reads no file of the project other than `pyproject.toml`.**
 - **The project's file keeps `test-files`, `[tool.purba.platform]` and `[tool.purba.queries]`, the three dials that change which tests run.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) says why.
 - **purba walks up from the working folder to the first `pyproject.toml` that holds `[tool.purba]`.** The folder of that file is the [root](../../CONTEXT.md#root). A path of the query starts at the root, so the walk cannot start from a path. The walk stops at the folder that holds `.git`, whether `.git` is a folder or, as in a worktree of git, a file.
-- **When the walk finds no such file, and the environment does not set `PURBA_IMPLICIT_ROOT`, purba refuses the run as an invocation error.** The error names the `pyproject.toml` with `[project]` that the walk found, as the place for `[tool.purba]`. Without one, it names the folder that holds `.git`, or else the working folder.
-- **When the environment sets `PURBA_IMPLICIT_ROOT`, purba tries three more steps in order: the `pyproject.toml` with `[project]`, the folder that holds `.git`, and the working folder.** Each run that takes one of these steps prints a line that names the root, the step and the variable. That line changes no exit code.
+- **When the walk finds no such file, and `PURBA_IMPLICIT_ROOT` is off, purba refuses the run as an invocation error.** purba reads the variable as off when it is unset, empty or `0`. The error names the `pyproject.toml` with `[project]` that the walk found, as the place for `[tool.purba]`. Without one, it names the folder that holds `.git`, or else the working folder.
+- **When `PURBA_IMPLICIT_ROOT` is `1`, purba tries three more steps in order: the `pyproject.toml` with `[project]`, the folder that holds `.git`, and the working folder.** Each run that takes one of these steps prints a [notice](../../CONTEXT.md#notice) above its first line. The notice names the root, the step and the variable. It changes no exit code.
+- **Any other value of `PURBA_IMPLICIT_ROOT` is an invocation error, in each run.** A run whose walk finds `[tool.purba]` refuses that value too.
 - **A key that no dial owns is an error.** The error names the dial whose name is nearest to the key.
-- **purba refuses a `PURBA_*` variable whose name is near the variable of a dial, and ignores every other one.** So purba refuses a misspelled variable, and ignores a variable that a test of purba sets, such as `PURBA_SENTINEL`.
+- **purba refuses a `PURBA_*` variable whose name is one or two edits from the variable of a dial, and ignores every other one.** So purba refuses a misspelled variable. It ignores a variable that a test of purba sets, such as `PURBA_SENTINEL`.
 - **The kind of an error of configuration says where the tester fixes it.** A flag or a `PURBA_*` variable gives an [invocation error](../../CONTEXT.md#invocation-error). A key in a file gives a [project error](../../CONTEXT.md#project-error), because purba finds the file itself. [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds that rule.
 - **Before purba stops on configuration, it names every error that it finds.** [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) holds that rule.
 - **Each value keeps the level that it came from.**
-- **`purba-config`, the crate of the concern, holds the mechanism.** It holds the project's level, the search for the nearest dial, and the level of each value. It uses no part, as the crate of errors uses none.
+- **`purba-config`, the crate of the concern, holds the mechanism.** It holds the project's level, the level of the environment, the search for the nearest dial, and the level of each value. It uses no part, as the crate of errors uses none.
 - **Each part declares its own dials to `purba-config`, as typed handles.** The part that reads a value owns what it means, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) says. Command gathers the declarations and resolves them. It turns each refusal into an error of the kind above.
-- **Each level other than the project's comes with the first dial that it may set.** The order of the levels comes with the second level. The cap's rule comes with the cap.
+- **Each level other than the project's comes with the first dial that it may set.** The order of the levels comes with the first dial that two levels may set. The cap's rule comes with the cap.
 
 Each dial waits for the design of its part.
 
@@ -85,7 +86,6 @@ Each dial waits for the design of its part.
 | a dial's name, type and meaning | the part that declares it: the cap, `[tool.purba.platform]` and `[tool.purba.queries]` in selection, the timeout and the workers in dispatch, the form of the output in reporting, the import roots in execution |
 | the form of a value in code | dispatch, with the timeout, through a blind rating |
 | the line that names a value's level | reporting, through a blind rating |
-| the line that names the root that a step of `PURBA_IMPLICIT_ROOT` found | reporting, through a blind rating |
 
 **Downside:**
 
@@ -97,6 +97,8 @@ Each dial waits for the design of its part.
 - **Outside git, purba walks up to the root of the file system.** A file above the project then reaches the run.
 - **Under the last step that `PURBA_IMPLICIT_ROOT` turns on, the id of a test moves with the working folder.** The line of that step says so.
 - **`PURBA_IMPLICIT_ROOT` drifts like any variable of the environment.** A shell that sets it makes a run on that machine differ from a run on another. The line of each step names the variable.
+- **A wrong value of `PURBA_IMPLICIT_ROOT` stops a run that does not need it.** A run whose walk finds `[tool.purba]` refuses the value too.
+- **An error of the environment stops the run before purba reads the project's file.** A run with a wrong variable and a wrong key names only the variable.
 - **The paths on macOS are unmeasured.** pip, uv, mypy and git name other paths there.
 
 ## Confirmation
@@ -106,8 +108,12 @@ Each dial waits for the design of its part.
 `mise run test:rust` checks `purba-config` in `crates/config/tests/project.rs`.
 It checks the first dial, `test-files`, in `crates/selection/tests/test_files_dial.rs`.
 `mise run test:wheel` checks the errors of the project's file in `tests/test_files.bats`.
+
+`mise run test:rust` checks the level of the environment in `crates/config/tests/environment.rs`.
+It checks the first two steps of `PURBA_IMPLICIT_ROOT` and the errors of the environment in `crates/command/tests/root.rs`.
+`mise run test:wheel` checks the three steps and the errors of the environment in `tests/implicit_root.bats`.
 The line of configuration in `LANDSCAPE.md` names the crate, so that `mise run lint:wiring` reads it.
 
 [How does purba read and resolve its configuration?](https://github.com/kalonji-tools/purba/issues/1219) asks the question.
-[purba finds an implicit root by a ladder when PURBA_IMPLICIT_ROOT is set, and says so](https://github.com/kalonji-tools/purba/issues/1241) builds the steps that `PURBA_IMPLICIT_ROOT` turns on.
+[purba finds an implicit root by a ladder when PURBA_IMPLICIT_ROOT is set, and says so](https://github.com/kalonji-tools/purba/issues/1241) built the steps that `PURBA_IMPLICIT_ROOT` turns on.
 [`.config/shortlists.toml`](../../.config/shortlists.toml) holds the shortlist of `resolve-levels`: the crates that can replace part of the mechanism.
