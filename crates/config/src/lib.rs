@@ -1,5 +1,9 @@
 //! The crate of the configuration concern: resolves each dial from its levels,
-//! keeps the level of each value, and names each key that no dial owns.
+//! keeps the level of each value, and names each key that no dial owns and
+//! each variable whose name is near a dial's.
+
+use std::collections::BTreeMap;
+use std::ffi::{OsStr, OsString};
 
 /// A setting that a part declares: its key under `[tool.purba]`, the function
 /// of the part that reads a value, and its default.
@@ -28,13 +32,112 @@ impl<T> Dial<T> {
     }
 }
 
+/// A setting that a part declares on the level of the environment: the name
+/// of its `PURBA_*` variable, the function of the part that reads a value, and
+/// its default.
+pub struct Variable<T> {
+    name: &'static str,
+    read: fn(&OsStr) -> Result<T, Vec<String>>,
+    default: fn() -> T,
+}
+
+impl<T> Variable<T> {
+    /// The dial of the variable `name`, whose value `read` reads, and which
+    /// takes `default` when the variable is not set. `read` gives the words of
+    /// each error of a value it refuses.
+    pub const fn new(
+        name: &'static str,
+        read: fn(&OsStr) -> Result<T, Vec<String>>,
+        default: fn() -> T,
+    ) -> Self {
+        Self {
+            name,
+            read,
+            default,
+        }
+    }
+
+    /// The name of the variable.
+    #[must_use]
+    pub const fn name(&self) -> &'static str {
+        self.name
+    }
+}
+
 /// The level that a value came from.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Level {
     /// No level sets the dial, so it takes its default.
     Default,
+    /// A `PURBA_*` variable of the environment.
+    Environment,
     /// The project's file, under `[tool.purba]`.
     Project,
+}
+
+/// The level of the environment: each variable whose name starts with
+/// `PURBA_`, sorted by name.
+#[derive(Debug, Clone, Default)]
+pub struct Environment {
+    variables: BTreeMap<String, OsString>,
+}
+
+/// The most edits from a dial's variable at which a `PURBA_*` variable is
+/// near it.
+const NEAR: usize = 2;
+
+impl Environment {
+    /// The level that the pairs of `variables`, a name and a value, set. It
+    /// keeps a variable only when its name is UTF-8 and starts with `PURBA_`.
+    pub fn new(variables: impl IntoIterator<Item = (OsString, OsString)>) -> Self {
+        Self {
+            variables: variables
+                .into_iter()
+                .filter_map(|(name, value)| {
+                    let name = name.into_string().ok()?;
+                    name.starts_with("PURBA_").then_some((name, value))
+                })
+                .collect(),
+        }
+    }
+
+    /// The value of `variable`, and its level.
+    ///
+    /// # Errors
+    ///
+    /// The words of each error of the value that the environment sets.
+    pub fn resolve<T>(&self, variable: &Variable<T>) -> Result<Resolved<T>, Vec<String>> {
+        self.variables.get(variable.name).map_or_else(
+            || {
+                Ok(Resolved {
+                    value: (variable.default)(),
+                    level: Level::Default,
+                })
+            },
+            |value| {
+                (variable.read)(value).map(|value| Resolved {
+                    value,
+                    level: Level::Environment,
+                })
+            },
+        )
+    }
+
+    /// The words of each variable whose name is one or two edits from a name
+    /// of `names`, the variables of the dials, and is none of them, sorted by
+    /// name, with the nearest.
+    #[must_use]
+    pub fn near(&self, names: &[&str]) -> Vec<String> {
+        self.variables
+            .keys()
+            .filter(|name| !names.contains(&name.as_str()))
+            .filter_map(|name| {
+                let dial = nearest(name, names)?;
+                (distance(name, dial) <= NEAR)
+                    .then(|| format!("{name} is no variable of purba; the nearest is {dial}"))
+            })
+            .collect()
+    }
 }
 
 /// The value of a dial, and the level that it came from.

@@ -38,7 +38,7 @@ A console script adds one command and one private name, and the wheel keeps its 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
 - **A run takes one [query](../../CONTEXT.md#query), and no flag.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds the query.
-- **For an [invocation error](../../CONTEXT.md#invocation-error), purba writes one line to stderr.** The line says why. It is `purba: invocation error: `, then one of `usage: purba [<path>]`, `cannot read the working folder: <error>`, `no pyproject.toml holds [tool.purba]; add it to <file>`, `no pyproject.toml holds [tool.purba]; add one with it to <folder>`, `<path> names no test file: <why>` and `cannot write to stdout: <error>`. The usage line holds until selection builds the query. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
+- **For an [invocation error](../../CONTEXT.md#invocation-error), purba writes one line to stderr.** The line says why. It is `purba: invocation error: `, then one of `usage: purba [<path>]`, `cannot read the working folder: <error>`, `<variable> is <value>; set 1 or 0`, `<variable> is no variable of purba; the nearest is <dial's variable>`, `no pyproject.toml holds [tool.purba]; add it to <file>`, `no pyproject.toml holds [tool.purba]; add one with it to <folder>`, `<path> names no test file: <why>` and `cannot write to stdout: <error>`. For the errors of the `PURBA_*` variables, purba writes one such line for each error. The usage line holds until selection builds the query. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
 - **A run prints to stdout the lines it finds before the run, then each other test's line, each unused suppression's, and the count.**
 
   ```mermaid
@@ -95,7 +95,9 @@ tests/test_a.py::test_three project error: [no-expectation] no expectation state
 ## Confirmation
 
 `mise run test:rust` checks each line and the count that reporting writes.
-It also checks the text of each error that command returns.
+It also checks the text of each error that command returns, except an error of the `PURBA_*` variables.
+`mise run test:wheel` checks the text of that error in `tests/implicit_root.bats`.
+
 `mise run test:wheel` runs the installed `purba` on `test_a.py`, and checks the lines it prints.
 It checks that `_main` writes the line of a usage error to stderr.
 It checks that a test that aborts purba leaves the line of each test before it.

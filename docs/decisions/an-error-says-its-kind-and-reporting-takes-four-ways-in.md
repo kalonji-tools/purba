@@ -1,4 +1,4 @@
-# An error says its kind, and reporting takes five ways in
+# An error says its kind, and reporting takes six ways in
 
 ## Context and Problem Statement
 
@@ -25,20 +25,21 @@ On `main` at `bc83b7a`, reporting decoded the kind and counted an internal error
 
 **Area:** errors
 
-**An error says its kind, and reporting takes five ways in.**
+**An error says its kind, and reporting takes six ways in.**
 A new kind and the rule that counts it change in `purba-errors` alone.
 
 - **An error says its kind.** `error.kind()` gives `ErrorKind::Project`, or `ErrorKind::Internal` with the part that found it.
 - **Any part builds a project error, through `Error::project`.** Command builds one for a test that selection refuses, for a module that does not parse, and for a fault of a module's suppression. It also builds one for each unused suppression.
 - **Only execution and `catch` build an internal error.** Clippy refuses a call of `Error::internal` outside execution, as [an outcome and an error live in a crate that links no Python](an-outcome-and-an-error-live-in-a-crate-that-links-no-python.md#decision-outcome) decides. `catch` builds one for a panic that crosses it.
 - **The `Tally` of `purba-errors` counts each error by its kind.** Reporting picks no counter.
-- **Reporting takes five ways in.** `finish` ends the report. The five ways in are these:
+- **Reporting takes six ways in.** `finish` ends the report. The six ways in are these:
   - `case` takes a test with its outcome or its error, each [notice](../../CONTEXT.md#notice) of the test, and each verdict that a suppression turned into a warning. It writes the line, then each notice, then each warning that selection judged, then each warning that execution judged. A notice and a warning count no test.
   - `error` takes a module or a test, with its error. It counts no blocked test.
   - `stopped` takes a module that stopped before its tests ran, with its error, each thread's error, and its tests. It writes the error once, then each thread's error, then each test as blocked.
   - `ended` takes a module whose process ended after one of its tests ran. It also takes the error of that end, a flag that says whether that test's line named it, and each test left. It writes the error once, unless that line named it, then each test as blocked by the end.
   - `unreached` takes an [unreached test](../../CONTEXT.md#unreached-test). It writes no line.
-- **Reporting's tests reach it through the five ways in, `finish`, and its private writers.** An outcome goes through the private `add`. An error, a notice and a warning go through the private `line`, `noticed` and `warned`.
+  - `notice` takes a [notice](../../CONTEXT.md#notice) of the run. Command calls it before the first line. It writes the notice on its own line. It counts nothing.
+- **Reporting's tests reach it through the six ways in, `finish`, and its private writers.** An outcome goes through the private `add`. An error, a notice of a case and a warning go through the private `line`, `noticed` and `warned`.
 
 **Downside:**
 
@@ -54,6 +55,8 @@ It checks that `stopped` writes the module's error, then each thread's error, th
 `mise run test:rust` also checks that `ended` writes the error once, unless the line of a case named it, then each test left as blocked.
 It checks that `unreached` writes no line, and that the count names `unreached`.
 It checks that `case` writes the line, then each notice, then each warning that selection judged, then each warning that execution judged.
+It checks that `notice` writes the notice of the run on its own line.
+It checks that the notice changes no count and no exit code.
 
 `mise run lint:wiring` checks that each part that uses `purba-errors` is a part that the line of errors names.
 `mise run lint:rust` refuses a call of `Error::internal` outside execution.
