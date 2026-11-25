@@ -1,0 +1,107 @@
+## 1. Where a run starts: the line each runner prints, from tests/, with neither file
+$ (cd none-pytest/tests && <venv-a>/bin/pytest -p no:cacheprovider)
+rootdir: <w>/none-pytest/tests
+
+$ (cd none-oxitest/tests && <venv-a>/bin/oxitest --color=never)
+rootdir: <w>/none-oxitest/tests
+
+$ (cd none-purba/tests && PURBA_IMPLICIT_ROOT=1 <venv-a>/bin/purba)
+⚠ root <w>/none-purba/tests, from the working folder; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found; ids start here
+
+$ (cd none-purba/tests && PURBA_IMPLICIT_ROOT=1 <venv-b>/bin/purba)
+⚠ root <w>/none-purba/tests is the working folder, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]; the id of each test starts here, and moves with the working folder
+
+## 2. pytest: from tests/ of the project, rootdir names the project, and an id starts at tests/
+rootdir: <w>/p
+test_add_option_format.py::test_format[a-Message: {message}-Message: a\n] PASSED [  5%]
+
+## 3. Each runner's pattern setting, set to test*.py, a string, and an empty list
+# [tool.pytest.ini_options] python_files = ["test*.py"]
+$ (cd pat-pytest-5439 && <venv-a>/bin/pytest -p no:cacheprovider)
+configfile: pyproject.toml
+collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+# [tool.oxitest] python_files = ["test*.py"]
+$ (cd pat-oxitest-24507 && <venv-a>/bin/oxitest --color=never)
+
+════════════════════════════════════════════════════════════════════════════════
+  no tests ran
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# [tool.purba] test-files = ["test*.py"]
+$ (cd pat-purba-12308 && <venv-a>/bin/purba)
+pyproject.toml project error: [tool.purba] test-files: test*.py is not a pattern purba takes; nearest: test_*.py
+0 cases; 1 project error
+[exit 4]
+
+# [tool.purba] test-files = ["test*.py"]
+$ (cd pat-purba-29540 && <venv-b>/bin/purba)
+pyproject.toml project error: test-files under [tool.purba] holds test*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+0 cases; 1 project error
+[exit 4]
+
+# [tool.pytest.ini_options] python_files = "*_test.py"
+$ (cd pat-pytest-24914 && <venv-a>/bin/pytest -p no:cacheprovider)
+
+tests/add_option_format_test.py ....................                     [100%]
+
+============================== 20 passed in 0.04s ==============================
+[exit 0]
+
+# [tool.oxitest] python_files = "*_test.py"
+$ (cd pat-oxitest-24795 && <venv-a>/bin/oxitest --color=never)
+error: <w>/pat-oxitest-24795/pyproject.toml: invalid type: string "*_test.py", expected a sequence
+in `python_files`
+
+[exit 4]
+
+# [tool.purba] test-files = "*_test.py"
+$ (cd pat-purba-19385 && <venv-a>/bin/purba)
+pyproject.toml project error: [tool.purba] test-files: a string, not a list
+0 cases; 1 project error
+[exit 4]
+
+# [tool.purba] test-files = "*_test.py"
+$ (cd pat-purba-22938 && <venv-b>/bin/purba)
+pyproject.toml project error: test-files under [tool.purba] is a string; write a list, such as ["*_test.py"]
+0 cases; 1 project error
+[exit 4]
+
+# [tool.pytest.ini_options] python_files = []
+$ (cd pat-pytest-28395 && <venv-a>/bin/pytest -p no:cacheprovider)
+configfile: pyproject.toml
+collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+# [tool.oxitest] python_files = []
+$ (cd pat-oxitest-14050 && <venv-a>/bin/oxitest --color=never)
+
+════════════════════════════════════════════════════════════════════════════════
+  no tests ran
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# [tool.purba] test-files = []
+$ (cd pat-purba-20164 && <venv-a>/bin/purba)
+pyproject.toml project error: [tool.purba] test-files: an empty list
+0 cases; 1 project error
+[exit 4]
+
+# [tool.purba] test-files = []
+$ (cd pat-purba-138 && <venv-b>/bin/purba)
+pyproject.toml project error: test-files under [tool.purba] is an empty list, so no file is a test file; list at least one of test_*.py, *_test.py, tests.py and test.py
+0 cases; 1 project error
+[exit 4]
+
+## 4. purba: a test whose expected exception is not raised
+$ (cd noraise && PURBA_IMPLICIT_ROOT=1 <venv-a>/bin/purba tests/test_noraise.py)
+⚠ root <w>/noraise, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found
+tests/test_noraise.py::test_nothing_raised project error: [second-path] line 9 reaches line 4 of raised, which did not run, and the lines before the first expectation take one path; [second-path] line 9 reaches line 5 of raised, which did not run, and the lines before the first expectation take one path
+1 case: 1 blocked; 1 project error
+[exit 4]
