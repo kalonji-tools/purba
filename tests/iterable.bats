@@ -59,3 +59,40 @@ ${raised}
 LINES
   [[ -z "${stderr}" ]]
 }
+
+@test "a run from a subfolder resolves a relative file name of a raise against its folder" {
+  cd "${BATS_TEST_DIRNAME}/iterable/sub"
+
+  run -4 --separate-stderr purba sub/test_whence.py
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+sub/test_whence.py::test_parent raised: ValueError: x
+    raised in boom() at helper.py:2
+sub/test_whence.py::test_relative raised: ValueError: x
+    raised in boom() at sub/helper.py:2
+sub/test_whence.py::test_moved raised: ValueError: x
+    raised in boom() at sub/helper.py:2
+3 cases: 3 raised
+LINES
+  [[ -z "${stderr}" ]]
+}
+
+@test "a run from the root names a frame outside the root by its absolute path" {
+  cd "${BATS_TEST_DIRNAME}/iterable"
+  # The line resolves each symbolic link.
+  local outside
+  outside="$(cd "${BATS_TEST_DIRNAME}" && pwd -P)/helper.py"
+
+  run -4 --separate-stderr purba sub/test_whence.py
+
+  diff -u - <(printf '%s\n' "${output}") <<LINES
+sub/test_whence.py::test_parent raised: ValueError: x
+    raised in boom() at ${outside}:2
+sub/test_whence.py::test_relative raised: ValueError: x
+    raised in boom() at helper.py:2
+sub/test_whence.py::test_moved raised: ValueError: x
+    raised in boom() at helper.py:2
+3 cases: 3 raised
+LINES
+  [[ -z "${stderr}" ]]
+}

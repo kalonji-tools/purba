@@ -94,18 +94,19 @@ pub struct Purba<'py> {
 }
 
 /// Keeps `root` as the folder that the path in the line of each raise starts
-/// from.
+/// from, and `folder` as the folder that the run started in.
 ///
-/// It takes the place of the folder that the run started in. Only the first
-/// call of the process counts, and only before the first [`attach`].
-pub fn start_paths_at(root: PathBuf) {
-    whence::keep(root);
+/// The root takes the place of `folder` as the start of each path. Only the
+/// first call of the process counts.
+pub fn start_paths_at(root: PathBuf, folder: PathBuf) {
+    whence::keep(root, folder);
 }
 
 /// Gives `work` purba's process for as long as it runs.
 ///
-/// Before `work`, it keeps the folder that the run started in, unless
-/// [`start_paths_at`] kept a root, and hooks
+/// Before `work`, it keeps the working folder as the folder that the run
+/// started in, which a relative file name in the line of a raise resolves
+/// against, unless [`start_paths_at`] kept one, and hooks
 /// `threading.excepthook` and `sys.unraisablehook`, for the life of the
 /// process. So each run imports `threading`. Each zygote inherits both.
 ///
