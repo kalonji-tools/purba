@@ -54,7 +54,7 @@ sequenceDiagram
 ```
 
 The part that uses another part builds that part's input.
-[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out the line where an identity prints as `path::function`. A test in a class prints each class before its function.
+[A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) lays out the line where an identity prints as `path::function`. A test in a class prints each class before its function.
 [A worker loads each module once, and command hands each module once](a-worker-loads-each-module-once.md#decision-outcome) holds why a worker loads each module once.
 [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds how a rewrite crosses the parts.
 
@@ -63,7 +63,7 @@ The part that uses another part builds that part's input.
 - **Reporting prints any value that prints itself.** Command can hand it a name that command formatted. The gate for one identity misses it. The reviewer looks for it.
 - **Dispatch takes any value that implements its `Test`.** Command can hand dispatch a value of a type that command defines, in place of an identity. The gate for one identity misses it. The reviewer looks for it.
 - **Execution takes the name of one function.** A test method of a class needs more than one name, so selection refuses it, as [a test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says.
-- **A module under two spellings of its path loads twice, once in each zygote.** The design in depth of selection decides how an identity starts.
+- **A module under two spellings of its path loads twice, once in each zygote, until selection builds its ids.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) starts each path at the folder of the project's file.
 - **Dispatch names assertion's `Rewrite` through execution's interface.** [Assertion's rewrite crosses each part whole, and only assertion opens it](assertions-rewrite-crosses-each-part-whole-and-only-assertion-opens-it.md#decision-outcome) holds the cost.
 
 ## Confirmation

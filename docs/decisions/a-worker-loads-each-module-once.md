@@ -55,5 +55,5 @@ It checks that each test that dispatch hands on reads the module as its load lef
 `mise run test:wheel` checks that a module body runs once for all its tests.
 
 `mise run test:rust` does not check that command hands each module once.
-A run takes one module, so command hands it at most once.
+Until selection builds the query, a run takes one module, so command hands it at most once.
 [Each test runs in a process of its own](each-test-runs-in-a-process-of-its-own.md#decision-outcome) says how each test reaches the module that its zygote loaded.

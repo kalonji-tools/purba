@@ -55,7 +55,7 @@ flowchart LR
 ## The parts and their dependencies
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
-- **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call.
+- **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call. [purba picks a test by its name, and the tests of a run by one query](docs/decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds its design in depth.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error. It holds what selection and assertion share: the facts of each module and of each test, the asserts at the end of a test, the blocks of a statement, and each assert's shape. [Wayfinder: purba's parsing, reading each module that CPython runs](https://github.com/kalonji-tools/purba/issues/1126) holds its design in depth.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It asks execution for a loaded zygote for each module. For a module that stops before its tests, dispatch hands on the module once, with its error, each thread's error and its tests. For a load that the first interrupt lands in, dispatch hands on no project error. After each load and each test, dispatch hands on the error of each thread that the zygote or the test's process took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome. It forks a zygote that loads each module once, and that forks a process for each test.
@@ -163,7 +163,6 @@ sequenceDiagram
 
 Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in depth reduces it.
 
-- **text selection disagrees with import.** Given a pinned suite, when selection reads the AST of its test files, then it names a test that import does not define, or misses one that import defines. Lands on selection; probability high, impact high.
 - **a fixture reaches a test that never named it.** Given two tests where only the first names a fixture, when both run, then the outcome of the second depends on that fixture. Lands on fixtures; probability high, impact high.
 - **an outcome depends on the worker.** Given a selection, when it runs on one worker and then on many, then the outcome of some test differs. Lands on dispatch; probability high, impact high.
 - **an async fixture leaves its loop or its task.** Given an async fixture that two async tests name, when both run, then a test raises a cross-loop error, or the fixture's teardown never runs. Lands on fixtures; probability medium, impact high.
@@ -174,14 +173,13 @@ Each [risk](CONTEXT.md#risk) lands on the one part or concern whose design in de
 
 Each part or concern waits for the parts it uses and the concerns that cross it, and risk orders what nothing blocks.
 
-1. **selection.**
-2. **the Rust/Python seam.**
-3. **fixtures.**
-4. **assertion.**
-5. **execution.**
-6. **dispatch.**
-7. **reporting.**
-8. **command.**
+1. **the Rust/Python seam.**
+2. **fixtures.**
+3. **assertion.**
+4. **execution.**
+5. **dispatch.**
+6. **reporting.**
+7. **command.**
 
 [A design in depth waits for what it assumes](docs/decisions/a-design-in-depth-waits-for-what-it-assumes.md) holds why for these two sections.
 

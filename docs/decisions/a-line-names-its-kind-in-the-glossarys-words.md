@@ -9,7 +9,7 @@ So a [tester](../../CONTEXT.md#tester) cannot tell an internal error from the ot
 
 | fact | source |
 |---|---|
-| a run writes no data for an [integrator](../../CONTEXT.md#integrator) yet, and the integrator reads the exit code | [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) |
+| a run writes no data for an [integrator](../../CONTEXT.md#integrator) yet, and the integrator reads the exit code | [A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) |
 | purba shows and counts `unknown`, and never shows it as clean | [purba is always strict](purba-is-always-strict.md#decision-outcome) |
 | pytest names a status in its count only when a report holds it | [pytest's `terminal.py`](https://github.com/pytest-dev/pytest/blob/9.1.1/src/_pytest/terminal.py#L1461-L1467) |
 | libtest names each status in its count, even at 0 | [libtest's `pretty.rs`](https://github.com/rust-lang/rust/blob/1.99.1/library/test/src/formatters/pretty.rs#L290-L293) |

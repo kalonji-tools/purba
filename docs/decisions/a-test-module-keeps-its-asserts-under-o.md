@@ -31,7 +31,7 @@ Under `-O`, the test module keeps each assert, each docstring and `__debug__` as
 Its code is the code of a plain run.
 A module that the test imports follows the interpreter, as [purba runs inside the tester's interpreter](purba-runs-inside-the-testers-interpreter.md#decision-outcome) holds.
 
-- **A run under `-O` writes one warning to stderr, before any other line.** The line is `purba: warning: Python runs with -O, so an assert outside a test module does not run`. It also comes before the line of each invocation error. [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names those lines.
+- **A run under `-O` writes one warning to stderr, before any other line.** The line is `purba: warning: Python runs with -O, so an assert outside a test module does not run`. It also comes before the line of each invocation error. [A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names those lines.
 - **A warning is not an error, so it names no kind.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) names the kinds of an error.
 - **The warning leaves the exit code as the run sets it.**
 

@@ -51,7 +51,7 @@ For one plain value, each surveyed tool overwrites in the same way.
 | order | level | where | may set |
 |:-:|---|---|---|
 | 1 | code | beside a test, in a form that a blind rating picks | each dial that its part opens to code |
-| 2 | the command line | a flag | each dial |
+| 2 | the command line | a flag | each dial that the project's file does not keep |
 | 3 | the environment | a `PURBA_*` variable | each dial that the command line may set |
 | 4 | the project | `pyproject.toml`, under `[tool.purba]` | each dial |
 | 5 | the user | `$XDG_CONFIG_HOME/purba/purba.toml`, or `~/.config/purba/purba.toml` | each dial that changes no outcome |
@@ -63,7 +63,8 @@ For one plain value, each surveyed tool overwrites in the same way.
 - **The user's file and the system's file set only a dial that changes no outcome.** A dial in such a file that changes an outcome is an error. So a file on one machine changes no outcome.
 - **Code beats the command line.** A test that needs more time says so beside itself.
 - **purba reads no file of the project other than `pyproject.toml`.**
-- **purba walks up from each path on the command line to the first `pyproject.toml` that holds `[tool.purba]`.** The walk stops at the directory that holds `.git`. Paths in two projects are an invocation error.
+- **The project's file keeps `[tool.purba.platform]` and `[tool.purba.queries]`, the two dials that name tests.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) says why.
+- **purba walks up from the working folder to the first `pyproject.toml` that holds `[tool.purba]`.** A path of the query starts at the folder that holds that file, so the walk cannot start from a path. The walk stops at the folder that holds `.git`.
 - **A key that no dial owns is an error.** The error names the dial whose name is nearest to the key.
 - **purba refuses a `PURBA_*` variable whose name is near the variable of a dial, and ignores every other one.** So purba refuses a misspelled variable, and ignores a variable that a test of purba sets, such as `PURBA_SENTINEL`.
 - **The kind of an error of configuration says where the tester fixes it.** A flag or a `PURBA_*` variable gives an [invocation error](../../CONTEXT.md#invocation-error). A key in a file gives a [project error](../../CONTEXT.md#project-error), because purba finds the file itself. [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds that rule.
@@ -77,7 +78,7 @@ Each dial waits for the design of its part.
 
 | what | the design that decides it |
 |---|---|
-| a dial's name, type and meaning | the part that declares it: the cap and the files by platform in selection, the timeout and the workers in dispatch, the form of the output in reporting, the import roots in execution |
+| a dial's name, type and meaning | the part that declares it: the cap, `[tool.purba.platform]` and `[tool.purba.queries]` in selection, the timeout and the workers in dispatch, the form of the output in reporting, the import roots in execution |
 | the form of a value in code | dispatch, with the timeout, through a blind rating |
 | the line that names a value's level | reporting, through a blind rating |
 

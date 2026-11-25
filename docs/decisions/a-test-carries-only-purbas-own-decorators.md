@@ -23,7 +23,7 @@ A reader of one test then cannot see what runs in its place.
 - **A decorator of purba under a name that the tester gives it, `needs_fd_capture = skip(…)`.** The name does not say whether purba skips the test, hands it an input, or expects it to raise.
 - **A decorator of purba under an import alias, `from purba import skip as needs_fd_capture`.** The alias does not say what purba does either.
 - **A decorator of purba on a class that holds the tests.** A reader of one method does not see the decorator on its class.
-- **A mark for the whole module, such as pytest's `pytestmark`.** A reader of one test does not see the mark. A run that picks its files by platform leaves out a module that cannot load there.
+- **A mark for the whole module, such as pytest's `pytestmark`.** A reader of one test does not see the mark. `[tool.purba.platform]` leaves out a module that cannot load on one platform.
 - **Selection leaves a name bound under `global` in a function unseen, as it leaves `globals()`.** Execution then calls what the function bound, and a reader of the test cannot see it.
 - **A test name that the module binds with no `def` prints no line.** A reader of the module sees a test name that holds a function, and purba prints no line for it.
 - **Execution calls what the module binds to a test name with no `def`.** Selection then makes none of the checks that it makes of a `def`, such as the check of a decorator or of a `yield`.
@@ -46,7 +46,7 @@ A reader of one test then cannot see what runs in its place.
 - **Selection refuses a test whose name the module binds again after its first `def`, or whose name any function binds under `global`.** Such a binding is a decorator in another form. Selection already refuses a test whose `yield` sits in a branch that never runs, since that `yield` makes the test a generator. Selection counts a binding that may never run too, since it cannot see whether the binding runs. The refused line names where the module binds the name again. [Python's reference](https://docs.python.org/3/reference/executionmodel.html#binding-of-names) counts a later `def` and a `del` as bindings.
 - **Selection refuses a test name that the module binds with no `def`, where a binding of it can hold a function.** A binding that can hold a function is a decorator in another form too. At the module's level, an assignment of a literal, a comprehension or a generator expression to the name alone never holds a function. Nor does an `import` with no `from`, a `class` with no decorator or a `del`, so a name that only these bind prints no line. The refused line names each binding that can hold a function, and sits at the first of them.
 - **Selection refuses a test whose `def` sits under a statement at the module's level, unless a `def` at the top binds the name.** The refused line names the statement, and says that purba cannot see whether import binds the test.
-- **purba has no decorator for a class and no mark for a module.** A module that cannot load on one platform waits for a run that picks its files by platform.
+- **purba has no decorator for a class and no mark for a module.** `[tool.purba.platform]` leaves out a module that cannot load on one platform.
 
 **Downside:**
 
@@ -57,7 +57,7 @@ A reader of one test then cannot see what runs in its place.
 - **A suppression of `name-bound-again` can let a body run that selection never judged.** With a `def` at the top and a later `def` of that name under a statement, selection judges the `def` at the top. When the statement runs, import binds the name to the later `def`, and execution calls it.
 - **Selection refuses a test name that the module imports with `from`, whatever the name holds.** A tester who writes `from helpers import test_user` writes `from helpers import test_user as user` instead.
 - **Selection refuses a test name that holds a value it cannot see, such as `test_dir = os.path.dirname(__file__)`.** The count names it as a test. Selection keeps a list of the forms that never hold a function, and refuses each form that the list leaves out.
-- **A module that cannot load on one platform is a [project error](../../CONTEXT.md#project-error) there, until a run picks its files by platform.**
+- **A module that cannot load on one platform is a [project error](../../CONTEXT.md#project-error) there, until selection builds `[tool.purba.platform]`.** Until then, each run of that module on that platform shows the tester that error.
 
 ## Confirmation
 
@@ -70,8 +70,9 @@ A reader of one test then cannot see what runs in its place.
 `mise run test:wheel` checks in `tests/twice.bats` that selection refuses a test that the module defines twice.
 It checks there that a suppression of `name-bound-again` lets such a test run.
 
+`purba.tag` is a decorator of purba.
 The milestone that adds purba's first decorator builds the two forms of its name, and the refusal of that name bound again.
-The design in depth of selection, which [the landscape](../../LANDSCAPE.md#the-order-of-design) ranks, decides how a run picks its files by platform, through a dial that selection declares.
+[purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) decides how a run picks its files by platform, through `[tool.purba.platform]`.
 [A test returns nothing, and the first part that sees a breach of a test refuses it](a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md#decision-outcome) says what selection judges in the body.
 [A test that selection refuses prints before any test runs](a-test-that-selection-refuses-prints-before-any-test-runs.md#decision-outcome) says when the refused line prints.
 [A test module imports no other test framework](a-test-module-imports-no-other-test-framework.md#decision-outcome) refuses an import of pytest.

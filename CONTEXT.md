@@ -14,6 +14,10 @@ The statement that purba has taken a commit into `main`. A workflow derives it f
 
 A role that reads purba. It names nobody, and one entity occupies several.
 
+### Alias
+
+A [query](#query) saved under a name in `[tool.purba.queries]`, which a query can name in its place.
+
 ### Architect
 
 The [actor](#actor) that chooses purba's direction and is answerable for what that direction costs.
@@ -252,6 +256,10 @@ A comment that purba renders to a [reader](#reader) outside the tree, through a 
 
 The [location](#location) that holds the discussion of how a change was implemented. That discussion stays here and never reaches the [commit message](#commit-message), because the review consumes it.
 
+### Query
+
+The text that names the [tests](#test) of a [run](#run).
+
 ### Reach
 
 The [locations](#location) a [record](#record) applies to. It names every location where a change makes the record apply, and a location with no path counts.
@@ -332,17 +340,25 @@ A rule that judges one of a [tester's](#tester) tests and gives a verdict of vio
 
 A [tester's](#tester) comment that names one [strict check](#strict-check) and gives a reason, such as `# purba: suppress[computed-expected] <reason>`. It sits above a test or at the top of a module. purba shows each suppressed verdict as a warning.
 
+### Tag
+
+A word that a [test](#test) carries through `purba.tag`, so that a [query](#query) can pick it.
+
 ### Technical writer
 
 The [actor](#actor) that writes purba's documentation for a [reader](#reader) outside the work.
 
 ### Test
 
-A function, as import binds it in a test module, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, and is not a generator. A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
+A function at the top level of a [test file](#test-file), whose name starts with `test`, as import binds it, that carries only purba's own decorators, under purba's own names, and names the fixture of each of its [inputs](#input). It returns nothing, and is not a generator. A [suppression](#suppression) lets a function that breaks a check of the [practice tier](#practice-tier) run as a test. purba calls it to try to disprove a behaviour.
 
 ### Test critique
 
 A read of a change's tests, by a context that did not write them, before the code is pushed. It looks for a behaviour that no test checks, a repeat, a test in the wrong [layer](#layer), and a test that fails for the wrong reason. It leaves its findings as a comment on the [pull request](#pull-request).
+
+### Test file
+
+A `.py` file whose name matches `test_*.py` or `*_test.py`.
 
 ### Tester
 

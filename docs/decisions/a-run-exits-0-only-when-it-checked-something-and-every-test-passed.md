@@ -6,7 +6,7 @@ An [integrator](../../CONTEXT.md#integrator) reads the exit code of a [run](../.
 [The landscape](../../LANDSCAPE.md#the-quality-priorities) says that purba never shows `unknown` as clean.
 The exit code joins the [public surface](../../CONTEXT.md#public-surface).
 [A pinned candidate decides when a milestone is done](a-pinned-candidate-decides-when-a-milestone-is-done.md#decision-outcome) leaves it to review alone.
-[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md) holds how a run starts.
+[A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md) holds how a run starts.
 
 | fact | source |
 |---|---|
