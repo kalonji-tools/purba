@@ -36,8 +36,8 @@ A part needs its language before anyone writes it.
 | execution | PyO3 holds the module, the call and the exception, and `cargo test` runs it |
 | command, dispatch, fixtures and reporting | none of them holds Python state in the skeleton |
 
-- **No part holds a Python file.** The wheel's only Python file is the `__init__.py` that maturin writes, as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#context-and-problem-statement) states.
-- **Command runs inside the extension module, and never as a Rust executable.** The console script stays as [a tester runs purba on one module](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) declares it.
+- **No part holds a Python file.** The wheel's only Python file is the `__init__.py` that maturin writes, as [a tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#context-and-problem-statement) states.
+- **Command runs inside the extension module, and never as a Rust executable.** The console script stays as [a tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) declares it.
 - **The design in depth of a part may move that part to Python.**
 
 **Downside:**

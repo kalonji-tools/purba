@@ -30,7 +30,7 @@
 
 - [A command test checks only command's rules](decisions/a-command-test-checks-only-commands-rules.md)
 - [A test module keeps its asserts under -O, and a run under -O warns that no other assert runs](decisions/a-test-module-keeps-its-asserts-under-o.md)
-- [A tester runs purba on one module, and reads a line for each case](decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md)
+- [A tester reads a line for each case](decisions/a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md)
 - [Command lends one parse to selection and assertion](decisions/command-lends-one-parse-to-selection-and-assertion.md)
 
 ### selection
@@ -40,6 +40,7 @@
 - [A test module imports no other test framework, so selection refuses an import of pytest](decisions/a-test-module-imports-no-other-test-framework.md)
 - [A test returns nothing, and the first part that sees a breach of a test refuses it](decisions/a-test-returns-nothing-and-the-first-part-that-sees-a-breach-refuses-it.md)
 - [A test that expects a raise names more than its type, so selection refuses an except that only passes](decisions/a-test-that-expects-a-raise-names-more-than-its-type.md)
+- [purba picks a test by its name, and the tests of a run by one query](decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md)
 
 ### parsing
 

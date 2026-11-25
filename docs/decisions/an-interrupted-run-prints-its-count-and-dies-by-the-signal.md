@@ -38,7 +38,7 @@ A shell that runs purba then sees the interrupt, and `git bisect run` aborts.
 
 - **purba prints one line on stderr as the interrupt arrives.** It names the signal, and what a second interrupt does. [An interrupt stops the run, and a second one exits at once](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names each second interrupt that does not exit at once.
 - **The test that the interrupt lands in has the [outcome](../../CONTEXT.md#outcome) `interrupted`.** The line names the test that ran, which is often the one that hangs. Its line prints in its place on stdout, after it unwinds. It has that outcome whether it then passes, fails or raises. [The interrupt record's Downside](an-interrupt-stops-the-run-and-a-second-one-exits-at-once.md#decision-outcome) names exceptions, as when the parent's ignore or mask holds an interrupt signal.
-- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
+- **An [unreached test](../../CONTEXT.md#unreached-test) prints no line.** The run reached a blocked test, and never reached this one. The count names it. [A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) names this exception.
 - **The count names `interrupted` after `raised`, and `unreached` after `blocked`.** [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) gives the order of the columns.
 
 ```

@@ -3,7 +3,7 @@
 ## Context and Problem Statement
 
 The walking skeleton needs a test that runs purba on a small project of two modules.
-[A tester runs purba on one module, and reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#confirmation) and [a run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#confirmation) each name that test as their check.
+[A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#confirmation) and [a run exits 0 only when it checked something and every case passed](a-run-exits-0-only-when-it-checked-something-and-every-test-passed.md#confirmation) each name that test as their check.
 [purba writes its scripts in bash until purba can test them](purba-writes-its-scripts-in-bash-until-purba-can-test-them.md#decision-outcome) moves the scripts to Python when purba runs purba's own tests.
 
 | fact | source |

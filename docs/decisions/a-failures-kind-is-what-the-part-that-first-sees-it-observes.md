@@ -36,7 +36,7 @@ Each part can check an exception class or a branch that it holds.
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that does not parse, decode or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression | the tester's code |
+| [project error](../../CONTEXT.md#project-error) | a module that does not parse, decode or load, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression, a function whose name is near `test` | the tester's code |
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised, or a `with` of the test raised as it entered or cleaned up | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
@@ -74,11 +74,12 @@ The figure shows each part and the kinds that it first sees.
 
 ```mermaid
 flowchart LR
-  command["command"] -- "no argument" --> invocation["<b>invocation error</b>"]
+  command["command"] -- "an argument it cannot take" --> invocation["<b>invocation error</b>"]
+  selection["selection"] -- "a term that names nothing, a query nested too deep" --> invocation
   parsing["parsing"] -- "a path it cannot read" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
   parsing -- "a syntax error, a module that it cannot decode" --> project["<b>project error</b>"]
-  selection["selection"] -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison, one of four forms, or an all() or any() of one of these, or that has no literal, a patch, a mock with no spec, an import of pytest, an except that only passes, a fault of a suppression, an unused suppression" --> project
+  selection -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison, one of four forms, or an all() or any() of one of these, or that has no literal, a patch, a mock with no spec, an import of pytest, an except that only passes, a fault of a suppression, an unused suppression, a function whose name is near test, an alias that names itself, a tag() or name() in the query of a platform" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, a fork refused, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation or inside a reading, a hook or the filters replaced, a with that swallowed a raise, an all() of no item, an iterator that an expectation reads" --> project
   execution -- "passed, failed, raised, interrupted" --> outcome["<b>outcome</b>"]
@@ -100,7 +101,8 @@ flowchart LR
 `mise run test:rust` checks that a thread's exception charges the test or the load that left the thread alive.
 `mise run test:rust` checks that each order from 2 to 6 of the table beats the order below it.
 
-`mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error.
+`mise run test:wheel` checks that no path, and a stdout that takes no write, print an invocation error. The check of no path holds until selection builds the query.
+
 `mise run test:wheel` checks that each breach that execution sees as a case runs prints a project error.
 It checks that a `with` whose entry or cleanup raised prints `failed`.
 It checks that a module that its encoding cannot decode prints a project error.

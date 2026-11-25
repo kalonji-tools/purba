@@ -1,4 +1,4 @@
-# A tester runs purba on one module, and reads a line for each case
+# A tester reads a line for each case
 
 ## Context and Problem Statement
 
@@ -20,7 +20,6 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 ## Considered Options
 
 - **`python -m purba`, alone or beside the console script.** It needs a `__main__.py` in purba's package, so command holds a Python file. [Every part of the skeleton is Rust, inside the extension module](every-part-of-the-skeleton-is-rust-inside-the-extension-module.md#decision-outcome) keeps Python files out.
-- **A directory and a query as the input.** The query language belongs to the design in depth of selection.
 - **A data format for an [integrator](../../CONTEXT.md#integrator) now, such as JSON Lines.** Reporting decides a format in its design in depth, and a format chosen now joins the public surface first.
 - **A test that raised prints as failed.** The tester cannot tell a defect that an assert found from an exception that stopped the test.
 - **A reason over several lines prints each line break as `\n`.** An escaped reason is hard to read.
@@ -33,13 +32,13 @@ How a run starts joins the [public surface](../../CONTEXT.md#public-surface).
 
 **Area:** command
 
-**A [tester](../../CONTEXT.md#tester) runs `purba <path>` on one module, and reads a line for each [case](../../CONTEXT.md#case) and a count.**
+**A [tester](../../CONTEXT.md#tester) runs `purba <query>`, and reads a line for each [case](../../CONTEXT.md#case) and a count.**
 A console script adds one command and one private name, and the wheel keeps its layout.
 
 - **`purba` is a console script.** `pyproject.toml` declares `purba = "purba:_main"` under `[project.scripts]`.
 - **`_main` stays outside the public surface.** The command name `purba` joins it.
-- **A run takes exactly one path to one `.py` file, and no flag.**
-- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
+- **A run takes one [query](../../CONTEXT.md#query), and no flag.** [purba picks a test by its name, and the tests of a run by one query](purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds the query.
+- **For a usage error, a module that purba cannot read, or a refused write, purba writes one line to stderr, which says why.** The line is `purba: invocation error: `, then `usage: purba <path to one .py file>`, `cannot read <path>: <error>` or `cannot write to stdout: <error>`. The usage line holds until selection builds the query. Under `-O`, the warning of [a test module keeps its asserts under -O, and a run under -O warns that no other assert runs](a-test-module-keeps-its-asserts-under-o.md#decision-outcome) comes before that line.
 - **A run prints to stdout the line of each test that selection refuses, then each other test's line, then each unused suppression's, and the count.**
 
   ```mermaid
@@ -72,7 +71,7 @@ tests/test_a.py::test_three project error: [no-expectation] no expectation state
 3 cases: 1 passed, 1 failed, 1 blocked; 1 project error
 ```
 
-- **Each line holds the path as the tester typed it, then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. A test in a class names each class on the way before its function, each after `::`. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
+- **Each line holds the path from the folder of the project's file, then `::` and the name of the case, its test function's name.** Then it names the case's outcome, `blocked`, or the kind of its error. A test in a class names each class on the way before its function, and a `::` comes before each class. The line of a module, or of a thread that its load left alive, holds its path, then the kind of its error.
 - **A line that is not `passed` or `interrupted` gives a reason.** Under a failed line, each assert it quotes prints on a line of its own, indented by four spaces. [A failed expectation shows its expected value and its reading](a-failed-expectation-shows-its-expected-value-and-its-reading.md#decision-outcome) says what prints under each quote of an expectation. [A failed line quotes each expectation that did not hold, or else the last assert that did not hold, without its comments](a-failed-line-quotes-the-last-assert-that-did-not-hold-without-its-comments.md#decision-outcome) says which asserts a failed case quotes, and which part of their text. A case in which no expectation ran gives the project error `no expectation stated`, or `no expectation ran` when its test states one.
   [A tuple assert keeps CPython's warning, and selection refuses a test that ends with one](a-tuple-assert-keeps-cpythons-warning-and-counts-as-no-assert.md#decision-outcome) says which assert counts as none. A `raised` line gives the type and message of the exception, such as `ValueError: boom`. The line of an error gives its text. A `blocked` line names what blocked it: the module that did not load, or the end of the module's process.
 - **Under a `raised` line, a line names the frame that the exception came from, when it is not the test's own.** Reporting indents it by four spaces. The frame is the innermost one outside Python's standard library: `raised inside the generator gen() at iterable.py:3`, or `raised in parse() at iterable.py:7`. A raise in the test's own code, or in a comprehension or a `lambda` inside it, adds no line. A raise whose every frame lies in the standard library adds none either. The path is relative to the folder that the run started in, or absolute for a frame outside it.
@@ -91,7 +90,6 @@ tests/test_a.py::test_three project error: [no-expectation] no expectation state
 - **An integrator gets only the exit code until reporting decides a format.**
 - **A raise inside a library that the tester installed names a frame of that library.** Execution passes over the frames of the standard library.
 - **The line never names a frame whose file name is in angle brackets, such as `<string>`.** A raise there names the next frame out, or none when that frame is the test's own. Code that the standard library generates, and a string that the test runs by `exec`, have such a name.
-- **Two spellings of one path print two identities.** `tests/test_a.py` and `./tests/test_a.py` name one module. The design in depth of selection decides how an identity starts.
 
 ## Confirmation
 
