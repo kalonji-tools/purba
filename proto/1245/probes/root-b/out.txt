@@ -1,0 +1,66 @@
+purba 0.0.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-b
+
+$ cd ~/with-project && purba
+purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproject.toml
+[exit 3]
+
+$ cd ~/with-project && PURBA_IMPLICIT_ROOT=0 purba
+purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproject.toml
+[exit 3]
+
+$ cd ~/with-project && PURBA_IMPLICIT_ROOT= purba
+purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproject.toml
+[exit 3]
+
+$ cd ~/with-project && PURBA_IMPLICIT_ROOT=yes purba
+purba: invocation error: PURBA_IMPLICIT_ROOT is yes; set 1 or 0
+[exit 3]
+
+$ cd ~/with-project && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/with-project is the folder of the pyproject.toml that holds [project], because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/with-project/tests && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/with-project is the folder of the pyproject.toml that holds [project], because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/only-git && purba
+purba: invocation error: no pyproject.toml holds [tool.purba]; add one with it to .
+[exit 3]
+
+$ cd ~/only-git && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/only-git is the folder that holds .git, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/only-git/tests && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/only-git is the folder that holds .git, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/neither && purba
+purba: invocation error: no pyproject.toml holds [tool.purba]; add one with it to .
+[exit 3]
+
+$ cd ~/neither && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/neither is the working folder, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]; the id of each test starts here, and moves with the working folder
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/neither/tests && PURBA_IMPLICIT_ROOT=1 purba
+⚠ root ~/neither/tests is the working folder, because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]; the id of each test starts here, and moves with the working folder
+test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/explicit && PURBA_IMPLICIT_ROOT=1 purba
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]

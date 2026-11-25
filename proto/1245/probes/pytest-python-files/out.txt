@@ -1,0 +1,194 @@
+pytest pytest 9.2.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a
+
+# ~/glob/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_files = ["test*.py"]
+# ~/glob/tests holds test_a.py and b_test.py
+
+$ cd ~/glob && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/glob
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/test_a.py::test_add PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/glob && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/glob
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/test_a.py::test_add PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+# ~/suffix/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_files = ["*_test.py"]
+# ~/suffix/tests holds test_a.py and b_test.py
+
+$ cd ~/suffix && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/suffix
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/b_test.py::test_sub PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/suffix && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/suffix
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/b_test.py::test_sub PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+# ~/string/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_files = "*_test.py"
+# ~/string/tests holds test_a.py and b_test.py
+
+$ cd ~/string && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/string
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/b_test.py::test_sub PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/string && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/string
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/b_test.py::test_sub PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+# ~/empty/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_files = []
+# ~/empty/tests holds test_a.py and b_test.py
+
+$ cd ~/empty && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/empty
+configfile: pyproject.toml
+collecting ... collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+$ cd ~/empty && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/empty
+configfile: pyproject.toml
+collecting ... collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+# ~/number/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_files = 5
+# ~/number/tests holds test_a.py and b_test.py
+
+$ cd ~/number && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/number
+configfile: pyproject.toml
+collecting ... collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+$ cd ~/number && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/number
+configfile: pyproject.toml
+collecting ... collected 0 items
+
+============================ no tests ran in 0.00s =============================
+[exit 5]
+
+# ~/unknown-key/pyproject.toml
+[project]
+name = "p"
+
+[tool.pytest.ini_options]
+python_filez = ["*_test.py"]
+# ~/unknown-key/tests holds test_a.py and b_test.py
+
+$ cd ~/unknown-key && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/unknown-key
+configfile: pyproject.toml
+collecting ... collected 2 items
+
+tests/b_test.py::test_sub PASSED                                         [ 50%]
+tests/test_a.py::test_add PASSED                                         [100%]
+
+=============================== warnings summary ===============================
+../../../venv-a/lib/python3.12/site-packages/_pytest/config/__init__.py:1636
+  /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/lib/python3.12/site-packages/_pytest/config/__init__.py:1636: PytestConfigWarning: Unknown config option: python_filez
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========================= 2 passed, 1 warning in 0.01s =========================
+[exit 0]
+
+$ cd ~/unknown-key && pytest -p no:cacheprovider -v --strict-config
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/unknown-key
+configfile: pyproject.toml
+collecting ... ERROR: Unknown config option: python_filez
+
+
+collected 2 items
+
+============================ no tests ran in 0.00s =============================
+[exit 4]

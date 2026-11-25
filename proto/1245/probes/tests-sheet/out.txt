@@ -1,0 +1,250 @@
+purba 0.0.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a
+# ~/p is a git repository
+
+# ~/p/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+
+# ~/p/.gitignore
+build/
+
+# ~/p/tests/test_names.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/tests/names_test.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/tests/test.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/tests/tests.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/tests/.hidden/test_hidden.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/build/test_built.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+# ~/p/tests/deep/er/test_deep.py
+def test_one():
+    assert 1 == 1, "one is one"
+
+$ cd ~/p && purba
+tests/deep/er/test_deep.py::test_one passed
+tests/test_names.py::test_one passed
+2 cases: 2 passed
+[exit 0]
+
+$ cd ~/p && purba tests/names_test.py
+purba: invocation error: tests/names_test.py names no test file: its name does not match test_*.py
+[exit 3]
+
+$ cd ~/p && purba tests/.hidden/test_hidden.py
+purba: invocation error: tests/.hidden/test_hidden.py names no test file: stage one skips tests/.hidden, a hidden folder
+[exit 3]
+
+$ cd ~/p && purba build/test_built.py
+purba: invocation error: build/test_built.py names no test file: stage one skips build, which a .gitignore ignores
+[exit 3]
+
+$ cd ~/p && purba tests/deep
+tests/deep/er/test_deep.py::test_one passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/p/tests/deep && purba
+tests/deep/er/test_deep.py::test_one passed
+tests/test_names.py::test_one passed
+2 cases: 2 passed
+[exit 0]
+
+$ cd ~/p/tests && purba deep
+purba: invocation error: deep names no test file: no file or folder has that path
+[exit 3]
+
+$ cd ~/p/tests && purba tests/deep
+tests/deep/er/test_deep.py::test_one passed
+1 case: 1 passed
+[exit 0]
+
+# ~/p/tests/test_kinds.py
+import functools
+
+
+def helper():
+    return 2
+
+
+def testplain():
+    assert helper() == 2, "the helper gives two"
+
+
+def test_param(writer):
+    assert writer == 1, "never runs"
+
+
+@functools.cache
+def test_decorated():
+    assert 1 == 1, "never runs"
+
+
+class TestGroup:
+    def test_method(self):
+        assert 1 == 1, "never runs"
+
+$ cd ~/p && purba tests/test_kinds.py
+tests/test_kinds.py::test_param project error: the parameter writer has no default, and purba cannot see which fixture builds it
+tests/test_kinds.py::test_decorated project error: [foreign-decorator] the decorator functools.cache is not purba's, and purba cannot see what it does
+tests/test_kinds.py::TestGroup::test_method project error: purba cannot call a method of a class
+tests/test_kinds.py::testplain passed
+4 cases: 1 passed, 3 blocked; 3 project errors
+[exit 4]
+
+# ~/p/tests/test_expect.py
+def total(items):
+    if not items:
+        return 0
+    return sum(items)
+
+
+def test_passes():
+    lines = "a\nb".split("\n")
+    assert len(lines) == 2, "two lines"
+    assert lines[0] == "a", "the first is a"
+
+
+def test_fails():
+    assert "a".upper() == "b", "upper of a"
+
+
+def test_raises():
+    {}["missing"]
+    assert 1 == 1, "never reached"
+
+
+def test_assert_then_code():
+    x = 1
+    assert x == 1, "x is one"
+    x = 2
+    assert x == 2, "x is two"
+
+
+def test_computed():
+    for expected in [1, 2]:
+        pass
+    assert 1 == expected, "computed"
+
+
+def test_one_comparison():
+    ready = True
+    assert ready, "ready"
+
+
+def test_four_forms():
+    name = "test_a.py"
+    assert not name.isupper(), "lower"
+    assert isinstance(name, str), "a string"
+    assert name.startswith("test_"), "starts test_"
+    assert name.endswith(".py"), "ends .py"
+
+
+def test_all_any():
+    sizes = [1, 2, 3]
+    assert all(size > 0 for size in sizes), "each is positive"
+    assert any(size == 2 for size in sizes), "one is two"
+
+
+def test_with():
+    with open(__file__) as handle:
+        text = handle.read()
+        assert text.startswith("def"), "starts def"
+
+
+def test_second_path():
+    assert total([1, 2]) == 3, "the sum"
+
+
+def test_none():
+    x = 1
+
+$ cd ~/p && purba tests/test_expect.py
+tests/test_expect.py::test_one_comparison project error: [not-one-comparison] line 37 is not one comparison, and an expectation compares a reading by one operator, or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)
+tests/test_expect.py::test_passes passed
+tests/test_expect.py::test_fails failed
+    assert "a".upper() == "b", "upper of a"
+      expected  'b'
+      reading   'A'
+tests/test_expect.py::test_raises raised: KeyError: 'missing'
+tests/test_expect.py::test_assert_then_code project error: [assert-before-expectation] line 24: an assert ran in the act; one test checks one state; check this state in a test of its own
+tests/test_expect.py::test_computed failed
+    assert 1 == expected, "computed"
+      expected  1
+      reading   2
+tests/test_expect.py::test_four_forms passed
+tests/test_expect.py::test_all_any passed
+tests/test_expect.py::test_with passed
+tests/test_expect.py::test_second_path passed
+tests/test_expect.py::test_none project error: [no-expectation] no expectation stated
+11 cases: 5 passed, 2 failed, 1 raised, 3 blocked; 3 project errors
+[exit 1]
+
+# ~/p/tests/test_private.py
+import json.decoder
+
+
+def test_private():
+    table = json.decoder._CONSTANTS
+    assert len(table) == 3, "three constants"
+
+$ cd ~/p && purba tests/test_private.py
+tests/test_private.py::test_private passed
+    ⚠ line 5 reads the private name _CONSTANTS
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/p && purba --help
+purba: invocation error: --help names no test file: no file or folder has that path
+[exit 3]
+
+$ cd ~/p && purba tests/test_expect.py tests/test_kinds.py
+purba: invocation error: usage: purba [<path>]
+[exit 3]
+
+$ cd ~/p && purba tests/missing.py
+purba: invocation error: tests/missing.py names no test file: no file or folder has that path
+[exit 3]
+
+# ~/p/tests/test_more.py
+def test_raises_alone():
+    {}["missing"]
+    assert 1 == 1, "never reached"
+
+
+def test_branch():
+    x = 1
+    if x:
+        y = 2
+    else:
+        y = 3
+    assert y == 2, "y is two"
+
+$ cd ~/p && purba tests/test_more.py
+tests/test_more.py::test_raises_alone raised: KeyError: 'missing'
+tests/test_more.py::test_branch project error: [second-path] line 8 went one way only, and the lines before the first expectation take one path; [second-path] line 11 did not run, and the lines before the first expectation take one path
+2 cases: 1 raised, 1 blocked; 1 project error
+[exit 4]
+
+# ~/p/tests is now empty
+
+$ cd ~/p && purba
+0 cases
+[exit 2]

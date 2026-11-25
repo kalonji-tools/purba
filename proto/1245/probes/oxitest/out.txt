@@ -1,0 +1,227 @@
+oxitest 4.0.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a
+
+$ oxitest --help
+A fast Python test runner
+
+Usage: oxitest [OPTIONS] [COMMAND]
+
+Commands:
+  run      Run tests (default when no subcommand is given)
+  debug    Interactive debugger session
+  query    Query tests, fixtures, marks, or plugins
+  inspect  Interactive TUI for test suite introspection
+  env      Print environment information (version, Python, rustc, OS)
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+      --no-use-gitignore  Disable .gitignore-aware file filtering
+  -h, --help              Print help
+  -V, --version           Print version
+
+$ oxitest run --help | grep -iE "root|pattern|python_files|config|pyproject"
+          Run only tests affected by git changes (default ref from `affected_base` config, or HEAD)
+          Collect and run doctests from public Python source modules (opt-in via `[tool.oxitest.doctest]` in pyproject.toml)
+          Per-test timeout in seconds (overrides pyproject.toml timeout)
+
+# Docs shipped in the venv: files under oxitest/ that are not .py, .pyi or .so
+oxitest-4.0.0.dist-info/direct_url.json
+oxitest-4.0.0.dist-info/entry_points.txt
+oxitest-4.0.0.dist-info/INSTALLER
+oxitest-4.0.0.dist-info/licenses/LICENSE
+oxitest-4.0.0.dist-info/METADATA
+oxitest-4.0.0.dist-info/RECORD
+oxitest-4.0.0.dist-info/REQUESTED
+oxitest-4.0.0.dist-info/sboms/oxitest.cyclonedx.json
+oxitest-4.0.0.dist-info/uv_cache.json
+oxitest-4.0.0.dist-info/WHEEL
+oxitest/py.typed
+
+# Config keys in the extension (strings near "python_files")
+invalid glob pattern in python_files:
+testpathspython_filesnorecursedirsmarkerstimeoutcache_max_agemin_parallel_teststimeout_multiplierspawn_overhead_msstrictworkersfailedtbverbositymaxfaildurationsserialcolorpluginsplugin_settingsasync_backendaffected_baseretriesretries_delayshow_localsshow_internalsuse_gitignoredoctestinspect_timeoutscoperootsscope
+
+# ~/with-project/pyproject.toml
+[project]
+name = "p"
+# ~/with-project/tests holds test_a.py and b_test.py
+
+$ cd ~/with-project && oxitest run -v --color never
+rootdir: ~/with-project
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 4ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+$ cd ~/with-project/tests && oxitest run -v --color never
+rootdir: ~/with-project
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 12ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+# ~/only-git/tests holds test_a.py and b_test.py
+
+$ cd ~/only-git && oxitest run -v --color never
+rootdir: ~/only-git
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 4ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+$ cd ~/only-git/tests && oxitest run -v --color never
+rootdir: ~/only-git/tests
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 4ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+# ~/neither/tests holds test_a.py and b_test.py
+
+$ cd ~/neither && oxitest run -v --color never
+rootdir: ~/neither
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 4ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+$ cd ~/neither/tests && oxitest run -v --color never
+rootdir: ~/neither/tests
+collected 2 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 4ms <= spawn overhead 250ms x 22 workers)
+..
+
+════════════════════════════════════════════════════════════════════════════════
+  2 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# ~/suffix/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_files = ["*_test.py"]
+# ~/suffix/tests holds test_a.py and b_test.py
+
+$ cd ~/suffix && oxitest run -v --color never
+rootdir: ~/suffix
+collected 1 item
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 2ms <= spawn overhead 250ms x 22 workers)
+.
+
+════════════════════════════════════════════════════════════════════════════════
+  1 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# ~/glob/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_files = ["test*.py"]
+# ~/glob/tests holds test_a.py and b_test.py
+
+$ cd ~/glob && oxitest run -v --color never
+rootdir: ~/glob
+collected 1 item
+
+scheduling: strategy LongestFirst
+scheduling: serial (est. 2ms <= spawn overhead 250ms x 22 workers)
+.
+
+════════════════════════════════════════════════════════════════════════════════
+  1 passed
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# ~/string/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_files = "*_test.py"
+# ~/string/tests holds test_a.py and b_test.py
+
+$ cd ~/string && oxitest run -v --color never
+error: ~/string/pyproject.toml: invalid type: string "*_test.py", expected a sequence
+in `python_files`
+
+[exit 4]
+
+# ~/empty/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_files = []
+# ~/empty/tests holds test_a.py and b_test.py
+
+$ cd ~/empty && oxitest run -v --color never
+rootdir: ~/empty
+collected 0 items
+
+scheduling: strategy LongestFirst
+scheduling: serial (cold cache, 0 tests < min_parallel_tests 100)
+
+════════════════════════════════════════════════════════════════════════════════
+  no tests ran
+════════════════════════════════════════════════════════════════════════════════
+[exit 0]
+
+# ~/bad-glob/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_files = ["test_[.py"]
+# ~/bad-glob/tests holds test_a.py and b_test.py
+
+$ cd ~/bad-glob && oxitest run -v --color never
+error: invalid glob pattern in python_files: error parsing glob 'test_[.py': unclosed character class; missing ']'
+[exit 4]
+
+# ~/unknown-key/pyproject.toml
+[project]
+name = "p"
+
+[tool.oxitest]
+python_filez = ["*_test.py"]
+# ~/unknown-key/tests holds test_a.py and b_test.py
+
+$ cd ~/unknown-key && oxitest run -v --color never
+error: ~/unknown-key/pyproject.toml: unknown field `python_filez`, expected one of `testpaths`, `python_files`, `norecursedirs`, `markers`, `timeout`, `cache_max_age`, `min_parallel_tests`, `timeout_multiplier`, `spawn_overhead_ms`, `strict`, `workers`, `schedule`, `failed`, `tb`, `verbosity`, `maxfail`, `durations`, `serial`, `color`, `plugins`, `plugin_settings`, `async_backend`, `affected_base`, `retries`, `retries_delay`, `keep_tmp`, `show_locals`, `show_internals`, `use_gitignore`, `doctest`, `inspect_timeout`
+
+[exit 4]

@@ -1,0 +1,81 @@
+pytest pytest 9.2.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a
+
+$ cd ~/with-project && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/with-project
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/test_a.py::test_add PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/with-project/tests && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/with-project
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+test_a.py::test_add PASSED                                               [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/only-git && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/only-git
+collecting ... collected 1 item
+
+tests/test_a.py::test_add PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/only-git/tests && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/only-git/tests
+collecting ... collected 1 item
+
+test_a.py::test_add PASSED                                               [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/neither && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/neither
+collecting ... collected 1 item
+
+tests/test_a.py::test_add PASSED                                         [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/neither/tests && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/neither/tests
+collecting ... collected 1 item
+
+test_a.py::test_add PASSED                                               [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]
+
+$ cd ~/with-pytest/tests && pytest -p no:cacheprovider -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.2.0, pluggy-1.7.0 -- /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-a/bin/python
+rootdir: ~/with-pytest
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+test_a.py::test_add PASSED                                               [100%]
+
+============================== 1 passed in 0.00s ===============================
+[exit 0]

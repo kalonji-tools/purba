@@ -1,0 +1,130 @@
+purba 0.0.0 from /tmp/claude-1000/-home-snregales-Projects-kalonji-tools/96b6d852-95a0-47f0-872d-fb178e3ab17c/scratchpad/r1245/venv-b
+
+# ~/no-key/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+
+# ~/no-key/tests holds test_a.py and b_test.py
+
+$ cd ~/no-key && purba
+tests/test_a.py::test_add passed
+1 case: 1 passed
+[exit 0]
+
+# ~/suffix/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = ["*_test.py"]
+# ~/suffix/tests holds test_a.py and b_test.py
+
+$ cd ~/suffix && purba
+tests/b_test.py::test_sub passed
+1 case: 1 passed
+[exit 0]
+
+$ cd ~/suffix && purba tests/test_a.py
+purba: invocation error: tests/test_a.py names no test file: its name does not match *_test.py
+[exit 3]
+
+# ~/two/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = ["test_*.py", "*_test.py"]
+# ~/two/tests holds test_a.py and b_test.py
+
+$ cd ~/two && purba
+tests/b_test.py::test_sub passed
+tests/test_a.py::test_add passed
+2 cases: 2 passed
+[exit 0]
+
+# ~/glob/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = ["test*.py"]
+# ~/glob/tests holds test_a.py and b_test.py
+
+$ cd ~/glob && purba
+pyproject.toml project error: test-files under [tool.purba] holds test*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+0 cases; 1 project error
+[exit 4]
+
+$ cd ~/glob/tests && purba
+../pyproject.toml project error: test-files under [tool.purba] holds test*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+0 cases; 1 project error
+[exit 4]
+
+# ~/string/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = "*_test.py"
+# ~/string/tests holds test_a.py and b_test.py
+
+$ cd ~/string && purba
+pyproject.toml project error: test-files under [tool.purba] is a string; write a list, such as ["*_test.py"]
+0 cases; 1 project error
+[exit 4]
+
+# ~/number/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = 5
+# ~/number/tests holds test_a.py and b_test.py
+
+$ cd ~/number && purba
+pyproject.toml project error: test-files under [tool.purba] is a number; write a list, such as ["*_test.py"]
+0 cases; 1 project error
+[exit 4]
+
+# ~/empty/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = []
+# ~/empty/tests holds test_a.py and b_test.py
+
+$ cd ~/empty && purba
+pyproject.toml project error: test-files under [tool.purba] is an empty list, so no file is a test file; list at least one of test_*.py, *_test.py, tests.py and test.py
+0 cases; 1 project error
+[exit 4]
+
+# ~/two-items/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = ["tset_*.py", "test.py"]
+# ~/two-items/tests holds test_a.py and b_test.py
+
+$ cd ~/two-items && purba
+pyproject.toml project error: test-files under [tool.purba] holds tset_*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+0 cases; 1 project error
+[exit 4]
+
+# ~/bad-items/pyproject.toml
+[project]
+name = "p"
+
+[tool.purba]
+test-files = ["tset_*.py", "tests_*.py", 7]
+# ~/bad-items/tests holds test_a.py and b_test.py
+
+$ cd ~/bad-items && purba
+pyproject.toml project error: test-files under [tool.purba] holds tset_*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+pyproject.toml project error: test-files under [tool.purba] holds tests_*.py, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test_*.py
+pyproject.toml project error: test-files under [tool.purba] holds 7, which is none of test_*.py, *_test.py, tests.py and test.py; the nearest is test.py
+0 cases; 3 project errors
+[exit 4]
