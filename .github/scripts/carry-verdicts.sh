@@ -17,7 +17,8 @@
 # carry what this script missed: the restarted run reads the gates on the
 # rewritten head, finds a gate with no verdict there, and stops. Closing and
 # reopening the pull request runs the gates on that head. The run after the
-# last gate then signs it again with no push.
+# last gate then signs it again with no push. When that run cannot write
+# `Sign-off`, it posts a failed `Carry` again.
 set -euo pipefail
 
 if [[ $# -lt 3 ]]; then
