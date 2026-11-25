@@ -1,0 +1,12 @@
+⚠ root <porter>/scratch/probe, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found
+tests/test_raises_probe.py::test_assert_is_classname project error: [computed-expected] line 10 computes TypeError, and an expected value is a literal
+tests/test_probe2.py::test_inline_try_except passed
+tests/test_probe2.py::test_nested_formatter_with_if passed
+tests/test_probe2.py::test_private_name_in_test passed
+    ⚠ line 41 reads the private name _logger
+tests/test_probe2.py::test_mutant_expected_value failed
+    assert writer.read() == "Nope!\n"
+      expected  'Nope!\n'
+      reading   'Nope\n'
+5 cases: 3 passed, 1 failed, 1 blocked; 1 project error
+exit=1

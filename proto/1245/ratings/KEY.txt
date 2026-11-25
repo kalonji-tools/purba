@@ -1,0 +1,8 @@
+Which letter was which, per rater:
+
+rater1: PORT_T = oxitest, PORT_R = purba A, PORT_S = purba B
+rater2: PORT_S = oxitest, PORT_T = purba A, PORT_R = purba B
+rater3: PORT_S = oxitest, PORT_R = purba A, PORT_T = purba B
+
+`shuf` drew each rater's order of R, S and T, in the order oxitest, purba A, purba B.
+Build A prints the short words, and build B prints them as sentences: `rules-a/` and `rules-b/` quote each.

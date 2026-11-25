@@ -1,0 +1,3 @@
+pyproject.toml project error: [tool.purba] test-files: test*.py is not a pattern purba takes; nearest: test_*.py
+0 cases; 1 project error
+exit=4

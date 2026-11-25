@@ -21,6 +21,8 @@ purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproje
 purba: invocation error: no pyproject.toml holds [tool.purba]; add one with it to .
 ```
 
+The path in the error starts at the working folder. From `tests/`, the first error names `../pyproject.toml`.
+
 ## `PURBA_IMPLICIT_ROOT`
 
 Set `PURBA_IMPLICIT_ROOT=1` to run without `[tool.purba]`. Unset, empty or `0` gives the refusal above. Any other value is refused, and purba exits 3:

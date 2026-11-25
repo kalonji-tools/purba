@@ -1,0 +1,6 @@
+⚠ root <porter>/scratch/probe3, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found
+tests/test_if_probe.py::test_if_body_runs project error: [second-path] line 3 went one way only, and the lines before the first expectation take one path
+tests/test_if_probe.py::test_if_body_skipped project error: [second-path] line 10 went one way only, and the lines before the first expectation take one path; [second-path] line 11 did not run, and the lines before the first expectation take one path
+tests/test_if_probe.py::test_if_else project error: [second-path] line 17 went one way only, and the lines before the first expectation take one path; [second-path] line 20 did not run, and the lines before the first expectation take one path
+3 cases: 3 blocked; 3 project errors
+exit=4

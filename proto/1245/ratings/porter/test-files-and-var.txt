@@ -1,0 +1,45 @@
+## test-files=["test*.py"], from root
+pyproject.toml project error: [tool.purba] test-files: test*.py is not a pattern purba takes; nearest: test_*.py
+0 cases; 1 project error
+exit=4
+## same, from tests/
+../pyproject.toml project error: [tool.purba] test-files: test*.py is not a pattern purba takes; nearest: test_*.py
+0 cases; 1 project error
+exit=4
+## three bad items
+pyproject.toml project error: [tool.purba] test-files: tset_*.py is not a pattern purba takes; nearest: test_*.py
+pyproject.toml project error: [tool.purba] test-files: tests_*.py is not a pattern purba takes; nearest: test_*.py
+pyproject.toml project error: [tool.purba] test-files: 7 is not a pattern purba takes; nearest: test.py
+0 cases; 3 project errors
+exit=4
+## a string
+pyproject.toml project error: [tool.purba] test-files: a string, not a list
+0 cases; 1 project error
+exit=4
+## a number
+pyproject.toml project error: [tool.purba] test-files: a number, not a list
+0 cases; 1 project error
+exit=4
+## empty list
+pyproject.toml project error: [tool.purba] test-files: an empty list
+0 cases; 1 project error
+exit=4
+## valid *_test.py, no such file
+0 cases
+exit=2
+## valid *_test.py, named path
+purba: invocation error: tests/test_add_option_format.py names no test file: its name does not match *_test.py
+exit=3
+## bad list + PURBA_IMPLICIT_ROOT=1
+pyproject.toml project error: [tool.purba] test-files: test*.py is not a pattern purba takes; nearest: test_*.py
+0 cases; 1 project error
+exit=4
+## PURBA_IMPLICIT_ROOT=yes
+purba: invocation error: PURBA_IMPLICIT_ROOT is yes; set 1 or 0
+exit=3
+## PURBA_IMPLICIT_ROOT=0
+purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproject.toml
+exit=3
+## PURBA_IMPLICIT_ROOT=""
+purba: invocation error: no pyproject.toml holds [tool.purba]; add it to pyproject.toml
+exit=3

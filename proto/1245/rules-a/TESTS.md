@@ -17,6 +17,7 @@ A function at the top level of a test file whose name starts with `test`, such a
 - A function with a parameter that has no default is not called. purba reports it as a project error: "the parameter writer has no default, and purba cannot see which fixture builds it". purba has no fixtures and no parametrize, so build each value inside the test, or in a helper that the test calls.
 - A method of a class is not called: "purba cannot call a method of a class".
 - A decorator is refused: "[foreign-decorator] the decorator functools.cache is not purba's, and purba cannot see what it does".
+- A test file that imports another test framework, such as pytest, is refused, and each of its tests gets: "[foreign-framework] line 2 imports pytest, and a test module imports no other test framework".
 - Each test is one case, under its own name.
 - A function whose name does not start with `test` is a helper. purba never calls it as a test.
 
@@ -26,11 +27,11 @@ purba gives a case its outcome from the asserts at the end of the test's body. T
 
 - The expectations come last. Only other expectations may follow one. An assert followed by more code, also one inside a loop, is refused: "[assert-before-expectation] line 24: an assert ran in the act; one test checks one state; check this state in a test of its own".
 - An expectation may also close the body of a `with` that comes just before the last asserts.
-- An expectation compares two values by one operator: `assert writer.read() == "a\n"`, `assert len(lines) > 1`.
+- An expectation compares two values by one operator, and its expected value is a literal: `assert writer.read() == "a\n"`, `assert len(lines) > 1`. An expected value that is a name or a call is refused: `assert type(error) is TypeError` gives "[computed-expected] line 10 computes TypeError, and an expected value is a literal". Write `assert isinstance(error, TypeError)`.
 - Or it takes one of four forms: `assert not x`, `assert isinstance(x, T)`, `assert x.startswith(y)`, `assert x.endswith(y)`.
 - Or it checks each item of an `all()` or an `any()` by one of these.
 - Anything else is refused: "[not-one-comparison] line 37 is not one comparison, and an expectation compares a reading by one operator, or reads not x, isinstance(x, T), x.startswith(y) or x.endswith(y)". Write `assert ready is True`, not `assert ready`.
-- The lines before the first expectation take one path. An `if` there is refused: "[second-path] line 8 went one way only, and the lines before the first expectation take one path".
+- The lines before the first expectation take one path. An `if` there is refused, whichever way it goes: "[second-path] line 8 went one way only, and the lines before the first expectation take one path". A helper that they call is held to the same rule while the test runs: an `if` in it, or a line of it that did not run, is refused: "[second-path] line 8 reaches line 4 of helper, which did not run, and the lines before the first expectation take one path".
 - A test with no expectation is refused: "[no-expectation] no expectation stated".
 
 ## A run

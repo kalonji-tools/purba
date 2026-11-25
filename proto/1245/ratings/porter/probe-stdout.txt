@@ -1,0 +1,9 @@
+⚠ root <porter>/scratch/probe, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found
+tests/test_probe.py::test_inline_try_except project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework
+tests/test_probe.py::test_nested_formatter_with_if project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework
+tests/test_probe.py::test_pytest_raises_no_assert project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework
+tests/test_probe.py::test_pytest_raises_then_assert project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework; [computed-expected] line 51 computes TypeError, and an expected value is a literal
+tests/test_probe.py::test_private_name_in_test project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework
+tests/test_probe.py::test_mutant_expected_value project error: [foreign-framework] line 2 imports pytest, and a test module imports no other test framework
+6 cases: 6 blocked; 6 project errors
+exit=4

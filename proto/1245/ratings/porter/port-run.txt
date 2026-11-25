@@ -1,0 +1,23 @@
+⚠ root <porter>/port, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found
+tests/test_add_option_format.py::test_format_message_field passed
+tests/test_add_option_format.py::test_format_without_field passed
+tests/test_add_option_format.py::test_format_level_twice passed
+tests/test_add_option_format.py::test_format_level_attributes passed
+tests/test_add_option_format.py::test_format_function_constant passed
+tests/test_add_option_format.py::test_format_function_reads_record passed
+tests/test_add_option_format.py::test_progressive_format passed
+tests/test_add_option_format.py::test_function_format_without_exception passed
+tests/test_add_option_format.py::test_function_format_with_exception passed
+tests/test_add_option_format.py::test_invalid_format_negative_int passed
+tests/test_add_option_format.py::test_invalid_format_float passed
+tests/test_add_option_format.py::test_invalid_format_object passed
+tests/test_add_option_format.py::test_invalid_markups_open_red passed
+tests/test_add_option_format.py::test_invalid_markups_close_red passed
+tests/test_add_option_format.py::test_invalid_markups_close_then_open_level passed
+tests/test_add_option_format.py::test_invalid_markups_close_anonymous passed
+tests/test_add_option_format.py::test_invalid_markups_unknown_tag passed
+tests/test_add_option_format.py::test_markup_in_field_colorize passed
+tests/test_add_option_format.py::test_markup_in_field_no_colorize passed
+tests/test_add_option_format.py::test_invalid_format_builtin passed
+20 cases: 20 passed
+exit=0
