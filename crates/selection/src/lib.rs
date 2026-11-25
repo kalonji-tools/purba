@@ -17,10 +17,12 @@ use ruff_text_size::{Ranged, TextSize};
 mod framework;
 mod lookup;
 mod patch;
+mod pattern;
 mod stage_one;
 mod suppression;
 
 use lookup::{Lookup, Origin};
+pub use pattern::{Pattern, Patterns, TEST_FILES};
 pub use stage_one::{NoTestFile, TestFiles, test_files};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};

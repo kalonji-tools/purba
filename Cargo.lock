@@ -526,6 +526,7 @@ name = "purba-command"
 version = "0.0.0"
 dependencies = [
  "purba-assertion",
+ "purba-config",
  "purba-dispatch",
  "purba-errors",
  "purba-execution",
@@ -533,6 +534,13 @@ dependencies = [
  "purba-reporting",
  "purba-selection",
  "pyo3",
+ "toml",
+]
+
+[[package]]
+name = "purba-config"
+version = "0.0.0"
+dependencies = [
  "toml",
 ]
 
@@ -591,10 +599,12 @@ name = "purba-selection"
 version = "0.0.0"
 dependencies = [
  "ignore",
+ "purba-config",
  "purba-errors",
  "purba-parsing",
  "ruff_python_ast",
  "ruff_text_size",
+ "toml",
 ]
 
 [[package]]

@@ -63,7 +63,7 @@ flowchart TD
   purba-execution --> purba-assertion
 ```
 
-The diagram leaves out `purba-errors`, the crate of the errors concern.
+The diagram leaves out `purba-errors` and `purba-config`, the crates of the errors and configuration concerns.
 
 [Every crate lives under crates/](every-crate-lives-under-crates.md#decision-outcome) holds where each crate lives.
 [Execution calls a test by its function's name, and reporting prints the identity it is given](execution-calls-a-test-by-its-functions-name.md#decision-outcome) holds how a test crosses a part that does not use selection.

@@ -53,7 +53,7 @@ A tester can save one query and run it again.
 flowchart TD
   query["the query: typed, an alias, read from .purba/failed.q, or none"] --> folder{"stage one: does a .gitignore of the project ignore the file or its folder, or is the folder hidden?"}
   folder -- yes --> skipped["skipped"]
-  folder -- no --> named{"does the name match test_*.py, or a pattern that the project's file sets?"}
+  folder -- no --> named{"does the name match a pattern of test-files?"}
   named -- no --> plain["not a test file"]
   named -- yes --> reach{"can the query pick a test of the file?"}
   reach -- no --> unread["not read"]
@@ -75,7 +75,7 @@ flowchart TD
 ```
 
 - **A run picks in two stages.** Stage one reads the paths of the files, and no file's text. Stage two parses only the files that stage one kept. So a run whose query names one file parses one file.
-- **A [test file](../../CONTEXT.md#test-file) is a `.py` file whose name matches `test_*.py`.** Another pattern, such as `*_test.py`, `tests.py` or `test.py`, applies only when the [project's file](../../CONTEXT.md#projects-file) sets it. No folder marks a test file.
+- **A [test file](../../CONTEXT.md#test-file) is a `.py` file whose name matches a pattern of `test-files`.** The [project's file](../../CONTEXT.md#projects-file) sets `test-files` under `[tool.purba]`. Its value lists patterns from a closed list: `test_*.py`, `*_test.py`, `tests.py` and `test.py`. A value that the project's file sets replaces the default, `test_*.py`, and does not add to it. No folder marks a test file.
 - **A [test](../../CONTEXT.md#test) is a function at the top level of a test file, and its name starts with `test`.**
 - **A function whose name is near `test` is a [project error](../../CONTEXT.md#project-error).** The function sits at the top level of a test file, and its name does not start with `test`. The first word of its name ends at its first `_`. That word is at most one edit from `test`.
 - **An edit changes, adds or drops one letter, or swaps two neighbours.** The check ignores case.
@@ -119,7 +119,7 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
 - **A run that cannot write `.purba/failed.q` gives an invocation error.**
 - **`[tool.purba.platform]` picks the files of a run by platform.** Its keys are `linux` and `macos`. The value of each is a query of ids that stop at a file and of `path(…)` terms. A `tag(…)` or a `name(…)` there is a project error. A run selects only what both its query and the query of its platform name. A platform with no key leaves no file out. A line counts each file that the query reaches and that the query of the platform leaves out.
 - **nextest moved its platform from a flag into its query.** purba differs: its platform is the system that runs the tests, not the build target, and the project's file holds its query.
-- **The project's file alone sets `[tool.purba.platform]` and `[tool.purba.queries]`.** Both change which tests run, so neither belongs to one machine or to one command.
+- **The project's file alone sets `test-files`, `[tool.purba.platform]` and `[tool.purba.queries]`.** Each changes which tests run, so none belongs to one machine or to one command.
 
 Each of these waits for another design.
 
@@ -128,13 +128,14 @@ Each of these waits for another design.
 | how an id spells a case | fixtures |
 | the form of the line that counts the files left out, and of the line `purba @.purba/failed.q` | reporting, through a blind rating |
 | a picker of tests in the terminal | none yet |
-| which patterns of a test file the project's file may set, in which form, and whether a pattern adds to `test_*.py` | a grilling of its own |
 
 **Downside:**
 
 - **A helper whose first word is one edit from `test` takes another name.** The tester renames `text_format` to `format_text`, for example.
 - **A misspelled test file runs no test, and purba says nothing.** `tset_lend.py` matches no pattern of a test file.
-- **A test file in another convention runs no test, and purba says nothing.** `lend_test.py` matches no pattern of a test file, unless the project's file sets `*_test.py`.
+- **A test file in another convention runs no test, and purba says nothing.** `lend_test.py` matches no pattern of a test file, unless `test-files` lists `*_test.py`.
+- **A file that matches a pattern outside the closed list runs no test, and purba says nothing.** `check_lend.py` matches none of the four patterns, so no value of `test-files` makes it a test file.
+- **purba refuses `[tool.purba.queries]` and `[tool.purba.platform]` until the pull requests that build them declare their dials.** No dial owns either key yet, and a key that no dial owns is a [project error](../../CONTEXT.md#project-error).
 - **purba says nothing about a misspelled tag.** purba keeps no list of tags, so a query for the right word misses the test.
 - **A run of one test that passes removes the failures of an earlier run.** The tester reruns those failures by their ids.
 - **A run with failures exits 3, not 1, where purba cannot write `.purba/`.** An integrator then reads an invocation error in place of a failed case.
@@ -144,10 +145,10 @@ Each of these waits for another design.
 ## Confirmation
 
 `mise run test:rust` checks stage one in `crates/selection/tests/stage_one.rs`, and `mise run test:wheel` checks it in `tests/stage_one.bats`.
+`mise run test:rust` checks `test-files` in `crates/selection/tests/test_files_dial.rs`, and `mise run test:wheel` checks it in `tests/test_files.bats`.
 `mise run lint:order` refuses an order of design that still ranks selection.
 The pull request that builds each rule other than stage one adds its tests.
 
 [How does purba select the tests of a run?](https://github.com/kalonji-tools/purba/issues/1232) asks the question.
-[Which patterns of a test file may the project's file set, in which form?](https://github.com/kalonji-tools/purba/issues/1240) decides which other patterns of a test file the project's file may set.
 [A tester reads a line for each case](a-tester-runs-purba-on-one-module-and-reads-one-line-for-each-test.md#decision-outcome) holds how a run starts and what it prints.
 [`.config/shortlists.toml`](../../.config/shortlists.toml) holds the shortlists of `find-test-files` and `parse-test-query`.

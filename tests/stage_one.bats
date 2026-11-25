@@ -125,19 +125,6 @@ LINES
   [[ -z "${stderr}" ]]
 }
 
-@test "a key under [tool.purba] changes nothing" {
-  project "${root}"
-  printf '[tool.purba]\nnot_a_dial = 1\n' >"${root}/pyproject.toml"
-  passing "${root}/tests/test_a.py" test_add
-  track
-  cd "${root}"
-
-  run -0 --separate-stderr purba
-
-  diff -u - <(printf '%s\n' "${output}") <<<"${one_passed}"
-  [[ -z "${stderr}" ]]
-}
-
 @test "a test file in a hidden folder does not run" {
   project "${root}"
   passing "${root}/tests/test_a.py" test_add
