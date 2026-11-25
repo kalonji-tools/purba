@@ -192,8 +192,8 @@ red.
 
 Bring it current by replaying your commits onto the base, not by merging the
 base into them. A merge commit carries no sign-off, and no trailer can be
-added to one, so purba refuses it. The **Update with rebase** entry GitHub
-offers on the pull request replays.
+added to one, so purba refuses it. On a branch in this repository, GitHub
+refuses an update by merge commit. Update with a rebase.
 
 `Sign-off` arrives after the other checks rather than with them. purba signs a
 pull request into `main` when `CI` turns green, if an approval from a person
@@ -238,7 +238,7 @@ The merge is a rebase. Squash and merge commits are both off, so your commits
 land one at a time and each message survives as you wrote it.
 
 `main` keeps a linear history. It refuses a force push, and it cannot be
-deleted.
+deleted. Every other branch in this repository refuses a merge commit.
 
 If this is your first contribution here, GitHub holds your workflow run until
 a maintainer approves it, and no check reports before that.
@@ -248,6 +248,7 @@ them back rather than trusting this section:
 
 ```
 gh api repos/kalonji-tools/purba/rules/branches/main
+gh api repos/kalonji-tools/purba/rules/branches/<your branch>
 ```
 
-That call needs no token, because this repository is public.
+These calls need no token, because this repository is public.
