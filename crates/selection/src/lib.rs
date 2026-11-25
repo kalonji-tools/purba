@@ -21,7 +21,7 @@ mod stage_one;
 mod suppression;
 
 use lookup::{Lookup, Origin};
-pub use stage_one::{NoTestFile, TestFiles, test_files};
+pub use stage_one::{DEFAULT, NoTestFile, PATTERNS, TestFiles, test_files, test_files_matching};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};
 

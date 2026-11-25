@@ -153,6 +153,17 @@ impl<W: Write> Report<W> {
         self.flushed(written)
     }
 
+    /// Writes `words`, a notice of the run, on its own line as `⚠ <words>`. It
+    /// changes no count and no exit code.
+    ///
+    /// # Errors
+    ///
+    /// When `out` refuses the write or the flush.
+    pub fn warn(&mut self, words: &str) -> Result<(), Refused> {
+        let written = writeln!(self.out, "\u{26a0} {}", one_line(words));
+        self.flushed(written)
+    }
+
     /// Writes `words`, a notice of the case, under its line as `⚠ <words>`. It
     /// changes no count and no exit code.
     fn noticed(&mut self, words: &str) -> Result<(), Refused> {

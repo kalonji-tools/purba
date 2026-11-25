@@ -12,6 +12,9 @@ use ignore::WalkBuilder;
 pub enum NoTestFile {
     /// The path names a file whose name does not match `test_*.py`.
     Name,
+    /// The path names a file whose name matches none of the patterns in
+    /// force, which `test-files` set.
+    NameOf(Vec<&'static str>),
     /// A `.gitignore` of the project ignores this file or folder, by its path
     /// from the root, on the way to the path.
     Ignored(PathBuf),
@@ -28,6 +31,13 @@ impl fmt::Display for NoTestFile {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Name => write!(formatter, "its name does not match test_*.py"),
+            Self::NameOf(patterns) => {
+                write!(
+                    formatter,
+                    "its name does not match {}",
+                    patterns.join(" or ")
+                )
+            }
             Self::Ignored(path) => write!(
                 formatter,
                 "stage one skips {}, which a .gitignore ignores",
@@ -70,8 +80,28 @@ pub struct TestFiles {
 ///
 /// Why `path` names no test file.
 pub fn test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestFile> {
+    test_files_matching(root, path, DEFAULT)
+}
+
+/// The closed list of patterns that `test-files` may name.
+pub const PATTERNS: [&str; 4] = ["test_*.py", "*_test.py", "tests.py", "test.py"];
+
+/// The patterns in force when `test-files` is absent.
+pub const DEFAULT: &[&str] = &["test_*.py"];
+
+/// [`test_files`], with `patterns`, each from [`PATTERNS`], in place of
+/// `test_*.py`.
+///
+/// # Errors
+///
+/// Why `path` names no test file.
+pub fn test_files_matching(
+    root: &Path,
+    path: Option<&Path>,
+    patterns: &[&'static str],
+) -> Result<TestFiles, NoTestFile> {
     let Some(path) = path else {
-        return Ok(walk(root, root));
+        return Ok(walk(root, root, patterns));
     };
     let real = root
         .join(path)
@@ -85,13 +115,20 @@ pub fn test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestF
         if let Some(skipped) = skipped(root, &relative) {
             return Err(skipped);
         }
-        return Ok(walk(root, &real));
+        return Ok(walk(root, &real, patterns));
     }
     if let Some(skipped) = relative.parent().and_then(|folder| skipped(root, folder)) {
         return Err(skipped);
     }
-    if !real.file_name().is_some_and(is_test_name) {
-        return Err(NoTestFile::Name);
+    if !real
+        .file_name()
+        .is_some_and(|name| is_test_name(name, patterns))
+    {
+        return Err(if patterns == DEFAULT {
+            NoTestFile::Name
+        } else {
+            NoTestFile::NameOf(patterns.to_vec())
+        });
     }
     if !entered(&real) {
         return Err(NoTestFile::Ignored(relative));
@@ -102,10 +139,16 @@ pub fn test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestF
     })
 }
 
-/// Whether `name` matches `test_*.py`.
-fn is_test_name(name: &OsStr) -> bool {
+/// Whether `name` matches one of `patterns`.
+fn is_test_name(name: &OsStr, patterns: &[&str]) -> bool {
     let name = name.as_encoded_bytes();
-    name.len() >= b"test_.py".len() && name.starts_with(b"test_") && name.ends_with(b".py")
+    patterns.iter().any(|pattern| match *pattern {
+        "test_*.py" => {
+            name.len() >= b"test_.py".len() && name.starts_with(b"test_") && name.ends_with(b".py")
+        }
+        "*_test.py" => name.len() > b"_test.py".len() && name.ends_with(b"_test.py"),
+        exact => name == exact.as_bytes(),
+    })
 }
 
 /// The walk of stage one from `from`, a folder at or under the root.
@@ -123,13 +166,13 @@ fn walker(from: &Path) -> WalkBuilder {
 
 /// Each test file under `from`, and each folder there that the walk cannot
 /// read, by its path from `root`, sorted.
-fn walk(root: &Path, from: &Path) -> TestFiles {
+fn walk(root: &Path, from: &Path, patterns: &[&str]) -> TestFiles {
     let mut found = TestFiles::default();
     for entry in walker(from).build() {
         match entry {
             Ok(entry) => {
                 if entry.file_type().is_some_and(|kind| kind.is_file())
-                    && is_test_name(entry.file_name())
+                    && is_test_name(entry.file_name(), patterns)
                     && let Ok(path) = entry.path().strip_prefix(root)
                 {
                     found.files.push(path.to_path_buf());

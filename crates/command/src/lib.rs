@@ -22,6 +22,8 @@ pub enum Error {
     /// No `pyproject.toml` on the walk up from the working folder holds
     /// `[tool.purba]`. It names where to add it.
     NoRoot(Place),
+    /// `PURBA_IMPLICIT_ROOT` holds a value other than `1` or `0`.
+    ImplicitRoot(String),
     /// The path, as the tester typed it, names no test file.
     NoTestFile(String, NoTestFile),
     /// stdout takes no write, so no report exists.
@@ -63,6 +65,9 @@ impl fmt::Display for Error {
                         write!(formatter, "add one with it to {}", folder.display())
                     }
                 }
+            }
+            Self::ImplicitRoot(value) => {
+                write!(formatter, "PURBA_IMPLICIT_ROOT is {value}; set 1 or 0")
             }
             Self::NoTestFile(path, why) => write!(formatter, "{path} names no test file: {why}"),
             Self::Write(error) | Self::Refused { error, .. } => {
@@ -136,17 +141,31 @@ pub fn run_with(
     let typed = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let root = match find_root(folder) {
-        Rooted::Root(root) => root,
-        Rooted::None(place) => return Err(Error::NoRoot(place)),
+    let (root, patterns) = match find_root(folder) {
+        Rooted::Root(root, file, table) => match test_files_setting(&table) {
+            Ok(patterns) => (root, patterns),
+            Err(errors) => {
+                not_interrupted()?;
+                for words in errors {
+                    report.error(&file.display(), &purba_errors::Error::project(words))?;
+                }
+                return Ok(report.finish()?);
+            }
+        },
+        Rooted::None(place, ladder) => {
+            let (root, words) = implicit(place, ladder)?;
+            report.warn(&words)?;
+            (root, purba_selection::DEFAULT.to_vec())
+        }
         Rooted::Unread(file, error) => {
             not_interrupted()?;
             report.error(&file.display(), &error)?;
             return Ok(report.finish()?);
         }
     };
-    let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new))
-        .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
+    let found =
+        purba_selection::test_files_matching(&root, typed.as_deref().map(Path::new), &patterns)
+            .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
     purba_execution::start_paths_at(root.clone());
     let (modules, mut kept) = before_the_run(&root, found, &mut report, &rewrite)?;
     hand(&root, modules, &mut kept, &mut report)?;
@@ -314,10 +333,12 @@ fn path(arguments: &[String]) -> Result<Option<String>, Error> {
 
 /// What the walk up from the working folder finds.
 enum Rooted {
-    /// The folder of the nearest `pyproject.toml` that holds `[tool.purba]`.
-    Root(PathBuf),
-    /// No such file, and where to add `[tool.purba]`.
-    None(Place),
+    /// The folder of the nearest `pyproject.toml` that holds `[tool.purba]`,
+    /// that file by its path from the working folder, and its table.
+    Root(PathBuf, PathBuf, toml::Table),
+    /// No such file, where to add `[tool.purba]`, and the steps of the
+    /// implicit root.
+    None(Place, Ladder),
     /// A `pyproject.toml` on the walk that is not TOML, by its path from the
     /// working folder, with its project error.
     Unread(PathBuf, purba_errors::Error),
@@ -330,6 +351,11 @@ fn find_root(folder: &Path) -> Rooted {
     let start = folder.canonicalize().unwrap_or_else(|_| folder.to_owned());
     let mut up = PathBuf::new();
     let mut project = None;
+    let mut ladder = Ladder {
+        project: None,
+        git: None,
+        working: start.clone(),
+    };
     for current in start.ancestors() {
         let file = current.join("pyproject.toml");
         if file.is_file() {
@@ -338,18 +364,232 @@ fn find_root(folder: &Path) -> Rooted {
                 Err(error) => return Rooted::Unread(up.join("pyproject.toml"), error),
             };
             if holds(&table, &["tool", "purba"]) {
-                return Rooted::Root(current.to_owned());
+                return Rooted::Root(current.to_owned(), up.join("pyproject.toml"), table);
             }
             if project.is_none() && holds(&table, &["project"]) {
                 project = Some(up.join("pyproject.toml"));
+                ladder.project = Some(current.to_owned());
             }
         }
         if current.join(".git").symlink_metadata().is_ok() {
-            return Rooted::None(project.map_or_else(|| Place::Folder(shown(&up)), Place::Project));
+            ladder.git = Some(current.to_owned());
+            return Rooted::None(
+                project.map_or_else(|| Place::Folder(shown(&up)), Place::Project),
+                ladder,
+            );
         }
         up.push("..");
     }
-    Rooted::None(project.map_or_else(|| Place::Folder(PathBuf::from(".")), Place::Project))
+    Rooted::None(
+        project.map_or_else(|| Place::Folder(PathBuf::from(".")), Place::Project),
+        ladder,
+    )
+}
+
+/// The folders the implicit root may take, each canonical.
+struct Ladder {
+    /// The folder of the nearest `pyproject.toml` with `[project]`.
+    project: Option<PathBuf>,
+    /// The folder that holds `.git`.
+    git: Option<PathBuf>,
+    /// The working folder.
+    working: PathBuf,
+}
+
+/// Whether this build prints the words of variant B.
+fn words_b() -> bool {
+    option_env!("PURBA_PROTO_WORDS") == Some("B")
+}
+
+/// The implicit root, and the line that names it, when `PURBA_IMPLICIT_ROOT`
+/// is `1`.
+///
+/// # Errors
+///
+/// The refusal of `place` when the variable is unset, empty or `0`, and an
+/// invocation error for any other value.
+fn implicit(place: Place, ladder: Ladder) -> Result<(PathBuf, String), Error> {
+    let setting = std::env::var_os("PURBA_IMPLICIT_ROOT");
+    match setting.as_deref().map(|value| value.to_string_lossy()) {
+        None => return Err(Error::NoRoot(place)),
+        Some(value) if value.is_empty() || value == "0" => return Err(Error::NoRoot(place)),
+        Some(value) if value == "1" => {}
+        Some(value) => return Err(Error::ImplicitRoot(value.into_owned())),
+    }
+    let b = words_b();
+    let (root, words) = if let Some(project) = ladder.project {
+        let shown = home_shown(&project);
+        let words = if b {
+            format!(
+                "root {shown} is the folder of the pyproject.toml that holds [project], \
+                 because PURBA_IMPLICIT_ROOT is set and no pyproject.toml holds [tool.purba]"
+            )
+        } else {
+            format!(
+                "root {shown}, from pyproject.toml [project]; PURBA_IMPLICIT_ROOT=1; \
+                 no [tool.purba] found"
+            )
+        };
+        (project, words)
+    } else if let Some(git) = ladder.git {
+        let shown = home_shown(&git);
+        let words = if b {
+            format!(
+                "root {shown} is the folder that holds .git, because PURBA_IMPLICIT_ROOT is set \
+                 and no pyproject.toml holds [tool.purba]"
+            )
+        } else {
+            format!("root {shown}, from .git; PURBA_IMPLICIT_ROOT=1; no [tool.purba] found")
+        };
+        (git, words)
+    } else {
+        let shown = home_shown(&ladder.working);
+        let words = if b {
+            format!(
+                "root {shown} is the working folder, because PURBA_IMPLICIT_ROOT is set and no \
+                 pyproject.toml holds [tool.purba]; the id of each test starts here, and moves \
+                 with the working folder"
+            )
+        } else {
+            format!(
+                "root {shown}, from the working folder; PURBA_IMPLICIT_ROOT=1; \
+                 no [tool.purba] found; ids start here"
+            )
+        };
+        (ladder.working, words)
+    };
+    Ok((root, words))
+}
+
+/// `folder` as an absolute path, with `$HOME` shown as `~`.
+fn home_shown(folder: &Path) -> String {
+    let home = std::env::var_os("HOME")
+        .map(PathBuf::from)
+        .map(|home| home.canonicalize().unwrap_or(home));
+    match home
+        .as_deref()
+        .and_then(|home| folder.strip_prefix(home).ok())
+    {
+        Some(rest) if rest.as_os_str().is_empty() => "~".to_owned(),
+        Some(rest) => format!("~/{}", rest.display()),
+        None => folder.display().to_string(),
+    }
+}
+
+/// The patterns that `test-files` under `[tool.purba]` puts in force, or the
+/// words of each error it holds.
+fn test_files_setting(table: &toml::Table) -> Result<Vec<&'static str>, Vec<String>> {
+    let b = words_b();
+    let value = table
+        .get("tool")
+        .and_then(toml::Value::as_table)
+        .and_then(|tool| tool.get("purba"))
+        .and_then(toml::Value::as_table)
+        .and_then(|purba| purba.get("test-files"));
+    let Some(value) = value else {
+        return Ok(purba_selection::DEFAULT.to_vec());
+    };
+    let closed = purba_selection::PATTERNS;
+    let Some(items) = value.as_array() else {
+        let kind = match value {
+            toml::Value::String(_) => "a string",
+            toml::Value::Integer(_) | toml::Value::Float(_) => "a number",
+            toml::Value::Boolean(_) => "a boolean",
+            toml::Value::Datetime(_) => "a date",
+            toml::Value::Table(_) => "a table",
+            toml::Value::Array(_) => "a list",
+        };
+        return Err(vec![if b {
+            format!(
+                "test-files under [tool.purba] is {kind}; write a list, such as [\"*_test.py\"]"
+            )
+        } else {
+            format!("[tool.purba] test-files: {kind}, not a list")
+        }]);
+    };
+    if items.is_empty() {
+        return Err(vec![if b {
+            "test-files under [tool.purba] is an empty list, so no file is a test file; \
+             list at least one of test_*.py, *_test.py, tests.py and test.py"
+                .to_owned()
+        } else {
+            "[tool.purba] test-files: an empty list".to_owned()
+        }]);
+    }
+    let mut patterns = Vec::new();
+    let mut errors = Vec::new();
+    for item in items {
+        if let Some(pattern) = item
+            .as_str()
+            .and_then(|text| closed.iter().find(|pattern| **pattern == text))
+        {
+            if !patterns.contains(pattern) {
+                patterns.push(*pattern);
+            }
+            continue;
+        }
+        let text = item.as_str().map_or_else(|| toml_text(item), str::to_owned);
+        let nearest = closed
+            .iter()
+            .min_by_key(|pattern| distance(&text, pattern))
+            .copied()
+            .unwrap_or_default();
+        errors.push(if b {
+            format!(
+                "test-files under [tool.purba] holds {text}, which is none of test_*.py, \
+                 *_test.py, tests.py and test.py; the nearest is {nearest}"
+            )
+        } else {
+            format!(
+                "[tool.purba] test-files: {text} is not a pattern purba takes; nearest: {nearest}"
+            )
+        });
+    }
+    if errors.is_empty() {
+        Ok(patterns)
+    } else {
+        Err(errors)
+    }
+}
+
+/// `value` as TOML text, close to how the tester wrote it.
+fn toml_text(value: &toml::Value) -> String {
+    match value {
+        toml::Value::String(text) => format!("{text:?}"),
+        toml::Value::Integer(number) => number.to_string(),
+        toml::Value::Float(number) => number.to_string(),
+        toml::Value::Boolean(truth) => truth.to_string(),
+        toml::Value::Datetime(date) => date.to_string(),
+        toml::Value::Array(items) => {
+            let items: Vec<String> = items.iter().map(toml_text).collect();
+            format!("[{}]", items.join(", "))
+        }
+        toml::Value::Table(table) => {
+            let pairs: Vec<String> = table
+                .iter()
+                .map(|(key, value)| format!("{key} = {}", toml_text(value)))
+                .collect();
+            format!("{{ {} }}", pairs.join(", "))
+        }
+    }
+}
+
+/// The Levenshtein distance between `a` and `b`, by character.
+fn distance(a: &str, b: &str) -> usize {
+    let b: Vec<char> = b.chars().collect();
+    let mut row: Vec<usize> = (0..=b.len()).collect();
+    for (i, ca) in a.chars().enumerate() {
+        let mut previous = row[0];
+        row[0] = i + 1;
+        for (j, cb) in b.iter().enumerate() {
+            let here = row[j + 1];
+            row[j + 1] = (here + 1)
+                .min(row[j] + 1)
+                .min(previous + usize::from(ca != *cb));
+            previous = here;
+        }
+    }
+    row[b.len()]
 }
 
 /// `up` as a folder: `.` for the working folder.
