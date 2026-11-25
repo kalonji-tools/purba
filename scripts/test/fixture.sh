@@ -22,11 +22,14 @@
 #                                  `issue-list`, or the last segment of an API path
 #                                  that is not a number. A write is answered with a
 #                                  URL, and is `post-<call>`, `issue-create` or
-#                                  `issue-comment`
+#                                  `issue-comment`. It also fakes `sleep`, so a
+#                                  pause costs a test no time
 #   gh_answers <call> <json>       what that fake answers <call> with
 #   gh_refuses <call>              that fake fails <call> with exit 1, as gh does.
 #                                  <call> may be `post-check-runs-<name>`, a post
 #                                  of the check run <name> alone
+#   gh_refuses_once <call>         that fake fails <call> once, as gh does when
+#                                  GitHub answers with no body, then answers it
 #   check_runs [<run>...]          `gh_answers check-runs`, one run for each
 #                                  `<name>=<conclusion>[@<day>][~<source>]`. An
 #                                  empty conclusion is a run still going. It also
@@ -169,6 +172,13 @@ if [[ -e "${answers}/${call}.refused" || -e "${answers}/${call}-${named:-}.refus
   echo "HTTP 502: ${call}" >&2
   exit 1
 fi
+for once in "${answers}/${call}.refused-once" "${answers}/${call}-${named:-}.refused-once"; do
+  if [[ -e "${once}" ]]; then
+    rm "${once}"
+    echo "unexpected end of JSON input" >&2
+    exit 1
+  fi
+done
 case "${call}" in
   post-* | issue-create | issue-comment) echo "https://example.invalid/${call}" ;;
   *)
@@ -183,6 +193,7 @@ case "${call}" in
     ;;
 esac
 FAKE
+  fake sleep <<<''
 }
 
 gh_answers() {
@@ -193,6 +204,11 @@ gh_answers() {
 gh_refuses() {
   mkdir -p "${BATS_TEST_TMPDIR}/gh"
   touch "${BATS_TEST_TMPDIR}/gh/$1.refused"
+}
+
+gh_refuses_once() {
+  mkdir -p "${BATS_TEST_TMPDIR}/gh"
+  touch "${BATS_TEST_TMPDIR}/gh/$1.refused-once"
 }
 
 check_runs() {

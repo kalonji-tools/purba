@@ -271,6 +271,64 @@ FAKE
   [[ -z "${asked}" ]]
 }
 
+@test "a write the API refuses once is written on the next try, 5 seconds later" {
+  gh_refuses_once post-check-runs
+
+  run post_check_run Sign-off abc123 success title summary
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"https://example.invalid/post-check-runs"* ]]
+  [[ "${output}" != *"could not be written"* ]]
+  asked=$(calls gh)
+  posts=$(grep -c -- '--method POST' <<<"${asked}")
+  [[ "${posts}" -eq 2 ]]
+  paused=$(calls sleep)
+  [[ "${paused}" == 5 ]]
+}
+
+@test "a write the API refuses twice is written on the third try" {
+  gh_refuses_once post-check-runs
+  gh_refuses_once post-check-runs-Sign-off
+
+  run post_check_run Sign-off abc123 success title summary
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" != *"could not be written"* ]]
+  asked=$(calls gh)
+  posts=$(grep -c -- '--method POST' <<<"${asked}")
+  [[ "${posts}" -eq 3 ]]
+  paused=$(calls sleep)
+  [[ "${paused}" == $'5\n10' ]]
+}
+
+@test "each failure but the last says the write is tried again, and only the last that it failed" {
+  gh_refuses post-check-runs
+
+  run post_check_run Sign-off abc123 success title summary
+
+  missed="the check run Sign-off was not written onto abc123, so it is tried again in"
+  output_has_line "${missed} 5 seconds."
+  output_has_line "${missed} 10 seconds."
+  again=$(grep -c 'is tried again' <<<"${output}")
+  [[ "${again}" -eq 2 ]]
+  failed=$(grep -c 'could not be written' <<<"${output}")
+  [[ "${failed}" -eq 1 ]]
+}
+
+@test "a write the API refuses each time is tried three times, 5 then 10 seconds apart" {
+  gh_refuses post-check-runs
+
+  run post_check_run Sign-off abc123 success title summary
+
+  [[ "${status}" -eq 2 ]]
+  [[ "${output}" == *"the check run Sign-off could not be written onto abc123."* ]]
+  asked=$(calls gh)
+  posts=$(grep -c -- '--method POST' <<<"${asked}")
+  [[ "${posts}" -eq 3 ]]
+  paused=$(calls sleep)
+  [[ "${paused}" == $'5\n10' ]]
+}
+
 @test "a context with no run at all is refused" {
   check_runs Build=success
 

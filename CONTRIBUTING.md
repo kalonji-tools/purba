@@ -206,6 +206,8 @@ absent, close the pull request and reopen it. One of these may be the cause:
 - The approval came after `CI` finished.
 - The base moved to `main` after `CI` finished.
 - purba read the last gate before GitHub reported its verdict.
+- GitHub could not write `Sign-off`. A red `Carry` says so, unless GitHub
+  could not write that either.
 
 Where purba refuses your branch instead, `Sign-off` turns red and names what
 it found. It is written before anything on your branch is rewritten, so the

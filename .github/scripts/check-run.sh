@@ -20,7 +20,9 @@
 #   SIGN_TOKEN     the token of `purba-sign`, which posts each check run. A
 #                  write with none exits 2
 #
-# A read or a write the API refuses exits 2, because the caller cannot run.
+# A read the API refuses exits 2, because the caller cannot run. A write is
+# tried three times, 5 and then 10 seconds apart, and exits 2 when the third
+# fails.
 if [[ -z "${GH_REPO:-}" ]]; then
   echo "GH_REPO is set by the workflow env, and it is empty here." >&2
   exit 2
@@ -249,19 +251,26 @@ require_green() {
 
 # `status` is always `completed`: purba writes a verdict or writes nothing.
 post_check_run() {
+  local pause
   if [[ -z "${SIGN_TOKEN:-}" ]]; then
     echo "SIGN_TOKEN is set by the workflow env, and it is empty here." >&2
     exit 2
   fi
-  GH_TOKEN="${SIGN_TOKEN}" gh api --method POST "repos/${GH_REPO}/check-runs" \
-    -f name="$1" \
-    -f head_sha="$2" \
-    -f status=completed \
-    -f conclusion="$3" \
-    -f "output[title]=$4" \
-    -f "output[summary]=$5" \
-    --jq '.html_url' || {
-    echo "the check run $1 could not be written onto $2." >&2
-    exit 2
-  }
+  for pause in 5 10 ''; do
+    if GH_TOKEN="${SIGN_TOKEN}" gh api --method POST "repos/${GH_REPO}/check-runs" \
+      -f name="$1" \
+      -f head_sha="$2" \
+      -f status=completed \
+      -f conclusion="$3" \
+      -f "output[title]=$4" \
+      -f "output[summary]=$5" \
+      --jq '.html_url'; then
+      return 0
+    fi
+    [[ -n "${pause}" ]] || break
+    echo "the check run $1 was not written onto $2, so it is tried again in ${pause} seconds." >&2
+    sleep "${pause}"
+  done
+  echo "the check run $1 could not be written onto $2." >&2
+  exit 2
 }

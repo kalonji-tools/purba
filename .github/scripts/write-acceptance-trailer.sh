@@ -14,10 +14,13 @@
 # passing `Sign-off`, it exits 2 when it cannot read the open pull requests
 # from the branch, the pull requests that hold its head, the reviews, the
 # permission of an approver, the key set of GitHub or the token of a gate, or
-# cannot read or write a check run.
-# It also exits 2 when the reviews are not ones the rule can read. After it
-# posts a passing `Sign-off`, it ends in `carry-verdicts.sh`, and exits as that
-# does. Any other command that fails exits with its own code, which can be 1.
+# cannot read a check run.
+# It also exits 2 when the reviews are not ones the rule can read. When it
+# cannot write `Sign-off`, it posts a failed `Carry` onto that commit and exits
+# 0, because the pull request would show nothing. It exits 2 when it cannot
+# write that `Carry` either. After it posts a passing `Sign-off`, it ends in
+# `carry-verdicts.sh`, and exits as that does. Any other command that fails
+# exits with its own code, which can be 1.
 set -euo pipefail
 
 # The workflow supplies these, so naming them refuses early rather than at the
@@ -36,6 +39,20 @@ set -euo pipefail
 . "$(dirname "$0")/check-run.sh"
 # shellcheck source=.github/scripts/standing-approver.sh
 . "$(dirname "$0")/standing-approver.sh"
+
+# post_sign_off <head> <conclusion> <title> <summary>
+#
+# `post_check_run` exits when it fails, so it runs in a subshell here.
+post_sign_off() {
+  # shellcheck disable=SC2310 # `post_check_run` ends each failure with `exit 2`
+  if (post_check_run "Sign-off" "$@"); then
+    return 0
+  fi
+  post_check_run Carry "$1" failure "Not signed: close and reopen this pull request" \
+    "\`Sign-off\` could not be written onto this commit. Closing and reopening this pull \
+request runs the gates here. The run after the last gate writes \`Sign-off\`."
+  exit 0
+}
 
 open_from="head=${GH_REPO%%/*}:${HEAD_REF}&base=${BASE_REF}&state=open"
 if ! open=$(gh api "repos/${GH_REPO}/pulls?${open_from}") ||
@@ -57,7 +74,7 @@ if ! holders=$(gh api "repos/${GH_REPO}/commits/${current_head}/pulls") ||
   cannot "the pull requests that hold ${current_head} could not be read."
 fi
 if [[ "${sharing}" == *,* ]]; then
-  post_check_run "Sign-off" "${current_head}" failure \
+  post_sign_off "${current_head}" failure \
     "More than one pull request into ${BASE_REF} holds this head" \
     "Pull requests ${sharing} into ${BASE_REF} hold this commit. A \`Sign-off\` on it stands \
 on each. So purba signs none of them. Close all but one. Then close that one and reopen it."
@@ -110,7 +127,7 @@ post_refusal() {
   summary=$(cat "${PURBA_REPORT}" 2>/dev/null || echo "This job stopped without writing \
 anything a reader can use. The run log holds what it did.")
 
-  post_check_run "Sign-off" "${before}" failure "${title}" "${summary}"
+  post_sign_off "${before}" failure "${title}" "${summary}"
   exit 0
 }
 
@@ -137,7 +154,7 @@ fi
 
 accepted_summary="Every commit on this branch carries an \`Accepted-by:\` trailer \
 naming the account that approved it."
-post_check_run "Sign-off" "${head_sha}" success "Accepted by @${approver}" \
+post_sign_off "${head_sha}" success "Accepted by @${approver}" \
   "${accepted_summary}"
 
 echo "recorded acceptance by ${approver} on ${head_sha}"

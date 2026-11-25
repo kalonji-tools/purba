@@ -375,18 +375,40 @@ origin_holds() {
   origin_holds "${pushed}"
 }
 
-@test "a refusal whose check run cannot be written exits 2" {
+@test "a refusal whose Sign-off cannot be written posts a failed Carry, and exits 0" {
   commit "feat: unsigned"
   refused=$(git rev-parse HEAD)
-  gh_refuses post-check-runs
+  gh_refuses post-check-runs-Sign-off
 
   run "${script}"
 
-  [[ "${status}" -eq 2 ]]
+  [[ "${status}" -eq 0 ]]
   [[ "${output}" == *"the check run Sign-off could not be written onto ${refused}."* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${refused}"*"-f conclusion=failure"* ]]
+  [[ "${asked}" == *"-f output[title]=Not signed: close and reopen this pull request"* ]]
 }
 
-@test "an acceptance whose check run cannot be written exits 2, after the push" {
+@test "an acceptance whose Sign-off cannot be written posts a failed Carry after the push" {
+  gh_refuses post-check-runs-Sign-off
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  head=$(held)
+  [[ "${head}" != "${pushed}" ]]
+  [[ "${output}" == *"the check run Sign-off could not be written onto ${head}."* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${head}"*"-f conclusion=failure"* ]]
+  [[ "${asked}" == *"-f output[title]=Not signed: close and reopen this pull request"* ]]
+  summary="\`Sign-off\` could not be written onto this commit. Closing and reopening this pull \
+request runs the gates here. The run after the last gate writes \`Sign-off\`."
+  [[ "${asked}" == *"-f name=Carry"*"-f output[summary]=${summary}"* ]]
+  [[ "${asked}" != *"-f name=Quality"* ]]
+  [[ "${output}" != *"recorded acceptance"* ]]
+}
+
+@test "an acceptance whose Sign-off and Carry cannot be written exits 2, after the push" {
   gh_refuses post-check-runs
 
   run "${script}"
@@ -395,9 +417,7 @@ origin_holds() {
   head=$(held)
   [[ "${head}" != "${pushed}" ]]
   [[ "${output}" == *"the check run Sign-off could not be written onto ${head}."* ]]
-  asked=$(calls gh)
-  [[ "${asked}" != *"-f name=Quality"* ]]
-  [[ "${output}" != *"recorded acceptance"* ]]
+  [[ "${output}" == *"the check run Carry could not be written onto ${head}."* ]]
 }
 
 @test "a second run on an accepted branch pushes nothing and reports again" {
@@ -442,6 +462,21 @@ origin_holds() {
   [[ "${asked}" == *"-f conclusion=failure"* ]]
   [[ "${asked}" == *"-f output[title]=More than one pull request into main holds this head"* ]]
   [[ "${asked}" == *"#7, #9 into main"* ]]
+  origin_holds "${pushed}"
+}
+
+@test "two open pull requests at one head whose Sign-off cannot be written get a failed Carry" {
+  holders "7:open:main:${pushed}" "9:open:main:${pushed}"
+  gh_refuses post-check-runs-Sign-off
+
+  run "${script}"
+
+  [[ "${status}" -eq 0 ]]
+  [[ "${output}" == *"the check run Sign-off could not be written onto ${pushed}."* ]]
+  asked=$(calls gh)
+  [[ "${asked}" == *"-f name=Carry -f head_sha=${pushed}"*"-f conclusion=failure"* ]]
+  [[ "${asked}" == *"-f output[title]=Not signed: close and reopen this pull request"* ]]
+  [[ "${asked}" != *"reviews"* ]]
   origin_holds "${pushed}"
 }
 
