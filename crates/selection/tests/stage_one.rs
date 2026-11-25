@@ -1,7 +1,12 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use purba_selection::{NoTestFile, TestFiles, test_files};
+use purba_selection::{NoTestFile, Patterns, TestFiles};
+
+/// Stage one with the patterns that apply when the project's file sets none.
+fn test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestFile> {
+    purba_selection::test_files(root, path, &Patterns::default())
+}
 
 /// A new, empty folder for the test `name`, by its canonical path.
 fn folder(name: &str) -> PathBuf {
@@ -282,7 +287,10 @@ fn a_path_that_names_no_test_file_says_why() {
     let outside = folder("reasons_outside");
     write(&outside, "test_far.py", "");
     for (path, why) in [
-        ("tests/models_test.py", NoTestFile::Name),
+        (
+            "tests/models_test.py",
+            NoTestFile::Name(Patterns::default()),
+        ),
         ("gen/test_gen.py", NoTestFile::Ignored(PathBuf::from("gen"))),
         ("gen", NoTestFile::Ignored(PathBuf::from("gen"))),
         (
@@ -351,7 +359,10 @@ fn a_folder_that_stage_one_cannot_read_comes_with_its_error_beside_the_test_file
 #[test]
 fn each_reason_reads_in_its_words() {
     for (why, words) in [
-        (NoTestFile::Name, "its name does not match test_*.py"),
+        (
+            NoTestFile::Name(Patterns::default()),
+            "its name does not match test_*.py",
+        ),
         (
             NoTestFile::Ignored(PathBuf::from("gen")),
             "stage one skips gen, which a .gitignore ignores",

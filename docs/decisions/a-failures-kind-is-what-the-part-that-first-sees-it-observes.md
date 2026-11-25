@@ -36,7 +36,7 @@ Each part can check an exception class or a branch that it holds.
 | kind | what a part sees | the tester fixes it in |
 |---|---|---|
 | [invocation error](../../CONTEXT.md#invocation-error) | an argument, a path the tester typed, data purba cannot take, a refused write | the command, or where it runs |
-| [project error](../../CONTEXT.md#project-error) | a module that purba cannot read, or that does not parse, decode or load, a folder that stage one cannot read, a `pyproject.toml` on the walk to the root that is not TOML, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression, a function whose name is near `test` | the tester's code |
+| [project error](../../CONTEXT.md#project-error) | a module that purba cannot read, or that does not parse, decode or load, a folder that stage one cannot read, a `pyproject.toml` on the walk to the root that is not TOML, a value of the project's file that a dial refuses, a key under `[tool.purba]` that no dial owns, a test purba refuses to call, an exception that no test's call raised, a case with no expectation, an expectation whose two readings differ, a breach that execution sees as a case runs, an unused suppression, a function whose name is near `test` | the tester's code |
 | [outcome](../../CONTEXT.md#outcome) | the test's call returned after an expectation ran, or raised, or a `with` of the test raised as it entered or cleaned up | the code under test, or the test |
 | [internal error](../../CONTEXT.md#internal-error) | a panic, an error purba never expects, purba's own `PanicException` that crosses a test's call | a bug report to purba |
 
@@ -77,9 +77,9 @@ flowchart LR
   command["command"] -- "an argument it cannot take" --> invocation["<b>invocation error</b>"]
   selection["selection"] -- "a term that names nothing, a query nested too deep" --> invocation
   reporting["reporting"] -- "a refused write" --> invocation
-  command -- "a pyproject.toml that is not TOML" --> project["<b>project error</b>"]
+  command -- "a pyproject.toml that is not TOML, a key under [tool.purba] that no dial owns" --> project["<b>project error</b>"]
   parsing["parsing"] -- "a module that it cannot read, a syntax error, a module that it cannot decode" --> project
-  selection -- "a folder that stage one cannot read" --> project
+  selection -- "a folder that stage one cannot read, a value of test-files that it refuses" --> project
   selection -- "a decorator that is not purba's or not under its own name, a name bound again, a test name with no def, a def under a statement, a test in a class, an async def, a yield, a parameter with no default, a returned value, an expectation that is not one comparison, one of four forms, or an all() or any() of one of these, or that has no literal, a patch, a mock with no spec, an import of pytest, an except that only passes, a fault of a suppression, an unused suppression, a function whose name is near test, an alias that names itself, a tag() or name() in the query of a platform" --> project
   assertion["assertion"] -- "a module that does not load, a module named after a loaded module" --> project
   execution["execution"] -- "a name that is not callable, an input that fixtures cannot build, two inputs that name one fixture, a stock, a reagent twice in a fixture, a thread's exception, a case with no expectation, a fork refused, an expectation whose two readings differ, a line not run, a branch one way, an assert before the first expectation or inside a reading, a hook or the filters replaced, a with that swallowed a raise, an all() of no item, an iterator that an expectation reads" --> project

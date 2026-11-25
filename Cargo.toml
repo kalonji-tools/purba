@@ -22,8 +22,14 @@ ruff_python_parser = { version = "=0.0.23", features = ["stacker"] }
 ruff_source_file = "=0.0.23"
 ruff_text_size = "=0.0.23"
 serde = { version = "1", features = ["derive"] }
-# purba reads a pyproject.toml, and never writes one.
-toml = { version = "1.2.3", default-features = false, features = ["parse", "serde", "std"] }
+# purba reads a pyproject.toml, and never writes one. `display` writes a value
+# of it into an error, as the tester wrote it.
+toml = { version = "1.2.3", default-features = false, features = [
+  "display",
+  "parse",
+  "serde",
+  "std",
+] }
 
 [workspace.lints.rust]
 warnings = "deny"

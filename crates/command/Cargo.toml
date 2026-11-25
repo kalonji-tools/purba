@@ -9,6 +9,7 @@ publish.workspace = true
 
 [dependencies]
 purba-assertion = { path = "../assertion" }
+purba-config = { path = "../config" }
 purba-dispatch = { path = "../dispatch" }
 purba-errors = { path = "../errors" }
 purba-execution = { path = "../execution" }

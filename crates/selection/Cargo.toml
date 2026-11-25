@@ -9,10 +9,12 @@ publish.workspace = true
 
 [dependencies]
 ignore.workspace = true
+purba-config = { path = "../config" }
 purba-errors = { path = "../errors" }
 purba-parsing = { path = "../parsing" }
 ruff_python_ast.workspace = true
 ruff_text_size.workspace = true
+toml.workspace = true
 
 [features]
 fault = []

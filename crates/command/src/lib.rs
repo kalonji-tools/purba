@@ -136,8 +136,8 @@ pub fn run_with(
     let typed = path(arguments)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
-    let root = match find_root(folder) {
-        Rooted::Root(root) => root,
+    let (root, file, settings) = match find_root(folder) {
+        Rooted::Root(root, file, settings) => (root, file, settings),
         Rooted::None(place) => return Err(Error::NoRoot(place)),
         Rooted::Unread(file, error) => {
             not_interrupted()?;
@@ -145,7 +145,17 @@ pub fn run_with(
             return Ok(report.finish()?);
         }
     };
-    let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new))
+    let patterns = match dials(settings) {
+        Ok(patterns) => patterns,
+        Err(errors) => {
+            not_interrupted()?;
+            for words in errors {
+                report.error(&file.display(), &purba_errors::Error::project(words))?;
+            }
+            return Ok(report.finish()?);
+        }
+    };
+    let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new), &patterns)
         .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
     purba_execution::start_paths_at(root.clone());
     let (modules, mut kept) = before_the_run(&root, found, &mut report, &rewrite)?;
@@ -312,10 +322,29 @@ fn path(arguments: &[String]) -> Result<Option<String>, Error> {
     }
 }
 
+/// The patterns of a test file that the table `settings` under `[tool.purba]`
+/// sets, or the words of each error of a dial, and then of each key that no
+/// dial owns.
+fn dials(settings: toml::Table) -> Result<purba_selection::Patterns, Vec<String>> {
+    let project = purba_config::Project::new(settings);
+    let patterns = project.resolve(&purba_selection::TEST_FILES);
+    let unknown = project.unknown(&[purba_selection::TEST_FILES.key()]);
+    match patterns {
+        Ok(resolved) if unknown.is_empty() => Ok(resolved.value),
+        Ok(_) => Err(unknown),
+        Err(mut errors) => {
+            errors.extend(unknown);
+            Err(errors)
+        }
+    }
+}
+
 /// What the walk up from the working folder finds.
 enum Rooted {
-    /// The folder of the nearest `pyproject.toml` that holds `[tool.purba]`.
-    Root(PathBuf),
+    /// The folder of the nearest `pyproject.toml` that holds `[tool.purba]`,
+    /// the path of that file from the working folder, and the table under
+    /// `[tool.purba]`.
+    Root(PathBuf, PathBuf, toml::Table),
     /// No such file, and where to add `[tool.purba]`.
     None(Place),
     /// A `pyproject.toml` on the walk that is not TOML, by its path from the
@@ -337,10 +366,14 @@ fn find_root(folder: &Path) -> Rooted {
                 Ok(table) => table,
                 Err(error) => return Rooted::Unread(up.join("pyproject.toml"), error),
             };
-            if holds(&table, &["tool", "purba"]) {
-                return Rooted::Root(current.to_owned());
+            if let Some(settings) = inner(&table, &["tool", "purba"]) {
+                return Rooted::Root(
+                    current.to_owned(),
+                    up.join("pyproject.toml"),
+                    settings.clone(),
+                );
             }
-            if project.is_none() && holds(&table, &["project"]) {
+            if project.is_none() && inner(&table, &["project"]).is_some() {
                 project = Some(up.join("pyproject.toml"));
             }
         }
@@ -383,16 +416,13 @@ fn read(file: &Path) -> Result<toml::Table, purba_errors::Error> {
     })
 }
 
-/// Whether `table` holds a table at the keys of `keys`, one inside the other.
-fn holds(table: &toml::Table, keys: &[&str]) -> bool {
+/// The table that `table` holds at the keys of `keys`, one inside the other.
+fn inner<'a>(table: &'a toml::Table, keys: &[&str]) -> Option<&'a toml::Table> {
     let mut table = table;
     for key in keys {
-        match table.get(*key).and_then(toml::Value::as_table) {
-            Some(inner) => table = inner,
-            None => return false,
-        }
+        table = table.get(*key).and_then(toml::Value::as_table)?;
     }
-    true
+    Some(table)
 }
 
 /// What one test file leaves before the run, once its tree drops.
@@ -535,9 +565,10 @@ mod tests {
             "no pyproject.toml holds [tool.purba]; add one with it to ..",
             "the refusal names the folder that holds .git"
         );
+        let name = NoTestFile::Name(purba_selection::Patterns::default());
         assert_eq!(
-            Error::NoTestFile("tests/x.py".to_owned(), NoTestFile::Name).to_string(),
-            format!("tests/x.py names no test file: {}", NoTestFile::Name),
+            Error::NoTestFile("tests/x.py".to_owned(), name.clone()).to_string(),
+            format!("tests/x.py names no test file: {name}"),
             "the refusal names the path as the tester typed it, and selection's reason"
         );
         assert_eq!(

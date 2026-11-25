@@ -366,7 +366,7 @@ A read of a change's tests, by a context that did not write them, before the cod
 
 ### Test file
 
-A `.py` file whose name matches `test_*.py`.
+A `.py` file whose name matches a pattern of `test-files`. Without `test-files`, the pattern is `test_*.py`.
 
 ### Tester
 

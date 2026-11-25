@@ -160,6 +160,34 @@ fn a_pyproject_toml_that_is_not_toml_is_a_project_error() {
 }
 
 #[test]
+fn a_refused_value_of_a_dial_stops_the_run_before_any_test() {
+    let top = repository("refused_dial");
+    write(&top, "pyproject.toml", "[tool.purba]\ntest-files = []\n");
+    write(&top, "tests/test_a.py", PASSING);
+    let (result, stdout) = run_in(&top.join("tests"), &[]);
+    assert_eq!(
+        kinds(&stdout),
+        [("../pyproject.toml", "project error")],
+        "the error names the file from the working folder, and no test runs: {stdout}"
+    );
+    assert_eq!(result.ok(), Some(4), "a project error exits 4");
+}
+
+#[test]
+fn a_key_that_no_dial_owns_stops_the_run_before_any_test() {
+    let top = repository("unknown_key");
+    write(&top, "pyproject.toml", "[tool.purba]\nworkers = 4\n");
+    write(&top, "tests/test_a.py", PASSING);
+    let (result, stdout) = run_in(&top.join("tests"), &[]);
+    assert_eq!(
+        kinds(&stdout),
+        [("../pyproject.toml", "project error")],
+        "the error names the file from the working folder, and no test runs: {stdout}"
+    );
+    assert_eq!(result.ok(), Some(4), "a project error exits 4");
+}
+
+#[test]
 fn a_module_that_does_not_parse_stops_only_itself_and_prints_before_the_run() {
     let top = repository("broken");
     write(&top, "pyproject.toml", "[tool.purba]\n");
