@@ -51,7 +51,7 @@ A console script adds one command and one private name, and the wheel keeps its 
       kind -- "a folder" --> folder["the folder's line"]
       kind -- "a test file" --> parse{"does purba read and parse the module, and does selection meet no internal error?"}
       parse -- no --> module["the module's line, and no line for a test"]
-      parse -- yes --> refused["the line of each test that selection refuses, in source order"]
+      parse -- yes --> refused["the line of each test that selection refuses, and of each function whose name is near the prefix test, in source order"]
       refused -- "a suppression of the module has a fault" --> blocked
       refused -- "the rewrite met an internal error" --> blocked["the module's line, then each other test's line as blocked"]
     end

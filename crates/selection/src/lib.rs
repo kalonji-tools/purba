@@ -16,12 +16,14 @@ use ruff_text_size::{Ranged, TextSize};
 
 mod framework;
 mod lookup;
+mod near;
 mod patch;
 mod pattern;
 mod stage_one;
 mod suppression;
 
 use lookup::{Lookup, Origin};
+pub use near::NameNear;
 pub use pattern::{Pattern, Patterns, TEST_FILES};
 pub use stage_one::{NoTestFile, TestFiles, test_files};
 use suppression::Check;
@@ -483,7 +485,7 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
         ));
     }
     refused.sort_by_key(|(offset, _)| *offset);
-    let refused: Vec<Refused> = refused.into_iter().map(|(_, refused)| refused).collect();
+    let (refused_at, refused): (Vec<TextSize>, Vec<Refused>) = refused.into_iter().unzip();
     let mut ledger = Ledger::new(&sites, &tests, &refused);
     for test in &refused {
         ledger.refused(test);
@@ -491,16 +493,30 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
     Selected {
         tests,
         refused,
+        refused_at,
+        near: near::names_near(path, facts),
         fault: sites.module_fault(),
         ledger,
     }
 }
 
-/// What selection made of a module: its tests, the tests that it refuses, the
-/// fault of its suppressions, and what became of each suppression.
+/// A line that selection gives before the run.
+pub enum Before<'s> {
+    /// A test that selection refuses.
+    Refused(&'s Refused),
+    /// A function whose name is near `test`.
+    NameNear(&'s NameNear),
+}
+
+/// What selection made of a module: its tests, the tests that it refuses, each
+/// name near `test`, the fault of its suppressions, and what became of each
+/// suppression.
 pub struct Selected {
     tests: Vec<TestId>,
     refused: Vec<Refused>,
+    /// Where each test of `refused` sits.
+    refused_at: Vec<TextSize>,
+    near: Vec<(TextSize, NameNear)>,
     fault: Option<String>,
     ledger: Ledger,
 }
@@ -516,6 +532,25 @@ impl Selected {
     #[must_use]
     pub fn refused(&self) -> &[Refused] {
         &self.refused
+    }
+
+    /// Each test that selection refuses, and each name near `test`, in source
+    /// order.
+    #[must_use]
+    pub fn before_the_run(&self) -> Vec<Before<'_>> {
+        let mut lines: Vec<(TextSize, Before<'_>)> = self
+            .refused_at
+            .iter()
+            .copied()
+            .zip(self.refused.iter().map(Before::Refused))
+            .chain(
+                self.near
+                    .iter()
+                    .map(|(at, near)| (*at, Before::NameNear(near))),
+            )
+            .collect();
+        lines.sort_by_key(|(at, _)| *at);
+        lines.into_iter().map(|(_, line)| line).collect()
     }
 
     /// The fault of the module's suppressions, or `None` when there is none.
