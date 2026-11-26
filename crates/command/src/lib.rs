@@ -5,11 +5,11 @@
 use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
 use std::fmt;
-use std::fs;
 use std::io::{self, Write};
 use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
+use purba_config::Walk;
 use purba_dispatch::{Handed, Module};
 use purba_selection::{Reached, Selected, TestId, Unnamed, Unparsed};
 
@@ -165,17 +165,28 @@ pub fn run_with(
     // An implicit root has no project's file, so its table of dials is empty
     // and no dial refuses it. Its notice prints once selection ends.
     let mut notice = None;
-    let (root, (file, settings)) = match find_root(folder) {
-        Rooted::Root(root, file, settings) => (root, (file, settings)),
-        Rooted::None(_, step) if implicit => {
+    let (root, (file, settings)) = match purba_config::walk(folder) {
+        Walk::Found { file, settings } => (file.folder, (file.path, settings)),
+        Walk::Unread { file, words } => {
+            not_interrupted()?;
+            report.error(&file.display(), &purba_errors::Error::project(words))?;
+            return Ok(report.finish()?);
+        }
+        Walk::Missing {
+            project,
+            git,
+            start,
+        } => {
+            let (place, step) = match (project, git) {
+                (Some(project), _) => (Place::Project(project.path), Step::Project(project.folder)),
+                (None, Some(git)) => (Place::Folder(git.path), Step::Git(git.folder)),
+                (None, None) => (Place::Folder(PathBuf::from(".")), Step::Working(start)),
+            };
+            if !implicit {
+                return Err(Error::NoRoot(place));
+            }
             notice = Some(step.line(home(variables).as_deref()));
             (step.into_folder(), Default::default())
-        }
-        Rooted::None(place, _) => return Err(Error::NoRoot(place)),
-        Rooted::Unread(file, error) => {
-            not_interrupted()?;
-            report.error(&file.display(), &error)?;
-            return Ok(report.finish()?);
         }
     };
     let patterns = match dials(settings) {
@@ -400,61 +411,6 @@ fn dials(settings: toml::Table) -> Result<purba_selection::Patterns, Vec<String>
     }
 }
 
-/// What the walk up from the working folder finds.
-enum Rooted {
-    /// The folder of the nearest `pyproject.toml` that holds `[tool.purba]`,
-    /// the path of that file from the working folder, and the table under
-    /// `[tool.purba]`.
-    Root(PathBuf, PathBuf, toml::Table),
-    /// No such file: where to add `[tool.purba]`, and the step that
-    /// `PURBA_IMPLICIT_ROOT` takes.
-    None(Place, Step),
-    /// A `pyproject.toml` on the walk that is not TOML, by its path from the
-    /// working folder, with its project error.
-    Unread(PathBuf, purba_errors::Error),
-}
-
-/// Walks up from `folder` to the first `pyproject.toml` that holds
-/// `[tool.purba]`, and stops after the folder that holds `.git`, a folder or
-/// a file. The root is canonical.
-fn find_root(folder: &Path) -> Rooted {
-    let start = folder.canonicalize().unwrap_or_else(|_| folder.to_owned());
-    let mut up = PathBuf::new();
-    // The nearest `pyproject.toml` with `[project]`: its path from the working
-    // folder, and its folder.
-    let mut project: Option<(PathBuf, PathBuf)> = None;
-    for current in start.ancestors() {
-        let file = current.join("pyproject.toml");
-        if file.is_file() {
-            let table = match read(&file) {
-                Ok(table) => table,
-                Err(error) => return Rooted::Unread(up.join("pyproject.toml"), error),
-            };
-            if let Some(settings) = inner(&table, &["tool", "purba"]) {
-                return Rooted::Root(
-                    current.to_owned(),
-                    up.join("pyproject.toml"),
-                    settings.clone(),
-                );
-            }
-            if project.is_none() && inner(&table, &["project"]).is_some() {
-                project = Some((up.join("pyproject.toml"), current.to_owned()));
-            }
-        }
-        if current.join(".git").symlink_metadata().is_ok() {
-            return match project {
-                Some((file, folder)) => Rooted::None(Place::Project(file), Step::Project(folder)),
-                None => Rooted::None(Place::Folder(shown(&up)), Step::Git(current.to_owned())),
-            };
-        }
-        up.push("..");
-    }
-    match project {
-        Some((file, folder)) => Rooted::None(Place::Project(file), Step::Project(folder)),
-        None => Rooted::None(Place::Folder(PathBuf::from(".")), Step::Working(start)),
-    }
-}
-
 /// The step to a root that `PURBA_IMPLICIT_ROOT` takes when no
 /// `pyproject.toml` holds `[tool.purba]`, with the folder it gives.
 enum Step {
@@ -556,46 +512,6 @@ fn implicit_root(variables: &[(OsString, OsString)]) -> Result<bool, Error> {
         errors.sort();
         Err(Error::Environment(errors))
     }
-}
-
-/// `up` as a folder: `.` for the working folder.
-fn shown(up: &Path) -> PathBuf {
-    if up.as_os_str().is_empty() {
-        PathBuf::from(".")
-    } else {
-        up.to_owned()
-    }
-}
-
-/// The table that the `pyproject.toml` at `file` holds, or its project error.
-fn read(file: &Path) -> Result<toml::Table, purba_errors::Error> {
-    let text = fs::read_to_string(file)
-        .map_err(|error| purba_errors::Error::project(error.to_string()))?;
-    text.parse::<toml::Table>().map_err(|error| {
-        let at = error.span().map_or(0, |span| span.start);
-        let before = text.get(..at).unwrap_or_default();
-        let line = before.matches('\n').count() + 1;
-        let column = before
-            .rsplit('\n')
-            .next()
-            .unwrap_or_default()
-            .chars()
-            .count()
-            + 1;
-        purba_errors::Error::project(format!(
-            "TOML parse error at line {line}, column {column}: {}",
-            error.message()
-        ))
-    })
-}
-
-/// The table that `table` holds at the keys of `keys`, one inside the other.
-fn inner<'a>(table: &'a toml::Table, keys: &[&str]) -> Option<&'a toml::Table> {
-    let mut table = table;
-    for key in keys {
-        table = table.get(*key).and_then(toml::Value::as_table)?;
-    }
-    Some(table)
 }
 
 /// What one test file leaves before the run, once its tree drops.
