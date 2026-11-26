@@ -1552,7 +1552,14 @@ mod tests {
     /// them. Gives the outcome, or the `Debug` text of the error, beside what
     /// `ended` then gives: the line of the end, and whether the case named it.
     fn run_to_the_end(frames: Vec<Vec<u8>>) -> (Result<Kind, String>, Option<(String, bool)>) {
-        let (mut zygote, _sent) = zygote_on(frames, Ends::AfterItsFrames);
+        to_the_end(zygote_on(frames, Ends::AfterItsFrames))
+    }
+
+    /// Runs the case `test_one` on the stand-in `zygote`, whose receiver it
+    /// holds, and gives what `run_to_the_end` gives.
+    fn to_the_end(
+        (mut zygote, _sent): (Zygote, mpsc::Receiver<Option<File>>),
+    ) -> (Result<Kind, String>, Option<(String, bool)>) {
         let (done, ran) = mpsc::channel();
         std::thread::spawn(move || {
             let (result, _, _) = zygote.run("test_one", &[]);
@@ -1596,6 +1603,42 @@ mod tests {
             end,
             Some((format!("project error: {ENDED}"), true)),
             "the case's line is the end, so it names it"
+        );
+    }
+
+    #[test]
+    fn a_module_process_that_ends_before_the_facts_gives_an_end_that_the_case_named() {
+        let (_, end) = run_to_the_end(Vec::new());
+        assert_eq!(
+            end,
+            Some((format!("project error: {ENDED}"), true)),
+            "a case with no facts takes the end as its line, so it names it"
+        );
+    }
+
+    #[test]
+    fn a_module_process_that_ends_before_the_ask_of_a_replay_gives_an_end_that_the_case_named() {
+        let sent = Facts {
+            later: vec![1],
+            ..held()
+        };
+        let (_, end) = to_the_end(zygote_on(case(sent).into(), Ends::BeforeTheReplay));
+        assert_eq!(
+            end,
+            Some((format!("project error: {ENDED}"), true)),
+            "the refusal of the replay is the end, and it is the case's line, so it names it"
+        );
+    }
+
+    #[test]
+    fn a_module_process_that_no_longer_reads_the_ask_of_a_test_gives_an_end_that_the_case_named() {
+        let (mut zygote, sent) = zygote_on(Vec::new(), Ends::Never);
+        zygote.tests = None;
+        let (_, end) = to_the_end((zygote, sent));
+        assert_eq!(
+            end,
+            Some((format!("project error: {ENDED}"), true)),
+            "the ask of the test finds the end, which is the case's line, so it names it"
         );
     }
 
