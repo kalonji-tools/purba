@@ -291,9 +291,10 @@ fn calls(levels: usize) -> String {
 fn a_call_that_the_tester_types_opens_one_level() {
     let plain = aliases(&[("w(x)", "x")]);
     assert_eq!(
-        expanded(&plain, &calls(255)),
+        expanded(&plain, &calls(128)),
         Ok(Query::Name("a".to_owned())),
-        "255 typed calls, each one level, nest 255 levels"
+        "128 typed calls, each one level, nest 128 levels, where two levels each would \
+         cross 255; 128 keeps the parse inside the stack of a test thread on macOS"
     );
     let not = aliases(&[("w(x)", "!x")]);
     assert_eq!(
