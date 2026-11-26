@@ -1,7 +1,7 @@
 mod common;
 
 use purba_errors::Kind;
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started};
 
 /// The tests of a module whose calls take or raise signals. `test_handler`
 /// marks, as its process ends, the type of the signal handler of SIGINT and
@@ -38,21 +38,23 @@ fn purbas_signal_handler_keeps_a_signal_and_raises_it_inside_a_call() {
     );
     let steps: Vec<Step> = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
-        let (mut zygote, _) = purba.zygote(&module).expect("the zygote loads the module");
-        let steps = ["test_bare", "test_handler", "test_signal"]
+        let Started::Loaded(mut zygote, _) = purba.zygote(&module) else {
+            panic!("the zygote loads the module");
+        };
+        ["test_bare", "test_handler", "test_signal"]
             .into_iter()
             .map(|function| {
-                let (result, _, _) = zygote.run(function, &[]);
+                let Gave::Ran(ran) = zygote.run(function, &[]) else {
+                    panic!("the test {function} runs");
+                };
                 (
-                    result
+                    ran.result
                         .map(|outcome| outcome.kind().clone())
                         .map_err(|error| error.to_string()),
                     purba_execution::interrupted(),
                 )
             })
-            .collect();
-        zygote.end();
-        steps
+            .collect()
     });
     let handlers = std::fs::read_to_string(&marker).expect("test_handler marked its handlers");
     std::fs::remove_file(&marker).expect("the marker goes");

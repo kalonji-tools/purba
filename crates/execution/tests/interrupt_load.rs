@@ -2,7 +2,7 @@ mod common;
 
 use common::module;
 use purba_errors::Kind;
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started};
 
 /// A module whose load takes SIGINT, and whose test holds when purba put its
 /// own signal handler back after the load.
@@ -29,18 +29,22 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
             purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
             let mut steps = Vec::new();
             let mut run = |module, function| match purba.zygote(module) {
-                Ok((mut zygote, _)) => {
+                Started::Loaded(mut zygote, _) => {
                     steps.push((Ok(()), purba_execution::interrupted()));
-                    let (result, _, _) = zygote.run(function, &[]);
-                    zygote.end();
-                    result
-                        .map(|outcome| outcome.kind().clone())
-                        .map_err(|error| error.to_string())
+                    match zygote.run(function, &[]) {
+                        Gave::Ran(ran) => ran
+                            .result
+                            .map(|outcome| outcome.kind().clone())
+                            .map_err(|error| error.to_string()),
+                        Gave::Unreached => Err("unreached".to_owned()),
+                        Gave::Ended(end) => Err(end.error.to_string()),
+                    }
                 }
-                Err(stop) => {
+                Started::Stopped(stop) => {
                     steps.push((Err(stop.error.to_string()), purba_execution::interrupted()));
                     Err("the module stopped".to_owned())
                 }
+                Started::Unreached => Err("the module is unreached".to_owned()),
             };
             let handler = run(&handler_module, "test_handler");
             let after = run(&signal_module, "test_one");
@@ -59,7 +63,7 @@ fn a_signal_in_a_load_interrupts_it_and_a_modules_signal_handler_lives_only_for_
     );
     assert_eq!(
         after,
-        Err("test_load_signal.py did not load".to_owned()),
-        "a load that the first interrupt lands in keeps no module, so a later run names it"
+        Err("unreached".to_owned()),
+        "after a load that the first interrupt lands in, the zygote runs no test"
     );
 }

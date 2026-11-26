@@ -4,7 +4,7 @@ use std::sync::{Mutex, PoisonError};
 
 use common::module;
 use purba_errors::{Error, Kind, Quote, Shown, Suppressed};
-use purba_execution::{Module, Purba};
+use purba_execution::{Gave, Module, Purba, Started};
 
 /// The turn of a test to run Python:
 /// <https://doc.rust-lang.org/book/ch11-02-running-tests.html>
@@ -33,25 +33,28 @@ fn shown(assert: &str, expected: &str, reading: &str) -> Quote {
 type Ran = (Result<Kind, Error>, Suppressed);
 
 /// The result of the load, then each of `functions`, run under `suppressions`
-/// in a process that a zygote forks, as dispatch runs them.
+/// in a process that a zygote forks.
 fn through(
     module: &Module,
     functions: &[&str],
     suppressions: &[(&str, &str)],
 ) -> (Result<(), String>, Vec<Ran>) {
     attach(|purba: &Purba<'_>| {
-        let (mut zygote, _) = match purba.zygote(module) {
-            Ok(started) => started,
-            Err(stop) => return (Err(stop.error.line()), Vec::new()),
+        let mut zygote = match purba.zygote(module) {
+            Started::Loaded(zygote, _) => zygote,
+            Started::Stopped(stop) => return (Err(stop.error.line()), Vec::new()),
+            Started::Unreached => panic!("no interrupt is kept"),
         };
         let out = functions
             .iter()
-            .map(|function| {
-                let (result, suppressed, _) = zygote.run(function, suppressions);
-                (result.map(|outcome| outcome.kind().clone()), suppressed)
+            .map(|function| match zygote.run(function, suppressions) {
+                Gave::Ran(ran) => (
+                    ran.result.map(|outcome| outcome.kind().clone()),
+                    ran.suppressed,
+                ),
+                other => panic!("the test runs: {other:?}"),
             })
             .collect();
-        zygote.end();
         (Ok(()), out)
     })
 }

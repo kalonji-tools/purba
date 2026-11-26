@@ -6,7 +6,7 @@ mod common;
 use std::ffi::CString;
 
 use purba_errors::Error;
-use purba_execution::Purba;
+use purba_execution::{Purba, Started};
 use pyo3::Python;
 
 /// A module whose load leaves a thread alive. A zygote that loads nothing then
@@ -43,11 +43,8 @@ fn a_zygote_that_loads_nothing_and_ends_before_it_is_ready_stops_its_module() {
                 .expect("the second zygote exits 7 before it is ready");
         });
         match purba.zygote(&module) {
-            Ok((zygote, _)) => {
-                zygote.end();
-                None
-            }
-            Err(stop) => Some((
+            Started::Loaded(..) | Started::Unreached => None,
+            Started::Stopped(stop) => Some((
                 stop.error.line(),
                 stop.threads.iter().map(Error::line).collect::<Vec<_>>(),
             )),

@@ -51,7 +51,7 @@ Dispatch runs none of that module's tests.
 `mise run test:rust` checks that a zygote loads a module once for two of its tests.
 It checks that a module that fails to load runs its body once for two of its tests.
 It checks that dispatch runs no test of such a module, and hands each on as blocked.
-It checks that each test that dispatch hands on reads the module as its load left it.
+It checks that the second of two tests reads the module as its load left it, and not as the first test changed it.
 `mise run test:wheel` checks that a module body runs once for all its tests.
 
 `mise run test:rust` does not check that command hands each module once.

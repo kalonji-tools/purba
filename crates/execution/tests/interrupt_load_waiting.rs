@@ -4,7 +4,7 @@ mod common;
 
 use std::ffi::CString;
 
-use purba_execution::Purba;
+use purba_execution::{Purba, Started};
 use pyo3::Python;
 
 /// Makes the zygote's last call of Python before its load send SIGINT, by C's
@@ -30,10 +30,11 @@ fn a_sigint_that_waits_as_a_load_starts_stops_the_load_and_no_line_of_the_module
             py.run(&code, None, None)
                 .expect("the zygote's last call before its load sends SIGINT");
         });
-        let loaded = purba
-            .zygote(&module)
-            .map(|(zygote, _)| zygote.end())
-            .map_err(|stop| stop.error.to_string());
+        let loaded = match purba.zygote(&module) {
+            Started::Loaded(..) => Ok(()),
+            Started::Stopped(stop) => Err(stop.error.to_string()),
+            Started::Unreached => Err("the module is unreached".to_owned()),
+        };
         (loaded, purba_execution::interrupted())
     });
     let ran = marker.exists();

@@ -3,7 +3,7 @@
 
 mod common;
 
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started};
 
 /// A test that is C's `raise` of SIGINT, so its call runs no line of Python.
 /// purba's native handler notes the signal as it arrives. Python's own C
@@ -19,11 +19,14 @@ fn a_sigint_that_arrives_after_the_last_line_of_a_call_leaves_the_case_to_its_fa
     let module = common::module("test_after.py", SIGINT_AS_A_CALL);
     let (result, kept) = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
-        let (mut zygote, _) = purba.zygote(&module).expect("the zygote loads the module");
-        let (result, _, _) = zygote.run("test_raise", &[]);
-        zygote.end();
+        let Started::Loaded(mut zygote, _) = purba.zygote(&module) else {
+            panic!("the zygote loads the module");
+        };
+        let Gave::Ran(ran) = zygote.run("test_raise", &[]) else {
+            panic!("the test runs");
+        };
         (
-            result
+            ran.result
                 .map(|outcome| outcome.kind().clone())
                 .map_err(|error| error.to_string()),
             purba_execution::interrupted(),

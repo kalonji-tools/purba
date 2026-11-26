@@ -6,7 +6,7 @@ mod common;
 use std::path::Path;
 
 use purba_errors::Kind;
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started};
 
 /// A test whose thread makes the zygote replay its second expectation. The
 /// case's process marks `ran`, so only the replay finds it. The replay marks
@@ -60,11 +60,14 @@ fn a_sigint_that_arrives_as_purba_waits_for_a_replay_makes_the_case_interrupted(
     );
     let (result, kept) = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes SIGINT");
-        let (mut zygote, _) = purba.zygote(&module).expect("the zygote loads the module");
-        let (result, _, _) = zygote.run("test_one", &[]);
-        zygote.end();
+        let Started::Loaded(mut zygote, _) = purba.zygote(&module) else {
+            panic!("the zygote loads the module");
+        };
+        let Gave::Ran(ran) = zygote.run("test_one", &[]) else {
+            panic!("the test runs");
+        };
         (
-            result
+            ran.result
                 .map(|outcome| outcome.kind().clone())
                 .map_err(|error| error.to_string()),
             purba_execution::interrupted(),
