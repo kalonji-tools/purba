@@ -309,6 +309,21 @@ fn a_call_that_the_tester_types_opens_one_level() {
 }
 
 #[test]
+fn an_argument_of_two_terms_under_an_operator_opens_the_level_of_a_group() {
+    let aliases = aliases(&[("g(x)", "a & x")]);
+    let under = |nots: usize| format!("{}g(b | c)", "!".repeat(nots));
+    assert!(
+        expanded(&aliases, &under(253)).is_ok(),
+        "253 !, the call and the group of b | c nest 255 levels"
+    );
+    assert_eq!(
+        expanded(&aliases, &under(254)),
+        Err("the query nests deeper than 255 levels through the alias g".to_owned()),
+        "b | c under the & of g needs a group, as (b | c) in the text would"
+    );
+}
+
+#[test]
 fn a_key_that_declares_no_alias_is_refused() {
     let words = |key: &str| {
         format!(
@@ -368,6 +383,15 @@ fn a_body_that_is_no_query_is_refused_in_the_words_of_the_grammar() {
         ],
         "a call in a body that names no alias is refused when purba reads it, and the \
          nearest reads the word of the call, not the key of the alias that holds it"
+    );
+    assert_eq!(
+        refused(&[("fast", "slwo(x)"), ("g", "fast"), ("slow(x)", "x")]),
+        vec![
+            "fast under [tool.purba.queries]: column 1: slwo( is no term; \
+             the nearest alias is slow(x)"
+                .to_owned()
+        ],
+        "g calls fast, and only fast, whose body holds the call, gets a line"
     );
     assert_eq!(
         refused(&[("fast", "slow"), ("slow(x)", "x")]),
