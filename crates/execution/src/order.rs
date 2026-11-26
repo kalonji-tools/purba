@@ -108,8 +108,8 @@ pub struct Case {
     /// The wait status of the test's process, or `Err` with the wait status of
     /// the module's process when it ended first.
     pub end: Result<libc::c_int, libc::c_int>,
-    /// The refusal in the facts is the end of the module's process, which a
-    /// replay met.
+    /// The refusal in the facts is the end of the module's process, which
+    /// ended before a replay sent its reading.
     pub ended_a_replay: bool,
 }
 

@@ -99,7 +99,7 @@ pub enum Handed<T> {
 ///
 /// When a module stops before its tests, `each` takes it once, with its error,
 /// the error of each thread that its load took, and its tests, and no test of
-/// it runs. A module stops when execution gives no zygote for it: see
+/// it runs. A module stops when execution gives `Started::Stopped` for it: see
 /// [`Purba::zygote`]. Once `each` breaks, nothing further runs, and `hand`
 /// returns the break.
 ///
