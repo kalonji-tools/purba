@@ -72,10 +72,12 @@ pub enum Message {
     Forked(libc::pid_t),
     /// The facts of the case, from which purba decides its outcome.
     Facts(Box<Facts>),
-    /// The first interrupt landed in the test's step, so the case is
-    /// `interrupted`. It comes after the facts, when the call ran.
+    /// The first interrupt landed in the test's step. It comes after the
+    /// facts, when the call ran, and after each error of the step.
     Interrupted,
-    /// The error in place of the result of a load or the outcome of a case.
+    /// The error in place of the result of a load, or an error that a case
+    /// met: the step's own error, or a panic that the hook noted. A case can
+    /// send both.
     Error(Error),
     /// The error of a thread that the test left, as text.
     TestThread(String),

@@ -1,13 +1,16 @@
-//! The order that decides the outcome of a case from the facts that its run
-//! gathered. It reads no Python, so the process of the test gathers the facts,
-//! and purba decides the outcome once it has read each expectation alone.
+//! The order that decides the outcome of a case from all that the case met:
+//! the facts that its run gathered, and what the test's process, its replays
+//! and purba's process saw besides them. It reads no Python, so the process of the test
+//! gathers the facts, and purba decides the outcome once it has read each
+//! expectation alone.
 
 use std::ops::RangeInclusive;
 
 use purba_assertion::{Swallowed, Try, Verdict};
 use purba_errors::Shown;
 
-use crate::{Error, Kind, Quote, SUPPRESSIBLE, Suppressed, Warning};
+use crate::zygote::{gone, lost};
+use crate::{Error, ErrorKind, Kind, Quote, SUPPRESSIBLE, Suppressed, Warning};
 
 /// How a line of a path failed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,6 +87,53 @@ impl Facts {
             .iter()
             .find(|(held, _)| *held == index)
             .map(|(_, text)| text.as_str())
+    }
+}
+
+/// What a case met: its facts, and what the test's process and purba's
+/// process saw besides them.
+#[derive(Debug)]
+pub struct Case {
+    /// The facts, when the test's call ran.
+    pub facts: Option<Facts>,
+    /// Each error that the case met, in the order that purba read it: the
+    /// step's own error, a panic that the hook noted, a frame that holds no
+    /// message, the error of a replay.
+    pub errors: Vec<Error>,
+    /// The first interrupt landed in the test's step, or arrived during its
+    /// replays.
+    pub landed: bool,
+    /// An interrupt arrived as the case ran.
+    pub arrived: bool,
+    /// The wait status of the test's process, or `Err` with the wait status of
+    /// the module's process when it ended first.
+    pub end: Result<libc::c_int, libc::c_int>,
+}
+
+impl Case {
+    /// Each later expectation that a replay must read alone. None when an
+    /// error or an interrupt decides the case above its facts, or when the
+    /// module's process ended.
+    #[must_use]
+    pub fn later(&self) -> &[usize] {
+        match &self.facts {
+            Some(facts) if self.errors.is_empty() && !self.landed && self.end.is_ok() => {
+                &facts.later
+            }
+            _ => &[],
+        }
+    }
+
+    /// The case of a test's process that sent `facts` and met nothing else.
+    #[cfg(test)]
+    pub(crate) const fn of(facts: Facts) -> Self {
+        Self {
+            facts: Some(facts),
+            errors: Vec::new(),
+            landed: false,
+            arrived: false,
+            end: Ok(0),
+        }
     }
 }
 
@@ -224,37 +274,73 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
     })
 }
 
-/// The outcome of a case, from its `facts`, and each warning that
-/// `suppressions` gave. The first of these wins:
+/// The outcome of `case`, and each warning that `suppressions` gave. The first
+/// of these wins, numbered as the record's table numbers them:
 ///
-/// 1. a project error for the first fault of each check of the form in turn,
+/// 0. the error that purba read last of those that are not a project error;
+/// 1. `interrupted` when the first interrupt landed in the test's step or
+///    arrived during its replays;
+/// 2. the project error that the test's step or a replay gave;
+/// 3. a project error for the first fault of each check of the form in turn,
 ///    then for a reading alone that an assert ran inside;
-/// 2. `raised` when the call raised, unless a `with`'s entry or cleanup raised
+/// 4. `raised` when the call raised, unless a `with`'s entry or cleanup raised
 ///    it, or a marked assert that did not hold raised `AssertionError`, which
 ///    are `failed`;
-/// 3. a project error for the faults of the paths, joined by `; `. The error
+/// 5. a project error for the faults of the paths, joined by `; `. The error
 ///    ends with the shape of a `try` of one path when a fault that it names
 ///    lies in a `try` of another shape;
-/// 4. a project error when the two readings of one expectation differ;
-/// 5. a project error when a fork to read a later expectation alone failed, or
+/// 6. a project error when the two readings of one expectation differ;
+/// 7. a project error when a fork to read a later expectation alone failed, or
 ///    when the module's process ended before a replay sent its reading;
-/// 6. `failed` when a `try` of one path missed, or an expectation did not
-///    hold;
-/// 7. a project error when no expectation ran;
-/// 8. `passed`.
+/// 8. `failed` when a `try` of one path missed, or an expectation did not
+///    hold, then a project error when no expectation ran, then `passed`;
+/// 9. with no facts: a project error when the module's process ended, then
+///    `interrupted` when an interrupt arrived, then `raised` that names the
+///    signal or the exit code of the test's process.
 ///
 /// A fault of a check that a suppression reaches gives a warning in place of
 /// its project error, and the case goes on to the next of these. Each project
 /// error of a strict check names its check in brackets before the words of
 /// each fault. The order judges each suppression of a check that execution
-/// sees only when it reaches step 3.
-pub fn order(facts: &Facts, suppressions: &[(&str, &str)]) -> (Result<Kind, Error>, Suppressed) {
+/// sees only when it reaches step 5. Under step 0, 1 or 2, it still reads the
+/// facts for their warnings.
+pub fn order(mut case: Case, suppressions: &[(&str, &str)]) -> (Result<Kind, Error>, Suppressed) {
+    if let (Some(facts), Err(status)) = (case.facts.as_mut(), case.end)
+        && !facts.later.is_empty()
+    {
+        facts.refused.get_or_insert_with(|| gone(status));
+    }
     let mut suppressing = Suppressing {
         suppressions,
         warnings: Vec::new(),
         judged: false,
     };
-    let own = steps(facts, &mut suppressing);
+    let of_the_facts = case
+        .facts
+        .as_ref()
+        .map(|facts| steps(facts, &mut suppressing));
+    let internal = case
+        .errors
+        .iter()
+        .rposition(|error| error.kind() != ErrorKind::Project);
+    let own = if let Some(at) = internal {
+        Err(case.errors.swap_remove(at))
+    } else if case.landed {
+        Ok(Kind::Interrupted)
+    } else if let Some(error) = case.errors.pop() {
+        Err(error)
+    } else if let Some(own) = of_the_facts {
+        own
+    } else {
+        match case.end {
+            Ok(_) if case.arrived => Ok(Kind::Interrupted),
+            Ok(status) => Ok(Kind::Raised {
+                exception: lost(status, "its outcome"),
+                whence: None,
+            }),
+            Err(status) => Err(Error::project(gone(status))),
+        }
+    };
     (
         own,
         Suppressed {
@@ -387,7 +473,7 @@ mod tests {
     /// The line that `order` gives for `facts` with no suppression, as text a
     /// row can compare.
     fn line(facts: &Facts) -> String {
-        shown(order(facts, &[]).0)
+        shown(order(Case::of(facts.clone()), &[]).0)
     }
 
     /// What `warned` gives: the line, each warning as `[<check>] <words>`, and
@@ -400,7 +486,7 @@ mod tests {
 
     /// What `order` gives for `facts` under `suppressions`.
     fn warned(facts: &Facts, suppressions: &[(&str, &str)]) -> Warned {
-        let (own, suppressed) = order(facts, suppressions);
+        let (own, suppressed) = order(Case::of(facts.clone()), suppressions);
         let warnings = suppressed
             .warnings
             .iter()
@@ -505,16 +591,298 @@ mod tests {
 
     #[test]
     fn each_step_of_the_order_beats_each_step_below_it() {
-        for (row, facts, gives) in rows_of_the_call()
+        let of_the_facts = rows_of_the_call()
             .into_iter()
             .chain(rows_of_the_readings())
             .chain(rows_of_a_fork())
+            .map(|(row, facts, gives)| (row, Case::of(facts), gives));
+        for (row, case, gives) in rows_of_the_case()
+            .into_iter()
+            .chain(rows_of_the_end())
+            .chain(of_the_facts)
         {
-            assert_eq!(line(&facts), gives, "{row}");
+            assert_eq!(shown(order(case, &[]).0), gives, "{row}");
         }
     }
 
-    /// The rows of steps 1 and 2, which read the form and the call.
+    /// An internal error that execution found, with `message`.
+    fn internal(message: &str) -> Error {
+        crate::internal(crate::panic::Caught {
+            part: "execution".to_owned(),
+            message: message.to_owned(),
+        })
+    }
+
+    /// The facts of a case whose one expectation held.
+    fn held() -> Facts {
+        Facts {
+            in_order: vec![(1, true)],
+            texts: texts(),
+            stated: true,
+            ..Facts::default()
+        }
+    }
+
+    /// The case of a test's process that sent no facts, and met nothing else.
+    fn no_facts() -> Case {
+        Case {
+            facts: None,
+            ..Case::of(Facts::default())
+        }
+    }
+
+    /// The rows of steps 0, 1 and 2, which read what the case met besides its
+    /// facts.
+    fn rows_of_the_case() -> Vec<(&'static str, Case, &'static str)> {
+        vec![
+            // fails when: the check of `landed` moves above the check of an
+            // internal error
+            (
+                "an internal error beats an interrupt",
+                Case {
+                    errors: vec![internal("boom")],
+                    landed: true,
+                    ..Case::of(held())
+                },
+                "internal error: execution: boom",
+            ),
+            // fails when: step 0 takes the first error that purba read
+            (
+                "an internal error that purba read later hides one before it",
+                Case {
+                    errors: vec![internal("own"), internal("panic")],
+                    ..Case::of(held())
+                },
+                "internal error: execution: panic",
+            ),
+            // fails when: step 0 takes the last error of any kind
+            (
+                "an internal error beats a project error that purba read after it",
+                Case {
+                    errors: vec![
+                        internal("frame"),
+                        Error::project("x.py did not load".to_owned()),
+                    ],
+                    ..no_facts()
+                },
+                "internal error: execution: frame",
+            ),
+            // fails when: the facts are read above an internal error
+            (
+                "an internal error beats an expectation that did not hold",
+                Case {
+                    errors: vec![internal("frame")],
+                    ..Case::of(Facts {
+                        in_order: vec![(1, false)],
+                        later: vec![2],
+                        ..held()
+                    })
+                },
+                "internal error: execution: frame",
+            ),
+            // fails when: the facts are read above the check of `landed`
+            (
+                "an interrupt beats a raise",
+                Case {
+                    landed: true,
+                    ..Case::of(Facts {
+                        called: raised("ValueError: v"),
+                        ..held()
+                    })
+                },
+                "interrupted",
+            ),
+            // fails when: the step's own error moves above the check of `landed`
+            (
+                "an interrupt beats the step's own project error",
+                Case {
+                    errors: vec![Error::project("x.py did not load".to_owned())],
+                    landed: true,
+                    ..no_facts()
+                },
+                "interrupted",
+            ),
+            // fails when: the form is read above the error that a replay gave
+            (
+                "the project error that a replay gave beats a fault of the form",
+                Case {
+                    errors: vec![Error::project("x.py did not load".to_owned())],
+                    ..Case::of(Facts {
+                        form: vec![(
+                            "assert-before-expectation".to_owned(),
+                            "assert ready runs before the first expectation".to_owned(),
+                        )],
+                        ..held()
+                    })
+                },
+                "project error: x.py did not load",
+            ),
+            // fails when: the facts are read above the error that a replay gave
+            (
+                "the project error that a replay gave beats a raise",
+                Case {
+                    errors: vec![Error::project("x.py did not load".to_owned())],
+                    ..Case::of(Facts {
+                        called: raised("ValueError: v"),
+                        ..held()
+                    })
+                },
+                "project error: x.py did not load",
+            ),
+        ]
+    }
+
+    /// The rows that read `arrived` and `end`: steps 2 and 8 over an
+    /// interrupt that arrived, step 8 over the end of the test's process,
+    /// step 7 when the module's process ended, and step 9, which reads a case
+    /// with no facts.
+    fn rows_of_the_end() -> Vec<(&'static str, Case, &'static str)> {
+        vec![
+            // fails when: the check of `arrived` moves above the facts
+            (
+                "an interrupt that arrived but did not land leaves the facts to the order",
+                Case {
+                    arrived: true,
+                    ..Case::of(held())
+                },
+                "passed",
+            ),
+            // fails when: the end of the test's process is read above the facts
+            (
+                "a test's process that died by a signal after it sent its facts leaves them \
+                 to the order",
+                Case {
+                    end: Ok(libc::SIGABRT),
+                    ..Case::of(held())
+                },
+                "passed",
+            ),
+            // fails when: the order no longer puts the end of the module's
+            // process in place of a refusal
+            (
+                "a module's process that ended before a replay beats an expectation \
+                 that did not hold",
+                Case {
+                    end: Err(libc::SIGKILL),
+                    ..Case::of(Facts {
+                        in_order: vec![(1, false)],
+                        later: vec![2],
+                        ..held()
+                    })
+                },
+                "project error: the module's process died by SIGKILL",
+            ),
+            // fails when: the end of the module's process replaces a refusal
+            // that a replay gave
+            (
+                "a refusal that a replay gave beats the end of the module's process",
+                Case {
+                    end: Err(libc::SIGKILL),
+                    ..Case::of(Facts {
+                        later: vec![2],
+                        refused: Some(
+                            "purba cannot fork to read an expectation alone: EAGAIN".to_owned(),
+                        ),
+                        ..held()
+                    })
+                },
+                "project error: purba cannot fork to read an expectation alone: EAGAIN",
+            ),
+            // fails when: the check of `arrived` moves above the step's own error
+            (
+                "the step's own error beats an interrupt that arrived",
+                Case {
+                    errors: vec![Error::project("x.py did not load".to_owned())],
+                    arrived: true,
+                    ..no_facts()
+                },
+                "project error: x.py did not load",
+            ),
+            // fails when: the check of `arrived` is deleted
+            (
+                "with no facts, an interrupt that arrived beats the end of the test's process",
+                Case {
+                    arrived: true,
+                    ..no_facts()
+                },
+                "interrupted",
+            ),
+            // fails when: an exit code reads as a signal
+            (
+                "with no facts, a test's process that exited gives raised with its code",
+                Case {
+                    end: Ok(3 << 8),
+                    ..no_facts()
+                },
+                "raised: its process exited 3 before its outcome",
+            ),
+            // fails when: a signal reads as an exit code
+            (
+                "with no facts, a test's process that died by a signal gives raised with \
+                 the signal",
+                Case {
+                    end: Ok(libc::SIGABRT),
+                    ..no_facts()
+                },
+                "raised: its process died by SIGABRT",
+            ),
+            // fails when: the check of `arrived` moves above the end of the
+            // module's process
+            (
+                "with no facts, the end of the module's process gives a project error",
+                Case {
+                    arrived: true,
+                    end: Err(libc::SIGKILL),
+                    ..no_facts()
+                },
+                "project error: the module's process died by SIGKILL",
+            ),
+        ]
+    }
+
+    #[test]
+    fn a_replay_is_asked_only_when_no_step_above_the_facts_decides() {
+        let later = || Facts {
+            later: vec![2],
+            ..held()
+        };
+        let rows: Vec<(&str, Case, &[usize])> = vec![
+            // fails when: `later` gives nothing
+            ("a case that met nothing", Case::of(later()), &[2]),
+            // fails when: `later` does not read `errors`
+            (
+                "a case that met an error",
+                Case {
+                    errors: vec![internal("boom")],
+                    ..Case::of(later())
+                },
+                &[],
+            ),
+            // fails when: `later` does not read `landed`
+            (
+                "a case that an interrupt landed in",
+                Case {
+                    landed: true,
+                    ..Case::of(later())
+                },
+                &[],
+            ),
+            // fails when: `later` does not read `end`
+            (
+                "a case whose module's process ended",
+                Case {
+                    end: Err(libc::SIGKILL),
+                    ..Case::of(later())
+                },
+                &[],
+            ),
+        ];
+        for (row, case, later) in rows {
+            assert_eq!(case.later(), later, "{row}");
+        }
+    }
+
+    /// The rows of steps 3 and 4, which read the form and the call.
     fn rows_of_the_call() -> Vec<Line<'static>> {
         vec![
             // fails when: the check of `called` moves above the check of `alone`
@@ -590,8 +958,7 @@ mod tests {
         ]
     }
 
-    /// The rows of steps 3, 4 and 6 to 8, which read the paths and the
-    /// readings.
+    /// The rows of steps 5, 6 and 8, which read the paths and the readings.
     fn rows_of_the_readings() -> Vec<Line<'static>> {
         vec![
             // fails when: the check of the readings that differ moves above the
@@ -672,7 +1039,7 @@ mod tests {
         ]
     }
 
-    /// The rows of a fork that failed, which step 5 reads after the paths and
+    /// The rows of a fork that failed, which step 7 reads after the paths and
     /// the readings that differ.
     fn rows_of_a_fork() -> Vec<Line<'static>> {
         vec![

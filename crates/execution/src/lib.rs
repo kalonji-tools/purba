@@ -160,20 +160,20 @@ impl<'py> Worker<'py> {
     }
 
     /// Calls `function` of the module that `load` loaded, and gathers the
-    /// facts of its case, when the call ran. Also gives what the step gives
-    /// besides them: `Interrupted` when the first interrupt landed in the
-    /// step, and when it landed before the test's call, the call does not
-    /// run. Each thread that the step leaves alive gets the test as its step,
-    /// unless it has one.
-    fn gather(&mut self, function: &str) -> (Option<Facts>, Result<Gives<()>, Error>) {
+    /// facts of its case, when the call ran. Also gives the step's own error,
+    /// and what the step met: a panic that the hook noted, and whether the
+    /// first interrupt landed in the step. When it landed before the test's
+    /// call, the call does not run. It decides nothing from them. Each thread
+    /// that the step leaves alive gets the test as its step, unless it has
+    /// one.
+    fn gather(&mut self, function: &str) -> (Option<Facts>, Result<(), Error>, Met) {
         let window = self.open();
         let (own, interrupted) = self.call(&window, function);
         let met = self.close(&window, Step::Test, interrupted);
-        let (facts, own) = match own {
-            Ok(facts) => (facts, Ok(())),
-            Err(error) => (None, Err(error)),
-        };
-        (facts, step::decide(own, met))
+        match own {
+            Ok(facts) => (facts, Ok(()), met),
+            Err(error) => (None, Err(error), met),
+        }
     }
 
     /// Loads `module`, the one module of its process, and keeps it, or keeps

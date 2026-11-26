@@ -1,4 +1,5 @@
-//! What a load or a call met, and the result that the step gives.
+//! What a load or a call met, and the result that a load gives. The order
+//! decides what a call gives.
 
 use crate::{Error, ErrorKind, panic};
 
