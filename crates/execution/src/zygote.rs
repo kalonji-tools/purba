@@ -1051,6 +1051,10 @@ mod tests {
         /// frame, and reads each ask until the pipe of test names closes. A
         /// read for a frame of the replay then finds the end.
         AfterItsFrames,
+        /// Before the ask for the case: it closes both pipes, and writes no
+        /// frame, as a zygote that died between two tests does. Once the
+        /// receiver hears it end, the ask for the case fails.
+        BeforeTheAsk,
     }
 
     /// A `Zygote` of the module `test_one.py` that reads `frames`, and a
@@ -1090,6 +1094,11 @@ mod tests {
                     write_each();
                     drop(sending);
                     drop(io::copy(&mut asks, &mut io::sink()));
+                    None
+                }
+                Ends::BeforeTheAsk => {
+                    drop(asks);
+                    drop(sending);
                     None
                 }
             };
@@ -1606,12 +1615,17 @@ mod tests {
         );
     }
 
+    /// The outcome that a case whose line is the end gives, as `to_the_end`
+    /// gives it.
+    fn the_end() -> Result<Kind, String> {
+        Err(format!("{:?}", Error::project(ENDED.to_owned())))
+    }
+
     #[test]
     fn a_module_process_that_ends_before_the_facts_gives_an_end_that_the_case_named() {
-        let (_, end) = run_to_the_end(Vec::new());
         assert_eq!(
-            end,
-            Some((format!("project error: {ENDED}"), true)),
+            run_to_the_end(Vec::new()),
+            (the_end(), Some((format!("project error: {ENDED}"), true))),
             "a case with no facts takes the end as its line, so it names it"
         );
     }
@@ -1622,22 +1636,21 @@ mod tests {
             later: vec![1],
             ..held()
         };
-        let (_, end) = to_the_end(zygote_on(case(sent).into(), Ends::BeforeTheReplay));
         assert_eq!(
-            end,
-            Some((format!("project error: {ENDED}"), true)),
+            to_the_end(zygote_on(case(sent).into(), Ends::BeforeTheReplay)),
+            (the_end(), Some((format!("project error: {ENDED}"), true))),
             "the refusal of the replay is the end, and it is the case's line, so it names it"
         );
     }
 
     #[test]
     fn a_module_process_that_no_longer_reads_the_ask_of_a_test_gives_an_end_that_the_case_named() {
-        let (mut zygote, sent) = zygote_on(Vec::new(), Ends::Never);
-        zygote.tests = None;
-        let (_, end) = to_the_end((zygote, sent));
+        let (zygote, sent) = zygote_on(Vec::new(), Ends::BeforeTheAsk);
+        sent.recv_timeout(Duration::from_secs(10))
+            .expect("the stand-in closes its pipes");
         assert_eq!(
-            end,
-            Some((format!("project error: {ENDED}"), true)),
+            to_the_end((zygote, sent)),
+            (the_end(), Some((format!("project error: {ENDED}"), true))),
             "the ask of the test finds the end, which is the case's line, so it names it"
         );
     }

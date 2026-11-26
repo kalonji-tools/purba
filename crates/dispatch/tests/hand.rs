@@ -577,3 +577,29 @@ fn a_test_takes_its_suppressions_into_its_process_and_its_warnings_cross_back() 
         "the suppression reaches its own test's process whole, and its warning crosses back"
     );
 }
+
+#[test]
+fn the_end_of_the_modules_process_blocks_each_test_left() {
+    // The module of `interrupt_ended.rs`, with no interrupt.
+    let ended = module(
+        "test_ended.py",
+        "import os\nimport signal\n\n\
+         def test_one():\n    os.kill(os.getppid(), signal.SIGKILL)\n    assert True\n\n\
+         def test_two():\n    assert True\n\n\
+         def test_three():\n    assert True\n",
+        &["test_one", "test_two", "test_three"],
+    );
+    assert_eq!(
+        seen(ended),
+        [
+            test("test_one", Ok(Kind::Passed)),
+            Seen::Ended(
+                PathBuf::from("test_ended.py"),
+                "project error: the module's process died by SIGKILL".to_owned(),
+                false,
+                vec!["test_two", "test_three"],
+            ),
+        ],
+        "test_one ends the module's process, which blocks each test left"
+    );
+}
