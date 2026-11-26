@@ -1,0 +1,9 @@
+--- a/crates/errors/src/lib.rs
++++ b/crates/errors/src/lib.rs
+@@ -192,5 +192,5 @@
+ /// The error of `work`, or the internal error of its panic.
+ pub fn catch<R>(catcher: &str, work: impl FnOnce() -> Result<R, Error>) -> Result<R, Error> {
+     std::panic::catch_unwind(AssertUnwindSafe(work))
+-        .unwrap_or_else(|payload| Err(Error::caught(payload.as_ref(), catcher)))
++        .unwrap_or_else(|payload| Err(Error::caught(payload.as_ref(), &catcher[1..])))
+ }

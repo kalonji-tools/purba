@@ -1,0 +1,8 @@
+viable mutants: 220
+reading	let through	not run under bats
+today: every Rust test, and bats	15	0
+every Rust test, no bats	17	0
+strict criterion 3: the edited crate's tests, dependents' `tests/`, and bats	15	0
+strict criterion 3, no bats	20	0
+loose criterion 3: the edited crate's tests, and bats	26	0
+the edited crate's tests alone	36	0

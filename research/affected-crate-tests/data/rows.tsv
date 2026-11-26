@@ -1,0 +1,435 @@
+crate	mutant	summary	class	buckets	killers
+purba-errors	crates/errors/src/lib.rs:41:9: replace Outcome::kind -> &Kind with Box::leak(Box::new(Default::default()))	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:144:9: replace Error::kind -> ErrorKind<'_> with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:81:9: replace Quote::alone -> Self with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:138:9: replace Error::internal -> Self with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:131:9: replace Error::project -> Self with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:161:9: replace Error::line_with -> String with String::new()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:161:9: replace Error::line_with -> String with "xyzzy".into()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:170:9: replace Error::caught -> Self with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:177:9: replace <impl fmt::Display for Error>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:194:5: replace catch -> Result<R, Error> with Ok(Default::default())	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:242:9: replace Tally::add with ()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:154:9: replace Error::line -> String with String::new()	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-dispatch --test hand,-p purba-dispatch --test second_zygote,-p purba-errors --test tally,-p purba-execution --lib,-p purba-execution --test run,-p purba-execution --test second_zygote
+purba-errors	crates/errors/src/lib.rs:154:9: replace Error::line -> String with "xyzzy".into()	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-dispatch --test hand,-p purba-dispatch --test second_zygote,-p purba-errors --test tally,-p purba-execution --lib,-p purba-execution --test run,-p purba-execution --test second_zygote
+purba-errors	crates/errors/src/lib.rs:243:45: replace += with *= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:243:45: replace += with -= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:244:52: replace += with -= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:244:52: replace += with *= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:245:52: replace += with -= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:245:52: replace += with *= in Tally::add	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:246:55: replace += with -= in Tally::add	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:246:55: replace += with *= in Tally::add	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:248:30: replace += with -= in Tally::add	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:248:30: replace += with *= in Tally::add	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:9: replace Tally::cases -> usize with 0	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:9: replace Tally::cases -> usize with 1	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:83: replace + with - in Tally::cases	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test interrupt_in_rewrite,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:83: replace + with * in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:68: replace + with - in Tally::cases	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:68: replace + with * in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:49: replace + with - in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:49: replace + with * in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:35: replace + with * in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:35: replace + with - in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:21: replace + with - in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:259:21: replace + with * in Tally::cases	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:264:9: replace Tally::add_blocked with ()	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:264:22: replace += with -= in Tally::add_blocked	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:264:22: replace += with *= in Tally::add_blocked	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:269:9: replace Tally::add_suppressed with ()	CaughtMutant	dep-lib	dep-lib	-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:269:25: replace += with -= in Tally::add_suppressed	CaughtMutant	dep-lib	dep-lib	-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:269:25: replace += with *= in Tally::add_suppressed	CaughtMutant	dep-lib	dep-lib	-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:274:9: replace Tally::add_unreached with ()	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:274:24: replace += with -= in Tally::add_unreached	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test interrupt_in_rewrite,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:274:24: replace += with *= in Tally::add_unreached	CaughtMutant	own+dep	dep-lib,own-int	-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:279:9: replace Tally::add_invocation_error with ()	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:286:9: replace Tally::add_error with ()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:279:32: replace += with -= in Tally::add_invocation_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:279:32: replace += with *= in Tally::add_invocation_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:287:55: replace += with -= in Tally::add_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/panic.rs:22:9: replace Panic::caught_by -> Caught with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:287:55: replace += with *= in Tally::add_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/panic.rs:48:5: replace wrap_hook with ()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:61:5: replace take -> Option<Panic> with Some(Default::default())	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:69:5: replace caught -> Caught with Default::default()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/lib.rs:288:64: replace += with -= in Tally::add_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/lib.rs:288:64: replace += with *= in Tally::add_error	CaughtMutant	own+dep	dep-int,dep-lib,own-int	-p purba-command --test root,-p purba-command --test run,-p purba-errors --test tally,-p purba-reporting --lib
+purba-errors	crates/errors/src/panic.rs:61:5: replace take -> Option<Panic> with None	CaughtMutant	dep-int	dep-int	-p purba-execution --test panic,-p purba-execution --test set_hooks
+purba-errors	crates/errors/src/panic.rs:85:5: replace text -> String with String::new()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:85:5: replace text -> String with "xyzzy".into()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:74:24: replace match guard panic.message == message with true in caught	CaughtMutant	dep-int	dep-int	-p purba-execution --test panic
+purba-errors	crates/errors/src/panic.rs:93:5: replace record with ()	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:74:24: replace match guard panic.message == message with false in caught	CaughtMutant	dep-int	dep-int	-p purba-execution --test panic
+purba-errors	crates/errors/src/panic.rs:118:5: replace part -> Option<String> with None	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:118:5: replace part -> Option<String> with Some(String::new())	Unviable	unviable	-	-
+purba-errors	crates/errors/src/panic.rs:74:38: replace == with != in caught	CaughtMutant	dep-int	dep-int	-p purba-execution --test panic
+purba-errors	crates/errors/src/panic.rs:118:5: replace part -> Option<String> with Some("xyzzy".into())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:62:9: replace Module::trivia -> &[TextRange] with Vec::leak(Vec::new())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:55:9: replace Module::syntax -> &ModModule with Box::leak(Box::new(Default::default()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:62:9: replace Module::trivia -> &[TextRange] with Vec::leak(vec![Default::default()])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:68:9: replace Module::position -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:77:9: replace <impl Drop for Module>::drop with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:49:9: replace Module::source -> &str with ""	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test interrupt_load,-p purba-dispatch --test reap,-p purba-dispatch --test second_zygote,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_after_call,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_load_waiting,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test interrupt_term,-p purba-execution --test run,-p purba-execution --test second_zygote,-p purba-execution --test thread,-p purba-parsing --test parse,-p purba-parsing --test utf_8,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:49:9: replace Module::source -> &str with "xyzzy"	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test interrupt_load,-p purba-dispatch --test reap,-p purba-dispatch --test second_zygote,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_after_call,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_load_waiting,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test interrupt_term,-p purba-execution --test run,-p purba-execution --test second_zygote,-p purba-execution --test thread,-p purba-parsing --test parse,-p purba-parsing --test utf_8,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:103:9: replace Detached::free_last -> bool with true	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:103:9: replace Detached::free_last -> bool with false	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:114:9: replace <impl Transformer for Detached>::visit_expr with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:119:9: replace <impl Transformer for Detached>::visit_stmt with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:127:9: replace <impl Transformer for Detached>::visit_pattern with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:137:9: replace <impl Transformer for Detached>::visit_interpolated_string_element with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:162:9: replace <impl fmt::Display for Error>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:180:9: replace DecodeError::error -> Error with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:188:9: replace <impl fmt::Display for DecodeError>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:85:13: replace || with && in <impl Drop for Module>::drop	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:84:13: replace || with && in <impl Drop for Module>::drop	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:83:13: replace || with && in <impl Drop for Module>::drop	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:212:9: replace SyntaxError::start -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:218:9: replace SyntaxError::end -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:239:9: replace OverflowError::start -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:224:9: replace <impl fmt::Display for SyntaxError>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:245:9: replace OverflowError::end -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:251:9: replace <impl fmt::Display for OverflowError>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:206:9: replace SyntaxError::message -> &str with ""	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:206:9: replace SyntaxError::message -> &str with "xyzzy"	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:267:9: replace Position::line -> usize with 0	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:292:5: replace parse -> Result<Module, Error> with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:267:9: replace Position::line -> usize with 1	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:273:9: replace Position::column -> usize with 0	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:273:9: replace Position::column -> usize with 1	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:293:9: replace && with || in parse	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:293:74: replace == with != in parse	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:305:23: replace match guard marked with true in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:305:23: replace match guard marked with false in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:302:24: delete ! in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:335:5: replace not_utf_8 -> Error with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:316:27: replace match guard !the_tokenizer_reads_as_utf_8(name) with true in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:316:27: replace match guard !the_tokenizer_reads_as_utf_8(name) with false in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:316:27: delete ! in parse	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:339:27: replace || with && in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:339:18: replace == with != in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:339:45: replace && with || in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:339:36: replace == with != in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:339:69: replace != with == in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:357:5: replace decode -> Result<String, Error> with Ok(String::new())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:339:64: replace + with - in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:357:5: replace decode -> Result<String, Error> with Ok("xyzzy".into())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:374:5: replace declared_encoding -> Option<String> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:374:5: replace declared_encoding -> Option<String> with Some(String::new())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:374:5: replace declared_encoding -> Option<String> with Some("xyzzy".into())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:392:5: replace lines -> impl Iterator<Item =&[u8]> with ::std::iter::once(Vec::leak(Vec::new()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:392:5: replace lines -> impl Iterator<Item =&[u8]> with ::std::iter::empty()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:392:5: replace lines -> impl Iterator<Item =&[u8]> with ::std::iter::once(Vec::leak(vec![1]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:392:5: replace lines -> impl Iterator<Item =&[u8]> with ::std::iter::once(Vec::leak(vec![0]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:339:64: replace + with * in not_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:411:5: replace skip -> &'a[u8] with Vec::leak(Vec::new())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:411:5: replace skip -> &'a[u8] with Vec::leak(vec![0])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:411:5: replace skip -> &'a[u8] with Vec::leak(vec![1])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:398:45: replace || with && in lines	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:398:36: replace == with != in lines	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:398:53: replace == with != in lines	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:420:5: replace coding_name -> Option<String> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:420:5: replace coding_name -> Option<String> with Some(String::new())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:420:5: replace coding_name -> Option<String> with Some("xyzzy".into())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:413:26: delete ! in skip	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:429:31: delete ! in coding_name	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:423:25: replace && with || in coding_name	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:423:33: replace != with == in coding_name	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:423:17: replace != with == in coding_name	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:431:14: replace > with < in coding_name	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:431:14: replace > with >= in coding_name	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:438:5: replace the_tokenizer_reads_as_utf_8 -> bool with true	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:438:5: replace the_tokenizer_reads_as_utf_8 -> bool with false	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:429:62: replace || with && in coding_name	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:431:14: replace > with == in coding_name	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:463:5: replace means_utf_8 -> bool with true	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:463:5: replace means_utf_8 -> bool with false	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:442:18: replace == with != in the_tokenizer_reads_as_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:449:26: replace || with && in the_tokenizer_reads_as_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:449:15: replace == with != in the_tokenizer_reads_as_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse,-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:477:38: replace || with && in means_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:477:43: replace == with != in means_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:478:20: replace && with || in means_utf_8	CaughtMutant	own	own-int	-p purba-parsing --test utf_8
+purba-parsing	crates/parsing/src/lib.rs:512:5: replace parse_source -> Result<Module, Error> with Ok(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:559:5: replace place -> Position with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:596:5: replace too_deep -> Option<TooDeep> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:596:5: replace too_deep -> Option<TooDeep> with Some(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:603:13: delete match arm TokenKind::Lpar | TokenKind::Lsqb | TokenKind::Lbrace in too_deep	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:478:23: delete ! in means_utf_8	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:615:13: delete match arm TokenKind::Minus | TokenKind::Plus | TokenKind::Tilde | TokenKind::Not | TokenKind::Star in too_deep	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:495:9: replace || with && in means_utf_8	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:494:9: replace || with && in means_utf_8	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:611:13: delete match arm TokenKind::Rpar | TokenKind::Rsqb | TokenKind::Rbrace in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:604:31: replace == with != in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test interrupt_load,-p purba-dispatch --test reap,-p purba-dispatch --test second_zygote,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_after_call,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_load_waiting,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test interrupt_term,-p purba-execution --test run,-p purba-execution --test second_zygote,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:625:13: delete match arm TokenKind::Comment | TokenKind::NonLogicalNewline in too_deep	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:608:21: replace += with *= in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite_property,-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:608:21: replace += with -= in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite_property,-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:612:21: replace -= with /= in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test interrupt_load,-p purba-dispatch --test reap,-p purba-dispatch --test second_zygote,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_after_call,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_load_waiting,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test interrupt_term,-p purba-execution --test run,-p purba-execution --test second_zygote,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:620:23: replace += with -= in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:612:21: replace -= with += in too_deep	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:621:32: replace == with != in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test root,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:621:24: replace + with - in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-parsing --test walk,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:636:5: replace trivia -> Vec<TextRange> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:636:5: replace trivia -> Vec<TextRange> with vec![Default::default()]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:620:23: replace += with *= in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-command --test run,-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:642:29: replace + with * in trivia	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:621:24: replace + with * in too_deep	CaughtMutant	own+dep	dep-int,own-int	-p purba-command --test run,-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:660:5: replace is_literal -> bool with true	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:660:5: replace is_literal -> bool with false	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:642:29: replace + with - in trivia	CaughtMutant	dep-int	dep-int	-p purba-assertion --test rewrite
+purba-parsing	crates/parsing/src/lib.rs:646:25: replace == with != in trivia	CaughtMutant	dep-int	dep-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:663:13: delete match arm Expr::StringLiteral(_) | Expr::BytesLiteral(_) | Expr::NumberLiteral(_) | Expr::BooleanLiteral(_) | Expr::NoneLiteral(_) | Expr::EllipsisLiteral(_) in is_literal	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:674:13: delete match arm Expr::UnaryOp(operation) in is_literal	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:675:13: delete match arm Expr::BinOp(operation) in is_literal	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:679:13: delete match arm Expr::List(list) in is_literal	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:680:13: delete match arm Expr::Tuple(tuple) in is_literal	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:681:13: delete match arm Expr::Set(set) in is_literal	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:626:13: delete match arm TokenKind::EndOfFile in too_deep	Timeout	timeout	-	-
+purba-parsing	crates/parsing/src/lib.rs:745:9: replace Check<'a>::values -> (&'a Expr, Option<&'a Expr>) with (Box::leak(Box::new(Default::default())), None)	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:745:9: replace Check<'a>::values -> (&'a Expr, Option<&'a Expr>) with (Box::leak(Box::new(Default::default())), Some(Box::leak(Box::new(Default::default()))))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:789:5: replace shape -> Shape<'_> with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:797:5: replace check -> Option<Check<'_>> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:797:5: replace check -> Option<Check<'_>> with Some(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:798:9: delete match arm Expr::Compare(compare) in check	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:799:13: delete match arm ([op], [left, right]) in check	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:682:13: delete match arm Expr::Dict(dict) in is_literal	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:824:5: replace read -> Option<(Reads, &Expr, Option<&Expr>)> with Some((Default::default(), Box::leak(Box::new(Default::default())), None))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:824:5: replace read -> Option<(Reads, &Expr, Option<&Expr>)> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:824:5: replace read -> Option<(Reads, &Expr, Option<&Expr>)> with Some((Default::default(), Box::leak(Box::new(Default::default())), Some(Box::leak(Box::new(Default::default())))))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:825:37: replace match guard operation.op == UnaryOp::Not with false in read	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:825:37: replace match guard operation.op == UnaryOp::Not with true in read	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:670:20: replace match guard string .value .f_strings() .all(|part| part.elements.interpolations().next().is_none()) with true in is_literal	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:670:20: replace match guard string .value .f_strings() .all(|part| part.elements.interpolations().next().is_none()) with false in is_literal	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:828:29: replace match guard call.arguments.keywords.is_empty() with true in read	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:828:29: replace match guard call.arguments.keywords.is_empty() with false in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:825:50: replace == with != in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:837:17: delete match arm (Expr::Attribute(attribute), [argument]) in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:834:56: replace match guard name.id.as_str() == "isinstance" with true in read	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/lib.rs:834:56: replace match guard name.id.as_str() == "isinstance" with false in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:834:73: replace == with != in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:851:5: replace holds_a_walrus -> bool with true	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:838:21: delete match arm "startswith" in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:851:5: replace holds_a_walrus -> bool with false	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:854:13: replace holds_a_walrus::<impl Arms<'a> for Walrus>::expr -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:865:5: replace each -> Option<Shape<'_>> with Some(Default::default())	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:865:5: replace each -> Option<Shape<'_>> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:839:21: delete match arm "endswith" in read	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:882:9: delete match arm Expr::Generator(generator) in each	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:854:20: replace |= with &= in holds_a_walrus::<impl Arms<'a> for Walrus>::expr	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:876:9: delete match arm "all" in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:877:9: delete match arm "any" in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:883:9: delete match arm Expr::ListComp(_) in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:896:9: delete match arm [_] in each	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:897:9: delete match arm [_, _] in each	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:898:9: delete match arm [_, _, _] in each	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:888:16: replace match guard holds_a_walrus(&generator.elt) with true in each	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:888:16: replace match guard holds_a_walrus(&generator.elt) with false in each	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:887:18: replace match guard !one.ifs.is_empty() with true in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:887:18: replace match guard !one.ifs.is_empty() with false in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:889:18: replace match guard !one.is_async with true in each	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:889:18: replace match guard !one.is_async with false in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:911:5: replace ending -> Vec<&StmtAssert> with vec![Box::leak(Box::new(Default::default()))]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:911:5: replace ending -> Vec<&StmtAssert> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:887:18: delete ! in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:889:18: delete ! in each	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-dispatch --test hand,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:923:36: replace - with + in ending	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test interrupt_load,-p purba-dispatch --test reap,-p purba-dispatch --test second_zygote,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_load_waiting,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test interrupt_term,-p purba-execution --test run,-p purba-execution --test second_zygote,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:918:17: delete match arm Stmt::Assert(assert) in ending	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test run,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:923:36: replace - with / in ending	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-execution --test interrupt,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:937:5: replace blocks -> Vec<&[Stmt]> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:937:5: replace blocks -> Vec<&[Stmt]> with vec![Vec::leak(Vec::new())]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:937:5: replace blocks -> Vec<&[Stmt]> with vec![Vec::leak(vec![Default::default()])]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:945:5: replace keyword -> Option<&'static str> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:945:5: replace keyword -> Option<&'static str> with Some("")	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:945:5: replace keyword -> Option<&'static str> with Some("xyzzy")	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:926:39: replace match guard !with.is_async with true in ending	CaughtMutant	own	own-int	-p purba-parsing --test parse
+purba-parsing	crates/parsing/src/lib.rs:926:39: replace match guard !with.is_async with false in ending	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:926:39: delete ! in ending	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with None	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("", vec![]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("", vec![Vec::leak(vec![Default::default()])]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("", vec![Vec::leak(Vec::new())]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("xyzzy", vec![]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("xyzzy", vec![Vec::leak(vec![Default::default()])]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:950:5: replace holds -> Option<(&'static str, Vec<&[Stmt]>)> with Some(("xyzzy", vec![Vec::leak(Vec::new())]))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:962:9: delete match arm Stmt::Try(attempt) in holds	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:951:9: delete match arm Stmt::If(branch) in holds	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:972:9: delete match arm Stmt::With(with) in holds	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:974:9: delete match arm Stmt::While(each) in holds	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/lib.rs:973:9: delete match arm Stmt::For(each) in holds	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test facts,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:48:9: replace Test<'m>::facts -> &TestFacts<'m> with Box::leak(Box::new(Default::default()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:80:9: replace TestFacts<'m>::of -> Self with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/lib.rs:975:9: delete match arm Stmt::Match(choice) in holds	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test parse,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:93:9: replace TestFacts<'m>::tries -> impl Iterator<Item =&'m StmtTry>+'_ with ::std::iter::once(Box::leak(Box::new(Default::default())))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:58:9: replace Test<'m>::facts_if_read -> Option<&TestFacts<'m>> with None	CaughtMutant	own	own-int	-p purba-parsing --test facts
+purba-parsing	crates/parsing/src/facts.rs:58:9: replace Test<'m>::facts_if_read -> Option<&TestFacts<'m>> with Some(Box::leak(Box::new(Default::default())))	CaughtMutant	own	own-int	-p purba-parsing --test facts
+purba-parsing	crates/parsing/src/facts.rs:105:5: replace parameters -> HashSet<&str> with HashSet::new()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:105:5: replace parameters -> HashSet<&str> with HashSet::from_iter([""])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:105:5: replace parameters -> HashSet<&str> with HashSet::from_iter(["xyzzy"])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:93:9: replace TestFacts<'m>::tries -> impl Iterator<Item =&'m StmtTry>+'_ with ::std::iter::empty()	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:120:5: replace locals -> HashSet<&str> with HashSet::new()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:120:5: replace locals -> HashSet<&str> with HashSet::from_iter([""])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:132:5: replace statements -> Vec<&Stmt> with vec![Box::leak(Box::new(Default::default()))]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:132:5: replace statements -> Vec<&Stmt> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:136:13: replace statements::<impl Arms<'a> for Statements<'a>>::stmt -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:120:5: replace locals -> HashSet<&str> with HashSet::from_iter(["xyzzy"])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:144:13: replace statements::<impl Arms<'a> for Statements<'a>>::expr -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:164:9: replace Facts<'m>::of -> Self with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:191:17: delete match arm Stmt::FunctionDef(function) in Facts<'m>::of	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:196:17: delete match arm Stmt::ClassDef(class) in Facts<'m>::of	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:209:25: delete match arm (Place::Top, Some(keyword)) in Facts<'m>::of	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:229:9: replace Facts<'m>::module -> &'m Module with Box::leak(Box::new(Default::default()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:236:9: replace Facts<'m>::statements -> &[&'m Stmt] with Vec::leak(vec![Box::leak(Box::new(Default::default()))])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:96:17: delete match arm Stmt::Try(attempt) in TestFacts<'m>::tries	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-execution --test run,-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:242:9: replace Facts<'m>::defs -> &[&'m StmtFunctionDef] with Vec::leak(vec![Box::leak(Box::new(Default::default()))])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:138:17: delete match arm Stmt::FunctionDef(_) | Stmt::ClassDef(_) in statements::<impl Arms<'a> for Statements<'a>>::stmt	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:251:9: replace Facts<'m>::tests -> &[Test<'m>] with Vec::leak(vec![Default::default()])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:258:9: replace Facts<'m>::imports -> &HashMap<&'m str, String> with Box::leak(Box::new(HashMap::new()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:258:9: replace Facts<'m>::imports -> &HashMap<&'m str, String> with Box::leak(Box::new(HashMap::from_iter([("", String::new())])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:258:9: replace Facts<'m>::imports -> &HashMap<&'m str, String> with Box::leak(Box::new(HashMap::from_iter([("", "xyzzy".into())])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:236:9: replace Facts<'m>::statements -> &[&'m Stmt] with Vec::leak(Vec::new())	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test name_near,-p purba-selection --test query,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:258:9: replace Facts<'m>::imports -> &HashMap<&'m str, String> with Box::leak(Box::new(HashMap::from_iter([("xyzzy", String::new())])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:258:9: replace Facts<'m>::imports -> &HashMap<&'m str, String> with Box::leak(Box::new(HashMap::from_iter([("xyzzy", "xyzzy".into())])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:265:9: replace Facts<'m>::bindings -> &HashMap<&'m str, Vec<Binding>> with Box::leak(Box::new(HashMap::new()))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:265:9: replace Facts<'m>::bindings -> &HashMap<&'m str, Vec<Binding>> with Box::leak(Box::new(HashMap::from_iter([("", vec![])])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:265:9: replace Facts<'m>::bindings -> &HashMap<&'m str, Vec<Binding>> with Box::leak(Box::new(HashMap::from_iter([("", vec![Default::default()])])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:265:9: replace Facts<'m>::bindings -> &HashMap<&'m str, Vec<Binding>> with Box::leak(Box::new(HashMap::from_iter([("xyzzy", vec![])])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:265:9: replace Facts<'m>::bindings -> &HashMap<&'m str, Vec<Binding>> with Box::leak(Box::new(HashMap::from_iter([("xyzzy", vec![Default::default()])])))	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:284:5: replace tests -> Vec<Test<'m>> with vec![Default::default()]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:242:9: replace Facts<'m>::defs -> &[&'m StmtFunctionDef] with Vec::leak(Vec::new())	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:284:5: replace tests -> Vec<Test<'m>> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:331:5: replace bindings -> HashMap<&str, Vec<Binding>> with HashMap::new()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:331:5: replace bindings -> HashMap<&str, Vec<Binding>> with HashMap::from_iter([("", vec![])])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:331:5: replace bindings -> HashMap<&str, Vec<Binding>> with HashMap::from_iter([("", vec![Default::default()])])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:251:9: replace Facts<'m>::tests -> &[Test<'m>] with Vec::leak(Vec::new())	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test run,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:331:5: replace bindings -> HashMap<&str, Vec<Binding>> with HashMap::from_iter([("xyzzy", vec![])])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:331:5: replace bindings -> HashMap<&str, Vec<Binding>> with HashMap::from_iter([("xyzzy", vec![Default::default()])])	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:359:5: replace origins -> Vec<(&Identifier, String)> with vec![]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:359:5: replace origins -> Vec<(&Identifier, String)> with vec![(Box::leak(Box::new(Default::default())), String::new())]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:359:5: replace origins -> Vec<(&Identifier, String)> with vec![(Box::leak(Box::new(Default::default())), "xyzzy".into())]	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:306:32: replace && with || in tests	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test load,-p purba-assertion --test rewrite,-p purba-assertion --test rewrite_property,-p purba-command --test interrupt_in_rewrite,-p purba-command --test root,-p purba-command --test run,-p purba-dispatch --test hand,-p purba-dispatch --test interrupt,-p purba-dispatch --test thread,-p purba-execution --test interrupt,-p purba-execution --test interrupt_load,-p purba-execution --test interrupt_replay_arrived,-p purba-execution --test run,-p purba-execution --test thread,-p purba-parsing --test facts,-p purba-selection --test name_near,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:336:29: replace || with && in bindings	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:360:9: delete match arm Stmt::Import(import) in origins	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:375:9: delete match arm Stmt::ImportFrom(import) in origins	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:399:5: replace bound -> &str with ""	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:399:5: replace bound -> &str with "xyzzy"	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:424:9: replace Scope<'a>::of -> Self with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:430:9: replace Scope<'a>::bind with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:436:9: replace <impl Arms<'a> for Scope<'a>>::stmt -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:381:53: replace != with == in origins	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:383:57: replace || with && in origins	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:437:13: delete match arm Stmt::FunctionDef(function) in <impl Arms<'a> for Scope<'a>>::stmt	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:442:13: delete match arm Stmt::ClassDef(class) in <impl Arms<'a> for Scope<'a>>::stmt	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:447:13: delete match arm Stmt::Global(global) in <impl Arms<'a> for Scope<'a>>::stmt	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:462:9: replace <impl Arms<'a> for Scope<'a>>::expr -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:453:40: replace match guard assign.value.is_none() with true in <impl Arms<'a> for Scope<'a>>::stmt	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:463:33: replace match guard matches!(name.ctx, ExprContext::Store | ExprContext::Del) with true in <impl Arms<'a> for Scope<'a>>::expr	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:453:40: replace match guard assign.value.is_none() with false in <impl Arms<'a> for Scope<'a>>::stmt	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:473:9: replace <impl Arms<'a> for Scope<'a>>::comprehension -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:463:33: replace match guard matches!(name.ctx, ExprContext::Store | ExprContext::Del) with false in <impl Arms<'a> for Scope<'a>>::expr	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:477:9: replace <impl Arms<'a> for Scope<'a>>::except_handler with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:484:9: replace <impl Arms<'a> for Scope<'a>>::alias with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:467:13: delete match arm Expr::Lambda(_) in <impl Arms<'a> for Scope<'a>>::expr	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/facts.rs:488:21: replace match guard alias.name.as_str() != "*" with false in <impl Arms<'a> for Scope<'a>>::alias	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:488:21: replace match guard alias.name.as_str() != "*" with true in <impl Arms<'a> for Scope<'a>>::alias	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/facts.rs:497:9: replace <impl Arms<'a> for Scope<'a>>::pattern with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:488:41: replace != with == in <impl Arms<'a> for Scope<'a>>::alias	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:499:13: delete match arm Pattern::MatchStar(star) in <impl Arms<'a> for Scope<'a>>::pattern	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/walk.rs:38:9: replace Arms::stmt -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:498:13: delete match arm Pattern::MatchAs(capture) in <impl Arms<'a> for Scope<'a>>::pattern	CaughtMutant	dep-int	dep-int	-p purba-selection --test select
+purba-parsing	crates/parsing/src/walk.rs:43:9: replace Arms::expr -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:48:9: replace Arms::comprehension -> Enter with Default::default()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/facts.rs:500:13: delete match arm Pattern::MatchMapping(mapping) in <impl Arms<'a> for Scope<'a>>::pattern	MissedMutant	missed	-	-
+purba-parsing	crates/parsing/src/walk.rs:91:9: replace Children<'a, '_, A>::enter with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:71:5: replace walk with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:93:17: delete match arm (Enter::Nothing, _) in Children<'a, '_, A>::enter	CaughtMutant	own+dep	dep-int,own-int	-p purba-assertion --test rewrite,-p purba-parsing --test facts,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/walk.rs:94:17: delete match arm (Enter::Head, Stmt::FunctionDef(function)) in Children<'a, '_, A>::enter	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/facts.rs:294:12: delete ! in tests	Timeout	timeout	-	-
+purba-parsing	crates/parsing/src/walk.rs:103:17: delete match arm (Enter::Head, Stmt::ClassDef(class)) in Children<'a, '_, A>::enter	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test facts,-p purba-parsing --test walk,-p purba-selection --test select
+purba-parsing	crates/parsing/src/walk.rs:134:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_stmt with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:138:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_expr with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:142:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_pattern with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:146:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_interpolated_string_element with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:150:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_comprehension with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:163:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_except_handler with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:168:9: replace <impl SourceOrderVisitor<'a> for Children<'a, '_, A>>::visit_alias with ()	Unviable	unviable	-	-
+purba-parsing	crates/parsing/src/walk.rs:114:17: delete match arm (Enter::Nothing, _) in Children<'a, '_, A>::enter	CaughtMutant	own	own-int	-p purba-parsing --test walk
+purba-parsing	crates/parsing/src/walk.rs:115:17: delete match arm (Enter::Head, Expr::Lambda(lambda)) in Children<'a, '_, A>::enter	CaughtMutant	own+dep	dep-int,own-int	-p purba-parsing --test walk,-p purba-selection --test select
+purba-query	crates/query/src/lib.rs:56:9: replace <impl fmt::Display for Refused>::fmt -> fmt::Result with Ok(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:77:5: replace parse -> Result<Query, Refused> with Ok(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:80:25: replace - with / in parse	CaughtMutant	own+dep	dep-int,own-int	-p purba-command --test interrupt,-p purba-command --test root,-p purba-command --test run,-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:80:25: replace - with + in parse	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:82:44: replace + with * in parse	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:107:5: replace why -> Why with Default::default()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:109:13: delete match arm StrContext::Label(CALL) in why	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:82:44: replace + with - in parse	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:123:5: replace is_word -> bool with true	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:123:5: replace is_word -> bool with false	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:86:21: replace match guard input.is_empty() with true in parse	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:86:21: replace match guard input.is_empty() with false in parse	CaughtMutant	own+dep	dep-int,own-int	-p purba-command --test interrupt,-p purba-command --test root,-p purba-command --test run,-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:128:5: replace is_glob -> bool with true	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:128:5: replace is_glob -> bool with false	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:133:5: replace take_word -> &str with ""	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:133:5: replace take_word -> &str with "xyzzy"	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:112:13: delete match arm StrContext::Expected(StrContextValue::Description(what)) in why	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:138:5: replace expected -> StrContext with Default::default()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:143:5: replace or -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:143:5: replace or -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:143:5: replace or -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:143:5: replace or -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:123:25: replace || with && in is_word	CaughtMutant	own+dep	dep-int,own-int	-p purba-command --test interrupt,-p purba-command --test root,-p purba-command --test run,-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:148:5: replace and -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:148:5: replace and -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:148:5: replace and -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:148:5: replace and -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:159:5: replace chain -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:159:5: replace chain -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:159:5: replace chain -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:159:5: replace chain -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:178:5: replace unary -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:178:5: replace unary -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:178:5: replace unary -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:178:5: replace unary -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:191:5: replace group -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:191:5: replace group -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:191:5: replace group -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:191:5: replace group -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:221:5: replace id -> ModalResult<Query> with ModalResult::new()	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:221:5: replace id -> ModalResult<Query> with ModalResult::from_iter([Default::default()])	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:221:5: replace id -> ModalResult<Query> with ModalResult::new(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:221:5: replace id -> ModalResult<Query> with ModalResult::from(Default::default())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:239:5: replace scan -> Result<(), Refused> with Ok(())	Unviable	unviable	-	-
+purba-query	crates/query/src/lib.rs:128:16: replace || with && in is_glob	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:133:29: delete ! in take_word	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:245:20: replace -= with += in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:245:20: replace -= with /= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:255:31: replace && with || in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:255:12: delete ! in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:255:36: replace != with == in scan	MissedMutant	missed	-	-
+purba-query	crates/query/src/lib.rs:259:13: delete match arm '!' in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:270:13: delete match arm '(' in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:265:20: replace match guard before == "name" || before == "path" with true in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:265:20: replace match guard before == "name" || before == "path" with false in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:274:20: replace match guard waiting.len() > 1 with true in scan	MissedMutant	missed	-	-
+purba-query	crates/query/src/lib.rs:274:20: replace match guard waiting.len() > 1 with false in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:261:28: replace += with -= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:261:28: replace += with *= in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:263:23: replace += with -= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:263:23: replace += with *= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:265:37: replace || with && in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:265:27: replace == with != in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:265:47: replace == with != in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:266:49: replace != with == in scan	MissedMutant	missed	-	-
+purba-query	crates/query/src/lib.rs:272:23: replace += with -= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:272:23: replace += with *= in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:274:34: replace > with == in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:274:34: replace > with < in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:274:34: replace > with >= in scan	MissedMutant	missed	-	-
+purba-query	crates/query/src/lib.rs:276:23: replace -= with += in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:276:23: replace -= with /= in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:276:32: replace + with - in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:276:32: replace + with * in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:281:18: replace > with == in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:281:18: replace > with < in scan	CaughtMutant	own+dep	dep-int,own-int	-p purba-query --test parse,-p purba-selection --test query
+purba-query	crates/query/src/lib.rs:281:18: replace > with >= in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:283:28: replace + with - in scan	CaughtMutant	own	own-int	-p purba-query --test parse
+purba-query	crates/query/src/lib.rs:283:28: replace + with * in scan	CaughtMutant	own	own-int	-p purba-query --test parse

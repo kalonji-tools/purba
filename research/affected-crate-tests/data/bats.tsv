@@ -1,0 +1,37 @@
+mutant diff	exit of test:wheel	bats tests not ok	first three
+crates__errors__src__lib.rs_line_269_col_25	exit=1	not-ok=27	not ok 1 an except that only passes is refused, and an except that binds the raise is one path|not ok 17 the report of an internal error ignores a test that changed sys.abiflags|not ok 24 an import of pytest outside a test reaches every test, and one in a test reaches that test|
+crates__errors__src__lib.rs_line_269_col_25_001	exit=1	not-ok=27	not ok 1 an except that only passes is refused, and an except that binds the raise is one path|not ok 17 the report of an internal error ignores a test that changed sys.abiflags|not ok 24 an import of pytest outside a test reaches every test, and one in a test reaches that test|
+crates__errors__src__lib.rs_line_269_col_9	exit=1	not-ok=27	not ok 1 an except that only passes is refused, and an except that binds the raise is one path|not ok 17 the report of an internal error ignores a test that changed sys.abiflags|not ok 24 an import of pytest outside a test reaches every test, and one in a test reaches that test|
+crates__errors__src__panic.rs_line_61_col_5	exit=1	not-ok=10	not ok 2 the fault wheel panics in the assert hook when PURBA_FAULT is assert|not ok 8 a test that catches the panic still gets its internal error, and the next test its own|not ok 9 a module that catches the panic while it loads gets its internal error, and no test runs|
+crates__errors__src__panic.rs_line_74_col_24	exit=0	not-ok=0	-
+crates__errors__src__panic.rs_line_74_col_24_001	exit=1	not-ok=8	not ok 2 the fault wheel panics in the assert hook when PURBA_FAULT is assert|not ok 10 the fault wheel gives the module an internal error when PURBA_FAULT is selection|not ok 12 the fault wheel blocks the selected tests when PURBA_FAULT is rewrite|
+crates__errors__src__panic.rs_line_74_col_38	exit=1	not-ok=8	not ok 2 the fault wheel panics in the assert hook when PURBA_FAULT is assert|not ok 10 the fault wheel gives the module an internal error when PURBA_FAULT is selection|not ok 12 the fault wheel blocks the selected tests when PURBA_FAULT is rewrite|
+crates__parsing__src__facts.rs_line_453_col_40	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_453_col_40_001	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_498_col_13	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_642_col_29	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_646_col_25	exit=1	not-ok=51	not ok 1 an except that only passes is refused, and an except that binds the raise is one path|not ok 17 the report of an internal error ignores a test that changed sys.abiflags|not ok 23 the library refuses no fork while the file refuse is absent|
+crates__parsing__src__lib.rs_line_670_col_20_001	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_675_col_13	exit=1	not-ok=1	not ok 167 a test that breaks a rule of its code prints each fault by its line, and is never called|
+crates__parsing__src__lib.rs_line_681_col_13	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_682_col_13	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_854_col_20	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_897_col_9	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_898_col_9	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_467_col_13	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_488_col_21	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_499_col_13	exit=0	not-ok=0	-
+crates__parsing__src__facts.rs_line_500_col_13	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_293_col_74	exit=1	not-ok=8	not ok 2 the fault wheel panics in the assert hook when PURBA_FAULT is assert|not ok 8 a test that catches the panic still gets its internal error, and the next test its own|not ok 10 the fault wheel gives the module an internal error when PURBA_FAULT is selection|
+crates__parsing__src__lib.rs_line_293_col_9	exit=1	not-ok=12	not ok 2 the fault wheel panics in the assert hook when PURBA_FAULT is assert|not ok 4 the fault wheel passes the test when PURBA_FAULT is unset|not ok 7 the fault wheel names execution for purba's own PanicException that a test raises|
+crates__parsing__src__lib.rs_line_478_col_23	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_494_col_9	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_495_col_9	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_612_col_21	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_828_col_29	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_834_col_56	exit=0	not-ok=0	-
+crates__parsing__src__lib.rs_line_85_col_13	exit=0	not-ok=0	-
+crates__query__src__lib.rs_line_255_col_36	exit=0	not-ok=0	-
+crates__query__src__lib.rs_line_266_col_49	exit=0	not-ok=0	-
+crates__query__src__lib.rs_line_274_col_20	exit=0	not-ok=0	-
+crates__query__src__lib.rs_line_274_col_34_002	exit=0	not-ok=0	-

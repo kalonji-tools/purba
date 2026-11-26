@@ -1,0 +1,3 @@
+# The probes of a research branch, which is never merged. They are evidence, not
+# purba's scripts, so the root's checks do not apply.
+disable=all

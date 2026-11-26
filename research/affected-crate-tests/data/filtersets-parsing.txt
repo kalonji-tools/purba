@@ -1,0 +1,168 @@
+---- -E 'all()'
+tests: 470
+       29 purba-assertion	test load
+       25 purba-assertion	test rewrite
+        3 purba-assertion	test rewrite_property
+        3 purba-command	lib
+        1 purba-command	test interrupt
+        1 purba-command	test interrupt_in_rewrite
+       21 purba-command	test root
+       16 purba-command	test run
+        6 purba-config	test environment
+        8 purba-config	test project
+        3 purba-config	test walk
+        1 purba-dispatch	test checks
+       17 purba-dispatch	test hand
+        1 purba-dispatch	test interrupt
+        1 purba-dispatch	test interrupt_load
+        1 purba-dispatch	test reap
+        1 purba-dispatch	test second_zygote
+        1 purba-dispatch	test thread
+        5 purba-errors	lib
+        1 purba-errors	test outcome
+        7 purba-errors	test tally
+       30 purba-execution	lib
+        1 purba-execution	test interrupt
+        1 purba-execution	test interrupt_after_call
+        1 purba-execution	test interrupt_load
+        1 purba-execution	test interrupt_load_waiting
+        1 purba-execution	test interrupt_outside
+        1 purba-execution	test interrupt_replay_arrived
+        1 purba-execution	test interrupt_term
+        1 purba-execution	test panic
+       33 purba-execution	test run
+        1 purba-execution	test second_zygote
+        1 purba-execution	test set_hooks
+        1 purba-execution	test thread
+       10 purba-parsing	test facts
+       38 purba-parsing	test parse
+        2 purba-parsing	test utf_8
+        4 purba-parsing	test walk
+       15 purba-query	test parse
+       32 purba-reporting	lib
+        2 purba-selection	lib
+        9 purba-selection	test name_near
+       26 purba-selection	test query
+       80 purba-selection	test select
+       20 purba-selection	test stage_one
+        6 purba-selection	test test_files_dial
+---- -E 'package(purba-parsing)'
+tests: 54
+       10 purba-parsing	test facts
+       38 purba-parsing	test parse
+        2 purba-parsing	test utf_8
+        4 purba-parsing	test walk
+---- -E 'rdeps(purba-parsing)'
+tests: 393
+       29 purba-assertion	test load
+       25 purba-assertion	test rewrite
+        3 purba-assertion	test rewrite_property
+        3 purba-command	lib
+        1 purba-command	test interrupt
+        1 purba-command	test interrupt_in_rewrite
+       21 purba-command	test root
+       16 purba-command	test run
+        1 purba-dispatch	test checks
+       17 purba-dispatch	test hand
+        1 purba-dispatch	test interrupt
+        1 purba-dispatch	test interrupt_load
+        1 purba-dispatch	test reap
+        1 purba-dispatch	test second_zygote
+        1 purba-dispatch	test thread
+       30 purba-execution	lib
+        1 purba-execution	test interrupt
+        1 purba-execution	test interrupt_after_call
+        1 purba-execution	test interrupt_load
+        1 purba-execution	test interrupt_load_waiting
+        1 purba-execution	test interrupt_outside
+        1 purba-execution	test interrupt_replay_arrived
+        1 purba-execution	test interrupt_term
+        1 purba-execution	test panic
+       33 purba-execution	test run
+        1 purba-execution	test second_zygote
+        1 purba-execution	test set_hooks
+        1 purba-execution	test thread
+       10 purba-parsing	test facts
+       38 purba-parsing	test parse
+        2 purba-parsing	test utf_8
+        4 purba-parsing	test walk
+        2 purba-selection	lib
+        9 purba-selection	test name_near
+       26 purba-selection	test query
+       80 purba-selection	test select
+       20 purba-selection	test stage_one
+        6 purba-selection	test test_files_dial
+---- -E 'rdeps(purba-parsing) - kind(lib)'
+tests: 358
+       29 purba-assertion	test load
+       25 purba-assertion	test rewrite
+        3 purba-assertion	test rewrite_property
+        1 purba-command	test interrupt
+        1 purba-command	test interrupt_in_rewrite
+       21 purba-command	test root
+       16 purba-command	test run
+        1 purba-dispatch	test checks
+       17 purba-dispatch	test hand
+        1 purba-dispatch	test interrupt
+        1 purba-dispatch	test interrupt_load
+        1 purba-dispatch	test reap
+        1 purba-dispatch	test second_zygote
+        1 purba-dispatch	test thread
+        1 purba-execution	test interrupt
+        1 purba-execution	test interrupt_after_call
+        1 purba-execution	test interrupt_load
+        1 purba-execution	test interrupt_load_waiting
+        1 purba-execution	test interrupt_outside
+        1 purba-execution	test interrupt_replay_arrived
+        1 purba-execution	test interrupt_term
+        1 purba-execution	test panic
+       33 purba-execution	test run
+        1 purba-execution	test second_zygote
+        1 purba-execution	test set_hooks
+        1 purba-execution	test thread
+       10 purba-parsing	test facts
+       38 purba-parsing	test parse
+        2 purba-parsing	test utf_8
+        4 purba-parsing	test walk
+        9 purba-selection	test name_near
+       26 purba-selection	test query
+       80 purba-selection	test select
+       20 purba-selection	test stage_one
+        6 purba-selection	test test_files_dial
+---- -E 'package(purba-parsing) | (rdeps(purba-parsing) - kind(lib))'
+tests: 358
+       29 purba-assertion	test load
+       25 purba-assertion	test rewrite
+        3 purba-assertion	test rewrite_property
+        1 purba-command	test interrupt
+        1 purba-command	test interrupt_in_rewrite
+       21 purba-command	test root
+       16 purba-command	test run
+        1 purba-dispatch	test checks
+       17 purba-dispatch	test hand
+        1 purba-dispatch	test interrupt
+        1 purba-dispatch	test interrupt_load
+        1 purba-dispatch	test reap
+        1 purba-dispatch	test second_zygote
+        1 purba-dispatch	test thread
+        1 purba-execution	test interrupt
+        1 purba-execution	test interrupt_after_call
+        1 purba-execution	test interrupt_load
+        1 purba-execution	test interrupt_load_waiting
+        1 purba-execution	test interrupt_outside
+        1 purba-execution	test interrupt_replay_arrived
+        1 purba-execution	test interrupt_term
+        1 purba-execution	test panic
+       33 purba-execution	test run
+        1 purba-execution	test second_zygote
+        1 purba-execution	test set_hooks
+        1 purba-execution	test thread
+       10 purba-parsing	test facts
+       38 purba-parsing	test parse
+        2 purba-parsing	test utf_8
+        4 purba-parsing	test walk
+        9 purba-selection	test name_near
+       26 purba-selection	test query
+       80 purba-selection	test select
+       20 purba-selection	test stage_one
+        6 purba-selection	test test_files_dial

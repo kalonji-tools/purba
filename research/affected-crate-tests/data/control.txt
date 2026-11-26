@@ -1,0 +1,21 @@
+# mise exec -- research/affected-crate-tests/control.sh <log>, on 58dc3f6a, 2026-11-26
+# targets that failed (killers.sh):
+-p purba-dispatch --test hand
+-p purba-errors --test tally
+-p purba-execution --test panic
+-p purba-reporting --lib
+# cargo's own list:
+error: 4 targets failed:
+    `-p purba-dispatch --test hand`
+    `-p purba-errors --test tally`
+    `-p purba-execution --test panic`
+    `-p purba-reporting --lib`
+# tests that failed:
+---- a_module_whose_load_panics_is_handed_once_with_an_internal_error_and_its_tests stdout ----
+---- a_panic_outside_a_tests_call_gives_that_test_an_internal_error_and_the_next_test_runs stdout ----
+---- an_error_gives_its_line stdout ----
+---- an_error_says_its_kind stdout ----
+---- tests::a_module_that_an_internal_error_stops_prints_once_and_each_test_as_blocked stdout ----
+---- tests::a_test_that_an_internal_error_stops_prints_it_and_counts_as_blocked stdout ----
+---- tests::the_text_of_an_error_loses_the_whitespace_at_its_ends stdout ----
+# exit of cargo test: 101

@@ -1,0 +1,4 @@
+# The probes and rows of a research branch, which is never merged.
+# A TSV row is one line.
+[*]
+max_line_length = off
