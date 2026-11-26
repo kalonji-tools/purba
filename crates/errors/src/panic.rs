@@ -97,28 +97,30 @@ fn record(info: &PanicHookInfo<'_>) {
     *LAST.lock().unwrap_or_else(PoisonError::into_inner) = Some(panic);
 }
 
+/// The parts, as "The parts and their dependencies" in `LANDSCAPE.md` names
+/// them.
+const PARTS: [&str; 8] = [
+    "command",
+    "selection",
+    "parsing",
+    "dispatch",
+    "execution",
+    "fixtures",
+    "assertion",
+    "reporting",
+];
+
 /// The part whose source holds `file`. Cargo names a file of this workspace
 /// from its root, and a file of a dependency by its full path:
 /// <https://github.com/rust-lang/cargo/blob/5f94df4/src/util/workspace.rs#L128-L146>
 fn part(file: &str) -> Option<String> {
     let (part, _) = file.strip_prefix("crates/")?.split_once('/')?;
-    // The crate `purba` builds the extension module. The crate `errors` holds
-    // the names of a concern. Neither is a part.
-    (part != "purba" && part != "errors").then(|| part.to_owned())
+    PARTS.contains(&part).then(|| part.to_owned())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn a_location_under_crates_names_its_part() {
-        assert_eq!(
-            part("crates/assertion/src/lib.rs"),
-            Some("assertion".to_owned()),
-            "a file of assertion"
-        );
-    }
 
     #[test]
     fn a_location_outside_the_source_of_a_part_names_no_part() {
@@ -151,6 +153,83 @@ mod tests {
             part("crates/errors/src/lib.rs"),
             None,
             "the crate purba-errors holds no part"
+        );
+        assert_eq!(
+            part("crates/config/src/lib.rs"),
+            None,
+            "the crate purba-config holds no part"
+        );
+    }
+
+    #[test]
+    fn each_part_names_itself() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../LANDSCAPE.md");
+        let landscape =
+            std::fs::read_to_string(path).unwrap_or_else(|error| panic!("{path}: {error}"));
+        let mut parts: Vec<&str> = landscape
+            .lines()
+            .skip_while(|line| *line != "## The parts and their dependencies")
+            .skip(1)
+            .take_while(|line| !line.starts_with("## "))
+            .filter_map(|line| line.strip_prefix("- **")?.split_once(".**"))
+            .map(|(name, _)| name)
+            .collect();
+        let mut held = PARTS;
+        parts.sort_unstable();
+        held.sort_unstable();
+
+        assert_eq!(parts, held, "{path} names the parts that PARTS holds");
+        for name in PARTS {
+            assert_eq!(
+                part(&format!("crates/{name}/src/lib.rs")),
+                Some(name.to_owned()),
+                "{name} is a part"
+            );
+        }
+    }
+
+    #[test]
+    fn a_location_in_a_crate_that_is_not_a_part_names_no_part() {
+        assert_eq!(
+            part("crates/newcrate/src/lib.rs"),
+            None,
+            "a crate that the list of the parts leaves out"
+        );
+        for name in ["", "select", "assertions"] {
+            assert_eq!(
+                part(&format!("crates/{name}/src/lib.rs")),
+                None,
+                "the name {name:?} is near a part or empty"
+            );
+        }
+        // A list of the crates that are not parts can hold each name that a
+        // test writes out, so these names are generated.
+        let letters = || ('a'..='z').map(String::from);
+        let names = letters().chain(
+            letters().flat_map(|first| letters().map(move |second| format!("{first}{second}"))),
+        );
+        for name in names {
+            assert_eq!(
+                part(&format!("crates/{name}/src/lib.rs")),
+                None,
+                "the name {name:?} is no part"
+            );
+        }
+    }
+
+    #[test]
+    fn a_panic_outside_the_parts_names_its_catcher() {
+        let panic = Panic {
+            part: part("crates/config/src/lib.rs"),
+            message: "boom".to_owned(),
+        };
+        assert_eq!(
+            panic.caught_by("dispatch"),
+            Caught {
+                part: "dispatch".to_owned(),
+                message: "boom".to_owned(),
+            },
+            "a panic in purba-config names the part that caught it"
         );
     }
 }

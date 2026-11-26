@@ -47,7 +47,7 @@ tests/**                        build  -scripts  -lint-rust   lint-scripts  -lin
 /CLAUDE.md                     -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 /CONTEXT.md                    -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
 /CONTRIBUTING.md               -build  -scripts  -lint-rust  -lint-scripts  -lint-docs  -lint-macos
-/LANDSCAPE.md                  -build  -scripts   lint-rust  -lint-scripts   lint-docs  -lint-macos
+/LANDSCAPE.md                   build  -scripts   lint-rust  -lint-scripts   lint-docs  -lint-macos
 /.cargo/deny.toml              -build  -scripts   lint-rust  -lint-scripts  -lint-docs  -lint-macos
 /.cargo/check-prose.deny.toml  -build  -scripts   lint-rust   lint-scripts  -lint-docs  -lint-macos
 /prek.toml                     -build  -scripts  -lint-rust   lint-scripts  -lint-docs  -lint-macos
