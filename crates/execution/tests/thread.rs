@@ -4,10 +4,10 @@ use std::path::PathBuf;
 
 use common::module;
 use purba_errors::Kind;
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started, Thread};
 
-/// The owner of a thread, as dispatch pairs the step that execution names: the
-/// test, by the name of its function, or a load, by the path of its module.
+/// The owner of a thread, as dispatch pairs the step that execution charges:
+/// the test, by the name of its function, or a load, by the path of its module.
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum Owned {
     Test(&'static str),
@@ -22,12 +22,12 @@ fn load(path: &str) -> Owned {
     Owned::Load(PathBuf::from(path))
 }
 
-/// The owner of a thread that `step` left, when `function` ran in the module
+/// The owner of `thread`, beside its error, when `function` ran in the module
 /// at `path`.
-fn owned(step: purba_execution::Step, function: &'static str, path: &str) -> Owned {
-    match step {
-        purba_execution::Step::Test => test(function),
-        purba_execution::Step::Load => load(path),
+fn owned(thread: Thread, function: &'static str, path: &str) -> (Owned, String) {
+    match thread {
+        Thread::Test(error) => (test(function), without_ident(error.to_string())),
+        Thread::Load(error) => (load(path), without_ident(error.to_string())),
     }
 }
 
@@ -118,8 +118,9 @@ fn through(path: &str, source: &str, functions: &[&'static str]) -> Vec<Step> {
     let module = module(path, source);
     purba_execution::attach(|purba: &Purba<'_>| {
         let (mut zygote, threads) = match purba.zygote(&module) {
-            Ok(started) => started,
-            Err(stop) => return vec![(Err(stop.error.to_string()), Vec::new())],
+            Started::Loaded(zygote, threads) => (zygote, threads),
+            Started::Stopped(stop) => return vec![(Err(stop.error.to_string()), Vec::new())],
+            Started::Unreached => panic!("no interrupt is kept"),
         };
         let mut steps = vec![(
             Ok(None),
@@ -129,23 +130,19 @@ fn through(path: &str, source: &str, functions: &[&'static str]) -> Vec<Step> {
                 .collect(),
         )];
         for function in functions {
-            let (result, _, threads) = zygote.run(function, &[]);
+            let Gave::Ran(ran) = zygote.run(function, &[]) else {
+                panic!("the test {function} runs");
+            };
             steps.push((
-                result
+                ran.result
                     .map(|outcome| Some(outcome.kind().clone()))
                     .map_err(|error| error.to_string()),
-                threads
+                ran.threads
                     .into_iter()
-                    .map(|(step, error)| {
-                        (
-                            owned(step, function, path),
-                            without_ident(error.to_string()),
-                        )
-                    })
+                    .map(|thread| owned(thread, function, path))
                     .collect(),
             ));
         }
-        zygote.end();
         steps
     })
 }

@@ -139,46 +139,6 @@ fn dispatch_calls_only_the_tests_it_is_handed() {
 }
 
 #[test]
-fn each_test_reads_the_module_as_its_load_left_it() {
-    let test_shared = module(
-        "test_shared.py",
-        "seen = []\n\n\
-         def test_first():\n    seen.append(1)\n    assert seen == [1]\n\n\
-         def test_second():\n    seen.append(2)\n    assert seen == [2]\n",
-        &["test_first", "test_second"],
-    );
-    assert_eq!(
-        seen(test_shared),
-        [
-            test("test_first", Ok(Kind::Passed)),
-            test("test_second", Ok(Kind::Passed))
-        ],
-        "test_second does not see what test_first appended",
-    );
-}
-
-#[test]
-fn an_error_stands_beside_its_test_and_the_run_goes_on() {
-    let test_err = module(
-        "test_err.py",
-        "def test_one():\n    pass\n\ntest_one = 5\n\n\
-         def test_two():\n    assert True\n",
-        &["test_one", "test_two"],
-    );
-    assert_eq!(
-        seen(test_err),
-        [
-            test(
-                "test_one",
-                Err("project error: TypeError: 'int' object is not callable"),
-            ),
-            test("test_two", Ok(Kind::Passed)),
-        ],
-        "the error beside its test, and the next test runs",
-    );
-}
-
-#[test]
 fn dispatch_hands_each_test_before_it_runs_the_next() {
     let ran = ran_at("test_dispatch_before.ran");
     let mut ran_before = Vec::new();

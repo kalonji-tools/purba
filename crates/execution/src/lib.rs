@@ -27,7 +27,7 @@ use pyo3::exceptions::PyAssertionError;
 use pyo3::types::PyAnyMethods;
 use pyo3::{Bound, Py, PyAny, PyErr, Python};
 use step::{Gives, Met};
-pub use zygote::{End, Stop, Zygote};
+pub use zygote::{End, Gave, Ran, Started, Stop, Thread, Zygote};
 
 /// A module that dispatch hands [`Purba::zygote`].
 pub struct Module {
@@ -82,7 +82,7 @@ fn replaced(py: Python<'_>) -> Option<purba_assertion::Replaced> {
 /// test that a test's process ran. It is the step that left the thread alive,
 /// or else the step that ran last.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Step {
+pub(crate) enum Step {
     Load,
     Test,
 }

@@ -21,20 +21,21 @@ use purba_errors::catch;
 use crate::fork::{Forked, fork};
 use crate::frame::Message;
 use crate::interrupt::Window;
-use crate::order::{Case, Facts};
+use crate::order::{Case, Decided, Facts};
 use crate::step::Met;
 use crate::{Error, Module, Outcome, Purba, Step, Suppressed, Worker, interrupt, outcome, thread};
 
-/// A zygote that purba forked, seen from purba.
+/// A zygote that purba forked, seen from purba. A dropped zygote ends, and
+/// purba waits for it.
 pub struct Zygote {
     pid: libc::pid_t,
     tests: Option<File>,
     frames: File,
     /// The wait status of the zygote, once purba reaped it.
     reaped: Option<libc::c_int>,
-    /// The end of the module's process that the last case met, until
-    /// `ended` takes it.
-    end: Option<End>,
+    /// Whether the line of the last case names the end of the module's
+    /// process.
+    named: bool,
 }
 
 /// The end of the module's process, which a case met: its error, and whether
@@ -43,6 +44,46 @@ pub struct Zygote {
 pub struct End {
     pub error: Error,
     pub named: bool,
+}
+
+/// What `Purba::zygote` gives for a module.
+pub enum Started {
+    /// The zygote, and the error of each thread that the load took.
+    Loaded(Zygote, Vec<Error>),
+    /// What stopped the module before its tests.
+    Stopped(Stop),
+    /// An interrupt is kept, so nothing loads.
+    Unreached,
+}
+
+/// What `Zygote::run` gives for one test.
+#[derive(Debug)]
+pub enum Gave {
+    /// The test ran.
+    Ran(Ran),
+    /// An interrupt is kept, so the test does not run.
+    Unreached,
+    /// The module's process ended at an earlier test, so the test does not run.
+    Ended(End),
+}
+
+/// A test that ran: its outcome, or the error in its place, what its
+/// suppressions gave, and the error of each thread, in the order that the
+/// threads raised them.
+#[derive(Debug)]
+pub struct Ran {
+    pub result: Result<Outcome, Error>,
+    pub suppressed: Suppressed,
+    pub threads: Vec<Thread>,
+}
+
+/// The error of a thread's exception, beside the step that it charges.
+#[derive(Debug)]
+pub enum Thread {
+    /// The test that the test's process ran.
+    Test(Error),
+    /// The load of the module.
+    Load(Error),
 }
 
 /// What a child of the zygote sent, up to its end: the facts of a test, the
@@ -78,47 +119,66 @@ pub struct Stop {
 /// The error of each thread that a test's process found, beside its step.
 type Threads = Vec<(Step, Error)>;
 
+/// Why no replay read an expectation alone: the words of the zygote's refusal
+/// to fork it, or of the end of the module's process.
+enum Refusal {
+    Fork(String),
+    End(String),
+}
+
+impl Refusal {
+    /// The words of the refusal.
+    fn words(self) -> String {
+        let (Self::Fork(words) | Self::End(words)) = self;
+        words
+    }
+}
+
 impl Purba<'_> {
     /// Forks the zygote that forks a process for each test of `module`. Gives
-    /// the zygote and the error of each thread that the load took, or gives
-    /// what stopped the module.
+    /// the zygote and the error of each thread that the load took, or what
+    /// stopped the module, or `Unreached` when purba's signal handler kept an
+    /// interrupt before the fork.
     ///
     /// The zygote loads the module. When a Python thread is alive after the
     /// load, that zygote ends. A zygote that loads nothing then forks the
     /// processes. Each of them loads the module again before its test.
     ///
-    /// # Errors
-    ///
     /// The module stops when a zygote cannot fork, when the load fails, or
     /// when a zygote ends before it is ready.
-    pub fn zygote(&self, module: &Module) -> Result<(Zygote, Vec<Error>), Stop> {
-        let mut zygote = self.forked(module, true).map_err(|error| Stop {
-            error,
-            threads: Vec::new(),
-        })?;
+    #[must_use]
+    pub fn zygote(&self, module: &Module) -> Started {
+        if interrupt::kept(self.py) {
+            return Started::Unreached;
+        }
+        let mut zygote = match self.forked(module, true) {
+            Ok(zygote) => zygote,
+            Err(error) => {
+                return Started::Stopped(Stop {
+                    error,
+                    threads: Vec::new(),
+                });
+            }
+        };
         let Load {
             result,
             threads,
             threaded,
         } = zygote.loaded();
         if let Err(error) = result {
-            zygote.end();
-            return Err(Stop { error, threads });
+            return Started::Stopped(Stop { error, threads });
         }
         if !threaded {
-            return Ok((zygote, threads));
+            return Started::Loaded(zygote, threads);
         }
-        zygote.end();
+        drop(zygote);
         let mut zygote = match self.forked(module, false) {
             Ok(zygote) => zygote,
-            Err(error) => return Err(Stop { error, threads }),
+            Err(error) => return Started::Stopped(Stop { error, threads }),
         };
         match zygote.loaded().result {
-            Ok(()) => Ok((zygote, threads)),
-            Err(error) => {
-                zygote.end();
-                Err(Stop { error, threads })
-            }
+            Ok(()) => Started::Loaded(zygote, threads),
+            Err(error) => Started::Stopped(Stop { error, threads }),
         }
     }
 
@@ -163,7 +223,7 @@ impl Purba<'_> {
                     tests: Some(File::from(tests_out)),
                     frames: File::from(frames_in),
                     reaped: None,
-                    end: None,
+                    named: false,
                 })
             }
         }
@@ -280,47 +340,54 @@ impl Zygote {
     ///
     /// When the module's process ends before each replay sent its reading, the
     /// case gets its end as a refusal, as when the zygote cannot fork a
-    /// replay. Once the module's process ended, `ended` gives that end.
-    pub fn run(
-        &mut self,
-        function: &str,
-        suppressions: &[(&str, &str)],
-    ) -> (Result<Outcome, Error>, Suppressed, Threads) {
+    /// replay.
+    ///
+    /// It runs no test when purba's signal handler kept an interrupt, and
+    /// gives `Unreached`. Else, once the module's process ended, it runs no
+    /// test, and gives that end.
+    pub fn run(&mut self, function: &str, suppressions: &[(&str, &str)]) -> Gave {
+        if crate::interrupted() {
+            return Gave::Unreached;
+        }
+        if let Some(status) = self.reaped {
+            return Gave::Ended(End {
+                error: Error::project(gone(status)),
+                named: self.named,
+            });
+        }
         let mut threads = Vec::new();
         let test = Message::Test {
             function: function.to_owned(),
         };
-        let (result, suppressed) = match self.ask(&test) {
+        let (result, suppressed, named) = match self.ask(&test) {
             Ok(()) => self.case(function, suppressions, &mut threads),
-            Err(gone) => (Err(Error::project(gone)), Suppressed::default()),
+            Err(gone) => (Err(Error::project(gone)), Suppressed::default(), true),
         };
-        if let Some(status) = self.reaped {
-            let words = gone(status);
-            let named = matches!(&result, Err(error)
-                if error.kind() == purba_errors::ErrorKind::Project && error.to_string() == words);
-            self.end = Some(End {
-                error: Error::project(words),
-                named,
-            });
-        }
-        (result, suppressed, threads)
-    }
-
-    /// The end of the module's process that the last case met. Gives it once.
-    pub const fn ended(&mut self) -> Option<End> {
-        self.end.take()
+        self.named = named;
+        Gave::Ran(Ran {
+            result,
+            suppressed,
+            threads: threads
+                .into_iter()
+                .map(|(step, error)| match step {
+                    Step::Test => Thread::Test(error),
+                    Step::Load => Thread::Load(error),
+                })
+                .collect(),
+        })
     }
 
     /// Reads the case of the test `function`, which the zygote forked, and
     /// asks for its replays. Gives what `order` decides from all that the case
-    /// met: the outcome or what takes its place, and what the suppressions of
-    /// the case gave.
+    /// met: the outcome or what takes its place, what the suppressions of the
+    /// case gave, and whether the end of the module's process took the place
+    /// of the outcome.
     fn case(
         &mut self,
         function: &str,
         suppressions: &[(&str, &str)],
         threads: &mut Threads,
-    ) -> (Result<Outcome, Error>, Suppressed) {
+    ) -> (Result<Outcome, Error>, Suppressed, bool) {
         let window = Window::open();
         let Sent {
             facts,
@@ -335,11 +402,16 @@ impl Zygote {
             landed,
             arrived: false,
             end,
+            ended_a_replay: false,
         };
         self.replays(function, &mut case, threads);
         case.arrived = window.arrived();
-        let (own, suppressed) = crate::order::order(case, suppressions);
-        (own.map(outcome), suppressed)
+        let Decided {
+            own,
+            suppressed,
+            ended,
+        } = crate::order::order(case, suppressions);
+        (own.map(outcome), suppressed, ended)
     }
 
     /// Writes `message` to the zygote. When the zygote no longer reads, it
@@ -420,8 +492,9 @@ impl Zygote {
         }
         if let Some(facts) = case.facts.as_mut() {
             facts.alone.extend(alone);
-            if refusal.is_some() {
-                facts.refused = refusal;
+            if let Some(refused) = refusal {
+                case.ended_a_replay = matches!(refused, Refusal::End(_));
+                facts.refused = Some(refused.words());
             }
         }
     }
@@ -440,13 +513,13 @@ impl Zygote {
         function: &str,
         index: usize,
         threads: &mut Threads,
-    ) -> Result<Result<Verdict, String>, Error> {
+    ) -> Result<Result<Verdict, Refusal>, Error> {
         let replay = Message::Replay {
             function: function.to_owned(),
             index,
         };
         if let Err(gone) = self.ask(&replay) {
-            return Ok(Err(gone));
+            return Ok(Err(Refusal::End(gone)));
         }
         let Sent {
             verdict,
@@ -459,16 +532,11 @@ impl Zygote {
             return Err(error);
         }
         Ok(match (refused, verdict, end) {
-            (Some(refused), _, _) => Err(refused),
+            (Some(refused), _, _) => Err(Refusal::Fork(refused)),
             (None, Some(verdict), _) => Ok(verdict),
             (None, None, Ok(_)) => Ok(Verdict::Raises),
-            (None, None, Err(status)) => Err(gone(status)),
+            (None, None, Err(status)) => Err(Refusal::End(gone(status))),
         })
-    }
-
-    /// Tells the zygote that no test is left, and waits for it to end.
-    pub fn end(mut self) {
-        self.wait();
     }
 
     /// Closes the pipe of test names, and waits for the zygote to end. Gives
@@ -482,6 +550,13 @@ impl Zygote {
         self.reaped = Some(status);
         interrupt::follow_zygote(0);
         status
+    }
+}
+
+impl Drop for Zygote {
+    /// Tells the zygote that no test is left, and waits for it to end.
+    fn drop(&mut self) {
+        self.wait();
     }
 }
 
@@ -997,6 +1072,18 @@ mod tests {
         release: mpsc::Sender<()>,
     }
 
+    /// The outcome of a test that `Zygote::run` ran, or the `Debug` text of
+    /// its error.
+    fn outcome_of(gave: Gave) -> Result<Kind, String> {
+        match gave {
+            Gave::Ran(ran) => ran
+                .result
+                .map(|outcome| outcome.kind().clone())
+                .map_err(|error| format!("{error:?}")),
+            other => panic!("the test runs: {other:?}"),
+        }
+    }
+
     /// Runs the case `test_one` on `frames`, as `Zygote::run` reads them.
     ///
     /// A thread stands in for the zygote and the test's process. It writes
@@ -1015,14 +1102,7 @@ mod tests {
         let (done, outcome) = mpsc::channel();
         let (release, released) = mpsc::channel::<()>();
         std::thread::spawn(move || {
-            let (result, _, _) = zygote.run("test_one", &[]);
-            drop(
-                done.send(
-                    result
-                        .map(|outcome| outcome.kind().clone())
-                        .map_err(|error| format!("{error:?}")),
-                ),
-            );
+            drop(done.send(outcome_of(zygote.run("test_one", &[]))));
             released.recv().ok();
         });
         let outcome = outcome
@@ -1110,7 +1190,7 @@ mod tests {
             tests: Some(File::from(tests_out)),
             frames: File::from(frames_in),
             reaped: None,
-            end: None,
+            named: false,
         };
         (zygote, sent)
     }
@@ -1126,7 +1206,7 @@ mod tests {
             let mut threads = Vec::new();
             let verdict = zygote
                 .replay("test_one", 1, &mut threads)
-                .map(|verdict| format!("{verdict:?}"))
+                .map(|verdict| format!("{:?}", verdict.map_err(Refusal::words)))
                 .map_err(|error| format!("{error:?}"));
             let threads = threads
                 .iter()
@@ -1281,7 +1361,7 @@ mod tests {
     /// thread alive sent them, as `Ran::outcome` holds it.
     fn forked(facts: &Facts) -> Result<Kind, String> {
         crate::order::order(Case::of(facts.clone()), &[])
-            .0
+            .own
             .map_err(|error| format!("{error:?}"))
     }
 
@@ -1392,14 +1472,7 @@ mod tests {
         let (done, outcomes) = mpsc::channel();
         std::thread::spawn(move || {
             for _ in 0..2 {
-                let (result, _, _) = zygote.run("test_one", &[]);
-                drop(
-                    done.send(
-                        result
-                            .map(|outcome| outcome.kind().clone())
-                            .map_err(|error| format!("{error:?}")),
-                    ),
-                );
+                drop(done.send(outcome_of(zygote.run("test_one", &[]))));
             }
         });
         let next = || {
@@ -1558,8 +1631,9 @@ mod tests {
     }
 
     /// Runs the case `test_one` on `frames`, from a stand-in that ends after
-    /// them. Gives the outcome, or the `Debug` text of the error, beside what
-    /// `ended` then gives: the line of the end, and whether the case named it.
+    /// them. Gives the outcome, or the `Debug` text of the error, beside the
+    /// end that the run of the next test then gives: the line of the end, and
+    /// whether the case named it.
     fn run_to_the_end(frames: Vec<Vec<u8>>) -> (Result<Kind, String>, Option<(String, bool)>) {
         to_the_end(zygote_on(frames, Ends::AfterItsFrames))
     }
@@ -1571,16 +1645,12 @@ mod tests {
     ) -> (Result<Kind, String>, Option<(String, bool)>) {
         let (done, ran) = mpsc::channel();
         std::thread::spawn(move || {
-            let (result, _, _) = zygote.run("test_one", &[]);
-            let end = zygote.ended().map(|end| (end.error.line(), end.named));
-            drop(
-                done.send((
-                    result
-                        .map(|outcome| outcome.kind().clone())
-                        .map_err(|error| format!("{error:?}")),
-                    end,
-                )),
-            );
+            let outcome = outcome_of(zygote.run("test_one", &[]));
+            let end = match zygote.run("test_two", &[]) {
+                Gave::Ended(end) => Some((end.error.line(), end.named)),
+                Gave::Ran(_) | Gave::Unreached => None,
+            };
+            drop(done.send((outcome, end)));
         });
         ran.recv_timeout(Duration::from_secs(10))
             .expect("the run returns without a frame that does not come")

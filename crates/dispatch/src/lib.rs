@@ -8,7 +8,7 @@ use std::ops::ControlFlow;
 use std::path::PathBuf;
 
 use purba_errors::{Error, Outcome, Suppressed};
-use purba_execution::{End, Purba, Rewrite, Step, Stop, Zygote};
+use purba_execution::{End, Gave, Purba, Ran, Rewrite, Started, Stop, Thread, Zygote};
 use purba_selection::TestId;
 
 /// What dispatch reads of a selected test.
@@ -105,14 +105,14 @@ pub enum Handed<T> {
 ///
 /// When the module's process ends after a test of it ran, `each` takes the
 /// tests left once, with that end, and no test left runs. See
-/// [`Zygote::ended`].
+/// [`Zygote::run`].
 ///
 /// After each load and each test, `each` takes the error of each thread that
 /// the load or the test's process took, beside the test or the module that it
 /// charges. After a load, they come before the first test.
 ///
-/// Before each load and each test, dispatch asks execution whether purba's
-/// signal handler kept an interrupt. Once it did, `each` takes each test left,
+/// Before each load and each test, execution asks whether purba's signal
+/// handler kept an interrupt. Once it did, `each` takes each test left,
 /// of each module left, as unreached. Nothing further loads or runs. When the
 /// interrupt lands in a load, `each` takes no project error of the load.
 ///
@@ -127,29 +127,24 @@ pub fn hand<T: Test + Clone, B>(
             if module.tests.is_empty() {
                 continue;
             }
-            if purba_execution::interrupted() {
-                for test in module.tests {
-                    each(Handed::Unreached(test))?;
-                }
-                continue;
-            }
             let path = module.path.clone();
             let executable = purba_execution::Module::new(module.path, module.rewrite);
-            let (mut zygote, threads) = match purba.zygote(&executable) {
-                Ok(started) => started,
-                Err(Stop { error, threads }) => {
-                    each(Handed::Stopped {
-                        path,
-                        error,
-                        threads,
-                        tests: module.tests,
-                    })?;
-                    continue;
+            match purba.zygote(&executable) {
+                Started::Loaded(mut zygote, threads) => {
+                    run(&mut zygote, path, threads, module.tests, &mut each)?;
                 }
-            };
-            let flow = run(&mut zygote, path, threads, module.tests, &mut each);
-            zygote.end();
-            flow?;
+                Started::Stopped(Stop { error, threads }) => each(Handed::Stopped {
+                    path,
+                    error,
+                    threads,
+                    tests: module.tests,
+                })?,
+                Started::Unreached => {
+                    for test in module.tests {
+                        each(Handed::Unreached(test))?;
+                    }
+                }
+            }
         }
         ControlFlow::Continue(())
     })
@@ -158,7 +153,7 @@ pub fn hand<T: Test + Clone, B>(
 /// Hands `each` the error of each thread that the load of the module at `path`
 /// took. Then runs each of `tests` in a process that `zygote` forks, and hands
 /// `each` what it gives. Once the module's process ended, it hands each test
-/// left as blocked by that end, and runs none of them.
+/// left as blocked by that end.
 fn run<T: Test + Clone, B>(
     zygote: &mut Zygote,
     path: PathBuf,
@@ -171,32 +166,29 @@ fn run<T: Test + Clone, B>(
     }
     let mut tests = tests.into_iter();
     while let Some(test) = tests.next() {
-        if purba_execution::interrupted() {
-            each(Handed::Unreached(test))?;
-            continue;
-        }
-        let (result, suppressed, threads) = zygote.run(test.function(), &test.suppressions());
-        each(Handed::Test(test.clone(), result, suppressed))?;
-        for (step, error) in threads {
-            each(match step {
-                Step::Test => Handed::TestThread(test.clone(), error),
-                Step::Load => Handed::LoadThread(path.clone(), error),
-            })?;
-        }
-        if purba_execution::interrupted() {
-            continue;
-        }
-        if let Some(End { error, named }) = zygote.ended() {
-            let left: Vec<T> = tests.collect();
-            if left.is_empty() {
-                return ControlFlow::Continue(());
+        match zygote.run(test.function(), &test.suppressions()) {
+            Gave::Ran(Ran {
+                result,
+                suppressed,
+                threads,
+            }) => {
+                each(Handed::Test(test.clone(), result, suppressed))?;
+                for thread in threads {
+                    each(match thread {
+                        Thread::Test(error) => Handed::TestThread(test.clone(), error),
+                        Thread::Load(error) => Handed::LoadThread(path.clone(), error),
+                    })?;
+                }
             }
-            return each(Handed::Ended {
-                path,
-                error,
-                named,
-                tests: left,
-            });
+            Gave::Unreached => each(Handed::Unreached(test))?,
+            Gave::Ended(End { error, named }) => {
+                return each(Handed::Ended {
+                    path,
+                    error,
+                    named,
+                    tests: std::iter::once(test).chain(tests).collect(),
+                });
+            }
         }
     }
     ControlFlow::Continue(())

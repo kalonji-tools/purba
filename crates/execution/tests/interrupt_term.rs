@@ -5,7 +5,7 @@
 mod common;
 
 use purba_errors::Kind;
-use purba_execution::Purba;
+use purba_execution::{Gave, Purba, Started};
 
 /// A module whose test takes a SIGTERM, then gives SIGTERM its own signal
 /// handler. As its process ends, the test marks one of three answers for each
@@ -64,10 +64,13 @@ fn a_sigterm_in_a_call_makes_the_test_interrupted_and_each_signal_keeps_a_handle
     let before = SIGNALS.map(disposition);
     let kind = purba_execution::attach(|purba: &Purba<'_>| {
         purba_execution::set_hooks().expect("purba's signal handler takes each signal");
-        let (mut zygote, _) = purba.zygote(&module).expect("the zygote loads the module");
-        let (result, _, _) = zygote.run("test_term", &[]);
-        zygote.end();
-        result
+        let Started::Loaded(mut zygote, _) = purba.zygote(&module) else {
+            panic!("the zygote loads the module");
+        };
+        let Gave::Ran(ran) = zygote.run("test_term", &[]) else {
+            panic!("the test runs");
+        };
+        ran.result
             .map(|outcome| outcome.kind().clone())
             .map_err(|error| error.to_string())
     });

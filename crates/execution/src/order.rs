@@ -108,6 +108,9 @@ pub struct Case {
     /// The wait status of the test's process, or `Err` with the wait status of
     /// the module's process when it ended first.
     pub end: Result<libc::c_int, libc::c_int>,
+    /// The refusal in the facts is the end of the module's process, which a
+    /// replay met.
+    pub ended_a_replay: bool,
 }
 
 impl Case {
@@ -133,6 +136,7 @@ impl Case {
             landed: false,
             arrived: false,
             end: Ok(0),
+            ended_a_replay: false,
         }
     }
 }
@@ -274,6 +278,16 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
     })
 }
 
+/// What [`order`] decides for a case: its outcome or the error in its place,
+/// what its suppressions gave, and whether the end of the module's process
+/// took the place of the outcome, in order 9.
+#[derive(Debug)]
+pub struct Decided {
+    pub own: Result<Kind, Error>,
+    pub suppressed: Suppressed,
+    pub ended: bool,
+}
+
 /// The outcome of `case`, and each warning that `suppressions` gave. The first
 /// of these wins, numbered as the record's table numbers them:
 ///
@@ -304,11 +318,13 @@ const fn differs(alone: Verdict, in_order: bool) -> Option<&'static str> {
 /// each fault. The order judges each suppression of a check that execution
 /// sees only when it reaches step 5. Under step 0, 1 or 2, it still reads the
 /// facts for their warnings.
-pub fn order(mut case: Case, suppressions: &[(&str, &str)]) -> (Result<Kind, Error>, Suppressed) {
+pub fn order(mut case: Case, suppressions: &[(&str, &str)]) -> Decided {
     if let (Some(facts), Err(status)) = (case.facts.as_mut(), case.end)
         && !facts.later.is_empty()
+        && facts.refused.is_none()
     {
-        facts.refused.get_or_insert_with(|| gone(status));
+        facts.refused = Some(gone(status));
+        case.ended_a_replay = true;
     }
     let mut suppressing = Suppressing {
         suppressions,
@@ -323,13 +339,15 @@ pub fn order(mut case: Case, suppressions: &[(&str, &str)]) -> (Result<Kind, Err
         .errors
         .iter()
         .rposition(|error| error.kind() != ErrorKind::Project);
+    let mut ended = false;
     let own = if let Some(at) = internal {
         Err(case.errors.swap_remove(at))
     } else if case.landed {
         Ok(Kind::Interrupted)
     } else if let Some(error) = case.errors.pop() {
         Err(error)
-    } else if let Some(own) = of_the_facts {
+    } else if let Some((own, refused)) = of_the_facts {
+        ended = refused && case.ended_a_replay;
         own
     } else {
         match case.end {
@@ -338,23 +356,43 @@ pub fn order(mut case: Case, suppressions: &[(&str, &str)]) -> (Result<Kind, Err
                 exception: lost(status, "its outcome"),
                 whence: None,
             }),
-            Err(status) => Err(Error::project(gone(status))),
+            Err(status) => {
+                ended = true;
+                Err(Error::project(gone(status)))
+            }
         }
     };
-    (
+    Decided {
         own,
-        Suppressed {
+        suppressed: Suppressed {
             warnings: suppressing.warnings,
             judged: suppressing.judged,
         },
-    )
+        ended,
+    }
 }
 
-/// The steps of [`order`], in turn.
-fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error> {
+/// The steps of [`order`] that read the facts, in turn, and whether the
+/// refusal in the facts, in step 7, gave the outcome.
+fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> (Result<Kind, Error>, bool) {
+    if let Some(own) = above_the_refusal(facts, suppressing) {
+        return (own, false);
+    }
+    if let Some(refused) = &facts.refused {
+        return (Err(Error::project(refused.clone())), true);
+    }
+    (of_the_readings(facts), false)
+}
+
+/// Steps 3 to 6 of [`order`], in turn. `None` when none of them gives the
+/// outcome.
+fn above_the_refusal(
+    facts: &Facts,
+    suppressing: &mut Suppressing<'_>,
+) -> Option<Result<Kind, Error>> {
     for (check, words) in &facts.form {
         if let Some(clause) = suppressing.clause(check, words) {
-            return Err(Error::project(clause));
+            return Some(Err(Error::project(clause)));
         }
     }
     if let Some((index, _)) = facts
@@ -363,9 +401,9 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
         .find(|(_, verdict)| *verdict == Verdict::Refused)
     {
         let text = facts.text(*index).unwrap_or_default();
-        return Err(Error::project(format!(
+        return Some(Err(Error::project(format!(
             "[assert-in-reading] {text} {REFUSED_ALONE}"
-        )));
+        ))));
     }
     if let Called::Raised {
         exception,
@@ -374,21 +412,21 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
     } = &facts.called
     {
         if let Some(with) = &facts.with {
-            return Ok(Kind::Failed {
+            return Some(Ok(Kind::Failed {
                 asserts: vec![Quote::alone(with.clone())],
-            });
+            }));
         }
         if let Some((assert, false)) = &facts.mark
             && *assertion
         {
-            return Ok(Kind::Failed {
+            return Some(Ok(Kind::Failed {
                 asserts: vec![Quote::alone(assert.clone())],
-            });
+            }));
         }
-        return Ok(Kind::Raised {
+        return Some(Ok(Kind::Raised {
             exception: exception.clone(),
             whence: whence.clone(),
-        });
+        }));
     }
     suppressing.judged = true;
     let mut in_another_try = false;
@@ -406,7 +444,7 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
             line.push_str("; ");
             line.push_str(ONE_PATH);
         }
-        return Err(Error::project(line));
+        return Some(Err(Error::project(line)));
     }
     for &(index, alone) in &facts.alone {
         let Some(&(_, in_order)) = facts.in_order.iter().find(|(read, _)| *read == index) else {
@@ -414,13 +452,12 @@ fn steps(facts: &Facts, suppressing: &mut Suppressing<'_>) -> Result<Kind, Error
         };
         if let Some(differ) = differs(alone, in_order) {
             let text = facts.text(index).unwrap_or_default();
-            return Err(Error::project(format!("[readings-differ] {text} {differ}")));
+            return Some(Err(Error::project(format!(
+                "[readings-differ] {text} {differ}"
+            ))));
         }
     }
-    if let Some(refused) = &facts.refused {
-        return Err(Error::project(refused.clone()));
-    }
-    of_the_readings(facts)
+    None
 }
 
 /// The outcome of a case from the readings of its expectations in order and
@@ -473,7 +510,7 @@ mod tests {
     /// The line that `order` gives for `facts` with no suppression, as text a
     /// row can compare.
     fn line(facts: &Facts) -> String {
-        shown(order(Case::of(facts.clone()), &[]).0)
+        shown(order(Case::of(facts.clone()), &[]).own)
     }
 
     /// What `warned` gives: the line, each warning as `[<check>] <words>`, and
@@ -486,7 +523,9 @@ mod tests {
 
     /// What `order` gives for `facts` under `suppressions`.
     fn warned(facts: &Facts, suppressions: &[(&str, &str)]) -> Warned {
-        let (own, suppressed) = order(Case::of(facts.clone()), suppressions);
+        let Decided {
+            own, suppressed, ..
+        } = order(Case::of(facts.clone()), suppressions);
         let warnings = suppressed
             .warnings
             .iter()
@@ -601,7 +640,7 @@ mod tests {
             .chain(rows_of_the_end())
             .chain(of_the_facts)
         {
-            assert_eq!(shown(order(case, &[]).0), gives, "{row}");
+            assert_eq!(shown(order(case, &[]).own), gives, "{row}");
         }
     }
 
