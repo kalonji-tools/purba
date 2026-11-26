@@ -631,7 +631,7 @@ LINES
     run -3 --separate-stderr purba "${path}"
 
     local refused="purba: invocation error: ${path} names no test file: "
-    refused+='stage one skips .venv, a hidden folder'
+    refused+='stage one skips .venv, a hidden file or folder'
     [[ "${stderr}" == "${refused}" ]] || false
     [[ -z "${output}" ]] || false
   done

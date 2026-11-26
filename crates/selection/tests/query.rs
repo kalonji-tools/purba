@@ -324,7 +324,7 @@ fn an_id_in_a_folder_that_stage_one_skips_keeps_its_reason() {
     assert_eq!(
         picked(&root, "tests/.cache/test_c.py"),
         Err("tests/.cache/test_c.py names no test file: \
-             stage one skips tests/.cache, a hidden folder"
+             stage one skips tests/.cache, a hidden file or folder"
             .to_owned()),
         "the reason of stage one stays"
     );
