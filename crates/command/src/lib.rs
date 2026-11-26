@@ -18,7 +18,7 @@ use purba_selection::{Reached, Selected, TestId, Unnamed, Unparsed};
 pub enum Error {
     /// The arguments are more than one query.
     Usage,
-    /// The query does not parse.
+    /// The query does not parse, or its aliases do not expand.
     Query(Unparsed),
     /// The words of each error of the `PURBA_*` variables, sorted by the name
     /// of the variable.
@@ -107,6 +107,8 @@ impl fmt::Display for Error {
 /// - `out` is an error.
 /// - No `pyproject.toml` on the walk up from the working folder holds
 ///   `[tool.purba]`, and `PURBA_IMPLICIT_ROOT` is not `1`.
+/// - A call of the query names no alias, hands an alias the wrong count of
+///   arguments, or nests deeper than 255 levels as the aliases expand.
 /// - An id of the query names no test file.
 /// - An interrupt comes before selection ends.
 /// - A term of the query names nothing that purba read.
@@ -189,8 +191,8 @@ pub fn run_with(
             (step.into_folder(), Default::default())
         }
     };
-    let patterns = match dials(settings) {
-        Ok(patterns) => patterns,
+    let (patterns, aliases) = match dials(settings) {
+        Ok(dials) => dials,
         Err(errors) => {
             not_interrupted()?;
             for words in errors {
@@ -199,6 +201,10 @@ pub fn run_with(
             return Ok(report.finish()?);
         }
     };
+    let query = query
+        .map(|query| query.expand(&aliases))
+        .transpose()
+        .map_err(Error::Query)?;
     let reached =
         purba_selection::reach(&root, query.as_ref(), &patterns).map_err(Error::Unnamed)?;
     purba_execution::start_paths_at(root.clone(), folder.to_path_buf());
@@ -394,19 +400,27 @@ fn typed(arguments: &[String]) -> Result<Option<String>, Error> {
     }
 }
 
-/// The patterns of a test file that the table `settings` under `[tool.purba]`
-/// sets, or the words of each error of a dial, and then of each key that no
-/// dial owns.
-fn dials(settings: toml::Table) -> Result<purba_selection::Patterns, Vec<String>> {
+/// The patterns of a test file and the aliases that the table `settings` under
+/// `[tool.purba]` sets, or the words of each error of a dial, and then of each
+/// key that no dial owns.
+fn dials(
+    settings: toml::Table,
+) -> Result<(purba_selection::Patterns, purba_selection::Aliases), Vec<String>> {
     let project = purba_config::Project::new(settings);
     let patterns = project.resolve(&purba_selection::TEST_FILES);
-    let unknown = project.unknown(&[purba_selection::TEST_FILES.key()]);
-    match patterns {
-        Ok(resolved) if unknown.is_empty() => Ok(resolved.value),
-        Ok(_) => Err(unknown),
-        Err(mut errors) => {
-            errors.extend(unknown);
-            Err(errors)
+    let aliases = project.resolve(&purba_selection::QUERIES);
+    let mut errors = project.unknown(&[
+        purba_selection::TEST_FILES.key(),
+        purba_selection::QUERIES.key(),
+    ]);
+    match (patterns, aliases) {
+        (Ok(patterns), Ok(aliases)) if errors.is_empty() => Ok((patterns.value, aliases.value)),
+        (patterns, aliases) => {
+            let mut words = Vec::new();
+            words.extend(patterns.err().unwrap_or_default());
+            words.extend(aliases.err().unwrap_or_default());
+            words.append(&mut errors);
+            Err(words)
         }
     }
 }

@@ -1,9 +1,11 @@
-//! Turns the text of a query into a tree of terms.
+//! Turns the text of a query into a tree of terms, and expands each alias.
 //!
 //! `!` binds tightest, then `&`, then `|`, and parentheses group terms. A term
-//! is an id, `name(…)` or `path(…)`. A scan refuses a text that nests deeper
-//! than 255 levels before the grammar reads it, so the grammar's
-//! recursion stays shallow.
+//! is an id, `name(…)`, `path(…)` or the call of an alias. A scan refuses a
+//! text that nests deeper than 255 levels before the grammar reads it, so the
+//! grammar's recursion stays shallow.
+
+mod alias;
 
 use std::fmt;
 
@@ -13,8 +15,10 @@ use winnow::error::{ContextError, ErrMode, ModalResult, StrContext, StrContextVa
 use winnow::prelude::*;
 use winnow::token::{literal, take_while};
 
-/// The most levels a query nests. Each `(` that opens a group, and each `!`,
-/// opens a level.
+pub use alias::{Aliases, Nearest};
+
+/// The most levels a query nests. Each `(` that opens a group or a call, each
+/// `!`, and each alias that expands opens a level.
 const DEPTH: usize = 255;
 
 /// A query, as a tree of terms.
@@ -32,9 +36,19 @@ pub enum Query {
     And(Vec<Self>),
     /// Each test that any term picks.
     Or(Vec<Self>),
+    /// The call of the alias `name`, with its argument. `column` is the column
+    /// of the name in the text.
+    Call {
+        /// The name of the alias.
+        name: String,
+        /// The query that the alias takes in place of its parameter.
+        argument: Box<Self>,
+        /// The column of the name in the text.
+        column: usize,
+    },
 }
 
-/// Why the text of a query is no query.
+/// Why the text of a query is no query, or why its aliases do not expand.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Refused {
     column: usize,
@@ -45,8 +59,17 @@ pub struct Refused {
 enum Why {
     /// The text nests deeper than [`DEPTH`] levels.
     Deep,
-    /// A word before `(` names no term.
-    Call(String),
+    /// The expansion of the alias, which the tester typed, nests deeper than
+    /// [`DEPTH`] levels.
+    Through(String),
+    /// A word before `(` names no term, and the nearest alias, as the
+    /// project's file declares it, if any.
+    Call(String, Option<String>),
+    /// A call hands an argument to the alias, which takes none.
+    NoArgument(String),
+    /// The bare word names the alias, which takes an argument, as the
+    /// project's file declares it.
+    OneArgument(String, String),
     /// Something else stands where the words name what may stand.
     Expected(&'static str),
 }
@@ -59,10 +82,25 @@ impl fmt::Display for Refused {
                 formatter,
                 "the query nests deeper than {DEPTH} levels at column {column}"
             ),
-            Why::Call(word) => write!(
+            Why::Through(name) => write!(
+                formatter,
+                "the query nests deeper than {DEPTH} levels through the alias {name}"
+            ),
+            Why::Call(word, None) => write!(
                 formatter,
                 "column {column}: {word}( is no term; a query takes name( and path("
             ),
+            Why::Call(word, Some(nearest)) => write!(
+                formatter,
+                "column {column}: {word}( is no term; the nearest alias is {nearest}"
+            ),
+            Why::NoArgument(name) => write!(
+                formatter,
+                "column {column}: {name} takes no argument; write {name}"
+            ),
+            Why::OneArgument(name, form) => {
+                write!(formatter, "{name} takes one argument; write {form}")
+            }
             Why::Expected(what) => write!(formatter, "column {column}: expected {what}"),
         }
     }
@@ -83,7 +121,10 @@ pub fn parse(text: &str) -> Result<Query, Refused> {
         why,
     };
     match outcome {
-        Ok(tree) if input.is_empty() => Ok(tree),
+        Ok(mut tree) if input.is_empty() => {
+            count_columns(&mut tree, text);
+            Ok(tree)
+        }
         Ok(_) => Err(refused(Why::Expected(AFTER_A_TERM))),
         Err(ErrMode::Backtrack(error) | ErrMode::Cut(error)) => Err(refused(why(&error, input))),
         Err(ErrMode::Incomplete(_)) => Err(refused(Why::Expected(A_TERM))),
@@ -107,7 +148,7 @@ fn why(error: &ContextError, rest: &str) -> Why {
     for context in error.context() {
         match context {
             StrContext::Label(CALL) => {
-                return Why::Call(take_word(rest).to_owned());
+                return Why::Call(take_word(rest).to_owned(), None);
             }
             StrContext::Expected(StrContextValue::Description(what)) => {
                 return Why::Expected(what);
@@ -216,17 +257,49 @@ fn literal_term(
     }
 }
 
-/// A folder, a file or the id of a test. A word followed by `(` names no term.
+/// A folder, a file or the id of a test, or the call of an alias: a word
+/// followed by `(`, with a query in the parentheses. `tag(` names no term until
+/// `purba.tag` exists. The column of a call holds, for now, how many bytes of
+/// the text stand from its name to the end; [`count_columns`] counts it.
 fn id(input: &mut &str) -> ModalResult<Query> {
     let start = *input;
     let word = take_while(1.., is_word).parse_next(input)?;
-    if input.starts_with('(') {
+    if !input.starts_with('(') {
+        return Ok(Query::Id(word.to_owned()));
+    }
+    if word == "tag" {
         *input = start;
         let mut error = ContextError::new();
         error.push(StrContext::Label(CALL));
         return Err(ErrMode::Cut(error));
     }
-    Ok(Query::Id(word.to_owned()))
+    group
+        .map(|argument| Query::Call {
+            name: word.to_owned(),
+            argument: Box::new(argument),
+            column: start.len(),
+        })
+        .parse_next(input)
+}
+
+/// Turns the column of each call in `tree`, the bytes from its name to the end
+/// of `text`, into the column of its name.
+fn count_columns(tree: &mut Query, text: &str) {
+    match tree {
+        Query::Id(_) | Query::Name(_) | Query::Path(_) => {}
+        Query::Not(term) => count_columns(term, text),
+        Query::And(terms) | Query::Or(terms) => {
+            for term in terms {
+                count_columns(term, text);
+            }
+        }
+        Query::Call {
+            argument, column, ..
+        } => {
+            *column = text[..text.len() - *column].chars().count() + 1;
+            count_columns(argument, text);
+        }
+    }
 }
 
 /// Refuses a text that nests deeper than [`DEPTH`] levels.

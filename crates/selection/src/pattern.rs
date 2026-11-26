@@ -109,17 +109,25 @@ pub fn listed(items: &[impl fmt::Display]) -> String {
 /// The patterns that the value of `test-files` lists, or the words of each
 /// error of the value.
 fn read(value: &toml::Value) -> Result<Patterns, Vec<String>> {
-    let kind = match value {
-        toml::Value::Array(items) => return read_list(items),
+    if let toml::Value::Array(items) = value {
+        return read_list(items);
+    }
+    Err(vec![format!(
+        r#"test-files under [tool.purba] is {}; write a list, such as ["*_test.py"]"#,
+        kind(value)
+    )])
+}
+
+/// The kind of `value`, in the words of an error of a dial.
+pub const fn kind(value: &toml::Value) -> &'static str {
+    match value {
+        toml::Value::Array(_) => "a list",
         toml::Value::String(_) => "a string",
         toml::Value::Integer(_) | toml::Value::Float(_) => "a number",
         toml::Value::Boolean(_) => "a boolean",
         toml::Value::Datetime(_) => "a date",
         toml::Value::Table(_) => "a table",
-    };
-    Err(vec![format!(
-        r#"test-files under [tool.purba] is {kind}; write a list, such as ["*_test.py"]"#
-    )])
+    }
 }
 
 /// The patterns that `items` name, or the words of each item outside the

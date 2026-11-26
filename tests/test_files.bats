@@ -92,10 +92,11 @@ empty() {
   want+=("${line}")
 }
 
-# Expects the error of the key `$1`, which no dial owns.
+# Expects the error of the key `$1`, which no dial owns, and whose nearest dial
+# is `$2`.
 unknown() {
   local line="pyproject.toml project error: $1 under [tool.purba] is no setting of purba; "
-  line+='the nearest is test-files'
+  line+="the nearest is $2"
   want+=("${line}")
 }
 
@@ -257,18 +258,18 @@ unknown() {
 
   run -4 --separate-stderr purba
 
-  unknown tset-files
+  unknown tset-files test-files
   printed '0 cases; 1 project error'
 }
 
 @test "a table under [tool.purba] that no dial owns is a project error" {
-  project '' '[tool.purba.queries]' 'fast = "!tag(slow)"'
+  project '' '[tool.purba.platform]' 'linux = "path(tests/linux_only/**)"'
   two_files
   cd "${root}"
 
   run -4 --separate-stderr purba
 
-  unknown queries
+  unknown platform test-files
   printed '0 cases; 1 project error'
 }
 
@@ -280,7 +281,7 @@ unknown() {
   run -4 --separate-stderr purba
 
   empty pyproject.toml
-  unknown workers
+  unknown workers queries
   printed '0 cases; 2 project errors'
 }
 

@@ -5,17 +5,43 @@
 use std::fmt;
 use std::path::{Component, Path, PathBuf};
 
+use purba_config::Dial;
 use purba_parsing::Facts;
+pub use purba_query::Aliases;
 
-use crate::pattern::Patterns;
+use crate::pattern::{Patterns, kind};
 use crate::stage_one::{NoTestFile, TestFiles, test_files};
 use crate::{Selected, TestId};
 
-/// A query that parses.
+/// A query that parses, and the name and the form of each alias that expanded
+/// it, so that a bare word that names nothing can name the nearest alias.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Query(purba_query::Query);
+pub struct Query {
+    tree: purba_query::Query,
+    aliases: Vec<(String, String)>,
+}
 
-/// Why the text of a query is no query, in the words of query.
+impl Query {
+    /// The query with each alias of `aliases` expanded.
+    ///
+    /// # Errors
+    ///
+    /// A call names no alias, hands an alias the wrong count of arguments, or
+    /// the expansion nests deeper than 255 levels.
+    pub fn expand(&self, aliases: &Aliases) -> Result<Self, Unparsed> {
+        let tree = aliases.expand(&self.tree).map_err(Unparsed)?;
+        let aliases = aliases
+            .names()
+            .into_iter()
+            .zip(aliases.forms())
+            .map(|(name, form)| (name.to_owned(), form.to_owned()))
+            .collect();
+        Ok(Self { tree, aliases })
+    }
+}
+
+/// Why the text of a query is no query, or why its aliases do not expand, in
+/// the words of query.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Unparsed(purba_query::Refused);
 
@@ -25,13 +51,49 @@ impl fmt::Display for Unparsed {
     }
 }
 
-/// The query that `text` holds.
+/// The query that `text` holds. Each call of an alias stays until
+/// [`Query::expand`] expands it.
 ///
 /// # Errors
 ///
 /// Why the text is no query.
 pub fn query(text: &str) -> Result<Query, Unparsed> {
-    purba_query::parse(text).map(Query).map_err(Unparsed)
+    purba_query::parse(text)
+        .map(|tree| Query {
+            tree,
+            aliases: Vec::new(),
+        })
+        .map_err(Unparsed)
+}
+
+/// `[tool.purba.queries]`: the aliases of the project's file.
+pub static QUERIES: Dial<Aliases> = Dial::new("queries", read_aliases, Aliases::default);
+
+/// The aliases that the value of `queries` declares, or the words of each
+/// error of the value.
+fn read_aliases(value: &toml::Value) -> Result<Aliases, Vec<String>> {
+    let toml::Value::Table(table) = value else {
+        return Err(vec![format!(
+            "queries under [tool.purba] is {}; write a table, such as [tool.purba.queries]",
+            kind(value)
+        )]);
+    };
+    let mut errors = Vec::new();
+    let mut declared = Vec::new();
+    for (key, value) in table {
+        match value {
+            toml::Value::String(text) => declared.push((key.as_str(), text.as_str())),
+            _ => errors.push(format!(
+                "{key} under [tool.purba.queries] is {}; write a query in a string, \
+                 such as fast = \"!path(tests/slow/**)\"",
+                kind(value)
+            )),
+        }
+    }
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+    Aliases::new(declared, purba_config::nearest)
 }
 
 /// A term of a query that names nothing that purba read.
@@ -59,6 +121,11 @@ pub enum Unnamed {
 pub enum Kind {
     /// A folder, a file or a test.
     Id,
+    /// A folder, a file or a test, or an alias, where an id is nearer than an
+    /// alias.
+    IdOrAlias,
+    /// A folder, a file or a test, or an alias, where an alias is nearer.
+    Alias,
     /// The name of a test.
     Name,
     /// A test file, by a glob.
@@ -77,6 +144,8 @@ impl fmt::Display for Unnamed {
             } => {
                 let (what, near) = match kind {
                     Kind::Id => ("test", "the nearest is"),
+                    Kind::IdOrAlias => ("test or alias", "the nearest is"),
+                    Kind::Alias => ("test or alias", "the nearest alias is"),
                     Kind::Name => ("test", "the nearest name is"),
                     Kind::Path => ("test file", "the nearest is"),
                 };
@@ -122,28 +191,39 @@ enum Reach {
 }
 
 impl Term {
-    /// The term of `tree`, with each id resolved from `root`.
+    /// The term of `tree`, with each id resolved from `root`. `aliases` holds
+    /// the name and the form of each alias that expanded the tree.
     fn of(
         tree: &purba_query::Query,
         root: &Path,
         patterns: &Patterns,
         found: &[PathBuf],
+        aliases: &[(String, String)],
     ) -> Result<Self, Unnamed> {
         let each = |trees: &[purba_query::Query]| -> Result<Vec<Self>, Unnamed> {
             trees
                 .iter()
-                .map(|tree| Self::of(tree, root, patterns, found))
+                .map(|tree| Self::of(tree, root, patterns, found, aliases))
                 .collect()
         };
         Ok(match tree {
-            purba_query::Query::Id(text) => resolve(text, root, patterns, found)?,
+            purba_query::Query::Id(text) => resolve(text, root, patterns, found, aliases)?,
             purba_query::Query::Name(text) => Self::Name(text.clone()),
             purba_query::Query::Path(glob) => Self::Path(glob.clone()),
             purba_query::Query::Not(term) => {
-                Self::Not(Box::new(Self::of(term, root, patterns, found)?))
+                Self::Not(Box::new(Self::of(term, root, patterns, found, aliases)?))
             }
             purba_query::Query::And(terms) => Self::And(each(terms)?),
             purba_query::Query::Or(terms) => Self::Or(each(terms)?),
+            // A query that no alias expanded names no alias.
+            purba_query::Query::Call { name, .. } => {
+                return Err(Unnamed::Nothing {
+                    term: format!("{name}("),
+                    kind: Kind::Id,
+                    nearest: None,
+                    reached: None,
+                });
+            }
         })
     }
 
@@ -235,17 +315,45 @@ fn resolve(
     root: &Path,
     patterns: &Patterns,
     found: &[PathBuf],
+    aliases: &[(String, String)],
 ) -> Result<Term, Unnamed> {
     let (typed, in_file) = text
         .split_once("::")
         .map_or((text, None), |(before, after)| {
             (before, Some(after.to_owned()))
         });
-    let missing = || Unnamed::Nothing {
-        term: text.to_owned(),
-        kind: Kind::Id,
-        nearest: nearest_path(typed, root, found),
-        reached: None,
+    let missing = || {
+        let id = nearest_path(typed, root, found);
+        let names: Vec<&str> = aliases.iter().map(|(name, _)| name.as_str()).collect();
+        let could_be_an_alias = !aliases.is_empty()
+            && text
+                .chars()
+                .all(|c| c.is_alphanumeric() || matches!(c, '_' | '-'));
+        let alias = could_be_an_alias
+            .then(|| purba_config::nearest(text, &names))
+            .flatten();
+        let (kind, nearest) = match (alias, id) {
+            (_, id) if !could_be_an_alias => (Kind::Id, id),
+            (Some(alias), Some(id))
+                if purba_config::distance(text, &id) < purba_config::distance(text, alias) =>
+            {
+                (Kind::IdOrAlias, Some(id))
+            }
+            (Some(alias), _) => (
+                Kind::Alias,
+                aliases
+                    .iter()
+                    .find(|(name, _)| name == alias)
+                    .map(|(_, form)| form.clone()),
+            ),
+            (None, id) => (Kind::IdOrAlias, id),
+        };
+        Unnamed::Nothing {
+            term: text.to_owned(),
+            kind,
+            nearest,
+            reached: None,
+        }
     };
     match test_files(root, Some(Path::new(typed)), patterns) {
         Ok(_) => {}
@@ -377,14 +485,14 @@ pub struct Reached {
 /// test file's, or no test file has its path.
 pub fn reach(root: &Path, query: Option<&Query>, patterns: &Patterns) -> Result<Reached, Unnamed> {
     let all = test_files(root, None, patterns).unwrap_or_default();
-    let Some(Query(tree)) = query else {
+    let Some(Query { tree, aliases }) = query else {
         return Ok(Reached {
             found: all.files.clone(),
             files: all,
             term: None,
         });
     };
-    let term = Term::of(tree, root, patterns, &all.files)?;
+    let term = Term::of(tree, root, patterns, &all.files, aliases)?;
     let files = TestFiles {
         files: all
             .files
