@@ -1,9 +1,12 @@
-//! The crate of the configuration concern: resolves each dial from its levels,
-//! keeps the level of each value, and names each key that no dial owns and
-//! each variable whose name is near a dial's.
+//! The crate of the configuration concern: walks to the project's file,
+//! resolves each dial from its levels, keeps the level of each value, and
+//! names each key that no dial owns and each variable whose name is near a
+//! dial's.
 
 use std::collections::BTreeMap;
 use std::ffi::{OsStr, OsString};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 /// A setting that a part declares: its key under `[tool.purba]`, the function
 /// of the part that reads a value, and its default.
@@ -240,4 +243,134 @@ pub fn nearest<'a>(name: &str, names: &[&'a str]) -> Option<&'a str> {
         .iter()
         .copied()
         .min_by_key(|candidate| distance(name, candidate))
+}
+
+/// What the walk up from the working folder to the project's file finds.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Walk {
+    /// The nearest `pyproject.toml` that holds `[tool.purba]`, and the table
+    /// under `[tool.purba]`.
+    Found {
+        /// The file, and its folder, the root.
+        file: Met,
+        /// The table under `[tool.purba]`.
+        settings: toml::Table,
+    },
+    /// A `pyproject.toml` on the walk that is not TOML.
+    Unread {
+        /// The file, by its path from the working folder.
+        file: PathBuf,
+        /// The words of its error.
+        words: String,
+    },
+    /// No `pyproject.toml` on the walk holds `[tool.purba]`.
+    Missing {
+        /// The nearest `pyproject.toml` that holds `[project]`.
+        project: Option<Met>,
+        /// The folder that holds `.git`, where the walk stopped.
+        git: Option<Met>,
+        /// The working folder, canonical.
+        start: PathBuf,
+    },
+}
+
+/// A file or a folder that the walk met.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Met {
+    /// Its path from the working folder: `.` for the working folder itself.
+    pub path: PathBuf,
+    /// Its folder, canonical: the folder itself, or the folder of the file.
+    pub folder: PathBuf,
+}
+
+/// Walks up from `folder`, the working folder, to the first `pyproject.toml`
+/// that holds `[tool.purba]`, and stops after the folder that holds `.git`, a
+/// folder or a file.
+#[must_use]
+pub fn walk(folder: &Path) -> Walk {
+    let start = folder.canonicalize().unwrap_or_else(|_| folder.to_owned());
+    let mut up = PathBuf::new();
+    let mut project: Option<Met> = None;
+    for current in start.ancestors() {
+        let file = current.join("pyproject.toml");
+        if file.is_file() {
+            let table = match read(&file) {
+                Ok(table) => table,
+                Err(words) => {
+                    return Walk::Unread {
+                        file: up.join("pyproject.toml"),
+                        words,
+                    };
+                }
+            };
+            let met = || Met {
+                path: up.join("pyproject.toml"),
+                folder: current.to_owned(),
+            };
+            if let Some(settings) = inner(&table, &["tool", "purba"]) {
+                return Walk::Found {
+                    file: met(),
+                    settings: settings.clone(),
+                };
+            }
+            if project.is_none() && inner(&table, &["project"]).is_some() {
+                project = Some(met());
+            }
+        }
+        if current.join(".git").symlink_metadata().is_ok() {
+            return Walk::Missing {
+                project,
+                git: Some(Met {
+                    path: shown(&up),
+                    folder: current.to_owned(),
+                }),
+                start,
+            };
+        }
+        up.push("..");
+    }
+    Walk::Missing {
+        project,
+        git: None,
+        start,
+    }
+}
+
+/// `up` as a folder: `.` for the working folder.
+fn shown(up: &Path) -> PathBuf {
+    if up.as_os_str().is_empty() {
+        PathBuf::from(".")
+    } else {
+        up.to_owned()
+    }
+}
+
+/// The table that the TOML file at `file` holds, or the words of its error.
+fn read(file: &Path) -> Result<toml::Table, String> {
+    let text = fs::read_to_string(file).map_err(|error| error.to_string())?;
+    text.parse::<toml::Table>().map_err(|error| {
+        let at = error.span().map_or(0, |span| span.start);
+        let before = text.get(..at).unwrap_or_default();
+        let line = before.matches('\n').count() + 1;
+        let column = before
+            .rsplit('\n')
+            .next()
+            .unwrap_or_default()
+            .chars()
+            .count()
+            + 1;
+        format!(
+            "TOML parse error at line {line}, column {column}: {}",
+            error.message()
+        )
+    })
+}
+
+/// The table that `table` holds at the keys of `keys`, one inside the other.
+fn inner<'a>(table: &'a toml::Table, keys: &[&str]) -> Option<&'a toml::Table> {
+    let mut table = table;
+    for key in keys {
+        table = table.get(*key).and_then(toml::Value::as_table)?;
+    }
+    Some(table)
 }

@@ -75,7 +75,7 @@ For one plain value, each surveyed tool overwrites in the same way.
 - **The kind of an error of configuration says where the tester fixes it.** A flag or a `PURBA_*` variable gives an [invocation error](../../CONTEXT.md#invocation-error). A key in a file gives a [project error](../../CONTEXT.md#project-error), because purba finds the file itself. [A failure's kind is what the part that first sees it observes](a-failures-kind-is-what-the-part-that-first-sees-it-observes.md#decision-outcome) holds that rule.
 - **Before purba stops on configuration, it names every error that it finds.** [An error stops only the work that depends on it](an-error-stops-only-the-work-that-depends-on-it.md#decision-outcome) holds that rule.
 - **Each value keeps the level that it came from.**
-- **`purba-config`, the crate of the concern, holds the mechanism.** It holds the project's level, the level of the environment, the search for the nearest dial, and the level of each value. It uses no part, as the crate of errors uses none.
+- **`purba-config`, the crate of the concern, holds the mechanism.** It holds the walk to the project's file, the project's level and the level of the environment. It also holds the search for the nearest dial, and the level of each value. It uses no part, as the crate of errors uses none.
 - **Each part declares its own dials to `purba-config`, as typed handles.** The part that reads a value owns what it means, as [a concern is what no part can own](a-concern-is-what-no-part-can-own.md#decision-outcome) says. Command gathers the declarations and resolves them. It turns each refusal into an error of the kind above.
 - **Each level other than the project's comes with the first dial that it may set.** The order of the levels comes with the first dial that two levels may set. The cap's rule comes with the cap.
 
@@ -103,7 +103,11 @@ Each dial waits for the design of its part.
 
 ## Confirmation
 
-`mise run test:rust` checks the walk to the root and its refusals in `crates/command/tests/root.rs`, and `mise run test:wheel` checks them in `tests/stage_one.bats`.
+`mise run test:rust` checks what the walk to the project's file finds in `crates/config/tests/walk.rs`.
+It checks the errors that command makes of what the walk finds in `crates/command/tests/root.rs`.
+It checks there that each id starts at the root.
+`mise run test:wheel` checks the walk and its errors in `tests/stage_one.bats`.
+
 `mise run lint:order` refuses an order of design that still ranks configuration.
 `mise run test:rust` checks `purba-config` in `crates/config/tests/project.rs`.
 It checks the first dial, `test-files`, in `crates/selection/tests/test_files_dial.rs`.

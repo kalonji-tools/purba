@@ -140,40 +140,15 @@ fn a_path_starts_at_the_root() {
 }
 
 #[test]
-fn with_no_tool_purba_the_refusal_names_where_to_add_it() {
-    let project = repository("project");
-    write(&project, "pyproject.toml", "[project]\nname = \"p\"\n");
-    write(&project, "tests/sub/test_a.py", PASSING);
-    let (result, stdout) = run_in(&project.join("tests/sub"), &[]);
-    assert!(
-        matches!(
-            &result,
-            Err(Error::NoRoot(Place::Project(file))) if file == Path::new("../../pyproject.toml")
-        ),
-        "the pyproject.toml of the project, from the working folder: {result:?}"
-    );
-    assert_eq!(stdout, "", "no line and no count");
-
+fn with_no_project_the_refusal_names_the_folder_that_holds_git() {
     let bare = repository("bare");
     write(&bare, "tests/test_a.py", PASSING);
-    let (result, _) = run_in(&bare.join("tests"), &[]);
+    let (result, stdout) = run_in(&bare.join("tests"), &[]);
     assert!(
         matches!(&result, Err(Error::NoRoot(Place::Folder(folder))) if folder == Path::new("..")),
         "the folder that holds .git, from the working folder: {result:?}"
     );
-}
-
-#[test]
-fn the_walk_stops_at_a_git_file() {
-    let above = repository("git_file");
-    write(&above, "pyproject.toml", "[tool.purba]\n");
-    write(&above, "worktree/.git", "gitdir: elsewhere\n");
-    write(&above, "worktree/test_a.py", PASSING);
-    let (result, _) = run_in(&above.join("worktree"), &[]);
-    assert!(
-        matches!(&result, Err(Error::NoRoot(Place::Folder(folder))) if folder == Path::new(".")),
-        "the [tool.purba] above the .git file is not the root: {result:?}"
-    );
+    assert_eq!(stdout, "", "no line and no count");
 }
 
 #[test]

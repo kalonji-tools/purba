@@ -1,7 +1,7 @@
 [package]
 name = "purba-config"
 version = "0.0.0"
-description = "Resolves each dial from its levels, and keeps the level of each value"
+description = "Walks to the project's file, resolves each dial, and keeps the level of each value"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
