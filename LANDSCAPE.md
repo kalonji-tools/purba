@@ -56,7 +56,7 @@ flowchart LR
 
 - **command.** Reads the arguments, lends each parsed module to selection and each selected one to assertion, starts a run, and returns reporting's exit code.
 - **selection.** Reads the AST of each test file, imports none of them, answers which tests a query names, and refuses each test that purba cannot call. [purba picks a test by its name, and the tests of a run by one query](docs/decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds its design in depth.
-- **query.** Turns the text of a query into a tree of terms, and refuses a query that nests too deep or does not parse. [purba picks a test by its name, and the tests of a run by one query](docs/decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds its design in depth.
+- **query.** Turns the text of a query into a tree of terms, and expands each alias. It refuses a query that nests too deep or does not parse, and an alias that names itself. [purba picks a test by its name, and the tests of a run by one query](docs/decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md#decision-outcome) holds its design in depth.
 - **parsing.** Reads a test file, turns its source into an AST, and reports a file that does not parse as a project error. It holds what selection and assertion share: the facts of each module and of each test, the asserts at the end of a test, the blocks of a statement, and each assert's shape. [Wayfinder: purba's parsing, reading each module that CPython runs](https://github.com/kalonji-tools/purba/issues/1126) holds its design in depth.
 - **dispatch.** Hands each selected test to a worker and hands on its outcome, or the error it gave in place of one, whatever the worker is. It asks execution for a loaded zygote for each module. For a module that stops before its tests, dispatch hands on the module once, with its error, each thread's error and its tests. For a load that the first interrupt lands in, dispatch hands on no project error. After each load and each test, dispatch hands on the error of each thread that the zygote or the test's process took.
 - **execution.** Imports a selected test's module, builds its inputs through fixtures, calls the test, and makes its outcome. It forks a zygote that loads each module once, and that forks a process for each test.
@@ -75,7 +75,7 @@ flowchart TD
   command -- "a rewrite" --> assertion
   command -- "whether an interrupt was kept" --> execution
   selection -- "an AST" --> parsing
-  selection -- "the text of a query" --> query
+  selection -- "the text of a query, and the aliases" --> query
   assertion -- "an AST" --> parsing
   dispatch -- "a selected test" --> selection
   dispatch -- "a module to load, then each test, its outcome, and whether an interrupt was kept" --> execution

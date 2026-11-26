@@ -101,7 +101,7 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
 
 - **An id matches only whole parts.** `tests/test_a` names no file. The path of an id starts at the root.
 - **`!` binds tightest, then `&`, then `|`.** Parentheses group terms.
-- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind. Where a test file that stage one left out could hold what the term names, the error counts the test files that the query reaches.
+- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind. A bare word names an id or an alias. Where the project holds an alias, the error of a bare word names the nearer of the two, and the alias on a tie. Where a test file that stage one left out could hold what the term names, the error counts the test files that the query reaches.
 - **purba finds the nearest id part by part.** It measures the edit distance of the first part that differs.
 - **A query that selects no test, while each term names something, prints only the count.** [CPython alone refuses a module that its compiler refuses](cpython-alone-refuses-a-module-that-its-compiler-refuses.md#decision-outcome) already prints a module with no test in this way.
 
@@ -112,10 +112,10 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
     pick -- yes --> run["the run"]
     pick -- no --> count["only the count"]
   ```
-- **A query nests at most 255 levels.** Each `(` of a group opens a level until its `)`, and each call of an alias opens a level. Each `!` opens a level until the term after it ends. purba refuses a deeper query as an invocation error before the parser reads it.
+- **A query nests at most 255 levels.** Each `(` of a group opens a level until its `)`, and each call of an alias opens a level. Each `!` opens a level until the term after it ends. purba refuses a deeper text as an invocation error before the parser reads it. The aliases come from the project's file, so purba counts their levels as it expands them. A query that crosses 255 levels through an alias is an invocation error. An alias that crosses them alone is a project error.
 - **The part `query` writes purba's grammar on `winnow`.** It turns the text of a query into a tree. Selection decides which tests the tree names. A test of the grammar builds one crate from outside purba. A test inside selection builds 82 crates from outside purba. `toml` already brings `winnow` into `Cargo.lock`, so the grammar adds no crate from outside purba.
 - **A tag is a string literal in `purba.tag`.** A test carries it as `@purba.tag("<word>")`, or as `@tag("<word>")` after `from purba import tag`, the two forms that [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) allows. A test carries several tags by several decorators. A tag needs no declaration. When the file does not import `purba`, the refusal of a tag names that import. The wheel ships a type stub for `purba.tag`.
-- **The project's file saves a query under a name in `[tool.purba.queries]`, as an [alias](../../CONTEXT.md#alias).** An alias takes an argument, as in Jujutsu and Mercurial: `"stable(x)" = "x & !tag(flaky)"`. purba reads a bare word as an alias first, and as an id only when no alias has that name. An alias that names itself is a project error, because the project's file holds it.
+- **The project's file saves a query under a name in `[tool.purba.queries]`, as an [alias](../../CONTEXT.md#alias).** An alias takes an argument, as in Jujutsu and Mercurial: `"stable(x)" = "x & !tag(flaky)"`. purba reads a bare word as an alias first, and as an id only when no alias has that name. An alias that names itself, directly or through another alias, is a project error, because the project's file holds it. purba reads and checks each alias on each run, whether the query calls it or not. A name holds letters, digits, `_` and `-`, declares one parameter at most, and is not `name`, `path` or `tag`.
 - **A run in which a case fails or raises, or an error blocks a case, writes its failures as one query to `.purba/failed.q`.** It prints `purba @.purba/failed.q`. A run with no failure removes the file. `.purba/` holds a `.gitignore` of `*`. nextest and pytest keep such a record too. purba differs from them in the form: its record is a query, which the tester can also type.
 - **A run that cannot write `.purba/failed.q` gives an invocation error.**
 - **`[tool.purba.platform]` picks the files of a run by platform.** Its keys are `linux` and `macos`. The value of each is a query of ids that stop at a file and of `path(…)` terms. A `tag(…)` or a `name(…)` there is a project error. A run selects only what both its query and the query of its platform name. A platform with no key leaves no file out. A line counts each file that the query reaches and that the query of the platform leaves out.
@@ -136,7 +136,7 @@ Each of these waits for another design.
 - **A misspelled test file runs no test, and purba says nothing.** `tset_lend.py` matches no pattern of a test file.
 - **A test file in another convention runs no test, and purba says nothing.** `lend_test.py` matches no pattern of a test file, unless `test-files` lists `*_test.py`.
 - **A file that matches a pattern outside the closed list runs no test, and purba says nothing.** `check_lend.py` matches none of the four patterns, so no value of `test-files` makes it a test file.
-- **purba refuses `[tool.purba.queries]` and `[tool.purba.platform]` until the pull requests that build them declare their dials.** No dial owns either key yet, and a key that no dial owns is a [project error](../../CONTEXT.md#project-error).
+- **purba refuses `[tool.purba.platform]` until the pull request that builds it declares its dial.** No dial owns that key yet, and a key that no dial owns is a [project error](../../CONTEXT.md#project-error).
 - **purba says nothing about a misspelled tag.** purba keeps no list of tags, so a query for the right word misses the test.
 - **A run of one test that passes removes the failures of an earlier run.** The tester reruns those failures by their ids.
 - **A run with failures exits 3, not 1, where purba cannot write `.purba/`.** An integrator then reads an invocation error in place of a failed case.
@@ -149,6 +149,8 @@ Each of these waits for another design.
 `mise run test:rust` checks `test-files` in `crates/selection/tests/test_files_dial.rs`, and `mise run test:wheel` checks it in `tests/test_files.bats`.
 `mise run test:rust` checks a name near `test` in `crates/selection/tests/name_near.rs`, and `mise run test:wheel` checks it in `tests/name_near.bats`.
 `mise run test:rust` checks the grammar in `crates/query/tests/parse.rs` and the query in `crates/selection/tests/query.rs`, and `mise run test:wheel` checks the query in `tests/query.bats`.
+`mise run test:rust` checks the aliases in `crates/query/tests/alias.rs` and `crates/selection/tests/aliases.rs`, and `mise run test:wheel` checks them in `tests/aliases.bats`.
+
 `mise run lint:order` refuses an order of design that still ranks selection.
 The pull request that builds each rule other than stage one adds its tests.
 
