@@ -19,12 +19,14 @@ mod lookup;
 mod near;
 mod patch;
 mod pattern;
+mod query;
 mod stage_one;
 mod suppression;
 
 use lookup::{Lookup, Origin};
 pub use near::NameNear;
 pub use pattern::{Pattern, Patterns, TEST_FILES};
+pub use query::{Kind, Query, Reached, Unnamed, Unparsed, query, reach};
 pub use stage_one::{NoTestFile, TestFiles, test_files};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};
@@ -404,6 +406,14 @@ fn type_alone(
 /// In a build with the feature `fault`, when `PURBA_FAULT` is `selection`.
 #[must_use]
 pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
+    select_by(path, facts, &|_| true)
+}
+
+/// [`select`], with only the tests that `picks` picks among the tests that
+/// selection hands on and refuses. Each suppression counts every test that it
+/// reaches, so one that reaches a test that `picks` does not pick stays
+/// unjudged.
+fn select_by(path: &Path, facts: &Facts<'_>, picks: &dyn Fn(&TestId) -> bool) -> Selected {
     if cfg!(feature = "fault")
         && std::env::var_os("PURBA_FAULT").is_some_and(|setting| setting == "selection")
     {
@@ -485,11 +495,8 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
         ));
     }
     refused.sort_by_key(|(offset, _)| *offset);
-    let (refused_at, refused): (Vec<TextSize>, Vec<Refused>) = refused.into_iter().unzip();
-    let mut ledger = Ledger::new(&sites, &tests, &refused);
-    for test in &refused {
-        ledger.refused(test);
-    }
+    let (names, functions) = names_of(&tests, &refused);
+    let (tests, refused_at, refused, ledger) = picked(tests, refused, &sites, picks);
     Selected {
         tests,
         refused,
@@ -497,7 +504,42 @@ pub fn select(path: &Path, facts: &Facts<'_>) -> Selected {
         near: near::names_near(path, facts),
         fault: sites.module_fault(),
         ledger,
+        names,
+        functions,
     }
+}
+
+/// The tests of `tests` and of `refused` that `picks` picks, where each refused
+/// one sits, and the ledger of the suppressions of `sites`. The ledger counts
+/// every test, and judges each refused test that `picks` picks.
+fn picked(
+    mut tests: Vec<TestId>,
+    refused: Vec<(TextSize, Refused)>,
+    sites: &suppression::Sites,
+    picks: &dyn Fn(&TestId) -> bool,
+) -> (Vec<TestId>, Vec<TextSize>, Vec<Refused>, Ledger) {
+    let (each_at, each): (Vec<TextSize>, Vec<Refused>) = refused.into_iter().unzip();
+    let mut ledger = Ledger::new(sites, &tests, &each);
+    tests.retain(|test| picks(test));
+    let (refused_at, refused): (Vec<TextSize>, Vec<Refused>) = each_at
+        .into_iter()
+        .zip(each)
+        .filter(|(_, refused)| picks(&refused.test))
+        .unzip();
+    for test in &refused {
+        ledger.refused(test);
+    }
+    (tests, refused_at, refused, ledger)
+}
+
+/// The id after the file of each of `tests` and `refused`, and the name of
+/// its function.
+fn names_of(tests: &[TestId], refused: &[(TextSize, Refused)]) -> (Vec<String>, Vec<String>) {
+    tests
+        .iter()
+        .chain(refused.iter().map(|(_, refused)| &refused.test))
+        .map(|test| (query::after_the_file(test), test.function.clone()))
+        .unzip()
 }
 
 /// A line that selection gives before the run.
@@ -519,6 +561,10 @@ pub struct Selected {
     near: Vec<(TextSize, NameNear)>,
     fault: Option<String>,
     ledger: Ledger,
+    /// The id after the file of each test of the module, picked or not.
+    names: Vec<String>,
+    /// The name of the function of each test of the module, picked or not.
+    functions: Vec<String>,
 }
 
 impl Selected {

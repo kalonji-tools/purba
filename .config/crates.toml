@@ -197,3 +197,18 @@ unsafe = 1
 api-churn = 2
 owner-in-purba = 3
 relief = 3
+
+[winnow]
+version = "1.0.5"
+owners = ["epage (user)"]
+judged = "2026-11-26"
+scored = "https://github.com/kalonji-tools/purba/issues/1254#issuecomment-7177099686"
+blast-area = 1
+upkeep = 1
+maintainers = 3
+upstream-review = 3
+tests = 1
+unsafe = 3
+api-churn = 2
+owner-in-purba = 3
+relief = 2

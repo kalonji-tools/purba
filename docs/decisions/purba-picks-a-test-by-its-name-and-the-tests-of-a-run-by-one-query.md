@@ -43,7 +43,7 @@ The choice of a query waited for this design.
 
 **Reach:** `crates/**` `tests/**` `/LANDSCAPE.md`
 
-**Area:** selection
+**Area:** selection, query
 
 **purba picks a test by its name, and a tester names the tests of a run with one [query](../../CONTEXT.md#query).**
 A name needs no list beside it.
@@ -101,7 +101,7 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
 
 - **An id matches only whole parts.** `tests/test_a` names no file. The path of an id starts at the root.
 - **`!` binds tightest, then `&`, then `|`.** Parentheses group terms.
-- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind, and the files that stage one left out. The pull request that builds the grammar adds the nearest id to the error of a path.
+- **A term that names nothing is an [invocation error](../../CONTEXT.md#invocation-error).** No path, tag, name or alias that purba read matches such a term. The error names the nearest of its kind. Where a test file that stage one left out could hold what the term names, the error counts the test files that the query reaches.
 - **purba finds the nearest id part by part.** It measures the edit distance of the first part that differs.
 - **A query that selects no test, while each term names something, prints only the count.** [CPython alone refuses a module that its compiler refuses](cpython-alone-refuses-a-module-that-its-compiler-refuses.md#decision-outcome) already prints a module with no test in this way.
 
@@ -112,8 +112,8 @@ A query is the one way to name the tests of a run: `purba <query>`. No flag sele
     pick -- yes --> run["the run"]
     pick -- no --> count["only the count"]
   ```
-- **A query nests at most 255 levels.** Each `(`, each `!` and each call of an alias opens a level. purba refuses a deeper query as an invocation error before the parser reads it.
-- **purba writes its own grammar on a parser crate.** The pull request that builds the parser keeps one crate of the shortlist of `parse-test-query`.
+- **A query nests at most 255 levels.** Each `(` of a group opens a level until its `)`, and each call of an alias opens a level. Each `!` opens a level until the term after it ends. purba refuses a deeper query as an invocation error before the parser reads it.
+- **The part `query` writes purba's grammar on `winnow`.** It turns the text of a query into a tree. Selection decides which tests the tree names. A test of the grammar builds one crate from outside purba. A test inside selection builds 82 crates from outside purba. `toml` already brings `winnow` into `Cargo.lock`, so the grammar adds no crate from outside purba.
 - **A tag is a string literal in `purba.tag`.** A test carries it as `@purba.tag("<word>")`, or as `@tag("<word>")` after `from purba import tag`, the two forms that [a test carries only purba's own decorators](a-test-carries-only-purbas-own-decorators.md#decision-outcome) allows. A test carries several tags by several decorators. A tag needs no declaration. When the file does not import `purba`, the refusal of a tag names that import. The wheel ships a type stub for `purba.tag`.
 - **The project's file saves a query under a name in `[tool.purba.queries]`, as an [alias](../../CONTEXT.md#alias).** An alias takes an argument, as in Jujutsu and Mercurial: `"stable(x)" = "x & !tag(flaky)"`. purba reads a bare word as an alias first, and as an id only when no alias has that name. An alias that names itself is a project error, because the project's file holds it.
 - **A run in which a case fails or raises, or an error blocks a case, writes its failures as one query to `.purba/failed.q`.** It prints `purba @.purba/failed.q`. A run with no failure removes the file. `.purba/` holds a `.gitignore` of `*`. nextest and pytest keep such a record too. purba differs from them in the form: its record is a query, which the tester can also type.
@@ -148,6 +148,7 @@ Each of these waits for another design.
 `mise run test:rust` checks stage one in `crates/selection/tests/stage_one.rs`, and `mise run test:wheel` checks it in `tests/stage_one.bats`.
 `mise run test:rust` checks `test-files` in `crates/selection/tests/test_files_dial.rs`, and `mise run test:wheel` checks it in `tests/test_files.bats`.
 `mise run test:rust` checks a name near `test` in `crates/selection/tests/name_near.rs`, and `mise run test:wheel` checks it in `tests/name_near.bats`.
+`mise run test:rust` checks the grammar in `crates/query/tests/parse.rs` and the query in `crates/selection/tests/query.rs`, and `mise run test:wheel` checks the query in `tests/query.bats`.
 `mise run lint:order` refuses an order of design that still ranks selection.
 The pull request that builds each rule other than stage one adds its tests.
 
