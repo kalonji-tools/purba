@@ -121,6 +121,19 @@ fn an_alias_that_names_itself_is_refused_by_the_dial() {
 }
 
 #[test]
+fn a_call_in_a_body_that_names_no_alias_names_the_nearest_by_its_word() {
+    assert_eq!(
+        aliases("[queries]\nfast = \"slwo(x)\"\n\"slow(x)\" = \"x\"").map(|_| ()),
+        Err(vec![
+            "fast under [tool.purba.queries]: column 1: slwo( is no term; \
+             the nearest alias is slow(x)"
+                .to_owned()
+        ]),
+        "slwo is 1 edit from slow and 4 from fast, the alias that holds the call"
+    );
+}
+
+#[test]
 fn an_alias_picks_the_tests_its_query_picks() {
     let root = project(
         "fast",
@@ -161,6 +174,15 @@ fn a_bare_word_that_names_an_alias_and_a_folder_runs_the_alias() {
         picked(&root, "", "fast"),
         Ok(vec!["fast/test_f.py::test_f".to_owned()]),
         "with no alias, fast is the folder"
+    );
+    assert_eq!(
+        picked(
+            &root,
+            "[queries]\nfast = \"tests/test_a.py::test_add\"",
+            "path(fast/**)"
+        ),
+        Ok(vec!["fast/test_f.py::test_f".to_owned()]),
+        "path() names the folder that the alias hides"
     );
 }
 
@@ -210,6 +232,12 @@ fn a_bare_word_that_names_nothing_names_the_nearer_of_an_id_and_an_alias() {
         picked(&root, "[queries]\ntsetxy = \"name(add)\"", "tset"),
         Err("tset names no test or alias; the nearest alias is tsetxy".to_owned()),
         "tsetxy and tests are each 2 edits from tset, and the tie goes to the alias"
+    );
+    assert_eq!(
+        picked(&root, "[queries]\n\"tsetsx(y)\" = \"y\"", "tsets"),
+        Err("tsets names no test or alias; the nearest alias is tsetsx(y)".to_owned()),
+        "the word is measured against the name tsetsx, 1 edit away as tests is, \
+         not against the form tsetsx(y)"
     );
     assert_eq!(
         picked(&root, FAST, "tests/test_b.py"),

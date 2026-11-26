@@ -258,7 +258,7 @@ unknown() {
 
   run -4 --separate-stderr purba
 
-  unknown tset-files
+  unknown tset-files test-files
   printed '0 cases; 1 project error'
 }
 

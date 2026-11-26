@@ -12,21 +12,23 @@ fn not(term: Query) -> Query {
     Query::Not(Box::new(term))
 }
 
-/// The first of `names`: a stand-in for the nearest by edits, so that each
-/// test of a refusal holds one alias.
-fn first<'a>(_word: &str, names: &[&'a str]) -> Option<&'a str> {
-    names.first().copied()
+/// The first of `names` that starts with the letter that `word` starts with:
+/// a stand-in for the nearest by edits that reads the word, and that the order
+/// of `names` decides only between names of one initial.
+fn initial<'a>(word: &str, names: &[&'a str]) -> Option<&'a str> {
+    let letter = word.chars().next()?;
+    names.iter().copied().find(|name| name.starts_with(letter))
 }
 
 /// The aliases that `declared` declares, each as a key and its query.
 fn aliases(declared: &[(&str, &str)]) -> Aliases {
-    Aliases::new(declared.iter().copied(), first)
+    Aliases::new(declared.iter().copied(), initial)
         .unwrap_or_else(|words| panic!("the aliases {declared:?} are refused: {words:?}"))
 }
 
 /// The words of each refusal of the aliases that `declared` declares.
 fn refused(declared: &[(&str, &str)]) -> Vec<String> {
-    match Aliases::new(declared.iter().copied(), first) {
+    match Aliases::new(declared.iter().copied(), initial) {
         Ok(_) => panic!("the aliases {declared:?} are taken"),
         Err(words) => words,
     }
@@ -91,6 +93,11 @@ fn a_call_holds_an_argument() {
         parse("stable()").map_err(|refusal| refusal.to_string()),
         Err("column 8: expected an id, name(, path(, ! or (".to_owned()),
         "a call with no argument names no query"
+    );
+    assert_eq!(
+        parse("stable(a, b)").map_err(|refusal| refusal.to_string()),
+        Err("column 9: expected &, | or )".to_owned()),
+        "a call holds one query, so a , is no part of it"
     );
 }
 
@@ -165,6 +172,26 @@ fn an_argument_reads_the_parameter_of_the_alias_that_calls() {
 }
 
 #[test]
+fn a_body_reads_only_the_parameter_of_its_own_alias() {
+    let aliases = aliases(&[("outer(x)", "inner(a)"), ("inner(y)", "y | x")]);
+    assert_eq!(
+        expanded(&aliases, "outer(c)"),
+        Ok(Query::Or(vec![id("a"), id("x")])),
+        "the x in the body of inner is an id, not the parameter of outer that calls it"
+    );
+}
+
+#[test]
+fn an_argument_that_names_an_alias_expands() {
+    let aliases = aliases(&[("fast", "name(f)"), ("stable(x)", "x")]);
+    assert_eq!(
+        expanded(&aliases, "stable(fast)"),
+        Ok(Query::Name("f".to_owned())),
+        "fast, typed as the argument, takes its query"
+    );
+}
+
+#[test]
 fn a_call_that_names_no_alias_names_the_nearest_alias() {
     assert_eq!(
         expanded(&Aliases::default(), "name(add) | foo(x)"),
@@ -228,11 +255,11 @@ fn an_alias_that_names_itself_is_refused() {
 #[test]
 fn an_alias_that_nests_deeper_than_255_levels_alone_is_refused() {
     assert!(
-        Aliases::new(borrowed(&chain(255)), first).is_ok(),
+        Aliases::new(borrowed(&chain(255)), initial).is_ok(),
         "the body of the last of 255 calls sits at level 255"
     );
     assert_eq!(
-        Aliases::new(borrowed(&chain(256)), first).map(|_| ()),
+        Aliases::new(borrowed(&chain(256)), initial).map(|_| ()),
         Err(vec![
             "c000 under [tool.purba.queries] nests deeper than 255 levels".to_owned()
         ]),
@@ -242,7 +269,7 @@ fn an_alias_that_nests_deeper_than_255_levels_alone_is_refused() {
 
 #[test]
 fn a_query_that_nests_deeper_than_255_levels_through_an_alias_is_refused() {
-    let aliases = Aliases::new(borrowed(&chain(255)), first).expect("255 levels are taken");
+    let aliases = Aliases::new(borrowed(&chain(255)), initial).expect("255 levels are taken");
     assert!(
         expanded(&aliases, "c000").is_ok(),
         "the alias alone nests 255 levels"
@@ -251,6 +278,33 @@ fn a_query_that_nests_deeper_than_255_levels_through_an_alias_is_refused() {
         expanded(&aliases, "!c000"),
         Err("the query nests deeper than 255 levels through the alias c000".to_owned()),
         "the ! opens one more level"
+    );
+}
+
+/// `levels` calls of `w`, each the argument of the one around it, around
+/// `name(a)`.
+fn calls(levels: usize) -> String {
+    format!("{}name(a){}", "w(".repeat(levels), ")".repeat(levels))
+}
+
+#[test]
+fn a_call_that_the_tester_types_opens_one_level() {
+    let plain = aliases(&[("w(x)", "x")]);
+    assert_eq!(
+        expanded(&plain, &calls(255)),
+        Ok(Query::Name("a".to_owned())),
+        "255 typed calls, each one level, nest 255 levels"
+    );
+    let not = aliases(&[("w(x)", "!x")]);
+    assert_eq!(
+        expanded(&not, &calls(127)).map(|_| ()),
+        Ok(()),
+        "127 calls, each with its !, nest 254 levels"
+    );
+    assert_eq!(
+        expanded(&not, &calls(128)),
+        Err("the query nests deeper than 255 levels through the alias w".to_owned()),
+        "128 calls, each with its !, nest 256 levels"
     );
 }
 
@@ -266,6 +320,11 @@ fn a_key_that_declares_no_alias_is_refused() {
         refused(&[("fast x", "name(f)"), ("a/b", "name(f)"), ("s(x, y)", "x")]),
         vec![words("a/b"), words("fast x"), words("s(x, y)")],
         "a space, a / and two parameters each break the form, sorted by key"
+    );
+    assert_eq!(
+        refused(&[("a::b", "name(f)"), ("a.b", "name(f)"), ("s()", "name(f)")]),
+        vec![words("a.b"), words("a::b"), words("s()")],
+        "a :: and a . belong to an id, and a parameter has a name"
     );
     let term = |key: &str| {
         format!(
@@ -304,10 +363,11 @@ fn a_body_that_is_no_query_is_refused_in_the_words_of_the_grammar() {
         refused(&[("fast", "slwo(x)"), ("slow(x)", "x")]),
         vec![
             "fast under [tool.purba.queries]: column 1: slwo( is no term; \
-             the nearest alias is fast"
+             the nearest alias is slow(x)"
                 .to_owned()
         ],
-        "a call in a body that names no alias is refused when purba reads it"
+        "a call in a body that names no alias is refused when purba reads it, and the \
+         nearest reads the word of the call, not the key of the alias that holds it"
     );
     assert_eq!(
         refused(&[("fast", "slow"), ("slow(x)", "x")]),

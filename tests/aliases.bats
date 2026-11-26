@@ -34,7 +34,7 @@ setup() {
   printf '%s\n' \
     'def test_add():' '    assert 1 + 1 == 2' '' \
     'def test_sub():' '    assert 2 - 1 == 1' >"${root}/tests/test_a.py"
-  printf '%s\n' 'def test_slow():' '    pass' >"${root}/tests/slow/test_s.py"
+  printf '%s\n' 'def test_slow():' '    assert 3 - 3 == 0' >"${root}/tests/slow/test_s.py"
   git -C "${root}" init --quiet
 }
 
@@ -82,6 +82,43 @@ pyproject.toml project error: b under [tool.purba.queries] names itself through 
 0 cases; 2 project errors
 LINES
   [[ -z "${stderr}" ]]
+}
+
+@test "purba names the errors of test-files and of the aliases in one run" {
+  printf '%s\n' '[tool.purba]' 'test-files = []' '' '[tool.purba.queries]' 'loop = "loop"' \
+    >"${root}/pyproject.toml"
+  git -C "${root}" add --all
+  cd "${root}" || return
+
+  run -4 --separate-stderr purba
+
+  local empty='pyproject.toml project error: test-files under [tool.purba] is an empty list, '
+  empty+='so no file is a test file; list at least one of '
+  empty+='test_*.py, *_test.py, tests.py and test.py'
+  diff -u <(printf '%s\n' "${empty}" \
+    'pyproject.toml project error: loop under [tool.purba.queries] names itself' \
+    '0 cases; 2 project errors') <(printf '%s\n' "${output}") || false
+  [[ -z "${stderr}" ]]
+}
+
+@test "a query that does not parse fails before purba reads the project's file" {
+  queries 'loop = "loop"'
+
+  run -3 --separate-stderr purba 'name('
+
+  [[ "${stderr}" == 'purba: invocation error: column 6: expected a name' ]] || false
+  [[ -z "${output}" ]]
+}
+
+@test "an alias in the user's file changes nothing" {
+  queries
+  mkdir -p "${XDG_CONFIG_HOME}/purba"
+  printf '%s\n' '[queries]' 'fast = "!path(tests/slow/**)"' >"${XDG_CONFIG_HOME}/purba/purba.toml"
+
+  run -3 --separate-stderr purba fast
+
+  [[ "${stderr}" == 'purba: invocation error: fast names no test; the nearest is tests' ]] || false
+  [[ -z "${output}" ]]
 }
 
 @test "a bare word that names an alias and a folder runs the alias" {
