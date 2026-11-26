@@ -26,7 +26,7 @@ mod suppression;
 use lookup::{Lookup, Origin};
 pub use near::NameNear;
 pub use pattern::{Pattern, Patterns, TEST_FILES};
-pub use query::{Kind, Query, Reached, Unnamed, Unparsed, query, reach};
+pub use query::{Aliases, Kind, QUERIES, Query, Reached, Unnamed, Unparsed, query, reach};
 pub use stage_one::{NoTestFile, TestFiles, test_files};
 use suppression::Check;
 pub use suppression::{Suppression, seen_by_the_run};
