@@ -48,7 +48,7 @@ pub enum Query {
     },
 }
 
-/// Why the text of a query is no query.
+/// Why the text of a query is no query, or why its aliases do not expand.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Refused {
     column: usize,

@@ -18,7 +18,7 @@ use purba_selection::{Reached, Selected, TestId, Unnamed, Unparsed};
 pub enum Error {
     /// The arguments are more than one query.
     Usage,
-    /// The query does not parse.
+    /// The query does not parse, or its aliases do not expand.
     Query(Unparsed),
     /// The words of each error of the `PURBA_*` variables, sorted by the name
     /// of the variable.
@@ -107,6 +107,8 @@ impl fmt::Display for Error {
 /// - `out` is an error.
 /// - No `pyproject.toml` on the walk up from the working folder holds
 ///   `[tool.purba]`, and `PURBA_IMPLICIT_ROOT` is not `1`.
+/// - A call of the query names no alias, hands an alias the wrong count of
+///   arguments, or nests deeper than 255 levels as the aliases expand.
 /// - An id of the query names no test file.
 /// - An interrupt comes before selection ends.
 /// - A term of the query names nothing that purba read.

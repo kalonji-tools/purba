@@ -40,7 +40,8 @@ impl Query {
     }
 }
 
-/// Why the text of a query is no query, in the words of query.
+/// Why the text of a query is no query, or why its aliases do not expand, in
+/// the words of query.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Unparsed(purba_query::Refused);
 
