@@ -30,6 +30,10 @@ toml = { version = "1.2.3", default-features = false, features = [
   "serde",
   "std",
 ] }
+winnow = { version = "1.0.5", default-features = false, features = [
+  "ascii",
+  "std",
+] }
 
 [workspace.lints.rust]
 warnings = "deny"

@@ -3,6 +3,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 use purba_command::Error;
+use purba_selection::Unnamed;
 
 /// The path of the file `name` in its own project, whose `pyproject.toml` holds
 /// `[tool.purba]`. Each name up to its first `.` names one project.
@@ -100,7 +101,7 @@ fn a_path_that_names_nothing_is_an_invocation_error() {
     let error = run(&path, Ok(Vec::new())).expect_err("a missing module is an error");
     let typed = path.display().to_string();
     assert!(
-        matches!(&error, Error::NoTestFile(named, _) if *named == typed),
+        matches!(&error, Error::Unnamed(Unnamed::Nothing { term, .. }) if *term == typed),
         "the error names the path as the tester typed it: {error:?}"
     );
 }

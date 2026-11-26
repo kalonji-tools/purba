@@ -46,8 +46,8 @@ LINES
 
   run -3 --separate-stderr env PYTHONOPTIMIZE=1 purba test_missing.py
 
-  local refused='purba: invocation error: test_missing.py names no test file: '
-  refused+='no file or folder has that path'
+  local refused='purba: invocation error: test_missing.py names no test; '
+  refused+='the nearest is test_sibling.py'
   [[ "${stderr}" == "${warning}"$'\n'"${refused}" ]] || false
   [[ -z "${output}" ]]
 }

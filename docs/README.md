@@ -42,6 +42,10 @@
 - [A test that expects a raise names more than its type, so selection refuses an except that only passes](decisions/a-test-that-expects-a-raise-names-more-than-its-type.md)
 - [purba picks a test by its name, and the tests of a run by one query](decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md)
 
+### query
+
+- [purba picks a test by its name, and the tests of a run by one query](decisions/purba-picks-a-test-by-its-name-and-the-tests-of-a-run-by-one-query.md)
+
 ### parsing
 
 - [A failed expectation shows its expected value and its reading](decisions/a-failed-expectation-shows-its-expected-value-and-its-reading.md)

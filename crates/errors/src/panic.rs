@@ -99,9 +99,10 @@ fn record(info: &PanicHookInfo<'_>) {
 
 /// The parts, as "The parts and their dependencies" in `LANDSCAPE.md` names
 /// them.
-const PARTS: [&str; 8] = [
+const PARTS: [&str; 9] = [
     "command",
     "selection",
+    "query",
     "parsing",
     "dispatch",
     "execution",

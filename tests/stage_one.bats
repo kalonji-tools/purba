@@ -644,9 +644,7 @@ LINES
 
   run -3 --separate-stderr purba nowhere
 
-  local refused='purba: invocation error: nowhere names no test file: '
-  refused+='no file or folder has that path'
-  [[ "${stderr}" == "${refused}" ]] || false
+  [[ "${stderr}" == 'purba: invocation error: nowhere names no test' ]] || false
   [[ -z "${output}" ]]
 }
 
@@ -673,6 +671,6 @@ LINES
 
   run -3 --separate-stderr purba test_a.py test_b.py
 
-  [[ "${stderr}" == "purba: invocation error: usage: purba [<path>]" ]] || false
+  [[ "${stderr}" == "purba: invocation error: usage: purba [<query>]" ]] || false
   [[ -z "${output}" ]]
 }

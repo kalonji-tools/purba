@@ -11,13 +11,15 @@ use std::ops::ControlFlow;
 use std::path::{Path, PathBuf};
 
 use purba_dispatch::{Handed, Module};
-use purba_selection::{NoTestFile, Selected, TestId};
+use purba_selection::{Reached, Selected, TestId, Unnamed, Unparsed};
 
 /// Why a run did not finish.
 #[derive(Debug)]
 pub enum Error {
-    /// The arguments are more than one path.
+    /// The arguments are more than one query.
     Usage,
+    /// The query does not parse.
+    Query(Unparsed),
     /// The words of each error of the `PURBA_*` variables, sorted by the name
     /// of the variable.
     Environment(Vec<String>),
@@ -26,8 +28,8 @@ pub enum Error {
     /// No `pyproject.toml` on the walk up from the working folder holds
     /// `[tool.purba]`. It names where to add it.
     NoRoot(Place),
-    /// The path, as the tester typed it, names no test file.
-    NoTestFile(String, NoTestFile),
+    /// A term of the query names nothing that purba read.
+    Unnamed(Unnamed),
     /// stdout takes no write, so no report exists.
     Write(io::Error),
     /// stdout refused a write of the report. `code` is the exit code of what
@@ -57,7 +59,8 @@ impl From<purba_reporting::Refused> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Usage => write!(formatter, "usage: purba [<path>]"),
+            Self::Usage => write!(formatter, "usage: purba [<query>]"),
+            Self::Query(why) => write!(formatter, "{why}"),
             Self::Environment(lines) => write!(formatter, "{}", lines.join("; ")),
             Self::Folder(error) => write!(formatter, "cannot read the working folder: {error}"),
             Self::NoRoot(place) => {
@@ -69,7 +72,7 @@ impl fmt::Display for Error {
                     }
                 }
             }
-            Self::NoTestFile(path, why) => write!(formatter, "{path} names no test file: {why}"),
+            Self::Unnamed(why) => write!(formatter, "{why}"),
             Self::Write(error) | Self::Refused { error, .. } => {
                 write!(formatter, "cannot write to stdout: {error}")
             }
@@ -81,10 +84,10 @@ impl fmt::Display for Error {
     }
 }
 
-/// Runs the tests of each test file under the path that `arguments` names, and
-/// returns the exit code that reporting renders.
+/// Runs the tests that the query of `arguments` names, and returns the exit
+/// code that reporting renders.
 ///
-/// With no path, it runs each test file under the root. `arguments` is
+/// With no query, it runs each test file under the root. `arguments` is
 /// `sys.argv`, so it starts with the name of the script. The working folder is
 /// the folder of the process.
 ///
@@ -97,14 +100,16 @@ impl fmt::Display for Error {
 /// Each stops the run. In the order the run meets them:
 ///
 /// - The working folder cannot be read.
-/// - The arguments are more than one path.
+/// - The arguments are more than one query.
+/// - The query does not parse.
 /// - A `PURBA_*` variable is near `PURBA_IMPLICIT_ROOT`, or
 ///   `PURBA_IMPLICIT_ROOT` holds a value other than `1`, `0` or nothing.
 /// - `out` is an error.
 /// - No `pyproject.toml` on the walk up from the working folder holds
 ///   `[tool.purba]`, and `PURBA_IMPLICIT_ROOT` is not `1`.
-/// - The path names no test file.
+/// - An id of the query names no test file.
 /// - An interrupt comes before selection ends.
+/// - A term of the query names nothing that purba read.
 /// - `out` refuses a write.
 ///
 /// Only a refused write comes once the tests start, and no test runs after it.
@@ -149,7 +154,11 @@ pub fn run_with(
     {
         panic!("PURBA_FAULT=command");
     }
-    let typed = path(arguments)?;
+    let query = typed(arguments)?
+        .as_deref()
+        .map(purba_selection::query)
+        .transpose()
+        .map_err(Error::Query)?;
     let implicit = implicit_root(variables)?;
     let out = out.map_err(Error::Write)?;
     let mut report = purba_reporting::Report::new(out);
@@ -179,11 +188,11 @@ pub fn run_with(
             return Ok(report.finish()?);
         }
     };
-    let found = purba_selection::test_files(&root, typed.as_deref().map(Path::new), &patterns)
-        .map_err(|why| Error::NoTestFile(typed.unwrap_or_default(), why))?;
+    let reached =
+        purba_selection::reach(&root, query.as_ref(), &patterns).map_err(Error::Unnamed)?;
     purba_execution::start_paths_at(root.clone(), folder.to_path_buf());
     let (modules, mut kept) =
-        before_the_run(&root, found, notice.as_deref(), &mut report, &rewrite)?;
+        before_the_run(&root, &reached, notice.as_deref(), &mut report, &rewrite)?;
     hand(&root, modules, &mut kept, &mut report)?;
     for (path, selected) in &kept {
         for words in selected.unused() {
@@ -197,36 +206,48 @@ pub fn run_with(
 /// of each test file that it rewrote, by its path from the root.
 type Prepared = (Vec<Module<TestId>>, Vec<(PathBuf, Selected)>);
 
-/// Takes each test file of `found` in turn, by its path from `root`: parses
-/// it, selects its tests and rewrites it, and drops its tree before it reads
-/// the next. Once selection ends for every file, it prints `notice`, the
-/// notice of an implicit root, if any. Then it prints, in the order of the
+/// Takes each test file that the query of `reached` reaches in turn, by its
+/// path from `root`: parses it, selects its tests and rewrites it, and drops
+/// its tree before it reads the next. Once selection ends for every file, it
+/// checks that each term of the query names something, then prints `notice`,
+/// the notice of an implicit root, if any. Then it prints, in the order of the
 /// paths, the line of each folder that stage one cannot read and of each
 /// error that a file met before the run. The error of one file or folder
 /// stops only that one.
 ///
 /// # Errors
 ///
-/// An interrupt came before selection ended, or `report` refused a write.
+/// An interrupt came before selection ended, a term of the query names
+/// nothing, or `report` refused a write.
 fn before_the_run(
     root: &Path,
-    found: purba_selection::TestFiles,
+    reached: &Reached,
     notice: Option<&str>,
     report: &mut purba_reporting::Report<impl Write>,
     rewrite: &impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<Prepared, Error> {
+    let found = reached.files();
     if found.files.is_empty() {
         not_interrupted()?;
     }
     let mut before = Vec::with_capacity(found.files.len());
-    for path in found.files {
-        let stage = prepare(root, &path, rewrite)?;
-        before.push((path, stage));
+    for path in &found.files {
+        let stage = prepare(root, path, reached, rewrite)?;
+        before.push((path.clone(), stage));
     }
+    reached
+        .check(before.iter().map(|(path, stage)| {
+            let selected = match stage {
+                Before::Selected(selected, _) => Some(&**selected),
+                Before::Stopped(_) => None,
+            };
+            (path.as_path(), selected)
+        }))
+        .map_err(Error::Unnamed)?;
     if let Some(words) = notice {
         report.notice(words)?;
     }
-    let mut unread = found.unread.into_iter().peekable();
+    let mut unread = found.unread.iter().cloned().peekable();
     let mut modules = Vec::new();
     let mut kept = Vec::new();
     for (path, stage) in before {
@@ -239,7 +260,7 @@ fn before_the_run(
                 report.error(&shown, &error)?;
                 continue;
             }
-            Before::Selected(selected, rewritten) => (selected, rewritten),
+            Before::Selected(selected, rewritten) => (*selected, rewritten),
         };
         for line in selected.before_the_run() {
             match line {
@@ -353,8 +374,8 @@ fn not_interrupted() -> Result<(), Error> {
     }
 }
 
-/// The path that `arguments` names after the script's name, if any.
-fn path(arguments: &[String]) -> Result<Option<String>, Error> {
+/// The query that `arguments` holds after the script's name, if any.
+fn typed(arguments: &[String]) -> Result<Option<String>, Error> {
     match arguments {
         [] | [_] => Ok(None),
         [_, argument] => Ok(Some(argument.clone())),
@@ -582,11 +603,11 @@ enum Before {
     /// The file does not parse, or selection panicked.
     Stopped(purba_errors::Error),
     /// What selection makes of the module, and what the rewrite leaves of it.
-    Selected(Selected, Found),
+    Selected(Box<Selected>, Found),
 }
 
-/// Parses the test file at `path` from `root`, selects its tests, and
-/// rewrites it. Its tree drops here.
+/// Parses the test file at `path` from `root`, selects the tests of it that
+/// the query of `reached` picks, and rewrites it. Its tree drops here.
 ///
 /// # Errors
 ///
@@ -594,6 +615,7 @@ enum Before {
 fn prepare(
     root: &Path,
     path: &Path,
+    reached: &Reached,
     rewrite: &impl Fn(&purba_parsing::Facts<'_>, &[&str]) -> purba_assertion::Rewrite,
 ) -> Result<Before, Error> {
     let read = root.join(path);
@@ -606,7 +628,7 @@ fn prepare(
     };
     let selection = purba_errors::catch("command", || {
         let facts = purba_parsing::Facts::of(&module);
-        let selected = purba_selection::select(path, &facts);
+        let selected = reached.select(path, &facts);
         Ok((facts, selected))
     });
     not_interrupted()?;
@@ -623,7 +645,7 @@ fn prepare(
             )
         },
     );
-    Ok(Before::Selected(selected, found))
+    Ok(Before::Selected(Box::new(selected), found))
 }
 
 /// The parse of the module at `file`, or the error that stops it.
@@ -672,37 +694,37 @@ fn rewritten(
 mod tests {
     use super::*;
 
-    fn path_of(arguments: &[&str]) -> Result<Option<String>, String> {
+    fn query_of(arguments: &[&str]) -> Result<Option<String>, String> {
         let mut argv = vec!["purba".to_owned()];
         argv.extend(arguments.iter().map(|&argument| argument.to_owned()));
-        path(&argv).map_err(|error| error.to_string())
+        typed(&argv).map_err(|error| error.to_string())
     }
 
     #[test]
-    fn no_argument_or_one_after_the_scripts_name_is_the_path() {
-        assert_eq!(path_of(&[]), Ok(None), "no argument names no path");
+    fn no_argument_or_one_after_the_scripts_name_is_the_query() {
+        assert_eq!(query_of(&[]), Ok(None), "no argument names no query");
         assert_eq!(
-            path_of(&["tests"]),
+            query_of(&["tests"]),
             Ok(Some("tests".to_owned())),
             "a folder"
         );
         assert_eq!(
-            path_of(&["tests/test_a.py"]),
-            Ok(Some("tests/test_a.py".to_owned())),
-            "a path as the tester typed it"
+            query_of(&["tests/test_a.py & !name(sub)"]),
+            Ok(Some("tests/test_a.py & !name(sub)".to_owned())),
+            "a query as the tester typed it"
         );
         assert_eq!(
-            path_of(&["--help"]),
+            query_of(&["--help"]),
             Ok(Some("--help".to_owned())),
-            "a flag is a path, which stage one finds no file at"
+            "a flag is a query, which names nothing"
         );
     }
 
     #[test]
     fn two_or_more_arguments_are_the_usage_error() {
-        let usage = Err("usage: purba [<path>]".to_owned());
-        assert_eq!(path_of(&["a.py", "b.py"]), usage, "two arguments");
-        assert_eq!(path_of(&["a", "b", "c"]), usage, "three arguments");
+        let usage = Err("usage: purba [<query>]".to_owned());
+        assert_eq!(query_of(&["a.py", "b.py"]), usage, "two arguments");
+        assert_eq!(query_of(&["a", "b", "c"]), usage, "three arguments");
     }
 
     #[test]
@@ -716,12 +738,6 @@ mod tests {
             Error::NoRoot(Place::Folder(PathBuf::from(".."))).to_string(),
             "no pyproject.toml holds [tool.purba]; add one with it to ..",
             "the refusal names the folder that holds .git"
-        );
-        let name = NoTestFile::Name(purba_selection::Patterns::default());
-        assert_eq!(
-            Error::NoTestFile("tests/x.py".to_owned(), name.clone()).to_string(),
-            format!("tests/x.py names no test file: {name}"),
-            "the refusal names the path as the tester typed it, and selection's reason"
         );
         assert_eq!(
             Error::Write(io::Error::other("boom")).to_string(),
