@@ -7,482 +7,25 @@
 //! test's process loads the module before its test.
 
 use std::fs::File;
-use std::io::{self, ErrorKind, Read, Write};
+use std::io::{self, ErrorKind};
 use std::os::fd::{FromRawFd, OwnedFd};
 use std::panic::AssertUnwindSafe;
-use std::str::FromStr;
 use std::sync::{Mutex, PoisonError};
 
 use pyo3::Python;
 use pyo3::types::PyAnyMethods;
 
-use purba_assertion::{Readers, Replaced, Swallowed, Try, Verdict};
-use purba_errors::{Shown, catch};
+use purba_assertion::{Readers, Replaced, Verdict};
+use purba_errors::catch;
 
 use crate::fork::{Forked, fork};
+use crate::frame::Message;
 use crate::interrupt::Window;
-use crate::order::{Called, Facts, How, PathFault};
+use crate::order::Facts;
 use crate::step::Gives;
 use crate::{
-    Error, Kind, Module, Outcome, Purba, Step, Suppressed, Worker, frame, internal, interrupt,
-    outcome, panic, thread,
+    Error, Kind, Module, Outcome, Purba, Step, Suppressed, Worker, interrupt, outcome, thread,
 };
-
-/// Each message that crosses a pipe between purba, a zygote and a test's
-/// process. Each one is one frame: the tag of its kind, then each of its
-/// fields, as `put` writes it. A field holds any text, a NUL too.
-#[derive(Debug)]
-enum Message {
-    /// purba names the test to run: the name of its function.
-    Test { function: String },
-    /// purba asks for a replay of the test `function` that reads the
-    /// expectation at `index` alone.
-    Replay { function: String, index: usize },
-    /// The load ended, and the zygote forks each test from now on.
-    Ready,
-    /// A thread is alive after the load, and the zygote ends.
-    Threaded,
-    /// The load returned, and kept its module or met an interrupt.
-    Loaded,
-    /// The test's process started: its pid.
-    Forked(libc::pid_t),
-    /// The facts of the case, from which purba decides its outcome.
-    Facts(Box<Facts>),
-    /// The first interrupt landed in the test's step, so the case is
-    /// `interrupted`. It comes after the facts, when the call ran.
-    Interrupted,
-    /// The error in place of the result of a load or the outcome of a case.
-    Error(Error),
-    /// The error of a thread that the test left, as text.
-    TestThread(String),
-    /// The error of a thread that the load left, as text.
-    LoadThread(String),
-    /// The first interrupt that the process kept: the number of its signal.
-    Kept(i32),
-    /// What a replay read of its expectation.
-    Verdict(Verdict),
-    /// The zygote could not fork a replay: its words.
-    Refused(String),
-    /// The test's process or the replay ended: its wait status.
-    Ended(libc::c_int),
-}
-
-/// The tag of each kind of message.
-mod tag {
-    pub const TEST: u8 = b'n';
-    pub const REPLAY: u8 = b'y';
-    pub const READY: u8 = b'g';
-    pub const THREADED: u8 = b't';
-    pub const LOADED: u8 = b'l';
-    pub const FORKED: u8 = b'c';
-    pub const FACTS: u8 = b'a';
-    pub const INTERRUPTED: u8 = b'i';
-    pub const PROJECT: u8 = b'e';
-    pub const INTERNAL: u8 = b'x';
-    pub const TEST_THREAD: u8 = b'h';
-    pub const LOAD_THREAD: u8 = b'H';
-    pub const KEPT: u8 = b'k';
-    pub const VERDICT: u8 = b'v';
-    pub const REFUSED: u8 = b'r';
-    pub const ENDED: u8 = b'w';
-}
-
-impl Message {
-    /// Writes the message as one frame.
-    fn write(&self, to: &mut impl Write) -> io::Result<()> {
-        let mut text = String::new();
-        let mut put = |field: &str| put(&mut text, field);
-        let tag = match self {
-            Self::Test { function } => {
-                put(function);
-                tag::TEST
-            }
-            Self::Replay { function, index } => {
-                put(function);
-                put(&index.to_string());
-                tag::REPLAY
-            }
-            Self::Ready => tag::READY,
-            Self::Threaded => tag::THREADED,
-            Self::Loaded => tag::LOADED,
-            Self::Forked(pid) => {
-                put(&pid.to_string());
-                tag::FORKED
-            }
-            Self::Facts(facts) => {
-                put_facts(&mut put, facts);
-                tag::FACTS
-            }
-            Self::Interrupted => tag::INTERRUPTED,
-            // An error's `Display` is the text of a project error, and the
-            // message of an internal error.
-            Self::Error(error) => match error.kind() {
-                purba_errors::ErrorKind::Project => {
-                    put(&error.to_string());
-                    tag::PROJECT
-                }
-                purba_errors::ErrorKind::Internal { part } => {
-                    put(part);
-                    put(&error.to_string());
-                    tag::INTERNAL
-                }
-            },
-            Self::TestThread(error) => {
-                put(error);
-                tag::TEST_THREAD
-            }
-            Self::LoadThread(error) => {
-                put(error);
-                tag::LOAD_THREAD
-            }
-            Self::Kept(signum) => {
-                put(&signum.to_string());
-                tag::KEPT
-            }
-            Self::Verdict(verdict) => {
-                put(letter(*verdict));
-                tag::VERDICT
-            }
-            Self::Refused(words) => {
-                put(words);
-                tag::REFUSED
-            }
-            Self::Ended(status) => {
-                put(&status.to_string());
-                tag::ENDED
-            }
-        };
-        frame::write(to, tag, &text)
-    }
-
-    /// Reads one message. Gives `None` when the pipe ends before a frame
-    /// starts. A frame that holds no message gives an internal error of
-    /// execution in its place.
-    fn read(from: &mut impl Read) -> io::Result<Option<Result<Self, Error>>> {
-        Ok(frame::read(from)?.map(|(tag, text)| {
-            Self::of(tag, &text).ok_or_else(|| {
-                internal(panic::Caught {
-                    part: "execution".to_owned(),
-                    message: format!("the frame {:?} holds no message", char::from(tag)),
-                })
-            })
-        }))
-    }
-
-    /// The message that the frame of `tag` and `text` holds, or `None` when it
-    /// holds none.
-    fn of(tag: u8, text: &str) -> Option<Self> {
-        let mut fields = Fields(text);
-        let message = match tag {
-            tag::TEST => Self::Test {
-                function: fields.text()?,
-            },
-            tag::REPLAY => Self::Replay {
-                function: fields.text()?,
-                index: fields.number()?,
-            },
-            tag::READY => Self::Ready,
-            tag::THREADED => Self::Threaded,
-            tag::LOADED => Self::Loaded,
-            tag::FORKED => Self::Forked(fields.number()?),
-            tag::FACTS => Self::Facts(Box::new(fields.facts()?)),
-            tag::INTERRUPTED => Self::Interrupted,
-            tag::PROJECT => Self::Error(Error::project(fields.text()?)),
-            tag::INTERNAL => Self::Error(internal(panic::Caught {
-                part: fields.text()?,
-                message: fields.text()?,
-            })),
-            tag::TEST_THREAD => Self::TestThread(fields.text()?),
-            tag::LOAD_THREAD => Self::LoadThread(fields.text()?),
-            tag::KEPT => Self::Kept(fields.number()?),
-            tag::VERDICT => Self::Verdict(fields.verdict()?),
-            tag::REFUSED => Self::Refused(fields.text()?),
-            tag::ENDED => Self::Ended(fields.number()?),
-            _ => return None,
-        };
-        fields.0.is_empty().then_some(message)
-    }
-}
-
-/// The fields of a frame that are left to read.
-struct Fields<'a>(&'a str);
-
-impl Fields<'_> {
-    /// Takes the next field, which `put` wrote.
-    fn text(&mut self) -> Option<String> {
-        let (length, rest) = self.0.split_once('\0')?;
-        let length: usize = length.parse().ok()?;
-        let field = rest.get(..length)?;
-        self.0 = &rest[length..];
-        Some(field.to_owned())
-    }
-
-    /// Takes the next field as a number.
-    fn number<N: FromStr>(&mut self) -> Option<N> {
-        self.text()?.parse().ok()
-    }
-
-    /// Takes the next field as a verdict, which `letter` wrote.
-    fn verdict(&mut self) -> Option<Verdict> {
-        Some(match self.text()?.as_str() {
-            "h" => Verdict::Holds,
-            "f" => Verdict::Fails,
-            "r" => Verdict::Raises,
-            "x" => Verdict::Refused,
-            _ => return None,
-        })
-    }
-
-    /// Takes the next field as a flag, which `put_facts` wrote as `1` or `0`.
-    fn flag(&mut self) -> Option<bool> {
-        match self.text()?.as_str() {
-            "1" => Some(true),
-            "0" => Some(false),
-            _ => None,
-        }
-    }
-
-    /// Takes a count, then that many items, each of which `item` takes.
-    fn list<I>(&mut self, mut item: impl FnMut(&mut Self) -> Option<I>) -> Option<Vec<I>> {
-        let count: usize = self.number()?;
-        (0..count).map(|_| item(self)).collect()
-    }
-
-    /// Takes an option, which `put_facts` wrote as a list of no field or one.
-    /// Gives the list, which `pop` turns into the option.
-    fn optional(&mut self) -> Option<Vec<String>> {
-        let list = self.list(Self::text)?;
-        (list.len() <= 1).then_some(list)
-    }
-
-    /// Takes the facts of a case, which `put_facts` wrote.
-    fn facts(&mut self) -> Option<Facts> {
-        let pair = |fields: &mut Self| Some((fields.text()?, fields.text()?));
-        Some(Facts {
-            form: self.list(pair)?,
-            called: if self.flag()? {
-                Called::Raised {
-                    exception: self.text()?,
-                    whence: self.optional()?.pop(),
-                    assertion: self.flag()?,
-                }
-            } else {
-                Called::Returned
-            },
-            with: self.optional()?.pop(),
-            mark: if self.flag()? {
-                Some((self.text()?, self.flag()?))
-            } else {
-                None
-            },
-            path: self.list(Self::path_fault)?,
-            swallowed: self.list(|fields| {
-                Some(Swallowed {
-                    with: fields.number()?,
-                    skipped: fields.number()?,
-                    last: fields.number()?,
-                })
-            })?,
-            tries: self.list(|fields| {
-                Some(Try {
-                    lines: fields.number()?..=fields.number()?,
-                    except: if fields.flag()? {
-                        Some(fields.number()?..=fields.number()?)
-                    } else {
-                        None
-                    },
-                })
-            })?,
-            refused: self.optional()?.pop(),
-            in_order: self.list(|fields| Some((fields.number()?, fields.flag()?)))?,
-            shown: self.list(|fields| Some((fields.number()?, fields.shown()?)))?,
-            alone: self.list(|fields| Some((fields.number()?, fields.verdict()?)))?,
-            later: self.list(Self::number)?,
-            texts: self.list(|fields| Some((fields.number()?, fields.text()?)))?,
-            missed: self.list(Self::text)?,
-            stated: self.flag()?,
-        })
-    }
-
-    /// Takes a fault of a path, which `put_paths` wrote.
-    fn path_fault(&mut self) -> Option<PathFault> {
-        Some(PathFault {
-            line: self.number()?,
-            reached: if self.flag()? {
-                Some((self.number()?, self.text()?))
-            } else {
-                None
-            },
-            how: match self.text()?.as_str() {
-                "n" => How::DidNotRun,
-                "o" => How::OneWay,
-                _ => return None,
-            },
-        })
-    }
-
-    /// Takes what an expectation that did not hold shows.
-    fn shown(&mut self) -> Option<Shown> {
-        Some(match self.text()?.as_str() {
-            "1" => Shown::Values {
-                expected: self.text()?,
-                reading: self.text()?,
-            },
-            "2" => Shown::Items {
-                heading: self.text()?,
-                items: self.list(Self::text)?,
-            },
-            _ => return None,
-        })
-    }
-}
-
-/// Writes three lists of `facts` through `put`: each fault of the paths, each
-/// `with` that swallowed a raise, and each `try` of the test. Each list is its
-/// count, then its items, as in [`put_facts`].
-fn put_paths(put: &mut impl FnMut(&str), facts: &Facts) {
-    put(&facts.path.len().to_string());
-    for fault in &facts.path {
-        put(&fault.line.to_string());
-        match &fault.reached {
-            Some((at, name)) => {
-                put("1");
-                put(&at.to_string());
-                put(name);
-            }
-            None => put("0"),
-        }
-        put(match fault.how {
-            How::DidNotRun => "n",
-            How::OneWay => "o",
-        });
-    }
-    put(&facts.swallowed.len().to_string());
-    for swallow in &facts.swallowed {
-        put(&swallow.with.to_string());
-        put(&swallow.skipped.to_string());
-        put(&swallow.last.to_string());
-    }
-    put(&facts.tries.len().to_string());
-    for attempt in &facts.tries {
-        put(&attempt.lines.start().to_string());
-        put(&attempt.lines.end().to_string());
-        match &attempt.except {
-            Some(except) => {
-                put("1");
-                put(&except.start().to_string());
-                put(&except.end().to_string());
-            }
-            None => put("0"),
-        }
-    }
-}
-
-/// Writes the fields of `facts` through `put`, in the order that
-/// [`Fields::facts`] takes them. A list is its count, then its items, and an
-/// option is a list of no item or one.
-fn put_facts(put: &mut impl FnMut(&str), facts: &Facts) {
-    let flag = |set: bool| if set { "1" } else { "0" };
-    let option = |put: &mut dyn FnMut(&str), value: Option<&str>| {
-        put(flag(value.is_some()));
-        if let Some(value) = value {
-            put(value);
-        }
-    };
-    let pairs = |put: &mut dyn FnMut(&str), pairs: &[(String, String)]| {
-        put(&pairs.len().to_string());
-        for (first, second) in pairs {
-            put(first);
-            put(second);
-        }
-    };
-    pairs(put, &facts.form);
-    match &facts.called {
-        Called::Returned => put("0"),
-        Called::Raised {
-            exception,
-            whence,
-            assertion,
-        } => {
-            put("1");
-            put(exception);
-            option(put, whence.as_deref());
-            put(flag(*assertion));
-        }
-    }
-    option(put, facts.with.as_deref());
-    match &facts.mark {
-        Some((assert, held)) => {
-            put("1");
-            put(assert);
-            put(flag(*held));
-        }
-        None => put("0"),
-    }
-    put_paths(put, facts);
-    option(put, facts.refused.as_deref());
-    put(&facts.in_order.len().to_string());
-    for (index, held) in &facts.in_order {
-        put(&index.to_string());
-        put(flag(*held));
-    }
-    put(&facts.shown.len().to_string());
-    for (index, shown) in &facts.shown {
-        put(&index.to_string());
-        match shown {
-            Shown::Values { expected, reading } => {
-                put("1");
-                put(expected);
-                put(reading);
-            }
-            Shown::Items { heading, items } => {
-                put("2");
-                put(heading);
-                put(&items.len().to_string());
-                for item in items {
-                    put(item);
-                }
-            }
-        }
-    }
-    put(&facts.alone.len().to_string());
-    for (index, verdict) in &facts.alone {
-        put(&index.to_string());
-        put(letter(*verdict));
-    }
-    put(&facts.later.len().to_string());
-    for index in &facts.later {
-        put(&index.to_string());
-    }
-    put(&facts.texts.len().to_string());
-    for (index, text) in &facts.texts {
-        put(&index.to_string());
-        put(text);
-    }
-    put(&facts.missed.len().to_string());
-    for words in &facts.missed {
-        put(words);
-    }
-    put(flag(facts.stated));
-}
-
-/// The letter of `verdict` in a frame.
-const fn letter(verdict: Verdict) -> &'static str {
-    match verdict {
-        Verdict::Holds => "h",
-        Verdict::Fails => "f",
-        Verdict::Raises => "r",
-        Verdict::Refused => "x",
-    }
-}
-
-/// Writes `field` after its length in bytes and a NUL, so that a field holds
-/// any text, a NUL too.
-fn put(frame: &mut String, field: &str) {
-    frame.push_str(&field.len().to_string());
-    frame.push('\0');
-    frame.push_str(field);
-}
 
 /// A zygote that purba forked, seen from purba.
 pub struct Zygote {
@@ -1430,231 +973,11 @@ const fn verdict(status: libc::c_int) -> Verdict {
 mod tests {
     use super::*;
 
+    use std::io::Write;
     use std::sync::mpsc;
     use std::time::Duration;
 
-    /// Facts that hold a fault of a path of each shape, a `with` that swallowed
-    /// a raise, and a `try` of each shape, with `text` as the name of the code
-    /// that a fault reached.
-    fn facts_of_the_paths(text: impl Fn(&str) -> String) -> Facts {
-        Facts {
-            path: vec![
-                PathFault {
-                    line: 3,
-                    reached: None,
-                    how: How::DidNotRun,
-                },
-                PathFault {
-                    line: 4,
-                    reached: Some((12, text("key"))),
-                    how: How::OneWay,
-                },
-            ],
-            swallowed: vec![Swallowed {
-                with: 6,
-                skipped: 8,
-                last: 11,
-            }],
-            tries: vec![
-                Try {
-                    lines: 8..=11,
-                    except: None,
-                },
-                Try {
-                    lines: 13..=16,
-                    except: Some(15..=16),
-                },
-            ],
-            ..Facts::default()
-        }
-    }
-
-    /// One message of each variant, with a NUL, a line feed and text that is
-    /// not ASCII in its fields, an empty field, and each shape of a field that
-    /// is optional.
-    fn each_variant() -> Vec<Message> {
-        let text = |words: &str| format!("{words}\0\n é");
-        vec![
-            Message::Test {
-                function: text("test_one"),
-            },
-            Message::Replay {
-                function: text("test_one"),
-                index: 2,
-            },
-            Message::Ready,
-            Message::Threaded,
-            Message::Loaded,
-            Message::Forked(4321),
-            Message::Facts(Box::new(Facts {
-                form: vec![
-                    (text("iterator-read"), text("words")),
-                    (String::new(), String::new()),
-                ],
-                called: Called::Raised {
-                    exception: text("ValueError: no"),
-                    whence: Some(text("helper")),
-                    assertion: true,
-                },
-                with: Some(text("with raises(ValueError):")),
-                mark: Some((text("assert x == 1"), false)),
-                refused: Some(text("purba cannot fork")),
-                in_order: vec![(1, true), (2, false)],
-                shown: vec![
-                    (
-                        2,
-                        Shown::Values {
-                            expected: text("1"),
-                            reading: text("2"),
-                        },
-                    ),
-                    (
-                        3,
-                        Shown::Items {
-                            heading: text("the first item that breaks"),
-                            items: vec![text("0"), String::new()],
-                        },
-                    ),
-                ],
-                alone: vec![
-                    (2, Verdict::Holds),
-                    (3, Verdict::Fails),
-                    (4, Verdict::Raises),
-                    (5, Verdict::Refused),
-                ],
-                later: vec![2, 3],
-                texts: vec![(1, text("assert x == 1")), (2, String::new())],
-                missed: vec![text("try: x()")],
-                stated: true,
-                ..facts_of_the_paths(text)
-            })),
-            Message::Facts(Box::new(Facts {
-                called: Called::Raised {
-                    exception: text("ValueError: no"),
-                    whence: None,
-                    assertion: false,
-                },
-                ..Facts::default()
-            })),
-            Message::Facts(Box::default()),
-            Message::Interrupted,
-            Message::Error(Error::project(text("[no-expectation] no expectation ran"))),
-            Message::Error(internal(panic::Caught {
-                part: text("assertion"),
-                message: text("a panic"),
-            })),
-            Message::TestThread(text("thread A raised ValueError")),
-            Message::LoadThread(text("thread L raised ValueError")),
-            Message::Kept(libc::SIGTERM),
-            Message::Verdict(Verdict::Holds),
-            Message::Verdict(Verdict::Fails),
-            Message::Verdict(Verdict::Raises),
-            Message::Verdict(Verdict::Refused),
-            Message::Refused(text("purba cannot fork to read an expectation alone")),
-            Message::Ended(256),
-        ]
-    }
-
-    /// The number of arms of `variant`, one for each variant of `Message`.
-    const VARIANTS: usize = 15;
-
-    /// The name of the variant of `message`. A variant that this match lacks
-    /// fails to compile. The count above it must then grow, and
-    /// `each_variant` must send the new one.
-    const fn variant(message: &Message) -> &'static str {
-        match message {
-            Message::Test { .. } => "Test",
-            Message::Replay { .. } => "Replay",
-            Message::Ready => "Ready",
-            Message::Threaded => "Threaded",
-            Message::Loaded => "Loaded",
-            Message::Forked(_) => "Forked",
-            Message::Facts(_) => "Facts",
-            Message::Interrupted => "Interrupted",
-            Message::Error(_) => "Error",
-            Message::TestThread(_) => "TestThread",
-            Message::LoadThread(_) => "LoadThread",
-            Message::Kept(_) => "Kept",
-            Message::Verdict(_) => "Verdict",
-            Message::Refused(_) => "Refused",
-            Message::Ended(_) => "Ended",
-        }
-    }
-
-    #[test]
-    fn each_message_reads_back_as_itself() {
-        let sent = each_variant();
-        let mut pipe = Vec::new();
-        for message in &sent {
-            message.write(&mut pipe).expect("a Vec takes the write");
-        }
-        let mut from = pipe.as_slice();
-        for message in &sent {
-            let read = Message::read(&mut from)
-                .expect("a whole frame reads")
-                .expect("a frame is left")
-                .expect("the frame holds a message");
-            assert_eq!(
-                format!("{read:?}"),
-                format!("{message:?}"),
-                "a {} message reads back as itself",
-                variant(message)
-            );
-        }
-        assert!(
-            Message::read(&mut from).expect("the end reads").is_none(),
-            "the pipe ends after the last message"
-        );
-        let mut names: Vec<&str> = sent.iter().map(variant).collect();
-        names.sort_unstable();
-        names.dedup();
-        assert_eq!(names.len(), VARIANTS, "each variant is sent: {names:?}");
-    }
-
-    /// The internal error of a frame of `tag` that holds no message.
-    fn no_message(tag: char) -> String {
-        format!(
-            "{:?}",
-            internal(panic::Caught {
-                part: "execution".to_owned(),
-                message: format!("the frame {tag:?} holds no message"),
-            })
-        )
-    }
-
-    #[test]
-    fn a_frame_that_holds_no_message_reads_as_an_internal_error() {
-        let frames: [(u8, &str, &str); 8] = [
-            (tag::FACTS, "9\0cut", "a field longer than the frame"),
-            (b'?', "", "a tag of no message"),
-            (tag::FORKED, "1\0x", "a pid that is no number"),
-            (tag::REPLAY, "1\0a", "a replay with one of its two fields"),
-            (tag::ENDED, "1\0x", "a wait status that is no number"),
-            (tag::KEPT, "1\0x", "a signal that is no number"),
-            (tag::READY, "1\0x", "a field left over"),
-            (
-                tag::FACTS,
-                "1\x0001\x002",
-                "a flag of the facts that is neither 0 nor 1",
-            ),
-        ];
-        let mut pipe = Vec::new();
-        for (tag, text, _) in frames {
-            frame::write(&mut pipe, tag, text).expect("a Vec takes the write");
-        }
-        let mut from = pipe.as_slice();
-        for (tag, _, what) in frames {
-            let read = Message::read(&mut from)
-                .expect("a whole frame reads")
-                .expect("a frame is left");
-            assert_eq!(
-                read.map_err(|error| format!("{error:?}"))
-                    .map(|message| format!("{message:?}")),
-                Err(no_message(char::from(tag))),
-                "{what}"
-            );
-        }
-    }
+    use crate::frame::tests::holding_no_message;
 
     /// What a run of the case `test_one` gave, and how to end it.
     struct Ran {
@@ -1674,13 +997,13 @@ mod tests {
     /// names closes, as a zygote does. The `Zygote` lives on after the run, as
     /// dispatch keeps it for the next test, until `release` drops. A run that
     /// waits for a frame that does not come fails the case after 10 seconds.
-    fn run_on(frames: Vec<(u8, String)>) -> Ran {
+    fn run_on(frames: Vec<Vec<u8>>) -> Ran {
         run_ending(frames, Ends::Never)
     }
 
     /// Runs the case `test_one` on `frames`, as `run_on` does, from a stand-in
     /// that ends as `ends` says.
-    fn run_ending(frames: Vec<(u8, String)>, ends: Ends) -> Ran {
+    fn run_ending(frames: Vec<Vec<u8>>, ends: Ends) -> Ran {
         let (mut zygote, sent) = zygote_on(frames, ends);
         let (done, outcome) = mpsc::channel();
         let (release, released) = mpsc::channel::<()>();
@@ -1729,7 +1052,7 @@ mod tests {
     ///
     /// A thread stands in for the zygote and the test's process. It writes
     /// each frame, and ends as `ends` says.
-    fn zygote_on(frames: Vec<(u8, String)>, ends: Ends) -> (Zygote, mpsc::Receiver<Option<File>>) {
+    fn zygote_on(frames: Vec<Vec<u8>>, ends: Ends) -> (Zygote, mpsc::Receiver<Option<File>>) {
         let (frames_in, frames_out) = pipe().expect("a pipe opens");
         let (tests_in, tests_out) = pipe().expect("a pipe opens");
         let (sender_done, sent) = mpsc::channel();
@@ -1737,8 +1060,8 @@ mod tests {
             let mut asks = File::from(tests_in);
             let mut sending = File::from(frames_out);
             let mut write_each = || {
-                for (tag, text) in &frames {
-                    if frame::write(&mut sending, *tag, text).is_err() {
+                for frame in &frames {
+                    if sending.write_all(frame).is_err() {
                         break;
                     }
                 }
@@ -1751,7 +1074,7 @@ mod tests {
                     None
                 }
                 Ends::BeforeTheReplay => {
-                    drop(frame::read(&mut asks));
+                    drop(Message::read(&mut asks));
                     drop(asks);
                     write_each();
                     Some(sending)
@@ -1780,7 +1103,7 @@ mod tests {
     /// the `Debug` text of the verdict or the error, beside the `Debug` text of
     /// each thread's step and error. A replay that waits for a frame that does
     /// not come fails the case after 10 seconds.
-    fn replay_on(frames: Vec<(u8, String)>) -> (Result<String, String>, Vec<String>) {
+    fn replay_on(frames: Vec<Vec<u8>>) -> (Result<String, String>, Vec<String>) {
         let (mut zygote, _sent) = zygote_on(frames, Ends::Never);
         let (done, replayed) = mpsc::channel();
         std::thread::spawn(move || {
@@ -1836,22 +1159,21 @@ mod tests {
 
     #[test]
     fn a_frame_that_holds_no_message_ends_the_replay_with_its_error() {
-        let (verdict, threads) = replay_on(vec![(tag::ENDED, "1\0x".to_owned())]);
+        let (no_message, error) = holding_no_message();
+        let (verdict, threads) = replay_on(vec![no_message]);
         assert_eq!(
             verdict,
-            Err(no_message('w')),
+            Err(error),
             "the internal error takes the place of the verdict, as it does for a case"
         );
         assert!(threads.is_empty(), "no thread is charged: {threads:?}");
     }
 
-    /// The frame of `message`.
-    fn frame_of(message: &Message) -> (u8, String) {
+    /// The bytes of the frame of `message`.
+    fn frame_of(message: &Message) -> Vec<u8> {
         let mut pipe = Vec::new();
         message.write(&mut pipe).expect("a Vec takes the write");
-        frame::read(&mut pipe.as_slice())
-            .expect("a whole frame reads")
-            .expect("a frame is left")
+        pipe
     }
 
     /// The facts of a case whose one expectation held, so that it passed.
@@ -1880,10 +1202,11 @@ mod tests {
 
     #[test]
     fn a_frame_that_holds_no_message_ends_the_case_with_its_error() {
-        let frames = vec![frame_of(&passed()), (tag::ENDED, "1\0x".to_owned())];
+        let (no_message, error) = holding_no_message();
+        let frames = vec![frame_of(&passed()), no_message];
         assert_eq!(
             run_on(frames).outcome,
-            Err(no_message('w')),
+            Err(error),
             "the internal error takes the place of the outcome, and the run waits for no \
              frame that its process does not send"
         );
@@ -1893,13 +1216,14 @@ mod tests {
     fn a_frame_that_holds_no_message_reads_each_frame_after_it() {
         // More than a pipe holds: a sender that nobody reads waits on it.
         let after = frame_of(&Message::TestThread("x".repeat(1024)));
-        let frames = std::iter::once((tag::ENDED, "1\0x".to_owned()))
+        let (no_message, error) = holding_no_message();
+        let frames = std::iter::once(no_message)
             .chain(std::iter::repeat_n(after, 256))
             .collect();
         let ran = run_on(frames);
         assert_eq!(
             ran.outcome,
-            Err(no_message('w')),
+            Err(error),
             "the internal error takes the place of the outcome"
         );
         assert!(
@@ -1913,7 +1237,7 @@ mod tests {
     const REFUSAL: &str = "purba cannot fork to read an expectation alone: EAGAIN";
 
     /// The frames of a test's process that sent `facts`, and ended.
-    fn case(facts: Facts) -> [(u8, String); 2] {
+    fn case(facts: Facts) -> [Vec<u8>; 2] {
         [
             frame_of(&Message::Facts(Box::new(facts))),
             frame_of(&Message::Ended(0)),
@@ -1921,7 +1245,7 @@ mod tests {
     }
 
     /// The frames that the zygote sends when it cannot fork a replay.
-    fn refused_replay() -> [(u8, String); 2] {
+    fn refused_replay() -> [Vec<u8>; 2] {
         [
             frame_of(&Message::Refused(REFUSAL.to_owned())),
             frame_of(&Message::Ended(0)),
@@ -1929,7 +1253,7 @@ mod tests {
     }
 
     /// The frames of a replay that sends `verdict`, and ends.
-    fn replayed(verdict: Verdict) -> [(u8, String); 3] {
+    fn replayed(verdict: Verdict) -> [Vec<u8>; 3] {
         [
             frame_of(&Message::Forked(0)),
             frame_of(&Message::Verdict(verdict)),
@@ -2081,17 +1405,15 @@ mod tests {
             later: vec![1],
             ..raised()
         };
+        let (no_message, error) = holding_no_message();
         let frames = case(sent)
             .into_iter()
-            .chain([
-                frame_of(&Message::Forked(0)),
-                (tag::ENDED, "1\0x".to_owned()),
-            ])
+            .chain([frame_of(&Message::Forked(0)), no_message])
             .collect();
         let ran = run_on(frames);
         assert_eq!(
             ran.outcome,
-            Err(no_message('w')),
+            Err(error),
             "the internal error of the replay takes the place of the line that the order gives"
         );
         drop(ran.release);
@@ -2222,7 +1544,7 @@ mod tests {
     /// Runs the case `test_one` on `frames`, from a stand-in that ends after
     /// them. Gives the outcome, or the `Debug` text of the error, beside what
     /// `ended` then gives: the line of the end, and whether the case named it.
-    fn run_to_the_end(frames: Vec<(u8, String)>) -> (Result<Kind, String>, Option<(String, bool)>) {
+    fn run_to_the_end(frames: Vec<Vec<u8>>) -> (Result<Kind, String>, Option<(String, bool)>) {
         let (mut zygote, _sent) = zygote_on(frames, Ends::AfterItsFrames);
         let (done, ran) = mpsc::channel();
         std::thread::spawn(move || {
@@ -2295,7 +1617,7 @@ mod tests {
 
     /// The frames of a replay that sends `error`, and that the zygote then
     /// sees end with the exit code of a panic.
-    fn replay_with(error: Error) -> [(u8, String); 3] {
+    fn replay_with(error: Error) -> [Vec<u8>; 3] {
         [
             frame_of(&Message::Forked(0)),
             frame_of(&Message::Error(error)),
