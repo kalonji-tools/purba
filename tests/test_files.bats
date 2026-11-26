@@ -109,6 +109,17 @@ unknown() {
   printed 'tests/b_test.py::test_b passed' '1 case: 1 passed'
 }
 
+@test "a path to a hidden file that matches *_test.py says that the file is hidden" {
+  project 'test-files = ["*_test.py"]'
+  passing "${root}/tests/.x_test.py" test_x
+  git -C "${root}" add --all
+  cd "${root}"
+
+  run -3 --separate-stderr purba tests/.x_test.py
+
+  refused tests/.x_test.py 'stage one skips tests/.x_test.py, a hidden file or folder'
+}
+
 @test "each pattern of the closed list runs the files it matches, and no other" {
   project 'test-files = ["test_*.py", "*_test.py", "tests.py", "test.py"]'
   passing "${root}/tests/test_a.py" test_a

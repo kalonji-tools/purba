@@ -1,11 +1,17 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use purba_selection::{NoTestFile, Patterns, TestFiles};
+use purba_selection::{NoTestFile, Pattern, Patterns, TestFiles};
 
 /// Stage one with the patterns that apply when the project's file sets none.
 fn test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestFile> {
     purba_selection::test_files(root, path, &Patterns::default())
+}
+
+/// Stage one with `*_test.py` alone, the one pattern that a hidden name can
+/// match.
+fn suffix_test_files(root: &Path, path: Option<&Path>) -> Result<TestFiles, NoTestFile> {
+    purba_selection::test_files(root, path, &Patterns::from(vec![Pattern::TestSuffix]))
 }
 
 /// A new, empty folder for the test `name`, by its canonical path.
@@ -112,6 +118,76 @@ fn the_walk_skips_each_hidden_folder_and_file() {
         Ok(vec!["test_a.py".to_owned()]),
         "no test file under a hidden folder"
     );
+    write(&root, "y_test.py", "");
+    write(&root, ".x_test.py", "");
+    assert_eq!(
+        shown(suffix_test_files(&root, None)),
+        Ok(vec!["y_test.py".to_owned()]),
+        "no hidden test file"
+    );
+}
+
+#[test]
+fn a_path_to_a_hidden_file_says_that_it_is_hidden() {
+    let root = project("hidden_file");
+    write(&root, ".x_test.py", "");
+    assert_eq!(
+        suffix_test_files(&root, Some(Path::new(".x_test.py"))),
+        Err(NoTestFile::Hidden(PathBuf::from(".x_test.py"))),
+        "the file is hidden, and no .gitignore ignores it"
+    );
+}
+
+#[test]
+fn outside_git_a_path_to_a_hidden_file_says_that_it_is_hidden() {
+    // The folder of cargo's temporary files lies in purba's own clone.
+    let made = std::env::temp_dir().join(format!("purba-hidden-file-{}", std::process::id()));
+    fs::create_dir_all(&made).expect("the test makes its folder");
+    let root = made
+        .canonicalize()
+        .expect("the folder has a canonical path");
+    write(&root, ".x_test.py", "");
+    let found = suffix_test_files(&root, Some(Path::new(".x_test.py")));
+    fs::remove_dir_all(&root).expect("the test removes its folder");
+    assert_eq!(
+        found,
+        Err(NoTestFile::Hidden(PathBuf::from(".x_test.py"))),
+        "with no .git, no .gitignore is read, and the file is hidden"
+    );
+}
+
+#[test]
+fn a_hidden_name_that_matches_no_pattern_keeps_its_reason() {
+    let root = project("hidden_name_no_pattern");
+    write(&root, ".test_a.py", "");
+    assert_eq!(
+        test_files(&root, Some(Path::new(".test_a.py"))),
+        Err(NoTestFile::Name(Patterns::default())),
+        "the name is told before the dot"
+    );
+}
+
+#[test]
+fn a_hidden_file_that_a_gitignore_ignores_is_hidden() {
+    let root = project("hidden_ignored_file");
+    write(&root, ".gitignore", ".x_test.py\n");
+    write(&root, ".x_test.py", "");
+    assert_eq!(
+        suffix_test_files(&root, Some(Path::new(".x_test.py"))),
+        Err(NoTestFile::Hidden(PathBuf::from(".x_test.py"))),
+        "the leading dot is told first, as for a folder on the way"
+    );
+}
+
+#[test]
+fn a_hidden_file_in_a_hidden_folder_gets_the_reason_of_the_folder() {
+    let root = project("hidden_file_in_hidden_folder");
+    write(&root, ".cache/.x_test.py", "");
+    assert_eq!(
+        suffix_test_files(&root, Some(Path::new(".cache/.x_test.py"))),
+        Err(NoTestFile::Hidden(PathBuf::from(".cache"))),
+        "the folders on the way are told before the file"
+    );
 }
 
 #[test]
@@ -121,7 +197,7 @@ fn a_root_that_is_hidden_is_walked() {
     assert_eq!(
         shown(test_files(&root, None)),
         Ok(vec!["test_a.py".to_owned()]),
-        "only a folder below the root can be hidden"
+        "only a file or folder below the root can be hidden"
     );
 }
 
@@ -369,7 +445,7 @@ fn each_reason_reads_in_its_words() {
         ),
         (
             NoTestFile::Hidden(PathBuf::from(".venv")),
-            "stage one skips .venv, a hidden folder",
+            "stage one skips .venv, a hidden file or folder",
         ),
         (NoTestFile::Missing, "no file or folder has that path"),
         (NoTestFile::Outside, "it is outside the root"),

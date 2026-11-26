@@ -51,7 +51,7 @@ A tester can save one query and run it again.
 
 ```mermaid
 flowchart TD
-  query["the query: typed, an alias, read from .purba/failed.q, or none"] --> folder{"stage one: does a .gitignore of the project ignore the file or its folder, or is the folder hidden?"}
+  query["the query: typed, an alias, read from .purba/failed.q, or none"] --> folder{"stage one: does a .gitignore of the project ignore the file or its folder, or is the file or its folder hidden?"}
   folder -- yes --> skipped["skipped"]
   folder -- no --> named{"does the name match a pattern of test-files?"}
   named -- no --> plain["not a test file"]
@@ -82,7 +82,7 @@ flowchart TD
 - **No suppression reaches the error of a name near `test`.** The function is no test, so its suppression sits above no test. [A suppression is an outcome and not a switch](a-suppression-is-an-outcome-and-not-a-switch.md#decision-outcome) makes such a suppression a fault. A helper that the check names takes another name.
 - **The line of the error names its kind:** `<file>::<name> project error: [name-near] <name> is not a test, and its name is near the prefix test`. [A line names its kind in the glossary's words](a-line-names-its-kind-in-the-glossarys-words.md#decision-outcome) requires the kind. The words after the kind are the words that the raters scored.
 - **The line prints before any test runs.** It keeps source order among the lines of the tests that selection refuses.
-- **Stage one skips each file or folder that a `.gitignore` file of the project ignores, and each hidden folder.** It reads no global file of git, and no `.git/info/exclude`, so a file that only one machine holds changes no outcome. Outside git, it reads no `.gitignore` file.
+- **Stage one skips each file or folder that a `.gitignore` file of the project ignores, and each hidden file or folder.** It reads no global file of git, and no `.git/info/exclude`, so a file that only one machine holds changes no outcome. Outside git, it reads no `.gitignore` file.
 - **A folder that stage one cannot read is a [project error](../../CONTEXT.md#project-error) of that folder.** The other files run.
 - **`purba` with no query runs each test file under the [root](../../CONTEXT.md#root).**
 

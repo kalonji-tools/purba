@@ -14,10 +14,10 @@ pub enum NoTestFile {
     /// The path names a file whose name matches no pattern of the list.
     Name(Patterns),
     /// A `.gitignore` of the project ignores this file or folder, by its path
-    /// from the root, on the way to the path.
+    /// from the root, which is the path or lies on the way to it.
     Ignored(PathBuf),
-    /// This folder, by its path from the root, is hidden, and lies on the way
-    /// to the path.
+    /// This file or folder, by its path from the root, is hidden, and is the
+    /// path or lies on the way to it.
     Hidden(PathBuf),
     /// No file or folder has the path.
     Missing,
@@ -39,7 +39,7 @@ impl fmt::Display for NoTestFile {
             ),
             Self::Hidden(path) => write!(
                 formatter,
-                "stage one skips {}, a hidden folder",
+                "stage one skips {}, a hidden file or folder",
                 path.display()
             ),
             Self::Missing => write!(formatter, "no file or folder has that path"),
@@ -65,7 +65,7 @@ pub struct TestFiles {
 /// Each is named by its path from `root`. `root` is canonical. A relative
 /// `path` starts at `root`, and an absolute one must lie under it.
 ///
-/// The walk skips each hidden folder below `root`, and each file or folder that
+/// The walk skips each hidden file or folder below `root`, and each one that
 /// a `.gitignore` of the project ignores, as git reads it, up to the folder
 /// that holds `.git`. It reads no global file of git, no `.git/info/exclude`
 /// and no `.ignore`. Outside git, it ignores nothing. It follows no symbolic
@@ -103,7 +103,7 @@ pub fn test_files(
         return Err(NoTestFile::Name(patterns.clone()));
     }
     if !entered(&real) {
-        return Err(NoTestFile::Ignored(relative));
+        return Err(not_entered(relative));
     }
     Ok(TestFiles {
         files: vec![relative],
@@ -183,14 +183,23 @@ fn skipped(root: &Path, folder: &Path) -> Option<NoTestFile> {
     for part in folder {
         on_the_way.push(part);
         if !entered(&root.join(&on_the_way)) {
-            return Some(if part.as_encoded_bytes().starts_with(b".") {
-                NoTestFile::Hidden(on_the_way)
-            } else {
-                NoTestFile::Ignored(on_the_way)
-            });
+            return Some(not_entered(on_the_way));
         }
     }
     None
+}
+
+/// Why the walk does not enter `path`, a file or folder by its path from the
+/// root: it is hidden when its name starts with `.`, and ignored otherwise.
+fn not_entered(path: PathBuf) -> NoTestFile {
+    if path
+        .file_name()
+        .is_some_and(|name| name.as_encoded_bytes().starts_with(b"."))
+    {
+        NoTestFile::Hidden(path)
+    } else {
+        NoTestFile::Ignored(path)
+    }
 }
 
 /// Whether the walk of the folder that holds `path` reaches `path`.
